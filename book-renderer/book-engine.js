@@ -7,9 +7,15 @@
   const imageSource = photo => String(photo?.src || photo?.dataUrl || photo?.dataURL || photo?.url || photo?.preview || photo?.objectUrl || '').trim();
   const cleanTitle = (value, fallback = '') => String(value || '').replace(/^Глава\s+\d+[.:]?\s*/i, '').trim() || fallback;
   const norm = value => String(value || '').replace(/\s+/g, ' ').trim().toLocaleLowerCase('ru');
+  // A sheet the editor created because the text ran past the bottom of the
+  // previous one continues the same paragraph. Older projects can lose the
+  // flag, so a sheet that ends mid-sentence and resumes in lower case is
+  // treated the same way.
+  const isContinuation = (previous, current, page) => page?.continuation === true || Boolean(page?.continuationOf)
+    || (Boolean(previous && current) && !/[.!?…»”"]\s*$/u.test(previous) && /^\s*[\p{Ll},;:)—–-]/u.test(current));
   const continuationJoin = (previous, current, page) => {
     if (!previous || !current || /\s$/u.test(previous) || /^\s/u.test(current) || /^[,.;:!?…»”)]/u.test(current)) return '';
-    return page?.continuation === true || page?.continuationOf ? String(page.continuationJoin ?? ' ') : '\n\n';
+    return isContinuation(previous, current, page) ? String(page?.continuationJoin ?? ' ') : '\n\n';
   };
   function ctxHandwrittenFallback(photo, page, title) {
     const explicit=String(photo?.ctxHandwrittenNote||page?.ctxHandwrittenNote||page?.importantLine||page?.marginNote||'').trim();
@@ -607,7 +613,7 @@
         const rawText = String(page.text ?? '');
         const prefix=continuationJoin(previousText,rawText,page);
         const text=prefix+rawText;
-        const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page };
+        const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page, continuation: isContinuation(previousText, rawText, page) };
         end = run.end;
         previousText=rawText;
         return run;
@@ -653,22 +659,35 @@
     };
     if(hasMatter('intro')||hasMatter('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
     const expectedManuscripts = [];
-    const cycle = meta.layoutDefinition?.rhythm || ['inline-quote','important','margin','important-margin'];
-    const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN' };
+    const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN', plain:'D01-TEXT' };
+    // Editorial accents vary like a hand-made book, yet stay repeatable: the
+    // order is drawn from a generator seeded by the chapter's own text, so
+    // the same manuscript always gives the same book. Handwriting (margin
+    // notes and handwritten lines) is favoured; quotes are rarer and kept
+    // apart; an occasional quiet page lets the eye rest.
+    const accentWeights = { margin:35, important:25, 'important-margin':15, 'inline-quote':15, plain:10 };
+    const textSeed = value => { let hash=2166136261; for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);} return hash>>>0; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
     chapters.forEach((chapter,index) => {
       const chapterSpreadStart = spreads.length;
-      let rest = chapter.text, sourceOffset = 0, rhythmIndex = 0;
+      let rest = chapter.text, sourceOffset = 0;
       const occurrences = {};
       expectedManuscripts.push({sectionId:chapter.sectionId,text:chapter.text});
+      // Accent phrases already used in this chapter, so later pages pick
+      // other words for their quote, handwritten line and margin note.
+      const usedAccents = [];
       const consume = (page,side) => {
-        page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset).map(run=>run.start-sourceOffset);
+        if(!page.avoidAccents)page.avoidAccents=usedAccents.slice();
+        // Only a real new sheet starts a new line; where the editor merely
+        // carried the text over, the book keeps one continuous line flow.
+        page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset&&!run.continuation).map(run=>run.start-sourceOffset);
         const split = meta.paginateText(page,rest,side);
         if (split.head + split.tail !== rest || (!split.head && rest)) throw new Error('Нарушена точная сохранность исходного текста.');
         page.text = split.head; page.sourceText = split.head; page.measuredFlow = split.measuredFlow;
         page.sourceRange = { start: sourceOffset, end: sourceOffset + split.head.length };
         sourceOffset = page.sourceRange.end; rest = split.tail;
+        for(const text of [page.inlineQuote,page.importantLine,...(page.innerImportantLines||[]),page.marginNote])if(text&&!usedAccents.includes(text))usedAccents.push(text);
         return page;
       };
       const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&photoAspect(photo)<=1.05);
@@ -731,12 +750,20 @@
         consume(fixedText,'left');
       }
       occurrences['inline-quote']=1;
-      if(fixedText.rhythm==='inline-quote')rhythmIndex=1;
+      let accentSeed=textSeed(`${chapter.sectionId}|${chapter.text}`)||1,lastRhythm=fixedText.rhythm,pagesSinceQuote=fixedText.rhythm==='inline-quote'?0:9;
+      const accentRandom=()=>{accentSeed=(accentSeed+0x6D2B79F5)>>>0;let t=accentSeed;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};
+      const nextRhythm=()=>{
+        const allowed=Object.entries(accentWeights).filter(([rhythm])=>rhythm!==lastRhythm&&(rhythm!=='inline-quote'||pagesSinceQuote>=2));
+        let pick=accentRandom()*allowed.reduce((sum,[,weight])=>sum+weight,0);
+        const rhythm=(allowed.find(([,weight])=>(pick-=weight)<0)||allowed.at(-1))[0];
+        lastRhythm=rhythm;pagesSinceQuote=rhythm==='inline-quote'?0:pagesSinceQuote+1;
+        return rhythm;
+      };
       const nextTextPage=side=>{
         if(!rest)return null;
         const owner=chapter.runs.find(run=>run.end>sourceOffset)||chapter.runs[chapter.runs.length-1];
         const input=owner?.page||chapter.first;
-        const rhythm=cycle[rhythmIndex%cycle.length], occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
+        const rhythm=nextRhythm(), occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
         const overrides=input.editorialOverrides||{};
         const noteKey=rhythm==='important-margin'?`${key}:margin`:key;
         const page=P('text',{
@@ -756,7 +783,7 @@
           accentBeat++;
         }
         page.autoImportant=!page.importantLine;page.autoInlineQuote=!page.inlineQuote;page.autoMarginNote=!page.marginNote;
-        occurrences[rhythm]=occurrence+1;rhythmIndex++;
+        occurrences[rhythm]=occurrence+1;
         return consume(page,side);
       };
       const detail=ctxPhoto&&(secondaryPhoto||ctxNote)?P('ctx-detail-sq',{

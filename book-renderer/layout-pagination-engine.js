@@ -91,7 +91,13 @@
             return result;
           }
           if(isAutomatic){
-            throw Object.assign(new Error(`Обязательный редакционный акцент «${error.kind}» не удалось разместить. Страница не заменена обычной.`),{code:'ACCENT_REQUIRED',kind:error.kind,text:error.text,automatic:true});
+            // An automatic accent is the engine's own suggestion. When no
+            // fitting phrase exists the page is still typeset as plain prose
+            // (recorded as a warning): a whole book never fails to build
+            // because of a decoration nobody asked for.
+            warnings.push({code:'ACCENT_AUTO_UNPLACED',template:original.master,kind:error.kind,text:error.text||'',automatic:true,reason:error.message,fallback:'plain-text-page'});
+            candidate={...original,requestedMaster:original.master,master:pack.textMasters.plain,rhythm:'plain',inlineQuote:'',importantLine:'',marginNote:'',autoInlineQuote:false,autoImportant:false,autoMarginNote:false,measuredFlow:undefined};
+            continue;
           }
           if(error.kind==='margin'||error.kind==='quote'){
             const message=error.kind==='margin'

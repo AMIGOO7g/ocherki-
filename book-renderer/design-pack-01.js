@@ -584,6 +584,15 @@
   function phraseScore(text) {
     return (accentMemory.test(text)?6:0)+(accentTurning.test(text)?5:0)+(accentFeeling.test(text)?4:0)+(text.includes('!')?3:0)+(text.includes('?')?2:0)+(text.includes('—')?1:0);
   }
+  // Two accents repeat each other when most words of the shorter one occur in
+  // the longer: a quote, a handwritten line and a margin note should each
+  // bring a different phrase, on the page and across the chapter.
+  const accentWordSet=text=>new Set((String(text||'').toLocaleLowerCase('ru').match(/\p{L}+/gu)||[]).filter(word=>word.length>2));
+  function repeatsAccent(text, used) {
+    const words=accentWordSet(text);if(!words.size)return false;
+    return (used||[]).some(other=>{const set=accentWordSet(other);if(!set.size)return false;let shared=0;for(const word of words)if(set.has(word))shared++;return shared/Math.min(words.size,set.size)>=.6;});
+  }
+  const freshPhrases=(value,used)=>{const all=editorialPhrases(value),fresh=all.filter(item=>!repeatsAccent(item.text,used));return fresh.length?fresh:all;};
   function editorialPhrases(value) {
     const words=text=>(text.match(/\p{L}+/gu)||[]).length;
     const candidates=[];let order=0;
@@ -603,7 +612,7 @@
     }
     return candidates.sort((a,b)=>b.score-a.score||a.order-b.order).filter((item,index,list)=>list.findIndex(other=>other.text===item.text)===index);
   }
-  function inlineAccentRanges(value, manual = '', targetZone = 'middle') {
+  function inlineAccentRanges(value, manual = '', targetZone = 'middle', used = []) {
     const source=String(value??''),candidates=[];
     const zoneRatio={top:.18,middle:.5,bottom:.82}[targetZone]??.5;
     const semanticScore=text=>phraseScore(clean(text));
@@ -629,8 +638,9 @@
       if(start>=0)return [{start,end:start+requested.length,editable:true,zone:targetZone}];
       return [];
     }
-    const chosen=candidates
-      .filter((item,index,list)=>list.findIndex(other=>other.start===item.start&&other.end===item.end)===index)
+    const unique=candidates.filter((item,index,list)=>list.findIndex(other=>other.start===item.start&&other.end===item.end)===index);
+    const fresh=unique.filter(item=>!repeatsAccent(item.text,used));
+    const chosen=(fresh.length?fresh:unique)
       .sort((a,b)=>a.distance-b.distance||b.score-a.score||(a.end-a.start)-(b.end-b.start))[0];
     return chosen?[{start:chosen.start,end:chosen.end,editable:true,zone:targetZone}]:[];
   }
@@ -712,7 +722,7 @@
       let quoteHeight=0;
       try{
         const automatic=page.autoInlineQuote ?? !page.inlineQuote;
-        const selected=chooseAccent(copy,String(source??''),automatic?'':String(page.inlineQuote||''),2);
+        const selected=chooseAccent(copy,automatic?freshPhrases(source,page.avoidAccents):String(source??''),automatic?'':String(page.inlineQuote||''),2);
         page.inlineQuote=selected.text;
         if(!page.inlineQuote&&automatic)throw accentFailure('quote','',true,'В тексте страницы не найдена содержательная цитата.');
         copy.textContent=page.inlineQuote;
@@ -739,7 +749,7 @@
         for(const index of columns){
           const text=cells[index]||'',zones=manual?[targetZone]:['top','middle','bottom'];
           for(const zone of zones){
-            const range=inlineAccentRanges(text,manual,zone).find(item=>{
+            const range=inlineAccentRanges(text,manual,zone,page.avoidAccents).find(item=>{
               const start=item.start+offsets[index],end=item.end+offsets[index];
               return !selected.some(other=>start<other.end&&end>other.start);
             });
@@ -800,7 +810,7 @@
         let noteLength=noteLengths[0],selected=null;
         for(noteLength of noteLengths){
           box.style.cssText=`position:absolute;left:0;top:0;width:${noteLength}px;height:${noteDepth}px;overflow:visible`;
-          selected=chooseAccent(copy,flowSourceText(flow),requested,noteMaxLines);
+          selected=chooseAccent(copy,requested?flowSourceText(flow):freshPhrases(flowSourceText(flow),[...(page.avoidAccents||[]),...(page.innerImportantLines||[]),page.importantLine||'',page.inlineQuote||'']),requested,noteMaxLines);
           copy.textContent=selected.text;
           if(selected.fits&&renderedLineCount(copy)<=noteMaxLines)break;
         }

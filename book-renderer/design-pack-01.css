@@ -2431,7 +2431,7 @@ body .dpk-page.dpk-dom-paginated .dpk-margin-note span{
   font:400 30px/32px 'SignThatS','PTSerifCy',serif!important;letter-spacing:normal!important;
   white-space:pre-wrap!important;word-break:normal!important;overflow-wrap:anywhere!important;hyphens:none!important;-webkit-hyphens:none!important;
   text-align:left!important;text-indent:0!important;text-decoration:none!important;text-shadow:none!important;color:#2b2b2b!important;
-  overflow:visible!important;margin:0!important;padding:0!important;
+  overflow:visible!important;margin:0!important;padding:0 0 0 16px!important;box-sizing:border-box!important;
 }
 body .dpk-page.dpk-dom-paginated .dpk-margin-note{
   position:absolute!important;top:calc(var(--dpk-flow-origin) + var(--dpk-flow-note-inset,0px))!important;bottom:auto!important;height:var(--dpk-flow-note-length,var(--dpk-flow-height))!important;width:var(--dpk-flow-note-depth,60px)!important;
@@ -2444,7 +2444,10 @@ body .dpk-page.dpk-dom-paginated.left .dpk-margin-note{left:14px!important;right
 body .dpk-page.dpk-dom-paginated.right .dpk-margin-note{right:14px!important;left:auto!important}
 body .dpk-page.dpk-dom-paginated .dpk-margin-note span{
   position:absolute!important;display:block!important;width:var(--dpk-flow-note-length,var(--dpk-flow-height))!important;height:auto!important;min-height:var(--dpk-flow-note-depth,80px)!important;max-width:none!important;max-height:var(--dpk-flow-note-depth,80px)!important;
-  overflow:hidden!important;
+  /* Script capitals start with a swash before the pen line; the room at the
+     line start and a visible overflow keep it whole. Two lines are enforced
+     by measurement, not by clipping. */
+  overflow:visible!important;
   writing-mode:horizontal-tb!important;transform-origin:0 0!important;
 }
 /* A one-degree lean towards the text, as a hand drifts while writing. */

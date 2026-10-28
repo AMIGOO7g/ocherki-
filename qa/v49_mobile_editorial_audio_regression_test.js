@@ -13,7 +13,7 @@ assert(renderer.includes('const first=words[0],last=words[2]'),'automatic fallba
 assert(layout.includes("error.kind==='important'?3:1"),'important retry can shrink below three words');
 assert(/dpk-inline-handwritten[\s\S]*?color:#000!important/.test(css),'handwriting is not black');
 
-assert(renderer.includes("chooseAccent(copy,String(source??''),automatic?'':String(page.inlineQuote||''),2)"),'manual quote is not measured against two lines');
+assert(renderer.includes("automatic?'':String(page.inlineQuote||''),2)"),'manual quote is not measured against two lines');
 assert(renderer.includes("selected.lines>2")&&renderer.includes('Цитата не помещается в две строки'),'quote overflow is not rejected');
 assert(/dpk-inline-quote,[\s\S]*?max-height:62\.4px!important/.test(css)&&/overflow:hidden!important/.test(css),'quote editor is not physically bounded');
 

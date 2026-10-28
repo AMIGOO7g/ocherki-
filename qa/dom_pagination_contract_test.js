@@ -28,8 +28,14 @@ assert(result.pages.filter(p=>p.measuredFlow).length>160);checks++;
 assert.equal(result.expectedManuscripts[0].text,raw+source.sections[0].pages[1].text);checks++;
 assert.equal(result.pages.filter(p=>p.measuredFlow).map(p=>p.text).join(''),raw+source.sections[0].pages[1].text);checks++;
 assert.equal(engine.audit(result).status,'pass');checks++;
-const body=result.pages.filter(p=>p.rhythm),cycle=['inline-quote','important','margin','important-margin'];
-body.forEach((p,i)=>assert.equal(p.rhythm,cycle[i%4]));checks++;
+const body=result.pages.filter(p=>p.rhythm),allowed=['inline-quote','important','margin','important-margin','plain'];
+// Seeded editorial variety: fixed opening quote, no accent twice in a row,
+// quotes kept apart, every handwritten kind present and a repeatable order.
+assert.equal(body[0].rhythm,'inline-quote');
+body.forEach((p,i)=>{assert(allowed.includes(p.rhythm));if(i)assert.notEqual(p.rhythm,body[i-1].rhythm);});
+body.forEach((p,i)=>{if(p.rhythm==='inline-quote')assert(!body.slice(Math.max(0,i-2),i).some(q=>q.rhythm==='inline-quote'));});
+assert(['important','margin','important-margin'].every(r=>body.some(p=>p.rhythm===r)));
+assert.deepEqual(engine.assemble(source,{textRhythmOnly:true,paginateText:adapter}).pages.filter(p=>p.rhythm).map(p=>p.rhythm),body.map(p=>p.rhythm));checks++;
 const combined=body.find(p=>p.rhythm==='important-margin');assert.equal(combined.importantLine,'Исправленная  строка.');assert.equal(combined.marginNote,'Исправленная\tзаметка.');checks++;
 const markup=renderer.renderPage(combined,'right',{});
 assert(markup.includes('data-editorial-key="important-margin:0"'));assert(markup.includes('data-editorial-key="important-margin:0:margin"'));checks++;
