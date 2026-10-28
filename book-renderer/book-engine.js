@@ -778,6 +778,61 @@
         if(unused!=null){usedPhotoIndices.add(unused);usedPhotoSources.add(imageSource(chapter.photos[unused]));return unused;}
         return -1;
       };
+      // Chapter ending, as a typesetter would close it: the last page has
+      // balanced columns, and when it would be a stub of a few lines the
+      // preceding pages give up a few lines each, keeping facing pages level.
+      // Every trial re-measures the untouched source; on any doubt the
+      // original pagination is restored.
+      function balanceChapterEnding(){
+        const minimumLines=6,maximumBorrow=4;
+        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM'].includes(spread.master));
+        const last=textSpreads.at(-1);
+        if(!last)return;
+        const isText=page=>Boolean(page?.measuredFlow&&page.sourceRange&&page.sectionId===chapter.sectionId);
+        const finalSide=isText(last.right)?'right':isText(last.left)?'left':'';
+        if(!finalSide||last[finalSide].sourceRange.end!==chapter.text.length)return;
+        const final={page:last[finalSide],side:finalSide};
+        // Donors are the text pages just before the final page: its facing
+        // page, or the whole previous spread (including the chapter opening),
+        // each giving up the same number of lines so facing pages stay level.
+        const chapterSpreads=spreads.slice(chapterSpreadStart),previous=chapterSpreads[chapterSpreads.indexOf(last)-1];
+        const donors=finalSide==='right'
+          ?(isText(last.left)?[{page:last.left,side:'left'}]:[])
+          :['left','right'].filter(side=>isText(previous?.[side])).map(side=>({page:previous[side],side}));
+        const chain=[...donors,final];
+        if(chain.some((item,i)=>i&&chain[i-1].page.sourceRange.end!==item.page.sourceRange.start))return;
+        const reflow=(items,limits)=>{
+          rest=chapter.text.slice(items[0].page.sourceRange.start);sourceOffset=items[0].page.sourceRange.start;
+          items.forEach((item,i)=>{
+            item.page.balanceTrial=true;
+            if(limits[i]>0)item.page.flowLineLimit=limits[i];else delete item.page.flowLineLimit;
+            consume(item.page,item.side);
+          });
+          return !rest&&items.every(item=>item.page.text);
+        };
+        const attempt=(items,limits)=>{try{return reflow(items,limits);}catch(error){return false;}};
+        const fullLines=item=>item.page.measuredFlow?.fullLines||0;
+        // Smallest per-column height that still holds the whole final page.
+        const balanceFinal=()=>{
+          let low=1,high=fullLines(final);
+          if(!high||!attempt([final],[0]))return 0;
+          while(low<high){const middle=Math.floor((low+high)/2);if(attempt([final],[middle]))high=middle;else low=middle+1;}
+          return attempt([final],[low])?low:0;
+        };
+        const fulls=donors.map(fullLines);
+        let settled=false;
+        for(let borrow=0;borrow<=(donors.length?maximumBorrow:0)&&!settled;borrow++){
+          const limits=donors.map((donor,i)=>borrow?fulls[i]-borrow:0);
+          if(limits.some(limit=>limit<0)||donors.length&&!attempt(chain,[...limits,0]))continue;
+          const lines=balanceFinal();
+          if(lines&&(lines>=minimumLines||borrow===maximumBorrow||!donors.length))settled=true;
+        }
+        if(!settled){
+          reflow(chain,chain.map(()=>0));
+          if(!balanceFinal())reflow(chain,chain.map(()=>0));
+        }
+        for(const item of chain)delete item.page.balanceTrial;
+      }
       while(rest){
         if(usablePhotoIndices.some(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])))&&textSpreadStreak>=2){
           const photoBeat=nextVisualPhoto();
@@ -804,6 +859,7 @@
         spreads.push(spread);
         textSpreadStreak++;
       }
+      balanceChapterEnding();
       // Document/photos retain their existing masters; manuscript text is never routed through them.
       for(const document of chapter.documents){
         const source={...document,photos:document.photos||[]};

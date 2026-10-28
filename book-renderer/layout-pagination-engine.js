@@ -48,11 +48,13 @@
       for(;;){
         try{
           const result=renderer().paginateText(candidate,source,host,render,side);Object.assign(page,candidate);
+          if(original.balanceTrial)return result;
           for(const [kind,overflow]of Object.entries(candidate.measuredFlow?.accentOverflow||{}))if(overflow)warnings.push({code:'ACCENT_DOM_OVERFLOW',template:candidate.master,kind,text:kind==='quote'?candidate.inlineQuote:kind==='margin'?candidate.marginNote:candidate.importantLine,automatic:false,reason:kind==='margin'?'Заметка слишком длинная для этой области. Сократите текст.':'Редакционная вставка не помещается в измеренную область.',fallback:kind==='margin'?'user-must-shorten':'highlighted-without-reflow'});
           return result;
         }
         catch(error){
-          if(error.code!=='ACCENT_UNFIT')throw error;
+          // A balancing trial only measures; it must not defer accents or warn.
+          if(original.balanceTrial||error.code!=='ACCENT_UNFIT')throw error;
           const field={quote:'inlineQuote',important:'importantLine',margin:'marginNote'}[error.kind];
           const autoField={quote:'autoInlineQuote',important:'autoImportant',margin:'autoMarginNote'}[error.kind];
           const isAutomatic=Boolean(error.automatic||automaticRequested[error.kind]);

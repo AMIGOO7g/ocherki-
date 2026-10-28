@@ -674,7 +674,11 @@
     }
     const available=articleRect.height-94-origin;
     if(!(leading>0&&available>=leading))throw new Error('Заголовок не оставляет места для целой строки.');
-    const height=Math.floor(available/leading)*leading;
+    // flowLineLimit shortens the working height to whole lines; the engine
+    // uses it to balance the columns and pages that close a chapter.
+    const fullLines=Math.floor(available/leading),lineLimit=Math.floor(Number(page.flowLineLimit)||0);
+    const height=(lineLimit>0?Math.min(fullLines,lineLimit):fullLines)*leading;
+    flow.fullLines=fullLines;
     flow.geometry={origin,height,leading};
     const applyGeometry=()=>{
       for(const [key,value]of Object.entries(flow.geometry))article.style.setProperty(`--dpk-flow-${key}`,typeof value==='number'?`${value}px`:value);
