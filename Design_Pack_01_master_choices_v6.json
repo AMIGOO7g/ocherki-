@@ -1,0 +1,183 @@
+{
+  "designPack": "Design Pack 01 Approved",
+  "basis": "Style Proof v1 + constructor feedback v6",
+  "exportedAt": "2026-08-29T07:03:27.267Z",
+  "decisions": [
+    {
+      "id": "D01-COVER",
+      "name": "Обложка",
+      "referencePage": 1,
+      "choice": "left",
+      "note": "",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-ENDPAPER",
+      "name": "Форзац",
+      "referencePage": 2,
+      "choice": "hybrid",
+      "note": "символ сделать по центру",
+      "recommendation": "right"
+    },
+    {
+      "id": "D01-HALF-TITLE",
+      "name": "Авантитул",
+      "referencePage": 4,
+      "choice": "right",
+      "note": "справа фон белый",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-TITLE",
+      "name": "Титульный лист",
+      "referencePage": 5,
+      "choice": "left",
+      "note": "",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-EPIGRAPH",
+      "name": "Эпиграф",
+      "referencePage": 6,
+      "choice": "right",
+      "note": "справа фон белый",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-CONTENTS",
+      "name": "Оглавление",
+      "referencePage": 7,
+      "choice": "right",
+      "note": "справа фон белый",
+      "recommendation": "right"
+    },
+    {
+      "id": "D01-CHAPTER-PHOTO",
+      "name": "Начало главы: фотография",
+      "referencePage": 8,
+      "choice": "right",
+      "note": "справа номер страницы добавить",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-CHAPTER-TEXT",
+      "name": "Начало главы: текст",
+      "referencePage": 9,
+      "choice": "right",
+      "note": "справа фон белый. полосу сделать толще",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-PHOTO",
+      "name": "Фотографическая полоса",
+      "referencePage": 10,
+      "choice": "right",
+      "note": "D01-CHAPTER-PHOTO · Начало главы: фотография та что выбрана справа добавит номер страницы отступы снизу как у D01-CHAPTER-PHOTO · Начало главы: фотография",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-PHOTO-TEXT",
+      "name": "Фото + текст: текстовая сторона",
+      "referencePage": 11,
+      "choice": "hybrid",
+      "note": "слева если текст продолжается следующей страницей справа если идет дополнительный раздел в главе. как добавить дополнительный раздел в конструкторе? убрать двойное название часть первая белый фон. после дом и память можно сделать линию",
+      "recommendation": "hybrid"
+    },
+    {
+      "id": "D01-QUOTE",
+      "name": "Цитатная пауза",
+      "referencePage": 12,
+      "choice": "hybrid",
+      "note": "убрать текст с названием эпизода главы. что значит из семейных рассказов?",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-TEXT-QUOTE",
+      "name": "Текст с цитатой",
+      "referencePage": 13,
+      "choice": "hybrid",
+      "note": "он белый под началом линию это как страница с новым названием эпизода можно использовтаь",
+      "recommendation": "hybrid"
+    },
+    {
+      "id": "D01-TEXT",
+      "name": "Текстовая полоса",
+      "referencePage": 14,
+      "choice": "hybrid",
+      "note": "справа фон белый перенести на другую строну номер страницы",
+      "recommendation": "right"
+    },
+    {
+      "id": "D01-LARGE-PHOTO",
+      "name": "Большая фотография",
+      "referencePage": 16,
+      "choice": "hybrid",
+      "note": "все фотографии нужно сделать с одинаковым отступом и текстом снизу на отступе смотри другие фотографии которые выбирал добавить номера страниц. убрать надпись часть первая D01-CHAPTER-PHOTO · Начало главы: фотография отступы",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-PANORAMA",
+      "name": "Одна фотография на весь разворот",
+      "referencePage": 17,
+      "choice": "new",
+      "note": "Один исходник на обе страницы, без рамки; подпись один раз на левой странице.",
+      "recommendation": "new"
+    },
+    {
+      "id": "D01-THREE-PHOTO",
+      "name": "Три фотографии",
+      "referencePage": 18,
+      "choice": "new",
+      "note": "Ведущая фотография сверху, две дополнительные снизу; поля 36 px, зазор 12 px.",
+      "recommendation": "new"
+    },
+    {
+      "id": "D01-DOCUMENT",
+      "name": "Документ",
+      "referencePage": 22,
+      "choice": "hybrid",
+      "note": "оставить справа но цвет фона белый. на всех текстовых сделать фон белый. убрать часть первая номер страницы на другую сторону",
+      "recommendation": "hybrid"
+    },
+    {
+      "id": "D01-DOCUMENT-COMMENT",
+      "name": "Пояснение к документу",
+      "referencePage": 23,
+      "choice": "hybrid",
+      "note": "справа взять изменить фон на белый",
+      "recommendation": "right"
+    },
+    {
+      "id": "D01-TIMELINE",
+      "name": "Хронология",
+      "referencePage": 30,
+      "choice": "hybrid",
+      "note": "взять слева но шрифт изменить у цифр заголовка точки не совпадают с линией вертикальной не на одной оси",
+      "recommendation": "right"
+    },
+    {
+      "id": "D01-FINAL",
+      "name": "Финальная полоса",
+      "referencePage": 31,
+      "choice": "hybrid",
+      "note": "вариант правый но текст что прописью сдеелать цвет шрифта как у подписи под фотографиями",
+      "recommendation": "left"
+    },
+    {
+      "id": "D01-COLOPHON",
+      "name": "Выходные данные",
+      "referencePage": 33,
+      "choice": "hybrid",
+      "note": "справа выравнить по центру Составитель\nАлександр Евстафиди\nДизайн и вёрстка\nОчерки жизни\nГод издания\n2026\nМесто издания\nМосква не по центру относительно выходных данных смещено у тебя влево",
+      "recommendation": "right"
+    },
+    {
+      "id": "D01-BACK-COVER",
+      "name": "Задняя обложка",
+      "referencePage": 36,
+      "choice": "hybrid",
+      "note": "взять слева но должна быть возможность вставлять фотографию",
+      "recommendation": "left"
+    }
+  ]
+}

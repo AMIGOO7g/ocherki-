@@ -1,0 +1,125 @@
+{
+  "browserGeometry": "NOT_EXECUTED_LOCAL_BROWSER_POLICY",
+  "results": [
+    {
+      "test": "audio_playlist_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"tracks\": 11,\n  \"vinylGapMs\": 3000,\n  \"paperFxIndependent\": true,\n  \"manualTrackSwitching\": \"vinyl-first\"\n}\n"
+    },
+    {
+      "test": "date_watermark_isolation_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"dateEraSpreads\": 0,\n  \"watermark\": \"1987\",\n  \"textGrid\": \"unchanged\"\n}\n"
+    },
+    {
+      "test": "dom_pagination_contract_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"checks\": 22,\n  \"pages\": 210,\n  \"exactUnicodeAndWhitespace\": true,\n  \"chapterUsesDOM\": true,\n  \"browserGeometry\": \"not executed\"\n}\n"
+    },
+    {
+      "test": "dom_source_serialization_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"checks\": 10,\n  \"exactRenderedCharacters\": true,\n  \"allRolesBothSides\": true,\n  \"browserGeometry\": \"not executed\"\n}\n"
+    },
+    {
+      "test": "engine_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"pages\": 29,\n  \"spreads\": 16,\n  \"masters\": [\n    \"D01-SPREAD-COVER\",\n    \"D01-SPREAD-TITLES\",\n    \"D01-SPREAD-EPIGRAPH-CONTENTS\",\n    \"D01-SPREAD-INTRO-AUTHOR\",\n    \"D01-SPREAD-CHAPTER\",\n    \"D01-SPREAD-THREE-PHOTO\",\n    \"D01-SPREAD-DOCUMENT\",\n    \"D01-SPREAD-DOCUMENT-CONTINUATION\",\n    \"D01-SPREAD-DARK-SPLIT\",\n    \"D01-SPREAD-TEXT-QUOTE\",\n    \"D01-SPREAD-PANORAMA\",\n    \"D01-SPREAD-TEXT\",\n    \"D01-SPREAD-AFTERWORD-THANKS\",\n    \"D01-SPREAD-SOURCES-COLOPHON\",\n    \"D01-SPREAD-BACK-COVER\"\n  ]\n}\n"
+    },
+    {
+      "test": "text_flow_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"textSentences\": 320,\n  \"documentSentences\": 260,\n  \"headingCapacity\": true,\n  \"documentFlowVisible\": true\n}\n"
+    },
+    {
+      "test": "v10_director_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"panorama\": true,\n  \"twoPhotoSpread\": true,\n  \"triptych\": true,\n  \"duo\": true,\n  \"photoOverText\": true,\n  \"manualQuotePriority\": true,\n  \"automaticEpisodeQuote\": true\n}\n"
+    },
+    {
+      "test": "v11_pagination_export_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"documentPages\": 6,\n  \"duo\": true,\n  \"photoSideText\": true,\n  \"dateEra\": true,\n  \"pdfModes\": [\n    \"pages\",\n    \"spreads\"\n  ]\n}\n"
+    },
+    {
+      "test": "v12_director_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"formats\": [\n    \"280×280\",\n    \"280×335\"\n  ],\n  \"horizontalPanorama\": 2,\n  \"newMasters\": true,\n  \"photoReplacementRefresh\": true,\n  \"masterProof\": true\n}\n"
+    },
+    {
+      "test": "v13_visible_output_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"automaticMasters\": [\n    \"panorama\",\n    \"duo\",\n    \"stacked\",\n    \"mosaic\",\n    \"dark-split\",\n    \"text-over-photo\",\n    \"photo-overlay-text\",\n    \"quote-band\",\n    \"bleed-text\",\n    \"date-era\"\n  ],\n  \"panoramaUsesOneHorizontalPhoto\": true,\n  \"textPairBalancingRemoved\": true,\n  \"ruledDocument\": true\n}\n"
+    },
+    {
+      "test": "v14_reference_composition_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"episodeQuoteUnderHeading\": true,\n  \"internalQuote\": true,\n  \"mirroredPanoramaRail\": true,\n  \"referencePairs\": true,\n  \"textPreserved\": true,\n  \"textOnlyNoAutoDark\": true\n}\n"
+    },
+    {
+      "test": "v15_reference_composition_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"panoramaOneSource\": true,\n  \"photoRailRight\": true,\n  \"photoRailLeft\": true,\n  \"gradientPhotoText\": true,\n  \"textOnlyNoDarkTextPair\": true,\n  \"darkTextPairProof\": true,\n  \"dateAndEpisodeTwoColumns\": true,\n  \"ruledDocument\": true,\n  \"stablePhotoReplacement\": true\n}\n"
+    },
+    {
+      "test": "v16_composition_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"photoOnlyNoQuoteCompanion\": true,\n  \"photoOnlyCatalog\": [\n    \"duo\",\n    \"spread-pair\",\n    \"triptych\",\n    \"mosaic\"\n  ],\n  \"photoRailPreview\": true,\n  \"lightAndDarkQuotes\": true,\n  \"darkSpreadSpacing\": true,\n  \"gradientEdgeFade\": true\n}\n"
+    },
+    {
+      "test": "v16_text_rhythm_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"checks\": 22,\n  \"pages\": 210,\n  \"exactUnicodeAndWhitespace\": true,\n  \"chapterUsesDOM\": true,\n  \"browserGeometry\": \"not executed\"\n}\nEditorial edit/persistence bridge: pass (DOM geometry requires browser).\n"
+    },
+    {
+      "test": "v27_rhythm_textfit_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"automaticRail\": true,\n  \"quietStepBetweenHeavySpreads\": true,\n  \"automaticDarkGradient\": true,\n  \"manualRail\": true,\n  \"sharedTextPaginator\": true\n}\n"
+    },
+    {
+      "test": "v28_fixed_director_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"textFallback\": true,\n  \"onePhotoRail\": true,\n  \"darkBeatNeedsSecondPhoto\": true,\n  \"repeatable\": true,\n  \"manualOverride\": true\n}\n"
+    },
+    {
+      "test": "v29_fixed_rhythm_rail_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"railUsesOneSource\": true,\n  \"sharedCropClass\": true,\n  \"fixedRhythm\": true,\n  \"geometryGuard\": true,\n  \"wordsRendered\": 900\n}\n"
+    },
+    {
+      "test": "v30_visual_contract_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"darkCompanion\": true,\n  \"fullHeightGradient\": true,\n  \"railContinuationPx\": 500,\n  \"narrowTextRail\": true,\n  \"mosaicBounded\": true,\n  \"chapterAxis\": true\n}\n"
+    },
+    {
+      "test": "v31_ui_performance_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"navigation\": \"content swap without thumbnail fade\",\n  \"rebuild\": \"content changes only\",\n  \"interface\": \"start-screen auth, fitted paper, aligned map markers\",\n  \"designOrder\": \"Современный first\"\n}\n"
+    },
+    {
+      "test": "v32_stability_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"zoomRemoved\": true,\n  \"authOnStartScreen\": true,\n  \"constructorAuthHidden\": true,\n  \"editorRecovery\": true,\n  \"darkSpread\": true,\n  \"darkCompanion\": true,\n  \"distinctPair\": true,\n  \"mosaicFiveFilled\": true\n}\n"
+    },
+    {
+      "test": "v33_entry_ui_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"auth\": \"start-screen gate before the six steps; shell gate disabled\",\n  \"startupCaption\": \"вернёмся во времени назад?\",\n  \"airplane\": \"removed from onboarding\",\n  \"pendulum\": \"aligned to central hand axis\",\n  \"cardThreads\": \"removed\",\n  \"nightContrast\": \"white labels and format outlines\",\n  \"russianHyphenation\": \"auto inside lines; whole words at page boundaries\"\n}\n"
+    },
+    {
+      "test": "v38_rhythm_preview_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"opener\": \"photo-left/text-right\",\n  \"darkGradient\": true,\n  \"triptychByCount\": true,\n  \"previewControls\": true,\n  \"authPendulum\": true\n}\n"
+    },
+    {
+      "test": "v8_functional_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"coverScale\": true,\n  \"pdfExport\": true,\n  \"captionBaseline\": true,\n  \"documentMaster\": true,\n  \"trackButtons\": true\n}\n"
+    },
+    {
+      "test": "v9_system_regression_test.js",
+      "passed": true,
+      "output": "{\n  \"status\": \"pass\",\n  \"triptych\": 3,\n  \"fourthPhoto\": true,\n  \"disabledPagesStayDisabled\": true,\n  \"emptyDraftRejected\": true,\n  \"directPdf\": true,\n  \"stablePreview\": true\n}\n"
+    }
+  ]
+}

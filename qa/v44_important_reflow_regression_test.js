@@ -1,0 +1,14 @@
+const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const renderer=read('book-renderer/design-pack-01.js');
+const layout=read('book-renderer/layout-pagination-engine.js');
+assert(renderer.includes("const selectRanges=cells=>"),'important ranges are not recalculated from measured cells');
+assert(renderer.includes('for(let attempt=0;attempt<4;attempt++)'),'important reflow does not converge through measured iterations');
+assert(renderer.includes('const refreshed=selectRanges(flow.cells)'),'important ranges are not refreshed after reflow');
+assert(renderer.includes("new Intl.Segmenter('ru',{granularity:'word'})")&&renderer.includes('const first=words[0],last=words[2]'),'short-page three-word fallback is missing');
+assert(renderer.includes("accentFailure('important',manual,automatic"),'automatic important failures are mislabeled as manual');
+assert(renderer.includes('const placedRanges=activeRanges.filter(item=>item.end<=offset)'),'important range is not checked against the final page');
+assert(!/fitsRendered\(probe\).*activeRanges/s.test(renderer.slice(renderer.indexOf('if(withImportant)'),renderer.indexOf('if(withMargin)'))),'obsolete provisional probe still rejects automatic important');
+assert(layout.includes("important:original.autoImportant??!original.importantLine"),'layout session does not retain automatic-important origin');
+assert.equal(JSON.parse(read('book-renderer/design-pack-01.manifest.json')).version,'1.16.0-stable-important-reflow');
+console.log(JSON.stringify({status:'pass',selection:'measured-page-only',reflow:'iterative',shortTail:'three-words',silentPlainFallback:false}));

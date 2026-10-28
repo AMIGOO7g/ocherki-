@@ -1,0 +1,2538 @@
+@import url('./fonts.css');
+
+:root{
+  --dpk-paper:#ffffff;
+  --dpk-paper-warm:#ffffff;
+  --dpk-ink:#181714;
+  --dpk-muted:#776e62;
+  --dpk-accent:#8a7454;
+  --dpk-hair:rgba(24,23,20,.07);
+  --dpk-body-size:13.5px;
+  --dpk-body-leading:1.6;
+}
+
+body .dpk-page{
+  position:absolute!important;
+  inset:0!important;
+  width:var(--book-page-w,1000px)!important;
+  height:var(--book-page-h,1000px)!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  background:var(--dpk-paper)!important;
+  color:var(--dpk-ink)!important;
+  font-family:'PTSerifCy','PT Serif',Georgia,serif!important;
+  font-size:15px!important;
+  line-height:1.7!important;
+  text-align:left!important;
+  font-kerning:normal;
+  text-rendering:optimizeLegibility;
+}
+body .dpk-page *,body .dpk-page *::before,body .dpk-page *::after{box-sizing:border-box!important}
+body .dpk-page h1,body .dpk-page h2,body .dpk-page p,body .dpk-page blockquote,body .dpk-page figure{margin:0!important}
+body .dpk-page h1,body .dpk-page h2,body .dpk-page blockquote{font-family:'CormorantCy','Cormorant Garamond',Georgia,serif!important}
+body .dpk-page figure{border:0!important;box-shadow:none!important;overflow:hidden!important}
+body .dpk-page figure img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;filter:none!important}
+body .dpk-page .dpk-photo-missing{display:block;width:100%;height:100%;background:#e9e6df}
+/* Dates entered in the editor are non-flow decorations. They never become
+   columns, paragraphs, or a separate spread; the text grid stays untouched. */
+body .dpk-page .dpk-date-watermark{
+  position:absolute!important;left:50%!important;top:51%!important;z-index:0!important;
+  transform:translate(-50%,-50%)!important;
+  pointer-events:none!important;white-space:nowrap!important;
+  font:500 clamp(140px,23vw,250px)/.78 'CormorantCy',Georgia,serif!important;
+  letter-spacing:-.055em!important;color:var(--dpk-accent)!important;opacity:.115!important;
+}
+body .dpk-page .dpk-running,
+body .dpk-page .dpk-kicker,
+body .dpk-page h1,body .dpk-page h2,
+body .dpk-page .dpk-reading,body .dpk-page .dpk-columns,
+body .dpk-page .dpk-copy,body .dpk-page .dpk-side-copy,
+body .dpk-page .dpk-photo-rail-copy,body .dpk-page .dpk-folio{
+  position:relative!important;z-index:1!important;
+}
+body .dpk-page .dpk-kicker,
+body .dpk-page .dpk-chapter-kicker{
+  font:700 13px/1 'PTSerifCy',Georgia,serif!important;
+  font-variant-caps:small-caps!important;
+  letter-spacing:.14em!important;
+  color:var(--dpk-muted)!important;
+}
+body .dpk-page .dpk-running{
+  position:absolute!important;z-index:5;top:52px!important;left:70px!important;right:70px!important;
+  font:400 11px/1 'PTSerifCy',Georgia,serif!important;letter-spacing:.10em!important;
+  font-variant-caps:small-caps!important;color:rgba(24,23,20,.42)!important;
+}
+body .dpk-page.left .dpk-running{left:70px!important;right:91px!important}
+body .dpk-page.right .dpk-running{left:91px!important;right:70px!important}
+body .dpk-page .dpk-folio{
+  position:absolute!important;z-index:5;bottom:44px!important;
+  font:400 12px/1 'PTSerifCy',Georgia,serif!important;color:rgba(24,23,20,.52)!important;
+  font-variant-numeric:oldstyle-nums!important;
+}
+body .dpk-page.left .dpk-folio{left:70px!important;right:auto!important}
+body .dpk-page.right .dpk-folio{right:70px!important;left:auto!important}
+body .dpk-page .dpk-caption{
+  position:absolute!important;font:italic 400 14px/1.3 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important;
+}
+body .dpk-page .dpk-short-rule{height:1px!important;width:60px!important;background:var(--dpk-accent)!important}
+body .dpk-page .dpk-centered{position:absolute!important;left:70px!important;right:70px!important;top:50%!important;transform:translateY(-50%)!important;text-align:center!important}
+
+/* Cover */
+body .dpk-page.dpk-cover{background:#090908!important;color:#fffdf8!important}
+body .dpk-page.dpk-cover .dpk-cover-image{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;filter:none!important}
+body .dpk-page.dpk-cover .dpk-cover-scrim{position:absolute!important;inset:0!important;background:linear-gradient(to top,rgba(5,5,4,.95) 0%,rgba(5,5,4,.72) 20%,rgba(5,5,4,.08) 51%,rgba(5,5,4,.10) 100%)!important}
+body .dpk-page.dpk-cover .dpk-cover-kicker{position:absolute!important;z-index:2;top:70px!important;left:64px!important;right:64px!important;display:flex!important;justify-content:space-between!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:#dfd8cc!important}
+body .dpk-page.dpk-cover h1{position:absolute!important;z-index:2;left:70px!important;right:70px!important;bottom:150px!important;text-align:center!important;font:500 62px/1.1 'CormorantCy',Georgia,serif!important;letter-spacing:.09em!important;text-transform:uppercase!important;color:#fffdf8!important}
+body .dpk-page.dpk-cover .dpk-cover-rule{display:none!important}
+body .dpk-page.dpk-cover .dpk-cover-subtitle{position:absolute!important;z-index:2;left:70px!important;right:70px!important;bottom:101px!important;text-align:center!important;font:italic 400 14px/1.4 'PTSerifCy',Georgia,serif!important;color:#e7dfd2!important}
+body .dpk-page.dpk-cover .dpk-cover-author{position:absolute!important;z-index:2;left:70px!important;right:70px!important;bottom:56px!important;text-align:center!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:#d7cfc2!important}
+
+/* Quiet front matter */
+body .dpk-page.dpk-endpaper{background:var(--dpk-paper)!important}
+body .dpk-page.dpk-endpaper .dpk-endpaper-frame{position:absolute!important;inset:24px!important;border:1px solid var(--dpk-hair)!important}
+body .dpk-page.dpk-endpaper .dpk-endpaper-mark{position:absolute!important;top:50%!important;transform:translateY(-51%)!important;font:400 500px/.8 'CormorantCy',Georgia,serif!important;color:var(--dpk-accent)!important;opacity:.055!important}
+body .dpk-page.dpk-endpaper.left .dpk-endpaper-mark{left:70px!important}
+body .dpk-page.dpk-endpaper.right .dpk-endpaper-mark{right:70px!important}
+body .dpk-page.dpk-half-title .dpk-kicker{position:absolute!important;left:70px!important;top:52px!important}
+body .dpk-page.dpk-half-title h1{position:absolute!important;left:70px!important;right:91px!important;top:46%!important;transform:translateY(-50%)!important;font:500 40px/1.15 'CormorantCy',Georgia,serif!important;letter-spacing:.08em!important;text-transform:none!important}
+body .dpk-page.dpk-half-title .dpk-half-meta{position:absolute!important;left:70px!important;right:91px!important;bottom:70px!important;font:italic 400 14px/1.4 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-title .dpk-title-wrap{position:absolute!important;left:70px!important;right:70px!important;top:46%!important;transform:translateY(-50%)!important;text-align:center!important;display:flex!important;flex-direction:column!important;align-items:center!important}
+body .dpk-page.dpk-title .dpk-kicker{margin-bottom:14px!important}
+body .dpk-page.dpk-title h1{font:500 60px/1.1 'CormorantCy',Georgia,serif!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+body .dpk-page.dpk-title .dpk-short-rule{margin:22px auto 18px!important}
+body .dpk-page.dpk-title p{max-width:420px!important;margin:0 auto!important;font:italic 400 14px/1.5 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-title .dpk-title-author{position:absolute!important;left:70px!important;right:70px!important;bottom:70px!important;text-align:center!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-epigraph .dpk-centered,body .dpk-page.dpk-dedication .dpk-centered{left:91px!important;right:91px!important}
+body .dpk-page.dpk-epigraph .dpk-kicker,body .dpk-page.dpk-dedication .dpk-kicker{margin-bottom:28px!important}
+body .dpk-page.dpk-epigraph blockquote,body .dpk-page.dpk-dedication blockquote{font:italic 500 24px/1.5 'CormorantCy',Georgia,serif!important}
+body .dpk-page.dpk-epigraph .dpk-source,body .dpk-page.dpk-dedication .dpk-source{margin-top:26px!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-contents{padding:70px 70px 70px 91px!important}
+body .dpk-page.dpk-contents .dpk-kicker{margin-bottom:40px!important}
+body .dpk-page.dpk-contents .dpk-contents{display:flex!important;flex-direction:column!important;gap:21px!important;max-height:790px!important;overflow:hidden!important}
+body .dpk-page.dpk-contents .dpk-content-row{display:grid!important;grid-template-columns:auto 1fr auto!important;gap:14px!important;align-items:end!important;font:400 16px/1.35 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-contents .dpk-content-row i{border-bottom:1px solid var(--dpk-hair)!important;transform:translateY(-4px)!important}
+body .dpk-page.dpk-contents .dpk-content-row b{font:400 12px/1 'PTSerifCy',Georgia,serif!important}
+
+/* Chapter opening */
+body .dpk-page.dpk-chapter-photo{padding:36px!important}
+body .dpk-page.dpk-chapter-photo figure{position:absolute!important;inset:36px 36px 58px!important}
+body .dpk-page.dpk-chapter-photo .dpk-caption{left:36px!important;right:118px!important;bottom:31px!important}
+body .dpk-page.dpk-chapter-photo .dpk-folio{bottom:18px!important}
+body .dpk-page.dpk-chapter-photo.left .dpk-folio{left:36px!important;right:auto!important}
+body .dpk-page.dpk-chapter-photo.right .dpk-folio{right:36px!important;left:auto!important}
+body .dpk-page.dpk-chapter-photo.left .dpk-caption{left:86px!important;right:36px!important}
+body .dpk-page.dpk-chapter-photo.right .dpk-caption{left:36px!important;right:86px!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-kicker{position:absolute!important;top:70px!important;left:70px!important;right:70px!important;text-align:center!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-title{position:absolute!important;left:70px!important;right:70px!important;top:248px!important;text-align:center!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-title h1{font:500 48px/1.1 'CormorantCy',Georgia,serif!important;letter-spacing:.11em!important;text-transform:uppercase!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-title div{margin-top:16px!important;font:italic 400 15px/1.3 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-rule{position:absolute!important;left:70px!important;right:70px!important;top:540px!important;height:2px!important;background:var(--dpk-accent)!important;opacity:.55!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{position:absolute!important;left:70px!important;right:70px!important;top:576px!important;bottom:70px!important}
+body .dpk-page.dpk-chapter-text.left .dpk-chapter-copy{right:91px!important}
+body .dpk-page.dpk-chapter-text.right .dpk-chapter-copy{left:91px!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy p:first-of-type::first-letter{float:left!important;font:700 50px/.8 'CormorantCy',Georgia,serif!important;padding:4px 7px 0 0!important;color:#6b5738!important}
+
+/* Reading and photo pages */
+body .dpk-page .dpk-columns{column-count:2!important;column-gap:32px!important;column-fill:auto!important;overflow:hidden!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page .dpk-columns p{font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;text-align:justify!important;hyphens:auto!important;margin:0 0 14px!important}
+body .dpk-page.dpk-photo figure,body .dpk-page.dpk-large-photo figure{position:absolute!important;inset:36px 36px 58px!important}
+body .dpk-page.dpk-photo .dpk-caption,body .dpk-page.dpk-large-photo .dpk-caption{left:36px!important;right:118px!important;bottom:31px!important;color:var(--dpk-muted)!important;text-shadow:none!important}
+body .dpk-page.dpk-photo .dpk-folio,body .dpk-page.dpk-large-photo .dpk-folio{bottom:18px!important}
+body .dpk-page.dpk-photo.left .dpk-folio,body .dpk-page.dpk-large-photo.left .dpk-folio{left:36px!important;right:auto!important}
+body .dpk-page.dpk-photo.right .dpk-folio,body .dpk-page.dpk-large-photo.right .dpk-folio{right:36px!important;left:auto!important}
+body .dpk-page.dpk-photo.left .dpk-caption,body .dpk-page.dpk-large-photo.left .dpk-caption{left:86px!important;right:36px!important}
+body .dpk-page.dpk-photo.right .dpk-caption,body .dpk-page.dpk-large-photo.right .dpk-caption{left:36px!important;right:86px!important}
+body .dpk-page.dpk-three-photo .dpk-triptych{position:absolute!important;inset:36px 36px 64px!important;display:grid!important;grid-template-columns:1fr 1fr!important;grid-template-rows:2fr 1fr!important;gap:12px!important}
+body .dpk-page.dpk-three-photo .dpk-triptych figure{position:relative!important;inset:auto!important;min-width:0!important;min-height:0!important}
+body .dpk-page.dpk-three-photo .dpk-triptych-1{grid-column:1/-1!important}
+body .dpk-page.dpk-three-photo .dpk-caption{left:36px!important;right:86px!important;bottom:31px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .dpk-page.dpk-three-photo .dpk-folio{bottom:18px!important}
+body .dpk-page.dpk-three-photo.left .dpk-folio{left:36px!important;right:auto!important}
+body .dpk-page.dpk-three-photo.right .dpk-folio{right:36px!important;left:auto!important}
+body .dpk-page.dpk-three-photo.left .dpk-caption{left:86px!important;right:36px!important}
+body .dpk-page.dpk-two-photo .dpk-duo{position:absolute!important;inset:36px 36px 82px!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}
+body .dpk-page.dpk-two-photo .dpk-duo figure{position:relative!important;inset:auto!important;min-width:0!important;min-height:0!important}
+body .dpk-page.dpk-two-photo .dpk-caption{bottom:44px!important;max-width:620px!important;line-height:1!important}
+body .dpk-page.dpk-two-photo.left .dpk-caption{left:98px!important;right:auto!important}
+body .dpk-page.dpk-two-photo.right .dpk-caption{right:98px!important;left:auto!important;text-align:right!important}
+body .dpk-page.dpk-two-photo .dpk-folio{bottom:44px!important}
+body .dpk-page.dpk-photo-over-text{padding:36px 70px 70px!important}
+body .dpk-page.dpk-photo-over-text.left{padding-right:91px!important}
+body .dpk-page.dpk-photo-over-text.right{padding-left:91px!important}
+body .dpk-page.dpk-photo-over-text figure{height:470px!important;width:100%!important}
+body .dpk-page.dpk-photo-over-text .dpk-inline-caption{position:static!important;height:28px!important;padding-top:9px!important;font-size:12px!important}
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy{height:calc(var(--book-page-h,1000px) - 618px)!important;min-height:382px!important;padding-top:20px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy h2{font:700 25px/1.15 'CormorantCy',Georgia,serif!important;margin:0 0 16px!important}
+body .dpk-page.dpk-photo-over-text .dpk-columns{height:calc(var(--book-page-h,1000px) - 670px)!important;min-height:330px!important}
+body .dpk-page.dpk-photo-over-text .dpk-columns p{font-size:var(--dpk-body-size)!important;line-height:var(--dpk-body-leading)!important}
+body .dpk-page.dpk-photo-side-text{padding:0!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-photo{position:absolute!important;left:36px!important;top:36px!important;bottom:70px!important;width:430px!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-photo figure{position:absolute!important;inset:0 0 32px!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-photo .dpk-inline-caption{left:0!important;right:0!important;bottom:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy{position:absolute!important;left:500px!important;right:70px!important;top:70px!important;bottom:70px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-side-text.left .dpk-side-copy{right:91px!important}
+body .dpk-page.dpk-photo-side-text.right .dpk-side-photo{left:52px!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy h2{font:700 27px/1.2 'CormorantCy',Georgia,serif!important;margin:20px 0 25px!important}
+body .dpk-page.dpk-photo-side-text .dpk-reading{height:calc(var(--book-page-h,1000px) - 210px)!important;min-height:790px!important;overflow:hidden!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page.dpk-photo-side-text .dpk-reading p{font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-date-era{padding:0!important;overflow:hidden!important}
+body .dpk-page.dpk-date-era .dpk-era-mark{position:absolute!important;left:24px!important;right:24px!important;top:49%!important;transform:translateY(-50%)!important;text-align:center!important;white-space:nowrap!important;font-style:normal!important;font-weight:500!important;font-size:var(--dpk-era-size,245px)!important;line-height:.8!important;font-family:'CormorantCy',Georgia,serif!important;letter-spacing:-.055em!important;color:var(--dpk-accent)!important;opacity:.095!important}
+body .dpk-page.dpk-date-era .dpk-era-copy{position:absolute!important;left:70px!important;right:91px!important;top:70px!important;bottom:70px!important;z-index:1!important}
+body .dpk-page.dpk-date-era.right .dpk-era-copy{left:91px!important;right:70px!important}
+body .dpk-page.dpk-date-era h2{max-width:640px!important;margin:30px 0 22px!important;font:700 38px/1.12 'CormorantCy',Georgia,serif!important}
+body .dpk-page.dpk-date-era .dpk-short-rule{margin-bottom:32px!important}
+body .dpk-page.dpk-date-era .dpk-reading{max-width:720px!important;height:calc(var(--book-page-h,1000px) - 360px)!important;min-height:640px!important;overflow:hidden!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page.dpk-date-era .dpk-reading p{font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-panorama{padding:0!important;overflow:hidden!important;background:#11110f!important}
+body .dpk-page.dpk-panorama .dpk-panorama-image{position:absolute!important;inset:0!important;width:200%!important;height:100%!important;overflow:hidden!important}
+body .dpk-page.dpk-panorama .dpk-panorama-image img{width:100%!important;height:100%!important;object-fit:cover!important;filter:none!important}
+body .dpk-page.dpk-panorama.dpk-panorama-left .dpk-panorama-image{left:0!important}
+body .dpk-page.dpk-panorama.dpk-panorama-right .dpk-panorama-image{left:-100%!important}
+body .dpk-page.dpk-panorama .dpk-caption{z-index:3;bottom:34px!important;color:#f7f3eb!important;text-shadow:0 1px 8px rgba(0,0,0,.45)!important}
+body .dpk-page.dpk-panorama.left .dpk-caption{left:70px!important;right:90px!important}
+body .dpk-page.dpk-panorama.right .dpk-caption{display:none!important}
+body .dpk-page.dpk-panorama .dpk-folio{z-index:3;bottom:18px!important;color:#f7f3eb!important;text-shadow:0 1px 8px rgba(0,0,0,.45)!important}
+body .dpk-page.dpk-panorama.left .dpk-folio{left:36px!important;right:auto!important}
+body .dpk-page.dpk-panorama.right .dpk-folio{right:36px!important;left:auto!important}
+body .dpk-page.dpk-photo-text{padding-top:70px!important;padding-bottom:70px!important}
+body .dpk-page.dpk-photo-text.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-photo-text.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-photo-text .dpk-story-kicker{margin-bottom:32px!important}
+body .dpk-page.dpk-photo-text h2{font:700 27px/1.2 'CormorantCy',Georgia,serif!important;margin-bottom:24px!important}
+body .dpk-page.dpk-photo-text .dpk-section-rule{height:1px!important;background:var(--dpk-accent)!important;opacity:.55!important;margin:0 0 28px!important}
+body .dpk-page.dpk-photo-text .dpk-columns{height:calc(var(--book-page-h,1000px) - 210px)!important;max-height:none!important}
+body .dpk-page.dpk-photo-text-section .dpk-columns{height:calc(var(--book-page-h,1000px) - 310px)!important;max-height:none!important}
+body .dpk-page.dpk-photo-text-continuation{padding-top:82px!important}
+body .dpk-page.dpk-photo-text-section .dpk-columns p:first-of-type::first-letter,
+body .dpk-page.dpk-section-start .dpk-reading p:first-of-type::first-letter{float:left!important;font:700 50px/.8 'CormorantCy',Georgia,serif!important;padding:4px 7px 0 0!important;color:#6b5738!important}
+body .dpk-page.dpk-text,body .dpk-page.dpk-text-quote{padding-top:56px!important;padding-bottom:70px!important}
+body .dpk-page.dpk-text.left,body .dpk-page.dpk-text-quote.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text.right,body .dpk-page.dpk-text-quote.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text h2,body .dpk-page.dpk-text-quote h2{font:700 27px/1.2 'CormorantCy',Georgia,serif!important;margin:38px 0 28px!important}
+body .dpk-page.dpk-text .dpk-story-kicker,body .dpk-page.dpk-text-quote .dpk-story-kicker{margin-top:38px!important;margin-bottom:-18px!important}
+body .dpk-page.dpk-text-quote h2::after{content:""!important;display:block!important;height:1px!important;background:var(--dpk-accent)!important;opacity:.55!important;margin-top:22px!important}
+body .dpk-page.dpk-text .dpk-reading,body .dpk-page.dpk-text-quote .dpk-reading{height:calc(var(--book-page-h,1000px) - 172px)!important;padding-top:26px!important}
+body .dpk-page.dpk-section-start .dpk-reading{height:calc(var(--book-page-h,1000px) - 350px)!important;padding-top:18px!important}
+body .dpk-page.dpk-text-quote .dpk-pull{break-inside:avoid-column!important;margin:0 0 20px!important;padding-left:16px!important;border-left:1px solid var(--dpk-accent)!important;font:italic 400 13.5px/1.4 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important}
+
+/* Quote and documents */
+body .dpk-page.dpk-dark{background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark .dpk-running,body .dpk-page.dpk-dark .dpk-folio{color:#b9ad97!important}
+body .dpk-page.dpk-quote .dpk-centered{left:70px!important;right:91px!important;top:50%!important;transform:translateY(-50%)!important;text-align:left!important}
+body .dpk-page.dpk-quote .dpk-kicker,body .dpk-page.dpk-quote .dpk-source{color:#b9ad97!important}
+body .dpk-page.dpk-quote .dpk-quote-mark{margin:26px 0 10px!important;font:500 60px/.6 'CormorantCy',Georgia,serif!important;color:var(--dpk-accent)!important;opacity:.5!important}
+body .dpk-page.dpk-quote blockquote{max-width:800px!important;margin:0!important;font:italic 700 28px/1.38 'CormorantCy',Georgia,serif!important;color:#fffdf8!important}
+body .dpk-page.dpk-quote .dpk-source{margin-top:26px!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important}
+body .dpk-page.dpk-light-quote{background:var(--dpk-paper,#fff)!important;color:var(--dpk-ink,#181714)!important}
+body .dpk-page.dpk-light-quote .dpk-kicker,
+body .dpk-page.dpk-light-quote .dpk-folio{color:var(--dpk-muted)!important}
+body .dpk-page.dpk-light-quote .dpk-quote-mark{color:var(--dpk-accent)!important;opacity:.62!important}
+body .dpk-page.dpk-light-quote blockquote{color:var(--dpk-accent)!important}
+body .dpk-page.dpk-document{padding:70px!important;background:#fff!important}
+body .dpk-page.dpk-document::before{display:none!important}
+body .dpk-page.dpk-document .dpk-document-scan{position:absolute!important;inset:36px 36px 64px!important;background:#fff!important}
+body .dpk-page.dpk-document .dpk-document-scan img{object-fit:contain!important;filter:none!important}
+body .dpk-page.dpk-document.dpk-document-image .dpk-caption{left:36px!important;right:86px!important;bottom:18px!important}
+body .dpk-page.dpk-document.dpk-document-image.left .dpk-caption{left:86px!important;right:36px!important}
+body .dpk-page.dpk-document .dpk-folio{bottom:18px!important}
+body .dpk-page.dpk-document.left .dpk-folio{left:36px!important;right:auto!important}
+body .dpk-page.dpk-document.right .dpk-folio{right:36px!important;left:auto!important}
+body .dpk-page.dpk-document .dpk-document-date{position:absolute!important;left:70px!important;right:91px!important;top:92px!important;font:italic 400 15px/1.4 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-document blockquote{position:absolute!important;left:70px!important;right:91px!important;top:164px!important;font:italic 500 24px/1.5 'CormorantCy',Georgia,serif!important}
+body .dpk-page.dpk-document .dpk-document-source{position:absolute!important;left:70px!important;right:91px!important;bottom:70px!important;font:italic 400 14px/1.4 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-document-comment .dpk-document-comment{position:absolute!important;left:91px!important;right:70px!important;top:50%!important;transform:translateY(-50%)!important}
+body .dpk-page.dpk-document-comment .dpk-kicker{margin-bottom:28px!important}
+body .dpk-page.dpk-document-comment h2{font:500 44px/1.1 'CormorantCy',Georgia,serif!important;margin-bottom:22px!important}
+body .dpk-page.dpk-document-comment p{max-width:640px!important;font:400 15.5px/1.7 'PTSerifCy',Georgia,serif!important}
+
+/* Timeline and closing matter */
+body .dpk-page.dpk-timeline{padding:70px 91px 70px 70px!important}
+body .dpk-page.dpk-timeline h1{font:700 56px/1.1 'CormorantCy',Georgia,serif!important;margin:28px 0 40px!important}
+body .dpk-page.dpk-timeline .dpk-timeline{display:flex!important;flex-direction:column!important;gap:30px!important;position:relative!important}
+body .dpk-page.dpk-timeline .dpk-timeline::before{content:""!important;position:absolute!important;left:105px!important;top:8px!important;bottom:8px!important;width:1px!important;background:var(--dpk-hair)!important}
+body .dpk-page.dpk-timeline .dpk-timeline-row{display:grid!important;grid-template-columns:82px 28px 1fr!important;gap:16px!important;align-items:start!important}
+body .dpk-page.dpk-timeline .dpk-timeline-row b{font:600 18px/1 'CormorantCy',Georgia,serif!important;letter-spacing:.08em!important}
+body .dpk-page.dpk-timeline .dpk-timeline-row i{position:relative!important;width:7px!important;height:7px!important;margin-top:3px!important;border-radius:50%!important;background:var(--dpk-accent)!important}
+body .dpk-page.dpk-timeline .dpk-timeline-row span{max-width:360px!important;font:400 13.5px/1.6 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-final .dpk-final-copy{max-width:640px!important;margin:0 auto!important}
+body .dpk-page.dpk-final .dpk-kicker{margin-bottom:28px!important}
+body .dpk-page.dpk-final h2{font:700 31px/1.2 'CormorantCy',Georgia,serif!important;margin-bottom:26px!important}
+body .dpk-page.dpk-final .dpk-short-rule{margin:0 auto 26px!important}
+body .dpk-page.dpk-final p{font:italic 400 17px/1.6 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-final .dpk-final-sign{position:absolute!important;left:70px!important;right:70px!important;bottom:70px!important;text-align:center!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-colophon .dpk-colophon-kicker{position:absolute!important;left:70px!important;right:70px!important;top:70px!important;text-align:center!important}
+body .dpk-page.dpk-colophon .dpk-colophon{position:absolute!important;left:190px!important;right:190px!important;top:50%!important;transform:translateY(-50%)!important;display:flex!important;flex-direction:column!important;gap:16px!important}
+body .dpk-page.dpk-colophon .dpk-colophon-row{display:grid!important;grid-template-columns:150px 1fr!important;gap:24px!important}
+body .dpk-page.dpk-colophon .dpk-colophon-row b{font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-colophon .dpk-colophon-row span{font:400 14px/1.4 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-back-cover .dpk-back-copy{max-width:640px!important;margin:0 auto!important}
+body .dpk-page.dpk-back-cover h2{font:700 35px/1.2 'CormorantCy',Georgia,serif!important;color:#fffdf8!important}
+body .dpk-page.dpk-back-cover .dpk-short-rule{margin:28px auto!important;background:#8a7454!important}
+body .dpk-page.dpk-back-cover p{max-width:520px!important;margin:0 auto!important;font:italic 400 16px/1.55 'PTSerifCy',Georgia,serif!important}
+body .dpk-page.dpk-back-cover .dpk-back-mark{position:absolute!important;left:70px!important;right:70px!important;bottom:70px!important;text-align:center!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:#b9ad97!important}
+body .dpk-page.dpk-back-cover{background-color:#151513!important;background-image:repeating-linear-gradient(45deg,transparent 0 52px,rgba(255,255,255,.035) 52px 53px)!important}
+body .dpk-page.dpk-back-cover .dpk-back-image{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;filter:none!important}
+body .dpk-page.dpk-back-cover .dpk-back-scrim{position:absolute!important;inset:0!important;background:linear-gradient(to top,rgba(5,5,4,.90),rgba(5,5,4,.22) 65%,rgba(5,5,4,.42))!important}
+body .dpk-page.dpk-back-cover .dpk-back-copy,body .dpk-page.dpk-back-cover .dpk-back-mark{z-index:2!important}
+body .dpk-page.dpk-back-cover .dpk-short-rule{display:none!important}
+body .dpk-page.dpk-back-cover h2{margin-bottom:18px!important}
+
+/* V7: one baseline for folios and captions on every editorial master. */
+body .dpk-page.dpk-chapter-photo figure,
+body .dpk-page.dpk-photo figure,
+body .dpk-page.dpk-large-photo figure{inset:36px 36px 82px!important}
+body .dpk-page.dpk-chapter-photo .dpk-caption,
+body .dpk-page.dpk-photo .dpk-caption,
+body .dpk-page.dpk-large-photo .dpk-caption,
+body .dpk-page.dpk-three-photo .dpk-caption{bottom:65px!important}
+body .dpk-page.dpk-three-photo .dpk-triptych{inset:36px 36px 82px!important;gap:12px!important}
+body .dpk-page.dpk-document .dpk-document-scan{inset:36px 36px 82px!important}
+body .dpk-page.dpk-document.dpk-document-image .dpk-caption{bottom:65px!important}
+body .dpk-page.dpk-panorama .dpk-caption{bottom:65px!important}
+body .dpk-page.dpk-chapter-photo .dpk-folio,
+body .dpk-page.dpk-photo .dpk-folio,
+body .dpk-page.dpk-large-photo .dpk-folio,
+body .dpk-page.dpk-three-photo .dpk-folio,
+body .dpk-page.dpk-panorama .dpk-folio,
+body .dpk-page.dpk-document .dpk-folio{bottom:44px!important}
+body .dpk-page.dpk-chapter-photo.left .dpk-folio,
+body .dpk-page.dpk-photo.left .dpk-folio,
+body .dpk-page.dpk-large-photo.left .dpk-folio,
+body .dpk-page.dpk-three-photo.left .dpk-folio,
+body .dpk-page.dpk-panorama.left .dpk-folio,
+body .dpk-page.dpk-document.left .dpk-folio{left:70px!important;right:auto!important}
+body .dpk-page.dpk-chapter-photo.right .dpk-folio,
+body .dpk-page.dpk-photo.right .dpk-folio,
+body .dpk-page.dpk-large-photo.right .dpk-folio,
+body .dpk-page.dpk-three-photo.right .dpk-folio,
+body .dpk-page.dpk-panorama.right .dpk-folio,
+body .dpk-page.dpk-document.right .dpk-folio{right:70px!important;left:auto!important}
+
+@media print{
+  body .dpk-page{break-after:page!important;print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+}
+
+/* V8: corrected editorial baselines, document master and denser copy flow. */
+body .dpk-page.dpk-chapter-photo .dpk-caption,
+body .dpk-page.dpk-photo .dpk-caption,
+body .dpk-page.dpk-large-photo .dpk-caption,
+body .dpk-page.dpk-three-photo .dpk-caption,
+body .dpk-page.dpk-panorama .dpk-caption,
+body .dpk-page.dpk-document.dpk-document-image .dpk-caption{
+  bottom:44px!important;
+  max-width:620px!important;
+  line-height:1!important;
+}
+body .dpk-page.dpk-chapter-photo.left .dpk-caption,
+body .dpk-page.dpk-photo.left .dpk-caption,
+body .dpk-page.dpk-large-photo.left .dpk-caption,
+body .dpk-page.dpk-three-photo.left .dpk-caption,
+body .dpk-page.dpk-panorama.left .dpk-caption,
+body .dpk-page.dpk-document.dpk-document-image.left .dpk-caption{
+  left:98px!important;right:auto!important;text-align:left!important;
+}
+body .dpk-page.dpk-chapter-photo.right .dpk-caption,
+body .dpk-page.dpk-photo.right .dpk-caption,
+body .dpk-page.dpk-large-photo.right .dpk-caption,
+body .dpk-page.dpk-three-photo.right .dpk-caption,
+body .dpk-page.dpk-panorama.right .dpk-caption,
+body .dpk-page.dpk-document.dpk-document-image.right .dpk-caption{
+  right:98px!important;left:auto!important;text-align:right!important;
+}
+body .dpk-page.dpk-document-text-page{padding:0!important}
+body .dpk-page.dpk-document-text-page .dpk-document-text{
+  position:absolute!important;left:70px!important;right:91px!important;top:70px!important;bottom:70px!important;
+}
+body .dpk-page.dpk-document-text-page.right .dpk-document-text{left:91px!important;right:70px!important}
+body .dpk-page.dpk-document-text-page .dpk-kicker{margin-bottom:26px!important}
+body .dpk-page.dpk-document-text-page h2,
+body .dpk-page.dpk-document-comment h2{
+  font:500 37px/1.12 'CormorantCy',Georgia,serif!important;margin-bottom:22px!important;
+}
+body .dpk-page .dpk-document-rule{
+  height:1px!important;width:100%!important;background:var(--dpk-accent)!important;opacity:.58!important;margin-bottom:28px!important;
+}
+body .dpk-page.dpk-document-text-page .dpk-document-body{height:700px!important}
+body .dpk-page.dpk-document-text-page .dpk-document-source{
+  left:0!important;right:0!important;bottom:0!important;font-size:12px!important;font-variant-caps:small-caps!important;letter-spacing:.12em!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-comment{
+  left:91px!important;right:70px!important;top:70px!important;bottom:70px!important;transform:none!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-document-comment.left .dpk-document-comment{left:70px!important;right:91px!important}
+body .dpk-page.dpk-document-comment .dpk-kicker{margin-bottom:26px!important}
+body .dpk-page.dpk-document-comment p{
+  max-width:none!important;max-height:700px!important;overflow:hidden!important;font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;text-align:justify!important;hyphens:auto!important;
+}
+
+/* V9 — archival transcript master: quiet ruled paper, matching the approved proof. */
+body .dpk-page.dpk-document-comment .dpk-document-transcript{
+  position:absolute!important;
+  inset:32px!important;
+  padding:54px 34px 76px!important;
+  border:1px solid rgba(118,98,76,.20)!important;
+  background:
+    repeating-linear-gradient(to bottom,transparent 0,transparent 35px,rgba(110,91,70,.075) 36px)!important;
+  color:#756b61!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-date{
+  margin-bottom:44px!important;
+  font:500 14px/1.4 'CormorantCy',Georgia,serif!important;
+  letter-spacing:.035em!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-transcript p{
+  max-width:760px!important;
+  margin:0!important;
+  font:500 italic 21px/1.72 'CormorantCy',Georgia,serif!important;
+  color:#70675e!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-transcript .dpk-document-source{
+  position:absolute!important;
+  left:34px!important;
+  bottom:36px!important;
+  font:500 italic 13px/1.3 'CormorantCy',Georgia,serif!important;
+  color:#81766b!important;
+}
+
+/* V14: the reference palette is a restrained warm olive-beige. Use it for
+   chapter titles, rules and editorial pull quotes so the accent is consistent
+   across the book rather than appearing only on isolated lines. */
+:root{--dpk-accent:#9b9170;--dpk-muted:#7d7567}
+body .dpk-page .dpk-chapter-title h1{color:var(--dpk-accent)!important}
+body .dpk-page .dpk-chapter-rule,
+body .dpk-page .dpk-section-rule,
+body .dpk-page .dpk-short-rule{background:var(--dpk-accent)!important}
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull{
+  break-inside:avoid!important;margin:0 0 22px!important;padding:0 0 0 17px!important;
+  border-left:2px solid var(--dpk-accent)!important;color:#756b59!important;
+  font:italic 400 17px/1.42 'CormorantCy',Georgia,serif!important;
+}
+body .dpk-page.dpk-text .dpk-midpoint,
+body .dpk-page.dpk-text-quote .dpk-midpoint{
+  break-inside:avoid-column!important;-webkit-column-break-inside:avoid!important;
+  color:#756b59!important;border-color:rgba(155,145,112,.7)!important;
+}
+
+/* Mirror of the supplied full-image-plus-text-rail reference. */
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-image{
+  left:auto!important;right:0!important;width:600px!important;
+}
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-image img{
+  left:auto!important;right:0!important;
+}
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-copy{
+  left:70px!important;right:636px!important;text-align:left!important;
+}
+body .dpk-page.dpk-bleed-text.dpk-bleed-full-right .dpk-bleed-image{
+  left:0!important;right:36px!important;width:auto!important;
+}
+body .dpk-page.dpk-bleed-text.dpk-bleed-full-right .dpk-bleed-image img{
+  left:-300px!important;right:auto!important;
+}
+
+/* V10 document scale: handwritten transcription remains recognisable but does
+   not turn a normal archival text into an unnecessary stack of pages. */
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript,
+body .dpk-page.dpk-document-comment .dpk-document-transcript{
+  padding:42px 42px 78px!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript-head{
+  min-height:70px!important;margin-bottom:16px!important;gap:7px!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript-head strong{
+  font-size:28px!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript p,
+body .dpk-page.dpk-document-comment .dpk-document-transcript p{
+  max-height:calc(var(--book-page-h,1000px) - 230px)!important;
+  font:400 21px/31px 'SignThatS','CormorantCy',Georgia,serif!important;
+}
+
+@media print{
+  body .dpk-page.dpk-dark-text,body .dpk-page.dpk-dark-split,body .dpk-page.dpk-photo-overlay-text{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+}
+
+/* V12 — reference-derived editorial compositions. All geometry keeps the
+   approved 36 px photo margin, 12 px image gap and 70/91 px reading fields. */
+@font-face{
+  font-family:'SignThatS';
+  src:url('../assets/fonts/SignThatS.otf') format('opentype');
+  font-display:swap;
+}
+
+body .dpk-page .dpk-midpoint{
+  break-inside:avoid-column!important;
+  margin:26px 0 28px!important;
+  padding:16px 0 14px!important;
+  border-top:1px solid rgba(138,116,84,.48)!important;
+  border-bottom:1px solid rgba(138,116,84,.20)!important;
+  font:italic 600 23px/1.28 'CormorantCy',Georgia,serif!important;
+  color:#6b5738!important;
+}
+
+body .dpk-page.dpk-stacked-text{padding:0!important}
+body .dpk-page.dpk-stacked-text .dpk-stacked-media{
+  position:absolute!important;left:36px!important;top:36px!important;bottom:82px!important;width:548px!important;
+  display:grid!important;grid-template-rows:1fr 1fr!important;gap:12px!important;
+}
+body .dpk-page.dpk-stacked-text .dpk-stacked-media figure{position:relative!important;min-height:0!important}
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy{
+  position:absolute!important;left:620px!important;right:70px!important;top:70px!important;bottom:70px!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-stacked-text.left .dpk-stacked-copy{right:91px!important}
+body .dpk-page.dpk-stacked-text.dpk-mirror .dpk-stacked-media{left:416px!important;right:36px!important}
+body .dpk-page.dpk-stacked-text.dpk-mirror .dpk-stacked-copy{left:70px!important;right:620px!important}
+body .dpk-page.dpk-stacked-text.dpk-mirror.right .dpk-stacked-copy{left:91px!important}
+body .dpk-page.dpk-stacked-text h2{font:600 31px/1.12 'CormorantCy',Georgia,serif!important;margin:24px 0 22px!important}
+body .dpk-page.dpk-stacked-text .dpk-reading{height:calc(var(--book-page-h,1000px) - 214px)!important;overflow:hidden!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page.dpk-stacked-text .dpk-reading p{font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important}
+
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid{
+  position:absolute!important;inset:36px 36px 82px!important;
+  display:grid!important;grid-template-columns:repeat(4,1fr)!important;grid-template-rows:repeat(4,1fr)!important;
+  grid-auto-flow:dense!important;gap:12px!important;
+}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure{position:relative!important;min-width:0!important;min-height:0!important}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure:nth-child(1){grid-column:span 2!important;grid-row:span 2!important}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure:nth-child(2){grid-column:span 2!important}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure:nth-child(5){grid-column:span 2!important;grid-row:span 2!important}
+body .dpk-page.dpk-mosaic .dpk-caption{left:98px!important;right:98px!important;bottom:44px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+
+body .dpk-page.dpk-dark-split{background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy{
+  position:absolute!important;left:70px!important;top:70px!important;bottom:70px!important;width:340px!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-dark-split.left .dpk-dark-split-copy{left:70px!important}
+body .dpk-page.dpk-dark-split.right .dpk-dark-split-copy{left:91px!important}
+body .dpk-page.dpk-dark-split .dpk-dark-split-photo{position:absolute!important;left:448px!important;right:36px!important;top:36px!important;bottom:82px!important}
+body .dpk-page.dpk-dark-split .dpk-kicker,body .dpk-page.dpk-dark-split .dpk-folio{color:#b9ad97!important}
+body .dpk-page.dpk-dark-split h2{font:600 38px/1.05 'CormorantCy',Georgia,serif!important;margin:24px 0!important;color:#fffdf8!important}
+body .dpk-page.dpk-dark-split p{font:400 13.5px/1.62 'PTSerifCy',Georgia,serif!important;color:#eee8dd!important;text-align:justify!important;hyphens:auto!important}
+
+body .dpk-page.dpk-photo-overlay-text{background:#11110f!important;color:#fffdf8!important}
+body .dpk-page.dpk-photo-overlay-text figure{position:absolute!important;inset:36px 36px 82px!important}
+body .dpk-page.dpk-photo-overlay-text .dpk-overlay-scrim{position:absolute!important;inset:36px 36px 82px!important;background:linear-gradient(90deg,rgba(8,8,7,.84),rgba(8,8,7,.40) 46%,transparent 76%)!important}
+body .dpk-page.dpk-photo-overlay-text .dpk-overlay-copy{position:absolute!important;left:70px!important;top:92px!important;width:390px!important;max-height:680px!important;overflow:hidden!important;color:#fffdf8!important}
+body .dpk-page.dpk-photo-overlay-text.right .dpk-overlay-copy{left:91px!important}
+body .dpk-page.dpk-photo-overlay-text h2{font:600 42px/1.06 'CormorantCy',Georgia,serif!important;margin:22px 0!important}
+body .dpk-page.dpk-photo-overlay-text p{font:400 14px/1.58 'PTSerifCy',Georgia,serif!important;text-align:left!important}
+body .dpk-page.dpk-photo-overlay-text .dpk-kicker,body .dpk-page.dpk-photo-overlay-text .dpk-folio{color:#d1c7b7!important}
+
+body .dpk-page.dpk-text-over-photo{padding:70px 70px 36px!important}
+body .dpk-page.dpk-text-over-photo.left{padding-right:91px!important}
+body .dpk-page.dpk-text-over-photo.right{padding-left:91px!important}
+body .dpk-page.dpk-text-over-photo .dpk-text-over-copy{height:350px!important;overflow:hidden!important}
+body .dpk-page.dpk-text-over-photo h2{font:600 31px/1.12 'CormorantCy',Georgia,serif!important;margin:20px 0 18px!important}
+body .dpk-page.dpk-text-over-photo .dpk-reading{column-count:2!important;column-gap:32px!important;column-fill:auto!important;height:230px!important;overflow:hidden!important}
+body .dpk-page.dpk-text-over-photo .dpk-reading p{font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page.dpk-text-over-photo figure{position:absolute!important;left:70px!important;right:70px!important;top:452px!important;bottom:82px!important}
+body .dpk-page.dpk-text-over-photo.left figure{right:91px!important}
+body .dpk-page.dpk-text-over-photo.right figure{left:91px!important}
+
+body .dpk-page.dpk-bleed-text{padding:0!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-image{position:absolute!important;top:36px!important;bottom:82px!important;overflow:hidden!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-image img{position:absolute!important;top:0!important;height:100%!important;width:1600px!important;max-width:none!important;object-fit:cover!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-left .dpk-bleed-image{left:36px!important;right:0!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-left .dpk-bleed-image img{left:0!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-right .dpk-bleed-image{left:0!important;width:600px!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-right .dpk-bleed-image img{left:-964px!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy{position:absolute!important;left:636px!important;right:70px!important;top:70px!important;bottom:70px!important;overflow:hidden!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy h2{font:600 36px/1.06 'CormorantCy',Georgia,serif!important;margin:22px 0!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy p{font:400 13.5px/1.6 'PTSerifCy',Georgia,serif!important;text-align:justify!important;hyphens:auto!important}
+
+body .dpk-page.dpk-quote-band-photo .dpk-quote-band{position:absolute!important;left:70px!important;right:70px!important;top:52px!important;height:132px!important;overflow:hidden!important}
+body .dpk-page.dpk-quote-band-photo.left .dpk-quote-band{right:91px!important}
+body .dpk-page.dpk-quote-band-photo.right .dpk-quote-band{left:91px!important}
+body .dpk-page.dpk-quote-band-photo .dpk-quote-band blockquote{font:italic 500 21px/1.32 'CormorantCy',Georgia,serif!important;color:#5f5140!important}
+body .dpk-page.dpk-quote-band-photo figure{position:absolute!important;left:36px!important;right:36px!important;top:210px!important;bottom:82px!important}
+body .dpk-page.dpk-quote-band-photo.dpk-secondary figure{left:70px!important}
+body .dpk-page.dpk-quote-band-photo .dpk-caption{left:98px!important;right:98px!important;bottom:44px!important}
+
+body .dpk-page.dpk-dark-text{background:#11110f!important;color:#f7f3eb!important;padding:56px 70px 70px!important}
+body .dpk-page.dpk-dark-text.left{padding-right:91px!important}
+body .dpk-page.dpk-dark-text.right{padding-left:91px!important}
+body .dpk-page.dpk-dark-text .dpk-running,body .dpk-page.dpk-dark-text .dpk-folio{color:#b9ad97!important}
+body .dpk-page.dpk-dark-text h2{font:600 31px/1.15 'CormorantCy',Georgia,serif!important;margin:64px 0 30px!important;color:#fffdf8!important}
+body .dpk-page.dpk-dark-text .dpk-reading{height:calc(var(--book-page-h,1000px) - 196px)!important;column-count:2!important;column-gap:32px!important;column-fill:auto!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-text .dpk-reading p{font:400 13.5px/1.62 'PTSerifCy',Georgia,serif!important;color:#eee8dd!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page.dpk-dark-text .dpk-midpoint{color:#d8cab5!important;border-color:rgba(202,178,139,.45)!important}
+
+/* V10 archival transcript restored: ruled field plus handwriting. */
+body .dpk-page.dpk-document-comment .dpk-document-transcript{
+  inset:32px!important;padding:62px 42px 82px!important;
+  background-color:#f7f6f2!important;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 38px,rgba(110,91,70,.11) 39px)!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-transcript p{
+  max-width:790px!important;
+  font:400 26px/1.50 'SignThatS','CormorantCy',Georgia,serif!important;
+  letter-spacing:.012em!important;color:#665d55!important;text-align:left!important;
+}
+
+@media print{
+  body .dpk-page.dpk-dark-text,body .dpk-page.dpk-dark-split,body .dpk-page.dpk-photo-overlay-text{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+}
+
+/* V13: every transcription page uses the approved V10 ruled handwriting,
+   including D01-DOCUMENT pages that do not contain a scan. */
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript,
+body .dpk-page.dpk-document-comment .dpk-document-transcript{
+  position:absolute!important;inset:32px!important;padding:54px 42px 82px!important;
+  border:1px solid rgba(118,98,76,.20)!important;
+  background-color:#f7f6f2!important;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 38px,rgba(110,91,70,.11) 39px)!important;
+  color:#665d55!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript-head{
+  min-height:78px!important;margin-bottom:26px!important;display:flex!important;flex-direction:column!important;gap:9px!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript-head span{
+  font:700 11px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:#81766b!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript-head strong{
+  font:500 31px/1.05 'CormorantCy',Georgia,serif!important;color:#5f574f!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript p,
+body .dpk-page.dpk-document-comment .dpk-document-transcript p{
+  display:block!important;max-width:790px!important;max-height:calc(var(--book-page-h,1000px) - 250px)!important;margin:0!important;
+  overflow:hidden!important;font:400 26px/39px 'SignThatS','CormorantCy',Georgia,serif!important;
+  letter-spacing:.012em!important;color:#665d55!important;text-align:left!important;-webkit-hyphens:auto!important;hyphens:auto!important;hyphenate-character:"-"!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-source,
+body .dpk-page.dpk-document-comment .dpk-document-source{
+  position:absolute!important;left:42px!important;right:42px!important;bottom:34px!important;
+  font:500 italic 12px/1.3 'CormorantCy',Georgia,serif!important;color:#81766b!important;
+}
+
+/* V15: final proof corrections from the supplied screenshots. */
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-date-era .dpk-reading,
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{
+  column-count:2!important;column-gap:32px!important;column-fill:balance!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading{
+  height:calc(var(--book-page-h,1000px) - 135px)!important;
+}
+body .dpk-page.dpk-text.dpk-section-start .dpk-reading,
+body .dpk-page.dpk-text-quote.dpk-section-start .dpk-reading{
+  height:calc(var(--book-page-h,1000px) - 370px)!important;
+  overflow:visible!important;padding-top:0!important;
+}
+body .dpk-page.dpk-date-era .dpk-reading{
+  max-width:none!important;width:100%!important;
+  height:calc(var(--book-page-h,1000px) - 280px)!important;
+  min-height:0!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-dark-text .dpk-reading{column-fill:balance!important}
+body .dpk-page.dpk-photo-text .dpk-columns,
+body .dpk-page.dpk-photo-side-text .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-reading{column-fill:balance!important}
+body .dpk-page.dpk-dark-text .dpk-reading{padding-top:26px!important}
+
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript,
+body .dpk-page.dpk-document-comment .dpk-document-transcript{
+  padding:42px 58px 78px!important;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 29px,rgba(110,91,70,.11) 30px)!important;
+  overflow:visible!important;
+}
+body .dpk-page.dpk-document.dpk-document-text-page .dpk-document-transcript p,
+body .dpk-page.dpk-document-comment .dpk-document-transcript p{
+  max-width:none!important;max-height:none!important;height:calc(var(--book-page-h,1000px) - 270px)!important;
+  padding:0 8px 0 12px!important;
+  font:400 16px/27px 'SignThatS','CormorantCy',Georgia,serif!important;
+  overflow:visible!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-transcript p{
+  height:calc(var(--book-page-h,1000px) - 248px)!important;
+}
+
+/* V16: one stable prose grid. A quote is part of the episode heading,
+   never an inline child that can shorten one column or create a third. */
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading{
+  column-count:2!important;column-gap:32px!important;column-fill:balance!important;
+  height:calc(var(--book-page-h,1000px) - 135px)!important;
+  padding-top:26px!important;overflow:visible!important;
+}
+body .dpk-page.dpk-text.dpk-section-start .dpk-reading,
+body .dpk-page.dpk-text-quote.dpk-section-start .dpk-reading{
+  height:calc(var(--book-page-h,1000px) - 370px)!important;
+  padding-top:0!important;overflow:visible!important;
+}
+body .dpk-page.dpk-text .dpk-reading > p,
+body .dpk-page.dpk-text-quote .dpk-reading > p{
+  margin:0!important;orphans:3;widows:3;break-inside:auto!important;
+}
+body .dpk-page.dpk-text .dpk-midpoint,
+body .dpk-page.dpk-text-quote .dpk-midpoint{display:none!important}
+body .dpk-page .dpk-date-watermark{transform:translate(-50%,-50%)!important}
+
+/* Text flow must be measurable by its real fixed column box. If a chunk is
+   too large, pagination handles it; the flow itself must not hide the tail. */
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-date-era .dpk-reading,
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{
+  overflow:visible!important;
+}
+
+body .dpk-page.dpk-chapter-text .dpk-chapter-title h1,
+body .dpk-page.dpk-photo-over-text h2,
+body .dpk-page.dpk-photo-side-text h2,
+body .dpk-page.dpk-stacked-text h2,
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2,
+body .dpk-page.dpk-date-era h2,
+body .dpk-page.dpk-photo-text h2,
+body .dpk-page.dpk-text-over-photo h2,
+body .dpk-page.dpk-bleed-text h2,
+body .dpk-page.dpk-photo-rail-text h2,
+body .dpk-page.dpk-gradient-copy h2{color:var(--dpk-accent)!important}
+
+/* V18: the prose field is a real two-column reading area. The renderer owns
+   page boundaries and moves complete word units between pages. The browser
+   may hyphenate Russian words inside a line when the language hint is
+   present; it must never clip a word or split the editorial flow by chars.
+   A pull quote has its own reserved row above the columns, so it can never
+   become a third column or split between columns. */
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{
+  column-fill:balance!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  text-align:justify!important;
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  hyphenate-character:"-"!important;
+  overflow:visible!important;
+}
+body .dpk-page.dpk-text .dpk-reading p,
+body .dpk-page.dpk-text-quote .dpk-reading p,
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy p{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  hyphenate-character:"-"!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+  white-space:normal!important;
+}
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{
+  position:relative!important;
+  z-index:2!important;
+  display:block!important;
+  margin:0 0 22px!important;
+  padding:0 0 0 17px!important;
+  border-left:2px solid var(--dpk-accent)!important;
+  color:#756b59!important;
+  font:italic 400 17px/1.42 'CormorantCy',Georgia,serif!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+body .dpk-page.dpk-text .dpk-reading-with-pull,
+body .dpk-page.dpk-text-quote .dpk-reading-with-pull{
+  height:calc(var(--book-page-h,1000px) - 250px)!important;
+  padding-top:0!important;
+}
+body .dpk-page.dpk-text.dpk-section-start .dpk-reading,
+body .dpk-page.dpk-text-quote.dpk-section-start .dpk-reading{
+  height:calc(var(--book-page-h,1000px) - 300px)!important;
+  padding-top:0!important;
+}
+body .dpk-page .dpk-date-watermark{
+  transform:translate(-50%,-50%)!important;
+  font-size:clamp(180px,29vw,310px)!important;
+  line-height:.74!important;
+  letter-spacing:-.065em!important;
+  opacity:.18!important;
+}
+body .dpk-page.dpk-dark-text h2,
+body .dpk-page.dpk-dark-split h2{color:#d8c994!important}
+
+body .dpk-page.dpk-photo-rail{padding:0!important;background:#fff!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main{
+  position:absolute!important;left:36px!important;right:0!important;top:36px!important;bottom:82px!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main{left:0!important;right:36px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main img,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{
+  position:absolute!important;top:36px!important;bottom:82px!important;width:430px!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half{right:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy{
+  position:absolute!important;top:70px!important;bottom:70px!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-copy{left:500px!important;right:70px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-copy{left:70px!important;right:500px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy h2{font:600 31px/1.12 'CormorantCy',Georgia,serif!important;margin:20px 0 22px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns{
+  height:calc(var(--book-page-h,1000px) - 240px)!important;column-count:1!important;column-fill:auto!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns p{font:400 13.5px/1.6 'PTSerifCy',Georgia,serif!important;text-align:justify!important;hyphens:auto!important}
+
+/* The rail is one continuous 1.43-page image, not two independently cropped
+   copies. The text-side half and the full-page half use the same image scale. */
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main img,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half img{
+  position:absolute!important;top:0!important;width:1430px!important;max-width:none!important;height:100%!important;object-fit:cover!important;
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-right .dpk-photo-rail-main img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half img{left:-1000px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main img{left:-430px!important}
+
+/* The text rail keeps a real safe gap from the image edge. */
+body .dpk-page.dpk-photo-side-text .dpk-side-copy{left:536px!important;right:70px!important}
+body .dpk-page.dpk-photo-side-text.left .dpk-side-copy{right:91px!important}
+body .dpk-page.dpk-photo-side-text.right .dpk-side-copy{left:552px!important;right:70px!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-right .dpk-bleed-copy{left:680px!important;right:70px!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-copy{left:70px!important;right:680px!important}
+
+/* Keep a panorama visually continuous through the gutter. */
+body .dpk-page.dpk-panorama .dpk-panorama-image img{
+  position:absolute!important;left:0!important;top:0!important;width:2000px!important;max-width:none!important;height:100%!important;object-fit:cover!important;
+}
+body .dpk-page.dpk-panorama.dpk-panorama-right .dpk-panorama-image{left:-1000px!important}
+
+body .dpk-page.dpk-photo-gradient-text{padding:0!important;background:var(--dpk-paper,#fff)!important;color:var(--dpk-ink,#181714)!important}
+body .dpk-page.dpk-photo-gradient-text>figure{position:absolute!important;inset:36px 0 82px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-gradient-text>figure img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-scrim{
+  position:absolute!important;inset:36px 0 82px!important;z-index:1!important;
+  background:linear-gradient(90deg,#fff 0%,#fff 31%,rgba(255,255,255,.99) 47%,rgba(255,255,255,.82) 65%,rgba(255,255,255,.30) 86%,rgba(255,255,255,0) 100%)!important;
+}
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy{
+  position:absolute!important;left:70px!important;top:70px!important;bottom:70px!important;width:410px!important;z-index:2!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy h2{font:600 38px/1.05 'CormorantCy',Georgia,serif!important;margin:24px 0 22px!important}
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy p{font:400 13.5px/1.6 'PTSerifCy',Georgia,serif!important;text-align:justify!important;hyphens:auto!important}
+
+/* Additional dark version of the same photo/text field. The first part of
+   the gradient is fully opaque so the copy never sits over the photograph. */
+body .dpk-page.dpk-dark-gradient-photo{padding:0!important;background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-gradient-photo>figure{position:absolute!important;inset:36px 0 82px!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-gradient-photo>figure img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  position:absolute!important;inset:36px 0 82px!important;z-index:1!important;
+  background:linear-gradient(90deg,#11110f 0%,#11110f 31%,rgba(17,17,15,.99) 47%,rgba(17,17,15,.82) 65%,rgba(17,17,15,.30) 86%,rgba(17,17,15,0) 100%)!important;
+}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy{
+  position:absolute!important;left:70px!important;top:70px!important;bottom:70px!important;width:410px!important;z-index:2!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy h2{font:600 38px/1.05 'CormorantCy',Georgia,serif!important;margin:24px 0 22px!important;color:#d8c994!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy p{font:400 13.5px/1.6 'PTSerifCy',Georgia,serif!important;color:#eee8dd!important;text-align:justify!important;hyphens:auto!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-kicker,
+body .dpk-page.dpk-dark-gradient-photo .dpk-folio{color:#b9ad97!important}
+
+/* Colour is the default treatment. The suspended constructor control adds
+   dpk-photo-bw to each rendered page when the author asks for monochrome. */
+body .dpk-page.dpk-photo-bw img{filter:grayscale(1) contrast(1.05)!important}
+body .dpk-page.dpk-photo-color img{filter:none!important}
+
+/* V28: last cascade layer.  This block intentionally comes after all
+   compatibility history above; no legacy rule may re-enable character-like
+   breaks, a different footer, or an auto-sized reading field. */
+:root{
+  --dpk-text-safe-bottom:94px!important;
+  --dpk-rail-photo-width:430px!important;
+  --dpk-rail-total-width:calc(var(--book-page-w,1000px) - 36px + var(--dpk-rail-photo-width))!important;
+}
+body .dpk-page.dpk-text,
+body .dpk-page.dpk-text-quote,
+body .dpk-page.dpk-dark-text{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  padding:56px 70px 94px!important;
+}
+body .dpk-page.dpk-text.left,
+body .dpk-page.dpk-text-quote.left,
+body .dpk-page.dpk-dark-text.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text.right,
+body .dpk-page.dpk-text-quote.right,
+body .dpk-page.dpk-dark-text.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text.dpk-text-continuation,
+body .dpk-page.dpk-text-quote.dpk-text-continuation,
+body .dpk-page.dpk-text.dpk-text-has-inline-quote,
+body .dpk-page.dpk-text-quote.dpk-text-has-inline-quote{padding-top:86px!important}
+body .dpk-page.dpk-text.dpk-text-has-heading,
+body .dpk-page.dpk-text-quote.dpk-text-has-heading{padding-top:56px!important}
+body .dpk-page.dpk-text .dpk-story-kicker,
+body .dpk-page.dpk-text-quote .dpk-story-kicker,
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2,
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{flex:0 0 auto!important}
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{
+  position:relative!important;
+  z-index:3!important;
+  margin-bottom:18px!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-dark-text .dpk-reading{
+  flex:1 1 0!important;
+  width:100%!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:0!important;
+  overflow:hidden!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-text .dpk-reading>p,
+body .dpk-page.dpk-text-quote .dpk-reading>p,
+body .dpk-page.dpk-dark-text .dpk-reading>p{margin:0!important;orphans:3!important;widows:3!important}
+
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{
+  bottom:94px!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-text,
+body .dpk-page.dpk-photo-over-text{padding-bottom:94px!important}
+body .dpk-page.dpk-photo-text .dpk-copy,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns{
+  flex:1 1 0!important;
+  width:100%!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{
+  bottom:94px!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{display:flex!important;flex-direction:column!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns,
+body .dpk-page.dpk-date-era .dpk-era-copy .dpk-reading{
+  flex:1 1 0!important;
+  width:100%!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  column-count:1!important;
+  column-fill:auto!important;
+}
+
+/* The 1.5-sheet rail is a single source image, viewed through a full-page
+   window and a 430px neighbouring window. */
+body .dpk-page.dpk-photo-rail{padding:0!important;overflow:hidden!important;background:#fff!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{top:36px!important;bottom:82px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main{left:36px!important;right:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main{left:0!important;right:36px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{width:430px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half{left:0!important;right:auto!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half{left:auto!important;right:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main img,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half img{
+  position:absolute!important;top:0!important;width:var(--dpk-rail-total-width)!important;
+  max-width:none!important;height:100%!important;object-fit:cover!important
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-right .dpk-photo-rail-main img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main img{left:-430px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half img{left:-964px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-copy{left:500px!important;right:70px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-copy{left:70px!important;right:500px!important}
+
+/* A dark-gradient photo page always travels with a dark companion. */
+body .dpk-page.dpk-dark-gradient-photo,
+body .dpk-page.dpk-dark-text{background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  background:linear-gradient(90deg,#11110f 0%,#11110f 58%,rgba(17,17,15,.995) 74%,rgba(17,17,15,.92) 87%,rgba(17,17,15,.46) 96%,rgba(17,17,15,0) 100%)!important
+}
+
+body .dpk-page .dpk-date-watermark{writing-mode:horizontal-tb!important;white-space:nowrap!important;z-index:0!important}
+body .dpk-page img.dpk-photo-image-bw{filter:grayscale(1) contrast(1.05)!important}
+body .dpk-page img.dpk-photo-image-color{filter:none!important}
+body .dpk-page[lang="ru"] .dpk-reading,
+body .dpk-page[lang="ru"] .dpk-reading p,
+body .dpk-page[lang="ru"] .dpk-columns,
+body .dpk-page[lang="ru"] .dpk-columns p,
+body .dpk-page[lang="ru"] .dpk-chapter-copy,
+body .dpk-page[lang="ru"] .dpk-chapter-copy p,
+body .dpk-page[lang="ru"] .dpk-document-transcript,
+body .dpk-page[lang="ru"] .dpk-document-transcript p,
+body .dpk-page[lang="ru"] .dpk-bleed-copy,
+body .dpk-page[lang="ru"] .dpk-bleed-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy p,
+body .dpk-page[lang="ru"] .dpk-overlay-copy,
+body .dpk-page[lang="ru"] .dpk-overlay-copy p,
+body .dpk-page[lang="ru"] .dpk-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-gradient-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy p,
+body .dpk-page[lang="ru"] .dpk-text-over-copy,
+body .dpk-page[lang="ru"] .dpk-text-over-copy p,
+body .dpk-page[lang="ru"] .dpk-photo-rail-copy p{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  white-space:normal!important;
+}
+
+/* V27: final pagination authority.  All text-bearing fields expose one
+   definite measured box to the browser.  The engine probes this exact box
+   before advancing the word stream; the footer reserve is shared by every
+   page and never participates in the flow. */
+:root{
+  --dpk-text-safe-bottom:94px!important;
+  --dpk-rail-photo-width:430px!important;
+  --dpk-rail-total-width:calc(var(--book-page-w,1000px) - 36px + var(--dpk-rail-photo-width))!important;
+}
+body .dpk-page.dpk-text,
+body .dpk-page.dpk-text-quote,
+body .dpk-page.dpk-dark-text{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  padding:56px 70px var(--dpk-text-safe-bottom)!important;
+}
+body .dpk-page.dpk-text.left,
+body .dpk-page.dpk-text-quote.left,
+body .dpk-page.dpk-dark-text.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text.right,
+body .dpk-page.dpk-text-quote.right,
+body .dpk-page.dpk-dark-text.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text.dpk-text-continuation,
+body .dpk-page.dpk-text-quote.dpk-text-continuation,
+body .dpk-page.dpk-text.dpk-text-has-inline-quote,
+body .dpk-page.dpk-text-quote.dpk-text-has-inline-quote{padding-top:86px!important}
+body .dpk-page.dpk-text.dpk-text-has-heading,
+body .dpk-page.dpk-text-quote.dpk-text-has-heading{padding-top:56px!important}
+body .dpk-page.dpk-text .dpk-story-kicker,
+body .dpk-page.dpk-text-quote .dpk-story-kicker,
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2,
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{flex:0 0 auto!important}
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{
+  position:relative!important;
+  z-index:3!important;
+  margin-bottom:18px!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-dark-text .dpk-reading{
+  flex:1 1 0!important;
+  width:100%!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:0!important;
+  overflow:hidden!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-text .dpk-reading>p,
+body .dpk-page.dpk-text-quote .dpk-reading>p,
+body .dpk-page.dpk-dark-text .dpk-reading>p{margin:0!important;orphans:3!important;widows:3!important}
+
+/* Chapter opening copy and image/text pages use the same footer line. */
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{
+  bottom:var(--dpk-text-safe-bottom)!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-text,
+body .dpk-page.dpk-photo-over-text{padding-bottom:var(--dpk-text-safe-bottom)!important}
+body .dpk-page.dpk-photo-text .dpk-copy,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns{
+  flex:1 1 0!important;
+  width:100%!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+
+/* One-column text rails reserve their heading first, then fill only the
+   measured field.  This prevents a final word from escaping into the folio. */
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{
+  bottom:var(--dpk-text-safe-bottom)!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{display:flex!important;flex-direction:column!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns,
+body .dpk-page.dpk-date-era .dpk-era-copy .dpk-reading{
+  flex:1 1 0!important;
+  width:100%!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  column-count:1!important;
+  column-fill:auto!important;
+}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns{column-gap:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns p,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading p,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading p,
+body .dpk-page.dpk-date-era .dpk-era-copy .dpk-reading p{margin:0!important}
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy p,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy p,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy p,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy p{
+  margin:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+}
+
+/* Keep the rail source continuous and mirror its crop exactly. */
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{top:36px!important;bottom:82px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main{left:36px!important;right:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main{left:0!important;right:36px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{width:var(--dpk-rail-photo-width)!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half{left:0!important;right:auto!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half{left:auto!important;right:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main img,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half img{
+  position:absolute!important;
+  top:0!important;
+  width:var(--dpk-rail-total-width)!important;
+  max-width:none!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-right .dpk-photo-rail-main img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main img{left:calc(-1 * var(--dpk-rail-photo-width))!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half img{left:calc(-1 * (var(--book-page-w,1000px) - 36px))!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-copy{left:500px!important;right:70px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-copy{left:70px!important;right:500px!important}
+
+/* The gradient page owns the dark treatment of the complete spread. */
+body .dpk-page.dpk-dark-gradient-photo{background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  background:linear-gradient(90deg,#11110f 0%,#11110f 58%,rgba(17,17,15,.995) 74%,rgba(17,17,15,.92) 87%,rgba(17,17,15,.46) 96%,rgba(17,17,15,0) 100%)!important;
+}
+body .dpk-page.dpk-dark-text{background:#11110f!important;color:#f7f3eb!important}
+
+/* Dates, tone, and language are decorations/metadata—not pagination inputs. */
+body .dpk-page .dpk-date-watermark{
+  writing-mode:horizontal-tb!important;
+  white-space:nowrap!important;
+  z-index:0!important;
+}
+body .dpk-page img.dpk-photo-image-bw{filter:grayscale(1) contrast(1.05)!important}
+body .dpk-page img.dpk-photo-image-color{filter:none!important}
+body .dpk-page[lang="ru"] .dpk-reading,
+body .dpk-page[lang="ru"] .dpk-reading p,
+body .dpk-page[lang="ru"] .dpk-columns,
+body .dpk-page[lang="ru"] .dpk-columns p,
+body .dpk-page[lang="ru"] .dpk-chapter-copy,
+body .dpk-page[lang="ru"] .dpk-chapter-copy p,
+body .dpk-page[lang="ru"] .dpk-document-transcript,
+body .dpk-page[lang="ru"] .dpk-document-transcript p,
+body .dpk-page[lang="ru"] .dpk-bleed-copy,
+body .dpk-page[lang="ru"] .dpk-bleed-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy p,
+body .dpk-page[lang="ru"] .dpk-overlay-copy,
+body .dpk-page[lang="ru"] .dpk-overlay-copy p,
+body .dpk-page[lang="ru"] .dpk-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-gradient-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy p{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  white-space:normal!important;
+}
+
+/* V26: one geometry contract for the final renderer. The rules above contain
+   historical master variants; this tail is intentionally the last authority.
+   Every text field has a fixed top band and the same 94px bottom safe area.
+   The DOM fit probe measures this exact box before the engine advances words. */
+:root{--dpk-text-safe-bottom:94px;--dpk-rail-photo-width:430px;--dpk-rail-total-width:calc(var(--book-page-w,1000px) - 36px + var(--dpk-rail-photo-width))}
+body .dpk-page{box-sizing:border-box!important;min-width:0!important;min-height:0!important}
+
+body .dpk-page.dpk-text,
+body .dpk-page.dpk-text-quote{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  padding:56px 70px var(--dpk-text-safe-bottom)!important;
+}
+body .dpk-page.dpk-text.left,
+body .dpk-page.dpk-text-quote.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text.right,
+body .dpk-page.dpk-text-quote.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text.dpk-text-continuation,
+body .dpk-page.dpk-text-quote.dpk-text-continuation,
+body .dpk-page.dpk-text.dpk-text-has-inline-quote,
+body .dpk-page.dpk-text-quote.dpk-text-has-inline-quote{padding-top:86px!important}
+body .dpk-page.dpk-text.dpk-text-has-heading,
+body .dpk-page.dpk-text-quote.dpk-text-has-heading{padding-top:56px!important}
+body .dpk-page.dpk-text .dpk-story-kicker,
+body .dpk-page.dpk-text-quote .dpk-story-kicker,
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2,
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{flex:0 0 auto!important;min-width:0!important}
+body .dpk-page.dpk-text .dpk-story-kicker,
+body .dpk-page.dpk-text-quote .dpk-story-kicker{margin:0 0 10px!important}
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2{margin:0 0 18px!important}
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{
+  position:relative!important;z-index:2!important;margin:0 0 18px!important;
+  break-inside:avoid!important;page-break-inside:avoid!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-dark-text .dpk-reading{
+  flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;
+  max-height:none!important;overflow:hidden!important;padding:0!important;
+  column-count:2!important;column-gap:32px!important;column-fill:balance!important;
+  text-align:justify!important;min-width:0!important;
+}
+body .dpk-page.dpk-text .dpk-reading>p,
+body .dpk-page.dpk-text-quote .dpk-reading>p,
+body .dpk-page.dpk-dark-text .dpk-reading>p{margin:0!important;break-inside:auto!important;orphans:3!important;widows:3!important}
+
+/* Chapter openings and image/text continuations use the same footer line. */
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{bottom:var(--dpk-text-safe-bottom)!important;overflow:hidden!important;column-fill:balance!important}
+body .dpk-page.dpk-photo-text,
+body .dpk-page.dpk-photo-over-text{display:flex!important;flex-direction:column!important;padding-bottom:var(--dpk-text-safe-bottom)!important;min-width:0!important}
+body .dpk-page.dpk-photo-text.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-photo-text.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-photo-text-continuation{padding-top:86px!important}
+body .dpk-page.dpk-photo-text-section{padding-top:70px!important}
+body .dpk-page.dpk-photo-text .dpk-copy,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy{
+  flex:1 1 0!important;display:flex!important;flex-direction:column!important;
+  min-height:0!important;min-width:0!important;height:auto!important;overflow:hidden!important
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns{
+  flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;
+  max-height:none!important;overflow:hidden!important;column-count:2!important;
+  column-gap:32px!important;column-fill:balance!important
+}
+
+/* Photo rail: the image is one continuous 1.43-page crop. The text-side
+   half uses the same scale, so the image does not jump at the gutter. */
+body .dpk-page.dpk-photo-rail{padding:0!important;overflow:hidden!important;background:#fff!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{position:absolute!important;top:36px!important;bottom:82px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main{left:36px!important;right:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main{left:0!important;right:36px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{width:var(--dpk-rail-photo-width)!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half{left:0!important;right:auto!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half{left:auto!important;right:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main img,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half img{position:absolute!important;top:0!important;width:var(--dpk-rail-total-width)!important;max-width:none!important;height:100%!important;object-fit:cover!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-right .dpk-photo-rail-main img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main img{left:calc(-1 * var(--dpk-rail-photo-width))!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half img{left:calc(-1 * (var(--book-page-w,1000px) - 36px))!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half img{left:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy{
+  position:absolute!important;top:70px!important;bottom:var(--dpk-text-safe-bottom)!important;
+  display:flex!important;flex-direction:column!important;min-width:0!important;overflow:hidden!important
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-copy{left:500px!important;right:70px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-copy{left:70px!important;right:500px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns{
+  flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;
+  overflow:hidden!important;column-count:1!important;column-fill:auto!important
+}
+
+/* Explicit “photo enters the neighbouring sheet + text” uses the same rail
+   geometry, mirrored by side. */
+body .dpk-page.dpk-bleed-text{padding:0!important;overflow:hidden!important;background:#fff!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-image{position:absolute!important;top:36px!important;bottom:82px!important;overflow:hidden!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-image img{position:absolute!important;top:0!important;width:var(--dpk-rail-total-width)!important;max-width:none!important;height:100%!important;object-fit:cover!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-left .dpk-bleed-image{left:36px!important;right:0!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-left .dpk-bleed-image img{left:0!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-full-right .dpk-bleed-image{left:0!important;right:36px!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-full-right .dpk-bleed-image img{left:calc(-1 * var(--dpk-rail-photo-width))!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-image{left:auto!important;right:0!important;width:var(--dpk-rail-photo-width)!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-image img{left:0!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-right .dpk-bleed-image{left:0!important;right:auto!important;width:var(--dpk-rail-photo-width)!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-right .dpk-bleed-image img{left:calc(-1 * (var(--book-page-w,1000px) - 36px))!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy{display:flex!important;flex-direction:column!important;top:70px!important;bottom:var(--dpk-text-safe-bottom)!important;min-width:0!important;overflow:hidden!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-rail-left .dpk-bleed-copy{left:70px!important;right:500px!important}
+body .dpk-page.dpk-bleed-text.dpk-bleed-right .dpk-bleed-copy{left:500px!important;right:70px!important}
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy p{margin:0!important;overflow:hidden!important}
+
+/* The dark gradient is opaque through the complete reading rail. Only the
+   far-right photographic edge remains visible as atmosphere. */
+body .dpk-page.dpk-dark-gradient-photo{padding:0!important;background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-gradient-photo>figure{position:absolute!important;inset:36px 0 82px!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-gradient-photo>figure img{width:100%!important;height:100%!important;object-fit:cover!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{position:absolute!important;inset:36px 0 82px!important;z-index:1!important;background:linear-gradient(90deg,#11110f 0%,#11110f 56%,rgba(17,17,15,.995) 70%,rgba(17,17,15,.92) 84%,rgba(17,17,15,.48) 96%,rgba(17,17,15,0) 100%)!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy{position:absolute!important;left:70px!important;top:70px!important;bottom:var(--dpk-text-safe-bottom)!important;width:410px!important;z-index:2!important;display:flex!important;flex-direction:column!important;min-width:0!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy p{margin:0!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-text{display:flex!important;flex-direction:column!important;align-items:stretch!important;padding:86px 70px var(--dpk-text-safe-bottom)!important;background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-text.left{padding-right:91px!important}
+body .dpk-page.dpk-dark-text.right{padding-left:91px!important}
+body .dpk-page.dpk-dark-text .dpk-reading{column-fill:balance!important}
+
+/* One source, two viewport windows: no white photo strip at the gutter. */
+body .dpk-page.dpk-panorama{padding:0!important;overflow:hidden!important;background:#11110f!important}
+body .dpk-page.dpk-panorama .dpk-panorama-image{position:absolute!important;top:0!important;left:0!important;right:auto!important;width:2000px!important;height:100%!important;overflow:hidden!important}
+body .dpk-page.dpk-panorama .dpk-panorama-image img{position:absolute!important;left:0!important;top:0!important;width:2000px!important;max-width:none!important;height:100%!important;object-fit:cover!important}
+body .dpk-page.dpk-panorama.dpk-panorama-right .dpk-panorama-image{left:-1000px!important}
+
+/* Dates are horizontal decorations and never alter the reading flow. */
+body .dpk-page .dpk-date-watermark{writing-mode:horizontal-tb!important;white-space:nowrap!important;transform:translate(-50%,-50%)!important;z-index:0!important}
+
+/* Card-level tone wins over the compatibility page class. */
+body .dpk-page.dpk-photo-bw img.dpk-photo-image-color{filter:none!important}
+body .dpk-page.dpk-photo-color img.dpk-photo-image-bw{filter:grayscale(1) contrast(1.05)!important}
+body .dpk-page img.dpk-photo-image-bw{filter:grayscale(1) contrast(1.05)!important}
+body .dpk-page img.dpk-photo-image-color{filter:none!important}
+body .dpk-page[lang="ru"] .dpk-reading,
+body .dpk-page[lang="ru"] .dpk-reading p,
+body .dpk-page[lang="ru"] .dpk-columns,
+body .dpk-page[lang="ru"] .dpk-columns p,
+body .dpk-page[lang="ru"] .dpk-chapter-copy,
+body .dpk-page[lang="ru"] .dpk-chapter-copy p,
+body .dpk-page[lang="ru"] .dpk-bleed-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy p{
+  -webkit-hyphens:auto!important;hyphens:auto!important;word-break:normal!important;overflow-wrap:normal!important;white-space:normal!important
+}
+
+/* V25: language-aware line breaking is shared by every text-bearing master.
+   The split algorithm only hands the renderer complete words; the browser
+   may add a legal Russian hyphen when a word reaches the line edge, but it
+   may never invent a character-level break. */
+body .dpk-page[lang="ru"] .dpk-reading,
+body .dpk-page[lang="ru"] .dpk-columns,
+body .dpk-page[lang="ru"] .dpk-chapter-copy,
+body .dpk-page[lang="ru"] .dpk-document-transcript,
+body .dpk-page[lang="ru"] .dpk-bleed-copy,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy,
+body .dpk-page[lang="ru"] .dpk-overlay-copy,
+body .dpk-page[lang="ru"] .dpk-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+}
+body .dpk-page[lang="ru"] .dpk-reading p,
+body .dpk-page[lang="ru"] .dpk-columns p,
+body .dpk-page[lang="ru"] .dpk-chapter-copy p,
+body .dpk-page[lang="ru"] .dpk-document-transcript p,
+body .dpk-page[lang="ru"] .dpk-bleed-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy p,
+body .dpk-page[lang="ru"] .dpk-overlay-copy p,
+body .dpk-page[lang="ru"] .dpk-gradient-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy p{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  white-space:normal!important;
+  hyphenate-limit-chars:5 2 2!important;
+}
+
+/* The inner edge of a facing photo page is explicit. This removes the
+   one-sided gutter drift caused by resolving inset values through different
+   page padding contexts. */
+body .dpk-page.dpk-chapter-photo>figure,
+body .dpk-page.dpk-photo>figure,
+body .dpk-page.dpk-large-photo>figure,
+body .dpk-page.dpk-two-photo .dpk-duo,
+body .dpk-page.dpk-three-photo .dpk-triptych,
+body .dpk-page.dpk-document.dpk-document-image .dpk-document-scan{
+  left:36px!important;
+  right:36px!important;
+  width:auto!important;
+}
+body .dpk-page.dpk-quote-band-photo.dpk-secondary figure{
+  left:36px!important;
+  right:36px!important;
+}
+
+/* Continuation pages begin below the running header. Their reading field
+   still ends at the common 94px footer boundary. */
+body .dpk-page.dpk-text.dpk-text-continuation,
+body .dpk-page.dpk-text.dpk-text-has-inline-quote,
+body .dpk-page.dpk-text-quote.dpk-text-continuation,
+body .dpk-page.dpk-text-quote.dpk-text-has-inline-quote{
+  padding-top:86px!important;
+  padding-bottom:94px!important;
+}
+body .dpk-page.dpk-text.dpk-text-has-heading,
+body .dpk-page.dpk-text-quote.dpk-text-has-heading{
+  padding-top:56px!important;
+  padding-bottom:94px!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  column-fill:balance!important;
+}
+
+/* A dark gradient owns the whole spread. The companion is a dark reading
+   page, and the opaque part of the gradient extends past the complete copy
+   field so the photograph cannot show through the text. */
+body .dpk-page.dpk-dark-text{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  padding:86px 70px 94px!important;
+}
+body .dpk-page.dpk-dark-text.left{padding-right:91px!important}
+body .dpk-page.dpk-dark-text.right{padding-left:91px!important}
+body .dpk-page.dpk-dark-text .dpk-reading{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  padding-top:0!important;
+  overflow:visible!important;
+  column-count:2!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  background:linear-gradient(90deg,#11110f 0%,#11110f 58%,rgba(17,17,15,.99) 74%,rgba(17,17,15,.90) 87%,rgba(17,17,15,.46) 96%,rgba(17,17,15,0) 100%)!important;
+}
+
+/* V23: reserve the running header explicitly. It is an absolute decoration,
+   so a continuation page must start below it instead of beginning its first
+   line at the same y-coordinate. Headed episode pages keep their own header
+   block; only ordinary and inline-quote pages need this extra top band. */
+body .dpk-page.dpk-text.dpk-text-continuation,
+body .dpk-page.dpk-text-quote.dpk-text-continuation{
+  padding-top:86px!important;
+}
+body .dpk-page.dpk-text.dpk-text-has-inline-quote,
+body .dpk-page.dpk-text-quote.dpk-text-has-inline-quote{
+  padding-top:86px!important;
+}
+body .dpk-page.dpk-text.dpk-text-has-heading,
+body .dpk-page.dpk-text-quote.dpk-text-has-heading{
+  padding-top:56px!important;
+}
+
+/* The reader's safe boundary is identical for every text page, including an
+   inline quote. A word never gets hyphenated or broken at this boundary. */
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  column-count:2!important;
+  column-fill:balance!important;
+  column-gap:32px!important;
+}
+body .dpk-page.dpk-text .dpk-reading p,
+body .dpk-page.dpk-text-quote .dpk-reading p{
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  hyphenate-character:"-"!important;
+  white-space:normal!important;
+}
+
+/* A panorama is one 2000px image viewed through two 1000px windows. Using
+   explicit left/right edges avoids the browser resolving inset+width as two
+   independent full-image boxes. */
+body .dpk-page.dpk-panorama .dpk-panorama-image{
+  top:0!important;
+  bottom:auto!important;
+  left:0!important;
+  right:auto!important;
+  width:2000px!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-panorama .dpk-panorama-image img{
+  position:absolute!important;
+  left:0!important;
+  top:0!important;
+  width:2000px!important;
+  max-width:none!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
+body .dpk-page.dpk-panorama.dpk-panorama-right .dpk-panorama-image{
+  left:-1000px!important;
+  right:auto!important;
+}
+
+/* V24: the same text-frame model is used by image/text masters. The copy
+   block is a column flexbox, so its reading field ends at the shared 94px
+   footer boundary instead of using a different guessed height per master. */
+body .dpk-page.dpk-photo-text,
+body .dpk-page.dpk-photo-over-text{
+  display:flex!important;
+  flex-direction:column!important;
+  padding-bottom:94px!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy{
+  flex:1 1 auto!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns p,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns p,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading p,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading p,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns p,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy p,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy p,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy p,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy p{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  hyphenate-character:"-"!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  white-space:normal!important;
+}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy{
+  bottom:94px!important;
+  overflow:visible!important;
+}
+
+/* A mosaic always consumes its actual photo count; no fixed 4×4 canvas is
+   allowed to leave a lower-right block empty. */
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid{grid-template-columns:repeat(4,1fr)!important;grid-template-rows:repeat(3,1fr)!important;grid-auto-flow:row!important}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure{grid-column:auto!important;grid-row:auto!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid{grid-template-columns:repeat(5,1fr)!important;grid-template-rows:1fr!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-6 .dpk-mosaic-grid{grid-template-columns:repeat(3,1fr)!important;grid-template-rows:repeat(2,1fr)!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-7 .dpk-mosaic-grid{grid-template-columns:repeat(4,1fr)!important;grid-template-rows:repeat(2,1fr)!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-7 .dpk-mosaic-grid figure:last-child{grid-column:span 2!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-8 .dpk-mosaic-grid{grid-template-columns:repeat(4,1fr)!important;grid-template-rows:repeat(2,1fr)!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-9 .dpk-mosaic-grid{grid-template-columns:repeat(3,1fr)!important;grid-template-rows:repeat(3,1fr)!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-10 .dpk-mosaic-grid{grid-template-columns:repeat(5,1fr)!important;grid-template-rows:repeat(2,1fr)!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-11 .dpk-mosaic-grid figure:first-child{grid-column:span 2!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-12 .dpk-mosaic-grid{grid-template-columns:repeat(4,1fr)!important;grid-template-rows:repeat(3,1fr)!important}
+
+/* Make the date watermark legible on the finished paper while keeping it
+   behind the copy. */
+body .dpk-page.dpk-date-era .dpk-era-mark{opacity:.16!important;color:var(--dpk-accent)!important}
+
+/* V21: one footer-safe grid for every text-bearing composition. The engine's
+   DOM fit probe uses the same 94px boundary, so text can never enter the
+   folio area when a heading, quote, watermark or image is added. */
+:root{--dpk-text-safe-bottom:94px!important}
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{bottom:var(--dpk-text-safe-bottom)!important}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading{height:calc(var(--book-page-h,1000px) - 190px)!important}
+body .dpk-page.dpk-text.dpk-section-start .dpk-reading,
+body .dpk-page.dpk-text-quote.dpk-section-start .dpk-reading{height:calc(var(--book-page-h,1000px) - 300px)!important}
+body .dpk-page.dpk-photo-text .dpk-columns{height:calc(var(--book-page-h,1000px) - 220px)!important}
+body .dpk-page.dpk-photo-text-section .dpk-columns{height:calc(var(--book-page-h,1000px) - 320px)!important}
+body .dpk-page.dpk-photo-side-text .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-reading{height:calc(var(--book-page-h,1000px) - 236px)!important}
+body .dpk-page.dpk-dark-text .dpk-reading{height:calc(var(--book-page-h,1000px) - 214px)!important}
+body .dpk-page.dpk-date-era .dpk-reading{height:calc(var(--book-page-h,1000px) - 374px)!important}
+body .dpk-page.dpk-text .dpk-reading p,
+body .dpk-page.dpk-text-quote .dpk-reading p,
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy p,
+body .dpk-page.dpk-photo-text .dpk-columns p,
+body .dpk-page.dpk-photo-side-text .dpk-reading p,
+body .dpk-page.dpk-stacked-text .dpk-reading p,
+body .dpk-page.dpk-dark-text .dpk-reading p,
+body .dpk-page.dpk-dark-split p,
+body .dpk-page.dpk-bleed-text p,
+body .dpk-page.dpk-photo-gradient-text p,
+body .dpk-page.dpk-dark-gradient-photo p,
+body .dpk-page.dpk-text-over-photo .dpk-reading p,
+body .dpk-page.dpk-date-era .dpk-reading p{-webkit-hyphens:auto!important;hyphens:auto!important;hyphenate-character:"-"!important;word-break:normal!important;overflow-wrap:normal!important}
+
+@media print{
+  body .dpk-page.dpk-photo-gradient-text,body .dpk-page.dpk-dark-gradient-photo,body .dpk-page.dpk-photo-rail{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+}
+
+/* V22: the reading field is a flex child of the page, not a guessed-height
+   block.  Header, quote and folio therefore reserve their own rows first;
+   the two columns always finish at the same 94px footer boundary. */
+body .dpk-page.dpk-text,
+body .dpk-page.dpk-text-quote{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  padding:56px 70px 94px!important;
+}
+body .dpk-page.dpk-text.right,
+body .dpk-page.dpk-text-quote.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text.left,
+body .dpk-page.dpk-text-quote.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text .dpk-story-kicker,
+body .dpk-page.dpk-text-quote .dpk-story-kicker{
+  flex:0 0 auto!important;
+  margin:0 0 10px!important;
+}
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2{
+  flex:0 0 auto!important;
+  margin:0 0 18px!important;
+}
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:3!important;
+  margin:0 0 18px!important;
+  break-inside:avoid!important;
+  page-break-inside:avoid!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  width:100%!important;
+  height:auto!important;
+  padding-top:0!important;
+  overflow:visible!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-text.dpk-section-start .dpk-reading,
+body .dpk-page.dpk-text-quote.dpk-section-start .dpk-reading{
+  height:auto!important;
+  padding-top:0!important;
+}
+
+/* The same safe bottom applies to the text rails of image compositions. */
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy{
+  bottom:94px!important;
+}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading{
+  height:auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+  column-fill:balance!important;
+}
+
+/* A photograph is never filtered unless the separate monochrome control
+   explicitly adds dpk-photo-bw. */
+body .dpk-page.dpk-photo-color img{filter:none!important}
+
+/* V30: true end-of-file authority. */
+:root{
+  --dpk-text-safe-bottom:94px!important;
+  --dpk-rail-photo-width:430px!important;
+  --dpk-rail-total-width:calc(var(--book-page-w,1000px) - 36px + var(--dpk-rail-photo-width))!important;
+}
+body .dpk-page.dpk-text,
+body .dpk-page.dpk-text-quote,
+body .dpk-page.dpk-dark-text{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  padding:56px 70px 94px!important;
+}
+body .dpk-page.dpk-text.left,
+body .dpk-page.dpk-text-quote.left,
+body .dpk-page.dpk-dark-text.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text.right,
+body .dpk-page.dpk-text-quote.right,
+body .dpk-page.dpk-dark-text.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text.dpk-text-continuation,
+body .dpk-page.dpk-text-quote.dpk-text-continuation,
+body .dpk-page.dpk-text.dpk-text-has-inline-quote,
+body .dpk-page.dpk-text-quote.dpk-text-has-inline-quote{padding-top:86px!important}
+body .dpk-page.dpk-text.dpk-text-has-heading,
+body .dpk-page.dpk-text-quote.dpk-text-has-heading{padding-top:56px!important}
+body .dpk-page.dpk-text .dpk-story-kicker,
+body .dpk-page.dpk-text-quote .dpk-story-kicker,
+body .dpk-page.dpk-text h2,
+body .dpk-page.dpk-text-quote h2,
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{flex:0 0 auto!important}
+body .dpk-page.dpk-text .dpk-episode-pull,
+body .dpk-page.dpk-text-quote .dpk-episode-pull,
+body .dpk-page.dpk-text .dpk-fixed-pull,
+body .dpk-page.dpk-text-quote .dpk-fixed-pull{
+  position:relative!important;z-index:3!important;margin-bottom:18px!important;
+  break-inside:avoid!important;page-break-inside:avoid!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-dark-text .dpk-reading{
+  flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;
+  max-height:none!important;padding:0!important;overflow:hidden!important;
+  column-count:2!important;column-gap:32px!important;column-fill:balance!important;
+}
+body .dpk-page.dpk-text .dpk-reading>p,
+body .dpk-page.dpk-text-quote .dpk-reading>p,
+body .dpk-page.dpk-dark-text .dpk-reading>p{margin:0!important;orphans:3!important;widows:3!important}
+
+body .dpk-page.dpk-chapter-text .dpk-chapter-copy{
+  bottom:94px!important;height:auto!important;min-height:0!important;overflow:hidden!important;
+  column-count:2!important;column-gap:32px!important;column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-text,
+body .dpk-page.dpk-photo-over-text{padding-bottom:94px!important}
+body .dpk-page.dpk-photo-text .dpk-copy,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy{
+  display:flex!important;flex-direction:column!important;flex:1 1 0!important;
+  min-height:0!important;overflow:hidden!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns{
+  flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;
+  max-height:none!important;overflow:hidden!important;column-count:2!important;
+  column-gap:32px!important;column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-bleed-text .dpk-bleed-copy,
+body .dpk-page.dpk-dark-split .dpk-dark-split-copy,
+body .dpk-page.dpk-photo-gradient-text .dpk-gradient-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{bottom:94px!important;min-height:0!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy,
+body .dpk-page.dpk-date-era .dpk-era-copy{display:flex!important;flex-direction:column!important}
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns,
+body .dpk-page.dpk-date-era .dpk-era-copy .dpk-reading{
+  flex:1 1 0!important;width:100%!important;height:0!important;min-height:0!important;
+  max-height:none!important;overflow:hidden!important;column-count:1!important;
+  column-fill:auto!important;
+}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns{column-gap:0!important}
+
+body .dpk-page.dpk-photo-rail{padding:0!important;overflow:hidden!important;background:#fff!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{top:36px!important;bottom:82px!important;overflow:hidden!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main{left:36px!important;right:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main{left:0!important;right:36px!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{width:430px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half{left:0!important;right:auto!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half{left:auto!important;right:0!important}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-main img,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half img{
+  position:absolute!important;top:0!important;width:var(--dpk-rail-total-width)!important;
+  max-width:none!important;height:100%!important;object-fit:cover!important;
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-right .dpk-photo-rail-main img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main img{left:-430px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half img{left:-964px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-copy{left:500px!important;right:70px!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-copy{left:70px!important;right:500px!important}
+
+body .dpk-page.dpk-dark-gradient-photo,
+body .dpk-page.dpk-dark-text{background:#11110f!important;color:#f7f3eb!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{background:linear-gradient(90deg,#11110f 0%,#11110f 54%,rgba(17,17,15,.995) 66%,rgba(17,17,15,.90) 82%,rgba(17,17,15,.42) 95%,rgba(17,17,15,0) 100%)!important}
+body .dpk-page .dpk-date-watermark{writing-mode:horizontal-tb!important;white-space:nowrap!important;z-index:0!important}
+body .dpk-page img.dpk-photo-image-bw{filter:grayscale(1) contrast(1.05)!important}
+body .dpk-page img.dpk-photo-image-color{filter:none!important}
+
+/* Russian line breaking is legal, language-aware, and never a character cut. */
+body .dpk-page[lang="ru"] .dpk-reading,
+body .dpk-page[lang="ru"] .dpk-reading p,
+body .dpk-page[lang="ru"] .dpk-columns,
+body .dpk-page[lang="ru"] .dpk-columns p,
+body .dpk-page[lang="ru"] .dpk-chapter-copy,
+body .dpk-page[lang="ru"] .dpk-chapter-copy p,
+body .dpk-page[lang="ru"] .dpk-document-transcript,
+body .dpk-page[lang="ru"] .dpk-document-transcript p,
+body .dpk-page[lang="ru"] .dpk-bleed-copy,
+body .dpk-page[lang="ru"] .dpk-bleed-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy p,
+body .dpk-page[lang="ru"] .dpk-overlay-copy,
+body .dpk-page[lang="ru"] .dpk-overlay-copy p,
+body .dpk-page[lang="ru"] .dpk-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-gradient-copy p,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy p,
+body .dpk-page[lang="ru"] .dpk-text-over-copy,
+body .dpk-page[lang="ru"] .dpk-text-over-copy p,
+body .dpk-page[lang="ru"] .dpk-photo-rail-copy p{
+  -webkit-hyphens:auto!important;hyphens:auto!important;word-break:normal!important;
+  overflow-wrap:normal!important;white-space:normal!important;
+}
+
+/* V30: the final geometry contract.  All editorial text fields are flex
+   children with an intrinsic basis, then shrink only inside the page's fixed
+   safe box.  A zero-height flex basis made long prose appear as a few lines
+   in some browser states; the measured probe and the visible page now share
+   the same expandable field. */
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-dark-text .dpk-reading,
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns,
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading,
+body .dpk-page.dpk-date-era .dpk-era-copy .dpk-reading{
+  flex:1 1 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-text .dpk-reading,
+body .dpk-page.dpk-text-quote .dpk-reading,
+body .dpk-page.dpk-dark-text .dpk-reading{
+  column-count:2!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-text .dpk-copy .dpk-columns,
+body .dpk-page.dpk-photo-over-text .dpk-photo-over-copy .dpk-columns{
+  column-count:2!important;
+  column-fill:balance!important;
+}
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-copy .dpk-columns,
+body .dpk-page.dpk-photo-side-text .dpk-side-copy .dpk-reading,
+body .dpk-page.dpk-stacked-text .dpk-stacked-copy .dpk-reading,
+body .dpk-page.dpk-date-era .dpk-era-copy .dpk-reading{
+  column-count:1!important;
+  column-fill:auto!important;
+}
+
+/* V30: final art-direction authority.  These rules intentionally live at
+   the end of the pack: the historical reference cascades above contain
+   several older rail/gradient variants, while the constructor must expose
+   one stable geometry in preview and export. */
+:root{
+  --dpk-rail-photo-width:500px!important;
+  --dpk-rail-text-gap:70px!important;
+  --dpk-rail-total-width:calc(var(--book-page-w,1000px) - 36px + var(--dpk-rail-photo-width))!important;
+}
+
+/* The one-source rail is a full page plus a larger continuation on the
+   neighbour.  Its copy rail is deliberately narrower than the photo rail. */
+body .dpk-page.dpk-photo-rail .dpk-photo-rail-half{width:var(--dpk-rail-photo-width)!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-image.dpk-rail-left .dpk-photo-rail-main img{left:calc(-1 * var(--dpk-rail-photo-width))!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-half img{left:calc(-1 * (var(--book-page-w,1000px) - 36px))!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-half img{left:0!important}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-right .dpk-photo-rail-copy{
+  left:calc(var(--dpk-rail-photo-width) + var(--dpk-rail-text-gap))!important;right:70px!important
+}
+body .dpk-page.dpk-photo-rail.dpk-rail-text.dpk-rail-left .dpk-photo-rail-copy{
+  left:70px!important;right:calc(var(--dpk-rail-photo-width) + var(--dpk-rail-text-gap))!important
+}
+
+/* Both pages of the dark-gradient beat are dark.  The opaque field covers
+   about the first fifth of the photograph; the remaining image stays clear
+   through a short, full-height fade. */
+body .dpk-page.dpk-dark-gradient-photo,
+body .dpk-page.dpk-dark-text{
+  background:#11110f!important;color:#f7f3eb!important
+}
+body .dpk-page.dpk-dark-gradient-photo>figure,
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  top:0!important;right:0!important;bottom:0!important;left:0!important
+}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  background:linear-gradient(90deg,
+    #11110f 0%,
+    #11110f 20%,
+    rgba(17,17,15,.96) 27%,
+    rgba(17,17,15,.62) 35%,
+    rgba(17,17,15,.16) 43%,
+    rgba(17,17,15,0) 51%)!important
+}
+body .dpk-page.dpk-dark-text .dpk-running,
+body .dpk-page.dpk-dark-text .dpk-folio{color:#b9ad97!important}
+body .dpk-page.dpk-dark-text .dpk-kicker,
+body .dpk-page.dpk-dark-text h2{color:#d8c994!important}
+
+/* The chapter rule is aligned to the actual outer edge of the two-column
+   copy, including the mirrored page side. */
+body .dpk-page.dpk-chapter-text.left .dpk-chapter-rule{
+  left:70px!important;right:91px!important
+}
+body .dpk-page.dpk-chapter-text.right .dpk-chapter-rule{
+  left:91px!important;right:70px!important
+}
+
+/* Mosaic cells have a bounded viewport.  No image may escape the top of the
+   grid or reveal a sliver from the previous row. */
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid{
+  top:36px!important;right:36px!important;bottom:82px!important;left:36px!important;
+  min-width:0!important;min-height:0!important;overflow:hidden!important
+}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure{
+  min-width:0!important;min-height:0!important;overflow:hidden!important
+}
+body .dpk-page.dpk-mosaic .dpk-mosaic-grid figure img{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:none!important;object-fit:cover!important;object-position:50% 50%!important
+}
+
+/* V32: dark/photo spreads are a single visual field.  The copy rail stays
+   fully on black; only the photographic side is allowed to emerge, with no
+   hard vertical seam and no white strip at the top or bottom. */
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  top:0!important;right:0!important;bottom:0!important;left:0!important;
+  background:linear-gradient(90deg,
+    #11110f 0%,
+    #11110f 25%,
+    rgba(17,17,15,.96) 31%,
+    rgba(17,17,15,.62) 39%,
+    rgba(17,17,15,.20) 48%,
+    rgba(17,17,15,0) 100%)!important
+}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy{
+  z-index:3!important
+}
+body .dpk-page.dpk-dark-gradient-photo,
+body .dpk-page.dpk-dark-text{
+  background:#11110f!important;
+  print-color-adjust:exact!important;
+  -webkit-print-color-adjust:exact!important
+}
+
+/* Five photographs form a complete 3×2 composition: one tall anchor and
+   four companions.  The old 5×1 rule overflowed into a phantom lower row,
+   which is the large empty block seen in the constructor. */
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid{
+  grid-template-columns:1.15fr 1fr 1fr!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important
+}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid figure{
+  grid-column:auto!important;grid-row:auto!important
+}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid figure:nth-child(1){grid-column:1!important;grid-row:1 / span 2!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid figure:nth-child(2){grid-column:2!important;grid-row:1!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid figure:nth-child(3){grid-column:3!important;grid-row:1!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid figure:nth-child(4){grid-column:2!important;grid-row:2!important}
+body .dpk-page.dpk-mosaic.dpk-mosaic-count-5 .dpk-mosaic-grid figure:nth-child(5){grid-column:3!important;grid-row:2!important}
+
+/* V34: Russian prose is laid out by words and then hyphenated by the
+   renderer.  Keep the language hint and the browser's Russian dictionary in
+   charge of line breaks; never force a character break or a clipped word. */
+body .dpk-page[lang="ru"] .dpk-reading,
+body .dpk-page[lang="ru"] .dpk-reading p,
+body .dpk-page[lang="ru"] .dpk-columns,
+body .dpk-page[lang="ru"] .dpk-chapter-copy,
+body .dpk-page[lang="ru"] .dpk-document-transcript,
+body .dpk-page[lang="ru"] .dpk-bleed-copy,
+body .dpk-page[lang="ru"] .dpk-dark-split-copy,
+body .dpk-page[lang="ru"] .dpk-overlay-copy,
+body .dpk-page[lang="ru"] .dpk-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-dark-gradient-copy,
+body .dpk-page[lang="ru"] .dpk-text-over-copy{
+  -webkit-hyphens:auto!important;
+  hyphens:auto!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  white-space:normal!important;
+  hyphenate-character:"-"!important;
+}
+
+/* v39: the dark gradient must dissolve the image at the photo boundary on
+   every edge, not reveal a rectangular strip under the scrim. */
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-scrim{
+  top:0!important;right:0!important;bottom:0!important;left:0!important;
+  background:
+    linear-gradient(180deg,#11110f 0%,rgba(17,17,15,.97) 8%,rgba(17,17,15,0) 23%,rgba(17,17,15,0) 78%,rgba(17,17,15,.97) 93%,#11110f 100%),
+    linear-gradient(90deg,
+      #11110f 0%,
+      #11110f 34%,
+      rgba(17,17,15,.995) 46%,
+      rgba(17,17,15,.94) 59%,
+      rgba(17,17,15,.78) 72%,
+      rgba(17,17,15,.48) 84%,
+      rgba(17,17,15,.14) 95%,
+      rgba(17,17,15,0) 100%)!important;
+}
+body .dpk-page.dpk-dark-gradient-photo>figure{z-index:0!important}
+body .dpk-page.dpk-dark-gradient-photo .dpk-dark-gradient-copy{z-index:3!important}
+
+/* V16: the active constructor pass is a text-first chapter rhythm.  These
+   three variants share one two-column grid and change only the editorial
+   accent, so pagination remains a continuous manuscript flow. */
+body .dpk-page.dpk-text-important,
+body .dpk-page.dpk-text-margin,
+body .dpk-page.dpk-text-inline-quote{
+  padding-top:86px!important;
+  padding-bottom:70px!important;
+}
+body .dpk-page.dpk-text-important.left,
+body .dpk-page.dpk-text-margin.left,
+body .dpk-page.dpk-text-inline-quote.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text-important.right,
+body .dpk-page.dpk-text-margin.right,
+body .dpk-page.dpk-text-inline-quote.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text-important .dpk-reading,
+body .dpk-page.dpk-text-margin .dpk-reading,
+body .dpk-page.dpk-text-inline-quote .dpk-reading{
+  height:calc(var(--book-page-h,1000px) - 190px)!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+  overflow:visible!important;
+  text-align:justify!important;
+  hyphens:auto!important;
+}
+body .dpk-page.dpk-text-important .dpk-reading>p,
+body .dpk-page.dpk-text-margin .dpk-reading>p,
+body .dpk-page.dpk-text-inline-quote .dpk-reading>p{
+  margin:0!important;
+  font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;
+  text-align:justify!important;
+  hyphens:auto!important;
+  orphans:3!important;
+  widows:3!important;
+}
+body .dpk-page.dpk-text-important .dpk-important-line{
+  display:block!important;
+  margin:0 0 18px!important;
+  padding:0!important;
+  color:#756b59!important;
+  font:italic 400 16px/1.28 'SignThatS','PTSerifCy',Georgia,serif!important;
+  text-align:left!important;
+  text-indent:0!important;
+  break-inside:avoid!important;
+}
+body .dpk-page.dpk-text-inline-quote .dpk-inline-quote{
+  column-span:all!important;
+  display:block!important;
+  margin:28px 0 30px!important;
+  padding:0 55px!important;
+  color:#756b59!important;
+  font:italic 400 20px/1.3 'CormorantCy',Georgia,serif!important;
+  text-align:center!important;
+  break-inside:avoid!important;
+  text-indent:0!important;
+}
+body .dpk-page.dpk-text-margin .dpk-margin-note{
+  position:absolute!important;
+  z-index:3!important;
+  top:148px!important;
+  width:48px!important;
+  height:auto!important;
+  overflow:visible!important;
+  color:#756b59!important;
+  font:italic 400 13px/1.15 'SignThatS','PTSerifCy',Georgia,serif!important;
+  text-decoration:none!important;
+  pointer-events:none!important;
+}
+body .dpk-page.dpk-text-margin.left .dpk-margin-note{left:20px!important;right:auto!important}
+body .dpk-page.dpk-text-margin.right .dpk-margin-note{right:20px!important;left:auto!important}
+body .dpk-page.dpk-text-margin .dpk-margin-note span{
+  display:block!important;
+  width:26px!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  writing-mode:vertical-rl!important;
+  text-orientation:mixed!important;
+  white-space:nowrap!important;
+  text-decoration:none!important;
+}
+body .dpk-page.dpk-text-margin .dpk-margin-note span+span{margin-left:5px!important}
+
+/* Optional chapter-opening left leaf: the initial is a contained editorial
+   mark, never a second copy of the chapter's lead text. */
+body .dpk-page.dpk-chapter-initial{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:var(--dpk-paper)!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-initial-composition{
+  width:570px!important;
+  max-width:calc(100% - 140px)!important;
+  display:grid!important;
+  grid-template-columns:154px minmax(0,1fr)!important;
+  align-items:start!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-initial-rail{
+  position:relative!important;
+  height:300px!important;
+  overflow:hidden!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-initial-rail::after{
+  content:""!important;
+  position:absolute!important;
+  z-index:3!important;
+  top:0!important;
+  right:0!important;
+  width:1px!important;
+  height:100%!important;
+  background:#6f665a!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-initial-letter{
+  position:absolute!important;
+  z-index:1!important;
+  top:16px!important;
+  right:-52px!important;
+  color:#302a23!important;
+  font:400 252px/.62 'CormorantCy',Georgia,serif!important;
+  white-space:nowrap!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-initial-copy{
+  min-width:0!important;
+  padding:108px 0 0 34px!important;
+  color:var(--dpk-ink)!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-initial-copy p{
+  margin:0!important;
+  font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;
+  text-align:justify!important;
+  text-align-last:left!important;
+  hyphens:auto!important;
+}
+body .dpk-page.dpk-chapter-initial .dpk-folio{bottom:44px!important}
+
+/* V16.1: editorial accents must be visible in the actual reading flow.  The
+   important line is a slightly larger PT Serif italic; the outer note is a
+   vertical handwritten margin mark, set on the outside edge of the page. */
+body .dpk-page.dpk-text-important,
+body .dpk-page.dpk-text-margin,
+body .dpk-page.dpk-text-inline-quote,
+body .dpk-page.dpk-text-important-margin{
+  padding-top:86px!important;
+  padding-bottom:94px!important;
+}
+body .dpk-page.dpk-text-important.left,
+body .dpk-page.dpk-text-margin.left,
+body .dpk-page.dpk-text-inline-quote.left,
+body .dpk-page.dpk-text-important-margin.left{padding-left:70px!important;padding-right:91px!important}
+body .dpk-page.dpk-text-important.right,
+body .dpk-page.dpk-text-margin.right,
+body .dpk-page.dpk-text-inline-quote.right,
+body .dpk-page.dpk-text-important-margin.right{padding-left:91px!important;padding-right:70px!important}
+body .dpk-page.dpk-text-important .dpk-reading,
+body .dpk-page.dpk-text-margin .dpk-reading,
+body .dpk-page.dpk-text-inline-quote .dpk-reading,
+body .dpk-page.dpk-text-important-margin .dpk-reading{
+  height:calc(var(--book-page-h,1000px) - 180px)!important;
+  box-sizing:border-box!important;
+  min-height:0!important;
+  max-height:none!important;
+  column-count:2!important;
+  column-gap:32px!important;
+  column-fill:balance!important;
+  overflow:visible!important;
+  text-align:justify!important;
+  hyphens:auto!important;
+}
+body .dpk-page.dpk-text-important .dpk-reading>p,
+body .dpk-page.dpk-text-margin .dpk-reading>p,
+body .dpk-page.dpk-text-inline-quote .dpk-reading>p,
+body .dpk-page.dpk-text-important-margin .dpk-reading>p{
+  margin:0!important;
+  font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;
+  text-align:justify!important;
+  hyphens:auto!important;
+  orphans:3!important;
+  widows:3!important;
+}
+body .dpk-page.dpk-text-important .dpk-important-line,
+body .dpk-page.dpk-text-important-margin .dpk-important-line{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:relative!important;
+  z-index:5!important;
+  margin:0 0 22px!important;
+  padding:0!important;
+  color:var(--dpk-ink,#181714)!important;
+  font:italic 400 18px/1.32 'PTSerifCy',Georgia,serif!important;
+  letter-spacing:.005em!important;
+  text-align:left!important;
+  text-indent:0!important;
+  text-shadow:none!important;
+  break-inside:avoid!important;
+}
+body .dpk-page.dpk-text-margin .dpk-margin-note,
+body .dpk-page.dpk-text-important-margin .dpk-margin-note{
+  position:absolute!important;
+  z-index:4!important;
+  top:50%!important;
+  width:64px!important;
+  height:640px!important;
+  min-height:0!important;
+  overflow:visible!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  color:#777773!important;
+  font:italic 400 16px/1.08 'SignThatS','PTSerifCy',Georgia,serif!important;
+  letter-spacing:.01em!important;
+  text-align:center!important;
+  text-decoration:none!important;
+  text-shadow:none!important;
+  background:transparent!important;
+  transform:translateY(-50%)!important;
+  pointer-events:none!important;
+}
+body .dpk-page.dpk-text-margin.left .dpk-margin-note,
+body .dpk-page.dpk-text-important-margin.left .dpk-margin-note{left:12px!important;right:auto!important;flex-direction:row-reverse!important}
+body .dpk-page.dpk-text-margin.right .dpk-margin-note,
+body .dpk-page.dpk-text-important-margin.right .dpk-margin-note{right:12px!important;left:auto!important}
+body .dpk-page.dpk-text-margin .dpk-margin-note span,
+body .dpk-page.dpk-text-important-margin .dpk-margin-note span{
+  display:block!important;
+  flex:0 0 26px!important;
+  width:26px!important;
+  height:640px!important;
+  max-width:none!important;
+  max-height:none!important;
+  overflow:visible!important;
+  writing-mode:vertical-rl!important;
+  text-orientation:mixed!important;
+  white-space:nowrap!important;
+  font-size:19px!important;
+  text-decoration:none!important;
+  text-align:center!important;
+}
+body .dpk-page.dpk-text-margin .dpk-margin-note span+span,
+body .dpk-page.dpk-text-important-margin .dpk-margin-note span+span{margin:0!important}
+
+/* An inline narrative quote is one complete editorial interruption.  Letting
+   it participate as an ordinary multicolumn child makes Chromium move its
+   first line to one column and the remainder to the next. */
+body .dpk-page.dpk-text-inline-quote .dpk-inline-quote{
+  column-span:all!important;
+  break-inside:avoid!important;
+  -webkit-column-break-inside:avoid!important;
+  width:auto!important;
+  max-width:88%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* The initial and its prose begin on the same horizontal line. The vertical
+   rail still clips the oversized glyph, but the glyph no longer hangs above
+   the text block. */
+body .dpk-page.dpk-chapter-initial .dpk-initial-letter{top:108px!important}
+body .dpk-page.dpk-chapter-initial .dpk-initial-copy{padding-top:108px!important}
+
+/* One geometry for measured chapter copy and the four existing text roles. */
+body .dpk-page.dpk-dom-paginated{
+  display:block!important;overflow:clip!important;isolation:isolate!important;
+  --dpk-flow-origin:86px;
+}
+body .dpk-page.dpk-dom-paginated .dpk-measured-flow{
+  position:absolute!important;top:var(--dpk-flow-origin)!important;bottom:94px!important;
+  left:70px!important;right:91px!important;height:var(--dpk-flow-height,auto)!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:32px!important;
+  min-width:0!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+  column-count:auto!important;transform:none!important;
+  z-index:2!important;
+}
+body .dpk-page.dpk-dom-paginated.right .dpk-measured-flow{left:91px!important;right:70px!important}
+body .dpk-page.dpk-dom-paginated .dpk-flow-column{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;
+  height:100%!important;min-height:0!important;min-width:0!important;overflow:visible!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-flow-mode-inline-quote{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  gap:32px!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-flow-column-quote{
+  grid-template-rows:var(--dpk-flow-quote-top) var(--dpk-flow-quote-band) minmax(0,1fr)!important;
+  gap:0!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-flow-row{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:32px!important;
+  min-width:0!important;min-height:0!important;overflow:visible!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-flow-cell{
+  position:relative!important;display:block!important;min-width:0!important;min-height:0!important;overflow:visible!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-source-copy{
+  position:static!important;display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;text-indent:0!important;letter-spacing:normal!important;
+  font:400 var(--dpk-body-size)/var(--dpk-body-leading) 'PTSerifCy',Georgia,serif!important;
+  text-align:justify!important;text-align-last:left!important;white-space:normal!important;tab-size:4!important;
+  overflow:visible!important;word-break:normal!important;overflow-wrap:normal!important;
+  hyphens:auto!important;-webkit-hyphens:auto!important;hyphenate-character:"-"!important;
+  orphans:1!important;widows:1!important;transform:none!important;
+}
+body .dpk-page .dpk-flow-separator{display:none!important}
+body .dpk-page .dpk-paragraph-separator{
+  display:block!important;height:calc(var(--dpk-body-leading) * .5)!important;
+  min-height:calc(var(--dpk-body-leading) * .5)!important;font-size:0!important;line-height:0!important;
+  white-space:normal!important;margin:0!important;padding:0!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-inline-handwritten{
+  position:static!important;display:inline!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
+  font:400 17px/1.08 'SignThatS','PTSerifCy',serif!important;
+  letter-spacing:normal!important;word-spacing:normal!important;text-align-last:auto!important;word-break:normal!important;overflow-wrap:normal!important;
+  white-space:inherit!important;hyphens:none!important;text-align:inherit!important;text-indent:0!important;
+  margin:0!important;padding:0!important;transform:none!important;overflow:visible!important;
+  color:#000!important;opacity:1!important;visibility:visible!important;text-shadow:none!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-inline-handwritten-editable{cursor:text!important}
+body .dpk-page.dpk-dom-paginated .dpk-inline-quote,
+body .dpk-page.dpk-dom-paginated .dpk-quote-copy{
+  position:static!important;display:block!important;width:100%!important;height:auto!important;min-height:31.2px!important;max-height:62.4px!important;max-width:none!important;
+  font:italic 500 24px/31.2px 'CormorantCy',Georgia,serif!important;
+  letter-spacing:normal!important;word-spacing:normal!important;text-align-last:auto!important;word-break:normal!important;overflow-wrap:normal!important;
+  white-space:normal!important;hyphens:none!important;text-align:center!important;text-indent:0!important;
+  column-span:none!important;transform:none!important;margin:0!important;padding:0!important;overflow:hidden!important;
+  color:var(--dpk-accent)!important;opacity:1!important;visibility:visible!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-quote-reservation{
+  position:relative!important;width:100%!important;height:100%!important;padding:0 10px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;z-index:2!important;
+  pointer-events:auto!important;background:#fff!important;overflow:visible!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-inline-quote::before{content:"«"}
+body .dpk-page.dpk-dom-paginated .dpk-inline-quote::after{content:"»"}
+body .dpk-page.dpk-dom-paginated .dpk-accent-probe .dpk-quote-copy{width:100%!important;max-height:none!important;overflow:visible!important}
+body .dpk-page.dpk-dom-paginated .dpk-note-copy,
+body .dpk-page.dpk-dom-paginated .dpk-margin-note span{
+  font:400 36px/40px 'SignThatS','PTSerifCy',serif!important;letter-spacing:normal!important;
+  white-space:pre-wrap!important;word-break:normal!important;overflow-wrap:anywhere!important;hyphens:none!important;-webkit-hyphens:none!important;
+  text-align:left!important;text-indent:0!important;text-decoration:none!important;text-shadow:none!important;color:#4b4b4b!important;
+  overflow:visible!important;margin:0!important;padding:0!important;
+}
+body .dpk-page.dpk-dom-paginated .dpk-margin-note{
+  position:absolute!important;top:calc(var(--dpk-flow-origin) + var(--dpk-flow-note-inset,0px))!important;bottom:auto!important;height:var(--dpk-flow-note-length,var(--dpk-flow-height))!important;width:var(--dpk-flow-note-depth,60px)!important;
+  display:block!important;transform:none!important;margin:0!important;padding:0!important;overflow:visible!important;contain:none!important;
+  background:none!important;pointer-events:auto!important;z-index:1!important;opacity:.76!important;
+}
+body .dpk-page.dpk-dom-paginated.left .dpk-margin-note{left:28px!important;right:auto!important}
+body .dpk-page.dpk-dom-paginated.right .dpk-margin-note{right:28px!important;left:auto!important}
+body .dpk-page.dpk-dom-paginated .dpk-margin-note span{
+  position:absolute!important;display:block!important;width:var(--dpk-flow-note-length,var(--dpk-flow-height))!important;height:auto!important;min-height:var(--dpk-flow-note-depth,80px)!important;max-width:none!important;max-height:var(--dpk-flow-note-depth,80px)!important;
+  overflow:hidden!important;
+  writing-mode:horizontal-tb!important;transform-origin:0 0!important;
+}
+body .dpk-page.dpk-dom-paginated.left .dpk-margin-note span{left:0!important;top:var(--dpk-flow-note-length,var(--dpk-flow-height))!important;transform:rotate(-90deg)!important}
+body .dpk-page.dpk-dom-paginated.right .dpk-margin-note span{left:var(--dpk-flow-note-depth,60px)!important;top:0!important;transform:rotate(90deg)!important}
+body .dpk-page.dpk-dom-paginated .dpk-accent-overflow{
+  outline:3px solid #c7342d!important;outline-offset:5px!important;background:rgba(199,52,45,.08)!important;color:#a71914!important;
+}
+
+/* CTX Detail SQ v1.7 — one dominant photograph plus a different real
+   secondary photograph (or handwriting). Approved geometry is unchanged;
+   no generated layer, stretching, enlargement trick or shadow is used. */
+body .dpk-page.dpk-ctx-detail-sq{
+  position:relative!important;overflow:hidden!important;background:#fff!important;padding:0!important;
+}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-stage{position:absolute!important;inset:0!important}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-main,
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card,
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-handwritten-card{
+  position:absolute!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important;
+}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-main img,
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card img{
+  display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  object-fit:cover!important;transform:none!important;filter:none;box-shadow:none!important;
+}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-main img{object-position:50% 50%!important}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card img{object-position:50% 50%!important;transform:none!important}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card,
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-handwritten-card{
+  z-index:2!important;border:8px solid #fff!important;box-sizing:border-box!important;box-shadow:none!important;
+}
+/* Keep the approved v1.7 card contract explicit for regression tooling. */
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card{box-shadow:none!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="H"] .dpk-ctx-main{left:36px!important;right:36px!important;top:49px!important;height:635px!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="H"] .dpk-ctx-main img{object-position:50% 50%!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="H"] :is(.dpk-ctx-card,.dpk-ctx-handwritten-card){left:318px!important;top:622px!important;width:532px!important;height:306px!important;transform:rotate(-3deg)!important;transform-origin:50% 50%!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="S"] .dpk-ctx-main{left:198px!important;top:58px!important;width:747px!important;height:884px!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="S"] .dpk-ctx-main img{object-position:50% 45%!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="S"] :is(.dpk-ctx-card,.dpk-ctx-handwritten-card){left:44px!important;top:365px!important;width:350px!important;height:350px!important;transform:rotate(-5deg)!important;transform-origin:50% 50%!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="V"] .dpk-ctx-main{left:344px!important;top:23px!important;width:616px!important;height:952px!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="V"] .dpk-ctx-main img{object-position:50% 50%!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-state="V"] :is(.dpk-ctx-card,.dpk-ctx-handwritten-card){left:51px!important;top:129px!important;width:370px!important;height:704px!important;transform:rotate(-6deg)!important;transform-origin:50% 50%!important}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-handwritten-card{
+  display:flex!important;align-items:center!important;justify-content:center!important;padding:34px!important;
+  color:#606060!important;background:#f7f6f3!important;text-align:center!important;cursor:text!important;
+}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-handwritten-card span{
+  display:block!important;max-width:100%!important;font:400 42px/1.08 'SignThatS','PTSerifCy',serif!important;
+  white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:auto!important;
+}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-note{
+  position:absolute!important;z-index:3!important;right:72px!important;bottom:36px!important;max-width:360px!important;
+  font:400 34px/1.05 'SignThatS','PTSerifCy',serif!important;color:#666!important;text-align:right!important;
+  transform:none!important;white-space:normal!important;overflow:visible!important;
+}
+body .dpk-page.dpk-ctx-detail-sq .dpk-folio{z-index:4!important}
+
+/* DARK FADE 2.2. One unchanged source image spans the spread. The fade is a
+   non-destructive alpha mask over an independent graphite-black field. */
+body .dpk-page.dpk-dark-fade{padding:0!important;background:#10100f!important;color:#eee9df!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-fade .dpk-dark-fade-stage{position:absolute!important;inset:0!important;background:#10100f!important;overflow:hidden!important}
+body .dpk-page.dpk-dark-fade .dpk-dark-fade-image{
+  position:absolute!important;display:block!important;max-width:none!important;max-height:none!important;
+  filter:none!important;box-shadow:none!important;transform:none!important;
+  -webkit-mask-repeat:no-repeat!important;mask-repeat:no-repeat!important;
+  -webkit-mask-size:100% 100%!important;mask-size:100% 100%!important;
+}
+body .dpk-page.dpk-dark-fade-left .dpk-dark-fade-image{left:0!important}
+body .dpk-page.dpk-dark-fade-right .dpk-dark-fade-image{left:-1000px!important}
+body .dpk-page.dpk-dark-fade [data-dark-fade-state="H"] .dpk-dark-fade-image{
+  top:0!important;width:2000px!important;height:1000px!important;object-fit:cover!important;object-position:center!important;
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 55%,rgba(0,0,0,.96) 61%,rgba(0,0,0,.68) 69%,rgba(0,0,0,.22) 76%,transparent 82%)!important;
+  mask-image:linear-gradient(90deg,#000 0%,#000 55%,rgba(0,0,0,.96) 61%,rgba(0,0,0,.68) 69%,rgba(0,0,0,.22) 76%,transparent 82%)!important;
+}
+body .dpk-page.dpk-dark-fade [data-dark-fade-state="V"] .dpk-dark-fade-image{
+  top:0!important;width:2000px!important;height:1000px!important;object-fit:contain!important;object-position:14% center!important;
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 38%,rgba(0,0,0,.94) 47%,rgba(0,0,0,.52) 57%,transparent 67%)!important;
+  mask-image:linear-gradient(90deg,#000 0%,#000 38%,rgba(0,0,0,.94) 47%,rgba(0,0,0,.52) 57%,transparent 67%)!important;
+}
+body .dpk-page.dpk-dark-fade [data-dark-fade-state="S"] .dpk-dark-fade-image{
+  top:0!important;width:2000px!important;height:1000px!important;object-fit:contain!important;object-position:18% center!important;
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 44%,rgba(0,0,0,.92) 49%,rgba(0,0,0,.48) 55%,transparent 62%)!important;
+  mask-image:linear-gradient(90deg,#000 0%,#000 44%,rgba(0,0,0,.92) 49%,rgba(0,0,0,.48) 55%,transparent 62%)!important;
+}
+body .dpk-page.dpk-dark-fade .dpk-folio{color:#aba69d!important;z-index:3!important}
+
+/* Shared measured text slots; existing photograph geometry is unchanged. */
+body .dpk-page.dpk-native-paginated{overflow:visible!important}
+body .dpk-page.dpk-native-paginated [data-native-ancestor][data-native-ancestor]{overflow:visible!important}
+body .dpk-page.dpk-native-paginated [data-native-copy][data-native-copy][data-native-copy]{display:grid!important;grid-template-columns:repeat(var(--native-columns),minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;gap:var(--native-gap)!important;height:var(--native-height)!important;min-height:0!important;max-height:none!important;column-count:auto!important;padding:0!important;overflow:visible!important}
+body .dpk-page.dpk-native-paginated [data-native-copy] [data-native-cell]{min-height:0!important;min-width:0!important;overflow:visible!important}
+body .dpk-page.dpk-native-paginated [data-native-copy] [data-native-cell] [data-source-stream]{display:block!important;position:static!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;white-space:pre-wrap!important;overflow:visible!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:auto!important;-webkit-hyphens:auto!important;orphans:1!important;widows:1!important;text-indent:0!important}
+body .dpk-page.dpk-native-paginated [data-native-copy] [data-native-cell] [data-source-stream]::first-letter{font:inherit!important;float:none!important;margin:0!important;padding:0!important}

@@ -1,0 +1,161 @@
+{
+  "id": "design-01-editorial",
+  "version": "1.16.0-stable-important-reflow",
+  "format": { "trim_mm": [280, 280], "canvas_px": [1000, 1000] },
+  "formats": [
+    { "id": "square", "trim_mm": [280, 280], "canvas_px": [1000, 1000] },
+    { "id": "portrait", "trim_mm": [280, 335], "canvas_px": [1000, 1196] }
+  ],
+  "fonts": { "display": "CormorantCy", "text": "PTSerifCy" },
+  "masters": [
+    { "id": "D01-COVER", "role": "cover", "reference_page": 1, "approved_choice": "left" },
+    { "id": "D01-ENDPAPER", "role": "endpaper", "reference_page": 2, "approved_choice": "hybrid" },
+    { "id": "D01-HALF-TITLE", "role": "half-title", "reference_page": 4, "approved_choice": "hybrid" },
+    { "id": "D01-TITLE", "role": "title", "reference_page": 5, "approved_choice": "left" },
+    { "id": "D01-EPIGRAPH", "role": "epigraph", "reference_page": 6, "approved_choice": "hybrid" },
+    { "id": "D01-CONTENTS", "role": "contents", "reference_page": 7, "approved_choice": "hybrid" },
+    { "id": "D01-CHAPTER-PHOTO", "role": "chapter-photo", "reference_page": 8, "approved_choice": "hybrid" },
+    { "id": "D01-CHAPTER-TEXT", "role": "chapter-text", "reference_page": 9, "approved_choice": "hybrid" },
+    { "id": "D01-CHAPTER-INITIAL", "role": "chapter-initial", "reference_page": 9, "approved_choice": "new", "photos": 0 },
+    { "id": "D01-PHOTO", "role": "photo", "reference_page": 10, "approved_choice": "hybrid" },
+    { "id": "D01-PHOTO-TEXT", "role": "photo-text", "reference_page": 11, "approved_choice": "hybrid", "variants": ["continuation", "section"] },
+    { "id": "D01-QUOTE", "role": "quote", "reference_page": 12, "approved_choice": "left" },
+    { "id": "D01-TEXT-QUOTE", "role": "text-quote", "reference_page": 13, "approved_choice": "hybrid" },
+    { "id": "D01-TEXT", "role": "text", "reference_page": 14, "approved_choice": "hybrid" },
+    { "id": "D01-TEXT-IMPORTANT", "role": "text-important", "reference_page": 14, "approved_choice": "new", "photos": 0 },
+    { "id": "D01-TEXT-MARGIN", "role": "text-margin", "reference_page": 14, "approved_choice": "reference", "photos": 0 },
+    { "id": "D01-TEXT-INLINE-QUOTE", "role": "text-inline-quote", "reference_page": 14, "approved_choice": "reference", "photos": 0 },
+    { "id": "D01-TEXT-IMPORTANT-MARGIN", "role": "text-important-margin", "reference_page": 14, "approved_choice": "new", "photos": 0 },
+    { "id": "D01-CTX-DETAIL-SQ", "role": "ctx-detail-sq", "approved_choice": "reference", "photos": 2, "states": ["V", "S", "H"], "secondary_fallback": "editable-handwritten-note" },
+    { "id": "D01-DARK-FADE-2.2", "role": "dark-fade", "approved_choice": "reference", "photos": 1, "states": ["V", "S", "H"], "alpha_mask": true },
+    { "id": "D01-LARGE-PHOTO", "role": "large-photo", "reference_page": 16, "approved_choice": "hybrid" },
+    { "id": "D01-PANORAMA", "role": "panorama", "reference_page": 17, "approved_choice": "new", "photos": 1 },
+    { "id": "D01-PHOTO-RAIL", "role": "photo-rail", "approved_choice": "reference", "photos": 1, "horizontal_only": true },
+    { "id": "D01-THREE-PHOTO", "role": "three-photo", "approved_choice": "new", "photos": 3 },
+    { "id": "D01-TWO-PHOTO", "role": "two-photo", "approved_choice": "new", "photos": 2 },
+    { "id": "D01-STACKED-TEXT", "role": "stacked-text", "approved_choice": "reference", "photos": 2 },
+    { "id": "D01-MOSAIC", "role": "mosaic", "approved_choice": "reference", "photos_min": 5, "photos_max": 12 },
+    { "id": "D01-BLEED-TEXT", "role": "bleed-text", "approved_choice": "reference", "photos": 1, "horizontal_only": true },
+    { "id": "D01-DARK-SPLIT", "role": "dark-split", "approved_choice": "reference", "photos": 1 },
+    { "id": "D01-DARK-PHOTO-PAIR", "role": "dark-photo-pair", "approved_choice": "reference", "photos": 2 },
+    { "id": "D01-PHOTO-OVERLAY-TEXT", "role": "photo-overlay-text", "approved_choice": "reference", "photos": 1 },
+    { "id": "D01-TEXT-OVER-PHOTO", "role": "text-over-photo", "approved_choice": "reference", "photos": 1 },
+    { "id": "D01-QUOTE-BAND-PHOTO", "role": "quote-band-photo", "approved_choice": "reference", "photos": 2 },
+    { "id": "D01-DARK-TEXT", "role": "dark-text", "approved_choice": "reference", "photos": 0 },
+    { "id": "D01-DARK-TEXT-PAIR", "role": "dark-text-pair", "approved_choice": "reference", "photos": 0, "words": 680 },
+    { "id": "D01-PHOTO-GRADIENT-TEXT", "role": "photo-gradient-text", "approved_choice": "reference", "photos": 1 },
+    { "id": "D01-DARK-GRADIENT-PHOTO", "role": "dark-gradient-photo", "approved_choice": "reference", "photos": 1 },
+    { "id": "D01-DOCUMENT", "role": "document", "reference_page": 22, "approved_choice": "hybrid" },
+    { "id": "D01-DOCUMENT-COMMENT", "role": "document-comment", "reference_page": 23, "approved_choice": "hybrid" },
+    { "id": "D01-INTRO", "role": "intro", "reference_page": 31, "approved_choice": "right" },
+    { "id": "D01-AUTHOR", "role": "author", "reference_page": 31, "approved_choice": "right" },
+    { "id": "D01-TIMELINE", "role": "timeline", "reference_page": 30, "approved_choice": "hybrid" },
+    { "id": "D01-FINAL", "role": "final", "reference_page": 31, "approved_choice": "right" },
+    { "id": "D01-THANKS", "role": "thanks", "reference_page": 31, "approved_choice": "right" },
+    { "id": "D01-SOURCES", "role": "sources", "reference_page": 33, "approved_choice": "right" },
+    { "id": "D01-COLOPHON", "role": "colophon", "reference_page": 33, "approved_choice": "right" },
+    { "id": "D01-BACK-COVER", "role": "back-cover", "reference_page": 36, "approved_choice": "left", "photos": 1 }
+  ],
+  "hard_rules": {
+    "photo_frames": false,
+    "auto_font_shrink": false,
+    "repeat_photo": false,
+    "adjacent_repeat_photo": false,
+    "deterministic": true,
+    "preview_and_output_share_renderer": true,
+    "active_constructor_mode": "chapter-opening-plus-text-rhythm",
+    "text_rhythm_cycle": ["important-line", "outer-margin-note", "inline-narrative-quote"],
+    "optional_text_rhythm_combination": "important-line-plus-outer-margin-note",
+    "text_rhythm_proof": "book-renderer/master-proof.html#D01-CHAPTER-INITIAL",
+    "post_opening_photo_compositions": true,
+    "text_page_background": "#ffffff",
+    "photo_caption_zone_px": 82,
+    "photo_outer_margin_px": 36,
+    "folio_mirrors_page_side": true
+    ,"sentence_aware_pagination": true
+    ,"photo_text_section_requires_drop_cap": true
+    ,"continuation_suppresses_heading_and_quote": true
+    ,"manual_quote_priority": true
+    ,"automatic_quote_when_missing": true
+    ,"panorama_uses_one_source_across_spread": true
+    ,"orientation_aware_photo_selection": true
+    ,"panorama_horizontal_only": true
+    ,"panorama_optional": true
+    ,"one_source_photo_1_5_page_rail": true
+    ,"dark_text_pair": true
+    ,"dark_spreads_not_adjacent": true
+    ,"full_page_quotes_can_be_light_or_dark": true
+    ,"photo_only_compositions_have_no_text_companion": true
+    ,"gradient_edges_fade_into_page_background": true
+    ,"dark_photo_pair": true
+    ,"photo_text_gradient_field": true
+    ,"photo_color_default": true
+    ,"photo_bw_toggle": true
+    ,"large_heading_accent": true
+    ,"no_adjacent_heavy_photo_spreads": true
+    ,"automatic_composition_plan": true
+    ,"automatic_rhythm_book_scope": true
+    ,"fixed_director_rhythm": true
+    ,"text_is_primary_flow": true
+    ,"optional_photo_beats_do_not_create_pages": true
+    ,"post_chapter_opening_spread": ["measured-text-left", "ctx-detail-sq-v1.7-right"]
+    ,"ctx_detail_uses_same_source_pixels": false
+    ,"ctx_detail_secondary_photo_must_differ": true
+    ,"ctx_detail_generation_forbidden": true
+    ,"ctx_detail_same_photo_roi_forbidden": true
+    ,"ctx_detail_fallback_when_secondary_photo_missing": "editable-handwritten-note"
+    ,"ctx_detail_skips_when_photo_missing": true
+    ,"opening_photo_not_reused_in_adjacent_ctx": true
+    ,"maximum_consecutive_text_spreads_when_photos_exist": 2
+    ,"handwritten_vertical_zones": ["top", "middle", "bottom"]
+    ,"handwritten_zone_selection": "deterministic-physical-fit"
+    ,"margin_note_graphite": "#666666"
+    ,"margin_note_layer_below_prose": true
+    ,"desktop_mobile_geometry_identity": true
+    ,"dark_fade_2_2_uses_alpha_mask": true
+    ,"dark_fade_source_pixels_unchanged": true
+    ,"dark_fade_text_injection": false
+    ,"automatic_dark_requires_planned_photo": true
+    ,"text_editorial_rhythm_sequence": ["inline-quote", "important", "margin", "important-margin"]
+    ,"required_automatic_accents_never_silently_downgrade": true
+    ,"manual_quote_and_margin_overflow_is_blocking": true
+    ,"no_photo_ctx_fallback": "text-page"
+    ,"automatic_rhythm_sequence": [
+      "chapter-opener",
+      "light-reading-flow",
+      "photo-beat-panorama-or-1p5-rail",
+      "light-reading-pause",
+      "photo-beat-dark-gradient",
+      "light-reading-pause",
+      "photo-beat-light-gradient",
+      "light-reading-flow"
+    ]
+    ,"automatic_rhythm_is_book_scoped": true
+    ,"automatic_photo_slots_are_optional": true
+    ,"one_source_rail_uses_distinct_crops": true
+    ,"rail_continuation_width_px": 500
+    ,"rail_text_column_is_narrower": true
+    ,"rail_mirror_is_non_adjacent_in_automatic_mode": true
+    ,"automatic_composition_does_not_split_text_flow": true
+    ,"editor_visual_wrap_is_not_semantic_break": true
+    ,"editor_measurement_uses_live_computed_width": true
+    ,"manual_quote_change_triggers_full_relayout": true
+    ,"margin_note_overflow_message": "Заметка слишком длинная для этой области. Сократите текст."
+    ,"manual_layout_override_preserved": true
+    ,"text_pagination_uses_render_metrics": true
+    ,"no_character_or_substring_split": true
+    ,"text_fit_cases_cover_all_textual_composites": true
+    ,"text_grid_uses_shared_footer_boundary": true
+    ,"dark_gradient_opaque_zone_ratio": 0.2
+    ,"dark_gradient_full_height": true
+    ,"dark_gradient_companion_is_dark": true
+    ,"chapter_rule_aligns_to_copy_edge": true
+    ,"mosaic_cells_are_bounded": true
+    ,"mosaic_min_photos": 5
+    ,"mosaic_max_photos": 12
+    ,"optional_sections_default_off": ["title","contents","intro","author","timeline","final","afterword","thanks","sources","colophon","back-cover"]
+    ,"triptych_requires_three_photos_on_same_source_sheet": true
+    ,"direct_pdf_export": true
+    ,"pdf_output_dpi": 300
+  }
+}

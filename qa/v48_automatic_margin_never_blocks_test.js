@@ -1,0 +1,27 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const document={body:{appendChild(){}},createElement(){return {style:{cssText:''},remove(){}};}};
+const ctx={window:{},document,console};vm.createContext(ctx);
+for(const file of ['book-renderer/design-pack-01.layout.js','book-renderer/book-engine.js','book-renderer/design-pack-01.js'])vm.runInContext(read(file),ctx);
+const renderer=ctx.window.OcherkiBookRenderer;
+ctx.window.OcherkiBookRenderer={...renderer,paginateText(page,source){
+  if(['margin','important-margin'].includes(page.rhythm))throw Object.assign(new Error('persistent note geometry'),{code:'ACCENT_UNFIT',kind:'margin',text:page.marginNote||'Память семьи',automatic:Boolean(page.autoMarginNote)});
+  const head=source,flow={mode:'plain',cells:[head,''],cellBreaks:[[],[]],inlineRanges:[[],[]],accentOverflow:{},geometry:{origin:86,height:810,leading:27},sequence:[{kind:'cell',cell:0,text:head}],maximal:[true,true],sourceText:head};
+  page.measuredFlow=flow;return {head,tail:'',measuredFlow:flow};
+}};
+vm.runInContext(read('book-renderer/layout-pagination-engine.js'),ctx);
+const session=ctx.window.OcherkiLayoutPagination.createSession({format:'square'});
+const automatic={master:'D01-TEXT-MARGIN',rhythm:'margin',autoMarginNote:true,marginNote:''};
+const result=session.textPage(automatic,'Текст страницы','left');
+assert.equal(result.tail,'');
+assert.equal(automatic.rhythm,'margin');
+assert.equal(automatic.measuredFlow.mode,'margin');
+assert.equal(automatic.measuredFlow.noteLines,1);
+assert(automatic.marginNote);
+assert.equal(automatic.forceMarginPlacement,true);
+assert(session.warnings.some(item=>item.code==='ACCENT_AUTO_MARGIN_RECOVERED'));
+assert(!session.warnings.some(item=>item.code==='ACCENT_REQUIRED'));
+const manual={master:'D01-TEXT-MARGIN',rhythm:'margin',autoMarginNote:false,marginNote:'Ручная заметка'};
+assert.throws(()=>session.textPage(manual,'Текст страницы','left'),/Заметка на поле не помещается в две строки/);
+session.dispose();
+console.log(JSON.stringify({status:'pass',automaticMargin:'never-blocks',manualMargin:'still-validated'}));

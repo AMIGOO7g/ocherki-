@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Пробная страница · точная страница конструктора</title>
+<link rel="stylesheet" href="book-renderer/fonts.css">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css">
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#fff}
+body{padding:18px;font-family:Arial,sans-serif;color:#3f3d39}
+.proof-head{width:min(100%,1000px);margin:0 auto 12px;display:flex;justify-content:space-between;gap:16px;font:12px/1.35 Arial,sans-serif;color:#77736c}
+.proof-head strong{font-size:14px;color:#403e39}.proof-head span{text-align:right}
+.proof-window{position:relative;width:min(100%,1000px);margin:auto;overflow:hidden;background:#fff}
+.proof-scale{position:relative;width:1000px;height:1000px;transform-origin:0 0;--book-page-w:1000px;--book-page-h:1000px}
+.proof-scale [contenteditable="true"]{cursor:text}
+.proof-scale [contenteditable="true"]:focus{outline:2px solid rgba(138,116,84,.4)!important;outline-offset:3px!important;background:rgba(138,116,84,.07)!important}
+/* Только настройки пробных рукописных акцентов. Геометрия страницы конструктора не меняется. */
+.proof-scale .dpk-page.dpk-dom-paginated .dpk-inline-handwritten{
+  font-size:17px!important;
+  line-height:1.08!important;
+}
+.proof-scale .dpk-page.dpk-dom-paginated .dpk-margin-note{
+  right:34px!important;
+  width:92px!important;
+}
+.proof-scale .dpk-page.dpk-dom-paginated .dpk-margin-note span{
+  width:calc(var(--dpk-flow-height) - 24px)!important;
+  font-size:30px!important;
+  line-height:34px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.proof-scale .dpk-page.dpk-dom-paginated.right .dpk-margin-note span:nth-child(1){left:62px!important}
+.proof-scale .dpk-page.dpk-dom-paginated.right .dpk-margin-note span:nth-child(2){left:26px!important}
+@media(max-width:700px){body{padding:8px}.proof-head{align-items:flex-start}.proof-head span{max-width:190px}.proof-scale .dpk-page{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="proof-head"><strong>Пробная страница конструктора</strong><span>Рукописные фрагменты и заметку можно нажать и изменить</span></div>
+<main class="proof-window" id="proofWindow"><div class="proof-scale" id="proofScale"></div></main>
+<script src="book-renderer/design-pack-01.js"></script>
+<script>
+(()=>{
+  const left=[
+    'Обычно рассказ о семье начинается не с даты, а с ощущения. Оно живёт в интонациях, в привычке оставлять свет в прихожей, в именах, произнесённых вполголоса. Старшие вспоминали дом у воды, долгие дороги и письма, которые приходили не вовремя, но всегда сохранялись. В этих деталях прошлое становилось близким.\n\n',
+    'Фотографии не доказывали прошлое, а возвращали ему воздух: складку платья, движение руки, тень на стене, случайный взгляд человека, который ещё не знает, что этот миг переживёт его. Рядом с изображением всегда звучал чей-то голос, и потому снимок никогда не был немым.\n\n',
+    'Так частная история постепенно становилась общей. Мы собираем подробности не ради точности архива, а чтобы услышать связь между поколениями и оставить следующему читателю пространство для собственного узнавания. Самое важное сохранялось в паузах.\n\n',
+    'Каждый новый рассказ добавлял к прошлому не громкое объяснение, а небольшую ясность. Вчерашняя дата получала лицо, фамилия — жест, а далёкая дорога — направление. Поэтому текст должен двигаться спокойно: одна мысль продолжает другую, не проваливаясь в пустоту и не торопя взгляд.\n\n',
+    'В такой последовательности важны не только события, но и промежутки между ними. Из них складывается характер времени: как люди ждали новостей, почему берегли старую вещь, отчего возвращались к одному и тому же имени. Эти повторения не замедляли рассказ, а делали его узнаваемым.'
+  ].join('');
+  const right=[
+    'Память удерживает не всё. Она выбирает жесты, паузы и маленькие подробности, из которых складывается присутствие человека. Поэтому рядом с документом всегда остаётся место для рассказа — не менее точного, но более живого. Он соединяет отдельные свидетельства в одну человеческую линию.\n\n',
+    'Вечером разговоры продолжались на кухне. Кто-то вспоминал дорогу, кто-то поправлял дату, а кто-то просто слушал. В этих поправках и несогласиях появлялась настоящая история семьи. Всё начиналось с дороги, долгой и почти бесконечной.\n\n',
+    'На полях старых тетрадей встречались короткие пометки. Они не объясняли текст, но возвращали ему человеческий голос: здесь остановиться, это проверить, об этом спросить ещё раз. Иногда именно такая маленькая запись сохраняла смысл лучше, чем длинное официальное описание.\n\n',
+    'Когда мы читаем эту историю сегодня, прошлое не становится дальше. Оно входит в комнату тихо, почти незаметно, и остаётся рядом. Мы это помним, хотя многое узнали значительно позже. Читатель видит не только последовательность событий, но и ритм жизни: ожидание, встречу, разлуку и возвращение.\n\n',
+    'Предсказуемость книги рождается не из однообразия. Её создают постоянные поля, одинаковая высота строки и ясный ход повествования. Внутри этой сетки можно позволить себе короткую паузу или заметку на краю — и всё равно не потерять основную нить.'
+  ].join('');
+  const makeRanges=(text,phrases)=>phrases.map((phrase,index)=>{
+    const start=text.indexOf(phrase);if(start<0)throw Error(`Не найден рукописный фрагмент: ${phrase}`);
+    return {start,end:start+phrase.length,editable:true,kind:phrase.includes(' ')?'sentence':'word',zone:['top','middle','bottom'][index%3]};
+  });
+  const page={
+    kind:'text',layout:'prose-dense',master:'D01-TEXT-IMPORTANT-MARGIN',rhythm:'important-margin',
+    title:'Первые воспоминания',pageNo:23,source:{title:'Первые воспоминания'},
+    marginNote:'важно уточнить год переезда и имя на фотографии\nспросить у Варвары, кто стоял у дома у самой воды',editorialAccentEditable:true,editorialOverrideKey:'proof:0',
+    measuredFlow:{
+      mode:'important-margin',cells:[left,right],cellBreaks:[[],[]],
+      inlineRanges:[
+        makeRanges(left,['дом у воды','прошлое становилось близким','Самое важное сохранялось в паузах.']),
+        makeRanges(right,['голос','Всё начиналось с дороги','Мы это помним'])
+      ],
+      geometry:{origin:86,height:810,'note-depth':104},accentOverflow:{important:false,margin:false},maximal:[true,true],sequence:[]
+    }
+  };
+  const host=document.getElementById('proofScale');
+  host.innerHTML=window.OcherkiBookRenderer.renderPage(page,'right',{});
+  /* Renderer v28 normalizes a margin note into one phrase. For this approved
+     two-line proof, restore the two explicitly authored lines as two lanes. */
+  const margin=host.querySelector('.dpk-margin-note');
+  if(margin){
+    const lines=page.marginNote.split('\n').map(line=>line.trim()).filter(Boolean).slice(0,2);
+    margin.replaceChildren(...lines.map(line=>{const span=document.createElement('span');span.textContent=line;return span;}));
+  }
+  const fitMarginLines=()=>{
+    for(const span of host.querySelectorAll('.dpk-margin-note span')){
+      let size=30;
+      span.style.fontSize=`${size}px`;
+      while(span.scrollWidth>span.clientWidth&&size>20){size-=1;span.style.fontSize=`${size}px`;}
+      span.classList.toggle('dpk-accent-overflow',span.scrollWidth>span.clientWidth);
+    }
+  };
+  for(const node of host.querySelectorAll('.dpk-inline-handwritten,.dpk-margin-note span')){
+    node.contentEditable='true';node.spellcheck=false;
+    node.addEventListener('keydown',event=>{if(event.key==='Enter'&&node.closest('.dpk-margin-note')&&!event.shiftKey)event.preventDefault();});
+    if(node.closest('.dpk-margin-note'))node.addEventListener('input',fitMarginLines);
+  }
+  const windowNode=document.getElementById('proofWindow');
+  const fit=()=>{const scale=windowNode.clientWidth/1000;host.style.transform=`scale(${scale})`;windowNode.style.height=`${1000*scale}px`;};
+  addEventListener('resize',fit,{passive:true});
+  document.fonts.ready.then(()=>{fitMarginLines();fit();});fit();
+})();
+</script>
+</body>
+</html>

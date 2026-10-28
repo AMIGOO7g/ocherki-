@@ -1,0 +1,38 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const testMode=read('test-mode.js'),runner=read('test-mode-runner.js'),bridge=read('book-renderer/editor-source-bridge.js');
+const layout=read('book-renderer/layout-pagination-engine.js'),rendererSource=read('book-renderer/design-pack-01.js');
+const css=read('book-renderer/design-pack-01.css'),manifest=JSON.parse(read('book-renderer/design-pack-01.manifest.json'));
+
+assert(testMode.includes("if($('sheet').open)$('sheet').close();await session.apply()"),'P0: Apply still closes a non-open dialog before applying');
+assert(/id="apply"[^>]*>Применить|type="button" id="apply"/.test(read('test-mode.html')),'P0: mobile Apply is not an explicit button');
+assert(bridge.includes('containerLeft')&&bridge.includes('nextWordRect')&&bridge.includes('inlineWrapperCount')&&bridge.includes('pseudoContent')&&bridge.includes('topElementAtLastGlyph'),'P1: full DOM wrap diagnostics missing');
+assert(rendererSource.includes('renderedPrefixFits')&&rendererSource.includes('maximumConfirmed')&&!/substring|maxChars|pageCapacity/.test(layout),'P1: DOM-only pagination contract changed');
+assert(rendererSource.includes("consumeCell(0);consumeCell(1);consumeCell(2)"),'P2: quote does not reflow both parts of its column');
+assert(rendererSource.includes('Заметка слишком длинная для этой области. Сократите текст.'),'P2: handwriting warning missing');
+
+const ctx={window:{},console,Intl};vm.createContext(ctx);
+for(const file of ['book-engine.js','design-pack-01.js'])vm.runInContext(read(`book-renderer/${file}`),ctx);
+const photo=(id,src,width,height,extra={})=>({id,src,width,height,...extra});
+const photos=[photo('opening','opening.jpg',900,1200),photo('main','main.jpg',1600,900,{ctxState:'H'}),photo('secondary','secondary.jpg',1200,1200),photo('later','later.jpg',1600,900)];
+const text='Первая строка продолжается. Вторая строка сохраняется. Третья строка остаётся.';
+const paginate=(page,value)=>{const limit=page.layout==='chapter-intro'?Math.min(34,value.length):value.length,head=value.slice(0,limit),one=Math.floor(head.length/3),two=Math.floor(head.length*2/3),cells=page.rhythm==='inline-quote'?[head.slice(0,one),head.slice(one,two),head.slice(two)]:[head,''];page.measuredFlow={mode:page.layout==='chapter-intro'?'chapter':page.rhythm||'plain',quoteColumn:page.quoteColumn||'left',cells,cellBreaks:cells.map(()=>[]),inlineRanges:cells.map(()=>[]),accentBreaks:{},promoted:{},accentOverflow:{},sequence:cells.map((part,index)=>({kind:'cell',cell:index,text:part})),geometry:{origin:86,height:810,leading:27,'quote-band':108},maximal:cells.map(()=>true),sourceText:head};return{head,tail:value.slice(head.length),measuredFlow:page.measuredFlow};};
+const structure={sections:[{id:'chapter',type:'chapter',title:'Дом',pages:[{uid:'page',text,photos,userEdited:true,inlineQuote:'Семейная память остаётся.'}]}]};
+const book=ctx.window.OcherkiBookEngine.assemble(structure,{textRhythmOnly:true,paginateText:paginate,layoutDefinition:{rhythm:['inline-quote','margin','important','important-margin'],textMasters:{'inline-quote':'D01-TEXT-INLINE-QUOTE',margin:'D01-TEXT-MARGIN',important:'D01-TEXT-IMPORTANT','important-margin':'D01-TEXT-IMPORTANT-MARGIN',plain:'D01-TEXT'}}});
+const fixed=book.spreads.find(spread=>spread.master==='D01-SPREAD-POST-OPENING-CTX'),page=fixed?.right;
+assert(page&&page.ctxAccentType==='secondary-photo','P4: CTX secondary photo not selected');
+assert.equal(page.photoIndex,1);assert.equal(page.secondaryPhotoIndex,2);
+assert.notEqual(page.mainPhotoAssetId,page.secondaryPhotoAssetId);
+assert.notEqual(page.source.photos[page.photoIndex].src,page.source.photos[page.secondaryPhotoIndex].src);
+const html=ctx.window.OcherkiBookRenderer.renderPage(page,'right',{esc:String,image:(source,index)=>source.photos[index].src,caption:()=>'',meta:{}});
+assert.equal((html.match(/src="main\.jpg"/g)||[]).length,1);assert.equal((html.match(/src="secondary\.jpg"/g)||[]).length,1);
+assert(!/same-source-pixels|data-roi-|data-detail-scale/.test(html),'P4: obsolete same-photo ROI survived');
+assert(!/Эпизод\s+1/i.test(html),'P4: service label leaked into CTX');
+for(const pattern of [/left:318px!important;top:622px!important;width:532px!important;height:306px!important;transform:rotate\(-3deg\)/,/left:44px!important;top:365px!important;width:350px!important;height:350px!important;transform:rotate\(-5deg\)/,/left:51px!important;top:129px!important;width:370px!important;height:704px!important;transform:rotate\(-6deg\)/])assert(pattern.test(css),'P4: approved CTX geometry changed');
+assert.equal(manifest.hard_rules.ctx_detail_uses_same_source_pixels,false);assert.equal(manifest.hard_rules.ctx_detail_secondary_photo_must_differ,true);
+assert(runner.includes('mainPhotoAssetId')&&runner.includes('secondaryPhotoAssetId'),'P3: shared object model snapshot missing asset IDs');
+assert(testMode.includes('sourceTextHash')&&testMode.includes('visibleDesktop:true')&&testMode.includes('visibleMobile:true'),'P3: object visibility/hash diagnostics missing');
+for(let i=1;i<=26;i++)assert(new RegExp(`T${i}(?=[:,'\"]|\\b)`).test(testMode),`Test Mode scenario T${i} missing`);
+for(const state of ['H','V','S'])assert(new RegExp(`data-dark-fade-state="${state}"|state==='${state}'`).test(rendererSource+testMode),`P5: DARK FADE ${state} missing`);
+assert(/dpk-dark-fade-image\{[\s\S]*?filter:none!important/.test(css),'P5: source colour is filtered');
+console.log(JSON.stringify({status:'pass',blocks:['P0','P1','P2','P3','P4','P5'],testModeScenarios:26,ctxDifferentSecondary:true}));

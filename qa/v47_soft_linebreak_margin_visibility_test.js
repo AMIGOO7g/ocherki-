@@ -1,0 +1,14 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const ctx={window:{}};vm.createContext(ctx);vm.runInContext(read('book-renderer/design-pack-01.js'),ctx);
+const renderer=ctx.window.OcherkiBookRenderer;
+const raw='Первая строка из редактора\nпродолжается как обычный текст.\n\nНовый абзац начинается здесь.';
+const page={kind:'text',layout:'prose-dense',master:'D01-TEXT-MARGIN',rhythm:'margin',pageNo:9,marginNote:'Память семьи остаётся рядом',sourceText:raw,measuredFlow:{mode:'margin',cells:[raw,''],cellBreaks:[[],[]],inlineRanges:[[],[]],accentOverflow:{margin:false},geometry:{origin:86,height:810,leading:21.6,'note-length':738,'note-depth':60,'note-footer-gap':24,'note-inset':24},noteLines:1,maximal:[true,true],sequence:[]}};
+const html=renderer.renderPage(page,'left',{});
+assert.equal((html.match(/dpk-paragraph-separator/g)||[]).length,1);
+assert(html.includes('dpk-margin-note')&&html.includes('Память семьи остаётся рядом'));
+const css=read('book-renderer/design-pack-01.css'),layout=read('book-renderer/layout-pagination-engine.js');
+assert(/\.dpk-source-copy\{[\s\S]*white-space:normal!important/.test(css));
+assert(layout.includes('ACCENT_AUTO_MARGIN_FORCED')&&!layout.includes('ACCENT_AUTO_MARGIN_OMITTED'));
+assert(layout.includes("allowSafeMarginAudit:true"));
+console.log(JSON.stringify({status:'pass',singleNewline:'soft-wrap',doubleNewline:'paragraph',automaticMargin:'kept'}));

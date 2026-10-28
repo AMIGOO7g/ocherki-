@@ -1,0 +1,30 @@
+const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const engine=read('book-renderer/layout-pagination-engine.js');
+const renderer=read('book-renderer/design-pack-01.js');
+const css=read('book-renderer/design-pack-01.css');
+const book=read('book-renderer/book-engine.js');
+const testState=read('test-mode-state.js');
+const shell=read('shell.html');
+for(const source of [shell,read('test-mode-runner.js')]){
+  assert(source.includes('OcherkiLayoutPagination.build('));
+  assert(source.includes('OcherkiLayoutPagination.renderPage('));
+}
+assert(engine.includes("renderer:'OcherkiBookRenderer.renderPage'"));
+assert(engine.includes("paginator:'OcherkiBookRenderer.paginateText'"));
+assert(!/substring|maxChars|pageCapacity/.test(engine));
+assert(renderer.includes("boundaries.push(match.index,match.index+match[0].length)"));
+assert(book.includes("photoPosition===photoIndex"));
+assert(book.includes("master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT'"));
+assert(book.includes("textSpreadStreak>=2"));
+assert(book.includes("accentZones=['middle','bottom','top','middle','top','bottom']"));
+assert(testState.includes("draft.composition!=='cycle'"));
+assert(renderer.includes('data-ctx-accent="secondary-photo"'));
+assert(renderer.includes('secondaryPhotoAssetId'));
+assert(!renderer.includes('data-literal-crop="same-source-pixels"'));
+assert(renderer.includes("data-alpha-mask=\"true\""));
+assert(/\.dpk-dark-fade[^]*mask-image:linear-gradient/.test(css));
+assert(/\.dpk-margin-note\{[^}]*z-index:1!important;opacity:\.76!important/s.test(css));
+assert(/\.dpk-measured-flow\{[^}]*z-index:2!important/s.test(css));
+assert(!/Math\.random\(\)/.test(book.slice(book.indexOf('function assembleExactText'),book.indexOf('function auditExactText'))));
+console.log(JSON.stringify({status:'pass',oneEngine:true,oneRenderer:true,ctxDifferentSecondary:true,darkFadeAlphaMask:true,photoHistory:true,textRhythmLimit:2}));

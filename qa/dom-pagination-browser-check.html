@@ -1,0 +1,50 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><title>Проверка пагинации конструктора</title>
+<style>body{margin:20px;font:16px/1.5 sans-serif;background:#f4f4f4}button{padding:10px 18px}iframe{width:100%;height:760px;border:1px solid #aaa;background:white}pre{white-space:pre-wrap} .fail{color:#a00}.pass{color:#075e22}</style>
+<h1>Проверка пагинации в существующем конструкторе</h1>
+<p>Открывается настоящий shell.html. Проверка использует его сборку, шрифты, размеры и предпросмотр. Ваши сохранённые главы не редактируются.</p>
+<button id="run">Запустить проверку</button> <button id="save" disabled>Скачать отчёт</button><pre id="result">Ожидает запуска.</pre>
+<iframe id="app" src="../shell.html"></iframe>
+<script>
+const app=document.getElementById('app'),output=document.getElementById('result'),run=document.getElementById('run');
+let report={status:'not-run'};
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const cases=[
+ {name:'пробелы и Unicode',text:'  Память\tсохраняет Ёлку, e\u0301 и 🏒.\r\nВторая\n\nстрока\u00a0с пробелами.  '},
+ {name:'короткий',text:'Семейная память сохраняет голоса и лица. Мы возвращаемся к письмам, чтобы лучше понять прошлое.'},
+ {name:'длинный',text:Array.from({length:600},(_,i)=>`Запись ${i+1}. Семейная история хранит письма, воспоминания, фотографии и подробности, которые связывают разные поколения. Каждый рассказ продолжает предыдущий и остаётся частью общего повествования.`).join(' ')},
+ {name:'длинные слова',text:Array.from({length:140},(_,i)=>`Свидетельство ${i+1} помогает последовательно рассмотреть достопримечательности и взаимоотношения современников. Эти воспоминания мы сохраняем для следующих поколений.`).join(' ')}
+];
+run.onclick=async()=>{
+ run.disabled=true;report={status:'running',cases:[],browser:navigator.userAgent};
+ try{
+  const w=app.contentWindow,d=w.document;
+  await w.OcherkiBookRenderer.readyFonts();
+  for(const item of cases){
+   output.textContent=`Проверяется: ${item.name}`;
+   const fixture={sections:[{id:'qa-chapter',type:'chapter',title:'Проверка текста',included:true,pages:[{uid:'qa-source',type:'chapter',title:'Проверка текста',text:item.text,userEdited:true,photos:[]}]}]};
+   w.postMessage({type:'OCHERKI_PROJECT_CONFIG',title:'Проверка пагинации',design:'editorial'},'*');
+   w.postMessage({type:'OCHERKI_STRUCTURE_STATE',payload:fixture},'*');
+   await wait(600);
+   d.querySelector('[data-design="editorial"]')?.click();
+   const build=d.getElementById('buildBookBtn');build.click();
+   const started=Date.now();
+   while(build.disabled&&Date.now()-started<120000)await wait(100);
+   const error=d.querySelector('.bd-build-empty');
+   if(error)throw new Error(`${item.name}: ${error.textContent}`);
+   const qa=w.OCHERKI_DESIGN_KERNEL_QA?.engine;
+   if(!qa||qa.status!=='pass')throw new Error(`${item.name}: ${JSON.stringify(qa)}`);
+   const pages=[...d.querySelectorAll('.bd-spread-card .dpk-dom-paginated')];
+   const serialized=pages.map(page=>[...page.querySelectorAll('[data-source-stream]')].map(node=>node.textContent).join('')).join('');
+   if(serialized!==item.text)throw new Error('Итоговый HTML изменил исходные символы.');
+   const masters=pages.filter(page=>page.dataset.master!=='D01-CHAPTER-TEXT').map(page=>page.dataset.master);
+   const cycle=['D01-TEXT-INLINE-QUOTE','D01-TEXT-MARGIN','D01-TEXT-IMPORTANT','D01-TEXT-IMPORTANT-MARGIN'];
+   if(masters.some((master,index)=>master!==cycle[index%4]))throw new Error('Нарушен автоматический ритм.');
+   report.cases.push({name:item.name,status:'pass',pages:pages.length,exactSource:true,engine:qa,masters});
+  }
+  d.getElementById('previewBtn').click();
+  report.status='pass';output.className='pass';
+ }catch(error){report.status='fail';report.error=error.message;output.className='fail';}
+ output.textContent=JSON.stringify(report,null,2);run.disabled=false;document.getElementById('save').disabled=false;
+};
+document.getElementById('save').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='pagination-browser-report.json';a.click();URL.revokeObjectURL(url)};
+</script></html>

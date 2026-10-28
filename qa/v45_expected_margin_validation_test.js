@@ -1,0 +1,11 @@
+const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const testMode=read('test-mode.js'),html=read('test-mode.html');
+assert(testMode.includes('let overflowError=null;'),'acceptance does not isolate the expected manual-margin failure');
+assert(testMode.includes('catch(error){overflowError=error;}'),'expected manual-margin validation still aborts acceptance');
+assert(testMode.includes("T9:{status:overflowError?.message==='Заметка на поле не помещается в две строки. Сократите её и пересоберите книгу.'"),'T9 no longer verifies the expected validation result');
+assert(!testMode.includes('overflowView.layout.warnings'),'acceptance still reads a result that cannot exist for a blocking manual validation');
+assert(testMode.includes("test-mode-runner.html?v=margin-editor-two-lines-20260922-v30"),'runner cache is not refreshed');
+assert(html.includes('margin-editor-two-lines-20260922-v30'),'test mode cache is not refreshed');
+assert.equal(JSON.parse(read('book-renderer/design-pack-01.manifest.json')).version,'1.16.0-stable-important-reflow');
+console.log(JSON.stringify({status:'pass',expectedManualMarginError:'isolated',acceptanceContinues:true,renderer:'unchanged-v23'}));

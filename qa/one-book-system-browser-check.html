@@ -1,0 +1,59 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Единая книжная система — DOM-приёмка A–O</title><link rel="stylesheet" href="../book-renderer/fonts.css"><link rel="stylesheet" href="../book-renderer/design-pack-01.css"><style>body{margin:0;padding:24px;background:#eceae5;font:15px/1.45 system-ui;color:#24231f}h1{font-size:22px}.stage{position:fixed;left:-40000px;top:0;width:2000px}.result{max-width:980px;margin:auto;background:#fff;padding:20px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}.pass{color:#17672f}.fail{color:#a51d18}</style></head><body><main class="result"><h1>Единая книжная система — DOM-приёмка A–O</h1><pre id="report">Проверка…</pre></main><div id="stage" class="stage"></div><script src="../book-renderer/design-pack-01.js"></script><script src="../book-renderer/book-engine.js"></script><script src="../book-renderer/design-pack-01.layout.js"></script><script src="../book-renderer/layout-pagination-engine.js"></script><script>
+(async()=>{
+ const report=document.getElementById('report'),stage=document.getElementById('stage');
+ const sentence=i=>`Запись ${i}: я помню семейный дом, письма, фотографии и голоса. Тогда особенно важно было сохранить взгляд, руки и дорогу домой. `+(i%7===0?'\n\nСледующая запись продолжает рассказ без потери символов. ':'');
+ const photo=(id,src,width,height,extra={})=>({id,src,width,height,focalX:50,focalY:45,photoMode:'color',...extra});
+ const chapter=(id,title,count,photos,quote='')=>({id,type:'chapter',title,pages:[{uid:id+'-page',type:'chapter',title,text:Array.from({length:count},(_,i)=>sentence(i+1)).join(''),photos,inlineQuote:quote,userEdited:true,included:true}]});
+ const structure={sections:[
+  chapter('v','Вертикальная история',170,[photo('v-open','assets/photo_camera.jpg',1200,1200),photo('v-ctx','assets/photo_walk.jpg',760,1200,{ctxState:'V'}),photo('v-secondary','assets/photo_portrait.jpg',760,1200)],'Текст продолжается ниже цитаты в той же колонке.'),
+  chapter('s','Квадратная история',170,[photo('s-open','assets/photo_walk.jpg',760,1200),photo('s-ctx','assets/photo_camera.jpg',1200,1200,{ctxState:'S'}),photo('s-secondary','assets/photo_laundry.jpg',1200,1200)],'Цитата не является командой перейти в соседнюю колонку.'),
+  chapter('h','Горизонтальная история',34,[photo('h-open','assets/photo_walk.jpg',760,1200),photo('h-ctx','assets/photo_city.jpg',1600,900,{ctxState:'H'}),photo('h-secondary','assets/photo_window.jpg',1600,900)]),
+  chapter('none','История без фотографии',90,[])
+ ]};
+ const result={status:'running',checks:[],pages:0};
+ const check=(ok,name,detail='')=>{result.checks.push({name,status:ok?'pass':'fail',detail});if(!ok)throw Error(name)};
+ const renderBook=book=>{
+  const rendered=[];
+  for(const spread of book.spreads)for(const side of ['left','right'])if(spread[side]){const wrap=document.createElement('div');wrap.innerHTML=OcherkiLayoutPagination.renderPage(spread[side],side,{format:'square'});const article=wrap.firstElementChild;stage.appendChild(article);rendered.push({spread,page:spread[side],article,side});}
+  return rendered;
+ };
+ try{
+  await OcherkiLayoutPagination.readyFonts();
+  const desktop=OcherkiLayoutPagination.build(structure,{format:'square',viewport:'desktop'});
+  const mobile=OcherkiLayoutPagination.build(structure,{format:'square',viewport:'mobile'});
+  result.pages=desktop.pages.length;
+  const rendered=renderBook(desktop),fixed=desktop.spreads.filter(item=>item.master==='D01-SPREAD-POST-OPENING-CTX');
+  check(fixed.length===3&&fixed.every(item=>item.left?.measuredFlow&&item.right?.master==='D01-CTX-DETAIL-SQ'),'A: после открытия текст слева, CTX справа');
+  const short=fixed.find(item=>item.sectionId==='h');
+  check(Boolean(short?.left?.text)&&short.left.measuredFlow.cells.filter(Boolean).length<=2,'B: короткий остаток завершается естественно');
+  const noPhotoSpreads=desktop.spreads.filter(item=>item.sectionId==='none');
+  check(noPhotoSpreads.every(item=>item.right?.master!=='D01-CTX-DETAIL-SQ'&&item.left?.master!=='D01-CTX-DETAIL-SQ')&&noPhotoSpreads.some(item=>item.ctxSkipped),'C: без фото CTX и пустых контейнеров нет');
+  check(fixed.every(item=>item.left&&item.right&&item.spread!==null&&item.right.photoIndex!==desktop.spreads.find(open=>open.sectionId===item.sectionId&&open.master==='D01-SPREAD-CHAPTER')?.left?.photoIndex),'D: фото открытия не повторяется в соседнем CTX');
+  const ctxPages=rendered.filter(item=>item.page.master==='D01-CTX-DETAIL-SQ');
+  check(ctxPages.every(item=>{const images=[...item.article.querySelectorAll('.dpk-ctx-main img,.dpk-ctx-card img')];return images.length===2&&images[0].src!==images[1].src;}),'E: secondary card использует другую реальную фотографию');
+  check(ctxPages.every(item=>item.page.mainPhotoAssetId!==item.page.secondaryPhotoAssetId),'F: mainPhotoAssetId отличается от secondaryPhotoAssetId');
+  check(ctxPages.every(item=>!item.article.querySelector('[data-roi-type],[data-literal-crop]')),'G: same-photo ROI полностью удалён');
+  check(JSON.stringify(desktop.layout.geometrySignature)===JSON.stringify(mobile.layout.geometrySignature),'H: ПК и мобильный имеют одну книжную геометрию');
+  const accents=rendered.flatMap(item=>[...item.article.querySelectorAll('.dpk-inline-handwritten')]);
+  const zones=new Set(accents.map(item=>item.dataset.accentZone).filter(Boolean));
+  check(['top','middle','bottom'].every(zone=>zones.has(zone)),'I: рукописные акценты распределены по трём зонам',[...zones]);
+  const notes=rendered.flatMap(item=>[...item.article.querySelectorAll('.dpk-margin-note')]);
+  check(notes.length>0&&notes.every(note=>{const style=getComputedStyle(note),flow=note.parentElement.querySelector('.dpk-measured-flow');return style.color==='rgb(102, 102, 102)'||getComputedStyle(note.querySelector('span')).color==='rgb(102, 102, 102)'&&Number(style.zIndex)<Number(getComputedStyle(flow).zIndex)&&note.getBoundingClientRect().left>=note.parentElement.getBoundingClientRect().left;}),'J: полевые заметки графитовые, безопасные и под текстом');
+  const quotePages=rendered.filter(item=>item.page.measuredFlow?.mode==='inline-quote');
+  const quoteContinues=item=>item.article.querySelector('.dpk-flow-column-quote [data-flow-cell]:last-child')?.textContent.trim().length>0;
+  check(quotePages.some(item=>item.page.measuredFlow.quoteColumn==='left'&&quoteContinues(item)),'K: продолжение под цитатой слева');
+  check(quotePages.some(item=>item.page.measuredFlow.quoteColumn==='right'&&quoteContinues(item)),'L: продолжение под цитатой справа');
+  const audits=rendered.filter(item=>item.page.measuredFlow).map(item=>OcherkiLayoutPagination.auditPage(item.article,item.page));
+  check(audits.every(item=>item.status==='pass'),'Строки физически заполнены без преждевременного разрыва',audits.flatMap(item=>item.violations));
+  check(desktop.expectedManuscripts.every(source=>desktop.pages.filter(page=>page.sectionId===source.sectionId&&page.measuredFlow).map(page=>page.text).join('')===source.text),'Исходный текст сохранён без потерь и дублей');
+  for(const [letter,src,width,height] of [['H','assets/photo_city.jpg',1600,900],['V','assets/photo_walk.jpg',760,1200],['S','assets/photo_camera.jpg',1200,1200]]){
+    const darkStructure={sections:[chapter('dark-'+letter,'DARK FADE '+letter,0,[photo('dark-photo',src,width,height,{darkFadeState:letter})])]};
+    const dark=OcherkiLayoutPagination.build(darkStructure,{format:'square',composition:'dark-fade-2.2'}),darkRendered=renderBook(dark);
+    const images=darkRendered.map(item=>item.article.querySelector('.dpk-dark-fade-image')).filter(Boolean);
+    check(dark.spreads.length===1&&images.length===2&&images.every(image=>getComputedStyle(image).webkitMaskImage!=='none'||getComputedStyle(image).maskImage!=='none'),`${letter==='H'?'M':letter==='V'?'N':'O'}: DARK FADE ${letter} использует alpha-mask`);
+  }
+  result.status='pass';
+ }catch(error){result.status='fail';result.error=error.message;}
+ report.className=result.status;report.textContent=JSON.stringify(result,null,2);window.__ONE_BOOK_QA=result;
+})();
+</script></body></html>

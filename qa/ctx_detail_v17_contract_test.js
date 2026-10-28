@@ -1,0 +1,40 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const ctx={window:{},console};vm.createContext(ctx);
+for(const file of ['book-engine.js','design-pack-01.js'])vm.runInContext(read(`book-renderer/${file}`),ctx);
+const Paginator=(page,text)=>{
+  const head=text.match(/^[\s\S]*?[.!?](?:\s*|$)/u)?.[0]||text;
+  if(page.rhythm==='inline-quote'&&!page.inlineQuote)page.inlineQuote='Измеренная цитата.';
+  const count=page.rhythm==='inline-quote'?3:2;
+  const flow={mode:page.layout==='chapter-intro'?'chapter':page.rhythm,quoteColumn:page.quoteColumn||'left',cells:[head,...Array(count-1).fill('')],cellBreaks:Array(count).fill([]),inlineRanges:Array(count).fill([]),accentBreaks:{},promoted:{},accentOverflow:{},sequence:[{kind:'cell',cell:0,text:head}],geometry:{origin:86,height:810,leading:27},maximal:Array(count).fill(true),sourceText:head};
+  return {head,tail:text.slice(head.length),measuredFlow:flow};
+};
+const openingPhoto={id:'opening',src:'opening-source.jpg',width:900,height:1200,focalX:50,focalY:40};
+const photo={id:'main',src:'main-source.jpg',width:1600,height:900};
+const secondary={id:'secondary',src:'secondary-source.jpg',width:1200,height:1200};
+const source={sections:[{id:'chapter',type:'chapter',title:'Дом',pages:[{uid:'page',type:'chapter',text:'Первая строка. Вторая строка.',photos:[openingPhoto,photo,secondary],userEdited:true}]}]};
+const result=ctx.window.OcherkiBookEngine.assemble(source,{textRhythmOnly:true,paginateText:Paginator,layoutDefinition:{rhythm:['inline-quote','margin','important','important-margin'],textMasters:{'inline-quote':'D01-TEXT-INLINE-QUOTE',margin:'D01-TEXT-MARGIN',important:'D01-TEXT-IMPORTANT','important-margin':'D01-TEXT-IMPORTANT-MARGIN',plain:'D01-TEXT'}}});
+assert.equal(result.spreads[1].master,'D01-SPREAD-POST-OPENING-CTX');
+assert.equal(result.spreads[1].left.measuredFlow.mode,'plain');
+assert.equal(result.spreads[1].right.master,'D01-CTX-DETAIL-SQ');
+assert.equal(result.spreads[1].right.ctxState,'H');
+assert.equal(result.spreads[1].right.photoIndex,1);
+assert.equal(result.spreads[1].right.secondaryPhotoIndex,2);
+assert.notEqual(result.spreads[1].right.mainPhotoAssetId,result.spreads[1].right.secondaryPhotoAssetId);
+assert.equal(result.spreads[1].right.reusedOpeningPhoto,false);
+assert.equal(result.pages.filter(page=>page.measuredFlow).map(page=>page.text).join(''),'Первая строка. Вторая строка.');
+for(const state of ['V','S','H']){
+  const page={kind:'ctx-detail-sq',layout:'ctx-detail-sq',master:'D01-CTX-DETAIL-SQ',ctxState:state,photoIndex:0,secondaryPhotoIndex:1,mainPhotoAssetId:'main',secondaryPhotoAssetId:'secondary',ctxAccentType:'secondary-photo',source:{photos:[photo,secondary]}};
+  const html=ctx.window.OcherkiBookRenderer.renderPage(page,'right',{esc:String,image:(source,index)=>source.photos[index].src,caption:()=>'',meta:{}});
+  assert.equal((html.match(/src="main-source\.jpg"/g)||[]).length,1);
+  assert.equal((html.match(/src="secondary-source\.jpg"/g)||[]).length,1);
+  assert(html.includes(`data-ctx-state="${state}"`)&&html.includes('data-ctx-accent="secondary-photo"'));
+  assert(!html.includes('data-roi-')&&!html.includes('data-detail-scale=')&&!html.includes('same-source-pixels'));
+}
+const renderer=read('book-renderer/design-pack-01.js'),css=read('book-renderer/design-pack-01.css');
+assert(renderer.includes("boundaries.push(match.index,match.index+match[0].length)"));
+assert(renderer.includes("quote.closest('.dpk-flow-column-quote')"));
+assert(/\.dpk-flow-column-quote\{[^}]*grid-template-rows:var\(--dpk-flow-quote-top\)/s.test(css));
+assert(/\.dpk-ctx-card\{[^}]*box-shadow:none!important/s.test(css));
+assert(!/filter:drop-shadow/.test(css.split('CTX Detail SQ v1.7')[1]||''));
+console.log(JSON.stringify({status:'pass',fixedPostOpening:true,states:['V','S','H'],differentSecondaryPhoto:true,quoteContinuesInColumn:true,paragraphBoundaryMeasured:true}));

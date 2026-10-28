@@ -1,0 +1,28 @@
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Очерки жизни — проверка разворотов</title>
+<link rel="stylesheet" href="book-renderer/fonts.css?v=margin-editor-two-lines-20260922-v30"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=margin-editor-two-lines-20260922-v30"><link rel="stylesheet" href="test-mode.css?v=margin-editor-two-lines-20260922-v30">
+</head><body>
+<main id="viewer" class="tm-viewer" aria-label="Книжные развороты"><p id="empty" class="tm-empty">Добавьте текст или фотографии для проверки. Можно также открыть сохранённую копию проекта.</p><div id="stage" class="tm-stage" hidden><div id="canvas" class="tm-canvas"></div></div></main>
+<section id="editorProbe" class="tm-editor-probe" hidden aria-label="Диагностика редакторского переноса"><header><strong>T1–T2 · Редактируемый лист</strong><button id="closeEditorProbe" aria-label="Закрыть диагностику">×</button></header><div id="editorProbeText" class="tm-editor-probe-text" lang="ru" contenteditable="true" spellcheck="true"></div><pre id="editorProbeReport"></pre></section>
+<div class="tm-tools" aria-label="Тестовый материал"><button type="button" id="acceptance">Приёмка T1–T26</button><button type="button" id="darkAcceptance">Приёмка DARK FADE 2.2</button><button type="button" id="addText">Тестовый текст</button><button type="button" id="addPhotos">Добавить фотографии</button><button type="button" id="apply">Применить</button><button type="button" id="clear">Очистить</button></div>
+<nav class="tm-navigation" aria-label="Развороты"><button id="previous" aria-label="Предыдущий разворот">←</button><output id="counter" aria-live="polite">Нет разворотов</output><button id="next" aria-label="Следующий разворот">→</button><button id="settings">Материал</button></nav>
+<p id="status" class="tm-status" role="status" hidden></p>
+<aside id="issue" class="tm-issue" role="alert" hidden><span id="issueText"></span><button id="dismissIssue" aria-label="Закрыть сообщение">×</button></aside>
+<details id="diagnostics" class="tm-diagnostics" hidden><summary>Диагностика</summary><pre id="report"></pre></details>
+<input id="photoFiles" type="file" accept="image/*" multiple hidden>
+<dialog id="sheet" class="tm-sheet" aria-labelledby="sheetTitle">
+<form method="dialog"><button class="tm-close" aria-label="Закрыть">×</button></form>
+<h1 id="sheetTitle">Тестовый материал</h1><p>Текст и фотографии используются только здесь и не записываются в книгу.</p>
+<label for="text">Текст</label><textarea id="text" rows="9" placeholder="Вставьте текст целиком, с любыми абзацами"></textarea>
+<div class="tm-options"><label>Композиция<select id="composition"></select></label><label>Формат<select id="format"><option value="square">280 × 280 мм</option><option value="portrait">280 × 335 мм</option></select></label></div>
+<label>Цитата (необязательно)<textarea id="quote" rows="2"></textarea></label>
+<label>Рукописная вставка (необязательно)<textarea id="handwriting" rows="2"></textarea></label>
+<label>Заметка на поле (необязательно)<textarea id="margin" rows="2"></textarea></label>
+<div id="photos" class="tm-photos"></div><button id="sheetPhotos">Добавить фотографии</button>
+<label class="tm-checkbox"><input id="showDiagnostics" type="checkbox"> Показывать диагностику</label>
+<details class="tm-source"><summary>Сохранённая копия проекта</summary><p id="sourceInfo">Копия не открыта. Несохранённые изменения редактора сюда не передаются.</p><label>Открыть JSON-файл<input id="projectFile" type="file" accept=".json,application/json"></label><button id="downloadSource" disabled>Скачать копию для телефона</button></details>
+<button type="button" id="sheetApply" class="tm-primary">Применить</button>
+</dialog>
+<script src="book-renderer/editor-source-bridge.js?v=margin-editor-two-lines-20260922-v30"></script><script src="book-renderer/design-pack-01.js?v=margin-editor-two-lines-20260922-v30"></script><script src="book-renderer/design-pack-01.layout.js?v=margin-editor-two-lines-20260922-v30"></script><script src="book-renderer/layout-pagination-engine.js?v=margin-editor-two-lines-20260922-v30"></script><script src="test-mode-state.js?v=margin-editor-two-lines-20260922-v30"></script><script src="test-mode.js?v=margin-editor-two-lines-20260922-v30"></script>
+</body></html>

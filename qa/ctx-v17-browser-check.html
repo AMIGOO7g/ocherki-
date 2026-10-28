@@ -1,0 +1,34 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CTX Detail SQ v1.7 — DOM-приёмка</title><link rel="stylesheet" href="../book-renderer/fonts.css"><link rel="stylesheet" href="../book-renderer/design-pack-01.css"><style>body{margin:0;padding:24px;background:#eceae5;font:15px/1.45 system-ui;color:#24231f}h1{font-size:22px}.stage{position:fixed;left:-40000px;top:0;width:2000px}.result{max-width:900px;margin:auto;background:#fff;padding:20px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}.pass{color:#17672f}.fail{color:#a51d18}</style></head><body><main class="result"><h1>CTX Detail SQ v1.7 — DOM-приёмка</h1><pre id="report">Проверка…</pre></main><div id="stage" class="stage"></div><script src="../book-renderer/design-pack-01.js"></script><script src="../book-renderer/book-engine.js"></script><script src="../book-renderer/design-pack-01.layout.js"></script><script src="../book-renderer/layout-pagination-engine.js"></script><script>
+(async()=>{
+ const report=document.getElementById('report'),stage=document.getElementById('stage');
+ const sentence=i=>`Запись ${i}: семейная память сохраняет письма, фотографии и голоса. Рассказ продолжается строка за строкой, без искусственного разрыва. `;
+ const chapter=(id,state,count,src,width,height,secondary)=>({id,type:'chapter',title:`Состояние ${state}`,pages:[{uid:id,text:Array.from({length:count},(_,i)=>sentence(i+1)).join(''),inlineQuote:'Цитата занимает реальное место, а текст продолжается ниже.',photos:[{id:id+'-open',src:state==='V'?'assets/photo_camera.jpg':'assets/photo_walk.jpg',width:state==='V'?1200:760,height:1200},{id:id+'-main',src,width,height,ctxState:state},{id:id+'-secondary',src:secondary,width:1200,height:1200}],userEdited:true}]});
+ const structure={sections:[chapter('v','V',170,'assets/photo_walk.jpg',760,1200,'assets/photo_portrait.jpg'),chapter('s','S',170,'assets/photo_camera.jpg',1200,1200,'assets/photo_laundry.jpg'),chapter('h','H',34,'assets/photo_city.jpg',1600,900,'assets/photo_window.jpg')]};
+ const result={status:'running',checks:[],pages:0};
+ const check=(ok,name,detail)=>{result.checks.push({name,status:ok?'pass':'fail',detail});if(!ok)throw Error(name)};
+ try{
+  await OcherkiLayoutPagination.readyFonts();
+  const book=OcherkiLayoutPagination.build(structure,{format:'square',title:'CTX v1.7'});
+  result.pages=book.pages.length;
+  check(book.spreads.filter(s=>s.master==='D01-SPREAD-POST-OPENING-CTX').length===3,'Фиксированный разворот после каждой главы');
+  check(book.spreads.filter(s=>s.master==='D01-SPREAD-POST-OPENING-CTX').every(s=>s.left?.measuredFlow&&s.right?.master==='D01-CTX-DETAIL-SQ'),'Текст слева, CTX справа');
+  const rendered=[];
+  for(const spread of book.spreads)for(const side of ['left','right'])if(spread[side]){const wrap=document.createElement('div');wrap.innerHTML=OcherkiLayoutPagination.renderPage(spread[side],side,{format:'square'});const article=wrap.firstElementChild;stage.appendChild(article);rendered.push({page:spread[side],article,side});}
+  const measured=rendered.filter(item=>item.page.measuredFlow);
+  const audits=measured.map(item=>OcherkiLayoutPagination.auditPage(item.article,item.page));
+  check(audits.every(item=>item.status==='pass'),'Все строки находятся внутри колонок',audits.flatMap(item=>item.violations));
+  check(measured.every(item=>item.page.measuredFlow.maximal.every(Boolean)),'Каждая колонка заполнена до последней физически помещающейся строки');
+  const quotes=measured.filter(item=>item.page.measuredFlow.mode==='inline-quote');
+  check(quotes.some(item=>item.page.measuredFlow.quoteColumn==='left'),'Цитата проверена в левой колонке');
+  check(quotes.some(item=>item.page.measuredFlow.quoteColumn==='right'),'Цитата проверена в правой колонке');
+  check(quotes.every(item=>item.article.querySelector('.dpk-flow-column-quote [data-flow-cell]:last-child')?.textContent.trim().length>0),'После цитаты текст продолжается в той же колонке');
+  const ctxPages=rendered.filter(item=>item.page.master==='D01-CTX-DETAIL-SQ');
+  check(ctxPages.map(item=>item.article.querySelector('[data-ctx-state]')?.dataset.ctxState).join('')==='VSH','Показаны V, S и H');
+  check(ctxPages.every(item=>{const images=[...item.article.querySelectorAll('.dpk-ctx-main img,.dpk-ctx-card img')];return images.length===2&&images[0].getAttribute('src')!==images[1].getAttribute('src')}),'Detail card использует другую реальную фотографию');
+  check(ctxPages.every(item=>item.page.mainPhotoAssetId!==item.page.secondaryPhotoAssetId),'Asset ID главной и вторичной фотографий различаются');
+  check(book.expectedManuscripts.every(source=>book.pages.filter(page=>page.sectionId===source.sectionId&&page.measuredFlow).map(page=>page.text).join('')===source.text),'Исходный текст сохранён без потерь и дублей');
+  result.status='pass';
+ }catch(error){result.status='fail';result.error=error.message;}
+ report.className=result.status;report.textContent=JSON.stringify(result,null,2);window.__CTX_V17_QA=result;
+})();
+</script></body></html>

@@ -1,0 +1,68 @@
+{
+  "id": "design_kernel_v1_editorial",
+  "name": "Design Kernel v1 — семейная хроника",
+  "version": 15,
+  "format": {"id": "square", "trimMm": [280, 280], "pagePx": [1000, 1000]},
+  "formats": [
+    {"id": "square", "trimMm": [280, 280], "pagePx": [1000, 1000]},
+    {"id": "portrait", "trimMm": [280, 335], "pagePx": [1000, 1196]}
+  ],
+  "grid": {
+    "columns": 12,
+    "safeMarginPx": 70,
+    "spineKeepOutPx": 91,
+    "columnGapPx": 32,
+    "runningHeaderTopPx": 52,
+    "folioBottomPx": 44
+  },
+  "typography": {
+    "display": {"family": "CormorantCy", "sizePx": 62, "lineHeight": 1.1, "trackingEm": 0.09},
+    "h1": {"family": "CormorantCy", "sizePx": 48, "lineHeight": 1.1, "trackingEm": 0.11},
+    "h2": {"family": "CormorantCy", "sizePx": 27, "lineHeight": 1.2},
+    "body": {"family": "PTSerifCy", "sizePx": 15.5, "lineHeight": 1.7},
+    "dense": {"family": "PTSerifCy", "sizePx": 13.5, "lineHeight": 1.6, "align": "justify", "hyphens": "auto"},
+    "caption": {"family": "PTSerifCy", "sizePx": 14, "lineHeight": 1.3, "style": "italic"},
+    "quote": {"family": "CormorantCy", "sizePx": 28, "lineHeight": 1.38, "style": "italic"}
+  },
+  "paper": {"color": "#ffffff", "textPagesOnly": true},
+  "photo": {"frames": false, "fit": "cover", "filter": "grayscale(1) contrast(1.05)", "inventCaptions": false, "outerMarginPx": 36, "innerGapPx": 12, "captionZonePx": 82, "folio": true, "orientationAware": true},
+  "physicalPreview": {"coverSingle": true, "pairing": "2-3,4-5,...", "backCoverSingle": true},
+  "referenceRhythms": {
+    "longPhotoChapter": ["photo_text", "quote_text", "photo_rail", "dense_text", "large_photo_pause"],
+    "documentChapter": ["text_photo", "document_comment", "photo_text", "text_quote"],
+    "shortClosingChapter": ["chapter_divider", "timeline_final"],
+    "additionalV15": ["photo_rail", "dark_text_pair", "photo_gradient_text", "dark_gradient_photo"]
+  },
+  "hardRules": [
+    "no_adjacent_identical_masters",
+    "no_adjacent_dense_spreads",
+    "unique_numbered_chapter_titles",
+    "unique_quotes_per_chapter",
+    "alternate_chapter_photo_side",
+    "alternate_photo_text_side",
+    "one_use_per_photo",
+    "one_full_photo_pause_per_chapter",
+    "one_collage_per_chapter",
+    "mosaic_uses_five_to_twelve_photos",
+    "no_adjacent_triptych_or_mosaic_spreads",
+    "panorama_is_optional_and_horizontal_only",
+    "cross_spine_photo_preserves_outer_photo_margins",
+    "dark_text_page_is_rare",
+    "three_photo_master_has_one_dominant_and_two_supporting_images",
+    "sentence_boundaries_only",
+    "new_episode_heading_and_drop_cap_only",
+    "continuation_has_no_heading_drop_cap_or_quote",
+    "sequential_folios",
+    "all_entered_colophon_fields_render",
+    "block_text_overflow",
+    "one_source_photo_1_5_page_rail",
+    "dark_text_pair",
+    "photo_text_gradient_field",
+    "dark_gradient_photo_field",
+    "dark_photo_pair",
+    "photo_color_default",
+    "photo_bw_toggle",
+    "large_heading_accent"
+  ],
+  "audio": {"tracks": 11, "vinylGapMs": 3000, "paperFxIndependent": true}
+}
