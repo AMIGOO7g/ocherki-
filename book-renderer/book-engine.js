@@ -644,17 +644,21 @@
       spreads.push({id:'d01_dedication_epigraph',master:'D01-SPREAD-DEDICATION-EPIGRAPH',left:P('dedication',{dedicationText:dedicationText || 'Тем, кто хранит семейную память.',dedicationSign,meta:bookMeta}),right:byId('epigraph')?epigraphPage:P('blank',{meta:bookMeta})});
       if (byId('contents')) spreads.push({id:'d01_contents',master:'D01-SPREAD-CONTENTS',left:P('blank',{meta:bookMeta}),right:contentsPage});
     } else if (byId('epigraph') || byId('contents')) spreads.push({id:'d01_epigraph_contents',master:'D01-SPREAD-EPIGRAPH-CONTENTS',left:byId('epigraph')?epigraphPage:P('blank',{meta:bookMeta}),right:byId('contents')?contentsPage:P('blank',{meta:bookMeta})});
+    // Optional front/back matter is printed only when the author wrote it;
+    // a heading over an empty page reads as a mistake in a finished book.
+    const hasMatter = id => Boolean(String(byId(id)?.pages?.find(page=>page.included!==false)?.text??'').trim());
     const matter = (id,kind,master,title) => {
       const section=byId(id), source=section?.pages?.find(page=>page.included!==false) || {};
-      return section?P(kind,{master,title:source.title||section.title||title,text:String(source.text??''),source,meta:bookMeta}):P('blank',{meta:bookMeta});
+      return hasMatter(id)?P(kind,{master,title:source.title||section.title||title,text:String(source.text??''),source,meta:bookMeta}):P('blank',{meta:bookMeta});
     };
-    if(byId('intro')||byId('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
+    if(hasMatter('intro')||hasMatter('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
     const expectedManuscripts = [];
     const cycle = meta.layoutDefinition?.rhythm || ['inline-quote','important','margin','important-margin'];
     const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN' };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
     chapters.forEach((chapter,index) => {
+      const chapterSpreadStart = spreads.length;
       let rest = chapter.text, sourceOffset = 0, rhythmIndex = 0;
       const occurrences = {};
       expectedManuscripts.push({sectionId:chapter.sectionId,text:chapter.text});
@@ -805,9 +809,20 @@
         const source={...document,photos:document.photos||[]};
         spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||''})});
       }
+      // A printed book never leaves half a spread: an unpaired left page would
+      // shift every following page to the wrong side. Close it with an unused
+      // photograph of the chapter, otherwise with a quiet blank page.
+      for(const spread of spreads.slice(chapterSpreadStart)){
+        if(spread.single||!spread.left||spread.right)continue;
+        const closingPhoto=nextVisualPhoto();
+        spread.right=closingPhoto>=0
+          ?P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:closingPhoto,title:chapter.title})
+          :P('blank',{meta:bookMeta,sectionId:chapter.sectionId});
+        spread.chapterClosing=true;
+      }
     });
-    if(byId('afterword')||byId('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
-    if(byId('sources')||byId('colophon')){
+    if(hasMatter('afterword')||hasMatter('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
+    if(hasMatter('sources')||byId('colophon')){
       const fields=fieldValues(byId('colophon'),4);
       spreads.push({master:'D01-SPREAD-SOURCES-COLOPHON',left:matter('sources','sources','D01-SOURCES','Источники'),right:byId('colophon')?P('colophon',{meta:bookMeta,rows:[{label:'Составитель',value:fields[0]||bookMeta.author},{label:'Дизайн и вёрстка',value:fields[1]},{label:'Год издания',value:fields[2]||bookMeta.year},{label:'Место издания',value:fields[3]}]}):P('blank',{meta:bookMeta})});
     }

@@ -213,7 +213,9 @@
       const result=settings.composition?compose(input,settings,session):global.OcherkiBookEngine.assemble(input,{...settings,textRhythmOnly:true,layoutDefinition:pack,paginateText:session.textPage});
       if(!result.ready)return result;
       let at=result.spreads.findIndex(s=>[s.left,s.right].some(p=>p&&['epilogue','thanks','sources','colophon','back-cover'].includes(p.kind)));if(at<0)at=result.spreads.length;
-      for(const page of session.deferredPages())result.spreads.splice(at++,0,{master:'D01-SPREAD-EDITORIAL-FALLBACK',left:page,right:null});
+      // Deferred pages are measured as left pages; the right side is closed
+      // with a blank page so the physical page order stays even/odd correct.
+      for(const page of session.deferredPages())result.spreads.splice(at++,0,{master:'D01-SPREAD-EDITORIAL-FALLBACK',left:page,right:{kind:'blank',layout:'blank'}});
       result.spreads.forEach((spread,index)=>{if(!spread.id)spread.id=`d01_spread_${index+1}`;});result.pages=result.spreads.flatMap(s=>[s.left,s.right].filter(Boolean));result.pages.forEach((p,i)=>{p.pageNo=i+1;});
       const metrics=[];
       for(const spread of result.spreads)for(const side of ['left','right']){

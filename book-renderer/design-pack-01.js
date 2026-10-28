@@ -576,17 +576,28 @@
     }
     return value;
   }
+  // \b only knows Latin word characters, so Cyrillic stems need an explicit
+  // letter boundary or the editorial vocabulary never scores.
+  const accentMemory=/(?<!\p{L})(помню|помним|семья|семей|дом|мама|папа|бабуш|дедуш|детство)\p{L}*/iu;
+  const accentTurning=/(?<!\p{L})(впервые|навсегда|важно|тогда|никогда|всегда|изменил|сохранил)\p{L}*/iu;
+  const accentFeeling=/(?<!\p{L})(любил|любила|мечтал|мечтала|судьба|жизнь|вместе|остал)\p{L}*/iu;
+  function phraseScore(text) {
+    return (accentMemory.test(text)?6:0)+(accentTurning.test(text)?5:0)+(accentFeeling.test(text)?4:0)+(text.includes('!')?3:0)+(text.includes('?')?2:0)+(text.includes('—')?1:0);
+  }
   function editorialPhrases(value) {
-    const memory=/\b(помню|помним|семья|семей|дом|мама|папа|бабуш|дедуш|детство)\w*/iu;
-    const turning=/\b(впервые|навсегда|важно|тогда|никогда|всегда|изменил|сохранил)\w*/iu;
-    const feeling=/\b(любил|любила|мечтал|мечтала|судьба|жизнь|вместе|остал)\w*/iu;
+    const words=text=>(text.match(/\p{L}+/gu)||[]).length;
     const candidates=[];let order=0;
     for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(String(value??''))){
       const whole=clean(sentence.segment);if(!whole||!/\p{L}/u.test(whole))continue;
-      const parts=[whole,...whole.split(/(?<=[,;:—])\s+/u).map(clean).filter(Boolean)];
-      for(const text of parts){
-        if(!/\p{L}/u.test(text)||/^[\s\p{P}\p{S}]+$/u.test(text))continue;
-        const score=(memory.test(text)?6:0)+(turning.test(text)?5:0)+(feeling.test(text)?4:0)+(text.includes('!')?3:0)+(text.includes('?')?2:0)+(text.includes('—')?1:0);
+      // A page may start in the middle of a sentence; that tail is not a quote.
+      if(/^[\p{Ll}]/u.test(whole))continue;
+      const clauses=whole.split(/(?<=[,;:—])\s+/u).map(clean).filter(Boolean);
+      // Whole sentences first; a clause only when it opens the sentence and
+      // still reads as a complete thought, never with a dangling comma.
+      const parts=[{text:whole,bonus:2},...clauses.slice(0,1).filter(()=>clauses.length>1).map(text=>({text:text.replace(/[\s,;:—–-]+$/u,''),bonus:0}))];
+      for(const {text,bonus} of parts){
+        if(!/\p{L}/u.test(text)||/^[\s\p{P}\p{S}]+$/u.test(text)||words(text)<3)continue;
+        const score=bonus+phraseScore(text);
         candidates.push({text,score,order:order++});
       }
     }
@@ -595,7 +606,7 @@
   function inlineAccentRanges(value, manual = '', targetZone = 'middle') {
     const source=String(value??''),candidates=[];
     const zoneRatio={top:.18,middle:.5,bottom:.82}[targetZone]??.5;
-    const semanticScore=text=>editorialPhrases(text)[0]?.score||0;
+    const semanticScore=text=>phraseScore(clean(text));
     for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(source)){
       const words=[...new Intl.Segmenter('ru',{granularity:'word'}).segment(sentence.segment)].filter(item=>item.isWordLike);
       if(words.length<3)continue;
