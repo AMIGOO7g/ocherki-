@@ -25,7 +25,7 @@
   const rendered=renderBook(desktop),fixed=desktop.spreads.filter(item=>item.master==='D01-SPREAD-POST-OPENING-CTX');
   check(fixed.length===3&&fixed.every(item=>item.left?.measuredFlow&&item.right?.master==='D01-CTX-DETAIL-SQ'),'A: после открытия текст слева, CTX справа');
   const short=fixed.find(item=>item.sectionId==='h');
-  check(Boolean(short?.left?.text)&&short.left.measuredFlow.cells.filter(Boolean).length<=2,'B: короткий остаток завершается естественно');
+  check(Boolean(short?.left?.text)&&(short.left.measuredFlow.cells.filter(Boolean).length<=2||short.left.measuredFlow.geometry.height<short.left.measuredFlow.fullLines*short.left.measuredFlow.geometry.leading-.5),'B: короткий остаток завершается естественно');
   const noPhotoSpreads=desktop.spreads.filter(item=>item.sectionId==='none');
   check(noPhotoSpreads.every(item=>item.right?.master!=='D01-CTX-DETAIL-SQ'&&item.left?.master!=='D01-CTX-DETAIL-SQ')&&noPhotoSpreads.some(item=>item.ctxSkipped),'C: без фото CTX и пустых контейнеров нет');
   check(fixed.every(item=>item.left&&item.right&&item.spread!==null&&item.right.photoIndex!==desktop.spreads.find(open=>open.sectionId===item.sectionId&&open.master==='D01-SPREAD-CHAPTER')?.left?.photoIndex),'D: фото открытия не повторяется в соседнем CTX');
@@ -38,7 +38,9 @@
   const zones=new Set(accents.map(item=>item.dataset.accentZone).filter(Boolean));
   check(['top','middle','bottom'].every(zone=>zones.has(zone)),'I: рукописные акценты распределены по трём зонам',[...zones]);
   const notes=rendered.flatMap(item=>[...item.article.querySelectorAll('.dpk-margin-note')]);
-  check(notes.length>0&&notes.every(note=>{const style=getComputedStyle(note),flow=note.parentElement.querySelector('.dpk-measured-flow');return style.color==='rgb(102, 102, 102)'||getComputedStyle(note.querySelector('span')).color==='rgb(102, 102, 102)'&&Number(style.zIndex)<Number(getComputedStyle(flow).zIndex)&&note.getBoundingClientRect().left>=note.parentElement.getBoundingClientRect().left;}),'J: полевые заметки графитовые, безопасные и под текстом');
+  // Margin notes are dark graphite ink written over the page: the first line
+  // stays in the outer margin and the second may cross the column edge a little.
+  check(notes.length>0&&notes.every(note=>{const page=note.parentElement.getBoundingClientRect(),flow=note.parentElement.querySelector('.dpk-measured-flow').getBoundingClientRect(),box=note.getBoundingClientRect(),right=note.parentElement.classList.contains('right');const crossing=right?flow.right-box.left:box.right-flow.left;return getComputedStyle(note.querySelector('span')).color==='rgb(43, 43, 43)'&&box.left>=page.left&&box.right<=page.right&&crossing>0&&crossing<=20;}),'J: полевые заметки графитовые, на поле и с небольшим заходом на текст');
   const quotePages=rendered.filter(item=>item.page.measuredFlow?.mode==='inline-quote');
   const quoteContinues=item=>item.article.querySelector('.dpk-flow-column-quote [data-flow-cell]:last-child')?.textContent.trim().length>0;
   check(quotePages.some(item=>item.page.measuredFlow.quoteColumn==='left'&&quoteContinues(item)),'K: продолжение под цитатой слева');

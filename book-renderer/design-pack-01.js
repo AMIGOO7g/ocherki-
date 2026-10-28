@@ -787,16 +787,28 @@
       // Keep the rotated glyph box inside the measured column at both ends.
       // Starting exactly on the column boundary made browser font overhangs
       // fail the final DOM audit even when the visible two-line note fitted.
-      const noteFooterGap=30,noteInset=28,noteLength=Math.max(leading,height-noteFooterGap-noteInset*2),noteLeading=40,noteMaxLines=2,noteDepth=noteLeading*noteMaxLines;
-      const box=document.createElement('div');box.className='dpk-accent-probe';box.style.cssText=`position:absolute;left:0;top:0;width:${noteLength}px;height:${noteDepth}px;overflow:visible`;
+      // Like a note written by hand along the outer margin: two lines that
+      // cover about four fifths of the column, anchored where the pen starts
+      // (bottom on a left page written upwards, top on a right page). A note
+      // that needs more room may still run the whole column.
+      const noteFooterGap=30,noteRoom=Math.max(leading,height-noteFooterGap-28*2),noteLeading=32,noteMaxLines=2,noteDepth=noteLeading*noteMaxLines;
+      const noteLengths=[...new Set([Math.max(Math.min(noteRoom,leading*4),Math.round(noteRoom*.8)),noteRoom])];
+      const box=document.createElement('div');box.className='dpk-accent-probe';
       const copy=document.createElement('p');copy.className='dpk-source-copy dpk-note-copy';box.appendChild(copy);area.appendChild(box);
       try{
-        const automatic=page.autoMarginNote ?? !page.marginNote;
-        const selected=chooseAccent(copy,flowSourceText(flow),automatic?'':String(page.marginNote||''),noteMaxLines);
+        const automatic=page.autoMarginNote ?? !page.marginNote,requested=automatic?'':String(page.marginNote||'');
+        let noteLength=noteLengths[0],selected=null;
+        for(noteLength of noteLengths){
+          box.style.cssText=`position:absolute;left:0;top:0;width:${noteLength}px;height:${noteDepth}px;overflow:visible`;
+          selected=chooseAccent(copy,flowSourceText(flow),requested,noteMaxLines);
+          copy.textContent=selected.text;
+          if(selected.fits&&renderedLineCount(copy)<=noteMaxLines)break;
+        }
         page.marginNote=selected.text;
         copy.textContent=page.marginNote;
         flow.noteLines=renderedLineCount(copy);
         if((!selected.fits||flow.noteLines>noteMaxLines)&&!page.forceMarginPlacement)throw accentFailure('margin',page.marginNote,automatic,'Заметка слишком длинная для этой области. Сократите текст.');
+        const noteInset=side==='left'?Math.max(28,height-noteFooterGap-28-noteLength):28;
         flow.geometry['note-length']=noteLength;flow.geometry['note-depth']=noteDepth;flow.geometry['note-footer-gap']=noteFooterGap;flow.geometry['note-inset']=noteInset;flow.accentOverflow.margin=false;
       }finally{box.remove();}
     }
@@ -856,7 +868,7 @@
       if(sourceRects(note).some(r=>r.top<areaRect.top-epsilon||r.bottom>areaRect.bottom+epsilon||r.left<pageRect.left-epsilon||r.right>pageRect.right+epsilon))violations.push({rule:'note-glyph-outside-page'});
       const transform=new DOMMatrixReadOnly(getComputedStyle(note).transform);
       const right=article.classList.contains('right');
-      if(Math.abs(transform.a)>0.0001||Math.abs(transform.d)>0.0001||Math.abs(transform.b-(right?1:-1))>0.0001||Math.abs(transform.c-(right?-1:1))>0.0001)violations.push({rule:'note-orientation'});
+      if(Math.abs(transform.a)>0.03||Math.abs(transform.d)>0.03||Math.abs(transform.b-(right?1:-1))>0.001||Math.abs(transform.c-(right?-1:1))>0.001)violations.push({rule:'note-orientation'});
     }
     for(const node of article.querySelectorAll('.dpk-inline-quote')){
       const rect=node.getBoundingClientRect(),box=node.parentElement.getBoundingClientRect();

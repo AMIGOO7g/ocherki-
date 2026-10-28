@@ -82,7 +82,8 @@
             plain.measuredFlow.mode=original.rhythm;
             plain.measuredFlow.noteLines=1;
             plain.measuredFlow.accentOverflow={...(plain.measuredFlow.accentOverflow||{}),margin:false};
-            Object.assign(plain.measuredFlow.geometry,{'note-length':Math.max(1,height-86),'note-depth':80,'note-footer-gap':30,'note-inset':28});
+            const noteLength=Math.max(1,Math.round((height-86)*.8));
+            Object.assign(plain.measuredFlow.geometry,{'note-length':noteLength,'note-depth':64,'note-footer-gap':30,'note-inset':side==='left'?Math.max(28,height-58-noteLength):28});
             candidate={...candidate,master:original.master,rhythm:original.rhythm,marginNote:safeNote,autoMarginNote:false,allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:plain.measuredFlow};
             result.measuredFlow=plain.measuredFlow;
             Object.assign(page,candidate);
