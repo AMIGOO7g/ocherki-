@@ -671,7 +671,7 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { panorama:25, two:30, three:20, single:25 };
+    const photoBeatWeights = { hspread:30, panorama:20, two:25, three:15, single:20 };
     let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '';
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
@@ -764,7 +764,7 @@
         quietGiven=false;
         return accentCycle[cycleStep++%accentCycle.length];
       };
-      const nextTextPage=side=>{
+      const nextTextPage=(side,extra={})=>{
         if(!rest)return null;
         const owner=chapter.runs.find(run=>run.end>sourceOffset)||chapter.runs[chapter.runs.length-1];
         const input=owner?.page||chapter.first;
@@ -788,6 +788,7 @@
           accentBeat++;
         }
         page.autoImportant=!page.importantLine;page.autoInlineQuote=!page.inlineQuote;page.autoMarginNote=!page.marginNote;
+        Object.assign(page,extra);
         occurrences[rhythm]=occurrence+1;
         return consume(page,side);
       };
@@ -817,7 +818,7 @@
       // original pagination is restored.
       function balanceChapterEnding(){
         const minimumLines=6,maximumBorrow=4;
-        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM'].includes(spread.master));
+        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP'].includes(spread.master));
         const last=textSpreads.at(-1);
         if(!last)return;
         const isText=page=>Boolean(page?.measuredFlow&&page.sourceRange&&page.sectionId===chapter.sectionId);
@@ -872,10 +873,23 @@
           const wide=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.45);
           // Wide frames are kept for a panorama; other beats use them last.
           const ordinary=[...unused.filter(photoPosition=>!wide.includes(photoPosition)),...wide];
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&(beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:true));
+          // H-SPREAD needs a horizontal frame and enough text for both pages
+          // under it (roughly 1200 characters a page at this geometry).
+          const horizontal=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.3);
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&(beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:true));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
-          const beat=(eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
+          // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
+          const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat);
+          const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
           lastPhotoBeat=beat;
+          if(beat==='hspread'){
+            const photoIndex=take(horizontal.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
+            const left=nextTextPage('left',{topPhoto:{photoIndex}});
+            const right=nextTextPage('right',{topPhoto:{photoIndex}})||P('hspread-photo',{layout:'hspread-photo',master:'D01-HSPREAD-TOP',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title});
+            spreads.push({master:'D01-SPREAD-HSPREAD-TOP',sectionId:chapter.sectionId,left,right,fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
           if(beat==='panorama'){
             const photoIndex=take(wide.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
             const base={layout:'panorama',master:'D01-PANORAMA',sectionId:chapter.sectionId,source:chapter,photoIndex,panorama:true,title:chapter.title};

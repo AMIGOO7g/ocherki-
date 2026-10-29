@@ -2543,3 +2543,15 @@ body .dpk-page.dpk-native-paginated [data-native-copy][data-native-copy][data-na
 body .dpk-page.dpk-native-paginated [data-native-copy] [data-native-cell]{min-height:0!important;min-width:0!important;overflow:visible!important}
 body .dpk-page.dpk-native-paginated [data-native-copy] [data-native-cell] [data-source-stream]{display:block!important;position:static!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;white-space:pre-wrap!important;overflow:visible!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:auto!important;-webkit-hyphens:auto!important;orphans:1!important;widows:1!important;text-indent:0!important}
 body .dpk-page.dpk-native-paginated [data-native-copy] [data-native-cell] [data-source-stream]::first-letter{font:inherit!important;float:none!important;margin:0!important;padding:0!important}
+
+/* H-SPREAD PHOTO TOP + TEXT BELOW v1.2 — one horizontal photograph across
+   the top of the spread with the system margins (top 70px, outer 70px) and
+   no seam at the spine; text starts a calm pause below it and is laid out by
+   the shared engine in two columns per page. */
+body .dpk-page.dpk-dom-paginated.dpk-hspread{--dpk-flow-origin:608px}
+body .dpk-page.dpk-hspread .dpk-hspread-photo{position:absolute!important;top:70px!important;height:480px!important;margin:0!important;padding:0!important;overflow:hidden!important;z-index:1!important;background:#f1efeb!important}
+body .dpk-page.dpk-hspread.left .dpk-hspread-photo{left:70px!important;right:0!important}
+body .dpk-page.dpk-hspread.right .dpk-hspread-photo{left:0!important;right:70px!important}
+body .dpk-page.dpk-hspread .dpk-hspread-photo img{position:absolute!important;top:0!important;width:200%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:50% 50%!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-hspread.left .dpk-hspread-photo img{left:0!important;right:auto!important}
+body .dpk-page.dpk-hspread.right .dpk-hspread-photo img{right:0!important;left:auto!important}

@@ -85,6 +85,7 @@
     if (layout === 'chapter-photo') return 'chapter-photo';
     if (layout === 'chapter-intro' || layout === 'chapter-mark') return 'chapter-text';
     if (layout === 'chapter-initial' || kind === 'chapter-initial') return 'chapter-initial';
+    if (layout === 'hspread-photo' || kind === 'hspread-photo') return 'hspread-photo';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
     if (layout === 'photo-fullspread' || (page && page.master === 'MS-04')) return 'large-photo';
     if (layout === 'photo-triptych' || kind === 'three-photo') return 'three-photo';
@@ -168,6 +169,8 @@
       return src ? `<img${tone ? ` class="${tone}"` : ''} src="${esc(src)}" alt="" loading="lazy" decoding="async">` : '<span class="dpk-photo-missing"></span>';
     };
     const caption = index => esc(ctx.caption ? ctx.caption(source, index) : '');
+    // One source image in one viewport across both pages of the spread.
+    const hspreadPhoto = index => `<figure class="dpk-hspread-photo" data-source-photo-index="${index}">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`;
     const running = `<div class="dpk-running">${episode || 'Семейная хроника'}</div>`;
     const folio = `<div class="dpk-folio">${pageNo}</div>`;
     const photoMode = String(meta.photoMode || ctx.photoMode || 'color').toLowerCase() === 'bw' ? 'dpk-photo-bw' : 'dpk-photo-color';
@@ -213,8 +216,11 @@
         ?flow.quoteColumn==='right'?`${plainColumn(0)}${quotedColumn(1,2)}`:`${quotedColumn(0,1)}${plainColumn(2)}`
         :`${plainColumn(0)}${plainColumn(1)}`;
       const style=Object.entries(flow.geometry).map(([key,value])=>`--dpk-flow-${key}:${typeof value==='number'?`${value}px`:value}`).join(';');
-      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:running;
-      return article(page.master,`${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,'dpk-dom-paginated')
+      // H-SPREAD v1.2: one horizontal photograph runs across the top of the
+      // spread; the page only tells the shared engine where its text starts.
+      const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):'';
+      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto?'':running;
+      return article(page.master,`${topPhoto}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,`dpk-dom-paginated${topPhoto?' dpk-hspread':''}`)
         .replace('data-design-pack=',`style="${style}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
@@ -356,6 +362,7 @@
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
     }
+    if (role === 'hspread-photo') return article('D01-HSPREAD-TOP', `${hspreadPhoto(page.photoIndex||0)}${folio}`, 'dpk-hspread');
     if (role === 'panorama') {
       const index = page.photoIndex || 0;
       const captionText = page.hideCaption ? '' : caption(index);
@@ -607,7 +614,11 @@
       const clauses=whole.split(/(?<=[,;:—])\s+/u).map(clean).filter(Boolean);
       // Whole sentences first; a clause only when it opens the sentence and
       // still reads as a complete thought, never with a dangling comma.
-      const parts=[{text:whole,bonus:2},...clauses.slice(0,1).filter(()=>clauses.length>1).map(text=>({text:text.replace(/[\s,;:—–-]+$/u,''),bonus:0}))];
+      const opening=clauses.length>1?clauses[0].replace(/[\s,;:—–-]+$/u,''):'';
+      // An opening clause must still read as a thought: at least four words
+      // and not cut off on a function word («Снимок принимал то»).
+      const dangling=/(?<!\p{L})(то|что|как|и|а|но|или|это|так|же|ли|бы|не|на|в|с|к|о|по|за|из|у)$/iu;
+      const parts=[{text:whole,bonus:2},...(opening&&words(opening)>=4&&!dangling.test(opening)?[{text:opening,bonus:0}]:[])];
       for(const {text,bonus} of parts){
         if(!/\p{L}/u.test(text)||/^[\s\p{P}\p{S}]+$/u.test(text)||words(text)<3)continue;
         const score=bonus+phraseScore(text);
