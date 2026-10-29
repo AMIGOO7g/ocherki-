@@ -2627,3 +2627,19 @@ body .dpk-page.dpk-t08-text .dpk-running{right:520px!important}
 body .dpk-page.dpk-t08 .dpk-t08-quote{position:absolute!important;left:14%!important;right:14%!important;top:50%!important;transform:translateY(-50%)!important;text-align:center!important}
 body .dpk-page.dpk-t08 .dpk-t08-quote p{margin:0!important;font:italic 400 34px/1.38 'CormorantCy',Georgia,serif!important;color:#8a7454!important}
 body .dpk-page.dpk-t08 .dpk-t08-quote i{display:block!important;width:34px!important;height:1px!important;margin:28px auto 0!important;background:#8a7454!important;opacity:.7!important}
+
+/* Quiet caption line by the folio for the new photo compositions. */
+body .dpk-page .dpk-caption.dpk-caption-line{bottom:31px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;z-index:3!important}
+body .dpk-page.left .dpk-caption.dpk-caption-line{left:86px!important;right:36px!important;text-align:left!important}
+body .dpk-page.right .dpk-caption.dpk-caption-line{left:36px!important;right:86px!important;text-align:right!important}
+
+/* T10 — MAIN PHOTO + CTX-STYLE OVERLAP CARD. Text keeps one outer column
+   on the left page; the main photograph and the angled card are drawn in
+   spread coordinates and clipped by each page. */
+body .dpk-page.dpk-t10{overflow:hidden!important}
+body .dpk-page.dpk-dom-paginated.dpk-t10-text .dpk-measured-flow{left:70px!important;right:470px!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 0px!important;column-gap:0!important;row-gap:0!important}
+body .dpk-page.dpk-t10-text .dpk-running{right:470px!important}
+body .dpk-page.dpk-t10 .dpk-t10-main,body .dpk-page.dpk-t10 .dpk-t10-card{position:absolute!important;margin:0!important;overflow:hidden!important;background:#f1efeb!important}
+body .dpk-page.dpk-t10 .dpk-t10-main{z-index:1!important}
+body .dpk-page.dpk-t10 .dpk-t10-card{z-index:3!important;box-sizing:border-box!important;border:10px solid #fff!important;box-shadow:0 10px 26px rgba(0,0,0,.22),0 2px 6px rgba(0,0,0,.12)!important;transform-origin:50% 50%!important}
+body .dpk-page.dpk-t10 .dpk-t10-main img,body .dpk-page.dpk-t10 .dpk-t10-card img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important}

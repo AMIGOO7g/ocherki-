@@ -671,8 +671,8 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
-    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0;
+    const photoBeatWeights = { t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
+    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0;
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
@@ -886,7 +886,9 @@
           const ordinary=[...unused.filter(photoPosition=>!wide.includes(photoPosition)),...wide];
           // H-SPREAD needs a horizontal frame and enough text for both pages
           // under it (roughly 1200 characters a page at this geometry).
-          const horizontal=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.3);
+          // The spread window is very wide, so only clearly horizontal frames
+          // (≥ 1.7 : 1) avoid an aggressive crop.
+          const horizontal=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.7);
           // T06: a vertical or square hero plus two related frames that are not
           // both vertical, and a real block of text for the facing page.
           const heroes=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])<=1.05);
@@ -902,7 +904,11 @@
           // T08: one truly vertical frame and at least a column of text.
           const t08Photo=ordinary.find(photoPosition=>photoAspect(chapter.photos[photoPosition])<=.85);
           const t08Fits=t08Photo!=null&&rest.length>900;
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
+          // T10: a main frame (the widest available) plus a different card frame.
+          const t10Main=[...ordinary].sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
+          const t10Card=ordinary.find(photoPosition=>photoPosition!==t10Main);
+          const t10Fits=t10Main!=null&&t10Card!=null&&rest.length>900;
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t10'?t10Fits:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
@@ -918,6 +924,23 @@
               left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
               right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true});
             portraitGiven=true;textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t10'){
+            // Geometry in spread coordinates (left page 0–1000, right 1000–2000).
+            const pageH=meta.format==='portrait'?1196:1000,pad=70,mainRatio=photoAspect(chapter.photos[t10Main]),cardRatio=photoAspect(chapter.photos[t10Card]);
+            const main=mainRatio>=1.2
+              ?(()=>{const w=1250,h=Math.min(pageH-2*pad-60,Math.round(w/mainRatio));return {x:1930-w,y:Math.round(pad+(pageH-2*pad-h)*.3),w,h};})()
+              :(()=>{const h=pageH-2*pad,w=Math.min(870,Math.round(h*mainRatio));return {x:960,y:pad,w,h};})();
+            const long=Math.round(.62*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
+            // Approved angles in a fixed order across the book (no randomness).
+            const angle=[-4,6,-2,4,-6,2][t10Count++%6];
+            const card={x:Math.round(1000-.75*cw),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
+            const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
+            const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
+            const photoPage=P('t10-photos',{layout:'t10-photos',master:'D01-T10-PHOTOS',sectionId:chapter.sectionId,source:chapter,t10:layout,title:chapter.title});
+            spreads.push({master:'D01-SPREAD-T10',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+            textSpreadStreak=0;
             continue;
           }
           if(beat==='t08'){

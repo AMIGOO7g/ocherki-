@@ -89,6 +89,7 @@
     if (layout === 't06-hero' || kind === 't06-hero') return 't06-hero';
     if (layout === 't07-photos' || kind === 't07-photos') return 't07-photos';
     if (layout === 't08-pause' || kind === 't08-pause') return 't08-pause';
+    if (layout === 't10-photos' || kind === 't10-photos') return 't10-photos';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -179,6 +180,17 @@
     // T06: two related frames in one strict row above the text. Both share one
     // height; widths follow their proportions so neither is cut aggressively.
     const photoRatio = index => { const photo=source?.photos?.[index]||{}; const ratio=Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1; return Math.min(1.6,Math.max(.7,ratio)); };
+    // A quiet caption line by the folio, only from the author's photo data.
+    const captionLine = indices => { const text=indices.map(index=>caption(index)).filter(Boolean).join(' · '); return text?`<div class="dpk-caption dpk-caption-line">${text}</div>`:''; };
+    // T10: main photo and an angled card placed in spread coordinates; each
+    // page draws its own part, so elements cross the fold without a seam.
+    const t10Layer = layout => {
+      if(!layout)return '';
+      const offset=pageSide==='left'?0:1000,box=(item,extra='')=>`left:${item.x-offset}px;top:${item.y}px;width:${item.w}px;height:${item.h}px${extra}`;
+      const main=`<figure class="dpk-t10-main" style="${box(layout.main)}">${image(layout.main.index).replace('loading="lazy"','loading="eager"')}</figure>`;
+      const card=`<figure class="dpk-t10-card" style="${box(layout.card,`;transform:rotate(${layout.card.angle}deg)`)}">${image(layout.card.index).replace('loading="lazy"','loading="eager"')}</figure>`;
+      return main+card;
+    };
     const t06Pair = indices => {
       const width=839,gutter=18,ratios=indices.map(photoRatio),height=Math.min(340,Math.round((width-gutter)/(ratios[0]+ratios[1])));
       const widths=ratios.map(ratio=>Math.round((width-gutter)*ratio/(ratios[0]+ratios[1])));
@@ -237,7 +249,9 @@
       const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
       const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto?'':running;
-      return article(page.master,`${topPhoto}${spinePhoto}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':''}`)
+      const t10=page.t10?t10Layer(page.t10):'';
+      const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):'';
+      return article(page.master,`${topPhoto}${spinePhoto}${t10}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':t10?' dpk-t10 dpk-t10-text':''}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
@@ -420,7 +434,7 @@
       const totalW=Math.max(...rects.map(([x,,w])=>x+w)),totalH=Math.max(...rects.map(([,y,,h])=>y+h));
       const k=Math.min(1,boxH/totalH,boxW/totalW),offsetX=boxX+(boxW-totalW*k)/2,offsetY=70+(boxH-totalH*k)/2;
       const figures=rects.map(([x,y,w,h],i)=>`<figure class="dpk-t07-photo" data-source-photo-index="${ids[i]}" style="left:${Math.round(offsetX+x*k)}px;top:${Math.round(offsetY+y*k)}px;width:${Math.round(w*k)}px;height:${Math.round(h*k)}px">${image(ids[i]).replace('loading="lazy"','loading="eager"')}</figure>`).join('');
-      return article('D01-T07-PHOTOS', `${figures}${folio}`, `dpk-t07 dpk-t07-${String(variant||'E').toLowerCase()}`);
+      return article('D01-T07-PHOTOS', `${figures}${captionLine(ids)}${folio}`, `dpk-t07 dpk-t07-${String(variant||'E').toLowerCase()}`);
     }
     if (role === 't06-hero') {
       // «One photograph and air»: the hero frame is fitted whole inside the
@@ -428,9 +442,10 @@
       // The hero takes the page height minus the system margins, so the taller
       // 280×335 page gives its extra height to the photograph.
       const ratio=photoRatio(page.photoIndex||0),boxW=860,boxH=((page.pageFormat||meta.format)==='portrait'?1196:1000)-200,width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
-      return article('D01-T06-HERO', `<figure class="dpk-t06-hero" style="width:${width}px;height:${height}px;--dpk-hero-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${folio}`);
+      return article('D01-T06-HERO', `<figure class="dpk-t06-hero" style="width:${width}px;height:${height}px;--dpk-hero-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${captionLine([page.photoIndex||0])}${folio}`);
     }
     if (role === 'hspread-photo') return article('D01-HSPREAD-TOP', `${hspreadPhoto(page.photoIndex||0)}${folio}`, 'dpk-hspread');
+    if (role === 't10-photos') return article('D01-T10-PHOTOS', `${t10Layer(page.t10)}${captionLine([page.t10.main.index,page.t10.card.index])}${folio}`, 'dpk-t10 dpk-t10-photos');
     if (role === 'panorama') {
       const index = page.photoIndex || 0;
       const captionText = page.hideCaption ? '' : caption(index);
