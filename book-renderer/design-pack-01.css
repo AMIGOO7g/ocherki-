@@ -2395,6 +2395,7 @@ body .dpk-page.dpk-dom-paginated .dpk-source-copy{
   orphans:1!important;widows:1!important;transform:none!important;
 }
 body .dpk-page .dpk-flow-separator{display:none!important}
+body .dpk-page .dpk-paragraph-indent{display:inline-block!important;width:1.5em!important;height:0!important;margin:0!important;padding:0!important;vertical-align:baseline!important}
 body .dpk-page .dpk-paragraph-separator{
   display:block!important;height:calc(var(--dpk-body-leading) * .5)!important;
   min-height:calc(var(--dpk-body-leading) * .5)!important;font-size:0!important;line-height:0!important;

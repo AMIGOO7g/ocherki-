@@ -679,6 +679,7 @@
       const usedAccents = [];
       const consume = (page,side) => {
         if(!page.avoidAccents)page.avoidAccents=usedAccents.slice();
+        page.startsParagraph=sourceOffset>0&&/\r?\n[ \t]*\r?\n[ \t\r\n]*$/u.test(chapter.text.slice(0,sourceOffset));
         // Only a real new sheet starts a new line; where the editor merely
         // carried the text over, the book keeps one continuous line flow.
         page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset&&!run.continuation).map(run=>run.start-sourceOffset);

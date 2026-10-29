@@ -202,7 +202,7 @@
       const flow=page.measuredFlow,mode=flow.mode;
       const cell=index=>{
         const ranges=(flow.inlineRanges?.[index]||[]).map(item=>({...item,attrs:item.editable?editorialAttrs('important'):''}));
-        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true)}</p></div>`;
+        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true,Boolean(flow.paragraphStarts?.[index]))}</p></div>`;
       };
       const overflowClass=kind=>flow.accentOverflow?.[kind]?' dpk-accent-overflow':'';
       const quote=()=>`<div class="dpk-quote-reservation"><p class="dpk-inline-quote${overflowClass('quote')}"${editorialAttrs('inline-quote')}>${sourceMarkup(page.inlineQuote||'')}</p></div>`;
@@ -472,9 +472,9 @@
     if(end!==undefined)range.setEnd(node,end);
     return range.cloneContents().textContent;
   }
-  function sourceMarkup(value, breaks = [], inlineRanges = [], suppressTerminalWhitespace = false) {
+  function sourceMarkup(value, breaks = [], inlineRanges = [], suppressTerminalWhitespace = false, startsParagraph = false) {
     const decorations=Array.isArray(inlineRanges)?inlineRanges.filter(item=>item&&item.end>item.start):[];
-    if(!breaks.length&&!decorations.length&&!suppressTerminalWhitespace)return escapeSource(value);
+    if(!breaks.length&&!decorations.length&&!suppressTerminalWhitespace&&!startsParagraph)return escapeSource(value);
     const boundaries=new Set(breaks),opens=new Map(),closes=new Map(),paragraphStarts=new Set(),paragraphEnds=new Set(),pieces=[];let offset=0,terminal=value.length;
     if(suppressTerminalWhitespace)while(terminal>0&&/[ \t\r\n]/u.test(value.charAt(terminal-1)))terminal--;
     for(const match of value.matchAll(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/gu)){
@@ -487,8 +487,12 @@
       if(!opens.has(start))opens.set(start,[]);if(!closes.has(end))closes.set(end,[]);
       opens.get(start).push(item);closes.get(end).unshift(item);
     }
+    // A column or page that opens with a new paragraph is indented too.
+    if(startsParagraph&&value&&!/^[ \t]*\r?\n/u.test(value))pieces.push('<span class="dpk-paragraph-indent" aria-hidden="true"></span>');
     for(const character of value){
-      if(paragraphEnds.has(offset))pieces.push('</span>');
+      // A new paragraph opens with the classic book indent; the empty span
+      // keeps the serialized text identical to the manuscript.
+      if(paragraphEnds.has(offset))pieces.push('</span><span class="dpk-paragraph-indent" aria-hidden="true"></span>');
       if(closes.has(offset))for(const _ of closes.get(offset))pieces.push('</span>');
       if(offset>0&&boundaries.has(offset))pieces.push('<br data-source-boundary>');
       if(opens.has(offset))for(const item of opens.get(offset))pieces.push(`<span class="dpk-inline-handwritten${item.editable?' dpk-inline-handwritten-editable':''}"${item.zone?` data-accent-zone="${escapeSource(item.zone)}"`:''}${item.editable?item.attrs||'':''}>`);
@@ -534,7 +538,7 @@
     return rect.height<=box.height+0.1 && sourceRects(target).every(r=>r.bottom<=box.bottom+0.1&&r.top>=box.top-0.1);
   }
   function clipRanges(ranges,end){return (ranges||[]).filter(item=>item.start<end).map(item=>({...item,end:Math.min(end,item.end)})).filter(item=>item.end>item.start);}
-  function splitRenderedText(target, source, breaks = [], inlineRanges = []) {
+  function splitRenderedText(target, source, breaks = [], inlineRanges = [], startsParagraph = false) {
     const value=String(source??'');
     const boundaries=[0];
     // Search positions mark legal boundaries only. No word or character count
@@ -555,17 +559,17 @@
     // automatic hyphenation and preserved separators that predicate can
     // change after suffix text is added, so binary search could stop at a
     // much earlier legal boundary and leave most of a column empty.
-    target.innerHTML=sourceMarkup(value,breaks,inlineRanges,true);
+    target.innerHTML=sourceMarkup(value,breaks,inlineRanges,true,startsParagraph);
     let low=0,high=ends.length-1,best=0;
     while(low<=high){const index=Math.floor((low+high)/2);if(renderedPrefixFits(target,ends[index])){best=index;low=index+1;}else high=index-1;}
-    const renderEnd=end=>{target.innerHTML=sourceMarkup(rangeText(value,0,end),breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true);return fitsRendered(target);};
+    const renderEnd=end=>{target.innerHTML=sourceMarkup(rangeText(value,0,end),breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true,startsParagraph);return fitsRendered(target);};
     while(best>0&&!renderEnd(ends[best]))best--;
     while(best+1<ends.length&&renderEnd(ends[best+1]))best++;
     const end=ends[best];
     const head=rangeText(value,0,end),tail=rangeText(value,end);
-    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true);
+    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true,startsParagraph);
     const maximumConfirmed=best===ends.length-1||!renderEnd(ends[best+1]);
-    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true);
+    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true,startsParagraph);
     if(!maximumConfirmed)throw new Error('Измеритель оставил место для продолжения строки.');
     if(head+tail!==value)throw new Error('DOM Range изменил исходный текст.');
     return {head,tail,maximumConfirmed};
@@ -668,7 +672,7 @@
     const mode=page.layout==='chapter-intro'?'chapter':page.rhythm||'plain';
     const withQuote=mode==='inline-quote',withImportant=['important','important-margin'].includes(mode),withMargin=['margin','important-margin'].includes(mode);
     const quoteColumn=String(page.quoteColumn||'left').toLowerCase()==='right'?'right':'left';
-    const flow={mode,quoteColumn,cells:withQuote?['','','']:['',''],cellBreaks:[],sequence:[],geometry:{},promoted:{},accentBreaks:{},accentOverflow:{},maximal:[],inlineRanges:withQuote?[[],[],[]]:[[],[]]};
+    const flow={mode,quoteColumn,paragraphStarts:[],cells:withQuote?['','','']:['',''],cellBreaks:[],sequence:[],geometry:{},promoted:{},accentBreaks:{},accentOverflow:{},maximal:[],inlineRanges:withQuote?[[],[],[]]:[[],[]]};
     page.measuredFlow=flow;
     const paint=()=>{host.innerHTML=render(page,side);return host.querySelector('.dpk-dom-paginated');};
     let article=paint(),area=article?.querySelector('.dpk-measured-flow');
@@ -706,9 +710,10 @@
     const consumeCell=index=>{
       const target=area.querySelector(`[data-flow-cell="${index}"] .dpk-source-copy`);
       const localRanges=activeRanges.filter(item=>item.end>offset).map(item=>({...item,start:Math.max(0,item.start-offset),end:item.end-offset})).filter(item=>item.start<rest.length&&item.end>0);
-      const split=splitRenderedText(target,rest,breaksNow(),localRanges);
+      const opensParagraph=offset===0?Boolean(page.startsParagraph):/\r?\n[ \t]*\r?\n[ \t\r\n]*$/u.test(flowSourceText(flow));
+      const split=splitRenderedText(target,rest,breaksNow(),localRanges,opensParagraph);
       if(!split.head&&rest&&target.parentElement.getBoundingClientRect().height>=leading)throw new Error('Следующий фрагмент нельзя поместить в колонку без обрезки.');
-      flow.cells[index]=split.head;flow.inlineRanges[index]=clipRanges(localRanges,split.head.length);flow.cellBreaks[index]=register('cell',split.head,index);flow.maximal[index]=split.maximumConfirmed;rest=split.tail;
+      flow.paragraphStarts[index]=opensParagraph;flow.cells[index]=split.head;flow.inlineRanges[index]=clipRanges(localRanges,split.head.length);flow.cellBreaks[index]=register('cell',split.head,index);flow.maximal[index]=split.maximumConfirmed;rest=split.tail;
     };
     const selectOnNode=(node,candidates,manual,key)=>{
       const result=chooseAccent(node,candidates,manual,2);
