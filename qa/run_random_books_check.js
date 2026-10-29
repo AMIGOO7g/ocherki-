@@ -7,7 +7,7 @@ const PORT=process.argv[2]||'8849',SEED=Number(process.argv[3]||7);
 (async()=>{const b=await chromium.launch();const p=await b.newPage();
 await p.goto(`http://127.0.0.1:${PORT}/qa/README.md`);
 await p.setContent(`<!doctype html><html><head><meta charset="utf-8"><base href="http://127.0.0.1:${PORT}/qa/"><link rel="stylesheet" href="../book-renderer/fonts.css"><link rel="stylesheet" href="../book-renderer/design-pack-01.css"></head><body>
-<script charset="utf-8" src="../book-renderer/geo-atlas.js"></script><script charset="utf-8" src="../book-renderer/design-pack-01.js"></script><script charset="utf-8" src="../book-renderer/book-engine.js"></script><script charset="utf-8" src="../book-renderer/design-pack-01.layout.js"></script><script charset="utf-8" src="../book-renderer/layout-pagination-engine.js"></script></body></html>`,{waitUntil:'networkidle'});
+<script charset="utf-8" src="../book-renderer/geo-cities.js"></script><script charset="utf-8" src="../book-renderer/geo-atlas.js"></script><script charset="utf-8" src="../book-renderer/design-pack-01.js"></script><script charset="utf-8" src="../book-renderer/book-engine.js"></script><script charset="utf-8" src="../book-renderer/design-pack-01.layout.js"></script><script charset="utf-8" src="../book-renderer/layout-pagination-engine.js"></script></body></html>`,{waitUntil:'networkidle'});
 const r=await p.evaluate(async(SEED)=>{await OcherkiLayoutPagination.readyFonts();
  let seed=SEED;const rnd=()=>{seed=(seed*1103515245+12345)%2147483648;return seed/2147483648;};
  const pick=a=>a[Math.floor(rnd()*a.length)];

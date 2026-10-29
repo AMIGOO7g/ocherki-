@@ -258,12 +258,25 @@
       boxes.push(best.box);
       photos.push({ ...best.box, src: place.photo.src, link: Math.hypot(near[0] - x, near[1] - y) > 34 ? [near, [x, y]] : null });
     });
+    // Names of the lands as they were in the story's years (no borders).
+    // Only lands around the route are named, each may shift a little to
+    // find a clear spot.
+    const lands = [], ax = at.map(p => p[0]), ay = at.map(p => p[1]);
+    const near = { x0: Math.min(...ax) - 260, x1: Math.max(...ax) + 260, y0: Math.min(...ay) - 220, y1: Math.max(...ay) + 220 };
+    for (const land of (geo?.eraLabels ? geo.eraLabels(data.year) : [])) {
+      const [lx, ly] = project(land.lon, land.lat);
+      if (lx < near.x0 || lx > near.x1 || ly < near.y0 || ly > near.y1) continue;
+      for (const [dx, dy] of [[0, 0], [0, -36], [0, 36], [-60, 0], [60, 0], [0, -72], [0, 72]]) {
+        const x = lx + dx, y = ly + dy, box = { x: x - land.name.length * 7.5, y: y - 10, w: land.name.length * 15, h: 20 };
+        if (score(box) < 6) { boxes.push(box); lands.push({ x, y, name: land.name }); break; }
+      }
+    }
     const seas = [];
     for (const sea of (geo?.seas || [])) {
       const [x, y] = project(sea.lon, sea.lat), box = { x: x - sea.name.length * 6, y: y - 10, w: sea.name.length * 12, h: 20 };
       if (score(box) < 6) { boxes.push(box); seas.push({ x, y, name: sea.name }); }
     }
-    const layout = { H, landPath: landPath.join(''), grid: grid.join(''), route, at, labels, photos, seas };
+    const layout = { H, landPath: landPath.join(''), grid: grid.join(''), route, at, labels, photos, seas, lands };
     I02_CACHE.set(data, layout);
     return layout;
   }
@@ -683,6 +696,8 @@
         +`</svg>`];
       const inPage=box=>box.x+box.w>offset&&box.x<offset+1000;
       for(const sea of map.seas)if(sea.x>offset&&sea.x<offset+1000)parts.push(`<span class="dpk-i02-sea" style="left:${Math.round(sea.x-offset)}px;top:${Math.round(sea.y)}px">${esc(sea.name)}</span>`);
+      for(const land of map.lands)if(land.x>offset&&land.x<offset+1000)parts.push(`<span class="dpk-i02-land-name" style="left:${Math.round(land.x-offset)}px;top:${Math.round(land.y)}px">${esc(land.name)}</span>`);
+      if(pageSide==='right'&&data.year&&map.lands.length)parts.push(`<div class="dpk-i02-era">Названия земель — около ${esc(String(Math.floor(Number(data.year)/10)*10))}-х годов</div>`);
       for(const photo of map.photos)if(inPage(photo))parts.push(`<span class="dpk-i02-photo" style="left:${photo.x-offset}px;top:${photo.y}px;width:${photo.w}px;height:${photo.h}px"><img src="${esc(photo.src)}" alt="" loading="eager" decoding="async"></span>`);
       for(const label of map.labels)if(inPage(label))parts.push(`<div class="dpk-i02-label ${label.side}" style="left:${Math.round(label.x-offset)}px;top:${Math.round(label.y)}px;width:${Math.round(label.w)}px">`
         +`<strong>${esc(label.place.name)}</strong>${label.place.date?`<b>${esc(label.place.date)}</b>`:''}${label.place.text?`<em>${esc(label.place.text)}</em>`:''}</div>`);

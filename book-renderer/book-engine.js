@@ -771,6 +771,7 @@
         }
         const custom=String(byId('timeline').pages?.find(page=>page.included!==false)?.title||'').trim();
         const i02={places:unique.map(stop=>({key:stop.key,name:stop.name,lat:stop.lat,lon:stop.lon,date:stop.date,text:stop.text,photo:photoFor.get(stop.key)||null})),
+          year:(()=>{const years=timelineEvents.map(event=>Number(event.year)).filter(Boolean).sort((a,b)=>a-b);return years.length?years[Math.floor(years.length/2)]:0;})(),
           route:stops.map(stop=>stop.key),title:'География семьи',subtitle:custom&&custom!=='Хронология'?custom:'Места, где жила наша история',pageFormat:meta.format||'square'};
         i02Spread={id:'d01_i02_route',master:'D01-SPREAD-I02-ROUTE',left:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02}),right:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02})};
       }

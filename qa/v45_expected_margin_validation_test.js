@@ -5,7 +5,7 @@ assert(testMode.includes('let overflowError=null;'),'acceptance does not isolate
 assert(testMode.includes('catch(error){overflowError=error;}'),'expected manual-margin validation still aborts acceptance');
 assert(testMode.includes("T9:{status:overflowError?.message==='Заметка на поле не помещается в две строки. Сократите её и пересоберите книгу.'"),'T9 no longer verifies the expected validation result');
 assert(!testMode.includes('overflowView.layout.warnings'),'acceptance still reads a result that cannot exist for a blocking manual validation');
-assert(testMode.includes("test-mode-runner.html?v=map-water-20261029-v32"),'runner cache is not refreshed');
-assert(html.includes('map-water-20261029-v32'),'test mode cache is not refreshed');
+assert(testMode.includes("test-mode-runner.html?v=map-eras-20261029-v33"),'runner cache is not refreshed');
+assert(html.includes('map-eras-20261029-v33'),'test mode cache is not refreshed');
 assert.equal(JSON.parse(read('book-renderer/design-pack-01.manifest.json')).version,'1.16.0-stable-important-reflow');
 console.log(JSON.stringify({status:'pass',expectedManualMarginError:'isolated',acceptanceContinues:true,renderer:'unchanged-v23'}));
