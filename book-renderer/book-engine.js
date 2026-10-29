@@ -667,6 +667,12 @@
     // apart; an occasional quiet page lets the eye rest.
     const accentWeights = { margin:35, important:25, 'important-margin':15, 'inline-quote':15, plain:10 };
     const textSeed = value => { let hash=2166136261; for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);} return hash>>>0; };
+    // Photo beats are chosen like an art director would: by how many unused
+    // photographs the chapter still holds and their shape, never the same
+    // beat twice in a row across the book, in a repeatable seeded order.
+    const photoBeatWeights = { panorama:25, two:30, three:20, single:25 };
+    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '';
+    const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
     chapters.forEach((chapter,index) => {
@@ -863,9 +869,28 @@
       }
       while(rest){
         if(usablePhotoIndices.some(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])))&&textSpreadStreak>=2){
-          const photoBeat=nextVisualPhoto();
+          const unused=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+          const take=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
+          const wide=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.45);
+          // Wide frames are kept for a panorama; other beats use them last.
+          const ordinary=[...unused.filter(photoPosition=>!wide.includes(photoPosition)),...wide];
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&(beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:true));
+          let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
+          const beat=(eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
+          lastPhotoBeat=beat;
+          if(beat==='panorama'){
+            const photoIndex=take(wide.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
+            const base={layout:'panorama',master:'D01-PANORAMA',sectionId:chapter.sectionId,source:chapter,photoIndex,panorama:true,title:chapter.title};
+            spreads.push({master:'D01-SPREAD-PANORAMA',sectionId:chapter.sectionId,left:P('photo',{...base,panoramaSide:'left'}),right:P('photo',{...base,panoramaSide:'right',hideCaption:true}),fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
           const textPage=nextTextPage('left');
-          const photoPage=P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:photoBeat,title:chapter.title});
+          const photoPage=beat==='three'
+            ?P('three-photo',{layout:'photo-triptych',master:'D01-THREE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,3).map(take),title:chapter.title})
+            :beat==='two'
+              ?P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,2).map(take),title:chapter.title})
+              :P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:take(ordinary[0]),title:chapter.title});
           spreads.push({master:'D01-SPREAD-TEXT-PHOTO-RHYTHM',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
           textSpreadStreak=0;
           if(meta.forceDarkFadeSequence===true&&!darkFadeInserted){
