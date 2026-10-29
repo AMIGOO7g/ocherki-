@@ -39,7 +39,7 @@
     document.body.appendChild(host);
     const warnings=[],pending=[],pendingKeys=new Set(),render=(p,s)=>renderPage(p,s,meta);
     function textPage(page,source,side){
-      const original={...page};let candidate={...original};const removed=new Set(),automaticRetries={quote:0,important:0,margin:0};let automaticMarginForced=false;
+      const original={...page};let candidate={...original};const removed=new Set(),automaticRetries={quote:0,important:0,margin:0},triedAccents={};let automaticMarginForced=false;
       const automaticRequested={
         quote:original.autoInlineQuote??!original.inlineQuote,
         important:original.autoImportant??!original.importantLine,
@@ -60,7 +60,13 @@
           const isAutomatic=Boolean(error.automatic||automaticRequested[error.kind]);
           if(isAutomatic&&field&&automaticRetries[error.kind]<5){
             const attempt=automaticRetries[error.kind]++;
-            const shortened=compactAccent(error.text,source,attempt,error.kind==='important'?3:1);
+            // A quote or margin note that does not fit is replaced by another
+            // complete, shorter phrase of the same page — never by its first
+            // few words. Handwritten lines keep the word-span fallback.
+            const tried=triedAccents[error.kind]||(triedAccents[error.kind]=new Set());tried.add(String(error.text||''));
+            const phrases=['quote','margin'].includes(error.kind)&&typeof renderer().editorialPhrases==='function'?renderer().editorialPhrases(String(source).slice(0,2400)):[];
+            const whole=phrases.map(item=>item.text).find(text=>!tried.has(text)&&text.length<String(error.text||'').length&&text.length>=12);
+            const shortened=whole||compactAccent(error.text,source,attempt,error.kind==='important'?3:1);
             if(shortened){
               candidate={...candidate,[field]:shortened,[autoField]:false,measuredFlow:undefined};
               warnings.push({code:'ACCENT_AUTO_RETRY',template:original.master,kind:error.kind,text:shortened,automatic:true,reason:error.message,fallback:'shorter-measured-accent'});

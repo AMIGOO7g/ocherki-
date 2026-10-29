@@ -236,6 +236,14 @@
     return next;
   }
 
+  // T12 carries the photo's own short text: a caption (≤ 60 characters) and a
+  // story of 3–60 words. This is an editorial eligibility test, not a page
+  // capacity — pagination itself is always measured in the DOM.
+  function t12Eligible(photo) {
+    const caption=String(photo?.caption||'').trim(),storyLength=(String(photo?.story||'').match(/\p{L}+/gu)||[]).length;
+    return caption.length>0&&caption.length<=60&&storyLength>=3&&storyLength<=60;
+  }
+
   function pageFactory() {
     let serial = 0;
     return (kind, data = {}) => Object.assign({ id: `d01_page_${++serial}`, kind, pageNo: 0 }, data);
@@ -671,8 +679,8 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
-    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0;
+    const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
+    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0, t12Count = 0;
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
@@ -825,7 +833,7 @@
       // original pagination is restored.
       function balanceChapterEnding(){
         const minimumLines=6,maximumBorrow=4;
-        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07'].includes(spread.master));
+        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07','D01-SPREAD-T12'].includes(spread.master));
         const last=textSpreads.at(-1);
         if(!last)return;
         const isText=page=>Boolean(page?.measuredFlow&&page.sourceRange&&page.sectionId===chapter.sectionId);
@@ -908,7 +916,11 @@
           const t10Main=[...ordinary].sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
           const t10Card=ordinary.find(photoPosition=>photoPosition!==t10Main);
           const t10Fits=t10Main!=null&&t10Card!=null&&rest.length>900;
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t10'?t10Fits:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
+          // T12: a photograph the author gave a caption and a short story
+          // (up to 60 words) — that text is what the page carries.
+          const t12Photo=ordinary.find(photoPosition=>t12Eligible(chapter.photos[photoPosition]));
+          const t12Fits=t12Photo!=null&&rest.length>900;
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t12'?t12Fits:beat==='t10'?t10Fits:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
@@ -924,6 +936,19 @@
               left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
               right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true});
             portraitGiven=true;textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t12'){
+            const photoIndex=take(t12Photo),photo=chapter.photos[photoIndex];
+            // Text goes to the side away from the subject; light and dark alternate.
+            const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50;
+            const side=focalX<45?'right':focalX>55?'left':'right';
+            const tone=String(photo.t12Tone||['A','B'][t12Count++%2]).toUpperCase()==='B'?'B':'A';
+            const textPage=nextTextPage('left');
+            const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
+              t12Kicker:String(photo.place||photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
+            spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+            textSpreadStreak=0;
             continue;
           }
           if(beat==='t10'){

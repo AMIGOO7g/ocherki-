@@ -90,6 +90,7 @@
     if (layout === 't07-photos' || kind === 't07-photos') return 't07-photos';
     if (layout === 't08-pause' || kind === 't08-pause') return 't08-pause';
     if (layout === 't10-photos' || kind === 't10-photos') return 't10-photos';
+    if (layout === 't12-photo' || kind === 't12-photo') return 't12-photo';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -392,6 +393,15 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 't12-photo') {
+      // T12: one photograph on the whole page; on the side away from the
+      // subject it dissolves into a light (A) or dark (B) field that carries
+      // a short text from the photo's own fields.
+      const index=page.photoIndex||0,photo=source?.photos?.[index]||{},dark=page.t12Tone==='B',textSide=page.t12Side==='right'?'right':'left';
+      const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50,focalY=Number.isFinite(Number(photo.focalY))?Number(photo.focalY):45;
+      const kicker=esc(page.t12Kicker||''),heading=esc(page.t12Title||''),body=esc(page.t12Text||'');
+      return article('D01-T12',`<figure class="dpk-t12-photo" style="--dpk-t12-focus:${focalX}% ${focalY}%">${image(index).replace('loading="lazy"','loading="eager"')}</figure><div class="dpk-t12-fade"></div><div class="dpk-t12-copy">${kicker?`<div class="dpk-t12-kicker">${kicker}</div>`:''}${heading?`<h2>${heading}</h2>`:''}<i></i>${body?`<p>${body}</p>`:''}</div>${folio}`,`dpk-t12 dpk-t12-${dark?'dark':'light'} dpk-t12-text-${textSide}${dark?' dpk-dark':''}`);
     }
     if (role === 't08-pause') {
       // T08 right page: a quiet pause with one short quote from the facing
@@ -822,7 +832,9 @@
       return result.text;
     };
     if(withQuote){
-      const columnWidth=Math.max(1,(area.getBoundingClientRect().width-32)/2);
+      // The quote is shown inside a reservation 10px narrower on each side and
+      // with guillemets, so it is measured under exactly those conditions.
+      const columnWidth=Math.max(1,(area.getBoundingClientRect().width-32)/2-20);
       const probe=document.createElement('div');probe.className='dpk-accent-probe';probe.style.cssText=`position:absolute;left:0;top:0;width:${columnWidth}px;height:auto;min-height:0;overflow:visible`;
       const copy=document.createElement('p');copy.className='dpk-source-copy dpk-quote-copy';probe.appendChild(copy);area.appendChild(probe);
       let quoteHeight=0;
@@ -1028,5 +1040,5 @@
     return { status: violations.length ? 'fail' : 'pass', pages: pages.length, violations };
   }
 
-  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit });
+  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit, editorialPhrases });
 })(window);

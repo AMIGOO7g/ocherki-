@@ -2427,6 +2427,8 @@ body .dpk-page.dpk-dom-paginated .dpk-quote-reservation{
 body .dpk-page.dpk-dom-paginated .dpk-inline-quote::before{content:"«"}
 body .dpk-page.dpk-dom-paginated .dpk-inline-quote::after{content:"»"}
 body .dpk-page.dpk-dom-paginated .dpk-accent-probe .dpk-quote-copy{width:100%!important;max-height:none!important;overflow:visible!important}
+body .dpk-page.dpk-dom-paginated .dpk-accent-probe .dpk-quote-copy::before{content:"«"}
+body .dpk-page.dpk-dom-paginated .dpk-accent-probe .dpk-quote-copy::after{content:"»"}
 body .dpk-page.dpk-dom-paginated .dpk-note-copy,
 body .dpk-page.dpk-dom-paginated .dpk-margin-note span{
   font:400 30px/32px 'SignThatS','PTSerifCy',serif!important;letter-spacing:normal!important;
@@ -2662,3 +2664,39 @@ body .dpk-page.right:is(.dpk-chapter-photo,.dpk-photo,.dpk-large-photo,.dpk-thre
 /* The panorama is full bleed: its caption stays light over the image, on
    the same line and at the spine side. */
 body .dpk-page.dpk-panorama > .dpk-caption:not(.dpk-inline-caption):not(.dpk-photo-rail-caption){color:#f7f3eb!important;text-shadow:0 1px 8px rgba(0,0,0,.45)!important}
+
+/* One bottom line for the whole book: every folio and every caption share
+   the same baseline 30px above the trim, so facing pages always line up
+   (text areas end at 94px, photographs at 70px or higher). */
+body .dpk-page.dpk-page .dpk-folio{bottom:30px!important;line-height:1!important}
+body .dpk-page.dpk-page > .dpk-caption:not(.dpk-inline-caption):not(.dpk-photo-rail-caption){bottom:30px!important;line-height:1!important}
+/* The ruled document sheet ends above that line; its source line moves
+   out of the sheet onto the shared line at the spine side. */
+body .dpk-page.dpk-document-comment .dpk-document-transcript.dpk-document-ruled{bottom:70px!important}
+body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-source{bottom:-40px!important;top:auto!important;font:italic 400 13px/1 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important}
+body .dpk-page.right.dpk-document-comment .dpk-document-ruled .dpk-document-source{left:59px!important;right:auto!important}
+body .dpk-page.left.dpk-document-comment .dpk-document-ruled .dpk-document-source{right:59px!important;left:auto!important;text-align:right!important}
+
+/* T12 — EDITORIAL TEXT OVER PHOTO: one page, one photograph, one soft fade,
+   one short text block in the book's own fonts. */
+body .dpk-page.dpk-t12{overflow:hidden!important;background:#f6f3ed!important}
+body .dpk-page.dpk-t12.dpk-t12-dark{background:#121110!important}
+body .dpk-page.dpk-t12 .dpk-t12-photo{position:absolute!important;inset:0!important;margin:0!important;overflow:hidden!important}
+body .dpk-page.dpk-t12 .dpk-t12-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:var(--dpk-t12-focus,50% 45%)!important}
+body .dpk-page.dpk-t12 .dpk-t12-fade{position:absolute!important;inset:0!important;z-index:1!important;pointer-events:none!important}
+body .dpk-page.dpk-t12-light.dpk-t12-text-left .dpk-t12-fade{background:linear-gradient(to right,rgba(246,243,237,.97) 0,rgba(246,243,237,.9) 26%,rgba(246,243,237,.55) 42%,rgba(246,243,237,0) 62%)!important}
+body .dpk-page.dpk-t12-light.dpk-t12-text-right .dpk-t12-fade{background:linear-gradient(to left,rgba(246,243,237,.97) 0,rgba(246,243,237,.9) 26%,rgba(246,243,237,.55) 42%,rgba(246,243,237,0) 62%)!important}
+body .dpk-page.dpk-t12-dark.dpk-t12-text-left .dpk-t12-fade{background:linear-gradient(to right,rgba(18,17,16,.96) 0,rgba(18,17,16,.88) 26%,rgba(18,17,16,.5) 44%,rgba(18,17,16,0) 64%)!important}
+body .dpk-page.dpk-t12-dark.dpk-t12-text-right .dpk-t12-fade{background:linear-gradient(to left,rgba(18,17,16,.96) 0,rgba(18,17,16,.88) 26%,rgba(18,17,16,.5) 44%,rgba(18,17,16,0) 64%)!important}
+body .dpk-page.dpk-t12 .dpk-t12-copy{position:absolute!important;top:15%!important;width:34%!important;z-index:2!important}
+body .dpk-page.dpk-t12.dpk-t12-text-left .dpk-t12-copy{left:70px!important}
+body .dpk-page.dpk-t12.dpk-t12-text-right .dpk-t12-copy{right:70px!important}
+body .dpk-page.dpk-t12 .dpk-t12-kicker{font:400 13px/1 'PTSerifCy',Georgia,serif!important;letter-spacing:.32em!important;text-transform:uppercase!important;color:#6d655c!important;margin:0 0 22px!important}
+body .dpk-page.dpk-t12 .dpk-t12-copy h2{margin:0!important;font:400 48px/1.08 'CormorantCy',Georgia,serif!important;color:#24221f!important}
+body .dpk-page.dpk-t12 .dpk-t12-copy i{display:block!important;width:40px!important;height:1px!important;margin:30px 0 26px!important;background:currentColor!important;color:#5d564e!important}
+body .dpk-page.dpk-t12 .dpk-t12-copy p{margin:0!important;font:400 17px/1.55 'PTSerifCy',Georgia,serif!important;color:#3b3732!important;text-align:left!important;hyphens:manual!important}
+body .dpk-page.dpk-t12-dark .dpk-t12-kicker{color:#b8b0a4!important}
+body .dpk-page.dpk-t12-dark .dpk-t12-copy h2{color:#f1ece3!important}
+body .dpk-page.dpk-t12-dark .dpk-t12-copy i{color:#b8b0a4!important}
+body .dpk-page.dpk-t12-dark .dpk-t12-copy p{color:#e2dbd0!important}
+body .dpk-page.dpk-t12-dark .dpk-folio{color:rgba(240,234,224,.7)!important}
