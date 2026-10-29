@@ -375,7 +375,9 @@
     if (role === 't06-hero') {
       // «One photograph and air»: the hero frame is fitted whole inside the
       // page margins (no frame, no shadow, no bleed).
-      const ratio=photoRatio(page.photoIndex||0),boxW=860,boxH=800,width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
+      // The hero takes the page height minus the system margins, so the taller
+      // 280×335 page gives its extra height to the photograph.
+      const ratio=photoRatio(page.photoIndex||0),boxW=860,boxH=((page.pageFormat||meta.format)==='portrait'?1196:1000)-200,width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
       return article('D01-T06-HERO', `<figure class="dpk-t06-hero" style="width:${width}px;height:${height}px;--dpk-hero-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${folio}`);
     }
     if (role === 'hspread-photo') return article('D01-HSPREAD-TOP', `${hspreadPhoto(page.photoIndex||0)}${folio}`, 'dpk-hspread');

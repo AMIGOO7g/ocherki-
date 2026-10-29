@@ -896,7 +896,7 @@
             const before=spreads[spreads.length-1],heavyRight=Boolean(before?.right&&!before.right.measuredFlow),heroLeft=heavyRight;
             const hero=take(t06Hero),pair=t06Pair.map(take);
             const textPage=nextTextPage(heroLeft?'right':'left',{topPair:{photoIndices:pair},forceRhythm:'plain'});
-            const heroPage=P('t06-hero',{layout:'t06-hero',master:'D01-T06-HERO',sectionId:chapter.sectionId,source:chapter,photoIndex:hero,title:chapter.title});
+            const heroPage=P('t06-hero',{layout:'t06-hero',master:'D01-T06-HERO',sectionId:chapter.sectionId,source:chapter,photoIndex:hero,title:chapter.title,pageFormat:meta.format||'square'});
             spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true});
             textSpreadStreak=0;
             continue;
