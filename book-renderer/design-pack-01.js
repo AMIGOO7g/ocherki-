@@ -87,6 +87,7 @@
     if (layout === 'chapter-initial' || kind === 'chapter-initial') return 'chapter-initial';
     if (layout === 'hspread-photo' || kind === 'hspread-photo') return 'hspread-photo';
     if (layout === 't06-hero' || kind === 't06-hero') return 't06-hero';
+    if (layout === 't07-photos' || kind === 't07-photos') return 't07-photos';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
     if (layout === 'photo-fullspread' || (page && page.master === 'MS-04')) return 'large-photo';
     if (layout === 'photo-triptych' || kind === 'three-photo') return 'three-photo';
@@ -371,6 +372,26 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 't07-photos') {
+      // T07 structured photo page: six strict grids, no text, no captions,
+      // no overlap. Rectangles are solved so that columns share top and
+      // bottom lines exactly; the block is scaled to the page box and centred.
+      const formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000,boxX=pageSide==='right'?91:70,boxW=839,boxH=formatH-180,gap=18;
+      const ids=Array.isArray(page.photoIndices)?page.photoIndices:[];
+      const r=i=>photoRatio(ids[i]);
+      let rects=[];
+      const variant=page.t07Variant;
+      if(variant==='A'){const h1=boxW/r(0),h2=boxW/r(1);rects=[[0,0,boxW,h1],[0,h1+gap,boxW,h2]];}
+      else if(variant==='B'){const hH=boxW/r(0),sq=(boxW-gap)/2;rects=[[0,0,boxW,hH],[0,hH+gap,sq,sq],[sq+gap,hH+gap,sq,sq]];}
+      else if(variant==='C'){const a=r(0),sq=(boxW-gap-gap*a)/(2*a+1),hV=2*sq+gap,wV=hV*a;rects=[[0,0,wV,hV],[wV+gap,0,sq,sq],[wV+gap,sq+gap,sq,sq]];}
+      else if(variant==='F'){const a1=r(0),a2=r(1),c=(boxW-gap-gap*a1)/(a1/a2+a1+1),h2=c/a2,hV=h2+gap+c,wV=hV*a1;rects=[[0,0,wV,hV],[wV+gap,0,c,h2],[wV+gap,h2+gap,c,c]];}
+      else if(variant==='D'){const sq=(boxW-gap)/2;rects=[[0,0,sq,sq],[sq+gap,0,sq,sq],[0,sq+gap,sq,sq],[sq+gap,sq+gap,sq,sq]];}
+      else {const h=(boxW-gap)/(r(0)+r(1));rects=[[0,0,h*r(0),h],[h*r(0)+gap,0,h*r(1),h]];}
+      const totalW=Math.max(...rects.map(([x,,w])=>x+w)),totalH=Math.max(...rects.map(([,y,,h])=>y+h));
+      const k=Math.min(1,boxH/totalH,boxW/totalW),offsetX=boxX+(boxW-totalW*k)/2,offsetY=70+(boxH-totalH*k)/2;
+      const figures=rects.map(([x,y,w,h],i)=>`<figure class="dpk-t07-photo" data-source-photo-index="${ids[i]}" style="left:${Math.round(offsetX+x*k)}px;top:${Math.round(offsetY+y*k)}px;width:${Math.round(w*k)}px;height:${Math.round(h*k)}px">${image(ids[i]).replace('loading="lazy"','loading="eager"')}</figure>`).join('');
+      return article('D01-T07-PHOTOS', `${figures}${folio}`, `dpk-t07 dpk-t07-${String(variant||'E').toLowerCase()}`);
     }
     if (role === 't06-hero') {
       // «One photograph and air»: the hero frame is fitted whole inside the

@@ -2566,3 +2566,8 @@ body .dpk-page.dpk-t06-text .dpk-t06-photo{position:relative!important;height:10
 body .dpk-page .dpk-t06-photo img,body .dpk-page .dpk-t06-hero img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
 body .dpk-page.dpk-t06-text .dpk-running{display:none!important}
 body .dpk-page .dpk-t06-hero{position:absolute!important;top:max(70px,calc((var(--book-page-h,1000px) - var(--dpk-hero-h,800px)) / 2 - 20px))!important;left:50%!important;transform:translateX(-50%)!important;margin:0!important;overflow:hidden!important;background:#f1efeb!important}
+
+/* T07 — TEXT PAGE + STRUCTURED PHOTO PAGE: photographs only, inside the
+   white margins, in one strict grid (geometry is solved in the renderer). */
+body .dpk-page.dpk-t07 .dpk-t07-photo{position:absolute!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#f1efeb!important}
+body .dpk-page.dpk-t07 .dpk-t07-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
