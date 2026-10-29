@@ -88,6 +88,8 @@
     if (layout === 'hspread-photo' || kind === 'hspread-photo') return 'hspread-photo';
     if (layout === 't06-hero' || kind === 't06-hero') return 't06-hero';
     if (layout === 't07-photos' || kind === 't07-photos') return 't07-photos';
+    if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
+    if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
     if (layout === 'photo-fullspread' || (page && page.master === 'MS-04')) return 'large-photo';
     if (layout === 'photo-triptych' || kind === 'three-photo') return 'three-photo';
@@ -372,6 +374,20 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'p01-portrait' || role === 'p01-text') {
+      // P01 portrait accent: a large portrait on the left, a short restrained
+      // block on the right. A light-clean, B light with edges dissolving into
+      // the paper, C dark with the portrait emerging from darkness.
+      const variant=['A','B','C'].includes(page.p01Variant)?page.p01Variant:'A';
+      const dark=variant==='C'?' dpk-dark dpk-p01-dark':'';
+      if(role==='p01-portrait'){
+        const formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000,ratio=photoRatio(page.photoIndex||0);
+        const boxW=variant==='A'?860:1000,boxH=formatH-(variant==='A'?120:30),width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
+        return article('D01-P01-PORTRAIT',`<figure class="dpk-p01-portrait" style="width:${width}px;height:${height}px;--dpk-p01-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${variant==='A'?folio:''}`,`dpk-p01 dpk-p01-${variant.toLowerCase()}${dark}`);
+      }
+      const lines=[page.heroName?`<h2 class="dpk-p01-name">${esc(page.heroName)}</h2>`:'',page.heroYears?`<div class="dpk-p01-years">${esc(page.heroYears)}</div>`:'',page.heroRole?`<div class="dpk-p01-role">${esc(page.heroRole)}</div>`:''].join('');
+      return article('D01-P01-TEXT',`<div class="dpk-p01-block">${lines}</div>`,`dpk-p01 dpk-p01-${variant.toLowerCase()}${dark}`);
     }
     if (role === 't07-photos') {
       // T07 structured photo page: six strict grids, no text, no captions,

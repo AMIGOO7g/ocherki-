@@ -672,7 +672,7 @@
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
     const photoBeatWeights = { t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
-    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [];
+    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0;
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
@@ -698,8 +698,10 @@
         for(const text of [page.inlineQuote,page.importantLine,...(page.innerImportantLines||[]),page.marginNote])if(text&&!usedAccents.includes(text))usedAccents.push(text);
         return page;
       };
-      const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&photoAspect(photo)<=1.05);
-      const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(heroEligible);
+      // A photograph the author marked as the hero's portrait is reserved for P01.
+      const isPortraitHero = photo => photo?.portraitHero === true || Boolean(String(photo?.heroName||'').trim());
+      const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo)&&photoAspect(photo)<=1.05);
+      const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo));
       const openingQuote = String(chapter.first.quote || chapter.first.pullQuote || chapter.title);
       const left = photoIndex >= 0
         ? P('chapter',{layout:'chapter-photo',master:'D01-CHAPTER-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,chapterNo:index+1,title:chapter.title})
@@ -716,6 +718,7 @@
       // The opening photograph is never reused as the CTX main image.
       const assetId=(photo,position)=>String(photo?.id||imageSource(photo)||`photo-${position}`);
       const detailIndex=chapter.photos.findIndex((photo,photoPosition)=>{
+        if(isPortraitHero(photo))return false;
         if(photoPosition===photoIndex||!imageSource(photo)||photoIndex>=0&&imageSource(photo)===imageSource(chapter.photos[photoIndex]))return false;
         return true;
       });
@@ -724,6 +727,7 @@
       const ctxRatio=Number(ctxPhoto?.width)>0&&Number(ctxPhoto?.height)>0?Number(ctxPhoto.width)/Number(ctxPhoto.height):1;
       const ctxState=ctxPhoto?String(ctxPhoto.ctxState||(ctxRatio<.82?'V':ctxRatio>1.22?'H':'S')).toUpperCase():'';
       const secondaryPhotoIndex=ctxPhoto?chapter.photos.findIndex((photo,photoPosition)=>{
+        if(isPortraitHero(photo))return false;
         if(photoPosition===photoIndex||photoPosition===ctxPhotoIndex||!imageSource(photo))return false;
         if(imageSource(photo)===imageSource(ctxPhoto))return false;
         return assetId(photo,photoPosition)!==assetId(ctxPhoto,ctxPhotoIndex);
@@ -806,10 +810,11 @@
       const textFallback=detail?null:nextTextPage('right');
       if(fixedText.text||detail||textFallback)spreads.push({id:`d01_chapter_${index+1}_${detail?'ctx_detail':'text_fallback'}`,master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT',sectionId:chapter.sectionId,left:fixedText,right:detail||textFallback,fixedRhythm:true,ctxSkipped:!detail});
       const usablePhotoIndices=chapter.photos.map((photo,photoPosition)=>imageSource(photo)?photoPosition:-1).filter(photoPosition=>photoPosition>=0);
+      let portraitGiven=false;
       let textSpreadStreak=detail?0:(fixedText.text?1:0);
       let darkFadeInserted=false;
       const nextVisualPhoto=()=>{
-        const unused=usablePhotoIndices.find(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        const unused=usablePhotoIndices.find(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition]))&&!isPortraitHero(chapter.photos[photoPosition]));
         if(unused!=null){usedPhotoIndices.add(unused);usedPhotoSources.add(imageSource(chapter.photos[unused]));return unused;}
         return -1;
       };
@@ -869,8 +874,12 @@
         for(const item of chain)delete item.page.balanceTrial;
       }
       while(rest){
-        if(usablePhotoIndices.some(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])))&&textSpreadStreak>=2){
-          const unused=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        const unusedNow=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        const photoBeatAvailable=unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition]))||(!portraitGiven&&unusedNow.some(photoPosition=>isPortraitHero(chapter.photos[photoPosition])));
+        if(photoBeatAvailable&&textSpreadStreak>=2){
+          const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+          const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition]));
+          const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
           const take=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
           const wide=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.45);
           // Wide frames are kept for a panorama; other beats use them last.
@@ -890,12 +899,24 @@
           const pickShapes=list=>{const pool=[...ordinary],chosen=[];for(const want of list){const at=pool.findIndex(photoPosition=>shape(photoPosition)===want);if(at<0)return null;chosen.push(pool.splice(at,1)[0]);}return chosen;};
           const t07=[['B',['H','S','S']],['C',['V','S','S']],['F',['V','V','S']],['A',['H','H']],['E',['V','V']],['D',['S','S','S','S']]].map(([variant,list])=>({variant,indices:pickShapes(list)})).find(option=>option.indices);
           const t07Fits=Boolean(t07)&&rest.length>1200;
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:true));
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
-          const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat);
+          const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
           const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
           lastPhotoBeat=beat;recentPhotoBeats=[...recentPhotoBeats,beat].slice(-3);
+          if(beat==='p01'){
+            // P01 is the author's explicit choice: portrait on the left, a short
+            // name/years/role block on the right; variants rotate B → A → C.
+            const photoIndex=take(portraitHeroes[0]),photo=chapter.photos[photoIndex];
+            const variant=String(photo.heroVariant||['B','A','C'][portraitCount++%3]).toUpperCase();
+            const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
+            spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
+              left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
+              right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true});
+            portraitGiven=true;textSpreadStreak=0;
+            continue;
+          }
           if(beat==='t07'){
             const before=spreads[spreads.length-1],photosLeft=Boolean(before?.right&&!before.right.measuredFlow);
             const indices=t07.indices.map(take);

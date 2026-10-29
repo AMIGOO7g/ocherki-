@@ -4646,7 +4646,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         (page.photos||[]).map(photo=>[
           fastFingerprint(photo.src||photo.dataUrl||photo.dataURL||photo.url||photo.preview||photo.objectUrl||''),
           photo.caption,photo.year,photo.place,photo.people,photo.story,
-          photo.photoMode,photo.layoutPreference,photo.width,photo.height,photo.orientation,
+          photo.photoMode,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
           photo.focalX,photo.focalY,photo.focalConfirmed,photo.focalSource,photo.ctxHandwrittenNote,JSON.stringify(photo.detailRoi||photo.ctxRoi||photo.roi||null),JSON.stringify(photo.regions||null)
         ].join('\u001f')).join('\u001e')
       ].join('\u001f')).join('\u001e')
