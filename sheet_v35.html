@@ -398,6 +398,17 @@ body{
   100%{opacity:1;transform:translateX(0)}
 }
 
+/* Questions for a prompted chapter (start wizard), beside the sheet. */
+.page-prompts{position:fixed;right:28px;top:110px;width:270px;z-index:40;background:rgba(255,250,242,.94);border:1px solid rgba(143,90,46,.22);border-radius:12px;padding:16px 18px 14px;box-shadow:0 12px 30px rgba(60,40,20,.16);font-family:Georgia,"Times New Roman",serif;color:#4a3526}
+.page-prompts[hidden]{display:none}
+.page-prompts.is-pinned{width:290px}
+.page-prompts.is-pinned.is-collapsed{width:auto;padding:9px 14px}
+.page-prompts__head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font:600 11px/1.2 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#a07a58}
+.page-prompts__head button{border:0;background:none;padding:0;color:#8f5a2e;font:13px Georgia,serif;text-decoration:underline;cursor:pointer;letter-spacing:0;text-transform:none}
+.page-prompts ol{margin:12px 0 0;padding-left:20px;font-size:16px;line-height:1.45}
+.page-prompts li{margin-bottom:9px}
+.page-prompts__note{margin:6px 0 0;font:italic 13px/1.3 Georgia,serif;color:#a08a76}
+.host-night .page-prompts{background:rgba(52,40,32,.94);color:#ecdcc6;border-color:rgba(230,190,140,.2)}
 /* «Семейное древо»: the form opens from this button; a tree made with the
    form is shown read-only on the page. */
 .tree-launch{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);z-index:30;border:0;border-radius:26px;background:#a8692f;color:#fff8ee;font:600 17px Georgia,serif;padding:14px 30px;cursor:pointer;box-shadow:0 8px 20px rgba(120,70,30,.25)}
@@ -1694,9 +1705,11 @@ window.__ocherkiPersistNow=persistNow;
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistNow();});
 window.addEventListener('pagehide',()=>persistNow());
 function restoreProject(){
-  if(!window.OcherkiStore){projectRestoring=false;return;}
+  if(!window.OcherkiStore){projectRestoring=false;applyProjectSetup();return;}
+  let restored=false;
   window.OcherkiStore.load(PROJECT_ID).then(record=>{
     if(record&&Array.isArray(record.sections)&&record.sections.length){
+      restored=true;
       // Sections added to the constructor after the save (a new optional
       // page) are put back in their usual place.
       const saved=record.sections.slice(),ids=new Set(saved.map(section=>section.id));
@@ -1713,7 +1726,71 @@ function restoreProject(){
       try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
       showSaved(true);
     }
-  }).catch(()=>{}).finally(()=>{projectRestoring=false;});
+  }).catch(()=>{}).finally(()=>{projectRestoring=false;if(!restored)applyProjectSetup();});
+}
+// The start wizard's answers (index.html keeps them in
+// «ocherkiLifeProjectDraft») shape a fresh book once: title page and
+// cover, the family tree's main person and, with prompts, chapters by
+// periods of life with questions beside the page (never printed).
+const PROMPT_PLANS={
+  first:[
+    ['Корни и детство',['Где и когда вы родились? Каким был дом, двор, улица?','Кем были ваши родители, бабушки и дедушки?','Какое ваше самое раннее воспоминание?','Во что играли, какие праздники запомнились, какие запахи и звуки детства?']],
+    ['Юность и учёба',['Где вы учились? Какие учителя и друзья запомнились?','О чём вы мечтали в юности?','Какое время было вокруг — что происходило в стране и в городе?']],
+    ['Работа и дело жизни',['Кем вы работали и как выбрали этот путь?','Чем вы гордитесь в работе?','Какие трудные времена были и как вы с ними справились?']],
+    ['Семья',['Как вы встретили своего мужа или жену?','Как появились дети? Каким был дом в те годы?','Какие семейные традиции у вас есть?']],
+    ['Переезды и перемены',['Куда и почему переезжала семья?','Как большие события страны коснулись вашей жизни?']],
+    ['Что хочется передать',['Чему научила вас жизнь?','Что важно знать вашим детям и внукам?','За что вы благодарны?']]
+  ],
+  third:[
+    ['Корни и детство',['Где и когда он или она родились? Каким был дом?','Кем были родители, бабушки и дедушки?','Какие истории о детстве рассказывали в семье?']],
+    ['Юность и учёба',['Где учился или училась? Какие друзья и учителя были рядом?','О чём мечтал или мечтала в юности?']],
+    ['Работа и дело жизни',['Кем работал или работала? Чем гордился?','Какие трудные времена пришлось пережить?']],
+    ['Семья',['Как познакомился или познакомилась с супругом?','Какими были отношения с детьми и внуками?','Какие слова, привычки, блюда остались в памяти семьи?']],
+    ['Какой он был человек',['Каким его или её помнят близкие — характер, шутки, любимые занятия?','Какой случай лучше всего показывает этого человека?']],
+    ['Память',['Что осталось от него или неё в семье — вещи, письма, фотографии?','Что вы хотели бы сказать, если бы была возможность?']]
+  ],
+  family:[
+    ['Откуда мы родом',['Откуда происходит семья? Что известно о самых старших предках?','Какие фамилии, места и даты сохранились?']],
+    ['Старшее поколение',['Кем были прадеды и прабабушки? Чем занимались?','Какие истории о них передавались?']],
+    ['Переезды и перемены',['Куда и почему переезжала семья? Как это было?','Как войны и большие события изменили судьбы семьи?']],
+    ['Дом и традиции',['Каким был дом семьи? Что в нём было главным?','Какие праздники, блюда, песни передаются из поколения в поколение?']],
+    ['Наши дни',['Где сейчас живут родные? Чем занимаются?','Что объединяет семью сегодня?']],
+    ['Что передать детям',['Что важно сохранить и передать внукам?','Какие слова старших хочется запомнить?']]
+  ]
+};
+function applyProjectSetup(){
+  let draft=null;
+  try{draft=JSON.parse(localStorage.getItem('ocherkiLifeProjectDraft')||'null');}catch(_){draft=null;}
+  if(!draft||!draft.setupId)return;
+  try{if(localStorage.getItem('ocherki_setup_applied')===String(draft.setupId))return;}catch(_){}
+  const setFields=(id,values)=>{const page=sections.find(section=>section.id===id)?.pages?.[0];if(!page)return;page.text=values.map(value=>String(value||'').trim()).join('\n\n');page.sample=false;page.userEdited=true;page._userEdited=true;page.semanticHtml='';};
+  if(draft.title)setFields('title',[draft.title,draft.subtitle,draft.author]);
+  if(draft.title)setFields('cover',[draft.title,draft.subtitle,draft.author,'']);
+  const treePage=sections.find(section=>section.id==='family-tree')?.pages?.[0];
+  if(treePage&&draft.heroName&&!(treePage.treeData&&treePage.treeData.people)&&window.OcherkiTreeEditor){
+    const id='p'+Date.now().toString(36);
+    treePage.treeData={version:1,rootId:id,people:{[id]:{id,name:draft.heroName,dates:draft.heroYears||'',place:'',major:true,photoId:''}},unions:[]};
+    treePage.text=window.OcherkiTreeEditor.toText(treePage.treeData);
+  }
+  if(draft.workMode==='С вопросами-подсказками'){
+    const plan=PROMPT_PLANS[draft.storyType==='Моя жизнь'?'first':draft.storyType==='История семьи'?'family':'third'];
+    const firstChapter=sections.findIndex(section=>section.type==='chapter');
+    const untouched=sections.filter(section=>section.type==='chapter').every(section=>(section.pages||[]).every(page=>page.sample===true||!String(page.text||'').trim()));
+    if(untouched){
+      const stamp=Date.now().toString(36);
+      const chapters=plan.map(([name,questions],index)=>{const title=`Глава ${index+1}. ${name}`;return {id:`chapter-${stamp}-${index+1}`,title,type:'chapter',active:0,
+        pages:[{uid:`page-${stamp}-${index+1}`,type:'chapter',title,episode:'',sample:true,text:SAMPLE_PREFIX+'\n\n'+'Вопросы к этой главе — в карточке «Вопросы к главе». Отвечайте на те, что откликаются, своими словами; начните печатать — этот текст исчезнет.',prompts:questions,photos:[],photoOffset:0,isEpisodeStart:true,included:true}]};});
+      const rest=sections.filter(section=>section.type!=='chapter');
+      const at=firstChapter<0?rest.length:sections.slice(0,firstChapter).filter(section=>section.type!=='chapter').length;
+      rest.splice(at,0,...chapters);
+      sections.splice(0,sections.length,...rest);
+      activeSection=Math.max(0,sections.findIndex(section=>section.type==='chapter'));
+    }
+  }
+  try{localStorage.setItem('ocherki_setup_applied',String(draft.setupId));}catch(_){}
+  render();
+  try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
+  persistSoon();
 }
 
 function stackSequence(){
@@ -3670,6 +3747,7 @@ window.addEventListener('wheel' ,e=>{
 
 document.getElementById('photoCloseX').onclick=()=>closePhoto(false); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
+window.addEventListener('resize',()=>{try{updatePrompts();}catch(_){}});
 // Family tree form (book-renderer/tree-editor.js).
 function bookPhotos(){
   const out=[],seen=new Set();
@@ -3679,7 +3757,29 @@ function bookPhotos(){
   }
   return out;
 }
+// Questions for a prompted chapter, beside the sheet (not in the book).
+function updatePrompts(){
+  let box=document.getElementById('pagePrompts');
+  const page=currentPage(),questions=Array.isArray(page?.prompts)?page.prompts.filter(Boolean):[];
+  if(!questions.length){if(box)box.hidden=true;return;}
+  if(!box){box=document.createElement('aside');box.id='pagePrompts';box.className='page-prompts';document.body.appendChild(box);
+    box.addEventListener('click',event=>{if(event.target.closest('[data-hide]')){const p=currentPage();if(p){p.promptsHidden=!p.promptsHidden;updatePrompts();persistSoon();}}});}
+  box.hidden=false;
+  // Beside the sheet when there is room; otherwise a small button on the
+  // sheet that opens the list over it.
+  const sheet=document.getElementById('activeSheet')?.getBoundingClientRect();
+  const roomy=sheet&&window.innerWidth-sheet.right>=300;
+  box.classList.toggle('is-pinned',!roomy);
+  if(sheet){
+    if(roomy){box.style.left=Math.round(sheet.right+24)+'px';box.style.right='auto';box.style.top=Math.round(sheet.top+40)+'px';}
+    else{box.style.left='auto';box.style.right=Math.max(8,Math.round(window.innerWidth-sheet.right+16))+'px';box.style.top=Math.round(sheet.top+52)+'px';}
+  }
+  if(!roomy&&page.promptsHidden===undefined)page.promptsHidden=true;
+  box.classList.toggle('is-collapsed',!!page.promptsHidden);
+  box.innerHTML=`<div class="page-prompts__head"><span>Вопросы к главе · ${questions.length}</span><button type="button" data-hide>${page.promptsHidden?'Показать':'Свернуть'}</button></div>`+(page.promptsHidden?'':`<ol>${questions.map(question=>`<li>${esc(question)}</li>`).join('')}</ol><p class="page-prompts__note">Это подсказки, в книгу они не попадут.</p>`);
+}
 function updateTreeUi(){
+  updatePrompts();
   const button=document.getElementById('treeLaunch');if(!button)return;
   const page=currentPage(),isTree=currentSection()?.id==='family-tree'&&page;
   button.hidden=!isTree;

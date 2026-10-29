@@ -567,6 +567,17 @@
     #step4Content .format-card-wrap:nth-child(3) { grid-column: span 6; }
     #step4Content .format-card-wrap:nth-child(4) { grid-column: span 6; }
 
+    /* Three-step wizard: three cards in a row, two on the «how» step. */
+    #cardsGrid2 .format-card-wrap, #cardsGrid4 .format-card-wrap { grid-column: span 8 !important; }
+    #cardsGrid3 .format-card-wrap { grid-column: span 12 !important; }
+    .wizard-fields { display: flex; flex-wrap: wrap; gap: 14px 22px; margin: 26px 0 8px; max-width: 980px; }
+    .wizard-field { display: flex; flex-direction: column; gap: 7px; flex: 1 1 320px; }
+    .wizard-field--short { flex: 0 1 220px; }
+    .wizard-field span { font: 600 11px/1.2 Arial, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #9a6a3a; }
+    .wizard-field input { padding: 13px 15px; border: 1px solid rgba(160,105,52,.35); border-radius: 10px; background: rgba(255,252,246,.72); color: #3b2a20; font: 18px Georgia, serif; outline: none; }
+    .wizard-field input::placeholder { color: rgba(90,62,40,.38); }
+    .wizard-field input:focus { border-color: #e3a454; box-shadow: 0 0 0 3px rgba(227,164,84,.18); }
+
     /* Раскладка Шага 5 (Структура - 4 карточки) */
     #step5Content .format-card-wrap:nth-child(1) { grid-column: span 12; }
     #step5Content .format-card-wrap:nth-child(2) { grid-column: span 12; }
@@ -1007,10 +1018,10 @@
       box-shadow: 0 0 10px rgba(227, 164, 84, 0.55);
       transition: height 0.4s ease;
     }
-    /* Динамическая высота линии прогресса по 6 шагам */
+    /* Динамическая высота линии прогресса по 3 шагам */
     body.step-at-2 .lb-progress__steps::after { height: 0%; }
-    body.step-at-3 .lb-progress__steps::after { height: 20%; }
-    body.step-at-4 .lb-progress__steps::after { height: 40%; }
+    body.step-at-3 .lb-progress__steps::after { height: 50%; }
+    body.step-at-4 .lb-progress__steps::after { height: 100%; }
     body.step-at-5 .lb-progress__steps::after { height: 60%; }
     body.step-at-6 .lb-progress__steps::after { height: 80%; }
     body.step-at-7 .lb-progress__steps::after { height: 100%; }
@@ -2227,7 +2238,7 @@
       </div>
     </main>
 
-    <!-- ШАГ 2: ЗАМЫСЕЛ -->
+    <!-- ШАГ 1 ИЗ 3: О КОМ КНИГА -->
     <div class="step-container" id="step2Content">
       <div class="step__header-top">
         <button class="btn-back-step" onclick="goToStep(1)">
@@ -2236,24 +2247,26 @@
         </button>
       </div>
 
-      <span class="step__subtitle">Шаг 1 из 6 · Замысел</span>
-      <h2 class="step__title">Какую <span class="accent-word">историю</span> мы создадим?</h2>
-      <p class="step__desc">Выберите формат вашей будущей книги. Это поможет настроить структуру и вопросы.</p>
+      <span class="step__subtitle">Шаг 1 из 3 · Герой</span>
+      <h2 class="step__title">О ком эта <span class="accent-word">книга</span>?</h2>
+      <p class="step__desc">От ответа зависят название, обложка и вопросы-подсказки. Всё можно изменить позже.</p>
 
-      <div class="cards-grid" id="cardsGrid2">
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'Моя жизнь', this)"><div><span class="format-card__badge">От первого лица</span><h3 class="format-card__title">Моя жизнь</h3><p class="format-card__desc">Воспоминания, личный опыт и пройденный путь.</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'История семьи', this)"><div><span class="format-card__badge">Генеалогия & Род</span><h3 class="format-card__title">История семьи</h3><p class="format-card__desc">История нескольких поколений и архивные документы.</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'История человека', this)"><div><span class="format-card__badge">Персональная книга</span><h3 class="format-card__title">История человека</h3><p class="format-card__desc">Жизненный путь близкого человека, вехи и достижения.</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'История ребёнка', this)"><div><span class="format-card__badge">Дети и взросление</span><h3 class="format-card__title">История ребёнка</h3><p class="format-card__desc">Сохраните моменты взросления и первые открытия.</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'Фотокнига', this)"><div><span class="format-card__badge">Событие & Альбом</span><h3 class="format-card__title">Фотокнига</h3><p class="format-card__desc">Акцент на изображениях и коротких подписях.</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'Путешествия', this)"><div><span class="format-card__badge">География памяти</span><h3 class="format-card__title">Путешествия</h3><p class="format-card__desc">Любимые места, дома, города и впечатления.</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'Дело жизни', this)"><div><span class="format-card__badge">Профессия & Труд</span><h3 class="format-card__title">Дело жизни</h3><p class="format-card__desc">Профессиональный путь, проекты и наследие.</p></div></div></div>
+      <div class="cards-grid cards-grid--three" id="cardsGrid2">
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'Моя жизнь', this)"><div><span class="format-card__badge">От первого лица</span><h3 class="format-card__title">О себе</h3><p class="format-card__desc">Ваши воспоминания — для детей и внуков.</p></div></div></div>
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'История человека', this)"><div><span class="format-card__badge">Близкий человек</span><h3 class="format-card__title">О близком человеке</h3><p class="format-card__desc">Жизнь мамы, отца, бабушки или дедушки.</p></div></div></div>
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(2, 'История семьи', this)"><div><span class="format-card__badge">Род и поколения</span><h3 class="format-card__title">О всей семье</h3><p class="format-card__desc">Несколько поколений, переезды и судьбы.</p></div></div></div>
+      </div>
+
+      <div class="wizard-fields">
+        <label class="wizard-field"><span id="heroNameLabel">Имя и фамилия героя</span><input id="heroNameInput" type="text" autocomplete="off" placeholder="Например: Николай Фёдорович Евстафиади"></label>
+        <label class="wizard-field wizard-field--short"><span>Годы жизни (если знаете)</span><input id="heroYearsInput" type="text" autocomplete="off" placeholder="1868–1937"></label>
+        <label class="wizard-field"><span>Кто составляет книгу</span><input id="bookAuthorInput" type="text" autocomplete="name" placeholder="Ваше имя — оно будет в выходных данных"></label>
       </div>
 
       <div class="step__bottom-bar">
         <div class="step__selection-info">
-          <span>Выбранный замысел</span>
-          <strong id="selectionLabel2">Не выбран</strong>
+          <span>Книга</span>
+          <strong id="selectionLabel2">Не выбрано</strong>
         </div>
         <button class="step__next-btn" id="nextBtn2" type="button" disabled onclick="goToStep(3)">
           Далее →
@@ -2261,7 +2274,7 @@
       </div>
     </div>
 
-    <!-- ШАГ 3: МАТЕРИАЛ -->
+    <!-- ШАГ 2 ИЗ 3: КАК РАССКАЗЫВАТЬ -->
     <div class="step-container" id="step3Content">
       <div class="step__header-top">
         <button class="btn-back-step" onclick="goToStep(2)">
@@ -2270,22 +2283,19 @@
         </button>
       </div>
 
-      <span class="step__subtitle">Шаг 2 из 6 · Материал</span>
-      <h2 class="step__title">Из чего сложится <span class="accent-word">история</span>?</h2>
-      <p class="step__desc">Выберите преобладающее наполнение будущей книги.</p>
+      <span class="step__subtitle">Шаг 2 из 3 · Рассказ</span>
+      <h2 class="step__title">Как вы будете <span class="accent-word">рассказывать</span>?</h2>
+      <p class="step__desc">С подсказками книга сразу получит главы по периодам жизни, а рядом с листом будут вопросы — отвечайте на те, что откликаются.</p>
 
-      <div class="cards-grid" id="cardsGrid3">
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'Преимущественно текст', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path></svg></div><h3 class="format-card__title">Преимущественно текст</h3></div><p class="format-card__desc">Рассказы, мемуары и подробные размышления</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'Текст и фотографии', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></div><h3 class="format-card__title">Текст и фотографии</h3></div><p class="format-card__desc">Равноценное сочетание историй и снимков</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'Преимущественно фото', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div><h3 class="format-card__title">Преимущественно фото</h3></div><p class="format-card__desc">Визуальный поток с лаконичными подписями</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'Семейный архив', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div><h3 class="format-card__title">Семейный архив</h3></div><p class="format-card__desc">Письма, документы и редкие кадры из прошлого</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'Пока не знаю', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><h3 class="format-card__title">Пока не знаю</h3></div><p class="format-card__desc">Определимся в ходе совместной работы</p></div></div></div>
+      <div class="cards-grid cards-grid--two" id="cardsGrid3">
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'С вопросами-подсказками', this)"><div><span class="format-card__badge">Проще начать</span><h3 class="format-card__title">С вопросами-подсказками</h3><p class="format-card__desc">Главы «Детство», «Юность», «Работа», «Семья» и вопросы к каждой.</p></div></div></div>
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(3, 'Самостоятельно', this)"><div><span class="format-card__badge">Свободно</span><h3 class="format-card__title">Сам(а), по своим главам</h3><p class="format-card__desc">Чистая первая глава — дальше вы строите книгу как хотите.</p></div></div></div>
       </div>
 
       <div class="step__bottom-bar">
         <div class="step__selection-info">
-          <span>Выбранный материал</span>
-          <strong id="selectionLabel3">Не выбран</strong>
+          <span>Способ</span>
+          <strong id="selectionLabel3">Не выбрано</strong>
         </div>
         <button class="step__next-btn" id="nextBtn3" type="button" disabled onclick="goToStep(4)">
           Далее →
@@ -2293,7 +2303,7 @@
       </div>
     </div>
 
-    <!-- ШАГ 4: РАБОТА -->
+    <!-- ШАГ 3 ИЗ 3: ТЕКСТ ИЛИ ФОТО + НАЗВАНИЕ -->
     <div class="step-container" id="step4Content">
       <div class="step__header-top">
         <button class="btn-back-step" onclick="goToStep(3)">
@@ -2302,241 +2312,32 @@
         </button>
       </div>
 
-      <span class="step__subtitle">Шаг 3 из 6 · Работа</span>
-      <h2 class="step__title">Как вам удобнее <span class="accent-word">вспоминать</span>?</h2>
-      <p class="step__desc">Короткими фразами или монологом? Журнал подбирает только привычный формат уединения и материалы.</p>
+      <span class="step__subtitle">Шаг 3 из 3 · Книга</span>
+      <h2 class="step__title">Чего будет больше — <span class="accent-word">текста</span> или фото?</h2>
+      <p class="step__desc">По этому ответу вёрстка решает, как часто ставить фотографии между страницами текста.</p>
 
-      <div class="cards-grid" id="cardsGrid4">
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Свободное письмо', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg></div><h3 class="format-card__title">Свободное письмо</h3></div><p class="format-card__desc">Пишите сами текстом в произвольной форме</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Вопросы-проводники', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><h3 class="format-card__title">Вопросы-проводники</h3></div><p class="format-card__desc">Отвечайте на глубокие и точные вопросы о жизни</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Голосовые воспоминания', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></div><h3 class="format-card__title">Голосовые воспоминания</h3></div><p class="format-card__desc">Рассказывайте голосом, а мы переведем в текст</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Смешанный способ', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg></div><h3 class="format-card__title">Смешанный способ</h3></div><p class="format-card__desc">Голос, текст, архивные и фото материалы вместе</p></div></div></div>
+      <div class="cards-grid cards-grid--three" id="cardsGrid4">
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Преимущественно текст', this)"><div><span class="format-card__badge">Рассказ</span><h3 class="format-card__title">Больше текста</h3><p class="format-card__desc">Фотографии — как паузы между главами.</p></div></div></div>
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Текст и фотографии', this)"><div><span class="format-card__badge">Поровну</span><h3 class="format-card__title">Примерно поровну</h3><p class="format-card__desc">Текст и фото чередуются в спокойном ритме.</p></div></div></div>
+        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(4, 'Преимущественно фото', this)"><div><span class="format-card__badge">Альбом</span><h3 class="format-card__title">Больше фото</h3><p class="format-card__desc">Фото главные, текст — короткие истории к ним.</p></div></div></div>
+      </div>
+
+      <div class="wizard-fields">
+        <label class="wizard-field"><span>Название книги</span><input id="bookTitleInput" type="text" autocomplete="off" placeholder="Например: Очерки жизни"></label>
+        <label class="wizard-field"><span>Подзаголовок</span><input id="bookSubtitleInput" type="text" autocomplete="off" placeholder="Например: История нашей семьи"></label>
+        <input id="bookYearInput" type="hidden">
       </div>
 
       <div class="step__bottom-bar">
         <div class="step__selection-info">
-          <span>Выбранный способ</span>
-          <strong id="selectionLabel4">Не выбран</strong>
+          <span>Вёрстка</span>
+          <strong id="selectionLabel4">Не выбрано</strong>
         </div>
-        <button class="step__next-btn" id="nextBtn4" type="button" disabled onclick="goToStep(5)">
-          Далее →
+        <button class="step__next-btn" id="startConstructorBtn" type="button" disabled>
+          Создать книгу →
         </button>
       </div>
-    </div>
-
-    <!-- ШАГ 5: СТРУКТУРА -->
-    <div class="step-container" id="step5Content">
-      <div class="step__header-top">
-        <button class="btn-back-step" onclick="goToStep(4)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
-          Назад
-        </button>
-      </div>
-
-      <span class="step__subtitle">Шаг 4 из 6 · Структура</span>
-      <h2 class="step__title">Из каких частей будет <span class="accent-word">книга</span>?</h2>
-      <p class="step__desc">Выберите базовый шаблон оглавления, который вы сможете легко скорректировать на следующем этапе.</p>
-
-      <div class="cards-grid" id="cardsGrid5">
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(5, 'Хронологическая (по годам)', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><h3 class="format-card__title">Хронологическая (по годам)</h3></div><p class="format-card__desc">От детских лет и юности до зрелости и сегодняшнего дня</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(5, 'Тематическая (по ролям)', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div><h3 class="format-card__title">Тематическая (по ролям)</h3></div><p class="format-card__desc">Главы по жизненным ролям: Семья, Профессия, Хобби, Друзья</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(5, 'Свободная композиция', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></div><h3 class="format-card__title">Свободная композиция</h3></div><p class="format-card__desc">Короткие зарисовки, притчи и памятные эпизоды без строгих рамок</p></div></div></div>
-        <div class="format-card-wrap"><div class="format-card" onclick="selectCard(5, 'Классические мемуары', this)"><div><div class="format-card__icon-title"><div class="format-card__icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div><h3 class="format-card__title">Классические мемуары</h3></div><p class="format-card__desc">Глубокое повествование от первого лица с размышлениями</p></div></div></div>
-      </div>
-
-      <div class="step__bottom-bar">
-        <div class="step__selection-info">
-          <span>Выбранная структура</span>
-          <strong id="selectionLabel5">Не выбран</strong>
-        </div>
-        <button class="step__next-btn" id="nextBtn5" type="button" disabled onclick="goToStep(6)">
-          Далее →
-        </button>
-      </div>
-    </div>
-
-    <!-- ШАГ 6: ДИЗАЙН (ОБЛОЖКИ КНИГ) -->
-    <div class="step-container" id="step6Content">
-      <div class="step__header-top">
-        <button class="btn-back-step" onclick="goToStep(5)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
-          Назад
-        </button>
-      </div>
-
-      <span class="step__subtitle">Шаг 5 из 6 · Облик книги</span>
-      <h2 class="step__title">Какой <span class="accent-word">характер</span> ей ближе?</h2>
-      <p class="step__desc">Оформление подчеркнет атмосферу, а тип верстки поможет гармонично вписать ваш материал.</p>
-
-      <div class="cards-grid" id="cardsGrid6">
-        <div class="format-card-wrap">
-          <div class="format-card" onclick="selectCard(6, 'Семейная классика', this)">
-            <div class="book-card-content">
-              <div class="book-preview book-style-classic">
-                <span class="book-preview__author">Семья Ивановых</span>
-                <span class="book-preview__title">ИСТОРИЯ СЕМЬИ</span>
-              </div>
-              <div>
-                <h3 class="format-card__title">Семейная классика</h3>
-                <p class="format-card__desc">Тёплая бумага и семейная типографика</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="format-card-wrap">
-          <div class="format-card" onclick="selectCard(6, 'Современный архив', this)">
-            <div class="book-card-content">
-              <div class="book-preview book-style-modern">
-                <span class="book-preview__author">Генеалогия</span>
-                <span class="book-preview__title">АРХИВ СЕМЬИ</span>
-              </div>
-              <div>
-                <h3 class="format-card__title">Современный архив</h3>
-                <p class="format-card__desc">Минуты, документы и точные отчеты</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="format-card-wrap">
-          <div class="format-card" onclick="selectCard(6, 'Кинематографичный', this)">
-            <div class="book-card-content">
-              <div class="book-preview book-style-cinema">
-                <span class="book-preview__author">Летопись</span>
-                <span class="book-preview__title">ИСТОРИЯ СЕМЬИ</span>
-              </div>
-              <div>
-                <h3 class="format-card__title">Кинематографичный</h3>
-                <p class="format-card__desc">Крупные кадры, паузы и семейный монолог</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="format-card-wrap">
-          <div class="format-card" onclick="selectCard(6, 'Художественная хроника', this)">
-            <div class="book-card-content">
-              <div class="book-preview book-style-chronicle">
-                <span class="book-preview__author">Очерки</span>
-                <span class="book-preview__title">ПАМЯТЬ ВРЕМЕНИ</span>
-              </div>
-              <div>
-                <h3 class="format-card__title">Художественная хроника</h3>
-                <p class="format-card__desc">Иллюстрации, штрихи и авторский сюжет</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="format-card-wrap">
-          <div class="format-card" onclick="selectCard(6, 'Фотографическая', this)">
-            <div class="book-card-content">
-              <div class="book-preview book-style-photo">
-                <span class="book-preview__author">Альбом</span>
-                <span class="book-preview__title">ИСТОРИЯ СЕМЬИ</span>
-              </div>
-              <div>
-                <h3 class="format-card__title">Фотографическая</h3>
-                <p class="format-card__desc">Изображения как главные герои</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="step__bottom-bar">
-        <div class="step__selection-info">
-          <span>Выбранный дизайн</span>
-          <strong id="selectionLabel6">Не выбран</strong>
-        </div>
-        <button class="step__next-btn" id="nextBtn6" type="button" disabled onclick="goToStep(7)">
-          Далее →
-        </button>
-      </div>
-    </div>
-
-
-    <!-- ШАГ 7: ВАША КНИГА / ФИНАЛЬНАЯ ПРОВЕРКА -->
-    <div class="step-container" id="step7Content">
-      <div class="step__header-top">
-        <button class="btn-back-step" onclick="goToStep(6)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg>
-          Назад
-        </button>
-      </div>
-
-      <span class="step__subtitle">Шаг 6 из 6 · Ваша книга</span>
-      <h2 class="step__title">Книга <span class="accent-word">готова</span> к началу.</h2>
-      <p class="step__desc">Проверьте выбранные настройки и добавьте основные данные. Всё это можно будет изменить позже.</p>
-
-      <div class="final-summary">
-        <div class="final-summary__card">
-          <span class="final-summary__label">Замысел</span>
-          <strong class="final-summary__value" id="finalValue2">Не выбран</strong>
-          <button class="final-summary__edit" type="button" onclick="goToStep(2)">Изменить</button>
-        </div>
-
-        <div class="final-summary__card">
-          <span class="final-summary__label">Материал</span>
-          <strong class="final-summary__value" id="finalValue3">Не выбран</strong>
-          <button class="final-summary__edit" type="button" onclick="goToStep(3)">Изменить</button>
-        </div>
-
-        <div class="final-summary__card">
-          <span class="final-summary__label">Способ работы</span>
-          <strong class="final-summary__value" id="finalValue4">Не выбран</strong>
-          <button class="final-summary__edit" type="button" onclick="goToStep(4)">Изменить</button>
-        </div>
-
-        <div class="final-summary__card">
-          <span class="final-summary__label">Структура</span>
-          <strong class="final-summary__value" id="finalValue5">Не выбран</strong>
-          <button class="final-summary__edit" type="button" onclick="goToStep(5)">Изменить</button>
-        </div>
-
-        <div class="final-summary__card final-summary__card--wide">
-          <span class="final-summary__label">Облик книги</span>
-          <strong class="final-summary__value" id="finalValue6">Не выбран</strong>
-          <button class="final-summary__edit" type="button" onclick="goToStep(6)">Изменить</button>
-        </div>
-      </div>
-
-      <div class="book-data-panel">
-        <h3 class="book-data-panel__title">Данные книги</h3>
-        <p class="book-data-panel__hint">Эти данные попадут в проект и смогут использоваться для обложки, титульного листа и выходных данных.</p>
-
-        <div class="book-fields">
-          <div class="book-field book-field--title">
-            <label for="bookTitleInput">Название книги *</label>
-            <input id="bookTitleInput" type="text" autocomplete="off" placeholder="Например: Очерки жизни">
-          </div>
-
-          <div class="book-field">
-            <label for="bookYearInput">Год *</label>
-            <input id="bookYearInput" type="number" min="1900" max="2200" inputmode="numeric">
-          </div>
-
-          <div class="book-field book-field--title">
-            <label for="bookSubtitleInput">Подзаголовок</label>
-            <input id="bookSubtitleInput" type="text" autocomplete="off" placeholder="Например: История нашей семьи">
-          </div>
-
-          <div class="book-field">
-            <label for="bookAuthorInput">Автор / составитель *</label>
-            <input id="bookAuthorInput" type="text" autocomplete="name" placeholder="Имя автора">
-          </div>
-        </div>
-
-        <div class="final-save-note" id="finalSaveNote"></div>
-      </div>
-
-      <div class="final-actions">
-        <button class="final-back" type="button" onclick="goToStep(6)">← Назад к оформлению</button>
-        <button class="start-constructor-btn" id="startConstructorBtn" type="button" disabled>
-          Создать историю →
-        </button>
-      </div>
+      <div class="final-save-note" id="finalSaveNote"></div>
     </div>
 
     <!-- САЙДБАР ПРОГРЕССА -->
@@ -2544,14 +2345,11 @@
       <div class="lb-progress__desktop">
         <span class="lb-progress__caption">Создание книги</span>
         <nav class="lb-progress__steps">
-          <div class="lb-progress__step" id="progStep1"><span class="lb-progress__name">Замысел</span><span class="lb-progress__marker"></span></div>
-          <div class="lb-progress__step" id="progStep2"><span class="lb-progress__name">Материал</span><span class="lb-progress__marker"></span></div>
-          <div class="lb-progress__step" id="progStep3"><span class="lb-progress__name">Работа</span><span class="lb-progress__marker"></span></div>
-          <div class="lb-progress__step" id="progStep4"><span class="lb-progress__name">Структура</span><span class="lb-progress__marker"></span></div>
-          <div class="lb-progress__step" id="progStep5"><span class="lb-progress__name">Облик книги</span><span class="lb-progress__marker"></span></div>
-          <div class="lb-progress__step" id="progStep6"><span class="lb-progress__name">Ваша книга</span><span class="lb-progress__marker"></span></div>
+          <div class="lb-progress__step" id="progStep1"><span class="lb-progress__name">Герой</span><span class="lb-progress__marker"></span></div>
+          <div class="lb-progress__step" id="progStep2"><span class="lb-progress__name">Рассказ</span><span class="lb-progress__marker"></span></div>
+          <div class="lb-progress__step" id="progStep3"><span class="lb-progress__name">Книга</span><span class="lb-progress__marker"></span></div>
         </nav>
-        <span class="lb-progress__counter" id="progCounter">Шаг 1 из 6</span>
+        <span class="lb-progress__counter" id="progCounter">Шаг 1 из 3</span>
       </div>
     </aside>
 
@@ -2774,53 +2572,55 @@
         year: new Date().getFullYear()
       };
 
+      // Three answers: who the book is about (2), how it will be told (3)
+      // and the text/photo balance (4). The book data sits on the steps.
+      const field = id => document.getElementById(id);
+      const value = id => field(id)?.value.trim() || "";
+      const surnameOf = name => { const parts = String(name).trim().split(/\s+/u); return parts.length > 1 ? parts[parts.length - 1] : ""; };
+      const familyTitle = name => { const surname = surnameOf(name) || String(name).trim(); return surname ? `Семья ${surname}` : "История нашей семьи"; };
+
       const syncFinalSummary = () => {
-        for (let i = 2; i <= 6; i++) {
-          const target = document.getElementById(`finalValue${i}`);
-          if (target) target.textContent = onboardingState[i] || "Не выбран";
-        }
-
-        const titleInput = document.getElementById("bookTitleInput");
-        const subtitleInput = document.getElementById("bookSubtitleInput");
-        const authorInput = document.getElementById("bookAuthorInput");
-        const yearInput = document.getElementById("bookYearInput");
-
-        if (titleInput && !titleInput.value && bookMeta.title) titleInput.value = bookMeta.title;
-        if (subtitleInput && !subtitleInput.value && bookMeta.subtitle) subtitleInput.value = bookMeta.subtitle;
-        if (authorInput && !authorInput.value && bookMeta.author) authorInput.value = bookMeta.author;
-        if (yearInput && !yearInput.value) yearInput.value = bookMeta.year;
-
+        const type = onboardingState[2], hero = value("heroNameInput");
+        const title = field("bookTitleInput"), subtitle = field("bookSubtitleInput"), year = field("bookYearInput");
+        if (title && !title.value) title.value = bookMeta.title || (type === "История семьи" ? familyTitle(hero) : hero);
+        if (subtitle && !subtitle.value) subtitle.value = bookMeta.subtitle || ({ "Моя жизнь": "Воспоминания", "История человека": "История жизни", "История семьи": "История нашей семьи" }[type] || "");
+        if (year && !year.value) year.value = bookMeta.year || new Date().getFullYear();
         validateFinalStep();
       };
 
-      const getProjectConfig = () => ({
-        storyType: onboardingState[2],
-        contentBalance: onboardingState[3],
-        workMode: onboardingState[4],
-        structure: onboardingState[5],
-        design: onboardingState[6],
-        title: document.getElementById("bookTitleInput")?.value.trim() || "",
-        subtitle: document.getElementById("bookSubtitleInput")?.value.trim() || "",
-        author: document.getElementById("bookAuthorInput")?.value.trim() || "",
-        year: document.getElementById("bookYearInput")?.value.trim() || ""
-      });
+      const getProjectConfig = () => {
+        const hero = value("heroNameInput");
+        return {
+          storyType: onboardingState[2],
+          workMode: onboardingState[3],
+          contentBalance: onboardingState[4],
+          design: "editorial",
+          heroName: hero,
+          heroYears: value("heroYearsInput"),
+          title: value("bookTitleInput"),
+          subtitle: value("bookSubtitleInput"),
+          author: value("bookAuthorInput") || (onboardingState[2] === "Моя жизнь" ? hero : ""),
+          year: value("bookYearInput") || String(new Date().getFullYear()),
+          setupId: window.OCHERKI_SETUP_ID || ""
+        };
+      };
 
       const persistDraft = () => {
         try {
           localStorage.setItem("ocherkiLifeProjectDraft", JSON.stringify(getProjectConfig()));
-          const note = document.getElementById("finalSaveNote");
-          if (note) note.textContent = "Черновик настроек сохранён";
         } catch (e) {
           console.warn("Не удалось сохранить черновик", e);
         }
       };
 
       const validateFinalStep = () => {
-        const btn = document.getElementById("startConstructorBtn");
-        if (!btn) return;
-        const cfg = getProjectConfig();
-        const selectionsReady = [2,3,4,5,6].every(i => !!onboardingState[i]);
-        btn.disabled = !(selectionsReady && cfg.title && cfg.author && cfg.year);
+        const next2 = field("nextBtn2"), label2 = field("selectionLabel2");
+        if (next2) next2.disabled = !(onboardingState[2] && value("heroNameInput"));
+        if (label2 && onboardingState[2]) label2.textContent = value("heroNameInput") ? `${onboardingState[2]} · ${value("heroNameInput")}` : `${onboardingState[2]} — впишите имя`;
+        const heroLabel = field("heroNameLabel");
+        if (heroLabel) heroLabel.textContent = onboardingState[2] === "История семьи" ? "Фамилия семьи или главный человек рода" : onboardingState[2] === "Моя жизнь" ? "Ваше имя и фамилия" : "Имя и фамилия героя";
+        const btn = field("startConstructorBtn");
+        if (btn) btn.disabled = !(onboardingState[2] && onboardingState[3] && onboardingState[4] && value("heroNameInput") && value("bookTitleInput"));
       };
 
       const restoreDraft = () => {
@@ -2829,10 +2629,11 @@
           if (!raw) return;
           const saved = JSON.parse(raw);
           onboardingState[2] = saved.storyType || "";
-          onboardingState[3] = saved.contentBalance || "";
-          onboardingState[4] = saved.workMode || "";
-          onboardingState[5] = saved.structure || "";
-          onboardingState[6] = saved.design || "";
+          onboardingState[3] = saved.workMode || "";
+          onboardingState[4] = saved.contentBalance || "";
+          if (field("heroNameInput")) field("heroNameInput").value = saved.heroName || "";
+          if (field("heroYearsInput")) field("heroYearsInput").value = saved.heroYears || "";
+          if (field("bookAuthorInput")) field("bookAuthorInput").value = saved.author || "";
           bookMeta.title = saved.title || "";
           bookMeta.subtitle = saved.subtitle || "";
           bookMeta.author = saved.author || "";
@@ -3351,15 +3152,16 @@
           } else if (stepNumber === 2) {
             pageBody.classList.add("step-at-2");
             step2.classList.add("is-visible");
-            updateProgress(1, "Шаг 1 из 6");
+            updateProgress(1, "Шаг 1 из 3");
           } else if (stepNumber === 3) {
             pageBody.classList.add("step-at-3");
             step3.classList.add("is-visible");
-            updateProgress(2, "Шаг 2 из 6");
+            updateProgress(2, "Шаг 2 из 3");
           } else if (stepNumber === 4) {
             pageBody.classList.add("step-at-4");
             step4.classList.add("is-visible");
-            updateProgress(3, "Шаг 3 из 6");
+            updateProgress(3, "Шаг 3 из 3");
+            syncFinalSummary();
           } else if (stepNumber === 5) {
             pageBody.classList.add("step-at-5");
             step5.classList.add("is-visible");
@@ -3408,7 +3210,7 @@
         if (stepContainer) stepContainer.classList.add("has-choice");
 
         label.textContent = title;
-        nextBtn.disabled = false;
+        if (nextBtn) nextBtn.disabled = false;
         onboardingState[stepNum] = title;
         persistDraft();
         validateFinalStep();
@@ -3428,7 +3230,7 @@
       }
 
 
-      ["bookTitleInput", "bookSubtitleInput", "bookAuthorInput", "bookYearInput"].forEach(id => {
+      ["heroNameInput", "heroYearsInput", "bookTitleInput", "bookSubtitleInput", "bookAuthorInput", "bookYearInput"].forEach(id => {
         const input = document.getElementById(id);
         if (!input) return;
         input.addEventListener("input", () => {
@@ -3443,6 +3245,9 @@
       const startConstructorBtn = document.getElementById("startConstructorBtn");
       if (startConstructorBtn) {
         startConstructorBtn.addEventListener("click", () => {
+          // A new setup id lets the constructor apply these answers once
+          // (chapters, title page, the tree's main person) to a fresh book.
+          window.OCHERKI_SETUP_ID = String(Date.now());
           const config = getProjectConfig();
           persistDraft();
           window.OCHERKI_PROJECT_CONFIG = config;
@@ -3519,6 +3324,10 @@
                 year:(config.year || new Date().getFullYear()),
                 design:(config.design || config.style || "archive"),
                 contentBalance:(config.contentBalance || ""),
+                storyType:(config.storyType || ""),
+                workMode:(config.workMode || ""),
+                heroName:(config.heroName || ""),
+                heroYears:(config.heroYears || ""),
                 pageCount:config.pageCount || 24
               }, "*");
               frame?.contentWindow?.postMessage({
@@ -3546,7 +3355,7 @@
           if (frame) {
             frame.addEventListener("load", revealShell, { once:true });
             // Query flag is only informational; shell keeps the proven v137 boot logic.
-            frame.src = "shell.html?embedded=1&v=tree-form-20261029-v34";
+            frame.src = "shell.html?embedded=1&v=wizard3-20261029-v35";
           }
         });
       }
