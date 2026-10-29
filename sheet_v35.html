@@ -429,6 +429,10 @@ body{
   display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
   content:"Короткие воспоминания разных людей о герое или о семье. Каждое — отдельным абзацем, а строкой ниже, с тире, — кто это сказал.\A\A Бабушка пекла пироги каждую субботу, и весь двор знал, что у нас праздник.\A — внучка Анна\A\A Он никогда не повышал голос. Достаточно было взгляда.\A — сын Пётр\A\A В книге они соберутся в разворот «Голоса семьи».";
 }
+.editor[data-page-type="recipes"]>p:only-child:has(>br:only-child)::before{
+  display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
+  content:"Рецепт или семейная традиция. Первая строка — название, строки с тире — что нужно, дальше — как готовили или как это было. Фото добавьте на этот же лист.\A\A Пироги с капустой бабушки Марии\A — мука — 500 г\A — молоко — стакан\A — капуста — полкочана\A Тесто ставили с вечера, а утром весь дом пах дрожжами…\A\A Несколько рецептов разделяйте строкой ***";
+}
 .editor .sample-lead,
 .editor .sample-body{
   color:#9a8878!important;
@@ -1097,6 +1101,14 @@ const sections=[
   pages:[{type:'voices',title:'Голоса семьи',episode:'',text:'',photos:[],photoOffset:0}]
  },
  {
+  id:'recipes',
+  title:'Рецепты и традиции',
+  type:'recipes',
+  auto:true,
+  active:0,
+  pages:[{type:'recipes',title:'Рецепты и традиции',episode:'',text:'',photos:[],photoOffset:0}]
+ },
+ {
   id:'final',
   title:'Финальная страница',
   type:'text',
@@ -1162,7 +1174,7 @@ const sections=[
  }
 ];
 
-const OPTIONAL_AUTO_IDS=new Set(['endpaper','title','dedication','epigraph','contents','intro','author','timeline','family-tree','voices','final','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover']);
+const OPTIONAL_AUTO_IDS=new Set(['endpaper','title','dedication','epigraph','contents','intro','author','timeline','family-tree','voices','recipes','final','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover']);
 sections.forEach(s=>{
   // V10: complete book by default. Only genuinely optional matter can later
   // be switched off by the author; mandatory structure never gets a toggle.
@@ -3891,7 +3903,7 @@ window.addEventListener('message',e=>{
 
 <script id="v51-structure-bridge">
 (() => {
-  const AUTO_IDS = new Set(['cover','endpaper','title','dedication','epigraph','contents','intro','author','timeline','family-tree','voices','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover','final']);
+  const AUTO_IDS = new Set(['cover','endpaper','title','dedication','epigraph','contents','intro','author','timeline','family-tree','voices','recipes','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover','final']);
   let serial = 0;
   const makeId = (prefix='node') => `${prefix}-${Date.now().toString(36)}-${(++serial).toString(36)}`;
 

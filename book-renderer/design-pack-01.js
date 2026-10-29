@@ -99,6 +99,8 @@
     if (layout === 'who-photo' || kind === 'who-photo') return 'who-photo';
     if (layout === 'who-legend' || kind === 'who-legend') return 'who-legend';
     if (layout === 'voices-page' || kind === 'voices-page') return 'voices-page';
+    if (layout === 'recipe-left' || kind === 'recipe-left') return 'recipe-left';
+    if (layout === 'recipe-right' || kind === 'recipe-right') return 'recipe-right';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -673,6 +675,24 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'recipe-left' || role === 'recipe-right') {
+      // «Семейный рецепт / традиция». With a photo: the photo on the left,
+      // name, what is needed and how it was made on the right. Without: the
+      // name and the list on the left, the story on the right.
+      const data=page.recipe||{},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
+      const head=`<div class="dpk-recipe-kicker">${esc(data.kind||'')}</div><h2>${esc(data.title||'')}</h2>`;
+      const list=(data.items||[]).length?`<ul class="dpk-recipe-items${data.items.length>8?' two':''}">${data.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul>`:'';
+      const words=(data.paragraphs||[]).join(' ').length,font=words<1300?19:words<2100?17:15.5;
+      const story=(data.paragraphs||[]).length?`<div class="dpk-recipe-story" style="font-size:${font}px">${data.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}</div>`:'';
+      if(role==='recipe-left'){
+        if(data.hasPhoto){
+          const index=page.photoIndex||0,ratio=photoRatio(index),width=Math.round(Math.min(760,(formatH-280)*ratio)),height=Math.round(width/ratio);
+          return article('D01-RECIPE-LEFT',`<figure class="dpk-recipe-photo" style="width:${width}px;height:${height}px;left:${Math.round((1000-width)/2)+20}px;top:${Math.round((formatH-height)/2)}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`,'dpk-recipe');
+        }
+        return article('D01-RECIPE-LEFT',`<div class="dpk-recipe-card">${head}${list}</div>`,'dpk-recipe');
+      }
+      return article('D01-RECIPE-RIGHT',`<div class="dpk-recipe-card">${data.hasPhoto||data.full?head+list:''}${story}</div>`,'dpk-recipe');
     }
     if (role === 'voices-page') {
       // «Голоса семьи»: memories as quiet italic quotes, each signed in small

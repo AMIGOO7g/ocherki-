@@ -1299,6 +1299,43 @@
       for(let i=0;i<pages.length&&i<6;i+=2)
         spreads.push({master:'D01-SPREAD-VOICES',left:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i],heading:i===0?heading:'',pageFormat:meta.format||'square'}),right:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i+1],heading:'',pageFormat:meta.format||'square'})});
     }
+    // «Рецепты и традиции»: one spread per recipe or custom. First line is
+    // the name, lines starting with a dash or a bullet are what is needed,
+    // the rest is how it was made or done; «***» or a new page starts the
+    // next one. The page's own photo goes on the left page.
+    const recipeSection=byId('recipes');
+    if(recipeSection){
+      const entries=[];
+      for(const page of (recipeSection.pages||[]).filter(page=>page.included!==false)){
+        const photos=(page.photos||[]).filter(photo=>imageSource(photo));
+        String(page.text||'').split(/^\s*\*{3,}\s*$/mu).forEach((block,blockIndex)=>{
+          const lines=block.split(/\r?\n/u).map(line=>line.trim()).filter(Boolean);
+          if(!lines.length)return;
+          const items=[],paragraphs=[];
+          for(const line of lines.slice(1)){const item=line.match(/^[—–\-•·*]\s*(.+)$/u);if(item)items.push(item[1]);else paragraphs.push(line);}
+          entries.push({title:lines[0],items,paragraphs,photo:photos[blockIndex]||null,source:{photos},photoIndex:blockIndex});
+        });
+      }
+      const recipeOf=entry=>({title:entry.title,kind:entry.items.length?'Семейный рецепт':'Семейная традиция',items:entry.items,paragraphs:entry.paragraphs,pageFormat:meta.format||'square',hasPhoto:!!entry.photo});
+      // Short ones without a photo fit one page each and go two to a spread.
+      const short=entry=>!entry.photo&&entry.items.length<=10&&entry.paragraphs.join(' ').length<=900;
+      const queue=entries.slice(0,10);
+      while(queue.length){
+        const entry=queue.shift();
+        if(short(entry)){
+          const pair=queue.findIndex(short);
+          if(pair>=0){
+            const other=queue.splice(pair,1)[0];
+            spreads.push({master:'D01-SPREAD-RECIPE',left:P('recipe-right',{layout:'recipe-right',master:'D01-RECIPE-RIGHT',meta:bookMeta,recipe:{...recipeOf(entry),full:true}}),right:P('recipe-right',{layout:'recipe-right',master:'D01-RECIPE-RIGHT',meta:bookMeta,recipe:{...recipeOf(other),full:true}})});
+            continue;
+          }
+        }
+        const recipe=recipeOf(entry);
+        spreads.push({master:'D01-SPREAD-RECIPE',
+          left:P('recipe-left',{layout:'recipe-left',master:'D01-RECIPE-LEFT',meta:bookMeta,recipe,source:entry.source,photoIndex:entry.photoIndex}),
+          right:P('recipe-right',{layout:'recipe-right',master:'D01-RECIPE-RIGHT',meta:bookMeta,recipe})});
+      }
+    }
     // I01 — family chronology: one horizontal axis across the spread. Events
     // come from the «Хронология» section, one per line («1921 — Владикавказ —
     // Новый этап»); without them, from photographs that carry a year. The
@@ -2509,7 +2546,7 @@
       // masters; treating two text spreads as an error made the QA reject the
       // very low-photo/high-text fallback the director is designed to support.
       const repeatedText = ['D01-SPREAD-TEXT','D01-SPREAD-TEXT-QUOTE','D01-SPREAD-TEXT-RHYTHM'].includes(spread.master);
-      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
+      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
       if (index && spread.master === 'D01-SPREAD-PHOTO-TEXT' && spreads[index - 1].master === 'D01-SPREAD-PHOTO-TEXT') violations.push({ rule: 'photo-text-rhythm', spread: index + 1 });
       if(index&&isHeavySpread(spread.master)&&isHeavySpread(spreads[index-1].master))violations.push({rule:'heavy-spread-rhythm',spread:index+1,master:spread.master});
       [spread.left, spread.right].filter(Boolean).forEach(page => {
