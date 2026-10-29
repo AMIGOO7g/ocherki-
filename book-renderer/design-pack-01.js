@@ -499,7 +499,12 @@
     if (role === 'document-comment') {
       const documentDate=esc([inferred.place,inferred.date].filter(Boolean).join(', '));
       const documentSource=caption(0);
-      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript">${documentDate?`<div class="dpk-document-date">${documentDate}</div>`:''}${text?`<p>${text}</p>`:''}${documentSource?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
+      // The ruled sheet carries the document's own words in handwriting, set
+      // exactly on the rules; the author's explanation stays a quiet printed
+      // note below. Without a transcription the explanation is the hand text.
+      const transcript=clean(page.transcript||''),hand=transcript||clean(page.text||''),note=transcript?clean(page.note||''):'';
+      const size=hand.length<=250?[30,46]:hand.length<=550?[26,40]:hand.length<=900?[22,34]:[19,29];
+      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${esc(hand)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
     }
     if (role === 'timeline') {
       const items = (page.items || []).map(item => `<div class="dpk-timeline-row"><b>${esc(item.year || '')}</b><i></i><span>${esc(item.text || '')}</span></div>`).join('');

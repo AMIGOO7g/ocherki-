@@ -2580,8 +2580,12 @@ body .dpk-page.dpk-p01 .dpk-p01-portrait{position:absolute!important;margin:0!im
 body .dpk-page.dpk-p01 .dpk-p01-portrait img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
 /* B and C: edges dissolve into the page (alpha mask, pixels untouched). */
 body .dpk-page.dpk-p01-b .dpk-p01-portrait img,body .dpk-page.dpk-p01-c .dpk-p01-portrait img{
-  -webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 46%,#000 52%,transparent 100%)!important;
-  mask-image:radial-gradient(ellipse 72% 70% at 50% 46%,#000 52%,transparent 100%)!important}
+  /* Every edge dissolves: horizontal and vertical ramps are intersected, so
+     no straight border of the source frame remains visible. */
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 16%,#000 80%,transparent 100%)!important;
+  -webkit-mask-composite:source-in!important;
+  mask-image:linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 16%,#000 80%,transparent 100%)!important;
+  mask-composite:intersect!important}
 body .dpk-page.dpk-p01 .dpk-p01-block{position:absolute!important;left:12%!important;right:12%!important;top:38%!important;text-align:center!important}
 body .dpk-page.dpk-p01 .dpk-p01-name{margin:0!important;font:400 40px/1.15 'CormorantCy',Georgia,serif!important;letter-spacing:.02em!important;color:#2a2826!important}
 body .dpk-page.dpk-p01 .dpk-p01-years{margin:18px 0 0!important;font:400 17px/1.3 'PTSerifCy',Georgia,serif!important;letter-spacing:.32em!important;color:#6a645c!important}
@@ -2589,3 +2593,26 @@ body .dpk-page.dpk-p01 .dpk-p01-role{margin:16px 0 0!important;font:italic 400 2
 body .dpk-page.dpk-p01-dark .dpk-p01-name{color:#efe9df!important}
 body .dpk-page.dpk-p01-dark .dpk-p01-years{color:#b8b0a4!important}
 body .dpk-page.dpk-p01-dark .dpk-p01-role{color:#c9b38e!important}
+
+/* Archival transcript on ruled paper. The rules belong to the handwriting
+   paragraph itself (same pitch as its line height, a rule at the measured
+   baseline — 55 % of the line box for Sign That S), so every handwritten
+   line sits exactly on a rule; the ruling continues to the bottom of the
+   sheet because the paragraph fills the remaining height. */
+body .dpk-page.dpk-document-comment .dpk-document-transcript.dpk-document-ruled{
+  inset:32px!important;padding:calc(var(--dpk-rule) * 2) 46px 120px!important;
+  display:flex!important;flex-direction:column!important;
+  background:#f8f6f1!important;border:1px solid rgba(118,98,76,.16)!important;
+}
+body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-date{position:absolute!important;top:calc(var(--dpk-rule) * .6)!important;left:46px!important;margin:0!important}
+body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-hand{
+  flex:1 1 auto!important;margin:0!important;max-width:none!important;max-height:none!important;overflow:visible!important;
+  font:400 var(--dpk-hand-size) / var(--dpk-rule) 'SignThatS','CormorantCy',Georgia,serif!important;
+  color:#3f3a35!important;text-align:left!important;letter-spacing:.01em!important;white-space:pre-line!important;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--dpk-rule) * .55 + 2px),rgba(110,91,70,.22) calc(var(--dpk-rule) * .55 + 2px),rgba(110,91,70,.22) calc(var(--dpk-rule) * .55 + 3px),transparent calc(var(--dpk-rule) * .55 + 3px),transparent var(--dpk-rule))!important;
+  background-size:100% var(--dpk-rule)!important;background-repeat:repeat-y!important;background-origin:content-box!important;
+  margin-left:-46px!important;margin-right:-46px!important;padding:0 46px!important}
+body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-note{
+  position:absolute!important;left:46px!important;right:46px!important;bottom:62px!important;
+  font:italic 400 15px/1.45 'PTSerifCy',Georgia,serif!important;color:#6d655c!important}
+body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-source{bottom:30px!important;left:46px!important}

@@ -983,7 +983,7 @@
       // Document/photos retain their existing masters; manuscript text is never routed through them.
       for(const document of chapter.documents){
         const source={...document,photos:document.photos||[]};
-        spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||''})});
+        spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||'',transcript:(source.photos.length?String(document.text||''):''),note:String(document.explanation||document.comment||'')})});
       }
       // A printed book never leaves half a spread: an unpaired left page would
       // shift every following page to the wrong side. Close it with an unused
