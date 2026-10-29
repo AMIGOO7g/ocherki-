@@ -225,6 +225,27 @@
       // Deferred pages are measured as left pages; the right side is closed
       // with a blank page so the physical page order stays even/odd correct.
       for(const page of session.deferredPages())result.spreads.splice(at++,0,{master:'D01-SPREAD-EDITORIAL-FALLBACK',left:page,right:{kind:'blank',layout:'blank'}});
+      // A handwritten document transcript fills its ruled sheet; when it is
+      // longer, it continues on further ruled sheets (measured, whole words).
+      const handFits=(page,side)=>{if(typeof session.host.querySelector!=='function')return true;session.host.innerHTML=session.render(page,side);const hand=session.host.querySelector('.dpk-document-hand');return !hand||hand.scrollHeight<=hand.clientHeight+1;};
+      for(let index=0;index<result.spreads.length;index++){
+        const page=result.spreads[index].right;
+        if(!page||page.kind!=='document-comment'||handFits(page,'right'))continue;
+        const full=String(page.transcript||page.text||'').trim(),size=[22,34];
+        if(handFits({...page,handSize:size},'right')){page.handSize=size;continue;}
+        const tokens=full.split(/(\s+)/u),chunks=[];let start=0;
+        while(start<tokens.length){
+          const side=chunks.length%2===0?'right':'left',test=end=>handFits({...page,handChunk:tokens.slice(start,end).join('').trim(),handSize:size,handContinuation:chunks.length>0},side);
+          let low=start+1,high=tokens.length;
+          while(low<high){const middle=Math.ceil((low+high)/2);if(test(middle))low=middle;else high=middle-1;}
+          chunks.push(tokens.slice(start,low).join('').trim());start=low;
+        }
+        Object.assign(page,{handChunk:chunks[0],handSize:size});
+        const sheet=(chunk,n)=>({...page,id:`${page.id}_sheet_${n}`,handChunk:chunk,handContinuation:true});
+        const extra=[];
+        for(let n=1;n<chunks.length;n+=2)extra.push({master:'D01-SPREAD-DOCUMENT-CONTINUATION',sectionId:result.spreads[index].sectionId,left:sheet(chunks[n],n),right:chunks[n+1]?sheet(chunks[n+1],n+1):{kind:'blank',layout:'blank'}});
+        result.spreads.splice(index+1,0,...extra);index+=extra.length;
+      }
       result.spreads.forEach((spread,index)=>{if(!spread.id)spread.id=`d01_spread_${index+1}`;});result.pages=result.spreads.flatMap(s=>[s.left,s.right].filter(Boolean));result.pages.forEach((p,i)=>{p.pageNo=i+1;});
       const metrics=[];
       for(const spread of result.spreads)for(const side of ['left','right']){

@@ -88,6 +88,7 @@
     if (layout === 'hspread-photo' || kind === 'hspread-photo') return 'hspread-photo';
     if (layout === 't06-hero' || kind === 't06-hero') return 't06-hero';
     if (layout === 't07-photos' || kind === 't07-photos') return 't07-photos';
+    if (layout === 't08-pause' || kind === 't08-pause') return 't08-pause';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -231,9 +232,12 @@
       // H-SPREAD v1.2: one horizontal photograph runs across the top of the
       // spread; the page only tells the shared engine where its text starts.
       const pair=page.topPair?t06Pair(page.topPair.photoIndices):null;
+      // T08: one vertical photograph running into the fold; the text keeps a
+      // single outer column (the second flow cell has zero height).
+      const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
       const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto?'':running;
-      return article(page.master,`${topPhoto}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':''}`)
+      return article(page.master,`${topPhoto}${spinePhoto}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':''}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
@@ -375,11 +379,20 @@
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
     }
+    if (role === 't08-pause') {
+      // T08 right page: a quiet pause with one short quote from the facing
+      // text, larger than body text, in the chapter heading colour.
+      const used=page.avoidAccents||[];
+      const quote=page.pauseQuote||((freshPhrases(page.quoteSource||'',used).find(item=>item.text.length<=110&&item.text.length>=18)||{}).text)||'';
+      return article('D01-T08-PAUSE',`${quote?`<div class="dpk-t08-quote"><p>«${esc(quote.replace(/[.…]+$/u,''))}»</p><i></i></div>`:''}${folio}`,'dpk-t08');
+    }
     if (role === 'p01-portrait' || role === 'p01-text') {
       // P01 portrait accent: a large portrait on the left, a short restrained
       // block on the right. A light-clean, B light with edges dissolving into
       // the paper, C dark with the portrait emerging from darkness.
-      const variant=['A','B','C'].includes(page.p01Variant)?page.p01Variant:'A';
+      // The light portrait stays clean (a dissolving edge on white paper looked
+      // unfinished); only the dark variant lets the portrait emerge from darkness.
+      const variant=page.p01Variant==='C'?'C':'A';
       const dark=variant==='C'?' dpk-dark dpk-p01-dark':'';
       if(role==='p01-portrait'){
         const formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000,ratio=photoRatio(page.photoIndex||0);
@@ -502,9 +515,11 @@
       // The ruled sheet carries the document's own words in handwriting, set
       // exactly on the rules; the author's explanation stays a quiet printed
       // note below. Without a transcription the explanation is the hand text.
-      const transcript=clean(page.transcript||''),hand=transcript||clean(page.text||''),note=transcript?clean(page.note||''):'';
-      const size=hand.length<=250?[30,46]:hand.length<=550?[26,40]:hand.length<=900?[22,34]:[19,29];
-      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${esc(hand)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
+      // handChunk/handSize come from the engine when a long text continues on
+      // further ruled sheets (only the first sheet carries the note).
+      const transcript=clean(page.transcript||''),hand=page.handChunk!=null?String(page.handChunk):transcript||clean(page.text||''),note=transcript&&!page.handContinuation?clean(page.note||''):'';
+      const size=Array.isArray(page.handSize)?page.handSize:hand.length<=250?[30,46]:hand.length<=550?[26,40]:[22,34];
+      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate&&!page.handContinuation?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${esc(hand)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource&&!page.handContinuation?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
     }
     if (role === 'timeline') {
       const items = (page.items || []).map(item => `<div class="dpk-timeline-row"><b>${esc(item.year || '')}</b><i></i><span>${esc(item.text || '')}</span></div>`).join('');

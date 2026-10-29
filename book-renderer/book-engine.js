@@ -671,7 +671,7 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
+    const photoBeatWeights = { t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
     let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0;
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
@@ -899,7 +899,10 @@
           const pickShapes=list=>{const pool=[...ordinary],chosen=[];for(const want of list){const at=pool.findIndex(photoPosition=>shape(photoPosition)===want);if(at<0)return null;chosen.push(pool.splice(at,1)[0]);}return chosen;};
           const t07=[['B',['H','S','S']],['C',['V','S','S']],['F',['V','V','S']],['A',['H','H']],['E',['V','V']],['D',['S','S','S','S']]].map(([variant,list])=>({variant,indices:pickShapes(list)})).find(option=>option.indices);
           const t07Fits=Boolean(t07)&&rest.length>1200;
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
+          // T08: one truly vertical frame and at least a column of text.
+          const t08Photo=ordinary.find(photoPosition=>photoAspect(chapter.photos[photoPosition])<=.85);
+          const t08Fits=t08Photo!=null&&rest.length>900;
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
@@ -909,12 +912,20 @@
             // P01 is the author's explicit choice: portrait on the left, a short
             // name/years/role block on the right; variants rotate B → A → C.
             const photoIndex=take(portraitHeroes[0]),photo=chapter.photos[photoIndex];
-            const variant=String(photo.heroVariant||['B','A','C'][portraitCount++%3]).toUpperCase();
+            const variant=String(photo.heroVariant||['A','C'][portraitCount++%2]).toUpperCase()==='C'?'C':'A';
             const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
             spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
               left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
               right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true});
             portraitGiven=true;textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t08'){
+            const photoIndex=take(t08Photo);
+            const textPage=nextTextPage('left',{spinePhoto:{photoIndex},forceRhythm:'plain'});
+            const pause=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:textPage?.text||'',avoidAccents:usedAccents.slice()});
+            spreads.push({master:'D01-SPREAD-T08',sectionId:chapter.sectionId,left:textPage,right:pause,fixedRhythm:true});
+            textSpreadStreak=0;
             continue;
           }
           if(beat==='t07'){

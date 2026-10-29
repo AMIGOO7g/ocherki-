@@ -2579,7 +2579,7 @@ body .dpk-page.dpk-p01.dpk-p01-dark{background:#121110!important;color:#ece7de!i
 body .dpk-page.dpk-p01 .dpk-p01-portrait{position:absolute!important;margin:0!important;left:50%!important;top:max(15px,calc((var(--book-page-h,1000px) - var(--dpk-p01-h,800px)) / 2))!important;transform:translateX(-50%)!important;overflow:hidden!important}
 body .dpk-page.dpk-p01 .dpk-p01-portrait img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
 /* B and C: edges dissolve into the page (alpha mask, pixels untouched). */
-body .dpk-page.dpk-p01-b .dpk-p01-portrait img,body .dpk-page.dpk-p01-c .dpk-p01-portrait img{
+body .dpk-page.dpk-p01-c .dpk-p01-portrait img{
   /* Every edge dissolves: horizontal and vertical ramps are intersected, so
      no straight border of the source frame remains visible. */
   -webkit-mask-image:linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 16%,#000 80%,transparent 100%)!important;
@@ -2616,3 +2616,14 @@ body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-note{
   position:absolute!important;left:46px!important;right:46px!important;bottom:62px!important;
   font:italic 400 15px/1.45 'PTSerifCy',Georgia,serif!important;color:#6d655c!important}
 body .dpk-page.dpk-document-comment .dpk-document-ruled .dpk-document-source{bottom:30px!important;left:46px!important}
+
+/* T08 — TEXT COLUMN + VERTICAL PHOTO INTO GUTTER + PAUSE. Left page: outer
+   text column, white gap, photograph ending exactly at the inner edge
+   (zero white gutter), white top and bottom margins. */
+body .dpk-page.dpk-dom-paginated.dpk-t08-text .dpk-measured-flow{left:70px!important;right:520px!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 0px!important;column-gap:0!important;row-gap:0!important}
+body .dpk-page.dpk-t08-text .dpk-t08-photo{position:absolute!important;top:70px!important;bottom:70px!important;left:520px!important;right:0!important;margin:0!important;overflow:hidden!important;z-index:1!important;background:#f1efeb!important}
+body .dpk-page.dpk-t08-text .dpk-t08-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-t08-text .dpk-running{right:520px!important}
+body .dpk-page.dpk-t08 .dpk-t08-quote{position:absolute!important;left:14%!important;right:14%!important;top:50%!important;transform:translateY(-50%)!important;text-align:center!important}
+body .dpk-page.dpk-t08 .dpk-t08-quote p{margin:0!important;font:italic 400 34px/1.38 'CormorantCy',Georgia,serif!important;color:#8a7454!important}
+body .dpk-page.dpk-t08 .dpk-t08-quote i{display:block!important;width:34px!important;height:1px!important;margin:28px auto 0!important;background:#8a7454!important;opacity:.7!important}
