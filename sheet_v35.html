@@ -1665,9 +1665,13 @@ function updateCount(){
 function updateSave(){ persistSoon(); }
 function showSaved(ok){
   const d=new Date();
-  if(saveState)saveState.textContent=ok
-    ?'Черновик сохранён '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')
-    :'Не удалось сохранить — не закрывайте страницу';
+  const time=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const sync=window.OcherkiStore?.lastSync?.();
+  if(saveState)saveState.textContent=!ok
+    ?'Не удалось сохранить — не закрывайте страницу'
+    :sync?.ok?'Сохранено в аккаунте '+time
+    :sync?'Сохранено на этом компьютере '+time+' · нет связи с аккаунтом'
+    :'Черновик сохранён '+time;
 }
 // Autosave: the whole manuscript (text, pages, photos) goes to the project
 // store a moment after each change and when the tab is hidden; on start the

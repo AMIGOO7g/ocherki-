@@ -7,7 +7,7 @@
   'use strict';
 
   const DB = 'ocherki', STORE = 'projects', PHOTOS = 'photos', VERSION = 2;
-  let dbPromise = null, remote = null;
+  let dbPromise = null, remote = null, lastSync = null;
 
   function open() {
     if (dbPromise) return dbPromise;
@@ -46,11 +46,49 @@
     }
     return value;
   }
+  // The account server (server/server.js), found by asking /api/me once.
+  // Opened from disk or from a plain static server there is none, and the
+  // store works locally only.
+  const api = (url, options = {}) => fetch(url, { credentials: 'same-origin', ...options, headers: { 'X-Ocherki': '1', ...(options.headers || {}) } });
+  const serverReady = (typeof fetch === 'function' && /^https?:$/u.test(String(root.location?.protocol || '')))
+    ? api('/api/me').then(response => response.ok, () => false) : Promise.resolve(false);
+  const refsOf = value => { const refs = new Set(); (function walk(item) { if (typeof item === 'string') { if (item.startsWith(PHOTO_REF)) refs.add(item.slice(PHOTO_REF.length)); } else if (item && typeof item === 'object') Object.values(item).forEach(walk); })(value); return [...refs]; };
+  const serverAdapter = {
+    async save(id, record) {
+      const refs = refsOf(record);
+      const { missing } = await (await api('/api/photos/missing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refs }) })).json();
+      for (const ref of missing || []) {
+        const src = await tx('readonly', store => store.get(ref), PHOTOS);
+        if (src) { const put = await api(`/api/photos?ref=${encodeURIComponent(ref)}`, { method: 'PUT', body: src }); if (!put.ok) throw new Error('photo upload failed'); }
+      }
+      const response = await api(`/api/projects/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(record) });
+      if (!response.ok) throw new Error('project upload failed');
+    },
+    async load(id) {
+      const response = await api(`/api/projects/${encodeURIComponent(id)}`);
+      return response.ok ? response.json() : null;
+    },
+    async photo(ref) {
+      const response = await api(`/api/photos?ref=${encodeURIComponent(ref)}`);
+      return response.ok ? response.text() : null;
+    },
+    async remove() {}
+  };
+  const remoteReady = serverReady.then(ok => { if (ok && !remote) remote = serverAdapter; return ok; });
+
   async function attachPhotos(value) {
     const refs = new Set();
     (function walk(item) { if (typeof item === 'string') { if (item.startsWith(PHOTO_REF)) refs.add(item.slice(PHOTO_REF.length)); } else if (item && typeof item === 'object') Object.values(item).forEach(walk); })(value);
     const images = new Map();
-    await Promise.all([...refs].map(async ref => { try { const src = await tx('readonly', store => store.get(ref), PHOTOS); if (src) { images.set(ref, src); written.add(ref); } } catch (_) {} }));
+    await Promise.all([...refs].map(async ref => {
+      try {
+        let src = await tx('readonly', store => store.get(ref), PHOTOS);
+        // A photo saved on another computer comes from the account and is
+        // kept locally from then on.
+        if (!src && remote?.photo) { src = await remote.photo(ref); if (src) await tx('readwrite', store => store.put(src, ref), PHOTOS); }
+        if (src) { images.set(ref, src); written.add(ref); }
+      } catch (_) {}
+    }));
     return (function put(item) {
       if (typeof item === 'string') return item.startsWith(PHOTO_REF) ? images.get(item.slice(PHOTO_REF.length)) || '' : item;
       if (Array.isArray(item)) return item.map(put);
@@ -67,16 +105,18 @@
     if (fresh.length) await tx('readwrite', store => { for (const [ref, src] of fresh) store.put(src, ref); }, PHOTOS);
     fresh.forEach(([ref]) => written.add(ref));
     await tx('readwrite', store => store.put(record, id));
-    if (remote) { try { await remote.save(id, record); } catch (_) { /* offline: local copy is kept */ } }
+    await remoteReady;
+    if (remote) { try { await remote.save(id, record); lastSync = { ok: true, at: record.savedAt }; } catch (_) { lastSync = { ok: false, at: record.savedAt }; /* offline: local copy is kept */ } }
     return record.savedAt;
   }
 
   async function load(id) {
     let local = null, cloud = null;
-    try { local = await tx('readonly', store => store.get(id)); if (local) local = await attachPhotos(local); } catch (_) { local = null; }
+    await remoteReady;
+    try { local = await tx('readonly', store => store.get(id)); } catch (_) { local = null; }
     if (remote) { try { cloud = await remote.load(id); } catch (_) { cloud = null; } }
-    if (cloud && (!local || Number(cloud.savedAt) > Number(local.savedAt))) return cloud;
-    return local || null;
+    const newest = cloud && (!local || Number(cloud.savedAt) > Number(local.savedAt)) ? cloud : local;
+    return newest ? attachPhotos(newest) : null;
   }
 
   async function remove(id) {
@@ -86,7 +126,10 @@
 
   root.OcherkiStore = Object.freeze({
     save, load, remove,
-    // adapter: {save(id, record), load(id), remove(id)} backed by the server.
-    useRemote(adapter) { remote = adapter || null; }
+    // adapter: {save(id, record), load(id), photo(ref), remove(id)}.
+    useRemote(adapter) { remote = adapter || null; },
+    // Resolves to true when the book is also kept in the user's account.
+    signedIn() { return remoteReady; },
+    lastSync() { return lastSync; }
   });
 })(typeof window !== 'undefined' ? window : globalThis);

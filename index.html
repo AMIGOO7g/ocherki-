@@ -2088,6 +2088,12 @@
   .start-auth-card label span{font:600 10px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#9d7046}
   .start-auth-card input{width:100%;padding:11px 12px;border:1px solid rgba(107,73,43,.28);border-radius:10px;background:rgba(255,250,241,.66);color:#3d2a1e;font:14px Georgia,serif;outline:none}
   .start-auth-card input:focus{border-color:#c47c35;box-shadow:0 0 0 3px rgba(196,124,53,.16)}
+  .start-auth-card label[hidden]{display:none}
+  .start-auth-card label.start-auth-consent{flex-direction:row;align-items:flex-start;gap:9px}
+  .start-auth-card label.start-auth-consent span{font:14px/1.45 Georgia,serif;letter-spacing:0;text-transform:none;color:#5c4a3a}
+  .start-auth-card label.start-auth-consent a{color:#8f5a2e}
+  .start-auth-card label.start-auth-consent input{width:18px;height:18px;flex:0 0 18px;margin:3px 0 0;padding:0;accent-color:#a8692f}
+  #startAuthCode{font-size:24px;letter-spacing:.24em}
   .start-auth-status{min-height:18px;margin-top:10px;color:#8f5a2e;font:12px/1.4 Georgia,serif}
   .start-auth-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
   .start-auth-actions button{border:1px solid rgba(130,86,45,.38);border-radius:999px;padding:10px 14px;background:transparent;color:#7e512d;font:italic 13px Georgia,serif;cursor:pointer}
@@ -2169,11 +2175,12 @@
         <button class="start-auth-close" id="startAuthClose" type="button" aria-label="Закрыть">×</button>
         <div class="start-auth-kicker">ЛИЧНЫЙ АРХИВ</div>
         <h2 id="startAuthTitle">Войти перед началом</h2>
-        <p>После входа откроются стартовые страницы книги.</p>
+        <p id="startAuthLead">Введите почту — мы пришлём код. Пароль не нужен. Книга будет доступна с любого компьютера.</p>
         <label><span>Почта</span><input id="startAuthEmail" type="email" autocomplete="email" placeholder="name@example.com" required></label>
-        <label><span>Пароль</span><input id="startAuthPassword" type="password" autocomplete="current-password" placeholder="••••••••" required></label>
+        <label id="startAuthCodeField" hidden><span>Код из письма</span><input id="startAuthCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456"></label>
+        <label class="start-auth-consent" id="startAuthConsentField"><input id="startAuthConsent" type="checkbox"> <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике конфиденциальности</a></span></label>
         <div class="start-auth-status" id="startAuthStatus" aria-live="polite"></div>
-        <div class="start-auth-actions"><button type="button" id="startAuthGuest">Продолжить без входа</button><button type="submit">Войти</button></div>
+        <div class="start-auth-actions"><button type="button" id="startAuthGuest">Продолжить без входа</button><button type="submit" id="startAuthSubmit">Получить код</button></div>
       </form>
     </div>
 
@@ -2658,16 +2665,50 @@
         }
       });
       startAuthGuest?.addEventListener("click", releaseStartAuth);
-      startAuthForm?.addEventListener("submit", event => {
+      // Sign-in by a code sent to the e-mail (server/server.js). Step one
+      // asks for the code, step two checks it; the server sets the session.
+      const startAuthCode = document.getElementById("startAuthCode");
+      const startAuthCodeField = document.getElementById("startAuthCodeField");
+      const startAuthConsent = document.getElementById("startAuthConsent");
+      const startAuthConsentField = document.getElementById("startAuthConsentField");
+      const startAuthSubmit = document.getElementById("startAuthSubmit");
+      const startAuthLead = document.getElementById("startAuthLead");
+      const say = text => { if (startAuthStatus) startAuthStatus.textContent = text; };
+      const authCall = async (path, body) => {
+        const response = await fetch(path, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-Ocherki": "1" }, body: JSON.stringify(body) });
+        let data = {}; try { data = await response.json(); } catch (_) {}
+        return { ok: response.ok, status: response.status, data };
+      };
+      let codeSentTo = "";
+      startAuthForm?.addEventListener("submit", async event => {
         event.preventDefault();
         const email = startAuthEmail?.value.trim() || "";
-        if (!email || !startAuthPassword?.value) {
-          if (startAuthStatus) startAuthStatus.textContent = "Заполните почту и пароль.";
+        if (!codeSentTo) {
+          if (!email) { say("Введите адрес почты."); return; }
+          if (!startAuthConsent?.checked) { say("Отметьте согласие на обработку данных."); return; }
+          say("Отправляем код…");
+          let result;
+          try { result = await authCall("/api/auth/request", { email }); } catch (_) { result = { ok: false, status: 0, data: {} }; }
+          if (result.status === 404 || result.status === 0 || result.status === 405 || result.status === 501) { say("Вход сейчас недоступен. Можно продолжить без входа — книга сохранится на этом компьютере."); return; }
+          if (!result.ok) { say(result.data.error || "Не удалось отправить код."); return; }
+          codeSentTo = email;
+          if (startAuthCodeField) startAuthCodeField.hidden = false;
+          if (startAuthConsentField) startAuthConsentField.hidden = true;
+          if (startAuthEmail) startAuthEmail.readOnly = true;
+          if (startAuthSubmit) startAuthSubmit.textContent = "Войти";
+          if (startAuthLead) startAuthLead.textContent = `Мы отправили код на ${email}. Письмо приходит за минуту; проверьте и папку «Спам».`;
+          say("");
+          window.setTimeout(() => startAuthCode?.focus(), 40);
           return;
         }
-        try { localStorage.setItem("ocherki_auth_email", email); } catch (_) {}
-        if (startAuthStatus) startAuthStatus.textContent = "Данные готовы к синхронизации.";
-        if (startAuthPassword) startAuthPassword.value = "";
+        const code = (startAuthCode?.value || "").replace(/\D/g, "");
+        if (code.length !== 6) { say("В коде шесть цифр."); return; }
+        say("Проверяем…");
+        let result;
+        try { result = await authCall("/api/auth/verify", { email: codeSentTo, code }); } catch (_) { result = { ok: false, data: {} }; }
+        if (!result.ok) { say(result.data.error || "Не удалось войти."); return; }
+        try { localStorage.setItem("ocherki_auth_email", codeSentTo); } catch (_) {}
+        say("Готово. Книга сохраняется в вашем аккаунте.");
         window.setTimeout(releaseStartAuth, 420);
       });
 

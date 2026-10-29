@@ -1,0 +1,10 @@
+{
+  "name": "ocherki-server",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Очерки жизни: вход по коду на почту и хранение книг",
+  "main": "server.js",
+  "engines": { "node": ">=22.5" },
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "nodemailer": "6.9.16" }
+}
