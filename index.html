@@ -2094,6 +2094,12 @@
   .start-auth-card label.start-auth-consent a{color:#8f5a2e}
   .start-auth-card label.start-auth-consent input{width:18px;height:18px;flex:0 0 18px;margin:3px 0 0;padding:0;accent-color:#a8692f}
   #startAuthCode{font-size:24px;letter-spacing:.24em}
+  .start-auth-resend{display:flex;justify-content:space-between;gap:12px;margin:2px 0 4px}
+  .start-auth-resend[hidden]{display:none}
+  .start-auth-resend button{border:0;background:none;padding:4px 0;color:#8f5a2e;font:14px Georgia,serif;text-decoration:underline;cursor:pointer}
+  .start-auth-resend button:disabled{color:#a99784;text-decoration:none;cursor:default}
+  .start-auth-links{margin-top:14px;text-align:center;font:12px Georgia,serif;color:#a99784}
+  .start-auth-links a{color:#8f7a64}
   .start-auth-status{min-height:18px;margin-top:10px;color:#8f5a2e;font:12px/1.4 Georgia,serif}
   .start-auth-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
   .start-auth-actions button{border:1px solid rgba(130,86,45,.38);border-radius:999px;padding:10px 14px;background:transparent;color:#7e512d;font:italic 13px Georgia,serif;cursor:pointer}
@@ -2180,7 +2186,9 @@
         <label id="startAuthCodeField" hidden><span>Код из письма</span><input id="startAuthCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456"></label>
         <label class="start-auth-consent" id="startAuthConsentField"><input id="startAuthConsent" type="checkbox"> <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике конфиденциальности</a></span></label>
         <div class="start-auth-status" id="startAuthStatus" aria-live="polite"></div>
+        <div class="start-auth-resend" id="startAuthResend" hidden><button type="button" id="startAuthResendBtn" disabled>Отправить код ещё раз</button><button type="button" id="startAuthChange">Изменить почту</button></div>
         <div class="start-auth-actions"><button type="button" id="startAuthGuest">Продолжить без входа</button><button type="submit" id="startAuthSubmit">Получить код</button></div>
+        <div class="start-auth-links"><a href="privacy.html" target="_blank" rel="noopener">Конфиденциальность</a> · <a href="credits.html" target="_blank" rel="noopener">Источники данных</a></div>
       </form>
     </div>
 
@@ -2679,25 +2687,64 @@
         let data = {}; try { data = await response.json(); } catch (_) {}
         return { ok: response.ok, status: response.status, data };
       };
-      let codeSentTo = "";
+      let codeSentTo = "", resendTimer = 0;
+      const startAuthResend = document.getElementById("startAuthResend");
+      const startAuthResendBtn = document.getElementById("startAuthResendBtn");
+      // The code lives 10 minutes; a new one can be asked for after a
+      // minute, with the countdown on the button.
+      const startResendCountdown = seconds => {
+        window.clearInterval(resendTimer);
+        let left = Math.max(1, Number(seconds) || 60);
+        const tick = () => {
+          if (!startAuthResendBtn) return;
+          if (left <= 0) { window.clearInterval(resendTimer); startAuthResendBtn.disabled = false; startAuthResendBtn.textContent = "Отправить код ещё раз"; return; }
+          startAuthResendBtn.disabled = true;
+          startAuthResendBtn.textContent = `Отправить ещё раз через 0:${String(left).padStart(2, "0")}`;
+          left -= 1;
+        };
+        tick(); resendTimer = window.setInterval(tick, 1000);
+      };
+      const requestCode = async email => {
+        say("Отправляем код…");
+        let result;
+        try { result = await authCall("/api/auth/request", { email }); } catch (_) { result = { ok: false, status: 0, data: {} }; }
+        if (result.status === 404 || result.status === 0 || result.status === 405 || result.status === 501) { say("Вход сейчас недоступен. Можно продолжить без входа — книга сохранится на этом компьютере."); return false; }
+        if (result.data.retryIn) startResendCountdown(result.data.retryIn);
+        if (!result.ok) { say(result.data.error || "Не удалось отправить код."); return false; }
+        say("");
+        return true;
+      };
+      const showEmailStep = () => {
+        codeSentTo = "";
+        window.clearInterval(resendTimer);
+        if (startAuthCodeField) startAuthCodeField.hidden = true;
+        if (startAuthResend) startAuthResend.hidden = true;
+        if (startAuthConsentField) startAuthConsentField.hidden = false;
+        if (startAuthEmail) { startAuthEmail.readOnly = false; startAuthEmail.focus(); }
+        if (startAuthCode) startAuthCode.value = "";
+        if (startAuthSubmit) startAuthSubmit.textContent = "Получить код";
+        if (startAuthLead) startAuthLead.textContent = "Введите почту — мы пришлём код. Пароль не нужен. Книга будет доступна с любого компьютера.";
+        say("");
+      };
+      startAuthResendBtn?.addEventListener("click", async () => {
+        if (!codeSentTo) return;
+        if (await requestCode(codeSentTo)) { say("Новый код отправлен. Прежний больше не действует."); startAuthCode?.focus(); }
+      });
+      document.getElementById("startAuthChange")?.addEventListener("click", showEmailStep);
       startAuthForm?.addEventListener("submit", async event => {
         event.preventDefault();
         const email = startAuthEmail?.value.trim() || "";
         if (!codeSentTo) {
           if (!email) { say("Введите адрес почты."); return; }
           if (!startAuthConsent?.checked) { say("Отметьте согласие на обработку данных."); return; }
-          say("Отправляем код…");
-          let result;
-          try { result = await authCall("/api/auth/request", { email }); } catch (_) { result = { ok: false, status: 0, data: {} }; }
-          if (result.status === 404 || result.status === 0 || result.status === 405 || result.status === 501) { say("Вход сейчас недоступен. Можно продолжить без входа — книга сохранится на этом компьютере."); return; }
-          if (!result.ok) { say(result.data.error || "Не удалось отправить код."); return; }
+          if (!await requestCode(email)) return;
           codeSentTo = email;
           if (startAuthCodeField) startAuthCodeField.hidden = false;
+          if (startAuthResend) startAuthResend.hidden = false;
           if (startAuthConsentField) startAuthConsentField.hidden = true;
           if (startAuthEmail) startAuthEmail.readOnly = true;
           if (startAuthSubmit) startAuthSubmit.textContent = "Войти";
-          if (startAuthLead) startAuthLead.textContent = `Мы отправили код на ${email}. Письмо приходит за минуту; проверьте и папку «Спам».`;
-          say("");
+          if (startAuthLead) startAuthLead.textContent = `Мы отправили код на ${email}. Письмо приходит за минуту, код действует 10 минут. Если письма нет — загляните в «Спам».`;
           window.setTimeout(() => startAuthCode?.focus(), 40);
           return;
         }

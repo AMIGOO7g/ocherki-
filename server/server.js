@@ -33,6 +33,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires_at INTEGER NOT NULL);
   CREATE TABLE IF NOT EXISTS projects (user_id INTEGER NOT NULL, id TEXT NOT NULL, body TEXT NOT NULL, saved_at INTEGER NOT NULL, PRIMARY KEY (user_id, id));
   CREATE TABLE IF NOT EXISTS sends (ip TEXT NOT NULL, at INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS email_sends (email TEXT NOT NULL, at INTEGER NOT NULL);
 `);
 
 const hmac = value => crypto.createHmac('sha256', SECRET).update(value).digest('hex');
@@ -78,15 +79,20 @@ async function api(req, res, url) {
     const email = normEmail(raw), now = Date.now(), ip = clientIp(req);
     if (!validEmail(email)) return send(res, 400, { error: 'Проверьте адрес почты.' });
     const last = db.prepare('SELECT sent_at FROM codes WHERE email = ?').get(email);
-    if (last && now - last.sent_at < 60 * 1000) return send(res, 429, { error: 'Код уже отправлен. Новый можно запросить через минуту.' });
+    if (last && now - last.sent_at < 60 * 1000) return send(res, 429, { error: 'Код уже отправлен. Новый можно запросить через минуту.', retryIn: Math.ceil((60 * 1000 - (now - last.sent_at)) / 1000) });
+    // Limits against bots and mail flooding: a new code once a minute,
+    // five letters an hour to one address, ten an hour from one IP.
     db.prepare('DELETE FROM sends WHERE at < ?').run(now - 60 * 60 * 1000);
+    db.prepare('DELETE FROM email_sends WHERE at < ?').run(now - 60 * 60 * 1000);
+    if (db.prepare('SELECT COUNT(*) AS n FROM email_sends WHERE email = ?').get(email).n >= 5) return send(res, 429, { error: 'На этот адрес уже отправлено много кодов. Попробуйте через час.' });
     if (db.prepare('SELECT COUNT(*) AS n FROM sends WHERE ip = ?').get(ip).n >= 10) return send(res, 429, { error: 'Слишком много запросов. Попробуйте через час.' });
     const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
     db.prepare('INSERT INTO codes (email, hash, expires_at, attempts, sent_at) VALUES (?, ?, ?, 0, ?) ON CONFLICT(email) DO UPDATE SET hash = excluded.hash, expires_at = excluded.expires_at, attempts = 0, sent_at = excluded.sent_at')
       .run(email, hmac(`${email}:${code}`), now + CODE_TTL, now);
     db.prepare('INSERT INTO sends (ip, at) VALUES (?, ?)').run(ip, now);
+    db.prepare('INSERT INTO email_sends (email, at) VALUES (?, ?)').run(email, now);
     try { await sendCode(email, code); } catch (error) { console.error('mail:', error.message); return send(res, 502, { error: 'Не удалось отправить письмо. Попробуйте позже.' }); }
-    return send(res, 200, { ok: true });
+    return send(res, 200, { ok: true, retryIn: 60 });
   }
 
   if (url.pathname === '/api/auth/verify' && req.method === 'POST') {
