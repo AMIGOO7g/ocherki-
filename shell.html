@@ -2841,6 +2841,19 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   .bd-photo-mode-option.is-active{border-color:rgba(226,183,121,.85);background:rgba(226,183,121,.12)}
   .bd-photo-mode-hint{font-size:11px;line-height:1.3;opacity:.62}
   .bd-design-card.is-soon{opacity:.42;cursor:default;filter:grayscale(.4)}
+  .bd-book-rhythm{margin:0 0 18px}
+  .bd-rhythm-strip{display:flex;gap:3px;height:16px;align-items:stretch}
+  .bd-rhythm-strip i,.bd-rhythm-legend i{flex:1 1 0;border-radius:2px;display:block}
+  .bd-rhythm-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:11px;opacity:.7}
+  .bd-rhythm-legend span{display:flex;align-items:center;gap:5px}
+  .bd-rhythm-legend i{width:12px;height:10px;flex:none}
+  .bd-rhythm-text{background:rgba(236,226,210,.55)}
+  .bd-rhythm-photo{background:#c9a26b}
+  .bd-rhythm-pause{background:transparent;box-shadow:inset 0 0 0 1px rgba(236,226,210,.6)}
+  .bd-rhythm-open{background:#efe3cf}
+  .bd-rhythm-dark{background:#1b1714;box-shadow:inset 0 0 0 1px rgba(236,226,210,.35)}
+  .bd-book-tips{margin:12px 0 0;padding:0 0 0 18px;font-size:13px;line-height:1.45;opacity:.9}
+  .bd-book-tips li{margin:0 0 6px}
   .bd-soon{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-top:2px}
 </style>
     <section class="bd-section">
@@ -6471,6 +6484,29 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     return `<div class="bd-page-mini ${side}${single?' single':''} page-canvas-host" data-source="${esc(p.sourcePageUid)}" data-section="${esc(p.sectionId)}"><div class="page-canvas">${inner}</div></div>`;
   }
 
+  // A strip showing how the book breathes (text, photo, pause, dark accent,
+  // chapter/episode openings) and up to three plain-language tips about the
+  // material, shown above the spread thumbnails.
+  function bookAdviceMarkup(){
+    if(activeDesign!=='editorial')return '';
+    const kind=sp=>{
+      const m=String(sp.master||''),pages=[sp.left,sp.right].filter(Boolean);
+      if(/CHAPTER|EPISODE-OPENING/.test(m))return ['open','Открытие главы или эпизода'];
+      if(pages.some(p=>p.p01Variant==='C'||p.t12Tone==='B'))return ['dark','Тёмный акцент'];
+      if(/T08|CONTINUATION|ENDPAPER|NOTES|DEDICATION|EPIGRAPH|TITLES|CONTENTS|AFTERWORD|SOURCES|COLOPHON|INTRO/.test(m))return ['pause','Пауза'];
+      if(pages.some(p=>p.measuredFlow)&&!pages.some(p=>!p.measuredFlow&&p.kind!=='blank'))return ['text','Текст'];
+      return ['photo','Фото'];
+    };
+    const strip=bookSpreads.map((sp,i)=>{const [k,t]=kind(sp);return `<i class="bd-rhythm-${k}" title="Разворот ${i+1}: ${t}"></i>`;}).join('');
+    const tips=[];
+    const chapterSections=(structure?.sections||[]).filter(s=>s&&s.type==='chapter'&&s.included!==false);
+    const allPhotos=chapterSections.flatMap(s=>(s.pages||[]).flatMap(p=>p.photos||[]));
+    chapterSections.filter(s=>(s.pages||[]).some(p=>String(p.text||'').trim())&&!(s.pages||[]).some(p=>(p.photos||[]).length)).slice(0,1).forEach(s=>tips.push(`В главе «${esc(String(s.title||'').replace(/^Глава\s+\d+[.:]?\s*/i,''))}» нет фотографий — добавьте хотя бы одну, и глава станет живее.`));
+    if(allPhotos.length>=3&&!allPhotos.some(p=>p.portraitHero))tips.push('Отметьте в окне фото «Портрет героя книги» — книга выделит этого человека отдельным разворотом.');
+    const noCaption=allPhotos.filter(p=>!p.caption&&!p.year&&!p.place).length;
+    if(noCaption)tips.push(`У ${noCaption} фото нет подписи. Подпись, год и место появятся внизу страницы рядом с фото.`);
+    return `<div class="bd-book-rhythm"><div class="bd-rhythm-strip" aria-label="Ритм книги">${strip}</div><div class="bd-rhythm-legend"><span><i class="bd-rhythm-text"></i>текст</span><span><i class="bd-rhythm-photo"></i>фото</span><span><i class="bd-rhythm-pause"></i>пауза</span><span><i class="bd-rhythm-open"></i>открытие</span><span><i class="bd-rhythm-dark"></i>тёмный</span></div>${tips.length?`<ul class="bd-book-tips">${tips.slice(0,3).map(t=>`<li>${t}</li>`).join('')}</ul>`:''}</div>`;
+  }
   function renderRightPanel(){
     if(!rowsEl)return;
     if(!built){
@@ -6502,7 +6538,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         <div class="bd-spread-pair">${items}</div>
       </div>`);
     }
-    rowsEl.innerHTML=rowMarkup.join('');
+    rowsEl.innerHTML=bookAdviceMarkup()+rowMarkup.join('');
     updateRhythmWarning();
     // Decode the visible spread first; the rest of the editorial stack may
     // remain deferred without making the active sheet appear translucent.
