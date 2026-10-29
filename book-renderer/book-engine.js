@@ -1122,6 +1122,36 @@
         spread.chapterClosing=true;
       }
     });
+    // I01 — family chronology: one horizontal axis across the spread. Events
+    // come from the «Хронология» section, one per line («1921 — Владикавказ —
+    // Новый этап»); without them, from photographs that carry a year. The
+    // spread appears only with at least three events.
+    if(byId('timeline')){
+      const lines=String(byId('timeline').pages?.find(page=>page.included!==false)?.text||'').split(/\r?\n/u);
+      const events=[];
+      for(const line of lines){
+        const match=line.match(/^\s*(\d{4})\s*(?:[—–-]+\s*|[.,:]\s*|\s+)(.+)$/u);if(!match)continue;
+        const parts=match[2].split(/\s+[—–-]+\s+/u).map(part=>part.trim()).filter(Boolean);
+        events.push({year:match[1],place:parts.length>1?parts[0]:'',text:parts.length>1?parts.slice(1).join(' — '):parts[0]||''});
+      }
+      if(events.length<3){
+        for(const chapter of chapters)chapter.photos.forEach((photo,photoIndex)=>{
+          const year=String(photo.year||'').match(/\d{4}/u)?.[0];if(!year||!imageSource(photo))return;
+          events.push({year,place:String(photo.place||'').trim()||String(photo.caption||'').trim(),text:String(photo.place||'').trim()?String(photo.caption||'').trim():'',photo:{source:chapter,photoIndex}});
+        });
+      }
+      const byYear=new Map();for(const event of events)if(!byYear.has(event.year))byYear.set(event.year,event);
+      const withPhotos=[...byYear.values()].filter(event=>event.photo).length>=4;
+      const chosen=[...byYear.values()].sort((a,b)=>Number(a.year)-Number(b.year));
+      const limit=withPhotos?6:7,picked=chosen.length>limit?Array.from({length:limit},(_,i)=>chosen[Math.round(i*(chosen.length-1)/(limit-1))]):chosen;
+      if(picked.length>=3){
+        const timelinePage=byId('timeline').pages?.find(page=>page.included!==false)||{};
+        const custom=String(timelinePage.title||'').trim();
+        const i01={events:picked.map(event=>({year:event.year,place:event.place,text:event.text,photoSrc:withPhotos&&event.photo?imageSource(event.photo.source.photos[event.photo.photoIndex]):''})),
+          title:custom&&custom!=='Хронология'?custom:'Путь нашей семьи',subtitle:'Главные события и места',withPhotos,pageFormat:meta.format||'square'};
+        spreads.push({master:'D01-SPREAD-I01-TIMELINE',left:P('i01-timeline',{layout:'i01-timeline',master:'D01-I01',meta:bookMeta,i01}),right:P('i01-timeline',{layout:'i01-timeline',master:'D01-I01',meta:bookMeta,i01})});
+      }
+    }
     if(hasMatter('afterword')||hasMatter('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
     if(hasMatter('sources')||byId('colophon')){
       const fields=fieldValues(byId('colophon'),4);

@@ -93,6 +93,7 @@
     if (layout === 't12-photo' || kind === 't12-photo') return 't12-photo';
     if (layout === 'episode-photo' || kind === 'episode-photo') return 'episode-photo';
     if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
+    if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -414,6 +415,30 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'i01-timeline') {
+      // One thin axis across the whole spread (each page draws its part);
+      // events read left to right, earlier to later, half on each page so
+      // nothing sits on the fold.
+      const data=page.i01||{events:[]},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000,offset=pageSide==='left'?0:1000;
+      const events=data.events||[],leftCount=Math.ceil(events.length/2),axisY=Math.round(formatH*(data.withPhotos?.6:.47));
+      // Each page gets 820px of usable width; an event's column is its step
+      // minus a gutter, so neighbouring captions never touch.
+      const rightCount=events.length-leftCount,stepOf=n=>Math.round(820/Math.max(1,n));
+      const xOf=i=>i<leftCount?110+i*stepOf(leftCount):1080+(i-leftCount)*stepOf(rightCount);
+      const colOf=i=>Math.min(210,stepOf(i<leftCount?leftCount:rightCount)-34);
+      const parts=[`<div class="dpk-i01-axis" style="top:${axisY}px;left:${pageSide==='left'?70:0}px;right:${pageSide==='left'?0:70}px"></div>`];
+      if(pageSide==='left')parts.push(`<div class="dpk-i01-head"><h1>${esc(data.title||'')}</h1>${data.subtitle?`<p>${esc(data.subtitle)}</p>`:''}</div>`);
+      else parts.push(`<div class="dpk-i01-more" style="top:${axisY-12}px">· · · · ·</div>`);
+      events.forEach((event,i)=>{
+        const x=xOf(i)-offset;if(x<-40||x>1040)return;
+        const col=colOf(i),photo=data.withPhotos&&event.photoSrc?`<span class="dpk-i01-photo" style="top:${axisY-190}px;width:${col}px"><img src="${esc(event.photoSrc)}" alt="" loading="eager" decoding="async"></span>`:'';
+        parts.push(`<div class="dpk-i01-event" style="left:${x}px">`
+          +`<b class="dpk-i01-year" style="top:${axisY-(data.withPhotos?262:78)}px">${esc(event.year)}</b>${photo}`
+          +`<i class="dpk-i01-dot" style="top:${axisY-5}px"></i>`
+          +`<span class="dpk-i01-text" style="top:${axisY+34}px;width:${col}px">${event.place?`<strong>${esc(event.place)}</strong>`:''}${event.text?`<em>${esc(event.text)}</em>`:''}</span></div>`);
+      });
+      return article('D01-I01',parts.join(''),'dpk-i01');
     }
     if (role === 'notes-page') {
       // Ruled pages left empty for the family to write in; the left page opens
