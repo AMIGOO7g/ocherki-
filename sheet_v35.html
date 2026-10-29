@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Очерки жизни — лист v8 refined</title>
 <script src="book-renderer/editor-source-bridge.js"></script>
+<script src="book-renderer/project-store.js"></script>
 <style>
 :root{
  --paper:#f7efe2; --paper2:#efe0ca; --ink:#3b2a20; --muted:#8e7a69;
@@ -1660,11 +1661,51 @@ function updateCount(){
     wordCount.textContent=n+' '+wordForm(n);
   }
 }
-function updateSave(){
+// «Черновик сохранён» is shown only after the store confirms the write.
+function updateSave(){ persistSoon(); }
+function showSaved(ok){
   const d=new Date();
-  if(saveState){
-    saveState.textContent='Черновик сохранён '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  }
+  if(saveState)saveState.textContent=ok
+    ?'Черновик сохранён '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')
+    :'Не удалось сохранить — не закрывайте страницу';
+}
+// Autosave: the whole manuscript (text, pages, photos) goes to the project
+// store a moment after each change and when the tab is hidden; on start the
+// last saved copy is restored.
+var PROJECT_ID='current';
+var persistTimer=0, projectRestoring=true;
+function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,sections};}
+function persistSoon(){clearTimeout(persistTimer);persistTimer=setTimeout(persistNow,700);}
+function persistNow(){
+  clearTimeout(persistTimer);
+  if(projectRestoring||!window.OcherkiStore)return Promise.resolve();
+  return window.OcherkiStore.save(PROJECT_ID,projectSnapshot()).then(()=>showSaved(true),()=>showSaved(false));
+}
+window.__ocherkiPersistSoon=persistSoon;
+window.__ocherkiPersistNow=persistNow;
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistNow();});
+window.addEventListener('pagehide',()=>persistNow());
+function restoreProject(){
+  if(!window.OcherkiStore){projectRestoring=false;return;}
+  window.OcherkiStore.load(PROJECT_ID).then(record=>{
+    if(record&&Array.isArray(record.sections)&&record.sections.length){
+      // Sections added to the constructor after the save (a new optional
+      // page) are put back in their usual place.
+      const saved=record.sections.slice(),ids=new Set(saved.map(section=>section.id));
+      sections.forEach((section,index)=>{
+        if(ids.has(section.id)||section.type==='chapter')return;
+        const before=sections.slice(0,index).reverse().find(item=>ids.has(item.id));
+        saved.splice(before?saved.findIndex(item=>item.id===before.id)+1:0,0,section);ids.add(section.id);
+      });
+      sections.splice(0,sections.length,...saved);
+      activeSection=Math.max(0,Math.min(sections.length-1,Number(record.activeSection)||0));
+      if(Number(record.fontSize))fontSize=Number(record.fontSize);
+      if(Number(record.lineHeight))lineHeight=Number(record.lineHeight);
+      render();
+      try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
+      showSaved(true);
+    }
+  }).catch(()=>{}).finally(()=>{projectRestoring=false;});
 }
 
 function stackSequence(){
@@ -2396,6 +2437,7 @@ function updatePageFill(){
   if(bar) bar.style.width='0';
 }
 
+editor.addEventListener('input',()=>persistSoon());
 editor.addEventListener('input',()=>{
   const p=currentPage();
   if(!p) return;
@@ -3620,7 +3662,7 @@ window.addEventListener('wheel' ,e=>{
 
 document.getElementById('photoCloseX').onclick=()=>closePhoto(false); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
-render(); updateSave();
+render(); restoreProject();
 </script>
 
 <script>
@@ -3777,6 +3819,7 @@ window.addEventListener('message',e=>{
   }
 
   function emitStructure(){
+    try{ window.__ocherkiPersistSoon?.(); }catch(_){ }
     try{ window.parent.postMessage({type:'OCHERKI_STRUCTURE_STATE', payload:state()}, '*'); }catch(_){ }
   }
   function emitActiveState(){
@@ -4030,6 +4073,7 @@ window.addEventListener('message',e=>{
     else if(a === 'reorderPages') reorderPages(d.sectionId, d.ids);
     else if(a === 'saveProject') {
       saveEditor();
+      window.__ocherkiPersistNow?.();
       try{
         localStorage.setItem('ocherki_project_v1', JSON.stringify({
           savedAt:Date.now(), activeSection, fontSize, lineHeight, sections
