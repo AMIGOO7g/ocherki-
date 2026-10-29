@@ -1363,6 +1363,43 @@
           right:P('recipe-right',{layout:'recipe-right',master:'D01-RECIPE-RIGHT',meta:bookMeta,recipe})});
       }
     }
+    // «Вопросы и ответы»: a conversation with the hero. A line ending with
+    // «?» is a question, the lines under it the answer; lines before the
+    // first question are a short introduction. Laid out over as many pages
+    // as it needs by an estimate of each paragraph's height; a paragraph
+    // that does not fit is carried over sentence by sentence.
+    const interviewSource=byId('interview')?.pages?.find(page=>page.included!==false);
+    if(interviewSource&&/\?\s*$/mu.test(String(interviewSource.text||''))){
+      const blocks=[];
+      for(const raw of String(interviewSource.text).split(/\r?\n/u)){
+        const line=raw.trim();if(!line)continue;
+        if(/\?$/u.test(line))blocks.push({kind:'q',text:line});
+        else blocks.push({kind:blocks.some(block=>block.kind==='q')?'a':'intro',text:line});
+      }
+      const H=(meta.format||'square')==='portrait'?1196:1000,perLine=66;
+      const heightOf=block=>{const font=block.kind==='q'?20:block.kind==='intro'?21:19,lead=block.kind==='q'?1.35:1.55;return Math.ceil(block.text.length/(block.kind==='q'?58:perLine))*font*lead+(block.kind==='q'?30:16);};
+      const pages=[];let current=[],room=H-330;
+      const place=block=>{
+        const need=heightOf(block);
+        if(need<=room||(!current.length&&need<=H-220)){current.push(block);room-=need;return;}
+        // A question never ends a page; a long answer splits by sentences.
+        if(block.kind!=='q'&&room>120){
+          const sentences=block.text.match(/[^.!?…]+[.!?…]+[»"”)]*\s*|[^.!?…]+$/gu)||[block.text];
+          let head='';
+          while(sentences.length&&heightOf({kind:block.kind,text:head+sentences[0]})<=room)head+=sentences.shift();
+          if(head.trim()){current.push({...block,text:head.trim()});block={...block,text:sentences.join('').trim(),cont:true};}
+        }
+        if(current.at(-1)?.kind==='q'){const q=current.pop();pages.push(current);current=[q];}else{pages.push(current);current=[];}
+        room=H-200-current.reduce((sum,item)=>sum+heightOf(item),0);
+        if(block.text)place(block);
+      };
+      blocks.forEach(place);
+      if(current.length)pages.push(current);
+      if(pages.length%2)pages.push([]);
+      const heading=String(interviewSource.title||'').trim()||'Вопросы и ответы';
+      for(let i=0;i<pages.length&&i<12;i+=2)
+        spreads.push({master:'D01-SPREAD-INTERVIEW',left:P('interview-page',{layout:'interview-page',master:'D01-INTERVIEW',meta:bookMeta,blocks:pages[i],heading:i===0?heading:''}),right:P('interview-page',{layout:'interview-page',master:'D01-INTERVIEW',meta:bookMeta,blocks:pages[i+1],heading:''})});
+    }
     // I01 — family chronology: one horizontal axis across the spread. Events
     // come from the «Хронология» section, one per line («1921 — Владикавказ —
     // Новый этап»); without them, from photographs that carry a year. The
@@ -2573,7 +2610,7 @@
       // masters; treating two text spreads as an error made the QA reject the
       // very low-photo/high-text fallback the director is designed to support.
       const repeatedText = ['D01-SPREAD-TEXT','D01-SPREAD-TEXT-QUOTE','D01-SPREAD-TEXT-RHYTHM'].includes(spread.master);
-      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && spread.master !== 'D01-SPREAD-THEN-NOW' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
+      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && spread.master !== 'D01-SPREAD-THEN-NOW' && spread.master !== 'D01-SPREAD-INTERVIEW' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
       if (index && spread.master === 'D01-SPREAD-PHOTO-TEXT' && spreads[index - 1].master === 'D01-SPREAD-PHOTO-TEXT') violations.push({ rule: 'photo-text-rhythm', spread: index + 1 });
       if(index&&isHeavySpread(spread.master)&&isHeavySpread(spreads[index-1].master))violations.push({rule:'heavy-spread-rhythm',spread:index+1,master:spread.master});
       [spread.left, spread.right].filter(Boolean).forEach(page => {

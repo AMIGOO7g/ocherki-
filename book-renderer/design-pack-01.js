@@ -101,6 +101,7 @@
     if (layout === 'voices-page' || kind === 'voices-page') return 'voices-page';
     if (layout === 'recipe-left' || kind === 'recipe-left') return 'recipe-left';
     if (layout === 'then-now' || kind === 'then-now') return 'then-now';
+    if (layout === 'interview-page' || kind === 'interview-page') return 'interview-page';
     if (layout === 'recipe-right' || kind === 'recipe-right') return 'recipe-right';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
@@ -676,6 +677,12 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'interview-page') {
+      // «Вопросы и ответы»: questions set apart in a darker, firmer face,
+      // answers in the book's text face; the first page carries the heading.
+      const blocks=page.blocks||[];
+      return article('D01-INTERVIEW',`<div class="dpk-interview${page.heading?' has-head':''}">${page.heading?`<h2>${esc(page.heading)}</h2>`:''}${blocks.map(block=>block.kind==='q'?`<p class="dpk-q">${esc(block.text)}</p>`:`<p class="dpk-${block.kind==='intro'?'intro':'a'}">${esc(block.text)}</p>`).join('')}</div>`,'dpk-interview-page');
     }
     if (role === 'then-now') {
       // «Было — стало»: both photos the same height on the same line, each

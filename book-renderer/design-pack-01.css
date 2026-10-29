@@ -2836,3 +2836,12 @@ body .dpk-page.dpk-thennow .dpk-thennow-label{position:absolute!important;font:4
 body .dpk-page.dpk-thennow .dpk-thennow-text{position:absolute!important}
 body .dpk-page.dpk-thennow .dpk-thennow-text b{display:block!important;font:400 54px/1 'CormorantCy',Georgia,serif!important;color:#24221f!important;margin-bottom:12px!important}
 body .dpk-page.dpk-thennow .dpk-thennow-text span{display:block!important;font:italic 400 17px/1.4 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
+
+/* «Вопросы и ответы» */
+body .dpk-page.dpk-interview-page{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-interview-page .dpk-interview{position:absolute!important;left:140px!important;right:140px!important;top:110px!important}
+body .dpk-page.dpk-interview-page .dpk-interview h2{margin:0 0 34px!important;font:400 52px/1.1 'CormorantCy',Georgia,serif!important;color:#24221f!important}
+body .dpk-page.dpk-interview-page .dpk-intro{margin:0 0 26px!important;font:italic 400 21px/1.55 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
+body .dpk-page.dpk-interview-page .dpk-q{margin:28px 0 10px!important;font:700 20px/1.35 'PTSerifCy',Georgia,serif!important;color:#6b4a2e!important}
+body .dpk-page.dpk-interview-page .dpk-q:first-child{margin-top:0!important}
+body .dpk-page.dpk-interview-page .dpk-a{margin:0 0 .6em!important;font:400 19px/1.55 'PTSerifCy',Georgia,serif!important;color:#2b2622!important;text-indent:0!important}
