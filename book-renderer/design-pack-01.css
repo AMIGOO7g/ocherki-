@@ -2803,3 +2803,14 @@ body .dpk-page.dpk-who .dpk-who-list.two{column-count:2!important;column-gap:40p
 body .dpk-page.dpk-who .dpk-who-list li{break-inside:avoid!important;display:flex!important;gap:14px!important;align-items:baseline!important;margin:0 0 14px!important;font:400 20px/1.35 'PTSerifCy',Georgia,serif!important;color:#2b2622!important}
 body .dpk-page.dpk-who .dpk-who-list li span{flex:0 0 26px!important;height:26px!important;border-radius:50%!important;border:1px solid #9a9086!important;font:600 13px/24px 'PTSerifCy',serif!important;text-align:center!important;color:#3a3631!important;box-sizing:border-box!important}
 body .dpk-page.dpk-who .dpk-who-story{margin:30px 0 0!important;padding-top:22px!important;border-top:1px solid rgba(60,50,40,.18)!important;font:italic 400 18px/1.55 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
+
+/* «Голоса семьи»: memories of different people, signed */
+body .dpk-page.dpk-voices-page{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-voices-page .dpk-voices{position:absolute!important;left:150px!important;right:150px!important;top:110px!important}
+body .dpk-page.dpk-voices-page .dpk-voices.has-head{top:96px!important}
+body .dpk-page.dpk-voices-page .dpk-voices h2{margin:0 0 46px!important;font:400 52px/1.1 'CormorantCy',Georgia,serif!important;color:#24221f!important}
+body .dpk-page.dpk-voices-page .dpk-voice{margin:0 0 44px!important;padding:0!important;position:relative!important}
+body .dpk-page.dpk-voices-page .dpk-voice::before,body .dpk-page.dpk-voices-page .dpk-voice blockquote::before,body .dpk-page.dpk-voices-page .dpk-voice blockquote::after{content:none!important;display:none!important}
+body .dpk-page.dpk-voices-page .dpk-voice figcaption::before{content:'\2014\00a0'!important}
+body .dpk-page.dpk-voices-page .dpk-voice blockquote{margin:0!important;font-family:'CormorantCy',Georgia,serif!important;font-style:italic!important;font-weight:400!important;line-height:1.38!important;color:#2b2622!important}
+body .dpk-page.dpk-voices-page .dpk-voice figcaption{margin-top:12px!important;font:400 13px/1.3 'PTSerifCy',serif!important;letter-spacing:.2em!important;text-transform:uppercase!important;color:#7d746a!important}

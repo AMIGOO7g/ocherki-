@@ -98,6 +98,7 @@
     if (layout === 'i03-tree' || kind === 'i03-tree') return 'i03-tree';
     if (layout === 'who-photo' || kind === 'who-photo') return 'who-photo';
     if (layout === 'who-legend' || kind === 'who-legend') return 'who-legend';
+    if (layout === 'voices-page' || kind === 'voices-page') return 'voices-page';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -672,6 +673,12 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'voices-page') {
+      // «Голоса семьи»: memories as quiet italic quotes, each signed in small
+      // capitals; the first page carries the heading.
+      const voices=page.voices||[];
+      return article('D01-VOICES',`<div class="dpk-voices${page.heading?' has-head':''}">${page.heading?`<h2>${esc(page.heading)}</h2>`:''}${voices.map(voice=>`<figure class="dpk-voice"><blockquote style="font-size:${voice.size||22}px">«${esc(String(voice.text).replace(/«/gu,"„").replace(/»/gu,"“"))}»</blockquote>${voice.who?`<figcaption>${esc(voice.who)}</figcaption>`:''}</figure>`).join('')}</div>`,'dpk-voices-page');
     }
     if (role === 'who-photo') {
       // «Кто на фото», left page: the photograph as large as the page allows,

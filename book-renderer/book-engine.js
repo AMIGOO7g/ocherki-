@@ -1273,6 +1273,32 @@
         spread.chapterClosing=true;
       }
     });
+    // «Голоса семьи»: short memories of different people, each with who said
+    // it («— внучка Анна» on the line below). Laid out page by page by an
+    // estimate of their height; as many spreads as the memories need.
+    const voicesSource=byId('voices')?.pages?.find(page=>page.included!==false);
+    if(voicesSource&&String(voicesSource.text||'').trim()){
+      const voices=[];
+      for(const raw of String(voicesSource.text).split(/\r?\n/u)){
+        const line=raw.trim();if(!line)continue;
+        const who=line.match(/^[—–-]\s*(.+)$/u);
+        if(who&&voices.length&&!voices.at(-1).who)voices.at(-1).who=who[1].trim();
+        else if(!who)voices.push({text:line.replace(/^[«"„]+|[»"“]+$/gu,'').trim(),who:''});
+      }
+      const H=(meta.format||'square')==='portrait'?1196:1000,size=text=>text.length<140?27:text.length<320?22:19;
+      const height=voice=>{const font=size(voice.text),perLine=Math.floor(660/(font*.48));return Math.ceil(voice.text.length/perLine)*font*1.45+(voice.who?34:0)+56;};
+      const pages=[];let current=[],room=H-330;
+      for(const voice of voices.filter(voice=>voice.text)){
+        const need=height(voice);
+        if(current.length&&need>room){pages.push(current);current=[];room=H-200;}
+        current.push({...voice,size:size(voice.text)});room-=need;
+      }
+      if(current.length)pages.push(current);
+      if(pages.length%2)pages.push([]);
+      const heading=String(voicesSource.title||'').trim()||'Голоса семьи';
+      for(let i=0;i<pages.length&&i<6;i+=2)
+        spreads.push({master:'D01-SPREAD-VOICES',left:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i],heading:i===0?heading:'',pageFormat:meta.format||'square'}),right:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i+1],heading:'',pageFormat:meta.format||'square'})});
+    }
     // I01 — family chronology: one horizontal axis across the spread. Events
     // come from the «Хронология» section, one per line («1921 — Владикавказ —
     // Новый этап»); without them, from photographs that carry a year. The
@@ -2483,7 +2509,7 @@
       // masters; treating two text spreads as an error made the QA reject the
       // very low-photo/high-text fallback the director is designed to support.
       const repeatedText = ['D01-SPREAD-TEXT','D01-SPREAD-TEXT-QUOTE','D01-SPREAD-TEXT-RHYTHM'].includes(spread.master);
-      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
+      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
       if (index && spread.master === 'D01-SPREAD-PHOTO-TEXT' && spreads[index - 1].master === 'D01-SPREAD-PHOTO-TEXT') violations.push({ rule: 'photo-text-rhythm', spread: index + 1 });
       if(index&&isHeavySpread(spread.master)&&isHeavySpread(spreads[index-1].master))violations.push({rule:'heavy-spread-rhythm',spread:index+1,master:spread.master});
       [spread.left, spread.right].filter(Boolean).forEach(page => {
