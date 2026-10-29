@@ -720,22 +720,22 @@
       return article('D01-VOICES',`<div class="dpk-voices${page.heading?' has-head':''}">${page.heading?`<h2>${esc(page.heading)}</h2>`:''}${voices.map(voice=>`<figure class="dpk-voice"><blockquote style="font-size:${voice.size||22}px">«${esc(String(voice.text).replace(/«/gu,"„").replace(/»/gu,"“"))}»</blockquote>${voice.who?`<figcaption>${esc(voice.who)}</figcaption>`:''}</figure>`).join('')}</div>`,'dpk-voices-page');
     }
     if (role === 'who-photo') {
-      // «Кто на фото», left page: the photograph as large as the page allows,
-      // with small numbered marks on the people (positions in % of the image).
-      const index=page.photoIndex||0,data=page.who||{marks:[]},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
+      // «Кто на фото», right page: the group photo as large as the page
+      // allows, nothing drawn on it; who is who is the caption on the folio
+      // line, in the classic «Слева направо: …» form (up to three lines).
+      const index=page.photoIndex||0,data=page.who||{},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
       const ratio=Math.min(2.4,Math.max(.6,(()=>{const photo=source?.photos?.[index]||{};return Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1.5;})()));
-      const maxW=820,maxH=formatH-300;
-      const width=Math.round(Math.min(maxW,maxH*ratio)),height=Math.round(width/ratio),left=Math.round((1000-width)/2)+30,top=Math.round((formatH-height)/2-10);
-      const marks=(data.marks||[]).map(mark=>`<span class="dpk-who-mark" style="left:${mark.x}%;top:${mark.y}%">${mark.n}</span>`).join('');
-      return article('D01-WHO-PHOTO',`<figure class="dpk-who-photo" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px">${image(index).replace('loading="lazy"','loading="eager"')}${marks}</figure>`,'dpk-who');
+      const text=String(data.peopleCaption||''),lines=Math.min(3,Math.max(1,Math.ceil(text.length/118)));
+      const maxW=800,maxH=formatH-250-lines*19;
+      const width=Math.round(Math.min(maxW,maxH*ratio)),height=Math.round(width/ratio),left=Math.round((1000-width)/2)-20,top=Math.round((formatH-lines*19-height)/2-10);
+      return article('D01-WHO-PHOTO',`<figure class="dpk-who-photo" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${text?`<div class="dpk-caption dpk-caption-line dpk-who-caption">${esc(text)}</div>`:''}`,'dpk-who');
     }
     if (role === 'who-legend') {
-      // Right page: who is who by number, then the caption and the story.
-      const data=page.who||{marks:[]},marks=data.marks||[],two=marks.length>7;
-      const meta2=[data.year,data.place].filter(Boolean).join(' · ');
-      const story=String(data.story||'').length>700?String(data.story).slice(0,700).replace(/\s+\S*$/u,'')+'…':String(data.story||'');
-      return article('D01-WHO-LEGEND',`<div class="dpk-who-legend"><div class="dpk-who-kicker">Кто на фото</div>${data.caption?`<h2>${esc(data.caption)}</h2>`:''}${meta2?`<div class="dpk-who-meta">${esc(meta2)}</div>`:''}`
-        +`<ol class="dpk-who-list${two?' two':''}">${marks.map(mark=>`<li><span>${mark.n}</span>${esc(mark.name)}</li>`).join('')}</ol>${story?`<p class="dpk-who-story">${esc(story)}</p>`:''}</div>`,'dpk-who');
+      // Left page: the photo's name, year and place, and its story.
+      const data=page.who||{},meta2=[data.year,data.place].filter(Boolean).join(' · ');
+      const story=String(data.story||'').length>1400?String(data.story).slice(0,1400).replace(/\s+\S*$/u,'')+'…':String(data.story||'');
+      const formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
+      return article('D01-WHO-LEGEND',`<div class="dpk-who-legend"${story?'':` style="top:${Math.round(formatH*.38)}px!important"`}><div class="dpk-who-kicker">Семейный снимок</div><h2>${esc(data.caption||data.place||'Все вместе')}</h2>${meta2?`<div class="dpk-who-meta">${esc(meta2)}</div>`:''}${story?story.split(/\n+/u).map(part=>`<p class="dpk-who-story">${esc(part)}</p>`).join(''):''}</div>`,'dpk-who');
     }
     if (role === 'i03-tree') {
       const data=page.i03||{roots:[]},tree=familyTreeLayout(data),offset=pageSide==='left'?0:1000;

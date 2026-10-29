@@ -1282,11 +1282,22 @@
       });
       chapter.whoPhotos.forEach((photo,whoIndex)=>{
         const marks=photo.peopleMarks.filter(mark=>mark&&String(mark.name||'').trim()).map((mark,index)=>({n:index+1,x:Math.max(0,Math.min(100,Number(mark.x)||0)),y:Math.max(0,Math.min(100,Number(mark.y)||0)),name:String(mark.name).trim()}));
-        const who={marks,caption:String(photo.caption||'').trim(),year:String(photo.year||'').trim(),place:String(photo.place||'').trim(),story:String(photo.story||'').trim(),pageFormat:meta.format||'square'};
+        // The classic book caption: rows found from the marks' heights (the
+        // front row, lowest in the photo, first), names left to right.
+        const rows=[];
+        for(const mark of [...marks].sort((a,b)=>a.y-b.y)){
+          const row=rows.at(-1);
+          if(row&&mark.y-row.y<=12){row.items.push(mark);row.y=row.items.reduce((sum,item)=>sum+item.y,0)/row.items.length;}
+          else rows.push({y:mark.y,items:[mark]});
+        }
+        const ordered=rows.reverse().map(row=>row.items.sort((a,b)=>a.x-b.x).map(item=>item.name).join(', '));
+        const where=['в первом','во втором','в третьем','в четвёртом','в пятом','в шестом'];
+        const peopleCaption=ordered.length===1?`Слева направо: ${ordered[0]}.`:`Слева направо: ${ordered.map((names,index)=>`${where[index]||`в ${index+1}-м`} ряду — ${names}`).join('; ')}.`;
+        const who={marks,peopleCaption,caption:String(photo.caption||'').trim(),year:String(photo.year||'').trim(),place:String(photo.place||'').trim(),story:String(photo.story||'').trim(),pageFormat:meta.format||'square'};
         const source={photos:chapter.whoPhotos};
         spreads.push({master:'D01-SPREAD-WHO',sectionId:chapter.sectionId,fixedRhythm:true,
-          left:P('who-photo',{layout:'who-photo',master:'D01-WHO-PHOTO',meta:bookMeta,source,photoIndex:whoIndex,who}),
-          right:P('who-legend',{layout:'who-legend',master:'D01-WHO-LEGEND',meta:bookMeta,source,photoIndex:whoIndex,who})});
+          left:P('who-legend',{layout:'who-legend',master:'D01-WHO-LEGEND',meta:bookMeta,source,photoIndex:whoIndex,who}),
+          right:P('who-photo',{layout:'who-photo',master:'D01-WHO-PHOTO',meta:bookMeta,source,photoIndex:whoIndex,who})});
       });
       // A printed book never leaves half a spread: an unpaired left page would
       // shift every following page to the wrong side. Close it with an unused

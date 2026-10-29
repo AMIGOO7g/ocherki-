@@ -2769,7 +2769,7 @@ body .dpk-page.dpk-i02 .dpk-i02-photo{position:absolute!important;display:block!
 body .dpk-page.dpk-i02 .dpk-i02-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 
 /* I03 — family tree: names, years and thin lines; portraits only for key people */
-body .dpk-page.dpk-i03{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-i03{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-i03 .dpk-i03-lines{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important}
 body .dpk-page.dpk-i03 .dpk-i03-lines path{fill:none!important;stroke:#77706a!important;stroke-width:1.1!important}
 body .dpk-page.dpk-i03 .dpk-i03-head{position:absolute!important;left:80px!important;top:80px!important;max-width:560px!important}
@@ -2790,7 +2790,7 @@ body .dpk-page.dpk-i02 .dpk-i02-land-name{position:absolute!important;transform:
 body .dpk-page.dpk-i02 .dpk-i02-era{position:absolute!important;right:62px!important;bottom:40px!important;padding:5px 10px!important;background:rgba(252,251,248,.92)!important;font:italic 400 14px/1.3 'PTSerifCy',Georgia,serif!important;color:#8a8175!important}
 
 /* «Кто на фото»: group photo with numbered marks + legend */
-body .dpk-page.dpk-who{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-who{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-who .dpk-who-photo{position:absolute!important;margin:0!important;overflow:visible!important}
 body .dpk-page.dpk-who .dpk-who-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 body .dpk-page.dpk-who .dpk-who-mark{position:absolute!important;transform:translate(-50%,-50%)!important;width:26px!important;height:26px!important;border-radius:50%!important;background:rgba(252,250,246,.92)!important;color:#24221f!important;font:600 14px/26px 'PTSerifCy',Georgia,serif!important;text-align:center!important;box-shadow:0 1px 3px rgba(0,0,0,.35)!important}
@@ -2805,7 +2805,7 @@ body .dpk-page.dpk-who .dpk-who-list li span{flex:0 0 26px!important;height:26px
 body .dpk-page.dpk-who .dpk-who-story{margin:30px 0 0!important;padding-top:22px!important;border-top:1px solid rgba(60,50,40,.18)!important;font:italic 400 18px/1.55 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
 
 /* «Голоса семьи»: memories of different people, signed */
-body .dpk-page.dpk-voices-page{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-voices-page{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-voices-page .dpk-voices{position:absolute!important;left:150px!important;right:150px!important;top:110px!important}
 body .dpk-page.dpk-voices-page .dpk-voices.has-head{top:96px!important}
 body .dpk-page.dpk-voices-page .dpk-voices h2{margin:0 0 46px!important;font:400 52px/1.1 'CormorantCy',Georgia,serif!important;color:#24221f!important}
@@ -2816,7 +2816,7 @@ body .dpk-page.dpk-voices-page .dpk-voice blockquote{margin:0!important;font-fam
 body .dpk-page.dpk-voices-page .dpk-voice figcaption{margin-top:12px!important;font:400 13px/1.3 'PTSerifCy',serif!important;letter-spacing:.2em!important;text-transform:uppercase!important;color:#7d746a!important}
 
 /* «Семейный рецепт / традиция» */
-body .dpk-page.dpk-recipe{background:#fbf8f2!important;overflow:hidden!important}
+body .dpk-page.dpk-recipe{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-recipe .dpk-recipe-photo{position:absolute!important;margin:0!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(40,30,20,.16)!important}
 body .dpk-page.dpk-recipe .dpk-recipe-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 body .dpk-page.dpk-recipe .dpk-recipe-card{position:absolute!important;left:140px!important;right:130px!important;top:120px!important}
@@ -2829,7 +2829,7 @@ body .dpk-page.dpk-recipe .dpk-recipe-items li::before{content:''!important;posi
 body .dpk-page.dpk-recipe .dpk-recipe-story p{margin:0 0 .8em!important;font-family:'PTSerifCy',Georgia,serif!important;font-size:inherit!important;line-height:1.55!important;color:#2b2622!important;text-indent:0!important}
 
 /* «Было — стало» */
-body .dpk-page.dpk-thennow{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-thennow{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-thennow .dpk-thennow-photo{position:absolute!important;margin:0!important;overflow:hidden!important}
 body .dpk-page.dpk-thennow .dpk-thennow-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 body .dpk-page.dpk-thennow .dpk-thennow-label{position:absolute!important;font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.32em!important;text-transform:uppercase!important;color:#8a8175!important}
@@ -2838,10 +2838,15 @@ body .dpk-page.dpk-thennow .dpk-thennow-text b{display:block!important;font:400 
 body .dpk-page.dpk-thennow .dpk-thennow-text span{display:block!important;font:italic 400 17px/1.4 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
 
 /* «Вопросы и ответы» */
-body .dpk-page.dpk-interview-page{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-interview-page{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-interview-page .dpk-interview{position:absolute!important;left:140px!important;right:140px!important;top:110px!important}
 body .dpk-page.dpk-interview-page .dpk-interview h2{margin:0 0 34px!important;font:400 52px/1.1 'CormorantCy',Georgia,serif!important;color:#24221f!important}
 body .dpk-page.dpk-interview-page .dpk-intro{margin:0 0 26px!important;font:italic 400 21px/1.55 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
 body .dpk-page.dpk-interview-page .dpk-q{margin:28px 0 10px!important;font:700 20px/1.35 'PTSerifCy',Georgia,serif!important;color:#6b4a2e!important}
 body .dpk-page.dpk-interview-page .dpk-q:first-child{margin-top:0!important}
 body .dpk-page.dpk-interview-page .dpk-a{margin:0 0 .6em!important;font:400 19px/1.55 'PTSerifCy',Georgia,serif!important;color:#2b2622!important;text-indent:0!important}
+/* «Кто на фото»: the people caption may take up to three lines on the folio line */
+body .dpk-page.dpk-who .dpk-caption.dpk-caption-line.dpk-who-caption{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:19px!important}
+body .dpk-page.dpk-who .dpk-who-legend{top:180px!important}
+body .dpk-page.dpk-who p.dpk-who-story{margin:0 0 .7em!important;padding:0!important;border:0!important;font:400 19px/1.6 'PTSerifCy',Georgia,serif!important;font-style:normal!important;color:#2b2622!important}
+body .dpk-page.dpk-who .dpk-who-meta{margin-bottom:34px!important}
