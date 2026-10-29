@@ -745,8 +745,9 @@
       // photo the user picked for each person.
       const model=treeSource.treeData&&treeSource.treeData.people?treeSource.treeData:null;
       if(model){
+        // The form offers photos from the whole book, so look in every section.
         const photoById=new Map();
-        for(const chapter of chapters)for(const photo of chapter.photos)if(imageSource(photo)&&photo.id!=null)photoById.set(String(photo.id),photo);
+        for(const section of sections)for(const sectionPage of section.pages||[])for(const photo of sectionPage.photos||[])if(imageSource(photo)&&photo.id!=null&&!photoById.has(String(photo.id)))photoById.set(String(photo.id),photo);
         const unionsOf=id=>(model.unions||[]).filter(union=>union.a===id||union.b===id);
         const parentsOf=id=>(model.unions||[]).find(union=>(union.children||[]).includes(id));
         const node=(id,seen)=>{
@@ -861,7 +862,7 @@
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
     chapters.forEach((chapter,index) => {
-      const chapterSpreadStart = spreads.length;
+      const chapterSpreadStart = spreads.length;let segmentSpreadStart=chapterSpreadStart;
       let rest = chapter.text, sourceOffset = 0;
       const occurrences = {};
       expectedManuscripts.push({sectionId:chapter.sectionId,text:chapter.text});
@@ -1028,19 +1029,22 @@
       // preceding pages give up a few lines each, keeping facing pages level.
       // Every trial re-measures the untouched source; on any doubt the
       // original pagination is restored.
-      function balanceChapterEnding(){
-        const minimumLines=6,maximumBorrow=4;
-        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07','D01-SPREAD-T12'].includes(spread.master));
+      // The same closes an episode before the next one opens (endOffset is
+      // then the next episode's start). A stub is judged by its text, not by
+      // column height, which a tall margin note can inflate.
+      function balanceChapterEnding(endOffset=chapter.text.length){
+        const minimumLines=6,maximumBorrow=4,minimumChars=700;
+        const textSpreads=spreads.slice(segmentSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07','D01-SPREAD-T12'].includes(spread.master));
         const last=textSpreads.at(-1);
         if(!last)return;
         const isText=page=>Boolean(page?.measuredFlow&&page.sourceRange&&page.sectionId===chapter.sectionId);
         const finalSide=isText(last.right)?'right':isText(last.left)?'left':'';
-        if(!finalSide||last[finalSide].sourceRange.end!==chapter.text.length)return;
+        if(!finalSide||last[finalSide].sourceRange.end!==endOffset)return;
         const final={page:last[finalSide],side:finalSide};
         // Donors are the text pages just before the final page: its facing
         // page, or the whole previous spread (including the chapter opening),
         // each giving up the same number of lines so facing pages stay level.
-        const chapterSpreads=spreads.slice(chapterSpreadStart),previous=chapterSpreads[chapterSpreads.indexOf(last)-1];
+        const chapterSpreads=spreads.slice(segmentSpreadStart),previous=chapterSpreads[chapterSpreads.indexOf(last)-1];
         const donors=finalSide==='right'
           ?(isText(last.left)?[{page:last.left,side:'left'}]:[])
           :['left','right'].filter(side=>isText(previous?.[side])).map(side=>({page:previous[side],side}));
@@ -1053,7 +1057,7 @@
             if(limits[i]>0)item.page.flowLineLimit=limits[i];else delete item.page.flowLineLimit;
             consume(item.page,item.side);
           });
-          return !rest&&items.every(item=>item.page.text);
+          return sourceOffset===endOffset&&items.every(item=>item.page.text);
         };
         const attempt=(items,limits)=>{try{return reflow(items,limits);}catch(error){return false;}};
         const fullLines=item=>item.page.measuredFlow?.fullLines||0;
@@ -1070,7 +1074,7 @@
           const limits=donors.map((donor,i)=>borrow?fulls[i]-borrow:0);
           if(limits.some(limit=>limit<0)||donors.length&&!attempt(chain,[...limits,0]))continue;
           const lines=balanceFinal();
-          if(lines&&(lines>=minimumLines||borrow===maximumBorrow||!donors.length))settled=true;
+          if(lines&&((lines>=minimumLines&&String(final.page.text||'').length>=minimumChars)||borrow===maximumBorrow||!donors.length))settled=true;
         }
         if(!settled){
           reflow(chain,chain.map(()=>0));
@@ -1081,19 +1085,28 @@
       while(rest){
         const episode=pendingEpisode();
         if(episode){
+          // Close the previous episode's text as at a chapter end.
+          balanceChapterEnding(episode.offset);
+          // The pause beside the closed text quotes it as it now stands.
+          const closing=spreads.at(-1);
+          if(closing?.right?.kind==='t08-pause'&&closing.left?.text){closing.right.quoteSource=closing.left.text;closing.right.avoidAccents=usedAccents.slice();}
           // Episode opening: a small archive photo with a handwritten caption,
           // facing the episode title, a long handwritten line and the text.
           episode.opened=true;
           const photoIndex=episode.photoPosition;usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));
           const photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,handCaption:episode.caption,title:chapter.title,pageFormat:meta.format||'square'});
           const opening=nextTextPage('right',{episodeOpening:{title:episode.title,line:episode.line},forceRhythm:'plain'});
+          segmentSpreadStart=spreads.length;
           spreads.push({master:'D01-SPREAD-EPISODE-OPENING',sectionId:chapter.sectionId,left:photoPage,right:opening,fixedRhythm:true});
           textSpreadStreak=0;
           continue;
         }
         const unusedNow=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
         const photoBeatAvailable=unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition]))||(!portraitGiven&&unusedNow.some(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening));
-        if(photoBeatAvailable&&textSpreadStreak>=textSpreadsBetweenPhotos){
+        // The chapter's last text (about one spread, ~7000 characters) goes beside a waiting
+        // photo rather than leaving the photos to pile up after it.
+        const lastTextWithPhoto=rest.length<7500&&unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition])||!portraitGiven);
+        if(photoBeatAvailable&&(textSpreadStreak>=textSpreadsBetweenPhotos||lastTextWithPhoto)){
           const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
           const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening);
           const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
@@ -1256,7 +1269,9 @@
         }
         const spread={master:'D01-SPREAD-TEXT-RHYTHM',sectionId:chapter.sectionId,left:null,right:null};
         for(const side of ['left','right']){
-          if(!rest)break;spread[side]=nextTextPage(side);
+          // An episode boundary ends the spread's text: the pause below
+          // fills the free right page instead of an empty text page.
+          if(!rest||(side==='right'&&pendingEpisode()))break;spread[side]=nextTextPage(side);
         }
         // The previous episode ended on a left page: a quiet quote pause closes
         // the spread so the next episode can open on a full spread.
@@ -1265,6 +1280,20 @@
         textSpreadStreak++;
       }
       balanceChapterEnding();
+      // Photos left when the text ran out are never dropped: they close the
+      // chapter on photo spreads (two on one page and one large opposite,
+      // or one large photo per page).
+      {
+        const left=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        const mark=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
+        const large=photoPosition=>P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:mark(photoPosition),title:chapter.title});
+        while(left.length){
+          if(left.length===1){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:P('blank',{meta:bookMeta}),fixedRhythm:true});break;}
+          if(left.length===2||left.length===4){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:large(left.shift()),fixedRhythm:true});continue;}
+          const pair=[left.shift(),left.shift()].map(mark);
+          spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:pair,title:chapter.title}),right:large(left.shift()),fixedRhythm:true});
+        }
+      }
       // Document/photos retain their existing masters; manuscript text is never routed through them.
       for(const document of chapter.documents){
         const source={...document,photos:document.photos||[]};
@@ -2621,7 +2650,7 @@
       // masters; treating two text spreads as an error made the QA reject the
       // very low-photo/high-text fallback the director is designed to support.
       const repeatedText = ['D01-SPREAD-TEXT','D01-SPREAD-TEXT-QUOTE','D01-SPREAD-TEXT-RHYTHM'].includes(spread.master);
-      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && spread.master !== 'D01-SPREAD-THEN-NOW' && spread.master !== 'D01-SPREAD-INTERVIEW' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
+      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && spread.master !== 'D01-SPREAD-THEN-NOW' && spread.master !== 'D01-SPREAD-INTERVIEW' && spread.master !== 'D01-SPREAD-PHOTO-CLOSING' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
       if (index && spread.master === 'D01-SPREAD-PHOTO-TEXT' && spreads[index - 1].master === 'D01-SPREAD-PHOTO-TEXT') violations.push({ rule: 'photo-text-rhythm', spread: index + 1 });
       if(index&&isHeavySpread(spread.master)&&isHeavySpread(spreads[index-1].master))violations.push({rule:'heavy-spread-rhythm',spread:index+1,master:spread.master});
       [spread.left, spread.right].filter(Boolean).forEach(page => {

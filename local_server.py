@@ -33,6 +33,16 @@ def browser_path() -> str | None:
 
 
 class Handler(SimpleHTTPRequestHandler):
+    # Text files are sent as UTF-8 explicitly, so Cyrillic in CSS and JS
+    # (quotes, dashes, hints) never shows as «Â».
+    extensions_map = {
+        **SimpleHTTPRequestHandler.extensions_map,
+        ".html": "text/html; charset=utf-8",
+        ".css": "text/css; charset=utf-8",
+        ".js": "text/javascript; charset=utf-8",
+        ".json": "application/json; charset=utf-8",
+        ".md": "text/markdown; charset=utf-8",
+    }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
