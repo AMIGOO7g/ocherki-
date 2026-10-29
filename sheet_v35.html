@@ -855,6 +855,8 @@ html.photo-modal-root-open body{overflow:visible!important;}
   .photo-hero-toggle{display:flex;align-items:center;gap:10px;cursor:pointer}
   .photo-hero-toggle input{width:20px;height:20px;accent-color:#8a6a45}
   .photo-hero-hint{margin-top:4px;font-size:12px;opacity:.7}
+  .photo-hint{margin-top:5px;font:italic 13px/1.35 Georgia,serif;color:rgba(93,62,39,.62)}
+  .host-night .photo-hint{color:rgba(236,220,198,.62)}
 </style>
 </head>
 <body>
@@ -865,11 +867,11 @@ html.photo-modal-root-open body{overflow:visible!important;}
     <div class="photo-modal-head"><span>ФОТОГРАФИЯ</span><button type="button" id="photoCloseX">×</button></div>
     <div class="photo-modal-top"><img id="photoPreview" alt=""></div><div class="photo-inline-actions"><button type="button" id="photoReplace">заменить</button><button type="button" id="photoDelete">удалить</button></div>
     <div class="photo-fields">
-      <div class="photo-field wide"><label>ПОДПИСЬ</label><input id="photoCaption" placeholder="Например: Лето у бабушки"></div>
-      <div class="photo-field"><label>ГОД</label><input id="photoYear" placeholder="1987"></div>
-      <div class="photo-field"><label>МЕСТО</label><input id="photoPlace" placeholder="Город, деревня…"></div>
-      <div class="photo-field wide"><label>КТО НА ФОТО</label><input id="photoPeople" placeholder="Имена"></div>
-      <div class="photo-field wide"><label>ИСТОРИЯ ФОТОГРАФИИ</label><textarea id="photoStory" placeholder="Почему этот снимок важен..."></textarea></div><div class="photo-field wide"><label>ИСТОЧНИК</label><input id="photoSource" placeholder="Семейный архив…"></div>
+      <div class="photo-field wide"><label>ПОДПИСЬ</label><input id="photoCaption" placeholder="Например: Лето у бабушки"><div class="photo-hint">Печатается мелко под фото: коротко — кто, где, когда.</div></div>
+      <div class="photo-field"><label>ГОД</label><input id="photoYear" placeholder="1987"><div class="photo-hint">Фото с годом может попасть в «Хронологию».</div></div>
+      <div class="photo-field"><label>МЕСТО</label><input id="photoPlace" placeholder="Город, деревня…"><div class="photo-hint">Город — и фото может появиться на карте «География семьи».</div></div>
+      <div class="photo-field wide"><label>КТО НА ФОТО</label><input id="photoPeople" placeholder="Имена"><div class="photo-hint">Имена пригодятся для подписи портрета.</div></div>
+      <div class="photo-field wide"><label>ИСТОРИЯ ФОТОГРАФИИ</label><textarea id="photoStory" placeholder="Почему этот снимок важен..."></textarea><div class="photo-hint">Несколько предложений — и фото может получить разворот с рассказом рядом.</div></div><div class="photo-field wide"><label>ИСТОЧНИК</label><input id="photoSource" placeholder="Семейный архив…"></div>
       <div class="photo-field wide photo-hero-field"><label class="photo-hero-toggle"><input type="checkbox" id="photoPortraitHero"> ПОРТРЕТ ГЕРОЯ КНИГИ</label><div class="photo-hero-hint">Книга выделит этот портрет отдельным разворотом. Имя берётся из поля «Кто на фото».</div></div>
       <div class="photo-field" id="photoHeroYearsField" hidden><label>ГОДЫ ЖИЗНИ</label><input id="photoHeroYears" placeholder="1901 – 1982"></div>
       <div class="photo-field" id="photoHeroRoleField" hidden><label>КТО ОН ДЛЯ СЕМЬИ</label><input id="photoHeroRole" placeholder="Хранительница дома"></div>
