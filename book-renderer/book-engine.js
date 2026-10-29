@@ -665,7 +665,44 @@
       const section=byId(id), source=section?.pages?.find(page=>page.included!==false) || {};
       return hasMatter(id)?P(kind,{master,title:source.title||section.title||title,text:String(source.text??''),source,meta:bookMeta}):P('blank',{meta:bookMeta});
     };
+    // «Хронология» lines: «1921 — Владикавказ — Новый этап». The date may be
+    // a range or approximate («1850–1920», «ок. 1850», «1930-е»); it is shown
+    // as written and never made more precise.
+    const timelineEvents=[];
+    for(const line of String(byId('timeline')?.pages?.find(page=>page.included!==false)?.text||'').split(/\r?\n/u)){
+      const match=line.match(/^\s*((?:(?:ок\.|около|до|после|с|весна|лето|осень|зима)\s+)?(\d{4})(?:-е)?(?:\s*[–-]\s*\d{4})?)\s*(?:[—–-]+\s*|[.,:]\s*|\s+)(.+)$/iu);if(!match)continue;
+      const parts=match[3].split(/\s+[—–-]+\s+/u).map(part=>part.trim()).filter(Boolean);
+      timelineEvents.push({year:match[2],date:match[1].trim(),place:parts.length>1?parts[0]:'',text:parts.length>1?parts.slice(1).join(' — '):parts[0]||''});
+    }
     if(hasMatter('intro')||hasMatter('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
+    // I02-A — family route map, before the first chapter: where the story
+    // happened. Places come from «Хронология» (and photo places) and are
+    // resolved through the built-in gazetteer or explicit «[lat, lon]»; an
+    // unknown place is left out rather than guessed. Needs three places.
+    const geo=globalThis.OcherkiGeo;
+    if(geo&&byId('timeline')){
+      const stops=[];
+      for(const event of timelineEvents){
+        const hit=event.place&&geo.resolve(event.place);if(!hit)continue;
+        const key=`${hit.lat.toFixed(1)},${hit.lon.toFixed(1)}`;
+        if(stops.at(-1)?.key===key)continue;
+        stops.push({key,name:hit.label.replace(/,.*$/u,'').trim()||hit.label,lat:hit.lat,lon:hit.lon,date:event.date,text:event.text});
+      }
+      const unique=[...new Map(stops.map(stop=>[stop.key,stop])).values()];
+      if(unique.length>=3&&unique.length<=8){
+        const photoFor=new Map();
+        for(const chapter of chapters)for(const photo of chapter.photos){
+          if(photoFor.size>=4)break;
+          const hit=imageSource(photo)&&String(photo.place||'').trim()&&geo.resolve(photo.place);if(!hit)continue;
+          const key=`${hit.lat.toFixed(1)},${hit.lon.toFixed(1)}`;
+          if(unique.some(stop=>stop.key===key)&&!photoFor.has(key))photoFor.set(key,{src:imageSource(photo),ratio:photoAspect(photo)||1.4});
+        }
+        const custom=String(byId('timeline').pages?.find(page=>page.included!==false)?.title||'').trim();
+        const i02={places:unique.map(stop=>({key:stop.key,name:stop.name,lat:stop.lat,lon:stop.lon,date:stop.date,text:stop.text,photo:photoFor.get(stop.key)||null})),
+          route:stops.map(stop=>stop.key),title:'География семьи',subtitle:custom&&custom!=='Хронология'?custom:'Места, где жила наша история',pageFormat:meta.format||'square'};
+        spreads.push({id:'d01_i02_route',master:'D01-SPREAD-I02-ROUTE',left:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02}),right:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02})});
+      }
+    }
     const expectedManuscripts = [];
     const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN', plain:'D01-TEXT' };
     // The author's editorial cycle: quote page, handwritten-lines page, margin
@@ -1127,13 +1164,7 @@
     // Новый этап»); without them, from photographs that carry a year. The
     // spread appears only with at least three events.
     if(byId('timeline')){
-      const lines=String(byId('timeline').pages?.find(page=>page.included!==false)?.text||'').split(/\r?\n/u);
-      const events=[];
-      for(const line of lines){
-        const match=line.match(/^\s*(\d{4})\s*(?:[—–-]+\s*|[.,:]\s*|\s+)(.+)$/u);if(!match)continue;
-        const parts=match[2].split(/\s+[—–-]+\s+/u).map(part=>part.trim()).filter(Boolean);
-        events.push({year:match[1],place:parts.length>1?parts[0]:'',text:parts.length>1?parts.slice(1).join(' — '):parts[0]||''});
-      }
+      const events=timelineEvents.slice();
       if(events.length<3){
         for(const chapter of chapters)chapter.photos.forEach((photo,photoIndex)=>{
           const year=String(photo.year||'').match(/\d{4}/u)?.[0];if(!year||!imageSource(photo))return;

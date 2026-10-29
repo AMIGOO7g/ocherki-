@@ -94,6 +94,7 @@
     if (layout === 'episode-photo' || kind === 'episode-photo') return 'episode-photo';
     if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
     if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
+    if (layout === 'i02-route' || kind === 'i02-route') return 'i02-route';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -136,6 +137,134 @@
     if (kind === 'colophon') return 'colophon';
     if (kind === 'back-cover' || layout === 'back-cover') return 'back-cover';
     return '';
+  }
+
+  // I02-A family route map. The whole spread (2000 × H) is laid out once in
+  // spread coordinates and each page draws its half, so the coastline and the
+  // route run through the fold without a break. Deterministic: the same data
+  // always gives the same map.
+  const I02_CACHE = new WeakMap();
+  function i02Layout(data) {
+    if (I02_CACHE.has(data)) return I02_CACHE.get(data);
+    const H = data.pageFormat === 'portrait' ? 1196 : 1000, W = 2000, gutter = [920, 1080], title = { x: 90, y: 60, w: 640, h: 190 };
+    const places = data.places || [], lat0 = places.reduce((sum, place) => sum + place.lat, 0) / Math.max(1, places.length);
+    const kx = Math.cos(lat0 * Math.PI / 180), pts = places.map(place => [place.lon * kx, -place.lat]);
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const spanX = Math.max(6, Math.max(...xs) - Math.min(...xs)), spanY = Math.max(4, Math.max(...ys) - Math.min(...ys));
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+    const base = Math.min(1420 / spanX, (H - 560) / spanY), midY = 270 + (H - 400) / 2;
+    const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+    const byKey = (at, key) => at[places.findIndex(place => place.key === key)];
+    // Stops for one view; stops closer than 100px are eased apart (at most
+    // 24px from the true spot, never into the fold) so labels have room.
+    const stopsFor = view => {
+      const at = pts.map(p => [1000 + view.pan + (p[0] - cx) * view.k, midY + (p[1] - cy) * view.k]), home = at.map(p => p.slice());
+      for (let pass = 0; pass < 40; pass++) for (let i = 0; i < at.length; i++) for (let j = i + 1; j < at.length; j++) {
+        const dx = at[j][0] - at[i][0], dy = at[j][1] - at[i][1], d = Math.hypot(dx, dy) || 1;
+        if (d >= 100) continue;
+        const push = (100 - d) / 4, ux = dx / d, uy = dy / d;
+        at[i][0] -= ux * push; at[i][1] -= uy * push; at[j][0] += ux * push; at[j][1] += uy * push;
+        for (const k of [i, j]) {
+          const ox = at[k][0] - home[k][0], oy = at[k][1] - home[k][1], o = Math.hypot(ox, oy);
+          if (o > 24) { at[k][0] = home[k][0] + ox * 24 / o; at[k][1] = home[k][1] + oy * 24 / o; }
+          if (at[k][0] > gutter[0] - 20 && at[k][0] < gutter[1] + 20) at[k][0] = home[k][0];
+        }
+      }
+      return at;
+    };
+    const routeSamples = at => {
+      const route = (data.route || []).map(key => byKey(at, key)).filter(Boolean), samples = [];
+      for (let i = 0; i < route.length - 1; i++) for (let t = 0; t <= 1; t += .04) samples.push([route[i][0] + (route[i + 1][0] - route[i][0]) * t, route[i][1] + (route[i + 1][1] - route[i][1]) * t]);
+      return { route, samples };
+    };
+    const scorer = (boxes, samples) => box => {
+      let s = 0;
+      if (box.x < 110 || box.x + box.w > W - 110 || box.y < 90 || box.y + box.h > H - 90) s += 1000;
+      if (box.x < gutter[1] && box.x + box.w > gutter[0]) s += 1000;
+      for (const other of boxes) if (hit(box, other)) s += 500;
+      for (const [x, y] of samples) if (x > box.x - 4 && x < box.x + box.w + 4 && y > box.y - 4 && y < box.y + box.h + 4) s += 25;
+      return s;
+    };
+    // Labels: place name, date, one short note. Near positions first;
+    // farther ones get a thin leader line.
+    const placeLabels = (at, boxes, score) => places.map((place, i) => {
+      const [x, y] = at[i], note = String(place.text || '');
+      const w = Math.max(String(place.name).length * 14 + 8, String(place.date || '').length * 8, note ? 190 : 0);
+      const lines = note ? Math.min(2, Math.ceil(note.length * 7.4 / 190)) : 0;
+      const h = 34 + (place.date ? 22 : 0) + (lines ? lines * 20 + 6 : 0);
+      const options = [[18, -17], [-18 - w, -17], [-10, -h - 16], [-10, 16], [10 - w, -h - 16], [10 - w, 16], [18, -h + 12], [-18 - w, -h + 12], [18, -4], [-18 - w, -4], [-w / 2, -h - 22], [-w / 2, 22]];
+      let best = null;
+      for (const reach of [0, 60, 120]) options.forEach(([dx, dy], order) => {
+        const bx = dx + w / 2, by = dy + h / 2, len = Math.hypot(bx, by) || 1;
+        const box = { x: x + dx + bx / len * reach, y: y + dy + by / len * reach, w, h }, s = score(box) + order + reach / 3;
+        if (!best || s < best.s) best = { s, box, reach, side: box.x + w <= x + 12 ? 'left' : 'right' };
+      });
+      boxes.push(best.box);
+      const leader = best.reach ? [[x, y], [Math.min(Math.max(x, best.box.x), best.box.x + w), Math.min(Math.max(y, best.box.y + 18), best.box.y + h)]] : null;
+      return { ...best.box, side: best.side, place, leader, s: best.s };
+    });
+    // Try zoom / pan views and keep the one whose labels sit most cleanly:
+    // no stop in the fold, all inside the page, fewest collisions.
+    let chosen = null;
+    for (const zoom of [1, .9, .8, .7, .6]) for (const pan of [0, 60, -60, 120, -120, 180, -180, 260, -260, 500, -500]) {
+      const view = { k: base * zoom, pan }, at = stopsFor(view);
+      if (!at.every(([x, y]) => (x < gutter[0] - 20 || x > gutter[1] + 20) && x > 170 && x < 1830 && y > 280 && y < H - 150)) continue;
+      const { samples } = routeSamples(at), boxes = [title, ...at.map(([x, y]) => ({ x: x - 12, y: y - 12, w: 24, h: 24 }))];
+      const labels = placeLabels(at, boxes, scorer(boxes, samples));
+      const total = labels.reduce((sum, label) => sum + label.s, 0) + Math.abs(pan) / 20 + (1 - zoom) * 120;
+      if (!chosen || total < chosen.total) chosen = { total, view, at, labels, boxes, samples };
+    }
+    if (!chosen) {
+      const view = { k: base * .6, pan: 0 }, at = stopsFor(view), { samples } = routeSamples(at), boxes = [title];
+      chosen = { view, at, boxes, samples, labels: placeLabels(at, boxes, scorer(boxes, samples)) };
+    }
+    const { view, at, labels, boxes, samples } = chosen, score = scorer(boxes, samples);
+    const project = (lon, lat) => [1000 + view.pan + (lon * kx - cx) * view.k, midY + (-lat - cy) * view.k];
+    // Coastline as one path; rings far outside the spread are skipped.
+    const geo = global.OcherkiGeo, landPath = [];
+    if (geo) for (const ring of geo.land()) {
+      const points = ring.map(([lon, lat]) => project(lon, lat));
+      const rx = points.map(p => p[0]), ry = points.map(p => p[1]);
+      if (Math.max(...rx) < -100 || Math.min(...rx) > W + 100 || Math.max(...ry) < -100 || Math.min(...ry) > H + 100) continue;
+      landPath.push('M' + points.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('L') + 'Z');
+    }
+    const step = view.k > 90 ? 2 : view.k > 40 ? 5 : 10, grid = [];
+    for (let lon = -30; lon <= 190; lon += step) { const [x] = project(lon, 0); if (x > 0 && x < W) grid.push(`M${x.toFixed(1)} 0V${H}`); }
+    for (let lat = -10; lat <= 85; lat += step) { const y = project(0, lat)[1]; if (y > 0 && y < H) grid.push(`M0 ${y.toFixed(1)}H${W}`); }
+    // Route: a soft Catmull-Rom curve through the stops in story order.
+    const routePts = routeSamples(at).route;
+    let route = routePts.length ? `M${routePts[0][0].toFixed(1)} ${routePts[0][1].toFixed(1)}` : '';
+    for (let i = 0; i < routePts.length - 1; i++) {
+      const p0 = routePts[i - 1] || routePts[i], p1 = routePts[i], p2 = routePts[i + 1], p3 = routePts[i + 2] || p2;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      route += `C${c1.map(v => v.toFixed(1)).join(' ')} ${c2.map(v => v.toFixed(1)).join(' ')} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    }
+    // Photos (up to four) sit close to their own stop with a short link.
+    const photos = [];
+    places.forEach((place, i) => {
+      if (!place.photo || photos.length >= 4) return;
+      const ratio = Math.min(1.6, Math.max(.7, Number(place.photo.ratio) || 1.4)), w = Math.round(Math.sqrt(23000 * ratio)), h = Math.round(w / ratio);
+      const [x, y] = at[i], label = labels[i], options = [];
+      for (const gap of [26, 70, 120]) for (let a = 0; a < 16; a++) {
+        const ux = Math.cos(a * Math.PI / 8), uy = Math.sin(a * Math.PI / 8), t = Math.min(Math.abs(w / 2 / (ux || 1e-6)), Math.abs(h / 2 / (uy || 1e-6)));
+        options.push([x + ux * (t + gap) - w / 2, y + uy * (t + gap) - h / 2]);
+      }
+      let best = null;
+      for (const [px, py] of options) { const box = { x: Math.round(px), y: Math.round(py), w, h }, s = score(box) + Math.hypot(px + w / 2 - x, py + h / 2 - y) / 8; if (!best || s < best.s) best = { s, box }; }
+      if (!best || best.s >= 400) return;
+      const near = [Math.min(Math.max(x, best.box.x), best.box.x + w), Math.min(Math.max(y, best.box.y), best.box.y + h)];
+      if (Math.hypot(near[0] - x, near[1] - y) > 130) return;
+      boxes.push(best.box);
+      photos.push({ ...best.box, src: place.photo.src, link: Math.hypot(near[0] - x, near[1] - y) > 34 ? [near, [x, y]] : null });
+    });
+    const seas = [];
+    for (const sea of (geo?.seas || [])) {
+      const [x, y] = project(sea.lon, sea.lat), box = { x: x - sea.name.length * 6, y: y - 10, w: sea.name.length * 12, h: 20 };
+      if (score(box) < 6) { boxes.push(box); seas.push({ x, y, name: sea.name }); }
+    }
+    const layout = { H, landPath: landPath.join(''), grid: grid.join(''), route, at, labels, photos, seas };
+    I02_CACHE.set(data, layout);
+    return layout;
   }
 
   function renderPage(page, side, context) {
@@ -415,6 +544,23 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'i02-route') {
+      const data=page.i02||{places:[]},map=i02Layout(data),offset=pageSide==='left'?0:1000;
+      const parts=[`<svg class="dpk-i02-map" viewBox="${offset} 0 1000 ${map.H}" preserveAspectRatio="none" aria-hidden="true">`
+        +`<path class="dpk-i02-grid" d="${map.grid}"/><path class="dpk-i02-land" d="${map.landPath}"/>`
+        +map.labels.filter(label=>label.leader).map(label=>`<path class="dpk-i02-link" d="M${label.leader[0][0].toFixed(1)} ${label.leader[0][1].toFixed(1)}L${label.leader[1][0].toFixed(1)} ${label.leader[1][1].toFixed(1)}"/>`).join('')
+        +map.photos.filter(photo=>photo.link).map(photo=>`<path class="dpk-i02-link" d="M${photo.link[0][0].toFixed(1)} ${photo.link[0][1].toFixed(1)}L${photo.link[1][0].toFixed(1)} ${photo.link[1][1].toFixed(1)}"/>`).join('')
+        +`<path class="dpk-i02-route" d="${map.route}"/>`
+        +map.at.map(([x,y],i)=>`${i===0?`<circle class="dpk-i02-ring" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11"/>`:''}<circle class="dpk-i02-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6"/>`).join('')
+        +`</svg>`];
+      const inPage=box=>box.x+box.w>offset&&box.x<offset+1000;
+      for(const sea of map.seas)if(sea.x>offset&&sea.x<offset+1000)parts.push(`<span class="dpk-i02-sea" style="left:${Math.round(sea.x-offset)}px;top:${Math.round(sea.y)}px">${esc(sea.name)}</span>`);
+      for(const photo of map.photos)if(inPage(photo))parts.push(`<span class="dpk-i02-photo" style="left:${photo.x-offset}px;top:${photo.y}px;width:${photo.w}px;height:${photo.h}px"><img src="${esc(photo.src)}" alt="" loading="eager" decoding="async"></span>`);
+      for(const label of map.labels)if(inPage(label))parts.push(`<div class="dpk-i02-label ${label.side}" style="left:${Math.round(label.x-offset)}px;top:${Math.round(label.y)}px;width:${Math.round(label.w)}px">`
+        +`<strong>${esc(label.place.name)}</strong>${label.place.date?`<b>${esc(label.place.date)}</b>`:''}${label.place.text?`<em>${esc(label.place.text)}</em>`:''}</div>`);
+      if(pageSide==='left')parts.push(`<div class="dpk-i02-head"><h1>${esc(data.title||'')}</h1>${data.subtitle?`<p>${esc(data.subtitle)}</p>`:''}</div>`);
+      return article('D01-I02',parts.join(''),'dpk-i02');
     }
     if (role === 'i01-timeline') {
       // One thin axis across the whole spread (each page draws its part);
