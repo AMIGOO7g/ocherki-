@@ -2714,3 +2714,17 @@ body .dpk-page.dpk-episode-open .dpk-episode-line{margin:26px 0 0!important;padd
 body .dpk-page.dpk-episode-left .dpk-episode-photo{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;margin:0!important;overflow:hidden!important}
 body .dpk-page.dpk-episode-left .dpk-episode-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
 body .dpk-page.dpk-episode-left .dpk-episode-caption{position:absolute!important;left:70px!important;right:70px!important;margin:0!important;text-align:center!important;font:400 30px/1.2 'SignThatS','CormorantCy',serif!important;color:#4a4540!important}
+
+/* Endpapers: white paper, one letter, one light graphite tone, no rotation. */
+body .dpk-page.dpk-endpaper-grid{background:#fff!important;overflow:hidden!important}
+body .dpk-page.dpk-endpaper-grid .dpk-endpaper-pattern{position:absolute!important;inset:0!important}
+body .dpk-page.dpk-endpaper-grid .dpk-endpaper-pattern span{position:absolute!important;font:400 60px/1 'CormorantCy',Georgia,serif!important;color:#bdb9b3!important;opacity:1!important;transform:none!important}
+
+/* «Для тех, кто продолжит эту историю» — ruled pages for handwriting. */
+body .dpk-page.dpk-notes{background:#fff!important}
+body .dpk-page.dpk-notes .dpk-notes-heading{position:absolute!important;left:91px!important;right:91px!important;top:150px!important;margin:0!important;text-align:center!important;font:400 34px/1.2 'SignThatS','CormorantCy',serif!important;color:#4a4540!important}
+body .dpk-page.dpk-notes .dpk-notes-rules{position:absolute!important;left:91px!important;right:91px!important;top:150px!important;bottom:110px!important;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 43px,rgba(110,101,92,.28) 43px,rgba(110,101,92,.28) 44px)!important}
+body .dpk-page.dpk-notes.left .dpk-notes-rules{left:70px!important}
+body .dpk-page.dpk-notes.right .dpk-notes-rules{right:70px!important}
+body .dpk-page.dpk-notes .dpk-notes-rules.dpk-notes-rules-below{top:282px!important}

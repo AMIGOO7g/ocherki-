@@ -92,6 +92,7 @@
     if (layout === 't10-photos' || kind === 't10-photos') return 't10-photos';
     if (layout === 't12-photo' || kind === 't12-photo') return 't12-photo';
     if (layout === 'episode-photo' || kind === 'episode-photo') return 'episode-photo';
+    if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -221,8 +222,17 @@
       return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async">` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>Семейная хроника</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
     }
     if (role === 'endpaper') {
-      const initial = esc(clean(meta.title || 'Семейная хроника').charAt(0).toUpperCase() || 'С');
-      return article('D01-ENDPAPER', `<div class="dpk-endpaper-frame"></div><div class="dpk-endpaper-mark">${initial}</div>`);
+      // F-END / B-END — typographic grid pattern: the first letter of the book
+      // title on one strict grid across the whole spread (every other row
+      // shifted by half a step); each page draws its part, so the spine does
+      // not restart the grid.
+      const letter=esc((String(meta.title||'Семейная хроника').match(/\p{L}/u)?.[0]||'С').toUpperCase());
+      const stepX=212,stepY=92,offset=pageSide==='left'?0:1000,glyphs=[];
+      for(let row=0;row*stepY<1260;row++){
+        const shift=row%2?stepX/2:0;
+        for(let x=58+shift;x<2000;x+=stepX){const local=x-offset;if(local>-80&&local<1040)glyphs.push(`<span style="left:${Math.round(local)}px;top:${36+row*stepY}px">${letter}</span>`);}
+      }
+      return article('D01-ENDPAPER', `<div class="dpk-endpaper-pattern" aria-hidden="true">${glyphs.join('')}</div>`, 'dpk-endpaper-grid');
     }
     if (role === 'blank') return article('D01-ENDPAPER', '');
     if (role === 'half-title') return article('D01-HALF-TITLE', `<div class="dpk-kicker">Очерки жизни</div><h1>${esc(meta.title || 'Семейная хроника')}</h1><div class="dpk-half-meta">${esc(meta.subtitle || '')}</div>${folio}`);
@@ -402,6 +412,11 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'notes-page') {
+      // Ruled pages left empty for the family to write in; the left page opens
+      // with one handwritten line.
+      return article('D01-NOTES',`${page.notesHeading?`<p class="dpk-notes-heading">${esc(page.notesHeading)}</p>`:''}<div class="dpk-notes-rules${page.notesHeading?' dpk-notes-rules-below':''}"></div>${folio}`,'dpk-notes');
     }
     if (role === 'episode-photo') {
       // Left page of an episode opening: a small archive photograph, lots of

@@ -1125,6 +1125,10 @@
       const fields=fieldValues(byId('colophon'),4);
       spreads.push({master:'D01-SPREAD-SOURCES-COLOPHON',left:matter('sources','sources','D01-SOURCES','Источники'),right:byId('colophon')?P('colophon',{meta:bookMeta,rows:[{label:'Составитель',value:fields[0]||bookMeta.author},{label:'Дизайн и вёрстка',value:fields[1]},{label:'Год издания',value:fields[2]||bookMeta.year},{label:'Место издания',value:fields[3]}]}):P('blank',{meta:bookMeta})});
     }
+    // «For those who will continue»: a ruled spread before the back endpaper
+    // where children and grandchildren write their own lines by hand. On by
+    // default; meta.continuationPages === false leaves it out.
+    if(meta.continuationPages!==false)spreads.push({master:'D01-SPREAD-CONTINUATION',left:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta,notesHeading:'Для тех, кто продолжит эту историю'}),right:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta})});
     if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta}),right:P('endpaper',{meta:bookMeta})});
     if(byId('inside-back-cover'))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta})});
     const [backCoverText,backCoverMark]=fieldValues(byId('back-cover'),2);
