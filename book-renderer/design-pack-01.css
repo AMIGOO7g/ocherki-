@@ -2643,3 +2643,22 @@ body .dpk-page.dpk-t10 .dpk-t10-main,body .dpk-page.dpk-t10 .dpk-t10-card{positi
 body .dpk-page.dpk-t10 .dpk-t10-main{z-index:1!important}
 body .dpk-page.dpk-t10 .dpk-t10-card{z-index:3!important;box-sizing:border-box!important;border:10px solid #fff!important;box-shadow:0 10px 26px rgba(0,0,0,.22),0 2px 6px rgba(0,0,0,.12)!important;transform-origin:50% 50%!important}
 body .dpk-page.dpk-t10 .dpk-t10-main img,body .dpk-page.dpk-t10 .dpk-t10-card img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important}
+
+/* One caption rule for the whole book: the folio keeps the outer bottom
+   corner; the caption sits on the same line at the spine side, so the two
+   never meet (whatever the page number). Captions that belong inside a
+   composition (under a photo in a text page, the rail) are untouched. */
+body .dpk-page > .dpk-caption:not(.dpk-inline-caption):not(.dpk-photo-rail-caption){
+  bottom:44px!important;top:auto!important;max-width:58%!important;width:auto!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  font:italic 400 13px/1 'PTSerifCy',Georgia,serif!important;color:var(--dpk-muted)!important;text-shadow:none!important;z-index:5!important}
+body .dpk-page.left > .dpk-caption:not(.dpk-inline-caption):not(.dpk-photo-rail-caption){right:91px!important;left:auto!important;text-align:right!important}
+body .dpk-page.right > .dpk-caption:not(.dpk-inline-caption):not(.dpk-photo-rail-caption){left:91px!important;right:auto!important;text-align:left!important}
+/* Pages whose photograph runs to the 36px edge keep folio and caption on
+   the lower 18px line, still in opposite corners. */
+body .dpk-page:is(.dpk-chapter-photo,.dpk-photo,.dpk-large-photo,.dpk-three-photo,.dpk-document-image) > .dpk-caption{bottom:18px!important}
+body .dpk-page.left:is(.dpk-chapter-photo,.dpk-photo,.dpk-large-photo,.dpk-three-photo,.dpk-document-image) > .dpk-caption{right:36px!important}
+body .dpk-page.right:is(.dpk-chapter-photo,.dpk-photo,.dpk-large-photo,.dpk-three-photo,.dpk-document-image) > .dpk-caption{left:36px!important}
+/* The panorama is full bleed: its caption stays light over the image, on
+   the same line and at the spine side. */
+body .dpk-page.dpk-panorama > .dpk-caption:not(.dpk-inline-caption):not(.dpk-photo-rail-caption){color:#f7f3eb!important;text-shadow:0 1px 8px rgba(0,0,0,.45)!important}

@@ -930,11 +930,17 @@
             // Geometry in spread coordinates (left page 0–1000, right 1000–2000).
             const pageH=meta.format==='portrait'?1196:1000,pad=70,mainRatio=photoAspect(chapter.photos[t10Main]),cardRatio=photoAspect(chapter.photos[t10Card]);
             const main=mainRatio>=1.2
-              ?(()=>{const w=1250,h=Math.min(pageH-2*pad-60,Math.round(w/mainRatio));return {x:1930-w,y:Math.round(pad+(pageH-2*pad-h)*.3),w,h};})()
+              ?(()=>{const w=1250,h=Math.min(pageH-2*pad-60,Math.round(w/mainRatio));return {x:1930-w,y:pad,w,h};})()
               :(()=>{const h=pageH-2*pad,w=Math.min(870,Math.round(h*mainRatio));return {x:960,y:pad,w,h};})();
-            const long=Math.round(.62*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
+            // The card reads as a second meaningful frame (about a third of the
+            // main photograph's area), not as a sticker.
+            const long=Math.round(.8*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
             // Approved angles in a fixed order across the book (no randomness).
             const angle=[-4,6,-2,4,-6,2][t10Count++%6];
+            // Main photo and card are centred together on the page height; the
+            // card hangs a little below the main photograph.
+            const groupH=main.h+Math.round(ch*.18);
+            if(mainRatio>=1.2)main.y=Math.max(pad,Math.round((pageH-groupH)/2));
             const card={x:Math.round(1000-.75*cw),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
             const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
             const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
