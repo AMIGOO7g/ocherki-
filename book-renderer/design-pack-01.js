@@ -230,8 +230,8 @@
       landPath.push('M' + points.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('L') + 'Z');
     }
     const step = view.k > 90 ? 2 : view.k > 40 ? 5 : 10, grid = [];
-    for (let lon = -30; lon <= 190; lon += step) { const [x] = project(lon, 0); if (x > 0 && x < W) grid.push(`M${x.toFixed(1)} 0V${H}`); }
-    for (let lat = -10; lat <= 85; lat += step) { const y = project(0, lat)[1]; if (y > 0 && y < H) grid.push(`M0 ${y.toFixed(1)}H${W}`); }
+    for (let lon = -180; lon <= 200; lon += step) { const [x] = project(lon, 0); if (x > 0 && x < W) grid.push(`M${x.toFixed(1)} 0V${H}`); }
+    for (let lat = -60; lat <= 85; lat += step) { const y = project(0, lat)[1]; if (y > 0 && y < H) grid.push(`M0 ${y.toFixed(1)}H${W}`); }
     // Route: a soft Catmull-Rom curve through the stops in story order.
     const routePts = routeSamples(at).route;
     let route = routePts.length ? `M${routePts[0][0].toFixed(1)} ${routePts[0][1].toFixed(1)}` : '';
@@ -671,7 +671,11 @@
     if (role === 'i02-route') {
       const data=page.i02||{places:[]},map=i02Layout(data),offset=pageSide==='left'?0:1000;
       const parts=[`<svg class="dpk-i02-map" viewBox="${offset} 0 1000 ${map.H}" preserveAspectRatio="none" aria-hidden="true">`
-        +`<path class="dpk-i02-grid" d="${map.grid}"/><path class="dpk-i02-land" d="${map.landPath}"/>`
+        // Water is the paper with fine horizontal lines, land a quiet solid
+        // tone: the two never read the other way round.
+        +`<defs><pattern id="dpk-i02-water-${pageSide}" width="8" height="7" patternUnits="userSpaceOnUse"><path class="dpk-i02-wave" d="M0 3.5H8"/></pattern></defs>`
+        +`<rect class="dpk-i02-water" x="0" y="0" width="2000" height="${map.H}" fill="url(#dpk-i02-water-${pageSide})"/>`
+        +`<path class="dpk-i02-land" d="${map.landPath}"/><path class="dpk-i02-grid" d="${map.grid}"/>`
         +map.labels.filter(label=>label.leader).map(label=>`<path class="dpk-i02-link" d="M${label.leader[0][0].toFixed(1)} ${label.leader[0][1].toFixed(1)}L${label.leader[1][0].toFixed(1)} ${label.leader[1][1].toFixed(1)}"/>`).join('')
         +map.photos.filter(photo=>photo.link).map(photo=>`<path class="dpk-i02-link" d="M${photo.link[0][0].toFixed(1)} ${photo.link[0][1].toFixed(1)}L${photo.link[1][0].toFixed(1)} ${photo.link[1][1].toFixed(1)}"/>`).join('')
         +`<path class="dpk-i02-route" d="${map.route}"/>`
