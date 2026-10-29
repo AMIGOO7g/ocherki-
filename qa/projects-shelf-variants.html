@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мои проекты — варианты полки</title>
+<link rel="stylesheet" href="../book-renderer/fonts.css">
+<style>
+  :root{
+    --ink:#3b2a20; --muted:#8e7a69; --brass1:#e9cfaa; --brass2:#c79a68; --brass3:#9a6c48; --brass4:#4b3324;
+    --wood1:#7a4f2e; --wood2:#5b3820; --wood3:#3e2614;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:'PTSerifCy',Georgia,serif;color:var(--ink);overflow:hidden;
+    background:
+      radial-gradient(70% 60% at 50% 38%,#fbf1e1 0%,#f0dcc0 38%,#cfa97c 72%,#7d5737 100%);
+  }
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(40,24,12,.45) 100%)}
+
+  /* ---------- top: title + variant switch ---------- */
+  .top{position:fixed;top:26px;left:0;right:0;text-align:center;z-index:20}
+  .top h1{margin:0;font:400 44px/1.1 'CormorantCy',Georgia,serif;letter-spacing:.01em}
+  .top p{margin:6px 0 16px;color:var(--muted);font-style:italic;font-size:16px}
+  .switch{display:inline-flex;gap:6px;padding:5px;border-radius:30px;background:rgba(255,248,236,.5);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 6px 18px rgba(80,50,25,.12)}
+  .switch button{border:0;border-radius:24px;padding:9px 16px;background:transparent;color:#6f5237;font:15px Georgia,serif;cursor:pointer}
+  .switch button.on{background:linear-gradient(145deg,var(--brass1),var(--brass2) 45%,var(--brass3));color:#2b1b10;box-shadow:0 1px 0 rgba(255,240,210,.6) inset,0 2px 6px rgba(60,35,15,.3)}
+  .replay{display:block;margin:10px auto 0;border:0;background:none;color:#8f5a2e;font:14px Georgia,serif;text-decoration:underline;cursor:pointer}
+
+  .stage{position:fixed;left:0;right:0;bottom:0;height:62vh;display:flex;align-items:flex-end;justify-content:center;perspective:1600px}
+  .variant{display:none;position:relative;width:min(1180px,94vw)}
+  .variant.on{display:block}
+  .pullout{animation:pullout 1.05s cubic-bezier(.2,.9,.25,1.08) both}
+  @keyframes pullout{from{transform:translateY(105%)}to{transform:translateY(0)}}
+
+  .note{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;background:rgba(43,27,16,.86);color:#f6e7cf;padding:9px 18px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .3s}
+  .note.show{opacity:1}
+
+  /* ---------- shared: book spine ---------- */
+  .spine{position:relative;flex:0 0 auto;border-radius:3px 3px 1px 1px;cursor:pointer;
+    background:linear-gradient(90deg,rgba(0,0,0,.28) 0,rgba(255,255,255,.08) 10%,rgba(255,255,255,.02) 50%,rgba(0,0,0,.22) 92%,rgba(0,0,0,.4) 100%),var(--cloth);
+    box-shadow:0 1px 0 rgba(255,255,255,.12) inset,4px 0 8px rgba(0,0,0,.25);
+    transition:transform .45s cubic-bezier(.2,.8,.25,1),box-shadow .45s;
+  }
+  .spine::before,.spine::after{content:'';position:absolute;left:6px;right:6px;height:3px;border-top:1px solid rgba(233,207,170,.75);border-bottom:1px solid rgba(233,207,170,.75)}
+  .spine::before{top:18px}.spine::after{bottom:18px}
+  .spine .t{position:absolute;inset:40px 0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);
+    font:500 17px/1.1 'CormorantCy',Georgia,serif;letter-spacing:.08em;color:#ecd2a6;text-shadow:0 1px 0 rgba(0,0,0,.4);white-space:nowrap}
+  .spine .y{position:absolute;bottom:28px;left:0;right:0;text-align:center;font:11px Georgia,serif;color:rgba(236,210,166,.8)}
+
+  /* cover card that turns out of the spine */
+  .cover{display:block;position:absolute;bottom:70px;left:calc(100% - 6px);width:220px;transform-origin:0 50%;
+    transform:perspective(900px) rotateY(80deg) scale(.7);opacity:0;pointer-events:none;
+    transition:transform .55s cubic-bezier(.2,.8,.25,1),opacity .3s;z-index:10}
+  .cover .face{display:block;height:270px;border-radius:3px;overflow:hidden;position:relative;box-shadow:0 18px 34px rgba(40,24,12,.4),0 2px 4px rgba(0,0,0,.25);background:var(--cloth)}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.85) contrast(1.02)}
+  .cover .face::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(10,6,3,.72))}
+  .cover .ttl{display:block;position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:#fff8ee}
+  .cover .ttl b{display:block;font:400 22px/1.1 'CormorantCy',Georgia,serif;letter-spacing:.05em}
+  .cover .ttl i{font-size:12px;opacity:.85}
+  .cover .meta{display:block;margin-top:9px;text-align:center;font-size:13px;color:#5b4433;background:rgba(255,248,236,.92);border-radius:12px;padding:5px 10px;box-shadow:0 2px 6px rgba(60,35,15,.18)}
+  .spine:hover,.spine:focus-visible{transform:translateY(-34px)}
+  .spine:hover .cover,.spine:focus-visible .cover{opacity:1;transform:perspective(900px) rotateY(0) scale(1)}
+  .spine:hover,.spine:focus-visible{z-index:20}
+
+  /* ---------- A: shelf ---------- */
+  .shelf{position:relative;height:470px;width:max-content;min-width:640px;margin:0 auto;padding:0 110px;display:flex;align-items:flex-end;justify-content:center;gap:6px}
+  .shelf .niche{position:absolute;inset:0 40px 26px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,rgba(60,35,18,.32),rgba(60,35,18,.12) 40%,rgba(60,35,18,.22));box-shadow:0 14px 30px rgba(40,22,10,.25) inset}
+  .shelf .books{position:relative;display:flex;align-items:flex-end;gap:5px;margin-bottom:26px;z-index:2}
+  .board{position:absolute;left:0;right:0;bottom:0;height:30px;border-radius:3px;z-index:3;
+    background:linear-gradient(180deg,#9b6a42 0,var(--wood1) 18%,var(--wood2) 70%,var(--wood3) 100%);
+    box-shadow:0 1px 0 rgba(255,220,180,.35) inset,0 12px 22px rgba(30,15,5,.45)}
+  .board::before{content:'';position:absolute;inset:0;border-radius:3px;opacity:.22;
+    background:repeating-linear-gradient(90deg,transparent 0 37px,rgba(30,15,5,.35) 38px,transparent 40px 91px,rgba(255,220,180,.25) 92px,transparent 94px)}
+  .bracket{position:absolute;bottom:-6px;width:20px;height:72px;z-index:4;border-radius:3px;
+    background:linear-gradient(145deg,var(--brass1),var(--brass2) 25%,var(--brass3) 55%,#d4ad7b 75%,var(--brass4));box-shadow:0 3px 6px rgba(0,0,0,.35)}
+  .bracket::after{content:'';position:absolute;left:6px;top:10px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f6dfb8,#6b4a30)}
+  .bracket.l{left:14px}.bracket.r{right:14px}
+  .newbook{flex:0 0 auto;width:66px;height:360px;border:1.5px dashed rgba(111,82,55,.55);border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#7a5638;transition:background .3s,border-color .3s}
+  .newbook span{writing-mode:vertical-rl;transform:rotate(180deg);font:16px Georgia,serif;letter-spacing:.06em}
+  .newbook:hover{background:rgba(255,248,236,.35);border-color:#c1782f;color:#c1782f}
+
+  /* ---------- Г: hanging brass plates above spines ---------- */
+  .plate{position:absolute;bottom:calc(100% + var(--rise,8px));left:50%;transform-origin:50% -46px;transform:translateX(-50%);pointer-events:none}
+  .plate::before{content:'';position:absolute;left:50%;top:-46px;width:1px;height:46px;background:linear-gradient(rgba(85,61,42,.6),rgba(111,82,55,.35))}
+  .plate em{display:block;font:normal 12px/1 Georgia,serif;white-space:nowrap;padding:6px 9px;border-radius:3px;color:#2b1b10;letter-spacing:.04em;
+    background:linear-gradient(145deg,var(--brass1),var(--brass2) 30%,var(--brass3) 60%,#d4ad7b 80%,#8a6242);box-shadow:0 1px 0 rgba(255,240,210,.55) inset,0 3px 6px rgba(40,24,12,.35)}
+  .hyb .spine:hover .plate{opacity:0;transition:opacity .2s}
+
+  /* ---------- Б: drawer ---------- */
+  .drawer{position:relative;height:430px;perspective:1100px}
+  .tray{position:absolute;left:4%;right:4%;bottom:96px;height:330px;transform-origin:50% 100%;transform:rotateX(52deg);border-radius:8px;
+    background:linear-gradient(180deg,#6b4428,#4a2e19);box-shadow:0 -6px 18px rgba(0,0,0,.25) inset;display:flex;align-items:center;justify-content:center;gap:28px;padding:20px;transform-style:preserve-3d}
+  .lying{width:150px;height:200px;border-radius:3px;overflow:hidden;position:relative;cursor:pointer;background:var(--cloth);
+    box-shadow:0 6px 10px rgba(0,0,0,.45);transition:transform .45s cubic-bezier(.2,.8,.25,1),box-shadow .45s}
+  .lying img{width:100%;height:62%;object-fit:cover;display:block;filter:saturate(.85)}
+  .lying b{display:block;padding:10px 10px 0;font:400 16px/1.1 'CormorantCy',Georgia,serif;color:#ecd2a6;letter-spacing:.05em}
+  .lying i{display:block;padding:4px 10px;font-size:10px;color:rgba(236,210,166,.8)}
+  .lying:hover{transform:translateZ(46px) rotateX(-18deg);box-shadow:0 40px 40px rgba(0,0,0,.35)}
+  .lying.add{display:flex;align-items:center;justify-content:center;background:rgba(255,248,236,.12);border:1.5px dashed rgba(236,210,166,.6);color:#ecd2a6;font:15px Georgia,serif}
+  .front{position:absolute;left:0;right:0;bottom:0;height:100px;border-radius:6px;
+    background:linear-gradient(180deg,#9b6a42,var(--wood1) 25%,var(--wood2) 75%,var(--wood3));box-shadow:0 1px 0 rgba(255,220,180,.35) inset,0 18px 30px rgba(30,15,5,.45)}
+  .handle{position:absolute;left:50%;top:34px;transform:translateX(-50%);width:170px;height:30px;border-radius:15px;
+    background:linear-gradient(180deg,var(--brass1),var(--brass2) 35%,var(--brass3) 70%,var(--brass4));box-shadow:0 1px 0 rgba(255,240,210,.6) inset,0 4px 8px rgba(0,0,0,.4)}
+  .label{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:3px 12px;border:1px solid rgba(233,207,170,.7);color:#ecd2a6;font:11px Georgia,serif;letter-spacing:.2em;text-transform:uppercase}
+
+  /* ---------- В: hanging books ---------- */
+  .gallery{position:relative;height:480px}
+  .rod{position:absolute;left:3%;right:3%;top:8px;height:12px;border-radius:6px;
+    background:linear-gradient(180deg,var(--brass1),var(--brass2) 40%,var(--brass3) 75%,var(--brass4));box-shadow:0 4px 8px rgba(40,24,12,.35)}
+  .rod::before,.rod::after{content:'';position:absolute;top:-6px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f6dfb8,#a77745 55%,#4b3324)}
+  .rod::before{left:-10px}.rod::after{right:-10px}
+  .hangers{position:absolute;left:6%;right:6%;top:14px;display:flex;justify-content:space-around;align-items:flex-start}
+  .hanger{position:relative;transform-origin:50% 0;cursor:pointer;will-change:transform}
+  .chain{width:2px;margin:0 auto;height:var(--len);background:repeating-linear-gradient(180deg,#d4ad7b 0 5px,#7a5638 5px 7px)}
+  .hcover{width:170px;height:220px;border-radius:3px;overflow:hidden;position:relative;background:var(--cloth);box-shadow:0 14px 26px rgba(40,24,12,.4)}
+  .hcover img{width:100%;height:70%;object-fit:cover;display:block;filter:saturate(.85)}
+  .hcover b{display:block;padding:9px 12px 0;font:400 17px/1.1 'CormorantCy',Georgia,serif;color:#ecd2a6;letter-spacing:.04em}
+  .hcover i{display:block;padding:3px 12px;font-size:10px;color:rgba(236,210,166,.8)}
+  .hcover::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:16px;height:9px;border-radius:0 0 8px 8px;background:linear-gradient(180deg,var(--brass2),var(--brass4));z-index:2}
+  .hanger.add .hcover{display:flex;align-items:center;justify-content:center;background:rgba(255,248,236,.35);border:1.5px dashed rgba(111,82,55,.55);color:#7a5638;font:16px Georgia,serif}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>Мои книги</h1>
+    <p>Варианты полки для «Моих проектов» — выберите, какой ближе</p>
+    <div class="switch" id="switch">
+      <button data-v="a" class="on">А · Полка</button>
+      <button data-v="b">Б · Ящик</button>
+      <button data-v="c">В · Подвес</button>
+      <button data-v="d">Г · Полка с табличками</button>
+    </div>
+    <button class="replay" id="replay">выдвинуть ещё раз</button>
+  </div>
+  <div class="stage">
+    <div class="variant on" data-v="a"></div>
+    <div class="variant" data-v="b"></div>
+    <div class="variant" data-v="c"></div>
+    <div class="variant" data-v="d"></div>
+  </div>
+  <div class="note" id="note"></div>
+
+<script>
+(() => {
+  const P = n => `demo-book/photos/${n}.jpg`;
+  const books = [
+    { title: 'Семья Евстафиади', sub: 'От Карса до наших дней', year: '2026', pages: 74, edited: 'сегодня', cloth: '#2f4a3e', cover: P('mother_daughter'), w: 78, h: 410 },
+    { title: 'Мама', sub: 'Записки о Нине Сергеевне', year: '2025', pages: 48, edited: '3 дня назад', cloth: '#6b2a26', cover: P('tree_maria'), w: 62, h: 372 },
+    { title: 'Дедушкина война', sub: 'Письма 1941–1945', year: '2025', pages: 32, edited: 'неделю назад', cloth: '#26344f', cover: P('tree_nikolai'), w: 56, h: 392 },
+    { title: 'Лето в Ялте', sub: 'Семейный альбом', year: '2024', pages: 24, edited: 'месяц назад', cloth: '#a88c62', cover: P('coast_villas'), w: 52, h: 350 },
+    { title: 'Наши дни', sub: 'Летом у озера', year: '2026', pages: 60, edited: 'вчера', cloth: '#3a3633', cover: P('mountains_family'), w: 70, h: 420 }
+  ];
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const note = document.getElementById('note');
+  let noteTimer = 0;
+  const say = text => { note.textContent = text; note.classList.add('show'); clearTimeout(noteTimer); noteTimer = setTimeout(() => note.classList.remove('show'), 1800); };
+
+  const spine = (b, plate, i = 0) => `<div class="spine" tabindex="0" data-title="${esc(b.title)}" style="--cloth:${b.cloth};width:${b.w}px;height:${b.h}px;--rise:${420 - b.h + (i % 2 ? 62 : 16)}px">
+      ${plate ? `<span class="plate"><em>${esc(b.title)}</em></span>` : ''}
+      <span class="t">${esc(b.title)}</span><span class="y">${b.year}</span>
+      <span class="cover"><span class="face"><img src="${b.cover}" alt=""><span class="ttl"><b>${esc(b.title)}</b><i>${esc(b.sub)}</i></span></span><span class="meta">${b.pages} стр. · изменена ${b.edited}</span></span>
+    </div>`;
+  const shelf = plates => `<div class="shelf ${plates ? 'hyb' : ''}"><div class="niche"></div><div class="books">${books.map((b, i) => spine(b, plates, i)).join('')}<div class="newbook" data-new><span>＋ Новая книга</span></div></div><div class="board"></div><span class="bracket l"></span><span class="bracket r"></span></div>`;
+
+  const drawer = () => `<div class="drawer"><div class="tray">${books.map(b => `<div class="lying" data-title="${esc(b.title)}" style="--cloth:${b.cloth}"><img src="${b.cover}" alt=""><b>${esc(b.title)}</b><i>${b.pages} стр. · ${b.edited}</i></div>`).join('')}<div class="lying add" data-new>＋ Новая</div></div><div class="front"><span class="label">Мои книги</span><span class="handle"></span></div></div>`;
+
+  const lengths = [70, 40, 92, 54, 78];
+  const gallery = () => `<div class="gallery"><div class="rod"></div><div class="hangers">${books.map((b, i) => `<div class="hanger" data-title="${esc(b.title)}" style="--cloth:${b.cloth}"><div class="chain" style="--len:${lengths[i]}px"></div><div class="hcover"><img src="${b.cover}" alt=""><b>${esc(b.title)}</b><i>${b.pages} стр. · ${b.edited}</i></div></div>`).join('')}<div class="hanger add" data-new><div class="chain" style="--len:60px"></div><div class="hcover">＋ Новая книга</div></div></div></div>`;
+
+  const variants = { a: () => shelf(false), b: drawer, c: gallery, d: () => shelf(true) };
+  document.querySelectorAll('.variant').forEach(node => { node.innerHTML = variants[node.dataset.v](); });
+
+  // Pendulum swing (the same feel as the hanging brass icons): a damped
+  // spring kicked by the pointer.
+  const swing = (element, { kickOn = 'pointerenter', strength = 5 } = {}) => {
+    let angle = 0, velocity = 0, raf = 0;
+    const step = () => {
+      velocity += -angle * 0.06; velocity *= 0.93; angle += velocity;
+      element.style.transform = element.dataset.base ? `${element.dataset.base} rotate(${angle}deg)` : `rotate(${angle}deg)`;
+      if (Math.abs(angle) > 0.02 || Math.abs(velocity) > 0.02) raf = requestAnimationFrame(step); else { raf = 0; element.style.transform = element.dataset.base || ''; }
+    };
+    element.addEventListener(kickOn, event => {
+      const rect = element.getBoundingClientRect();
+      velocity += (event.clientX < rect.left + rect.width / 2 ? 1 : -1) * strength * 0.18;
+      if (!raf) raf = requestAnimationFrame(step);
+    });
+  };
+  document.querySelectorAll('.hanger').forEach(node => swing(node, { strength: 6 }));
+  document.querySelectorAll('.plate').forEach(node => { node.dataset.base = 'translateX(-50%)'; swing(node.closest('.spine').querySelector('.plate'), { strength: 9 }); node.closest('.spine').addEventListener('pointerenter', event => node.dispatchEvent(new PointerEvent('pointerenter', { clientX: event.clientX }))); });
+
+  document.addEventListener('click', event => {
+    const item = event.target.closest('[data-title],[data-new]');
+    if (!item) return;
+    say(item.dataset.new !== undefined ? 'Здесь откроется мастер новой книги' : `Открыть «${item.dataset.title}»`);
+  });
+
+  const show = v => {
+    document.querySelectorAll('.switch button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+    document.querySelectorAll('.variant').forEach(node => {
+      const on = node.dataset.v === v;
+      node.classList.toggle('on', on);
+      node.classList.remove('pullout');
+      if (on) { void node.offsetWidth; node.classList.add('pullout'); }
+    });
+    try { localStorage.setItem('ocherki_shelf_variant', v); } catch (_) {}
+  };
+  document.getElementById('switch').addEventListener('click', event => { const b = event.target.closest('button'); if (b) show(b.dataset.v); });
+  document.getElementById('replay').addEventListener('click', () => show(document.querySelector('.switch .on').dataset.v));
+  let first = 'a'; try { first = localStorage.getItem('ocherki_shelf_variant') || 'a'; } catch (_) {}
+  show(new URLSearchParams(location.search).get('v') || first);
+})();
+</script>
+</body>
+</html>
