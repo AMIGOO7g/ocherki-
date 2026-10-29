@@ -85,6 +85,15 @@
     if (layout === 'chapter-photo') return 'chapter-photo';
     if (layout === 'chapter-intro' || layout === 'chapter-mark') return 'chapter-text';
     if (layout === 'chapter-initial' || kind === 'chapter-initial') return 'chapter-initial';
+    if (layout === 'hspread-photo' || kind === 'hspread-photo') return 'hspread-photo';
+    if (layout === 't06-hero' || kind === 't06-hero') return 't06-hero';
+    if (layout === 't07-photos' || kind === 't07-photos') return 't07-photos';
+    if (layout === 't08-pause' || kind === 't08-pause') return 't08-pause';
+    if (layout === 't10-photos' || kind === 't10-photos') return 't10-photos';
+    if (layout === 't12-photo' || kind === 't12-photo') return 't12-photo';
+    if (layout === 'episode-photo' || kind === 'episode-photo') return 'episode-photo';
+    if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
+    if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
     if (layout === 'photo-fullspread' || (page && page.master === 'MS-04')) return 'large-photo';
     if (layout === 'photo-triptych' || kind === 'three-photo') return 'three-photo';
@@ -168,6 +177,27 @@
       return src ? `<img${tone ? ` class="${tone}"` : ''} src="${esc(src)}" alt="" loading="lazy" decoding="async">` : '<span class="dpk-photo-missing"></span>';
     };
     const caption = index => esc(ctx.caption ? ctx.caption(source, index) : '');
+    // One source image in one viewport across both pages of the spread.
+    const hspreadPhoto = index => `<figure class="dpk-hspread-photo" data-source-photo-index="${index}">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`;
+    // T06: two related frames in one strict row above the text. Both share one
+    // height; widths follow their proportions so neither is cut aggressively.
+    const photoRatio = index => { const photo=source?.photos?.[index]||{}; const ratio=Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1; return Math.min(1.6,Math.max(.7,ratio)); };
+    // A quiet caption line by the folio, only from the author's photo data.
+    const captionLine = indices => { const text=indices.map(index=>caption(index)).filter(Boolean).join(' · '); return text?`<div class="dpk-caption dpk-caption-line">${text}</div>`:''; };
+    // T10: main photo and an angled card placed in spread coordinates; each
+    // page draws its own part, so elements cross the fold without a seam.
+    const t10Layer = layout => {
+      if(!layout)return '';
+      const offset=pageSide==='left'?0:1000,box=(item,extra='')=>`left:${item.x-offset}px;top:${item.y}px;width:${item.w}px;height:${item.h}px${extra}`;
+      const main=`<figure class="dpk-t10-main" style="${box(layout.main)}">${image(layout.main.index).replace('loading="lazy"','loading="eager"')}</figure>`;
+      const card=`<figure class="dpk-t10-card" style="${box(layout.card,`;transform:rotate(${layout.card.angle}deg)`)}">${image(layout.card.index).replace('loading="lazy"','loading="eager"')}</figure>`;
+      return main+card;
+    };
+    const t06Pair = indices => {
+      const width=839,gutter=18,ratios=indices.map(photoRatio),height=Math.min(340,Math.round((width-gutter)/(ratios[0]+ratios[1])));
+      const widths=ratios.map(ratio=>Math.round((width-gutter)*ratio/(ratios[0]+ratios[1])));
+      return {height,origin:70+height+64,html:`<div class="dpk-t06-pair" style="height:${height}px">${indices.map((index,position)=>`<figure class="dpk-t06-photo" data-source-photo-index="${index}" style="width:${widths[position]}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`).join('')}</div>`};
+    };
     const running = `<div class="dpk-running">${episode || 'Семейная хроника'}</div>`;
     const folio = `<div class="dpk-folio">${pageNo}</div>`;
     const photoMode = String(meta.photoMode || ctx.photoMode || 'color').toLowerCase() === 'bw' ? 'dpk-photo-bw' : 'dpk-photo-color';
@@ -202,7 +232,7 @@
       const flow=page.measuredFlow,mode=flow.mode;
       const cell=index=>{
         const ranges=(flow.inlineRanges?.[index]||[]).map(item=>({...item,attrs:item.editable?editorialAttrs('important'):''}));
-        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true)}</p></div>`;
+        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true,Boolean(flow.paragraphStarts?.[index]))}</p></div>`;
       };
       const overflowClass=kind=>flow.accentOverflow?.[kind]?' dpk-accent-overflow':'';
       const quote=()=>`<div class="dpk-quote-reservation"><p class="dpk-inline-quote${overflowClass('quote')}"${editorialAttrs('inline-quote')}>${sourceMarkup(page.inlineQuote||'')}</p></div>`;
@@ -213,9 +243,21 @@
         ?flow.quoteColumn==='right'?`${plainColumn(0)}${quotedColumn(1,2)}`:`${quotedColumn(0,1)}${plainColumn(2)}`
         :`${plainColumn(0)}${plainColumn(1)}`;
       const style=Object.entries(flow.geometry).map(([key,value])=>`--dpk-flow-${key}:${typeof value==='number'?`${value}px`:value}`).join(';');
-      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:running;
-      return article(page.master,`${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,'dpk-dom-paginated')
-        .replace('data-design-pack=',`style="${style}" data-design-pack=`);
+      // H-SPREAD v1.2: one horizontal photograph runs across the top of the
+      // spread; the page only tells the shared engine where its text starts.
+      const pair=page.topPair?t06Pair(page.topPair.photoIndices):null;
+      // T08: one vertical photograph running into the fold; the text keeps a
+      // single outer column (the second flow cell has zero height).
+      const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
+      const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
+      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto||page.episodeOpening?'':running;
+      const t10=page.t10?t10Layer(page.t10):'';
+      // Episode opening: title in one line in the heading colour, a long
+      // horizontal handwritten line, air, then the shared text flow.
+      const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
+      const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):'';
+      return article(page.master,`${topPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}`)
+        .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
     if (role === 'chapter-photo') return article('D01-CHAPTER-PHOTO', `<figure>${image(page.photoIndex || 0)}</figure>${caption(page.photoIndex || 0) ? `<div class="dpk-caption">${caption(page.photoIndex || 0)}</div>` : ''}${folio}`);
@@ -356,6 +398,77 @@
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
     }
+    if (role === 'episode-photo') {
+      // Left page of an episode opening: a small archive photograph, lots of
+      // white, one calm handwritten caption underneath.
+      const index=page.photoIndex||0,ratio=photoRatio(index),formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000;
+      // The photo and its handwritten caption are centred together on the
+      // page height (slightly above the middle) in both formats.
+      const width=Math.round(Math.min(440,300*ratio)),height=Math.round(width/ratio),group=height+(page.handCaption?92:0),top=Math.round((formatH-group)/2-20);
+      return article('D01-EPISODE-PHOTO',`<figure class="dpk-episode-photo" style="width:${width}px;height:${height}px;top:${top}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${page.handCaption?`<p class="dpk-episode-caption" style="top:${top+height+48}px">${esc(page.handCaption)}</p>`:''}${folio}`,'dpk-episode-left');
+    }
+    if (role === 't12-photo') {
+      // T12: one photograph on the whole page; on the side away from the
+      // subject it dissolves into a light (A) or dark (B) field that carries
+      // a short text from the photo's own fields.
+      const index=page.photoIndex||0,photo=source?.photos?.[index]||{},dark=page.t12Tone==='B',textSide=page.t12Side==='right'?'right':'left';
+      const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50,focalY=Number.isFinite(Number(photo.focalY))?Number(photo.focalY):45;
+      const kicker=esc(page.t12Kicker||''),heading=esc(page.t12Title||''),body=esc(page.t12Text||'');
+      return article('D01-T12',`<figure class="dpk-t12-photo" style="--dpk-t12-focus:${focalX}% ${focalY}%">${image(index).replace('loading="lazy"','loading="eager"')}</figure><div class="dpk-t12-fade"></div><div class="dpk-t12-copy">${kicker?`<div class="dpk-t12-kicker">${kicker}</div>`:''}${heading?`<h2>${heading}</h2>`:''}<i></i>${body?`<p>${body}</p>`:''}</div>${folio}`,`dpk-t12 dpk-t12-${dark?'dark':'light'} dpk-t12-text-${textSide}${dark?' dpk-dark':''}`);
+    }
+    if (role === 't08-pause') {
+      // T08 right page: a quiet pause with one short quote from the facing
+      // text, larger than body text, in the chapter heading colour.
+      const used=page.avoidAccents||[];
+      const quote=page.pauseQuote||((freshPhrases(page.quoteSource||'',used).find(item=>item.text.length<=110&&item.text.length>=18)||{}).text)||'';
+      return article('D01-T08-PAUSE',`${quote?`<div class="dpk-t08-quote"><p>«${esc(quote.replace(/[.…]+$/u,''))}»</p><i></i></div>`:''}${folio}`,'dpk-t08');
+    }
+    if (role === 'p01-portrait' || role === 'p01-text') {
+      // P01 portrait accent: a large portrait on the left, a short restrained
+      // block on the right. A light-clean, B light with edges dissolving into
+      // the paper, C dark with the portrait emerging from darkness.
+      // The light portrait stays clean (a dissolving edge on white paper looked
+      // unfinished); only the dark variant lets the portrait emerge from darkness.
+      const variant=page.p01Variant==='C'?'C':'A';
+      const dark=variant==='C'?' dpk-dark dpk-p01-dark':'';
+      if(role==='p01-portrait'){
+        const formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000,ratio=photoRatio(page.photoIndex||0);
+        const boxW=variant==='A'?860:1000,boxH=formatH-(variant==='A'?120:30),width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
+        return article('D01-P01-PORTRAIT',`<figure class="dpk-p01-portrait" style="width:${width}px;height:${height}px;--dpk-p01-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${variant==='A'?folio:''}`,`dpk-p01 dpk-p01-${variant.toLowerCase()}${dark}`);
+      }
+      const lines=[page.heroName?`<h2 class="dpk-p01-name">${esc(page.heroName)}</h2>`:'',page.heroYears?`<div class="dpk-p01-years">${esc(page.heroYears)}</div>`:'',page.heroRole?`<div class="dpk-p01-role">${esc(page.heroRole)}</div>`:''].join('');
+      return article('D01-P01-TEXT',`<div class="dpk-p01-block">${lines}</div>`,`dpk-p01 dpk-p01-${variant.toLowerCase()}${dark}`);
+    }
+    if (role === 't07-photos') {
+      // T07 structured photo page: six strict grids, no text, no captions,
+      // no overlap. Rectangles are solved so that columns share top and
+      // bottom lines exactly; the block is scaled to the page box and centred.
+      const formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000,boxX=pageSide==='right'?91:70,boxW=839,boxH=formatH-180,gap=18;
+      const ids=Array.isArray(page.photoIndices)?page.photoIndices:[];
+      const r=i=>photoRatio(ids[i]);
+      let rects=[];
+      const variant=page.t07Variant;
+      if(variant==='A'){const h1=boxW/r(0),h2=boxW/r(1);rects=[[0,0,boxW,h1],[0,h1+gap,boxW,h2]];}
+      else if(variant==='B'){const hH=boxW/r(0),sq=(boxW-gap)/2;rects=[[0,0,boxW,hH],[0,hH+gap,sq,sq],[sq+gap,hH+gap,sq,sq]];}
+      else if(variant==='C'){const a=r(0),sq=(boxW-gap-gap*a)/(2*a+1),hV=2*sq+gap,wV=hV*a;rects=[[0,0,wV,hV],[wV+gap,0,sq,sq],[wV+gap,sq+gap,sq,sq]];}
+      else if(variant==='F'){const a1=r(0),a2=r(1),c=(boxW-gap-gap*a1)/(a1/a2+a1+1),h2=c/a2,hV=h2+gap+c,wV=hV*a1;rects=[[0,0,wV,hV],[wV+gap,0,c,h2],[wV+gap,h2+gap,c,c]];}
+      else if(variant==='D'){const sq=(boxW-gap)/2;rects=[[0,0,sq,sq],[sq+gap,0,sq,sq],[0,sq+gap,sq,sq],[sq+gap,sq+gap,sq,sq]];}
+      else {const h=(boxW-gap)/(r(0)+r(1));rects=[[0,0,h*r(0),h],[h*r(0)+gap,0,h*r(1),h]];}
+      const totalW=Math.max(...rects.map(([x,,w])=>x+w)),totalH=Math.max(...rects.map(([,y,,h])=>y+h));
+      const k=Math.min(1,boxH/totalH,boxW/totalW),offsetX=boxX+(boxW-totalW*k)/2,offsetY=70+(boxH-totalH*k)/2;
+      const figures=rects.map(([x,y,w,h],i)=>`<figure class="dpk-t07-photo" data-source-photo-index="${ids[i]}" style="left:${Math.round(offsetX+x*k)}px;top:${Math.round(offsetY+y*k)}px;width:${Math.round(w*k)}px;height:${Math.round(h*k)}px">${image(ids[i]).replace('loading="lazy"','loading="eager"')}</figure>`).join('');
+      return article('D01-T07-PHOTOS', `${figures}${captionLine(ids)}${folio}`, `dpk-t07 dpk-t07-${String(variant||'E').toLowerCase()}`);
+    }
+    if (role === 't06-hero') {
+      // «One photograph and air»: the hero frame is fitted whole inside the
+      // page margins (no frame, no shadow, no bleed).
+      // The hero takes the page height minus the system margins, so the taller
+      // 280×335 page gives its extra height to the photograph.
+      const ratio=photoRatio(page.photoIndex||0),boxW=860,boxH=((page.pageFormat||meta.format)==='portrait'?1196:1000)-200,width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
+      return article('D01-T06-HERO', `<figure class="dpk-t06-hero" style="width:${width}px;height:${height}px;--dpk-hero-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${captionLine([page.photoIndex||0])}${folio}`);
+    }
+    if (role === 'hspread-photo') return article('D01-HSPREAD-TOP', `${hspreadPhoto(page.photoIndex||0)}${folio}`, 'dpk-hspread');
+    if (role === 't10-photos') return article('D01-T10-PHOTOS', `${t10Layer(page.t10)}${captionLine([page.t10.main.index,page.t10.card.index])}${folio}`, 'dpk-t10 dpk-t10-photos');
     if (role === 'panorama') {
       const index = page.photoIndex || 0;
       const captionText = page.hideCaption ? '' : caption(index);
@@ -437,7 +550,14 @@
     if (role === 'document-comment') {
       const documentDate=esc([inferred.place,inferred.date].filter(Boolean).join(', '));
       const documentSource=caption(0);
-      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript">${documentDate?`<div class="dpk-document-date">${documentDate}</div>`:''}${text?`<p>${text}</p>`:''}${documentSource?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
+      // The ruled sheet carries the document's own words in handwriting, set
+      // exactly on the rules; the author's explanation stays a quiet printed
+      // note below. Without a transcription the explanation is the hand text.
+      // handChunk/handSize come from the engine when a long text continues on
+      // further ruled sheets (only the first sheet carries the note).
+      const transcript=clean(page.transcript||''),hand=page.handChunk!=null?String(page.handChunk):transcript||clean(page.text||''),note=transcript&&!page.handContinuation?clean(page.note||''):'';
+      const size=Array.isArray(page.handSize)?page.handSize:hand.length<=250?[30,46]:hand.length<=550?[26,40]:[22,34];
+      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate&&!page.handContinuation?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${esc(hand)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource&&!page.handContinuation?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
     }
     if (role === 'timeline') {
       const items = (page.items || []).map(item => `<div class="dpk-timeline-row"><b>${esc(item.year || '')}</b><i></i><span>${esc(item.text || '')}</span></div>`).join('');
@@ -472,9 +592,9 @@
     if(end!==undefined)range.setEnd(node,end);
     return range.cloneContents().textContent;
   }
-  function sourceMarkup(value, breaks = [], inlineRanges = [], suppressTerminalWhitespace = false) {
+  function sourceMarkup(value, breaks = [], inlineRanges = [], suppressTerminalWhitespace = false, startsParagraph = false) {
     const decorations=Array.isArray(inlineRanges)?inlineRanges.filter(item=>item&&item.end>item.start):[];
-    if(!breaks.length&&!decorations.length&&!suppressTerminalWhitespace)return escapeSource(value);
+    if(!breaks.length&&!decorations.length&&!suppressTerminalWhitespace&&!startsParagraph)return escapeSource(value);
     const boundaries=new Set(breaks),opens=new Map(),closes=new Map(),paragraphStarts=new Set(),paragraphEnds=new Set(),pieces=[];let offset=0,terminal=value.length;
     if(suppressTerminalWhitespace)while(terminal>0&&/[ \t\r\n]/u.test(value.charAt(terminal-1)))terminal--;
     for(const match of value.matchAll(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/gu)){
@@ -487,8 +607,12 @@
       if(!opens.has(start))opens.set(start,[]);if(!closes.has(end))closes.set(end,[]);
       opens.get(start).push(item);closes.get(end).unshift(item);
     }
+    // A column or page that opens with a new paragraph is indented too.
+    if(startsParagraph&&value&&!/^[ \t]*\r?\n/u.test(value))pieces.push('<span class="dpk-paragraph-indent" aria-hidden="true"></span>');
     for(const character of value){
-      if(paragraphEnds.has(offset))pieces.push('</span>');
+      // A new paragraph opens with the classic book indent; the empty span
+      // keeps the serialized text identical to the manuscript.
+      if(paragraphEnds.has(offset))pieces.push('</span><span class="dpk-paragraph-indent" aria-hidden="true"></span>');
       if(closes.has(offset))for(const _ of closes.get(offset))pieces.push('</span>');
       if(offset>0&&boundaries.has(offset))pieces.push('<br data-source-boundary>');
       if(opens.has(offset))for(const item of opens.get(offset))pieces.push(`<span class="dpk-inline-handwritten${item.editable?' dpk-inline-handwritten-editable':''}"${item.zone?` data-accent-zone="${escapeSource(item.zone)}"`:''}${item.editable?item.attrs||'':''}>`);
@@ -534,7 +658,7 @@
     return rect.height<=box.height+0.1 && sourceRects(target).every(r=>r.bottom<=box.bottom+0.1&&r.top>=box.top-0.1);
   }
   function clipRanges(ranges,end){return (ranges||[]).filter(item=>item.start<end).map(item=>({...item,end:Math.min(end,item.end)})).filter(item=>item.end>item.start);}
-  function splitRenderedText(target, source, breaks = [], inlineRanges = []) {
+  function splitRenderedText(target, source, breaks = [], inlineRanges = [], startsParagraph = false) {
     const value=String(source??'');
     const boundaries=[0];
     // Search positions mark legal boundaries only. No word or character count
@@ -555,17 +679,17 @@
     // automatic hyphenation and preserved separators that predicate can
     // change after suffix text is added, so binary search could stop at a
     // much earlier legal boundary and leave most of a column empty.
-    target.innerHTML=sourceMarkup(value,breaks,inlineRanges,true);
+    target.innerHTML=sourceMarkup(value,breaks,inlineRanges,true,startsParagraph);
     let low=0,high=ends.length-1,best=0;
     while(low<=high){const index=Math.floor((low+high)/2);if(renderedPrefixFits(target,ends[index])){best=index;low=index+1;}else high=index-1;}
-    const renderEnd=end=>{target.innerHTML=sourceMarkup(rangeText(value,0,end),breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true);return fitsRendered(target);};
+    const renderEnd=end=>{target.innerHTML=sourceMarkup(rangeText(value,0,end),breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true,startsParagraph);return fitsRendered(target);};
     while(best>0&&!renderEnd(ends[best]))best--;
     while(best+1<ends.length&&renderEnd(ends[best+1]))best++;
     const end=ends[best];
     const head=rangeText(value,0,end),tail=rangeText(value,end);
-    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true);
+    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true,startsParagraph);
     const maximumConfirmed=best===ends.length-1||!renderEnd(ends[best+1]);
-    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true);
+    target.innerHTML=sourceMarkup(head,breaks.filter(point=>point<end),clipRanges(inlineRanges,end),true,startsParagraph);
     if(!maximumConfirmed)throw new Error('Измеритель оставил место для продолжения строки.');
     if(head+tail!==value)throw new Error('DOM Range изменил исходный текст.');
     return {head,tail,maximumConfirmed};
@@ -576,26 +700,50 @@
     }
     return value;
   }
+  // \b only knows Latin word characters, so Cyrillic stems need an explicit
+  // letter boundary or the editorial vocabulary never scores.
+  const accentMemory=/(?<!\p{L})(помню|помним|семья|семей|дом|мама|папа|бабуш|дедуш|детство)\p{L}*/iu;
+  const accentTurning=/(?<!\p{L})(впервые|навсегда|важно|тогда|никогда|всегда|изменил|сохранил)\p{L}*/iu;
+  const accentFeeling=/(?<!\p{L})(любил|любила|мечтал|мечтала|судьба|жизнь|вместе|остал)\p{L}*/iu;
+  function phraseScore(text) {
+    return (accentMemory.test(text)?6:0)+(accentTurning.test(text)?5:0)+(accentFeeling.test(text)?4:0)+(text.includes('!')?3:0)+(text.includes('?')?2:0)+(text.includes('—')?1:0);
+  }
+  // Two accents repeat each other when most words of the shorter one occur in
+  // the longer: a quote, a handwritten line and a margin note should each
+  // bring a different phrase, on the page and across the chapter.
+  const accentWordSet=text=>new Set((String(text||'').toLocaleLowerCase('ru').match(/\p{L}+/gu)||[]).filter(word=>word.length>2));
+  function repeatsAccent(text, used) {
+    const words=accentWordSet(text);if(!words.size)return false;
+    return (used||[]).some(other=>{const set=accentWordSet(other);if(!set.size)return false;let shared=0;for(const word of words)if(set.has(word))shared++;return shared/Math.min(words.size,set.size)>=.6;});
+  }
+  const freshPhrases=(value,used)=>{const all=editorialPhrases(value),fresh=all.filter(item=>!repeatsAccent(item.text,used));return fresh.length?fresh:all;};
   function editorialPhrases(value) {
-    const memory=/\b(помню|помним|семья|семей|дом|мама|папа|бабуш|дедуш|детство)\w*/iu;
-    const turning=/\b(впервые|навсегда|важно|тогда|никогда|всегда|изменил|сохранил)\w*/iu;
-    const feeling=/\b(любил|любила|мечтал|мечтала|судьба|жизнь|вместе|остал)\w*/iu;
+    const words=text=>(text.match(/\p{L}+/gu)||[]).length;
     const candidates=[];let order=0;
     for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(String(value??''))){
       const whole=clean(sentence.segment);if(!whole||!/\p{L}/u.test(whole))continue;
-      const parts=[whole,...whole.split(/(?<=[,;:—])\s+/u).map(clean).filter(Boolean)];
-      for(const text of parts){
-        if(!/\p{L}/u.test(text)||/^[\s\p{P}\p{S}]+$/u.test(text))continue;
-        const score=(memory.test(text)?6:0)+(turning.test(text)?5:0)+(feeling.test(text)?4:0)+(text.includes('!')?3:0)+(text.includes('?')?2:0)+(text.includes('—')?1:0);
+      // A page may start in the middle of a sentence; that tail is not a quote.
+      if(/^[\p{Ll}]/u.test(whole))continue;
+      const clauses=whole.split(/(?<=[,;:—])\s+/u).map(clean).filter(Boolean);
+      // Whole sentences first; a clause only when it opens the sentence and
+      // still reads as a complete thought, never with a dangling comma.
+      const opening=clauses.length>1?clauses[0].replace(/[\s,;:—–-]+$/u,''):'';
+      // An opening clause must still read as a thought: at least four words
+      // and not cut off on a function word («Снимок принимал то»).
+      const dangling=/(?<!\p{L})(то|что|как|и|а|но|или|это|так|же|ли|бы|не|на|в|с|к|о|по|за|из|у)$/iu;
+      const parts=[{text:whole,bonus:2},...(opening&&words(opening)>=4&&!dangling.test(opening)?[{text:opening,bonus:0}]:[])];
+      for(const {text,bonus} of parts){
+        if(!/\p{L}/u.test(text)||/^[\s\p{P}\p{S}]+$/u.test(text)||words(text)<3)continue;
+        const score=bonus+phraseScore(text);
         candidates.push({text,score,order:order++});
       }
     }
     return candidates.sort((a,b)=>b.score-a.score||a.order-b.order).filter((item,index,list)=>list.findIndex(other=>other.text===item.text)===index);
   }
-  function inlineAccentRanges(value, manual = '', targetZone = 'middle') {
+  function inlineAccentRanges(value, manual = '', targetZone = 'middle', used = []) {
     const source=String(value??''),candidates=[];
     const zoneRatio={top:.18,middle:.5,bottom:.82}[targetZone]??.5;
-    const semanticScore=text=>editorialPhrases(text)[0]?.score||0;
+    const semanticScore=text=>phraseScore(clean(text));
     for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(source)){
       const words=[...new Intl.Segmenter('ru',{granularity:'word'}).segment(sentence.segment)].filter(item=>item.isWordLike);
       if(words.length<3)continue;
@@ -618,8 +766,9 @@
       if(start>=0)return [{start,end:start+requested.length,editable:true,zone:targetZone}];
       return [];
     }
-    const chosen=candidates
-      .filter((item,index,list)=>list.findIndex(other=>other.start===item.start&&other.end===item.end)===index)
+    const unique=candidates.filter((item,index,list)=>list.findIndex(other=>other.start===item.start&&other.end===item.end)===index);
+    const fresh=unique.filter(item=>!repeatsAccent(item.text,used));
+    const chosen=(fresh.length?fresh:unique)
       .sort((a,b)=>a.distance-b.distance||b.score-a.score||(a.end-a.start)-(b.end-b.start))[0];
     return chosen?[{start:chosen.start,end:chosen.end,editable:true,zone:targetZone}]:[];
   }
@@ -647,7 +796,7 @@
     const mode=page.layout==='chapter-intro'?'chapter':page.rhythm||'plain';
     const withQuote=mode==='inline-quote',withImportant=['important','important-margin'].includes(mode),withMargin=['margin','important-margin'].includes(mode);
     const quoteColumn=String(page.quoteColumn||'left').toLowerCase()==='right'?'right':'left';
-    const flow={mode,quoteColumn,cells:withQuote?['','','']:['',''],cellBreaks:[],sequence:[],geometry:{},promoted:{},accentBreaks:{},accentOverflow:{},maximal:[],inlineRanges:withQuote?[[],[],[]]:[[],[]]};
+    const flow={mode,quoteColumn,paragraphStarts:[],cells:withQuote?['','','']:['',''],cellBreaks:[],sequence:[],geometry:{},promoted:{},accentBreaks:{},accentOverflow:{},maximal:[],inlineRanges:withQuote?[[],[],[]]:[[],[]]};
     page.measuredFlow=flow;
     const paint=()=>{host.innerHTML=render(page,side);return host.querySelector('.dpk-dom-paginated');};
     let article=paint(),area=article?.querySelector('.dpk-measured-flow');
@@ -663,7 +812,11 @@
     }
     const available=articleRect.height-94-origin;
     if(!(leading>0&&available>=leading))throw new Error('Заголовок не оставляет места для целой строки.');
-    const height=Math.floor(available/leading)*leading;
+    // flowLineLimit shortens the working height to whole lines; the engine
+    // uses it to balance the columns and pages that close a chapter.
+    const fullLines=Math.floor(available/leading),lineLimit=Math.floor(Number(page.flowLineLimit)||0);
+    const height=(lineLimit>0?Math.min(fullLines,lineLimit):fullLines)*leading;
+    flow.fullLines=fullLines;
     flow.geometry={origin,height,leading};
     const applyGeometry=()=>{
       for(const [key,value]of Object.entries(flow.geometry))article.style.setProperty(`--dpk-flow-${key}`,typeof value==='number'?`${value}px`:value);
@@ -681,9 +834,10 @@
     const consumeCell=index=>{
       const target=area.querySelector(`[data-flow-cell="${index}"] .dpk-source-copy`);
       const localRanges=activeRanges.filter(item=>item.end>offset).map(item=>({...item,start:Math.max(0,item.start-offset),end:item.end-offset})).filter(item=>item.start<rest.length&&item.end>0);
-      const split=splitRenderedText(target,rest,breaksNow(),localRanges);
+      const opensParagraph=offset===0?Boolean(page.startsParagraph):/\r?\n[ \t]*\r?\n[ \t\r\n]*$/u.test(flowSourceText(flow));
+      const split=splitRenderedText(target,rest,breaksNow(),localRanges,opensParagraph);
       if(!split.head&&rest&&target.parentElement.getBoundingClientRect().height>=leading)throw new Error('Следующий фрагмент нельзя поместить в колонку без обрезки.');
-      flow.cells[index]=split.head;flow.inlineRanges[index]=clipRanges(localRanges,split.head.length);flow.cellBreaks[index]=register('cell',split.head,index);flow.maximal[index]=split.maximumConfirmed;rest=split.tail;
+      flow.paragraphStarts[index]=opensParagraph;flow.cells[index]=split.head;flow.inlineRanges[index]=clipRanges(localRanges,split.head.length);flow.cellBreaks[index]=register('cell',split.head,index);flow.maximal[index]=split.maximumConfirmed;rest=split.tail;
     };
     const selectOnNode=(node,candidates,manual,key)=>{
       const result=chooseAccent(node,candidates,manual,2);
@@ -691,13 +845,15 @@
       return result.text;
     };
     if(withQuote){
-      const columnWidth=Math.max(1,(area.getBoundingClientRect().width-32)/2);
+      // The quote is shown inside a reservation 10px narrower on each side and
+      // with guillemets, so it is measured under exactly those conditions.
+      const columnWidth=Math.max(1,(area.getBoundingClientRect().width-32)/2-20);
       const probe=document.createElement('div');probe.className='dpk-accent-probe';probe.style.cssText=`position:absolute;left:0;top:0;width:${columnWidth}px;height:auto;min-height:0;overflow:visible`;
       const copy=document.createElement('p');copy.className='dpk-source-copy dpk-quote-copy';probe.appendChild(copy);area.appendChild(probe);
       let quoteHeight=0;
       try{
         const automatic=page.autoInlineQuote ?? !page.inlineQuote;
-        const selected=chooseAccent(copy,String(source??''),automatic?'':String(page.inlineQuote||''),2);
+        const selected=chooseAccent(copy,automatic?freshPhrases(source,page.avoidAccents):String(source??''),automatic?'':String(page.inlineQuote||''),2);
         page.inlineQuote=selected.text;
         if(!page.inlineQuote&&automatic)throw accentFailure('quote','',true,'В тексте страницы не найдена содержательная цитата.');
         copy.textContent=page.inlineQuote;
@@ -724,7 +880,7 @@
         for(const index of columns){
           const text=cells[index]||'',zones=manual?[targetZone]:['top','middle','bottom'];
           for(const zone of zones){
-            const range=inlineAccentRanges(text,manual,zone).find(item=>{
+            const range=inlineAccentRanges(text,manual,zone,page.avoidAccents).find(item=>{
               const start=item.start+offsets[index],end=item.end+offsets[index];
               return !selected.some(other=>start<other.end&&end>other.start);
             });
@@ -772,16 +928,28 @@
       // Keep the rotated glyph box inside the measured column at both ends.
       // Starting exactly on the column boundary made browser font overhangs
       // fail the final DOM audit even when the visible two-line note fitted.
-      const noteFooterGap=30,noteInset=28,noteLength=Math.max(leading,height-noteFooterGap-noteInset*2),noteLeading=40,noteMaxLines=2,noteDepth=noteLeading*noteMaxLines;
-      const box=document.createElement('div');box.className='dpk-accent-probe';box.style.cssText=`position:absolute;left:0;top:0;width:${noteLength}px;height:${noteDepth}px;overflow:visible`;
+      // Like a note written by hand along the outer margin: two lines that
+      // cover about four fifths of the column, anchored where the pen starts
+      // (bottom on a left page written upwards, top on a right page). A note
+      // that needs more room may still run the whole column.
+      const noteFooterGap=30,noteRoom=Math.max(leading,height-noteFooterGap-28*2),noteLeading=32,noteMaxLines=2,noteDepth=noteLeading*noteMaxLines;
+      const noteLengths=[...new Set([Math.max(Math.min(noteRoom,leading*4),Math.round(noteRoom*.8)),noteRoom])];
+      const box=document.createElement('div');box.className='dpk-accent-probe';
       const copy=document.createElement('p');copy.className='dpk-source-copy dpk-note-copy';box.appendChild(copy);area.appendChild(box);
       try{
-        const automatic=page.autoMarginNote ?? !page.marginNote;
-        const selected=chooseAccent(copy,flowSourceText(flow),automatic?'':String(page.marginNote||''),noteMaxLines);
+        const automatic=page.autoMarginNote ?? !page.marginNote,requested=automatic?'':String(page.marginNote||'');
+        let noteLength=noteLengths[0],selected=null;
+        for(noteLength of noteLengths){
+          box.style.cssText=`position:absolute;left:0;top:0;width:${noteLength}px;height:${noteDepth}px;overflow:visible`;
+          selected=chooseAccent(copy,requested?flowSourceText(flow):freshPhrases(flowSourceText(flow),[...(page.avoidAccents||[]),...(page.innerImportantLines||[]),page.importantLine||'',page.inlineQuote||'']),requested,noteMaxLines);
+          copy.textContent=selected.text;
+          if(selected.fits&&renderedLineCount(copy)<=noteMaxLines)break;
+        }
         page.marginNote=selected.text;
         copy.textContent=page.marginNote;
         flow.noteLines=renderedLineCount(copy);
         if((!selected.fits||flow.noteLines>noteMaxLines)&&!page.forceMarginPlacement)throw accentFailure('margin',page.marginNote,automatic,'Заметка слишком длинная для этой области. Сократите текст.');
+        const noteInset=side==='left'?Math.max(28,height-noteFooterGap-28-noteLength):28;
         flow.geometry['note-length']=noteLength;flow.geometry['note-depth']=noteDepth;flow.geometry['note-footer-gap']=noteFooterGap;flow.geometry['note-inset']=noteInset;flow.accentOverflow.margin=false;
       }finally{box.remove();}
     }
@@ -841,7 +1009,7 @@
       if(sourceRects(note).some(r=>r.top<areaRect.top-epsilon||r.bottom>areaRect.bottom+epsilon||r.left<pageRect.left-epsilon||r.right>pageRect.right+epsilon))violations.push({rule:'note-glyph-outside-page'});
       const transform=new DOMMatrixReadOnly(getComputedStyle(note).transform);
       const right=article.classList.contains('right');
-      if(Math.abs(transform.a)>0.0001||Math.abs(transform.d)>0.0001||Math.abs(transform.b-(right?1:-1))>0.0001||Math.abs(transform.c-(right?-1:1))>0.0001)violations.push({rule:'note-orientation'});
+      if(Math.abs(transform.a)>0.03||Math.abs(transform.d)>0.03||Math.abs(transform.b-(right?1:-1))>0.001||Math.abs(transform.c-(right?-1:1))>0.001)violations.push({rule:'note-orientation'});
     }
     for(const node of article.querySelectorAll('.dpk-inline-quote')){
       const rect=node.getBoundingClientRect(),box=node.parentElement.getBoundingClientRect();
@@ -885,5 +1053,5 @@
     return { status: violations.length ? 'fail' : 'pass', pages: pages.length, violations };
   }
 
-  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit });
+  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit, editorialPhrases });
 })(window);

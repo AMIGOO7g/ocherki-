@@ -8,11 +8,11 @@ const renderer=ctx.window.OcherkiBookRenderer;
 
 assert.equal(renderer.pack.version,'1.16.0-stable-important-reflow');
 assert(/font:400 17px\/1\.08 'SignThatS'/.test(css),'inline handwriting is not the approved compact size');
-assert(/font:400 36px\/40px 'SignThatS'/.test(css),'margin handwriting does not use the approved size');
+assert(/font:400 30px\/32px 'SignThatS'/.test(css),'margin handwriting does not use the approved size');
 assert(/height:var\(--dpk-flow-note-length,var\(--dpk-flow-height\)\)/.test(css),'note is not bounded by measured column height');
 assert(/max-height:var\(--dpk-flow-note-depth,80px\)/.test(css)&&/overflow:hidden!important/.test(css),'two-line note depth is not bounded');
-assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-90deg\)/.test(css),'left note orientation changed');
-assert(/\.right \.dpk-margin-note span\{[^}]*rotate\(90deg\)/.test(css),'right note orientation changed');
+assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-89deg\)/.test(css),'left note orientation changed');
+assert(/\.right \.dpk-margin-note span\{[^}]*rotate\(91deg\)/.test(css),'right note orientation changed');
 assert(rendererSource.includes("noteFooterGap=30")&&rendererSource.includes("noteMaxLines=2")&&rendererSource.includes("geometry['note-length']"),'measured two-line note geometry is missing');
 assert(rendererSource.includes("['top','middle','bottom']")&&rendererSource.includes('return selected.sort'),'distributed inline handwriting selection is missing');
 assert(rendererSource.includes("note-footer-clearance")&&rendererSource.includes("note-more-than-two-lines"),'final note DOM audit is incomplete');

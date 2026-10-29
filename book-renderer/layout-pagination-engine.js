@@ -39,7 +39,7 @@
     document.body.appendChild(host);
     const warnings=[],pending=[],pendingKeys=new Set(),render=(p,s)=>renderPage(p,s,meta);
     function textPage(page,source,side){
-      const original={...page};let candidate={...original};const removed=new Set(),automaticRetries={quote:0,important:0,margin:0};let automaticMarginForced=false;
+      const original={...page};let candidate={...original};const removed=new Set(),automaticRetries={quote:0,important:0,margin:0},triedAccents={};let automaticMarginForced=false;
       const automaticRequested={
         quote:original.autoInlineQuote??!original.inlineQuote,
         important:original.autoImportant??!original.importantLine,
@@ -48,17 +48,25 @@
       for(;;){
         try{
           const result=renderer().paginateText(candidate,source,host,render,side);Object.assign(page,candidate);
+          if(original.balanceTrial)return result;
           for(const [kind,overflow]of Object.entries(candidate.measuredFlow?.accentOverflow||{}))if(overflow)warnings.push({code:'ACCENT_DOM_OVERFLOW',template:candidate.master,kind,text:kind==='quote'?candidate.inlineQuote:kind==='margin'?candidate.marginNote:candidate.importantLine,automatic:false,reason:kind==='margin'?'Заметка слишком длинная для этой области. Сократите текст.':'Редакционная вставка не помещается в измеренную область.',fallback:kind==='margin'?'user-must-shorten':'highlighted-without-reflow'});
           return result;
         }
         catch(error){
-          if(error.code!=='ACCENT_UNFIT')throw error;
+          // A balancing trial only measures; it must not defer accents or warn.
+          if(original.balanceTrial||error.code!=='ACCENT_UNFIT')throw error;
           const field={quote:'inlineQuote',important:'importantLine',margin:'marginNote'}[error.kind];
           const autoField={quote:'autoInlineQuote',important:'autoImportant',margin:'autoMarginNote'}[error.kind];
           const isAutomatic=Boolean(error.automatic||automaticRequested[error.kind]);
           if(isAutomatic&&field&&automaticRetries[error.kind]<5){
             const attempt=automaticRetries[error.kind]++;
-            const shortened=compactAccent(error.text,source,attempt,error.kind==='important'?3:1);
+            // A quote or margin note that does not fit is replaced by another
+            // complete, shorter phrase of the same page — never by its first
+            // few words. Handwritten lines keep the word-span fallback.
+            const tried=triedAccents[error.kind]||(triedAccents[error.kind]=new Set());tried.add(String(error.text||''));
+            const phrases=['quote','margin'].includes(error.kind)&&typeof renderer().editorialPhrases==='function'?renderer().editorialPhrases(String(source).slice(0,2400)):[];
+            const whole=phrases.map(item=>item.text).find(text=>!tried.has(text)&&text.length<String(error.text||'').length&&text.length>=12);
+            const shortened=whole||compactAccent(error.text,source,attempt,error.kind==='important'?3:1);
             if(shortened){
               candidate={...candidate,[field]:shortened,[autoField]:false,measuredFlow:undefined};
               warnings.push({code:'ACCENT_AUTO_RETRY',template:original.master,kind:error.kind,text:shortened,automatic:true,reason:error.message,fallback:'shorter-measured-accent'});
@@ -80,7 +88,8 @@
             plain.measuredFlow.mode=original.rhythm;
             plain.measuredFlow.noteLines=1;
             plain.measuredFlow.accentOverflow={...(plain.measuredFlow.accentOverflow||{}),margin:false};
-            Object.assign(plain.measuredFlow.geometry,{'note-length':Math.max(1,height-86),'note-depth':80,'note-footer-gap':30,'note-inset':28});
+            const noteLength=Math.max(1,Math.round((height-86)*.8));
+            Object.assign(plain.measuredFlow.geometry,{'note-length':noteLength,'note-depth':64,'note-footer-gap':30,'note-inset':side==='left'?Math.max(28,height-58-noteLength):28});
             candidate={...candidate,master:original.master,rhythm:original.rhythm,marginNote:safeNote,autoMarginNote:false,allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:plain.measuredFlow};
             result.measuredFlow=plain.measuredFlow;
             Object.assign(page,candidate);
@@ -88,7 +97,13 @@
             return result;
           }
           if(isAutomatic){
-            throw Object.assign(new Error(`Обязательный редакционный акцент «${error.kind}» не удалось разместить. Страница не заменена обычной.`),{code:'ACCENT_REQUIRED',kind:error.kind,text:error.text,automatic:true});
+            // An automatic accent is the engine's own suggestion. When no
+            // fitting phrase exists the page is still typeset as plain prose
+            // (recorded as a warning): a whole book never fails to build
+            // because of a decoration nobody asked for.
+            warnings.push({code:'ACCENT_AUTO_UNPLACED',template:original.master,kind:error.kind,text:error.text||'',automatic:true,reason:error.message,fallback:'plain-text-page'});
+            candidate={...original,requestedMaster:original.master,master:pack.textMasters.plain,rhythm:'plain',inlineQuote:'',importantLine:'',marginNote:'',autoInlineQuote:false,autoImportant:false,autoMarginNote:false,measuredFlow:undefined};
+            continue;
           }
           if(error.kind==='margin'||error.kind==='quote'){
             const message=error.kind==='margin'
@@ -213,7 +228,30 @@
       const result=settings.composition?compose(input,settings,session):global.OcherkiBookEngine.assemble(input,{...settings,textRhythmOnly:true,layoutDefinition:pack,paginateText:session.textPage});
       if(!result.ready)return result;
       let at=result.spreads.findIndex(s=>[s.left,s.right].some(p=>p&&['epilogue','thanks','sources','colophon','back-cover'].includes(p.kind)));if(at<0)at=result.spreads.length;
-      for(const page of session.deferredPages())result.spreads.splice(at++,0,{master:'D01-SPREAD-EDITORIAL-FALLBACK',left:page,right:null});
+      // Deferred pages are measured as left pages; the right side is closed
+      // with a blank page so the physical page order stays even/odd correct.
+      for(const page of session.deferredPages())result.spreads.splice(at++,0,{master:'D01-SPREAD-EDITORIAL-FALLBACK',left:page,right:{kind:'blank',layout:'blank'}});
+      // A handwritten document transcript fills its ruled sheet; when it is
+      // longer, it continues on further ruled sheets (measured, whole words).
+      const handFits=(page,side)=>{if(typeof session.host.querySelector!=='function')return true;session.host.innerHTML=session.render(page,side);const hand=session.host.querySelector('.dpk-document-hand');return !hand||hand.scrollHeight<=hand.clientHeight+1;};
+      for(let index=0;index<result.spreads.length;index++){
+        const page=result.spreads[index].right;
+        if(!page||page.kind!=='document-comment'||handFits(page,'right'))continue;
+        const full=String(page.transcript||page.text||'').trim(),size=[22,34];
+        if(handFits({...page,handSize:size},'right')){page.handSize=size;continue;}
+        const tokens=full.split(/(\s+)/u),chunks=[];let start=0;
+        while(start<tokens.length){
+          const side=chunks.length%2===0?'right':'left',test=end=>handFits({...page,handChunk:tokens.slice(start,end).join('').trim(),handSize:size,handContinuation:chunks.length>0},side);
+          let low=start+1,high=tokens.length;
+          while(low<high){const middle=Math.ceil((low+high)/2);if(test(middle))low=middle;else high=middle-1;}
+          chunks.push(tokens.slice(start,low).join('').trim());start=low;
+        }
+        Object.assign(page,{handChunk:chunks[0],handSize:size});
+        const sheet=(chunk,n)=>({...page,id:`${page.id}_sheet_${n}`,handChunk:chunk,handContinuation:true});
+        const extra=[];
+        for(let n=1;n<chunks.length;n+=2)extra.push({master:'D01-SPREAD-DOCUMENT-CONTINUATION',sectionId:result.spreads[index].sectionId,left:sheet(chunks[n],n),right:chunks[n+1]?sheet(chunks[n+1],n+1):{kind:'blank',layout:'blank'}});
+        result.spreads.splice(index+1,0,...extra);index+=extra.length;
+      }
       result.spreads.forEach((spread,index)=>{if(!spread.id)spread.id=`d01_spread_${index+1}`;});result.pages=result.spreads.flatMap(s=>[s.left,s.right].filter(Boolean));result.pages.forEach((p,i)=>{p.pageNo=i+1;});
       const metrics=[];
       for(const spread of result.spreads)for(const side of ['left','right']){

@@ -2832,7 +2832,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       <div class="bd-design-grid" id="bdDesignGrid"></div>
     </section>
     <section class="bd-section">
-      <div class="bd-head"><h2>Формат книги</h2><button class="bd-link" type="button" id="bdCustomFormat">настраиваемый <svg viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="bd-head"><h2>Формат книги</h2></div>
       <div class="bd-format-grid" id="bdFormatGrid"></div>
     </section>
   </aside>
@@ -4646,7 +4646,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         (page.photos||[]).map(photo=>[
           fastFingerprint(photo.src||photo.dataUrl||photo.dataURL||photo.url||photo.preview||photo.objectUrl||''),
           photo.caption,photo.year,photo.place,photo.people,photo.story,
-          photo.photoMode,photo.layoutPreference,photo.width,photo.height,photo.orientation,
+          photo.photoMode,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
           photo.focalX,photo.focalY,photo.focalConfirmed,photo.focalSource,photo.ctxHandwrittenNote,JSON.stringify(photo.detailRoi||photo.ctxRoi||photo.roi||null),JSON.stringify(photo.regions||null)
         ].join('\u001f')).join('\u001e')
       ].join('\u001f')).join('\u001e')

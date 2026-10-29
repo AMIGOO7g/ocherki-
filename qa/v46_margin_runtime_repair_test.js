@@ -21,6 +21,6 @@ const manual={master:'D01-TEXT-MARGIN',rhythm:'margin',autoMarginNote:false,marg
 assert.throws(()=>session.textPage(manual,'Текст страницы','left'),/Заметка на поле не помещается в две строки/);
 session.dispose();
 const source=read('book-renderer/design-pack-01.js'),css=read('book-renderer/design-pack-01.css');
-assert(source.includes('noteInset=28')&&source.includes("geometry['note-inset']=noteInset"));
+assert(source.includes("noteInset=side==='left'")&&source.includes("geometry['note-inset']=noteInset"));
 assert(css.includes('calc(var(--dpk-flow-origin) + var(--dpk-flow-note-inset,0px))'));
 console.log(JSON.stringify({status:'pass',automaticMargin:'visible-last-resort',manualMargin:'still-validated',safeInset:28}));

@@ -16,7 +16,7 @@ assert(/'inline-quote','important','margin','important-margin'/.test(pack),'appr
 assert(/chooseAccent\([^)]*2\)/.test(renderer)&&/renderedLineCount/.test(renderer),'two rendered-line accent limit is missing');
 assert(/dpk-accent-overflow/.test(renderer)&&/dpk-accent-overflow/.test(css),'overflow highlight is missing');
 assert(/var\(--dpk-accent\)/.test(css),'quote does not use chapter accent colour');
-assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-90deg\)/.test(css)&&/\.right \.dpk-margin-note span\{[^}]*rotate\(90deg\)/.test(css),'margin-note orientation changed');
+assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-89deg\)/.test(css)&&/\.right \.dpk-margin-note span\{[^}]*rotate\(91deg\)/.test(css),'margin-note orientation changed');
 assert(!/dpk-inset-column|dpk-flow-zone/.test(renderer),'editorial roles still split the source into artificial text zones');
 assert(/dpk-inline-handwritten/.test(renderer+css),'existing inline handwritten role is not connected to source text');
 assert(/dpk-quote-reservation/.test(renderer+css)&&/dpk-flow-row/.test(renderer+css)&&!/dpk-quote-overlay/.test(renderer+css),'quote is not reserved inside the measured flow');

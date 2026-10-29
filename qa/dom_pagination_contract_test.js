@@ -28,8 +28,10 @@ assert(result.pages.filter(p=>p.measuredFlow).length>160);checks++;
 assert.equal(result.expectedManuscripts[0].text,raw+source.sections[0].pages[1].text);checks++;
 assert.equal(result.pages.filter(p=>p.measuredFlow).map(p=>p.text).join(''),raw+source.sections[0].pages[1].text);checks++;
 assert.equal(engine.audit(result).status,'pass');checks++;
-const body=result.pages.filter(p=>p.rhythm),cycle=['inline-quote','important','margin','important-margin'];
-body.forEach((p,i)=>assert.equal(p.rhythm,cycle[i%4]));checks++;
+const body=result.pages.filter(p=>p.rhythm),cycle=['inline-quote','important','margin','important-margin','plain'];
+// The author's cycle: quote, handwritten lines, margin note, both, then a
+// quiet page, and again from the quote.
+body.forEach((p,i)=>assert.equal(p.rhythm,cycle[i%5]));checks++;
 const combined=body.find(p=>p.rhythm==='important-margin');assert.equal(combined.importantLine,'Исправленная  строка.');assert.equal(combined.marginNote,'Исправленная\tзаметка.');checks++;
 const markup=renderer.renderPage(combined,'right',{});
 assert(markup.includes('data-editorial-key="important-margin:0"'));assert(markup.includes('data-editorial-key="important-margin:0:margin"'));checks++;
@@ -50,5 +52,5 @@ const active=script.split('function assembleExactText')[1].split('function audit
 assert(!/wordCount|wordList|pageWords|takeWords|normalizeProse|stripQuote|substring|consumeMeasuredFlow/.test(active));checks++;
 const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');assert(!/createEditorialTextFit|measureEditorialPageWords|textFitProbe/.test(shell));checks++;
 const css=fs.readFileSync(path.join(root,'book-renderer/design-pack-01.css'),'utf8');
-assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-90deg\)/.test(css));assert(/\.right \.dpk-margin-note span\{[^}]*rotate\(90deg\)/.test(css));checks++;
+assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-89deg\)/.test(css));assert(/\.right \.dpk-margin-note span\{[^}]*rotate\(91deg\)/.test(css));checks++;
 console.log(JSON.stringify({status:'pass',checks,pages:body.length,exactUnicodeAndWhitespace:true,chapterUsesDOM:true,browserGeometry:'not executed'},null,2));

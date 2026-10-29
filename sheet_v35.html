@@ -828,6 +828,9 @@ html.photo-modal-root-open body{overflow:visible!important;}
 <style id="v163-photo-card-tone">
 /* Monochrome is a property of the selected photo, not of the whole sheet. */
 .photo-card.photo-card-bw img{filter:grayscale(1) sepia(.08) contrast(1.04) brightness(.98)!important;}
+  .photo-hero-toggle{display:flex;align-items:center;gap:10px;cursor:pointer}
+  .photo-hero-toggle input{width:20px;height:20px;accent-color:#8a6a45}
+  .photo-hero-hint{margin-top:4px;font-size:12px;opacity:.7}
 </style>
 </head>
 <body>
@@ -843,6 +846,9 @@ html.photo-modal-root-open body{overflow:visible!important;}
       <div class="photo-field"><label>МЕСТО</label><input id="photoPlace" placeholder="Город, деревня…"></div>
       <div class="photo-field wide"><label>КТО НА ФОТО</label><input id="photoPeople" placeholder="Имена"></div>
       <div class="photo-field wide"><label>ИСТОРИЯ ФОТОГРАФИИ</label><textarea id="photoStory" placeholder="Почему этот снимок важен..."></textarea></div><div class="photo-field wide"><label>ИСТОЧНИК</label><input id="photoSource" placeholder="Семейный архив…"></div>
+      <div class="photo-field wide photo-hero-field"><label class="photo-hero-toggle"><input type="checkbox" id="photoPortraitHero"> ПОРТРЕТ ГЕРОЯ КНИГИ</label><div class="photo-hero-hint">Книга выделит этот портрет отдельным разворотом. Имя берётся из поля «Кто на фото».</div></div>
+      <div class="photo-field" id="photoHeroYearsField" hidden><label>ГОДЫ ЖИЗНИ</label><input id="photoHeroYears" placeholder="1901 – 1982"></div>
+      <div class="photo-field" id="photoHeroRoleField" hidden><label>КТО ОН ДЛЯ СЕМЬИ</label><input id="photoHeroRole" placeholder="Хранительница дома"></div>
       <div class="photo-field"><label>ТОН ФОТО</label><select id="photoModePreference"><option value="auto">Автоматически</option><option value="color">Цветная</option><option value="bw">Чёрно-белая</option></select></div>
       <!-- Макет разворота выбирается в предпросмотре выбранного листа.  В
            карточке фотографии оставляем только свойства самой фотографии. -->
@@ -1138,6 +1144,11 @@ const photoPeople=document.getElementById('photoPeople');
 const photoSource=document.getElementById('photoSource');
 const photoStory=document.getElementById('photoStory');
 const photoModePreference=document.getElementById('photoModePreference');
+const photoPortraitHero=document.getElementById('photoPortraitHero');
+const photoHeroYears=document.getElementById('photoHeroYears');
+const photoHeroRole=document.getElementById('photoHeroRole');
+const syncHeroFields=()=>{const on=Boolean(photoPortraitHero?.checked);['photoHeroYearsField','photoHeroRoleField'].forEach(id=>{const field=document.getElementById(id);if(field)field.hidden=!on;});};
+photoPortraitHero?.addEventListener('change',syncHeroFields);
 const photoToneBtn=document.getElementById('photoToneBtn');
 const documentExplanation=document.getElementById('documentExplanation');
 const documentExplanationField=document.getElementById('documentExplanationField');
@@ -3336,6 +3347,10 @@ function fillPhotoInfo(p){
   photoSource.value=p.source||'';
   photoStory.value=p.story||'';
   if(photoModePreference) photoModePreference.value=p.photoMode||'auto';
+  if(photoPortraitHero) photoPortraitHero.checked=p.portraitHero===true;
+  if(photoHeroYears) photoHeroYears.value=p.heroYears||'';
+  if(photoHeroRole) photoHeroRole.value=p.heroRole||'';
+  syncHeroFields();
   const isDocument=currentPage()?.type==='document';
   if(documentExplanationField) documentExplanationField.hidden=!isDocument;
   if(documentExplanation) documentExplanation.value=currentPage()?.explanation||p.explanation||'';
@@ -3404,6 +3419,9 @@ function closePhoto(save=false,force=false){
     p.source=photoSource.value.trim();
     p.story=photoStory.value.trim();
     p.photoMode=photoModePreference?.value||'auto';
+    p.portraitHero=Boolean(photoPortraitHero?.checked);
+    p.heroYears=photoHeroYears?.value.trim()||'';
+    p.heroRole=photoHeroRole?.value.trim()||'';
     if(currentPage()?.type==='document') currentPage().explanation=documentExplanation?.value.trim()||'';
     updatePhotoStatus(p);
     renderPhotos();
@@ -3683,6 +3701,9 @@ window.addEventListener('message',e=>{
             story: String(photo?.story || ''),
             photoMode: String(photo?.photoMode || 'auto'),
             layoutPreference: String(photo?.layoutPreference || 'auto'),
+            portraitHero: photo?.portraitHero === true,
+            heroYears: String(photo?.heroYears || ''),
+            heroRole: String(photo?.heroRole || ''),
             width: Number(photo?.width || 0),
             height: Number(photo?.height || 0),
             orientation: String(photo?.orientation || ''),

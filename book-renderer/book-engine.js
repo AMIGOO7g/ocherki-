@@ -7,9 +7,15 @@
   const imageSource = photo => String(photo?.src || photo?.dataUrl || photo?.dataURL || photo?.url || photo?.preview || photo?.objectUrl || '').trim();
   const cleanTitle = (value, fallback = '') => String(value || '').replace(/^Глава\s+\d+[.:]?\s*/i, '').trim() || fallback;
   const norm = value => String(value || '').replace(/\s+/g, ' ').trim().toLocaleLowerCase('ru');
+  // A sheet the editor created because the text ran past the bottom of the
+  // previous one continues the same paragraph. Older projects can lose the
+  // flag, so a sheet that ends mid-sentence and resumes in lower case is
+  // treated the same way.
+  const isContinuation = (previous, current, page) => page?.continuation === true || Boolean(page?.continuationOf)
+    || (Boolean(previous && current) && !/[.!?…»”"]\s*$/u.test(previous) && /^\s*[\p{Ll},;:)—–-]/u.test(current));
   const continuationJoin = (previous, current, page) => {
     if (!previous || !current || /\s$/u.test(previous) || /^\s/u.test(current) || /^[,.;:!?…»”)]/u.test(current)) return '';
-    return page?.continuation === true || page?.continuationOf ? String(page.continuationJoin ?? ' ') : '\n\n';
+    return isContinuation(previous, current, page) ? String(page?.continuationJoin ?? ' ') : '\n\n';
   };
   function ctxHandwrittenFallback(photo, page, title) {
     const explicit=String(photo?.ctxHandwrittenNote||page?.ctxHandwrittenNote||page?.importantLine||page?.marginNote||'').trim();
@@ -228,6 +234,14 @@
     const next = quoteCandidate(text, used, seed);
     if (next) used.add(norm(next));
     return next;
+  }
+
+  // T12 carries the photo's own short text: a caption (≤ 60 characters) and a
+  // story of 3–60 words. This is an editorial eligibility test, not a page
+  // capacity — pagination itself is always measured in the DOM.
+  function t12Eligible(photo) {
+    const caption=String(photo?.caption||'').trim(),storyLength=(String(photo?.story||'').match(/\p{L}+/gu)||[]).length;
+    return caption.length>0&&caption.length<=60&&storyLength>=3&&storyLength<=60;
   }
 
   function pageFactory() {
@@ -607,7 +621,7 @@
         const rawText = String(page.text ?? '');
         const prefix=continuationJoin(previousText,rawText,page);
         const text=prefix+rawText;
-        const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page };
+        const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page, continuation: isContinuation(previousText, rawText, page) };
         end = run.end;
         previousText=rawText;
         return run;
@@ -644,31 +658,74 @@
       spreads.push({id:'d01_dedication_epigraph',master:'D01-SPREAD-DEDICATION-EPIGRAPH',left:P('dedication',{dedicationText:dedicationText || 'Тем, кто хранит семейную память.',dedicationSign,meta:bookMeta}),right:byId('epigraph')?epigraphPage:P('blank',{meta:bookMeta})});
       if (byId('contents')) spreads.push({id:'d01_contents',master:'D01-SPREAD-CONTENTS',left:P('blank',{meta:bookMeta}),right:contentsPage});
     } else if (byId('epigraph') || byId('contents')) spreads.push({id:'d01_epigraph_contents',master:'D01-SPREAD-EPIGRAPH-CONTENTS',left:byId('epigraph')?epigraphPage:P('blank',{meta:bookMeta}),right:byId('contents')?contentsPage:P('blank',{meta:bookMeta})});
+    // Optional front/back matter is printed only when the author wrote it;
+    // a heading over an empty page reads as a mistake in a finished book.
+    const hasMatter = id => Boolean(String(byId(id)?.pages?.find(page=>page.included!==false)?.text??'').trim());
     const matter = (id,kind,master,title) => {
       const section=byId(id), source=section?.pages?.find(page=>page.included!==false) || {};
-      return section?P(kind,{master,title:source.title||section.title||title,text:String(source.text??''),source,meta:bookMeta}):P('blank',{meta:bookMeta});
+      return hasMatter(id)?P(kind,{master,title:source.title||section.title||title,text:String(source.text??''),source,meta:bookMeta}):P('blank',{meta:bookMeta});
     };
-    if(byId('intro')||byId('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
+    if(hasMatter('intro')||hasMatter('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
     const expectedManuscripts = [];
-    const cycle = meta.layoutDefinition?.rhythm || ['inline-quote','important','margin','important-margin'];
-    const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN' };
+    const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN', plain:'D01-TEXT' };
+    // The author's editorial cycle: quote page, handwritten-lines page, margin
+    // note page, handwritten lines + margin note, then again from the quote.
+    // After every full cycle a quiet page without accents lets the eye rest
+    // (meta.quietPageAfterCycle === false switches it off). Photo beats pause
+    // the cycle; they never restart it.
+    const accentCycle = meta.layoutDefinition?.rhythm || ['inline-quote','important','margin','important-margin'];
+    const quietPageAfterCycle = meta.quietPageAfterCycle !== false;
+    const textSeed = value => { let hash=2166136261; for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);} return hash>>>0; };
+    // Photo beats are chosen like an art director would: by how many unused
+    // photographs the chapter still holds and their shape, never the same
+    // beat twice in a row across the book, in a repeatable seeded order.
+    const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
+    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0, t12Count = 0;
+    const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
     chapters.forEach((chapter,index) => {
-      let rest = chapter.text, sourceOffset = 0, rhythmIndex = 0;
+      const chapterSpreadStart = spreads.length;
+      let rest = chapter.text, sourceOffset = 0;
       const occurrences = {};
       expectedManuscripts.push({sectionId:chapter.sectionId,text:chapter.text});
+      // Accent phrases already used in this chapter, so later pages pick
+      // other words for their quote, handwritten line and margin note.
+      const usedAccents = [];
+      // Episodes that start inside the chapter with their own photograph get
+      // an opening spread. Their text always begins on a fresh page: no page
+      // is filled across an episode boundary.
+      const episodes=chapter.runs.filter(run=>run.page?.isEpisodeStart===true&&run.start>0&&String(run.page.text||'').trim()).map(run=>{
+        const photoPosition=chapter.photos.findIndex(photo=>photo._sourcePageUid===run.sourcePageUid&&imageSource(photo));
+        if(photoPosition<0)return null;
+        const photo=chapter.photos[photoPosition],story=String(photo.story||'').trim().match(/^[^.!?…]+[.!?…]?/u)?.[0]||'';
+        photo._episodeOpening=true;
+        return {offset:run.start+(run.text.length-String(run.page.text).length),photoPosition,opened:false,
+          title:String(run.page.episode||run.page.title||'').replace(/^\u042d\u043f\u0438\u0437\u043e\u0434\s+\d+[.:]?\s*/iu,'').trim()||String(run.page.title||'').trim(),
+          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:''),caption:String(photo.caption||'').trim()};
+      }).filter(Boolean);
+      const pendingEpisode=()=>episodes.find(item=>!item.opened&&item.offset===sourceOffset);
       const consume = (page,side) => {
-        page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset).map(run=>run.start-sourceOffset);
+        const boundary=episodes.find(item=>!item.opened&&item.offset>sourceOffset)?.offset;
+        const whole=rest,limit=boundary!=null?rest.slice(0,boundary-sourceOffset):rest;rest=limit;
+        if(!page.avoidAccents)page.avoidAccents=usedAccents.slice();
+        page.startsParagraph=sourceOffset>0&&/\r?\n[ \t]*\r?\n[ \t\r\n]*$/u.test(chapter.text.slice(0,sourceOffset));
+        // Only a real new sheet starts a new line; where the editor merely
+        // carried the text over, the book keeps one continuous line flow.
+        page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset&&!run.continuation).map(run=>run.start-sourceOffset);
         const split = meta.paginateText(page,rest,side);
         if (split.head + split.tail !== rest || (!split.head && rest)) throw new Error('Нарушена точная сохранность исходного текста.');
         page.text = split.head; page.sourceText = split.head; page.measuredFlow = split.measuredFlow;
         page.sourceRange = { start: sourceOffset, end: sourceOffset + split.head.length };
-        sourceOffset = page.sourceRange.end; rest = split.tail;
+        sourceOffset = page.sourceRange.end; rest = split.tail+whole.slice(limit.length);
+        for(const text of [page.inlineQuote,page.importantLine,...(page.innerImportantLines||[]),page.marginNote])if(text&&!usedAccents.includes(text))usedAccents.push(text);
         return page;
       };
-      const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&photoAspect(photo)<=1.05);
-      const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(heroEligible);
+      // A photograph the author marked as the hero's portrait is reserved for P01.
+      // Photographs that open an episode are reserved for that opening as well.
+      const isPortraitHero = photo => photo?.portraitHero === true || Boolean(String(photo?.heroName||'').trim()) || photo?._episodeOpening === true;
+      const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo)&&photoAspect(photo)<=1.05);
+      const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo));
       const openingQuote = String(chapter.first.quote || chapter.first.pullQuote || chapter.title);
       const left = photoIndex >= 0
         ? P('chapter',{layout:'chapter-photo',master:'D01-CHAPTER-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,chapterNo:index+1,title:chapter.title})
@@ -685,6 +742,7 @@
       // The opening photograph is never reused as the CTX main image.
       const assetId=(photo,position)=>String(photo?.id||imageSource(photo)||`photo-${position}`);
       const detailIndex=chapter.photos.findIndex((photo,photoPosition)=>{
+        if(isPortraitHero(photo))return false;
         if(photoPosition===photoIndex||!imageSource(photo)||photoIndex>=0&&imageSource(photo)===imageSource(chapter.photos[photoIndex]))return false;
         return true;
       });
@@ -693,6 +751,7 @@
       const ctxRatio=Number(ctxPhoto?.width)>0&&Number(ctxPhoto?.height)>0?Number(ctxPhoto.width)/Number(ctxPhoto.height):1;
       const ctxState=ctxPhoto?String(ctxPhoto.ctxState||(ctxRatio<.82?'V':ctxRatio>1.22?'H':'S')).toUpperCase():'';
       const secondaryPhotoIndex=ctxPhoto?chapter.photos.findIndex((photo,photoPosition)=>{
+        if(isPortraitHero(photo))return false;
         if(photoPosition===photoIndex||photoPosition===ctxPhotoIndex||!imageSource(photo))return false;
         if(imageSource(photo)===imageSource(ctxPhoto))return false;
         return assetId(photo,photoPosition)!==assetId(ctxPhoto,ctxPhotoIndex);
@@ -727,12 +786,19 @@
         consume(fixedText,'left');
       }
       occurrences['inline-quote']=1;
-      if(fixedText.rhythm==='inline-quote')rhythmIndex=1;
-      const nextTextPage=side=>{
-        if(!rest)return null;
+      let cycleStep=fixedText.rhythm==='inline-quote'?1:0,quietGiven=false;
+      const nextRhythm=()=>{
+        if(quietPageAfterCycle&&cycleStep>0&&cycleStep%accentCycle.length===0&&!quietGiven){quietGiven=true;return 'plain';}
+        quietGiven=false;
+        return accentCycle[cycleStep++%accentCycle.length];
+      };
+      const nextTextPage=(side,extra={})=>{
+        if(!rest||pendingEpisode())return null;
         const owner=chapter.runs.find(run=>run.end>sourceOffset)||chapter.runs[chapter.runs.length-1];
         const input=owner?.page||chapter.first;
-        const rhythm=cycle[rhythmIndex%cycle.length], occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
+        // A page inside a photo composition may ask for a quiet page; the
+        // editorial cycle then waits for the next ordinary text page.
+        const rhythm=extra.forceRhythm||nextRhythm(), occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
         const overrides=input.editorialOverrides||{};
         const noteKey=rhythm==='important-margin'?`${key}:margin`:key;
         const page=P('text',{
@@ -752,7 +818,8 @@
           accentBeat++;
         }
         page.autoImportant=!page.importantLine;page.autoInlineQuote=!page.inlineQuote;page.autoMarginNote=!page.marginNote;
-        occurrences[rhythm]=occurrence+1;rhythmIndex++;
+        Object.assign(page,extra);delete page.forceRhythm;
+        occurrences[rhythm]=occurrence+1;
         return consume(page,side);
       };
       const detail=ctxPhoto&&(secondaryPhoto||ctxNote)?P('ctx-detail-sq',{
@@ -767,18 +834,223 @@
       const textFallback=detail?null:nextTextPage('right');
       if(fixedText.text||detail||textFallback)spreads.push({id:`d01_chapter_${index+1}_${detail?'ctx_detail':'text_fallback'}`,master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT',sectionId:chapter.sectionId,left:fixedText,right:detail||textFallback,fixedRhythm:true,ctxSkipped:!detail});
       const usablePhotoIndices=chapter.photos.map((photo,photoPosition)=>imageSource(photo)?photoPosition:-1).filter(photoPosition=>photoPosition>=0);
+      let portraitGiven=false;
       let textSpreadStreak=detail?0:(fixedText.text?1:0);
       let darkFadeInserted=false;
       const nextVisualPhoto=()=>{
-        const unused=usablePhotoIndices.find(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        const unused=usablePhotoIndices.find(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition]))&&!isPortraitHero(chapter.photos[photoPosition]));
         if(unused!=null){usedPhotoIndices.add(unused);usedPhotoSources.add(imageSource(chapter.photos[unused]));return unused;}
         return -1;
       };
+      // Chapter ending, as a typesetter would close it: the last page has
+      // balanced columns, and when it would be a stub of a few lines the
+      // preceding pages give up a few lines each, keeping facing pages level.
+      // Every trial re-measures the untouched source; on any doubt the
+      // original pagination is restored.
+      function balanceChapterEnding(){
+        const minimumLines=6,maximumBorrow=4;
+        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07','D01-SPREAD-T12'].includes(spread.master));
+        const last=textSpreads.at(-1);
+        if(!last)return;
+        const isText=page=>Boolean(page?.measuredFlow&&page.sourceRange&&page.sectionId===chapter.sectionId);
+        const finalSide=isText(last.right)?'right':isText(last.left)?'left':'';
+        if(!finalSide||last[finalSide].sourceRange.end!==chapter.text.length)return;
+        const final={page:last[finalSide],side:finalSide};
+        // Donors are the text pages just before the final page: its facing
+        // page, or the whole previous spread (including the chapter opening),
+        // each giving up the same number of lines so facing pages stay level.
+        const chapterSpreads=spreads.slice(chapterSpreadStart),previous=chapterSpreads[chapterSpreads.indexOf(last)-1];
+        const donors=finalSide==='right'
+          ?(isText(last.left)?[{page:last.left,side:'left'}]:[])
+          :['left','right'].filter(side=>isText(previous?.[side])).map(side=>({page:previous[side],side}));
+        const chain=[...donors,final];
+        if(chain.some((item,i)=>i&&chain[i-1].page.sourceRange.end!==item.page.sourceRange.start))return;
+        const reflow=(items,limits)=>{
+          rest=chapter.text.slice(items[0].page.sourceRange.start);sourceOffset=items[0].page.sourceRange.start;
+          items.forEach((item,i)=>{
+            item.page.balanceTrial=true;
+            if(limits[i]>0)item.page.flowLineLimit=limits[i];else delete item.page.flowLineLimit;
+            consume(item.page,item.side);
+          });
+          return !rest&&items.every(item=>item.page.text);
+        };
+        const attempt=(items,limits)=>{try{return reflow(items,limits);}catch(error){return false;}};
+        const fullLines=item=>item.page.measuredFlow?.fullLines||0;
+        // Smallest per-column height that still holds the whole final page.
+        const balanceFinal=()=>{
+          let low=1,high=fullLines(final);
+          if(!high||!attempt([final],[0]))return 0;
+          while(low<high){const middle=Math.floor((low+high)/2);if(attempt([final],[middle]))high=middle;else low=middle+1;}
+          return attempt([final],[low])?low:0;
+        };
+        const fulls=donors.map(fullLines);
+        let settled=false;
+        for(let borrow=0;borrow<=(donors.length?maximumBorrow:0)&&!settled;borrow++){
+          const limits=donors.map((donor,i)=>borrow?fulls[i]-borrow:0);
+          if(limits.some(limit=>limit<0)||donors.length&&!attempt(chain,[...limits,0]))continue;
+          const lines=balanceFinal();
+          if(lines&&(lines>=minimumLines||borrow===maximumBorrow||!donors.length))settled=true;
+        }
+        if(!settled){
+          reflow(chain,chain.map(()=>0));
+          if(!balanceFinal())reflow(chain,chain.map(()=>0));
+        }
+        for(const item of chain)delete item.page.balanceTrial;
+      }
       while(rest){
-        if(usablePhotoIndices.some(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])))&&textSpreadStreak>=2){
-          const photoBeat=nextVisualPhoto();
+        const episode=pendingEpisode();
+        if(episode){
+          // Episode opening: a small archive photo with a handwritten caption,
+          // facing the episode title, a long handwritten line and the text.
+          episode.opened=true;
+          const photoIndex=episode.photoPosition;usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));
+          const photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,handCaption:episode.caption,title:chapter.title,pageFormat:meta.format||'square'});
+          const opening=nextTextPage('right',{episodeOpening:{title:episode.title,line:episode.line},forceRhythm:'plain'});
+          spreads.push({master:'D01-SPREAD-EPISODE-OPENING',sectionId:chapter.sectionId,left:photoPage,right:opening,fixedRhythm:true});
+          textSpreadStreak=0;
+          continue;
+        }
+        const unusedNow=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        const photoBeatAvailable=unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition]))||(!portraitGiven&&unusedNow.some(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening));
+        if(photoBeatAvailable&&textSpreadStreak>=2){
+          const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+          const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening);
+          const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
+          const take=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
+          const wide=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.45);
+          // Wide frames are kept for a panorama; other beats use them last.
+          const ordinary=[...unused.filter(photoPosition=>!wide.includes(photoPosition)),...wide];
+          // H-SPREAD needs a horizontal frame and enough text for both pages
+          // under it (roughly 1200 characters a page at this geometry).
+          // The spread window is very wide, so only clearly horizontal frames
+          // (≥ 1.7 : 1) avoid an aggressive crop.
+          const horizontal=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.7);
+          // T06: a vertical or square hero plus two related frames that are not
+          // both vertical, and a real block of text for the facing page.
+          const heroes=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])<=1.05);
+          const t06Hero=heroes[0];
+          const t06Pair=ordinary.filter(photoPosition=>photoPosition!==t06Hero).slice(0,2);
+          const t06Fits=t06Hero!=null&&t06Pair.length===2&&!t06Pair.every(photoPosition=>photoAspect(chapter.photos[photoPosition])<.85)&&rest.length>1500;
+          // T07: the first approved grid the unused frames really fit
+          // (H ≥ 1.2, V ≤ 0.85, otherwise S); 2×2 squares only as a last option.
+          const shape=photoPosition=>{const ratio=photoAspect(chapter.photos[photoPosition]);return ratio>=1.2?'H':ratio<=.85?'V':'S';};
+          const pickShapes=list=>{const pool=[...ordinary],chosen=[];for(const want of list){const at=pool.findIndex(photoPosition=>shape(photoPosition)===want);if(at<0)return null;chosen.push(pool.splice(at,1)[0]);}return chosen;};
+          const t07=[['B',['H','S','S']],['C',['V','S','S']],['F',['V','V','S']],['A',['H','H']],['E',['V','V']],['D',['S','S','S','S']]].map(([variant,list])=>({variant,indices:pickShapes(list)})).find(option=>option.indices);
+          const t07Fits=Boolean(t07)&&rest.length>1200;
+          // T08: one truly vertical frame and at least a column of text.
+          const t08Photo=ordinary.find(photoPosition=>photoAspect(chapter.photos[photoPosition])<=.85);
+          const t08Fits=t08Photo!=null&&rest.length>900;
+          // T10: a main frame (the widest available) plus a different card frame.
+          const t10Main=[...ordinary].sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
+          const t10Card=ordinary.find(photoPosition=>photoPosition!==t10Main);
+          const t10Fits=t10Main!=null&&t10Card!=null&&rest.length>900;
+          // T12: a photograph the author gave a caption and a short story
+          // (up to 60 words) — that text is what the page carries.
+          const t12Photo=ordinary.find(photoPosition=>t12Eligible(chapter.photos[photoPosition]));
+          const t12Fits=t12Photo!=null&&rest.length>900;
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t12'?t12Fits:beat==='t10'?t10Fits:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
+          let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
+          // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
+          const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
+          const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
+          lastPhotoBeat=beat;recentPhotoBeats=[...recentPhotoBeats,beat].slice(-3);
+          if(beat==='p01'){
+            // P01 is the author's explicit choice: portrait on the left, a short
+            // name/years/role block on the right; variants rotate B → A → C.
+            const photoIndex=take(portraitHeroes[0]),photo=chapter.photos[photoIndex];
+            const variant=String(photo.heroVariant||['A','C'][portraitCount++%2]).toUpperCase()==='C'?'C':'A';
+            const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
+            spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
+              left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
+              right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true});
+            portraitGiven=true;textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t12'){
+            const photoIndex=take(t12Photo),photo=chapter.photos[photoIndex];
+            // Text goes to the side away from the subject; light and dark alternate.
+            const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50;
+            const side=focalX<45?'right':focalX>55?'left':'right';
+            const tone=String(photo.t12Tone||['A','B'][t12Count++%2]).toUpperCase()==='B'?'B':'A';
+            const textPage=nextTextPage('left');
+            const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
+              t12Kicker:String(photo.place||photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
+            spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t10'){
+            // Geometry in spread coordinates (left page 0–1000, right 1000–2000).
+            const pageH=meta.format==='portrait'?1196:1000,pad=70,mainRatio=photoAspect(chapter.photos[t10Main]),cardRatio=photoAspect(chapter.photos[t10Card]);
+            const main=mainRatio>=1.2
+              ?(()=>{const w=1250,h=Math.min(pageH-2*pad-60,Math.round(w/mainRatio));return {x:1930-w,y:pad,w,h};})()
+              :(()=>{const h=pageH-2*pad,w=Math.min(870,Math.round(h*mainRatio));return {x:960,y:pad,w,h};})();
+            // The card reads as a second meaningful frame (about a third of the
+            // main photograph's area), not as a sticker.
+            const long=Math.round(.8*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
+            // Approved angles in a fixed order across the book (no randomness).
+            const angle=[-4,6,-2,4,-6,2][t10Count++%6];
+            // Main photo and card are centred together on the page height; the
+            // card hangs a little below the main photograph.
+            const groupH=main.h+Math.round(ch*.18);
+            if(mainRatio>=1.2)main.y=Math.max(pad,Math.round((pageH-groupH)/2));
+            const card={x:Math.round(1000-.75*cw),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
+            const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
+            const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
+            const photoPage=P('t10-photos',{layout:'t10-photos',master:'D01-T10-PHOTOS',sectionId:chapter.sectionId,source:chapter,t10:layout,title:chapter.title});
+            spreads.push({master:'D01-SPREAD-T10',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t08'){
+            const photoIndex=take(t08Photo);
+            const textPage=nextTextPage('left',{spinePhoto:{photoIndex},forceRhythm:'plain'});
+            const pause=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:textPage?.text||'',avoidAccents:usedAccents.slice()});
+            spreads.push({master:'D01-SPREAD-T08',sectionId:chapter.sectionId,left:textPage,right:pause,fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t07'){
+            const before=spreads[spreads.length-1],photosLeft=Boolean(before?.right&&!before.right.measuredFlow);
+            const indices=t07.indices.map(take);
+            const textPage=nextTextPage(photosLeft?'right':'left',{forceRhythm:'plain'});
+            const photoPage=P('t07-photos',{layout:'t07-photos',master:'D01-T07-PHOTOS',sectionId:chapter.sectionId,source:chapter,photoIndices:indices,t07Variant:t07.variant,title:chapter.title,pageFormat:meta.format||'square'});
+            spreads.push({master:'D01-SPREAD-T07',sectionId:chapter.sectionId,left:photosLeft?photoPage:textPage,right:photosLeft?textPage:photoPage,t07Variant:t07.variant,fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='t06'){
+            // The hero goes to the side opposite the previous spread's visual
+            // weight: after a photograph on the right it opens on the left.
+            const before=spreads[spreads.length-1],heavyRight=Boolean(before?.right&&!before.right.measuredFlow),heroLeft=heavyRight;
+            const hero=take(t06Hero),pair=t06Pair.map(take);
+            const textPage=nextTextPage(heroLeft?'right':'left',{topPair:{photoIndices:pair},forceRhythm:'plain'});
+            const heroPage=P('t06-hero',{layout:'t06-hero',master:'D01-T06-HERO',sectionId:chapter.sectionId,source:chapter,photoIndex:hero,title:chapter.title,pageFormat:meta.format||'square'});
+            spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='hspread'){
+            const photoIndex=take(horizontal.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
+            const left=nextTextPage('left',{topPhoto:{photoIndex}});
+            const right=nextTextPage('right',{topPhoto:{photoIndex}})||P('hspread-photo',{layout:'hspread-photo',master:'D01-HSPREAD-TOP',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title});
+            spreads.push({master:'D01-SPREAD-HSPREAD-TOP',sectionId:chapter.sectionId,left,right,fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='panorama'){
+            const photoIndex=take(wide.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
+            const base={layout:'panorama',master:'D01-PANORAMA',sectionId:chapter.sectionId,source:chapter,photoIndex,panorama:true,title:chapter.title};
+            spreads.push({master:'D01-SPREAD-PANORAMA',sectionId:chapter.sectionId,left:P('photo',{...base,panoramaSide:'left'}),right:P('photo',{...base,panoramaSide:'right',hideCaption:true}),fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
           const textPage=nextTextPage('left');
-          const photoPage=P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:photoBeat,title:chapter.title});
+          const photoPage=beat==='three'
+            ?P('three-photo',{layout:'photo-triptych',master:'D01-THREE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,3).map(take),title:chapter.title})
+            :beat==='two'
+              ?P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,2).map(take),title:chapter.title})
+              :P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:take(ordinary[0]),title:chapter.title});
           spreads.push({master:'D01-SPREAD-TEXT-PHOTO-RHYTHM',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
           textSpreadStreak=0;
           if(meta.forceDarkFadeSequence===true&&!darkFadeInserted){
@@ -797,17 +1069,32 @@
         for(const side of ['left','right']){
           if(!rest)break;spread[side]=nextTextPage(side);
         }
+        // The previous episode ended on a left page: a quiet quote pause closes
+        // the spread so the next episode can open on a full spread.
+        if(spread.left&&!spread.right&&pendingEpisode())spread.right=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:spread.left.text||'',avoidAccents:usedAccents.slice()});
         spreads.push(spread);
         textSpreadStreak++;
       }
+      balanceChapterEnding();
       // Document/photos retain their existing masters; manuscript text is never routed through them.
       for(const document of chapter.documents){
         const source={...document,photos:document.photos||[]};
-        spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||''})});
+        spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||'',transcript:(source.photos.length?String(document.text||''):''),note:String(document.explanation||document.comment||'')})});
+      }
+      // A printed book never leaves half a spread: an unpaired left page would
+      // shift every following page to the wrong side. Close it with an unused
+      // photograph of the chapter, otherwise with a quiet blank page.
+      for(const spread of spreads.slice(chapterSpreadStart)){
+        if(spread.single||!spread.left||spread.right)continue;
+        const closingPhoto=nextVisualPhoto();
+        spread.right=closingPhoto>=0
+          ?P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:closingPhoto,title:chapter.title})
+          :P('blank',{meta:bookMeta,sectionId:chapter.sectionId});
+        spread.chapterClosing=true;
       }
     });
-    if(byId('afterword')||byId('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
-    if(byId('sources')||byId('colophon')){
+    if(hasMatter('afterword')||hasMatter('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
+    if(hasMatter('sources')||byId('colophon')){
       const fields=fieldValues(byId('colophon'),4);
       spreads.push({master:'D01-SPREAD-SOURCES-COLOPHON',left:matter('sources','sources','D01-SOURCES','Источники'),right:byId('colophon')?P('colophon',{meta:bookMeta,rows:[{label:'Составитель',value:fields[0]||bookMeta.author},{label:'Дизайн и вёрстка',value:fields[1]},{label:'Год издания',value:fields[2]||bookMeta.year},{label:'Место издания',value:fields[3]}]}):P('blank',{meta:bookMeta})});
     }
