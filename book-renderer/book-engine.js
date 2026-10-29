@@ -728,7 +728,9 @@
         page.startsParagraph=sourceOffset>0&&/\r?\n[ \t]*\r?\n[ \t\r\n]*$/u.test(chapter.text.slice(0,sourceOffset));
         // Only a real new sheet starts a new line; where the editor merely
         // carried the text over, the book keeps one continuous line flow.
-        page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset&&!run.continuation).map(run=>run.start-sourceOffset);
+        // Breaks are relative to the text this page may use (up to the next
+        // episode boundary), never beyond it.
+        page.sourceBreaks = chapter.runs.filter(run=>run.start>sourceOffset&&!run.continuation&&run.start-sourceOffset<limit.length).map(run=>run.start-sourceOffset);
         const split = meta.paginateText(page,rest,side);
         if (split.head + split.tail !== rest || (!split.head && rest)) throw new Error('Нарушена точная сохранность исходного текста.');
         page.text = split.head; page.sourceText = split.head; page.measuredFlow = split.measuredFlow;

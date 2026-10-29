@@ -293,7 +293,9 @@
     }
     if (role === 'ctx-detail-sq') {
       const index=Number(page.photoIndex)||0;
-      const secondaryIndex=Number.isFinite(Number(page.secondaryPhotoIndex))?Number(page.secondaryPhotoIndex):null;
+      // Number(null) is 0: a missing secondary photo must stay null, or the card
+      // would repeat photo 0.
+      const secondaryIndex=page.secondaryPhotoIndex!=null&&page.secondaryPhotoIndex!==''&&Number.isFinite(Number(page.secondaryPhotoIndex))?Number(page.secondaryPhotoIndex):null;
       const photo=source?.photos?.[index]||{};
       const ratio=Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1;
       const state=String(page.ctxState||photo.ctxState||(ratio<.82?'V':ratio>1.22?'H':'S')).toUpperCase();
@@ -690,7 +692,7 @@
     // purposes. Keeping only its end as a legal boundary could evict the last
     // complete line even when that line physically fitted above the separator.
     for(const match of value.matchAll(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/gu))boundaries.push(match.index,match.index+match[0].length);
-    for(const point of breaks)boundaries.push(point);
+    for(const point of breaks)if(point>0&&point<value.length)boundaries.push(point);
     for(const item of inlineRanges)boundaries.push(item.start,item.end);
     boundaries.push(value.length);
     const ends=[...new Set(boundaries)].filter(end=>!inlineRanges.some(item=>end>item.start&&end<item.end)).sort((a,b)=>a-b);
