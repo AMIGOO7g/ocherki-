@@ -48,6 +48,6 @@ assert(!source.includes("fallback:'source-kept-in-prose'"),'automatic accent sti
 // An unplaceable automatic accent no longer stops the whole book; it is
 // recorded explicitly so the author can see which page lost it.
 assert(source.includes("code:'ACCENT_AUTO_UNPLACED'")&&source.includes("fallback:'plain-text-page'"),'automatic accent fallback is not recorded');
-for(const file of ['index.html','shell.html','test-mode-runner.html'])assert(read(file).includes('map-eras-20261029-v33'),`${file} has a stale cache key`);
-assert(read('test-mode.html').includes('map-eras-20261029-v33'),'test-mode.html has a stale cache key');
+for(const file of ['index.html','shell.html','test-mode-runner.html'])assert(read(file).includes('tree-form-20261029-v34'),`${file} has a stale cache key`);
+assert(read('test-mode.html').includes('tree-form-20261029-v34'),'test-mode.html has a stale cache key');
 console.log(JSON.stringify({status:'pass',rhythm:body.map(page=>page.rhythm),noBlankPostOpening:true,automaticRetries:[...attempts.values()].some(value=>value>1),sourceInvariant:'exact'}));

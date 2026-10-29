@@ -6,6 +6,7 @@
 <title>Очерки жизни — лист v8 refined</title>
 <script src="book-renderer/editor-source-bridge.js"></script>
 <script src="book-renderer/project-store.js"></script>
+<script src="book-renderer/tree-editor.js"></script>
 <style>
 :root{
  --paper:#f7efe2; --paper2:#efe0ca; --ink:#3b2a20; --muted:#8e7a69;
@@ -397,10 +398,12 @@ body{
   100%{opacity:1;transform:translateX(0)}
 }
 
-
-  to{opacity:1;transform:translateY(0)}
-}
-
+/* «Семейное древо»: the form opens from this button; a tree made with the
+   form is shown read-only on the page. */
+.tree-launch{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);z-index:30;border:0;border-radius:26px;background:#a8692f;color:#fff8ee;font:600 17px Georgia,serif;padding:14px 30px;cursor:pointer;box-shadow:0 8px 20px rgba(120,70,30,.25)}
+.tree-launch:hover{background:#94591f}
+.tree-launch[hidden]{display:none}
+.editor.tree-locked{cursor:default;opacity:.9}
 /* Format hints on an empty «Хронология» / «Семейное древо» page. */
 .editor[data-page-type="timeline"]>p:only-child:has(>br:only-child)::before{
   display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
@@ -408,7 +411,7 @@ body{
 }
 .editor[data-page-type="family-tree"]>p:only-child:has(>br:only-child)::before{
   display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
-  content:"Каждый человек — с новой строки, супруг через «+». Дети — ниже, с тире в начале строки, внуки — с двумя тире.\A\A Константин Евстафиади (1820–1862), Карс + Елена (1825–1870)\A — Николай (1850–1920) + Варвара (1856–1931)\A — — Фёдор (1880–1942)\A — Мария (1860–1918)\A\A Второй брак — отдельной строкой «+ Имя» под человеком. Звёздочка * после имени — ключевой человек: он получит портрет, если в подписи к фото есть его имя.";
+  content:"Проще всего — кнопка «Составить древо по шагам» внизу листа.\A\A Или напишите сами: каждый человек — с новой строки, супруг через «+». Дети — ниже, с тире в начале строки, внуки — с двумя тире.\A\A Константин Евстафиади (1820–1862), Карс + Елена (1825–1870)\A — Николай (1850–1920) + Варвара (1856–1931)\A — — Фёдор (1880–1942)\A — Мария (1860–1918)\A\A Второй брак — отдельной строкой «+ Имя» под человеком. Звёздочка * после имени — ключевой человек: он получит портрет, если в подписи к фото есть его имя.";
 }
 .editor .sample-lead,
 .editor .sample-body{
@@ -878,6 +881,7 @@ html.photo-modal-root-open body{overflow:visible!important;}
         <div class="divider page-content-fade"></div>
         <div class="episode-row page-content-fade"><div class="episode">Эпизод 1. Поворот тропы</div></div>
         <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div></div>
+        <button type="button" id="treeLaunch" class="tree-launch" hidden>Составить древо по шагам</button>
         <div class="page-context-actions page-content-fade" id="pageContextActions" aria-label="Быстро добавить">
           <button type="button" id="quickPhotoBtn">＋ Фото</button>
           <button type="button" id="quickQuoteBtn">＋ Цитата</button>
@@ -3666,6 +3670,38 @@ window.addEventListener('wheel' ,e=>{
 
 document.getElementById('photoCloseX').onclick=()=>closePhoto(false); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
+// Family tree form (book-renderer/tree-editor.js).
+function bookPhotos(){
+  const out=[],seen=new Set();
+  for(const section of sections)for(const page of section.pages||[])for(const photo of page.photos||[]){
+    if(!photo||!photo.src||photo.isDocument||seen.has(String(photo.id)))continue;
+    seen.add(String(photo.id));out.push({id:String(photo.id),src:photo.src,caption:photo.caption||''});
+  }
+  return out;
+}
+function updateTreeUi(){
+  const button=document.getElementById('treeLaunch');if(!button)return;
+  const page=currentPage(),isTree=currentSection()?.id==='family-tree'&&page;
+  button.hidden=!isTree;
+  if(!isTree){editor.classList.remove('tree-locked');return;}
+  const hasModel=!!(page.treeData&&page.treeData.people);
+  button.textContent=hasModel?'Изменить древо':'Составить древо по шагам';
+  editor.classList.toggle('tree-locked',hasModel);
+  if(hasModel)editor.setAttribute('contenteditable','false');
+}
+document.getElementById('treeLaunch')?.addEventListener('click',()=>{
+  const page=currentPage();if(!page||!window.OcherkiTreeEditor)return;
+  window.OcherkiTreeEditor.open({page,photos:bookPhotos(),onChange:(model,text)=>{
+    // One person per paragraph, so the page shows the tree line by line.
+    text=String(text||'').split('\n').join('\n\n');
+    page.treeData=model;page.text=text;page.userEdited=true;page._userEdited=true;page.semanticHtml='';
+    if(currentPage()===page){editor.innerHTML=htmlFromText(text);updateTreeUi();}
+    persistSoon();
+    try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
+  }});
+});
+const renderWithoutTree=render;
+render=function(){const result=renderWithoutTree.apply(this,arguments);updateTreeUi();return result;};
 render(); restoreProject();
 </script>
 
@@ -3815,6 +3851,7 @@ window.addEventListener('message',e=>{
           continuation: page.continuation === true,
           continuationOf: page.continuationOf || null,
           isEpisodeStart: page.isEpisodeStart === true,
+          treeData: page.treeData && typeof page.treeData === 'object' ? page.treeData : null,
           included: section.included !== false && page.included !== false,
           active: sectionIndex === activeSection && pageIndex === (section.active || 0)
         }))

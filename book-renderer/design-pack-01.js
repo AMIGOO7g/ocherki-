@@ -367,7 +367,13 @@
       return Math.max(...boxes.map(box => box.x + box.w));
     };
     const baseFits = fits, used = run(0);
-    if (fits && used < X1 - 40) {
+    // A small tree that fits one page is not split by the fold: it is
+    // centred on the right-hand page, away from the title.
+    if (fits && used <= G0) {
+      run(Math.round((G1 + X1) / 2 - (X0 + used) / 2));
+      if (!fits || boxes.some(box => box.x < G1)) run(0);
+    }
+    else if (fits && used < X1 - 40) {
       let best = { offset: 0, off: Infinity };
       for (let offset = 0; offset <= X1 - used; offset += 30) {
         run(offset);

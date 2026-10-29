@@ -717,7 +717,33 @@
         last[level]=person;last.length=level+1;
       }
       const everyone=list=>list.flatMap(person=>[person,...person.unions.flatMap(union=>[union.spouse,...everyone(union.children)].filter(Boolean))]);
-      for(const person of everyone(roots))if(person.major)person.photo=portraitFor(person.name);
+      // A tree made with the form (page.treeData) is read as it is, with the
+      // photo the user picked for each person.
+      const model=treeSource.treeData&&treeSource.treeData.people?treeSource.treeData:null;
+      if(model){
+        const photoById=new Map();
+        for(const chapter of chapters)for(const photo of chapter.photos)if(imageSource(photo)&&photo.id!=null)photoById.set(String(photo.id),photo);
+        const unionsOf=id=>(model.unions||[]).filter(union=>union.a===id||union.b===id);
+        const parentsOf=id=>(model.unions||[]).find(union=>(union.children||[]).includes(id));
+        const node=(id,seen)=>{
+          const p=model.people[id]||{},photo=p.photoId?photoById.get(String(p.photoId)):null;
+          seen.add(id);
+          return {name:String(p.name||'').trim()||'Имя неизвестно',dates:String(p.dates||'').trim(),place:String(p.place||'').trim(),major:!!p.major,
+            photo:photo?{src:imageSource(photo),ratio:photoAspect(photo)||.8}:null,
+            unions:unionsOf(id).map(union=>{const other=union.a===id?union.b:union.a;if(other)seen.add(other);
+              return {spouse:other?{...node.leaf(other),unions:[]}:null,children:(union.children||[]).filter(child=>!seen.has(child)).map(child=>node(child,seen))};})};
+        };
+        node.leaf=id=>{const p=model.people[id]||{},photo=p.photoId?photoById.get(String(p.photoId)):null;return {name:String(p.name||'').trim()||'Имя неизвестно',dates:String(p.dates||'').trim(),place:String(p.place||'').trim(),major:!!p.major,photo:photo?{src:imageSource(photo),ratio:photoAspect(photo)||.8}:null};};
+        const seen=new Set();roots.length=0;
+        for(const id of Object.keys(model.people)){
+          if(seen.has(id)||parentsOf(id))continue;
+          const partners=unionsOf(id).map(union=>union.a===id?union.b:union.a).filter(Boolean);
+          if(partners.some(other=>parentsOf(other)))continue;
+          roots.push(node(id,seen));
+        }
+        people=everyone(roots).length;
+      }
+      else for(const person of everyone(roots))if(person.major)person.photo=portraitFor(person.name);
       const prune=(person,depth)=>({...person,unions:person.unions.map(union=>({spouse:union.spouse,children:depth>1?union.children.map(child=>prune(child,depth-1)):[]}))});
       const depthOf=person=>1+Math.max(0,...person.unions.flatMap(union=>union.children.map(depthOf)));
       const custom=String(treeSource.title||'').trim(),baseTitle=custom&&custom!=='Семейное древо'?custom:'Семейное древо';
