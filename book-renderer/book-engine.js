@@ -660,12 +660,13 @@
     if(hasMatter('intro')||hasMatter('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
     const expectedManuscripts = [];
     const masters = meta.layoutDefinition?.textMasters || { 'inline-quote':'D01-TEXT-INLINE-QUOTE', margin:'D01-TEXT-MARGIN', important:'D01-TEXT-IMPORTANT', 'important-margin':'D01-TEXT-IMPORTANT-MARGIN', plain:'D01-TEXT' };
-    // Editorial accents vary like a hand-made book, yet stay repeatable: the
-    // order is drawn from a generator seeded by the chapter's own text, so
-    // the same manuscript always gives the same book. Handwriting (margin
-    // notes and handwritten lines) is favoured; quotes are rarer and kept
-    // apart; an occasional quiet page lets the eye rest.
-    const accentWeights = { margin:35, important:25, 'important-margin':15, 'inline-quote':15, plain:10 };
+    // The author's editorial cycle: quote page, handwritten-lines page, margin
+    // note page, handwritten lines + margin note, then again from the quote.
+    // After every full cycle a quiet page without accents lets the eye rest
+    // (meta.quietPageAfterCycle === false switches it off). Photo beats pause
+    // the cycle; they never restart it.
+    const accentCycle = meta.layoutDefinition?.rhythm || ['inline-quote','important','margin','important-margin'];
+    const quietPageAfterCycle = meta.quietPageAfterCycle !== false;
     const textSeed = value => { let hash=2166136261; for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);} return hash>>>0; };
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
@@ -757,14 +758,11 @@
         consume(fixedText,'left');
       }
       occurrences['inline-quote']=1;
-      let accentSeed=textSeed(`${chapter.sectionId}|${chapter.text}`)||1,lastRhythm=fixedText.rhythm,pagesSinceQuote=fixedText.rhythm==='inline-quote'?0:9;
-      const accentRandom=()=>{accentSeed=(accentSeed+0x6D2B79F5)>>>0;let t=accentSeed;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};
+      let cycleStep=fixedText.rhythm==='inline-quote'?1:0,quietGiven=false;
       const nextRhythm=()=>{
-        const allowed=Object.entries(accentWeights).filter(([rhythm])=>rhythm!==lastRhythm&&(rhythm!=='inline-quote'||pagesSinceQuote>=2));
-        let pick=accentRandom()*allowed.reduce((sum,[,weight])=>sum+weight,0);
-        const rhythm=(allowed.find(([,weight])=>(pick-=weight)<0)||allowed.at(-1))[0];
-        lastRhythm=rhythm;pagesSinceQuote=rhythm==='inline-quote'?0:pagesSinceQuote+1;
-        return rhythm;
+        if(quietPageAfterCycle&&cycleStep>0&&cycleStep%accentCycle.length===0&&!quietGiven){quietGiven=true;return 'plain';}
+        quietGiven=false;
+        return accentCycle[cycleStep++%accentCycle.length];
       };
       const nextTextPage=side=>{
         if(!rest)return null;

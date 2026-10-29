@@ -37,8 +37,8 @@ run.onclick=async()=>{
    const serialized=pages.map(page=>[...page.querySelectorAll('[data-source-stream]')].map(node=>node.textContent).join('')).join('');
    if(serialized!==item.text)throw new Error('Итоговый HTML изменил исходные символы.');
    const masters=pages.filter(page=>page.dataset.master!=='D01-CHAPTER-TEXT').map(page=>page.dataset.master);
-   const cycle=['D01-TEXT-INLINE-QUOTE','D01-TEXT-MARGIN','D01-TEXT-IMPORTANT','D01-TEXT-IMPORTANT-MARGIN'];
-   if(masters.some((master,index)=>master!==cycle[index%4]))throw new Error('Нарушен автоматический ритм.');
+   const cycle=['D01-TEXT-INLINE-QUOTE','D01-TEXT-IMPORTANT','D01-TEXT-MARGIN','D01-TEXT-IMPORTANT-MARGIN','D01-TEXT'];
+   if(masters.some((master,index)=>master!==cycle[index%5]))throw new Error('Нарушен автоматический ритм.');
    report.cases.push({name:item.name,status:'pass',pages:pages.length,exactSource:true,engine:qa,masters});
   }
   d.getElementById('previewBtn').click();
