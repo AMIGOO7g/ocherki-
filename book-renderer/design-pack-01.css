@@ -2700,3 +2700,17 @@ body .dpk-page.dpk-t12-dark .dpk-t12-copy h2{color:#f1ece3!important}
 body .dpk-page.dpk-t12-dark .dpk-t12-copy i{color:#b8b0a4!important}
 body .dpk-page.dpk-t12-dark .dpk-t12-copy p{color:#e2dbd0!important}
 body .dpk-page.dpk-t12-dark .dpk-folio{color:rgba(240,234,224,.7)!important}
+
+/* ARCHIVE PHOTO + EPISODE OPENING v1.3 — white pages; left: a small photo
+   and a handwritten caption; right: the episode title in one line in the
+   heading colour, a long horizontal handwritten line, air, two justified
+   columns without accents. */
+body .dpk-page.dpk-dom-paginated.dpk-episode-open{--dpk-flow-origin:334px}
+body .dpk-page.dpk-episode-open .dpk-episode-head{position:absolute!important;left:91px!important;right:70px!important;top:150px!important;text-align:center!important}
+body .dpk-page.dpk-episode-open .dpk-episode-head h2{margin:0!important;font:400 40px/1.15 'CormorantCy',Georgia,serif!important;color:var(--dpk-accent)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .dpk-page.dpk-episode-open .dpk-episode-head h2.dpk-episode-long{font-size:32px!important}
+/* One long horizontal handwritten line; its size follows its length. */
+body .dpk-page.dpk-episode-open .dpk-episode-line{margin:26px 0 0!important;padding:0 14px!important;white-space:nowrap!important;font-family:'SignThatS','CormorantCy',serif!important;font-weight:400!important;line-height:1.3!important;color:#4a4540!important}
+body .dpk-page.dpk-episode-left .dpk-episode-photo{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;margin:0!important;overflow:hidden!important}
+body .dpk-page.dpk-episode-left .dpk-episode-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-episode-left .dpk-episode-caption{position:absolute!important;left:70px!important;right:70px!important;margin:0!important;text-align:center!important;font:400 30px/1.2 'SignThatS','CormorantCy',serif!important;color:#4a4540!important}

@@ -91,6 +91,7 @@
     if (layout === 't08-pause' || kind === 't08-pause') return 't08-pause';
     if (layout === 't10-photos' || kind === 't10-photos') return 't10-photos';
     if (layout === 't12-photo' || kind === 't12-photo') return 't12-photo';
+    if (layout === 'episode-photo' || kind === 'episode-photo') return 'episode-photo';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -249,10 +250,13 @@
       // single outer column (the second flow cell has zero height).
       const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
-      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto?'':running;
+      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto||page.episodeOpening?'':running;
       const t10=page.t10?t10Layer(page.t10):'';
+      // Episode opening: title in one line in the heading colour, a long
+      // horizontal handwritten line, air, then the shared text flow.
+      const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
       const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):'';
-      return article(page.master,`${topPhoto}${spinePhoto}${t10}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':t10?' dpk-t10 dpk-t10-text':''}`)
+      return article(page.master,`${topPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
@@ -393,6 +397,13 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'episode-photo') {
+      // Left page of an episode opening: a small archive photograph, lots of
+      // white, one calm handwritten caption underneath.
+      const index=page.photoIndex||0,ratio=photoRatio(index),formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000;
+      const width=Math.round(Math.min(440,300*ratio)),height=Math.round(width/ratio);
+      return article('D01-EPISODE-PHOTO',`<figure class="dpk-episode-photo" style="width:${width}px;height:${height}px;top:${Math.round(formatH*.34)}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${page.handCaption?`<p class="dpk-episode-caption" style="top:${Math.round(formatH*.34)+height+56}px">${esc(page.handCaption)}</p>`:''}${folio}`,'dpk-episode-left');
     }
     if (role === 't12-photo') {
       // T12: one photograph on the whole page; on the side away from the

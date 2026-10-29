@@ -692,7 +692,22 @@
       // Accent phrases already used in this chapter, so later pages pick
       // other words for their quote, handwritten line and margin note.
       const usedAccents = [];
+      // Episodes that start inside the chapter with their own photograph get
+      // an opening spread. Their text always begins on a fresh page: no page
+      // is filled across an episode boundary.
+      const episodes=chapter.runs.filter(run=>run.page?.isEpisodeStart===true&&run.start>0&&String(run.page.text||'').trim()).map(run=>{
+        const photoPosition=chapter.photos.findIndex(photo=>photo._sourcePageUid===run.sourcePageUid&&imageSource(photo));
+        if(photoPosition<0)return null;
+        const photo=chapter.photos[photoPosition],story=String(photo.story||'').trim().match(/^[^.!?…]+[.!?…]?/u)?.[0]||'';
+        photo._episodeOpening=true;
+        return {offset:run.start+(run.text.length-String(run.page.text).length),photoPosition,opened:false,
+          title:String(run.page.episode||run.page.title||'').replace(/^\u042d\u043f\u0438\u0437\u043e\u0434\s+\d+[.:]?\s*/iu,'').trim()||String(run.page.title||'').trim(),
+          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:''),caption:String(photo.caption||'').trim()};
+      }).filter(Boolean);
+      const pendingEpisode=()=>episodes.find(item=>!item.opened&&item.offset===sourceOffset);
       const consume = (page,side) => {
+        const boundary=episodes.find(item=>!item.opened&&item.offset>sourceOffset)?.offset;
+        const whole=rest,limit=boundary!=null?rest.slice(0,boundary-sourceOffset):rest;rest=limit;
         if(!page.avoidAccents)page.avoidAccents=usedAccents.slice();
         page.startsParagraph=sourceOffset>0&&/\r?\n[ \t]*\r?\n[ \t\r\n]*$/u.test(chapter.text.slice(0,sourceOffset));
         // Only a real new sheet starts a new line; where the editor merely
@@ -702,12 +717,13 @@
         if (split.head + split.tail !== rest || (!split.head && rest)) throw new Error('Нарушена точная сохранность исходного текста.');
         page.text = split.head; page.sourceText = split.head; page.measuredFlow = split.measuredFlow;
         page.sourceRange = { start: sourceOffset, end: sourceOffset + split.head.length };
-        sourceOffset = page.sourceRange.end; rest = split.tail;
+        sourceOffset = page.sourceRange.end; rest = split.tail+whole.slice(limit.length);
         for(const text of [page.inlineQuote,page.importantLine,...(page.innerImportantLines||[]),page.marginNote])if(text&&!usedAccents.includes(text))usedAccents.push(text);
         return page;
       };
       // A photograph the author marked as the hero's portrait is reserved for P01.
-      const isPortraitHero = photo => photo?.portraitHero === true || Boolean(String(photo?.heroName||'').trim());
+      // Photographs that open an episode are reserved for that opening as well.
+      const isPortraitHero = photo => photo?.portraitHero === true || Boolean(String(photo?.heroName||'').trim()) || photo?._episodeOpening === true;
       const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo)&&photoAspect(photo)<=1.05);
       const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo));
       const openingQuote = String(chapter.first.quote || chapter.first.pullQuote || chapter.title);
@@ -777,7 +793,7 @@
         return accentCycle[cycleStep++%accentCycle.length];
       };
       const nextTextPage=(side,extra={})=>{
-        if(!rest)return null;
+        if(!rest||pendingEpisode())return null;
         const owner=chapter.runs.find(run=>run.end>sourceOffset)||chapter.runs[chapter.runs.length-1];
         const input=owner?.page||chapter.first;
         // A page inside a photo composition may ask for a quiet page; the
@@ -882,11 +898,23 @@
         for(const item of chain)delete item.page.balanceTrial;
       }
       while(rest){
+        const episode=pendingEpisode();
+        if(episode){
+          // Episode opening: a small archive photo with a handwritten caption,
+          // facing the episode title, a long handwritten line and the text.
+          episode.opened=true;
+          const photoIndex=episode.photoPosition;usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));
+          const photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,handCaption:episode.caption,title:chapter.title});
+          const opening=nextTextPage('right',{episodeOpening:{title:episode.title,line:episode.line},forceRhythm:'plain'});
+          spreads.push({master:'D01-SPREAD-EPISODE-OPENING',sectionId:chapter.sectionId,left:photoPage,right:opening,fixedRhythm:true});
+          textSpreadStreak=0;
+          continue;
+        }
         const unusedNow=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
-        const photoBeatAvailable=unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition]))||(!portraitGiven&&unusedNow.some(photoPosition=>isPortraitHero(chapter.photos[photoPosition])));
+        const photoBeatAvailable=unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition]))||(!portraitGiven&&unusedNow.some(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening));
         if(photoBeatAvailable&&textSpreadStreak>=2){
           const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
-          const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition]));
+          const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening);
           const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
           const take=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
           const wide=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.45);
@@ -1041,6 +1069,9 @@
         for(const side of ['left','right']){
           if(!rest)break;spread[side]=nextTextPage(side);
         }
+        // The previous episode ended on a left page: a quiet quote pause closes
+        // the spread so the next episode can open on a full spread.
+        if(spread.left&&!spread.right&&pendingEpisode())spread.right=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:spread.left.text||'',avoidAccents:usedAccents.slice()});
         spreads.push(spread);
         textSpreadStreak++;
       }
