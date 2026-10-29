@@ -2827,3 +2827,12 @@ body .dpk-page.dpk-recipe .dpk-recipe-items.two{column-count:2!important;column-
 body .dpk-page.dpk-recipe .dpk-recipe-items li{break-inside:avoid!important;font:400 18px/1.45 'PTSerifCy',Georgia,serif!important;color:#2b2622!important;margin:0 0 6px!important;padding-left:18px!important;position:relative!important}
 body .dpk-page.dpk-recipe .dpk-recipe-items li::before{content:''!important;position:absolute!important;left:2px!important;top:.68em!important;width:6px!important;height:1px!important;background:#8a7d6c!important}
 body .dpk-page.dpk-recipe .dpk-recipe-story p{margin:0 0 .8em!important;font-family:'PTSerifCy',Georgia,serif!important;font-size:inherit!important;line-height:1.55!important;color:#2b2622!important;text-indent:0!important}
+
+/* «Было — стало» */
+body .dpk-page.dpk-thennow{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-thennow .dpk-thennow-photo{position:absolute!important;margin:0!important;overflow:hidden!important}
+body .dpk-page.dpk-thennow .dpk-thennow-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+body .dpk-page.dpk-thennow .dpk-thennow-label{position:absolute!important;font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.32em!important;text-transform:uppercase!important;color:#8a8175!important}
+body .dpk-page.dpk-thennow .dpk-thennow-text{position:absolute!important}
+body .dpk-page.dpk-thennow .dpk-thennow-text b{display:block!important;font:400 54px/1 'CormorantCy',Georgia,serif!important;color:#24221f!important;margin-bottom:12px!important}
+body .dpk-page.dpk-thennow .dpk-thennow-text span{display:block!important;font:italic 400 17px/1.4 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}

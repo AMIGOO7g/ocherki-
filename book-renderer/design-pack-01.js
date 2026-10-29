@@ -100,6 +100,7 @@
     if (layout === 'who-legend' || kind === 'who-legend') return 'who-legend';
     if (layout === 'voices-page' || kind === 'voices-page') return 'voices-page';
     if (layout === 'recipe-left' || kind === 'recipe-left') return 'recipe-left';
+    if (layout === 'then-now' || kind === 'then-now') return 'then-now';
     if (layout === 'recipe-right' || kind === 'recipe-right') return 'recipe-right';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
@@ -675,6 +676,17 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'then-now') {
+      // «Было — стало»: both photos the same height on the same line, each
+      // with its year large below and the caption under it.
+      const data=page.pair||{},mine=data[page.side]||{},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
+      const ratios=[0,1].map(index=>photoRatio(index)),maxW=700,maxH=formatH-420;
+      const height=Math.round(Math.min(maxH,...ratios.map(ratio=>maxW/ratio))),index=page.photoIndex||0,width=Math.round(height*ratios[index]);
+      const top=Math.round((formatH-height)/2-60),left=page.side==='then'?Math.round(930-width-80):Math.round(1070-1000+80);
+      return article('D01-THEN-NOW',`<div class="dpk-thennow-label" style="top:${top-44}px;left:${left}px">${esc(mine.label||'')}</div>`
+        +`<figure class="dpk-thennow-photo" style="top:${top}px;left:${left}px;width:${width}px;height:${height}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`
+        +`<div class="dpk-thennow-text" style="top:${top+height+26}px;left:${left}px;width:${width}px">${mine.year?`<b>${esc(mine.year)}</b>`:''}${mine.caption||mine.place?`<span>${esc([mine.caption,mine.place].filter(Boolean).join(' · '))}</span>`:''}</div>`,'dpk-thennow');
     }
     if (role === 'recipe-left' || role === 'recipe-right') {
       // «Семейный рецепт / традиция». With a photo: the photo on the left,

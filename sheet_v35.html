@@ -864,7 +864,18 @@ html.photo-modal-root-open body{overflow:visible!important;}
   .photo-hero-toggle{display:flex;align-items:center;gap:10px;cursor:pointer}
   .photo-hero-toggle input{width:20px;height:20px;accent-color:#8a6a45}
   .photo-hero-hint{margin-top:4px;font-size:12px;opacity:.7}
-  .photo-inline-actions{position:relative;z-index:60}
+  .photo-inline-actions{position:relative;z-index:60;flex-wrap:wrap;row-gap:4px}
+  .photo-inline-actions--book{margin-top:4px!important}
+  .pair-picker{position:fixed;inset:0;z-index:5200;background:rgba(30,22,16,.55);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:#3b2a20}
+  .pair-picker__box{background:#f8f0e3;border-radius:12px;padding:22px 24px;max-width:760px;max-height:82vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+  .pair-picker__box h3{margin:0 0 6px;font-weight:400;font-size:24px}
+  .pair-picker__box p{margin:0 0 14px;color:#7d6857;font-size:15px}
+  .pair-picker__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+  .pair-picker__grid button{border:2px solid transparent;background:none;padding:0;cursor:pointer;border-radius:6px;overflow:hidden}
+  .pair-picker__grid button.is-current{border-color:#a8692f}
+  .pair-picker__grid img{width:100%;height:120px;object-fit:cover;display:block}
+  .pair-picker__actions{display:flex;gap:20px;margin-top:16px}
+  .pair-picker__actions button{border:0;background:none;color:#8f5a2e;text-decoration:underline;font:15px Georgia,serif;cursor:pointer}
   /* The photo switch strip only reacts on its arrows, so it never swallows
      clicks on the photo card fields under it. */
   .photo-switch{pointer-events:none!important}
@@ -879,7 +890,7 @@ html.photo-modal-root-open body{overflow:visible!important;}
   <div class="photo-stack" id="photoStack"></div>
   <div class="photo-modal" id="photoModal">
     <div class="photo-modal-head"><span>ФОТОГРАФИЯ</span><button type="button" id="photoCloseX">×</button></div>
-    <div class="photo-modal-top"><img id="photoPreview" alt=""></div><div class="photo-inline-actions"><button type="button" id="photoReplace">заменить</button><button type="button" id="photoDelete">удалить</button><button type="button" id="photoMarkPeople">отметить, кто на фото</button></div>
+    <div class="photo-modal-top"><img id="photoPreview" alt=""></div><div class="photo-inline-actions"><button type="button" id="photoReplace">заменить</button><button type="button" id="photoDelete">удалить</button></div><div class="photo-inline-actions photo-inline-actions--book"><button type="button" id="photoMarkPeople">кто на фото</button><button type="button" id="photoPair">было — стало</button></div>
     <div class="photo-fields">
       <div class="photo-field wide"><label>ПОДПИСЬ</label><input id="photoCaption" placeholder="Например: Лето у бабушки"><div class="photo-hint">Печатается мелко под фото: коротко — кто, где, когда.</div></div>
       <div class="photo-field"><label>ГОД</label><input id="photoYear" placeholder="1987"><div class="photo-hint">Фото с годом может попасть в «Хронологию».</div></div>
@@ -3542,7 +3553,7 @@ function positionPhotoModal(){
 }
 
 function fillPhotoInfo(p){
-  try{updateMarkButton(p);}catch(_){}
+  try{updateMarkButton(p);updatePairButton(p);}catch(_){}
   photoPreview.src=p.src;
   photoCaption.value=p.caption||'';
   photoYear.value=p.year||'';
@@ -3848,8 +3859,37 @@ function updateMarkButton(target){
   const button=document.getElementById('photoMarkPeople'),photo=target||currentPhotos()[activePhoto];
   if(!button)return;
   const count=(photo?.peopleMarks||[]).filter(mark=>mark&&mark.name).length;
-  button.textContent=count?`кто на фото: отмечено ${count}`:'отметить, кто на фото';
+  button.textContent=count?`кто на фото: ${count}`:'кто на фото';
 }
+// «Было — стало»: pair this photo with another one of the same chapter.
+function chapterPhotos(){return (currentSection().pages||[]).flatMap(page=>page.photos||[]).filter(photo=>photo&&photo.src&&!photo.isDocument);}
+function updatePairButton(target){
+  const button=document.getElementById('photoPair'),photo=target||currentPhotos()[activePhoto];if(!button)return;
+  const other=photo&&chapterPhotos().find(item=>String(item.id)===String(photo.pairWith||'')&&String(item.pairWith||'')===String(photo.id));
+  button.textContent=other?(photo.pairRole==='now'?'«стало» ✓':'«было» ✓'):'было — стало';
+  button.title=other?'Это фото в паре «было — стало». Нажмите, чтобы изменить':'';
+}
+document.getElementById('photoPair')?.addEventListener('click',()=>{
+  const photo=currentPhotos()[activePhoto];if(!photo)return;
+  const others=chapterPhotos().filter(item=>item!==photo);
+  const current=others.find(item=>String(item.id)===String(photo.pairWith||''));
+  const box=document.createElement('div');box.className='pair-picker';
+  box.innerHTML=`<div class="pair-picker__box"><h3>Было — стало</h3><p>Выберите второй снимок того же места или человека. В книге они встанут рядом: слева «было», справа «стало». Если у снимков указаны годы, порядок определится по ним.</p>`
+    +(others.length?`<div class="pair-picker__grid">${others.map((item,index)=>`<button type="button" data-index="${index}" class="${item===current?'is-current':''}"><img src="${esc(item.src)}" alt=""></button>`).join('')}</div>`:'<p>В этой главе нет других фото. Добавьте второй снимок в эту же главу.</p>')
+    +`<div class="pair-picker__actions">${current?'<button type="button" data-act="swap">Поменять местами</button><button type="button" data-act="clear">Убрать пару</button>':''}<button type="button" data-act="close">Закрыть</button></div></div>`;
+  document.body.appendChild(box);
+  // Clicks here must not reach the sheet, which would close the photo card.
+  ['pointerdown','mousedown','mouseup','click'].forEach(type=>box.addEventListener(type,event=>event.stopPropagation()));
+  const unpair=item=>{if(!item)return;const partner=chapterPhotos().find(other=>String(other.id)===String(item.pairWith||''));if(partner&&String(partner.pairWith||'')===String(item.id)){delete partner.pairWith;delete partner.pairRole;}delete item.pairWith;delete item.pairRole;};
+  const done=()=>{box.remove();updatePairButton(photo);persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}};
+  box.addEventListener('click',event=>{
+    const pick=event.target.closest('[data-index]'),act=event.target.closest('[data-act]')?.dataset.act;
+    if(pick){const other=others[Number(pick.dataset.index)];unpair(photo);unpair(other);photo.pairWith=other.id;other.pairWith=photo.id;photo.pairRole='then';other.pairRole='now';done();return;}
+    if(act==='swap'&&current){const role=photo.pairRole==='now'?'then':'now';photo.pairRole=role;current.pairRole=role==='now'?'then':'now';done();return;}
+    if(act==='clear'){unpair(photo);done();return;}
+    if(act==='close'||event.target===box)box.remove();
+  });
+});
 const renderWithoutTree=render;
 render=function(){const result=renderWithoutTree.apply(this,arguments);updateTreeUi();return result;};
 render(); restoreProject();
@@ -3996,6 +4036,8 @@ window.addEventListener('message',e=>{
             ctxState: String(photo?.ctxState || ''),
             darkFadeState: String(photo?.darkFadeState || ''),
             revision: Number(photo?.revision || 0),
+            pairWith: String(photo?.pairWith || ''),
+            pairRole: String(photo?.pairRole || ''),
             peopleMarks: Array.isArray(photo?.peopleMarks) ? photo.peopleMarks.map(mark=>({x:Number(mark?.x)||0,y:Number(mark?.y)||0,name:String(mark?.name||'')})) : []
           })) : [],
           bookRole: String(page.bookRole || page.layoutIntent || 'auto'),

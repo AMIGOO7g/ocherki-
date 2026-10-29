@@ -246,6 +246,23 @@
 
   const isWhoPhoto = photo => Boolean(imageSource(photo)) && Array.isArray(photo?.peopleMarks) && photo.peopleMarks.filter(mark => mark && String(mark.name || '').trim()).length >= 2;
 
+  // Then/now pairs: photos that name each other in pairWith. «Было» is the
+  // earlier year when both have one, otherwise the one marked first.
+  function thenNowPairs(photos) {
+    const byId = new Map(photos.filter(photo => imageSource(photo) && !isWhoPhoto(photo) && photo.id != null).map(photo => [String(photo.id), photo]));
+    const pairs = [], used = new Set();
+    for (const photo of byId.values()) {
+      const other = byId.get(String(photo.pairWith || ''));
+      if (!other || used.has(String(photo.id)) || used.has(String(other.id)) || String(other.pairWith || '') !== String(photo.id)) continue;
+      used.add(String(photo.id)); used.add(String(other.id));
+      const year = item => Number(String(item.year || '').match(/\d{4}/u)?.[0]) || 0;
+      const first = photo.pairRole === 'now' || other.pairRole === 'then' ? [other, photo] : [photo, other];
+      pairs.push(year(first[0]) && year(first[1]) && year(first[0]) > year(first[1]) ? [first[1], first[0]] : first);
+    }
+    return pairs;
+  }
+  const pairedIds = photos => new Set(thenNowPairs(photos).flat().map(photo => String(photo.id)));
+
   function pageFactory() {
     let serial = 0;
     return (kind, data = {}) => Object.assign({ id: `d01_page_${++serial}`, kind, pageNo: 0 }, data);
@@ -635,8 +652,10 @@
         pages,
         // A group photo with people marked on it («Кто на фото») gets its
         // own spread and stays out of the ordinary photo rhythm.
-        photos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(photo => !isWhoPhoto(photo)),
+        photos: (paired => pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(photo => !isWhoPhoto(photo) && !paired.has(String(photo.id))))(pairedIds(pages.flatMap(page => page.photos || []))),
         whoPhotos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(isWhoPhoto),
+        // «Было — стало»: two photos paired with each other in this chapter.
+        pairs: thenNowPairs(pages.flatMap(page => page.photos || [])),
         documents: pages.filter(page => page.type === 'document' || page.bookRole === 'document'),
         text: runs.map(run => run.text).join(''),
         openingLeftVariant: section.openingLeftVariant || first.openingLeftVariant || first.chapterOpeningVariant || '',
@@ -1253,6 +1272,14 @@
       }
       // «Кто на фото»: the group photo with small numbers on the left page,
       // the names by number, the caption and the photo's story on the right.
+      chapter.pairs.forEach(([then,now])=>{
+        const source={photos:[then,now]},caption=[then.caption,now.caption].map(text=>String(text||'').trim());
+        const side=(photo,index,label)=>({label,year:String(photo.year||'').trim(),caption:caption[index],place:String(photo.place||'').trim()});
+        const pair={then:side(then,0,'Было'),now:side(now,1,'Стало'),pageFormat:meta.format||'square'};
+        spreads.push({master:'D01-SPREAD-THEN-NOW',sectionId:chapter.sectionId,fixedRhythm:true,
+          left:P('then-now',{layout:'then-now',master:'D01-THEN-NOW',meta:bookMeta,source,photoIndex:0,pair,side:'then'}),
+          right:P('then-now',{layout:'then-now',master:'D01-THEN-NOW',meta:bookMeta,source,photoIndex:1,pair,side:'now'})});
+      });
       chapter.whoPhotos.forEach((photo,whoIndex)=>{
         const marks=photo.peopleMarks.filter(mark=>mark&&String(mark.name||'').trim()).map((mark,index)=>({n:index+1,x:Math.max(0,Math.min(100,Number(mark.x)||0)),y:Math.max(0,Math.min(100,Number(mark.y)||0)),name:String(mark.name).trim()}));
         const who={marks,caption:String(photo.caption||'').trim(),year:String(photo.year||'').trim(),place:String(photo.place||'').trim(),story:String(photo.story||'').trim(),pageFormat:meta.format||'square'};
@@ -2546,7 +2573,7 @@
       // masters; treating two text spreads as an error made the QA reject the
       // very low-photo/high-text fallback the director is designed to support.
       const repeatedText = ['D01-SPREAD-TEXT','D01-SPREAD-TEXT-QUOTE','D01-SPREAD-TEXT-RHYTHM'].includes(spread.master);
-      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
+      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && spread.master !== 'D01-SPREAD-VOICES' && spread.master !== 'D01-SPREAD-RECIPE' && spread.master !== 'D01-SPREAD-THEN-NOW' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
       if (index && spread.master === 'D01-SPREAD-PHOTO-TEXT' && spreads[index - 1].master === 'D01-SPREAD-PHOTO-TEXT') violations.push({ rule: 'photo-text-rhythm', spread: index + 1 });
       if(index&&isHeavySpread(spread.master)&&isHeavySpread(spreads[index-1].master))violations.push({rule:'heavy-spread-rhythm',spread:index+1,master:spread.master});
       [spread.left, spread.right].filter(Boolean).forEach(page => {

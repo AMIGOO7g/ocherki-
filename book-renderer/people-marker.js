@@ -40,6 +40,8 @@
         <div class="pm-note">В книге фото получит свой разворот, если отмечено хотя бы двое.</div>
         <div class="pm-actions"><button type="button" class="pm-clear">Убрать все отметки</button><button type="button" class="pm-done">Готово</button></div></div></div>`;
     document.body.appendChild(overlay);
+    // Clicks here must not reach the page under it (it may close a card).
+    ['pointerdown', 'mousedown', 'mouseup', 'click'].forEach(type => overlay.addEventListener(type, event => event.stopPropagation()));
     const stage = overlay.querySelector('.pm-stage'), listNode = overlay.querySelector('.pm-list');
 
     const drawMarks = active => {
