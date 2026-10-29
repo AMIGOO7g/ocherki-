@@ -402,8 +402,10 @@
       // Left page of an episode opening: a small archive photograph, lots of
       // white, one calm handwritten caption underneath.
       const index=page.photoIndex||0,ratio=photoRatio(index),formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000;
-      const width=Math.round(Math.min(440,300*ratio)),height=Math.round(width/ratio);
-      return article('D01-EPISODE-PHOTO',`<figure class="dpk-episode-photo" style="width:${width}px;height:${height}px;top:${Math.round(formatH*.34)}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${page.handCaption?`<p class="dpk-episode-caption" style="top:${Math.round(formatH*.34)+height+56}px">${esc(page.handCaption)}</p>`:''}${folio}`,'dpk-episode-left');
+      // The photo and its handwritten caption are centred together on the
+      // page height (slightly above the middle) in both formats.
+      const width=Math.round(Math.min(440,300*ratio)),height=Math.round(width/ratio),group=height+(page.handCaption?92:0),top=Math.round((formatH-group)/2-20);
+      return article('D01-EPISODE-PHOTO',`<figure class="dpk-episode-photo" style="width:${width}px;height:${height}px;top:${top}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${page.handCaption?`<p class="dpk-episode-caption" style="top:${top+height+48}px">${esc(page.handCaption)}</p>`:''}${folio}`,'dpk-episode-left');
     }
     if (role === 't12-photo') {
       // T12: one photograph on the whole page; on the side away from the
