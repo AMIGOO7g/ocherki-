@@ -1300,7 +1300,34 @@ window.LifeBookPhotoVision = window.LifeBookPhotoVision || {
     });
   }
 };
+// Black-and-white or colour, measured from the pixels once: the book uses it
+// to keep colour and monochrome photographs off the same spread.
+function detectPhotoColorKind(photo){
+  return new Promise(resolve=>{
+    if(!photo?.src||photo.colorKind){resolve(photo);return;}
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const c=document.createElement('canvas');c.width=48;c.height=48;
+        const g=c.getContext('2d');g.drawImage(img,0,0,48,48);
+        const d=g.getImageData(0,0,48,48).data;let chroma=0;
+        for(let i=0;i<d.length;i+=4)chroma+=Math.max(d[i],d[i+1],d[i+2])-Math.min(d[i],d[i+1],d[i+2]);
+        // Sepia and toned prints have a weak, uniform chroma: still "monochrome".
+        photo.colorKind=chroma/(d.length/4)/255<.075?'bw':'color';
+      }catch(_){}
+      resolve(photo);
+    };
+    img.onerror=()=>resolve(photo);
+    img.src=photo.src;
+  });
+}
+// Photographs saved before this measurement existed are measured once after load.
+setTimeout(()=>{
+  const all=[];try{sections.forEach(sec=>(sec.pages||[]).forEach(page=>(page.photos||[]).forEach(photo=>{if(photo&&!photo.colorKind)all.push(photo);})));}catch(_){}
+  if(all.length)Promise.all(all.map(detectPhotoColorKind)).then(()=>window.__OCHERKI_EMIT_STRUCTURE?.());
+},1800);
 function analyzePhotoInBackground(photo){
+  detectPhotoColorKind(photo).then(()=>window.__OCHERKI_EMIT_STRUCTURE?.());
   return window.LifeBookPhotoVision.analyze(photo).then(()=>{
     // Recognition is metadata only at this stage.  Do not rebuild the whole
     // book while the user is turning pages; the next director pass can use
@@ -3700,6 +3727,7 @@ window.addEventListener('message',e=>{
             source: String(photo?.source || ''),
             story: String(photo?.story || ''),
             photoMode: String(photo?.photoMode || 'auto'),
+            colorKind: String(photo?.colorKind || ''),
             layoutPreference: String(photo?.layoutPreference || 'auto'),
             portraitHero: photo?.portraitHero === true,
             heroYears: String(photo?.heroYears || ''),

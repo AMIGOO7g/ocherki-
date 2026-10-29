@@ -2828,12 +2828,24 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       <div class="bd-spreads-viewport"><div class="bd-spreads-body"><div class="bd-spread-rows" id="bdSpreadRows"></div><div class="bd-timeline" id="bdTimeline"><div class="bd-timeline-track" id="bdTimelineTrack"><div class="bd-timeline-fill" id="bdTimelineFill"></div></div><div class="bd-timeline-handle" id="bdTimelineHandle" tabindex="0" role="slider" aria-label="Выбор разворота"></div></div></div></div>
     </section>
     <section class="bd-section">
-      <div class="bd-head"><h2>Дизайн книги</h2><button class="bd-link" type="button" id="bdMoreDesigns">ещё варианты <svg viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="bd-head"><h2>Дизайн книги</h2></div>
       <div class="bd-design-grid" id="bdDesignGrid"></div>
     </section>
     <section class="bd-section">
       <div class="bd-head"><h2>Формат книги</h2></div>
       <div class="bd-format-grid" id="bdFormatGrid"></div>
+    </section>
+    <style>
+  .bd-photo-mode{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .bd-photo-mode-option{display:flex;flex-direction:column;gap:4px;padding:10px 10px 9px;border-radius:12px;border:1px solid rgba(214,182,140,.22);background:rgba(255,255,255,.03);color:inherit;text-align:left;cursor:pointer;font:inherit}
+  .bd-photo-mode-option.is-active{border-color:rgba(226,183,121,.85);background:rgba(226,183,121,.12)}
+  .bd-photo-mode-hint{font-size:11px;line-height:1.3;opacity:.62}
+  .bd-design-card.is-soon{opacity:.42;cursor:default;filter:grayscale(.4)}
+  .bd-soon{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.8;margin-top:2px}
+</style>
+    <section class="bd-section">
+      <div class="bd-head"><h2>Фото в книге</h2></div>
+      <div class="bd-photo-mode" id="bdPhotoMode" role="radiogroup" aria-label="Цвет фотографий"></div>
     </section>
   </aside>
 
@@ -2964,7 +2976,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       subtitle:String(data.subtitle || window.OCHERKI_BOOK_META.subtitle || 'История нашей семьи'),
       author:String(data.author || window.OCHERKI_BOOK_META.author || ''),
       year:String(data.year || window.OCHERKI_BOOK_META.year || new Date().getFullYear()),
-      design:String(data.design || window.OCHERKI_BOOK_META.design || 'editorial')
+      design:String(data.design || window.OCHERKI_BOOK_META.design || 'editorial'),
+      // The start wizard's text/photo balance steers the layout director.
+      contentBalance:String(data.contentBalance || window.OCHERKI_BOOK_META.contentBalance || '')
     });
     if (typeof data.title === 'string' && data.title.trim()) projectTitle.textContent = data.title.trim();
     if (data.pageCount !== undefined && data.pageCount !== null) pageCount.textContent = String(data.pageCount);
@@ -4600,6 +4614,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   let bookSpreads=[];
   let activeSpread=0;
   let activeDesign='editorial';
+  const READY_DESIGNS=new Set(['editorial']);
   let designAppliedFromConfig=false;
   /* The first control-book pass is composed in the approved 280 x 280 mm format. */
   let activeFormat='square';
@@ -4646,7 +4661,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         (page.photos||[]).map(photo=>[
           fastFingerprint(photo.src||photo.dataUrl||photo.dataURL||photo.url||photo.preview||photo.objectUrl||''),
           photo.caption,photo.year,photo.place,photo.people,photo.story,
-          photo.photoMode,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
+          photo.photoMode,photo.colorKind,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
           photo.focalX,photo.focalY,photo.focalConfirmed,photo.focalSource,photo.ctxHandwrittenNote,JSON.stringify(photo.detailRoi||photo.ctxRoi||photo.roi||null),JSON.stringify(photo.regions||null)
         ].join('\u001f')).join('\u001e')
       ].join('\u001f')).join('\u001e')
@@ -5835,7 +5850,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // design swatches, instead of silently snapping back to "archive" on
     // every subsequent edit/rebuild.
     if(!designAppliedFromConfig){
-      activeDesign=(window.OCHERKI_BOOK_META&&window.OCHERKI_BOOK_META.design)||activeDesign||'archive';
+      // Only the editorial design pack is finished; the start wizard's style
+      // names must not switch the book to an unfinished legacy renderer.
+      activeDesign=READY_DESIGNS.has(window.OCHERKI_BOOK_META?.design)?window.OCHERKI_BOOK_META.design:'editorial';
       designAppliedFromConfig=true;
     }
     designGrid?.querySelectorAll('[data-design]').forEach(card=>card.classList.toggle('is-active',card.dataset.design===activeDesign));
@@ -5885,7 +5902,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   function renderMasterSpreadPage(p,side){
     if(!p)return `<article class="book-art-page ${side}"></article>`;
     if(activeDesign==='editorial'&&window.OcherkiBookRenderer){
-      const packed=window.OcherkiLayoutPagination.renderPage(p,side,Object.assign({},window.OCHERKI_BOOK_META||{},{photoMode:structure?.photoMode||window.OCHERKI_BOOK_META?.photoMode||'color'}));
+      const bookPhotoMode=window.OCHERKI_BOOK_META?.bookPhotoMode||'as-is';
+      const packed=window.OcherkiLayoutPagination.renderPage(p,side,Object.assign({},window.OCHERKI_BOOK_META||{},{photoMode:bookPhotoMode==='bw'?'bw':'color',bookPhotoMode}));
       if(packed)return packed;
     }
     const src=p.source||{};
@@ -6988,6 +7006,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   designs.forEach(([key,label,cls])=>{
     const b=document.createElement('button');b.type='button';b.className='bd-design-card';b.dataset.design=key;
     b.innerHTML=`<span class="bd-swatch ${cls}"><span class="bd-aa">Aa</span></span><span class="bd-card-label">${label}</span>`;
+    // Designs that are not finished yet are shown as «скоро» and cannot be chosen.
+    if(!READY_DESIGNS.has(key)){b.disabled=true;b.classList.add('is-soon');b.title='Дизайн готовится';b.querySelector('.bd-card-label').insertAdjacentHTML('beforeend','<span class="bd-soon">скоро</span>');}
     b.addEventListener('click',()=>{activeDesign=key;[...designGrid.children].forEach(x=>x.classList.toggle('is-active',x===b));if(built){assemble();if(previewModal?.classList.contains('open'))previewRender();}});
     designGrid?.appendChild(b);
   });
@@ -7021,6 +7041,17 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     formatGrid?.appendChild(b);
   });
   designGrid?.querySelector('[data-design="editorial"]')?.classList.add('is-active');
+  // Colour of the photographs for the whole book.
+  const photoModeGrid=document.getElementById('bdPhotoMode');
+  const photoModes=[['as-is','Как загружено','цветные и ч/б не встречаются на одном развороте'],['bw','Вся книга ч/б','единый архивный вид'],['era','Цвет у новых','до 1990 года — ч/б, позже — цвет']];
+  try{window.OCHERKI_BOOK_META.bookPhotoMode=localStorage.getItem('ocherki_book_photo_mode')||'as-is';}catch(_){window.OCHERKI_BOOK_META.bookPhotoMode='as-is';}
+  photoModes.forEach(([key,label,hint])=>{
+    const b=document.createElement('button');b.type='button';b.className='bd-photo-mode-option';b.dataset.mode=key;b.setAttribute('role','radio');
+    b.innerHTML=`<span class="bd-card-label">${label}</span><span class="bd-photo-mode-hint">${hint}</span>`;
+    const sync=()=>[...photoModeGrid.children].forEach(x=>{const on=x.dataset.mode===window.OCHERKI_BOOK_META.bookPhotoMode;x.classList.toggle('is-active',on);x.setAttribute('aria-checked',on?'true':'false');});
+    b.addEventListener('click',()=>{window.OCHERKI_BOOK_META.bookPhotoMode=key;try{localStorage.setItem('ocherki_book_photo_mode',key);}catch(_){}sync();if(built){assemble();if(previewModal?.classList.contains('open'))previewRender();}});
+    photoModeGrid?.appendChild(b);sync();
+  });
   formatGrid?.querySelector('[data-format="square"]')?.classList.add('is-active');
   applyActiveFormat();
 

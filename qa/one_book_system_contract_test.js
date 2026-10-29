@@ -16,7 +16,7 @@ assert(!/substring|maxChars|pageCapacity/.test(engine));
 assert(renderer.includes("boundaries.push(match.index,match.index+match[0].length)"));
 assert(book.includes("photoPosition===photoIndex"));
 assert(book.includes("master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT'"));
-assert(book.includes("textSpreadStreak>=2"));
+assert(book.includes("textSpreadStreak>=textSpreadsBetweenPhotos")&&book.includes("photoHeavy?1:textHeavy?3:2"));
 assert(book.includes("accentZones=['middle','bottom','top','middle','top','bottom']"));
 assert(testState.includes("draft.composition!=='cycle'"));
 assert(renderer.includes('data-ctx-accent="secondary-photo"'));

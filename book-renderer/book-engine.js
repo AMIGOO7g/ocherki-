@@ -680,6 +680,22 @@
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
     const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
+    // Book rhythm profile from the start wizard: how many text spreads come
+    // between photo beats, and which visual sequences are favoured.
+    const balance=String(meta.contentBalance||'').toLowerCase();
+    const photoHeavy=balance.includes('фото')&&balance.includes('преимущественно'),textHeavy=balance.includes('текст')&&balance.includes('преимущественно');
+    const textSpreadsBetweenPhotos=photoHeavy?1:textHeavy?3:2;
+    // «As uploaded»: colour and monochrome photographs never share a spread.
+    const bookPhotoMode=String(meta.bookPhotoMode||'as-is');
+    const toneOf=photo=>{
+      if(bookPhotoMode==='bw')return 'bw';
+      const explicit=String(photo?.photoMode||'').toLowerCase();
+      if(explicit==='bw'||explicit==='color')return explicit;
+      if(bookPhotoMode==='era'){const year=Number(String(photo?.year||'').match(/\d{4}/)?.[0]||0);if(year)return year<1990?'bw':'color';}
+      return photo?.colorKind==='bw'||photo?.colorKind==='color'?photo.colorKind:'';
+    };
+    if(photoHeavy){photoBeatWeights.t07=45;photoBeatWeights.t06=40;photoBeatWeights.t10=35;photoBeatWeights.two=30;}
+    if(textHeavy){photoBeatWeights.t08=40;photoBeatWeights.hspread=40;photoBeatWeights.three=5;}
     let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0, t12Count = 0;
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
@@ -835,6 +851,9 @@
       if(fixedText.text||detail||textFallback)spreads.push({id:`d01_chapter_${index+1}_${detail?'ctx_detail':'text_fallback'}`,master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT',sectionId:chapter.sectionId,left:fixedText,right:detail||textFallback,fixedRhythm:true,ctxSkipped:!detail});
       const usablePhotoIndices=chapter.photos.map((photo,photoPosition)=>imageSource(photo)?photoPosition:-1).filter(photoPosition=>photoPosition>=0);
       let portraitGiven=false;
+      // Accent budget: per chapter at most one angled-card spread (T10, beside
+      // the opening CTX), one text-over-photo page (T12) and one dark accent.
+      const chapterAccents={t10:0,t12:0,dark:0};
       let textSpreadStreak=detail?0:(fixedText.text?1:0);
       let darkFadeInserted=false;
       const nextVisualPhoto=()=>{
@@ -912,14 +931,18 @@
         }
         const unusedNow=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
         const photoBeatAvailable=unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition]))||(!portraitGiven&&unusedNow.some(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening));
-        if(photoBeatAvailable&&textSpreadStreak>=2){
+        if(photoBeatAvailable&&textSpreadStreak>=textSpreadsBetweenPhotos){
           const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
           const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening);
           const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
           const take=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
           const wide=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.45);
           // Wide frames are kept for a panorama; other beats use them last.
-          const ordinary=[...unused.filter(photoPosition=>!wide.includes(photoPosition)),...wide];
+          const ordinaryAll=[...unused.filter(photoPosition=>!wide.includes(photoPosition)),...wide];
+          // Multi-photo beats draw from one tone only; unknown tone fits either.
+          const toneGroup=tone=>ordinaryAll.filter(photoPosition=>{const t=toneOf(chapter.photos[photoPosition]);return !t||t===tone;});
+          const firstTone=ordinaryAll.map(photoPosition=>toneOf(chapter.photos[photoPosition])).find(Boolean)||'';
+          const ordinary=firstTone?(toneGroup(firstTone).length>=2?toneGroup(firstTone):toneGroup(firstTone==='bw'?'color':'bw').length>=2?toneGroup(firstTone==='bw'?'color':'bw'):ordinaryAll):ordinaryAll;
           // H-SPREAD needs a horizontal frame and enough text for both pages
           // under it (roughly 1200 characters a page at this geometry).
           // The spread window is very wide, so only clearly horizontal frames
@@ -927,7 +950,7 @@
           const horizontal=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.7);
           // T06: a vertical or square hero plus two related frames that are not
           // both vertical, and a real block of text for the facing page.
-          const heroes=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])<=1.05);
+          const heroes=ordinary.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])<=1.05);
           const t06Hero=heroes[0];
           const t06Pair=ordinary.filter(photoPosition=>photoPosition!==t06Hero).slice(0,2);
           const t06Fits=t06Hero!=null&&t06Pair.length===2&&!t06Pair.every(photoPosition=>photoAspect(chapter.photos[photoPosition])<.85)&&rest.length>1500;
@@ -948,7 +971,7 @@
           // (up to 60 words) — that text is what the page carries.
           const t12Photo=ordinary.find(photoPosition=>t12Eligible(chapter.photos[photoPosition]));
           const t12Fits=t12Photo!=null&&rest.length>900;
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t12'?t12Fits:beat==='t10'?t10Fits:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:unused.length>0));
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
@@ -958,7 +981,9 @@
             // P01 is the author's explicit choice: portrait on the left, a short
             // name/years/role block on the right; variants rotate B → A → C.
             const photoIndex=take(portraitHeroes[0]),photo=chapter.photos[photoIndex];
-            const variant=String(photo.heroVariant||['A','C'][portraitCount++%2]).toUpperCase()==='C'?'C':'A';
+            let variant=String(photo.heroVariant||['A','C'][portraitCount++%2]).toUpperCase()==='C'?'C':'A';
+            if(variant==='C'&&chapterAccents.dark&&!photo.heroVariant)variant='A';
+            if(variant==='C')chapterAccents.dark++;
             const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
             spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
               left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
@@ -971,7 +996,9 @@
             // Text goes to the side away from the subject; light and dark alternate.
             const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50;
             const side=focalX<45?'right':focalX>55?'left':'right';
-            const tone=String(photo.t12Tone||['A','B'][t12Count++%2]).toUpperCase()==='B'?'B':'A';
+            let tone=String(photo.t12Tone||['A','B'][t12Count++%2]).toUpperCase()==='B'?'B':'A';
+            if(tone==='B'&&chapterAccents.dark)tone='A';
+            if(tone==='B')chapterAccents.dark++;chapterAccents.t12++;
             const textPage=nextTextPage('left');
             const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
               t12Kicker:String(photo.place||photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
@@ -989,7 +1016,7 @@
             // main photograph's area), not as a sticker.
             const long=Math.round(.8*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
             // Approved angles in a fixed order across the book (no randomness).
-            const angle=[-4,6,-2,4,-6,2][t10Count++%6];
+            const angle=[-4,6,-2,4,-6,2][t10Count++%6];chapterAccents.t10++;
             // Main photo and card are centred together on the page height; the
             // card hangs a little below the main photograph.
             const groupH=main.h+Math.round(ch*.18);

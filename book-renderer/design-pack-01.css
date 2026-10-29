@@ -2679,13 +2679,13 @@ body .dpk-page.left.dpk-document-comment .dpk-document-ruled .dpk-document-sourc
 
 /* T12 — EDITORIAL TEXT OVER PHOTO: one page, one photograph, one soft fade,
    one short text block in the book's own fonts. */
-body .dpk-page.dpk-t12{overflow:hidden!important;background:#f6f3ed!important}
+body .dpk-page.dpk-t12{overflow:hidden!important;background:#fff!important}
 body .dpk-page.dpk-t12.dpk-t12-dark{background:#121110!important}
 body .dpk-page.dpk-t12 .dpk-t12-photo{position:absolute!important;inset:0!important;margin:0!important;overflow:hidden!important}
 body .dpk-page.dpk-t12 .dpk-t12-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:var(--dpk-t12-focus,50% 45%)!important}
 body .dpk-page.dpk-t12 .dpk-t12-fade{position:absolute!important;inset:0!important;z-index:1!important;pointer-events:none!important}
-body .dpk-page.dpk-t12-light.dpk-t12-text-left .dpk-t12-fade{background:linear-gradient(to right,rgba(246,243,237,.97) 0,rgba(246,243,237,.9) 26%,rgba(246,243,237,.55) 42%,rgba(246,243,237,0) 62%)!important}
-body .dpk-page.dpk-t12-light.dpk-t12-text-right .dpk-t12-fade{background:linear-gradient(to left,rgba(246,243,237,.97) 0,rgba(246,243,237,.9) 26%,rgba(246,243,237,.55) 42%,rgba(246,243,237,0) 62%)!important}
+body .dpk-page.dpk-t12-light.dpk-t12-text-left .dpk-t12-fade{background:linear-gradient(to right,rgba(255,255,255,.97) 0,rgba(255,255,255,.9) 26%,rgba(255,255,255,.55) 42%,rgba(255,255,255,0) 62%)!important}
+body .dpk-page.dpk-t12-light.dpk-t12-text-right .dpk-t12-fade{background:linear-gradient(to left,rgba(255,255,255,.97) 0,rgba(255,255,255,.9) 26%,rgba(255,255,255,.55) 42%,rgba(255,255,255,0) 62%)!important}
 body .dpk-page.dpk-t12-dark.dpk-t12-text-left .dpk-t12-fade{background:linear-gradient(to right,rgba(18,17,16,.96) 0,rgba(18,17,16,.88) 26%,rgba(18,17,16,.5) 44%,rgba(18,17,16,0) 64%)!important}
 body .dpk-page.dpk-t12-dark.dpk-t12-text-right .dpk-t12-fade{background:linear-gradient(to left,rgba(18,17,16,.96) 0,rgba(18,17,16,.88) 26%,rgba(18,17,16,.5) 44%,rgba(18,17,16,0) 64%)!important}
 body .dpk-page.dpk-t12 .dpk-t12-copy{position:absolute!important;top:15%!important;width:34%!important;z-index:2!important}

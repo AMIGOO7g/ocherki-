@@ -3430,6 +3430,7 @@
                 author:(config.author || ""),
                 year:(config.year || new Date().getFullYear()),
                 design:(config.design || config.style || "archive"),
+                contentBalance:(config.contentBalance || ""),
                 pageCount:config.pageCount || 24
               }, "*");
               frame?.contentWindow?.postMessage({

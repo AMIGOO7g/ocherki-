@@ -162,6 +162,11 @@
       (String(page.dateMode || '').toLowerCase() === 'watermark' ? (page.dateLabel || page.eraDate || '') : '')
     );
     const photoToneClass = photo => {
+      // «Colour for the new ones»: without an explicit choice, photographs
+      // dated before 1990 are printed in black and white.
+      const year=Number(String(photo?.year||'').match(/\d{4}/)?.[0]||0);
+      const explicit=photo&&['color','colour','bw','black-white','monochrome'].includes(String(photo.photoMode||'').toLowerCase());
+      if(!explicit&&meta.bookPhotoMode==='era'&&year&&year<1990)return 'dpk-photo-image-bw';
       const raw = photo && (
         photo.photoMode ?? photo.tone ??
         (photo.grayscale === true || photo.blackWhite === true || photo.bw === true ? 'bw' : '')
