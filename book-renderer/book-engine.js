@@ -671,8 +671,8 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { hspread:30, panorama:20, two:25, three:15, single:20 };
-    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '';
+    const photoBeatWeights = { t06:30, hspread:30, panorama:20, two:25, three:15, single:20 };
+    let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [];
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
@@ -768,7 +768,9 @@
         if(!rest)return null;
         const owner=chapter.runs.find(run=>run.end>sourceOffset)||chapter.runs[chapter.runs.length-1];
         const input=owner?.page||chapter.first;
-        const rhythm=nextRhythm(), occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
+        // A page inside a photo composition may ask for a quiet page; the
+        // editorial cycle then waits for the next ordinary text page.
+        const rhythm=extra.forceRhythm||nextRhythm(), occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
         const overrides=input.editorialOverrides||{};
         const noteKey=rhythm==='important-margin'?`${key}:margin`:key;
         const page=P('text',{
@@ -788,7 +790,7 @@
           accentBeat++;
         }
         page.autoImportant=!page.importantLine;page.autoInlineQuote=!page.inlineQuote;page.autoMarginNote=!page.marginNote;
-        Object.assign(page,extra);
+        Object.assign(page,extra);delete page.forceRhythm;
         occurrences[rhythm]=occurrence+1;
         return consume(page,side);
       };
@@ -818,7 +820,7 @@
       // original pagination is restored.
       function balanceChapterEnding(){
         const minimumLines=6,maximumBorrow=4;
-        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP'].includes(spread.master));
+        const textSpreads=spreads.slice(chapterSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06'].includes(spread.master));
         const last=textSpreads.at(-1);
         if(!last)return;
         const isText=page=>Boolean(page?.measuredFlow&&page.sourceRange&&page.sectionId===chapter.sectionId);
@@ -876,12 +878,29 @@
           // H-SPREAD needs a horizontal frame and enough text for both pages
           // under it (roughly 1200 characters a page at this geometry).
           const horizontal=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.3);
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&(beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:true));
+          // T06: a vertical or square hero plus two related frames that are not
+          // both vertical, and a real block of text for the facing page.
+          const heroes=unused.filter(photoPosition=>photoAspect(chapter.photos[photoPosition])<=1.05);
+          const t06Hero=heroes[0];
+          const t06Pair=ordinary.filter(photoPosition=>photoPosition!==t06Hero).slice(0,2);
+          const t06Fits=t06Hero!=null&&t06Pair.length===2&&!t06Pair.every(photoPosition=>photoAspect(chapter.photos[photoPosition])<.85)&&rest.length>1500;
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(beat==='t06'&&recentPhotoBeats.includes('t06'))&&(beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?unused.length>=3:beat==='two'?unused.length>=2:true));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat);
           const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
-          lastPhotoBeat=beat;
+          lastPhotoBeat=beat;recentPhotoBeats=[...recentPhotoBeats,beat].slice(-3);
+          if(beat==='t06'){
+            // The hero goes to the side opposite the previous spread's visual
+            // weight: after a photograph on the right it opens on the left.
+            const before=spreads[spreads.length-1],heavyRight=Boolean(before?.right&&!before.right.measuredFlow),heroLeft=heavyRight;
+            const hero=take(t06Hero),pair=t06Pair.map(take);
+            const textPage=nextTextPage(heroLeft?'right':'left',{topPair:{photoIndices:pair},forceRhythm:'plain'});
+            const heroPage=P('t06-hero',{layout:'t06-hero',master:'D01-T06-HERO',sectionId:chapter.sectionId,source:chapter,photoIndex:hero,title:chapter.title});
+            spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true});
+            textSpreadStreak=0;
+            continue;
+          }
           if(beat==='hspread'){
             const photoIndex=take(horizontal.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
             const left=nextTextPage('left',{topPhoto:{photoIndex}});

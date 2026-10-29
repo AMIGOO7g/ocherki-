@@ -2555,3 +2555,14 @@ body .dpk-page.dpk-hspread.right .dpk-hspread-photo{left:0!important;right:70px!
 body .dpk-page.dpk-hspread .dpk-hspread-photo img{position:absolute!important;top:0!important;width:200%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:50% 50%!important;border:0!important;box-shadow:none!important}
 body .dpk-page.dpk-hspread.left .dpk-hspread-photo img{left:0!important;right:auto!important}
 body .dpk-page.dpk-hspread.right .dpk-hspread-photo img{right:0!important;left:auto!important}
+
+/* T06 — TWO PHOTOS ABOVE TEXT + HERO PHOTO. A strict row of two related
+   frames with a narrow gutter, generous air, then the shared text engine;
+   the facing page holds one hero photograph surrounded by white. */
+body .dpk-page.dpk-t06-text .dpk-t06-pair{position:absolute!important;top:70px!important;display:flex!important;gap:18px!important;margin:0!important;z-index:1!important}
+body .dpk-page.dpk-t06-text.left .dpk-t06-pair{left:70px!important}
+body .dpk-page.dpk-t06-text.right .dpk-t06-pair{left:91px!important}
+body .dpk-page.dpk-t06-text .dpk-t06-photo{position:relative!important;height:100%!important;margin:0!important;overflow:hidden!important;flex:none!important;background:#f1efeb!important}
+body .dpk-page .dpk-t06-photo img,body .dpk-page .dpk-t06-hero img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-t06-text .dpk-running{display:none!important}
+body .dpk-page .dpk-t06-hero{position:absolute!important;top:max(70px,calc((var(--book-page-h,1000px) - var(--dpk-hero-h,800px)) / 2 - 20px))!important;left:50%!important;transform:translateX(-50%)!important;margin:0!important;overflow:hidden!important;background:#f1efeb!important}

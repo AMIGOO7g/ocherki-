@@ -86,6 +86,7 @@
     if (layout === 'chapter-intro' || layout === 'chapter-mark') return 'chapter-text';
     if (layout === 'chapter-initial' || kind === 'chapter-initial') return 'chapter-initial';
     if (layout === 'hspread-photo' || kind === 'hspread-photo') return 'hspread-photo';
+    if (layout === 't06-hero' || kind === 't06-hero') return 't06-hero';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
     if (layout === 'photo-fullspread' || (page && page.master === 'MS-04')) return 'large-photo';
     if (layout === 'photo-triptych' || kind === 'three-photo') return 'three-photo';
@@ -171,6 +172,14 @@
     const caption = index => esc(ctx.caption ? ctx.caption(source, index) : '');
     // One source image in one viewport across both pages of the spread.
     const hspreadPhoto = index => `<figure class="dpk-hspread-photo" data-source-photo-index="${index}">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`;
+    // T06: two related frames in one strict row above the text. Both share one
+    // height; widths follow their proportions so neither is cut aggressively.
+    const photoRatio = index => { const photo=source?.photos?.[index]||{}; const ratio=Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1; return Math.min(1.6,Math.max(.7,ratio)); };
+    const t06Pair = indices => {
+      const width=839,gutter=18,ratios=indices.map(photoRatio),height=Math.min(340,Math.round((width-gutter)/(ratios[0]+ratios[1])));
+      const widths=ratios.map(ratio=>Math.round((width-gutter)*ratio/(ratios[0]+ratios[1])));
+      return {height,origin:70+height+64,html:`<div class="dpk-t06-pair" style="height:${height}px">${indices.map((index,position)=>`<figure class="dpk-t06-photo" data-source-photo-index="${index}" style="width:${widths[position]}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`).join('')}</div>`};
+    };
     const running = `<div class="dpk-running">${episode || 'Семейная хроника'}</div>`;
     const folio = `<div class="dpk-folio">${pageNo}</div>`;
     const photoMode = String(meta.photoMode || ctx.photoMode || 'color').toLowerCase() === 'bw' ? 'dpk-photo-bw' : 'dpk-photo-color';
@@ -218,10 +227,11 @@
       const style=Object.entries(flow.geometry).map(([key,value])=>`--dpk-flow-${key}:${typeof value==='number'?`${value}px`:value}`).join(';');
       // H-SPREAD v1.2: one horizontal photograph runs across the top of the
       // spread; the page only tells the shared engine where its text starts.
-      const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):'';
+      const pair=page.topPair?t06Pair(page.topPair.photoIndices):null;
+      const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
       const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto?'':running;
-      return article(page.master,`${topPhoto}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,`dpk-dom-paginated${topPhoto?' dpk-hspread':''}`)
-        .replace('data-design-pack=',`style="${style}" data-design-pack=`);
+      return article(page.master,`${topPhoto}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':''}`)
+        .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
     if (role === 'chapter-photo') return article('D01-CHAPTER-PHOTO', `<figure>${image(page.photoIndex || 0)}</figure>${caption(page.photoIndex || 0) ? `<div class="dpk-caption">${caption(page.photoIndex || 0)}</div>` : ''}${folio}`);
@@ -361,6 +371,12 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 't06-hero') {
+      // «One photograph and air»: the hero frame is fitted whole inside the
+      // page margins (no frame, no shadow, no bleed).
+      const ratio=photoRatio(page.photoIndex||0),boxW=860,boxH=800,width=Math.round(Math.min(boxW,boxH*ratio)),height=Math.round(width/ratio);
+      return article('D01-T06-HERO', `<figure class="dpk-t06-hero" style="width:${width}px;height:${height}px;--dpk-hero-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${folio}`);
     }
     if (role === 'hspread-photo') return article('D01-HSPREAD-TOP', `${hspreadPhoto(page.photoIndex||0)}${folio}`, 'dpk-hspread');
     if (role === 'panorama') {
