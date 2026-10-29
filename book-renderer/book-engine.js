@@ -675,11 +675,83 @@
       timelineEvents.push({year:match[2],date:match[1].trim(),place:parts.length>1?parts[0]:'',text:parts.length>1?parts.slice(1).join(' — '):parts[0]||''});
     }
     if(hasMatter('intro')||hasMatter('author'))spreads.push({id:'d01_intro_author',master:'D01-SPREAD-INTRO-AUTHOR',left:matter('intro','intro','D01-INTRO','Вступление'),right:matter('author','author-note','D01-AUTHOR','От автора')});
-    // I02-A — family route map, before the first chapter: where the story
+    // I03 — family tree, before the first chapter: who is who. One person per
+    // line in «Семейное древо», a spouse after « + », children on the lines
+    // below with one more leading dash («— Николай», «— — Фёдор»); a line
+    // «+ Анна» adds another marriage to the person above it; «*» marks a key
+    // person, who gets a portrait when a photo is captioned with their name.
+    // Relationships are only what is written: nothing is guessed. A tree that
+    // does not fit one spread is split into an overview and branch spreads.
+    const treeLayout=globalThis.OcherkiBookRenderer?.familyTreeLayout;
+    const treeSection=byId('family-tree'),treeSource=treeSection?.pages?.find(page=>page.included!==false);
+    if(treeLayout&&treeSource&&String(treeSource.text||'').trim()){
+      const normName=value=>String(value||'').toLowerCase().replace(/ё/gu,'е').replace(/[^\p{L}\s]/gu,' ').replace(/\s+/gu,' ').trim();
+      const portraitFor=name=>{
+        const key=normName(name);if(!key)return null;
+        for(const chapter of chapters)for(const photo of chapter.photos){
+          const text=normName(`${photo.heroName||''} ${photo.caption||''}`);
+          if(imageSource(photo)&&text&&(` ${text} `).includes(` ${key} `))return {src:imageSource(photo),ratio:photoAspect(photo)||.8};
+        }
+        return null;
+      };
+      const personOf=raw=>{
+        let text=String(raw||'').trim();const major=/\*/u.test(text);text=text.replace(/\*/gu,'').trim();
+        const dates=(text.match(/\(([^)]*)\)/u)?.[1]||'').trim();text=text.replace(/\([^)]*\)/gu,'').trim();
+        const [name,...rest]=text.split(',').map(part=>part.trim());
+        return name?{name,dates,place:rest.filter(Boolean).join(', '),major,photo:null,unions:[]}:null;
+      };
+      const roots=[],last=[];let people=0;
+      for(const line of String(treeSource.text).split(/\r?\n/u)){
+        const lead=line.match(/^\s*((?:[—–-]\s*)*)/u)[1],level=(lead.match(/[—–-]/gu)||[]).length,body=line.slice(line.match(/^\s*((?:[—–-]\s*)*)/u)[0].length).trim();
+        if(!body)continue;
+        if(body.startsWith('+')){
+          const spouse=personOf(body.slice(1)),owner=last[level];
+          if(spouse&&owner){owner.unions.push({spouse,children:[]});people++;}
+          continue;
+        }
+        const [first,...spouses]=body.split(/\s\+\s/u),person=personOf(first);if(!person)continue;
+        for(const raw of spouses){const spouse=personOf(raw);if(spouse){person.unions.push({spouse,children:[]});people++;}}
+        people++;
+        if(level===0||!last[level-1])roots.push(person);
+        else{const parent=last[level-1];if(!parent.unions.length)parent.unions.push({spouse:null,children:[]});parent.unions.at(-1).children.push(person);}
+        last[level]=person;last.length=level+1;
+      }
+      const everyone=list=>list.flatMap(person=>[person,...person.unions.flatMap(union=>[union.spouse,...everyone(union.children)].filter(Boolean))]);
+      for(const person of everyone(roots))if(person.major)person.photo=portraitFor(person.name);
+      const prune=(person,depth)=>({...person,unions:person.unions.map(union=>({spouse:union.spouse,children:depth>1?union.children.map(child=>prune(child,depth-1)):[]}))});
+      const depthOf=person=>1+Math.max(0,...person.unions.flatMap(union=>union.children.map(depthOf)));
+      const custom=String(treeSource.title||'').trim(),baseTitle=custom&&custom!=='Семейное древо'?custom:'Семейное древо';
+      const treeSpreads=[];
+      const plan=(rootsHere,title,subtitle,genOffset)=>{
+        const total=everyone(rootsHere).length;
+        const withPortraits=everyone(rootsHere).filter(person=>person.major&&person.photo).length;
+        const data={roots:rootsHere,title,subtitle,genOffset,mode:withPortraits>=3&&withPortraits<=8?'portraits':'text',pageFormat:meta.format||'square'};
+        return {data,fits:total<=20&&treeLayout(data).fits};
+      };
+      const full=plan(roots,baseTitle,'',0);
+      if(people>=4&&full.fits)treeSpreads.push(full.data);
+      else if(people>=4){
+        // Overview: founders and their children (without the children's
+        // spouses when that is what it takes to fit); then one spread per
+        // child who has descendants, as deep as fits.
+        let overview=plan(roots.map(root=>prune(root,2)),baseTitle,'Основатели рода и их дети',0);
+        if(!overview.fits)overview=plan(roots.map(root=>({...prune(root,2),unions:root.unions.map(union=>({spouse:union.spouse,children:union.children.map(child=>({...child,unions:[]}))}))})),baseTitle,'Основатели рода и их дети',0);
+        if(overview.fits)treeSpreads.push(overview.data);
+        for(const root of roots)for(const union of root.unions)for(const child of union.children){
+          if(treeSpreads.length>=6||depthOf(child)<2)continue;
+          for(let depth=Math.min(4,depthOf(child));depth>=2;depth--){
+            const branch=plan([prune(child,depth)],`Ветвь: ${child.name}`,depth<depthOf(child)?'Ближайшие поколения ветви':'',1);
+            if(branch.fits){treeSpreads.push(branch.data);break;}
+          }
+        }
+      }
+      treeSpreads.forEach((i03,index)=>spreads.push({id:`d01_i03_tree_${index+1}`,master:'D01-SPREAD-I03-TREE',left:P('i03-tree',{layout:'i03-tree',master:'D01-I03',meta:bookMeta,i03}),right:P('i03-tree',{layout:'i03-tree',master:'D01-I03',meta:bookMeta,i03})}));
+    }
+    // I02-A — family route map, in the middle of the book: where the story
     // happened. Places come from «Хронология» (and photo places) and are
     // resolved through the built-in gazetteer or explicit «[lat, lon]»; an
     // unknown place is left out rather than guessed. Needs three places.
-    const geo=globalThis.OcherkiGeo;
+    const geo=globalThis.OcherkiGeo;let i02Spread=null;
     if(geo&&byId('timeline')){
       const stops=[];
       for(const event of timelineEvents){
@@ -700,7 +772,7 @@
         const custom=String(byId('timeline').pages?.find(page=>page.included!==false)?.title||'').trim();
         const i02={places:unique.map(stop=>({key:stop.key,name:stop.name,lat:stop.lat,lon:stop.lon,date:stop.date,text:stop.text,photo:photoFor.get(stop.key)||null})),
           route:stops.map(stop=>stop.key),title:'География семьи',subtitle:custom&&custom!=='Хронология'?custom:'Места, где жила наша история',pageFormat:meta.format||'square'};
-        spreads.push({id:'d01_i02_route',master:'D01-SPREAD-I02-ROUTE',left:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02}),right:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02})});
+        i02Spread={id:'d01_i02_route',master:'D01-SPREAD-I02-ROUTE',left:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02}),right:P('i02-route',{layout:'i02-route',master:'D01-I02',meta:bookMeta,i02})};
       }
     }
     const expectedManuscripts = [];
@@ -1182,6 +1254,14 @@
           title:custom&&custom!=='Хронология'?custom:'Путь нашей семьи',subtitle:'Главные события и места',withPhotos,pageFormat:meta.format||'square'};
         spreads.push({master:'D01-SPREAD-I01-TIMELINE',left:P('i01-timeline',{layout:'i01-timeline',master:'D01-I01',meta:bookMeta,i01}),right:P('i01-timeline',{layout:'i01-timeline',master:'D01-I01',meta:bookMeta,i01})});
       }
+    }
+    // The map goes after the middle chapter, so the three informational
+    // spreads (tree, map, chronology) never stand next to each other.
+    if(i02Spread){
+      const middle=chapters[Math.floor((chapters.length-1)/2)]?.sectionId;
+      let at=-1;spreads.forEach((spread,index)=>{if(middle&&spread.sectionId===middle)at=index;});
+      if(at<0)at=spreads.length-1;
+      spreads.splice(at+1,0,i02Spread);
     }
     if(hasMatter('afterword')||hasMatter('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
     if(hasMatter('sources')||byId('colophon')){

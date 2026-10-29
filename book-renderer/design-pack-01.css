@@ -2766,3 +2766,22 @@ body .dpk-page.dpk-i02 .dpk-i02-label b{display:block!important;margin-top:3px!i
 body .dpk-page.dpk-i02 .dpk-i02-label em{display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important;margin-top:6px!important;font:italic 400 15px/1.35 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
 body .dpk-page.dpk-i02 .dpk-i02-photo{position:absolute!important;display:block!important;overflow:hidden!important;box-shadow:0 1px 3px rgba(40,34,28,.18)!important;background:#ddd!important}
 body .dpk-page.dpk-i02 .dpk-i02-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+
+/* I03 — family tree: names, years and thin lines; portraits only for key people */
+body .dpk-page.dpk-i03{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-i03 .dpk-i03-lines{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important}
+body .dpk-page.dpk-i03 .dpk-i03-lines path{fill:none!important;stroke:#77706a!important;stroke-width:1.1!important}
+body .dpk-page.dpk-i03 .dpk-i03-head{position:absolute!important;left:80px!important;top:80px!important;max-width:560px!important}
+body .dpk-page.dpk-i03 .dpk-i03-head h1{margin:0!important;font:400 50px/1.08 'CormorantCy',Georgia,serif!important;color:#24221f!important}
+body .dpk-page.dpk-i03 .dpk-i03-head p{margin:10px 0 0!important;font:italic 400 21px/1.3 'CormorantCy',Georgia,serif!important;color:#4a4540!important}
+body .dpk-page.dpk-i03 .dpk-i03-gen{position:absolute!important;left:80px!important;width:150px!important;font:400 14px/1.35 'PTSerifCy',Georgia,serif!important;color:#6d655c!important}
+body .dpk-page.dpk-i03 .dpk-i03-gen span{display:block!important;font:400 30px/1 'CormorantCy',Georgia,serif!important;color:#3a3631!important;margin-bottom:4px!important}
+body .dpk-page.dpk-i03 .dpk-i03-gen i{display:block!important;font-style:normal!important}
+body .dpk-page.dpk-i03 .dpk-i03-person{position:absolute!important;text-align:center!important;display:block!important}
+body .dpk-page.dpk-i03 .dpk-i03-person strong{display:block!important;font:600 19px/25px 'PTSerifCy',Georgia,serif!important;color:#1f1d1a!important;overflow-wrap:break-word!important}
+body .dpk-page.dpk-i03 .dpk-i03-person b{display:block!important;font:400 16px/23px 'PTSerifCy',Georgia,serif!important;color:#3a3631!important}
+body .dpk-page.dpk-i03 .dpk-i03-person em{display:block!important;font:normal 400 15px/22px 'PTSerifCy',Georgia,serif!important;color:#6a6258!important}
+body .dpk-page.dpk-i03 .dpk-i03-person.with-photo{display:flex!important;align-items:flex-start!important;gap:14px!important;text-align:left!important}
+body .dpk-page.dpk-i03 .dpk-i03-text{display:block!important}
+body .dpk-page.dpk-i03 .dpk-i03-photo{display:block!important;flex:0 0 92px!important;width:92px!important;height:118px!important;overflow:hidden!important;box-shadow:0 1px 3px rgba(40,34,28,.2)!important}
+body .dpk-page.dpk-i03 .dpk-i03-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 25%!important;display:block!important}

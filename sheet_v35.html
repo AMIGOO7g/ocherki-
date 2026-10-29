@@ -400,6 +400,15 @@ body{
   to{opacity:1;transform:translateY(0)}
 }
 
+/* Format hints on an empty «Хронология» / «Семейное древо» page. */
+.editor[data-page-type="timeline"]>p:only-child:has(>br:only-child)::before{
+  display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
+  content:"Каждое событие — с новой строки: год — место — что произошло.\A\A 1921 — Владикавказ — Новый этап для семьи\A ок. 1930 — Ташкент — Переезд всей семьёй\A\A Из этих строк соберутся разворот «Хронология» и карта «География семьи».";
+}
+.editor[data-page-type="family-tree"]>p:only-child:has(>br:only-child)::before{
+  display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
+  content:"Каждый человек — с новой строки, супруг через «+». Дети — ниже, с тире в начале строки, внуки — с двумя тире.\A\A Константин Евстафиади (1820–1862), Карс + Елена (1825–1870)\A — Николай (1850–1920) + Варвара (1856–1931)\A — — Фёдор (1880–1942)\A — Мария (1860–1918)\A\A Второй брак — отдельной строкой «+ Имя» под человеком. Звёздочка * после имени — ключевой человек: он получит портрет, если в подписи к фото есть его имя.";
+}
 .editor .sample-lead,
 .editor .sample-body{
   color:#9a8878!important;
@@ -1044,6 +1053,14 @@ const sections=[
   pages:[{type:'timeline',title:'Хронология',episode:'',text:'',photos:[],photoOffset:0}]
  },
  {
+  id:'family-tree',
+  title:'Семейное древо',
+  type:'family-tree',
+  auto:true,
+  active:0,
+  pages:[{type:'family-tree',title:'Семейное древо',episode:'',text:'',photos:[],photoOffset:0}]
+ },
+ {
   id:'final',
   title:'Финальная страница',
   type:'text',
@@ -1109,7 +1126,7 @@ const sections=[
  }
 ];
 
-const OPTIONAL_AUTO_IDS=new Set(['endpaper','title','dedication','epigraph','contents','intro','author','timeline','final','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover']);
+const OPTIONAL_AUTO_IDS=new Set(['endpaper','title','dedication','epigraph','contents','intro','author','timeline','family-tree','final','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover']);
 sections.forEach(s=>{
   // V10: complete book by default. Only genuinely optional matter can later
   // be switched off by the author; mandatory structure never gets a toggle.
@@ -3654,7 +3671,7 @@ window.addEventListener('message',e=>{
 
 <script id="v51-structure-bridge">
 (() => {
-  const AUTO_IDS = new Set(['cover','endpaper','title','dedication','epigraph','contents','intro','author','timeline','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover','final']);
+  const AUTO_IDS = new Set(['cover','endpaper','title','dedication','epigraph','contents','intro','author','timeline','family-tree','afterword','thanks','sources','colophon','back-endpaper','inside-back-cover','back-cover','final']);
   let serial = 0;
   const makeId = (prefix='node') => `${prefix}-${Date.now().toString(36)}-${(++serial).toString(36)}`;
 

@@ -95,6 +95,7 @@
     if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
     if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
     if (layout === 'i02-route' || kind === 'i02-route') return 'i02-route';
+    if (layout === 'i03-tree' || kind === 'i03-tree') return 'i03-tree';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -264,6 +265,112 @@
     }
     const layout = { H, landPath: landPath.join(''), grid: grid.join(''), route, at, labels, photos, seas };
     I02_CACHE.set(data, layout);
+    return layout;
+  }
+
+  // I03 family tree solver. People are blocks (name / years / place, an
+  // optional small portrait); a person with spouses forms one family unit
+  // ([spouse, person, spouse] for two unions). Children hang from their own
+  // union's link; generations are rows. Leaves are laid left to right, a unit
+  // is centred over its children, nothing sits in the fold, and the result
+  // reports whether it fits without shrinking type (otherwise the engine
+  // splits the tree into branches).
+  const I03_CACHE = new WeakMap();
+  function familyTreeLayout(data) {
+    if (I03_CACHE.has(data)) return I03_CACHE.get(data);
+    const H = data.pageFormat === 'portrait' ? 1196 : 1000, X0 = 270, X1 = 1930, G0 = 925, G1 = 1075, top = 280, bottom = H - 110, gap = 34, link = 46;
+    const portraits = data.mode === 'portraits';
+    // Names wrap to at most two lines where possible; a key person's
+    // portrait sits beside the text so rows keep their height.
+    const measure = person => {
+      const words = String(person.name || 'Имя неизвестно').split(/\s+/u), dates = String(person.dates || ''), place = String(person.place || '');
+      const nameLen = words.join(' ').length * 11.4;
+      const textW = Math.round(Math.min(230, Math.max(112, Math.max(...words.map(word => word.length * 11.4), nameLen / 2 + 12, dates.length * 8.8, place.length * 8.6) + 14)));
+      let lines = 1, run = 0;
+      for (const word of words) { const len = word.length * 11.4; if (run && run + 6 + len > textW - 8) { lines++; run = len; } else run += (run ? 6 : 0) + len; }
+      const photo = portraits && person.photo ? 1 : 0, textH = lines * 25 + (dates ? 23 : 0) + (place ? 22 : 0);
+      return { w: textW + (photo ? 106 : 0), textW, photo, h: Math.max(textH, photo ? 118 : 0), lines };
+    };
+    const rows = [], boxes = [], lines = [];
+    const depth = person => 1 + Math.max(0, ...(person.unions || []).flatMap(union => union.children.map(depth)));
+    const gens = Math.max(1, ...(data.roots || []).map(depth));
+    for (let g = 0; g < gens; g++) rows.push({ right: X0 - gap, h: 0, people: [] });
+    // Pass 1: heights per row.
+    const walkH = (person, g) => { const m = measure(person); rows[g].h = Math.max(rows[g].h, m.h); for (const union of person.unions || []) { if (union.spouse) rows[g].h = Math.max(rows[g].h, measure(union.spouse).h); union.children.forEach(child => walkH(child, g + 1)); } };
+    (data.roots || []).forEach(root => walkH(root, 0));
+    const free = bottom - top - rows.reduce((sum, row) => sum + row.h, 0), spacing = gens > 1 ? Math.min(150, free / (gens - 1)) : 0;
+    let y = top + Math.max(0, (bottom - top - rows.reduce((sum, row) => sum + row.h, 0) - spacing * (gens - 1)) / 2);
+    rows.forEach(row => { row.y = Math.round(y); y += row.h + spacing; });
+    let fits = gens <= 5 && (gens === 1 || spacing >= 64);
+    let shift = 0;
+    const place = (person, g) => {
+      const unions = (person.unions || []).filter(union => union.spouse || union.children.length);
+      // A family's descendants never start left of where its own row has
+      // reached, so children stay under their parents.
+      for (let d = g + 1; d < rows.length; d++) rows[d].right = Math.max(rows[d].right, rows[g].right);
+      const childUnits = unions.map(union => union.children.map(child => place(child, g + 1)));
+      const order = unions.length >= 2 && unions[0].spouse ? [unions[0].spouse, person, ...unions.slice(1).map(union => union.spouse).filter(Boolean)] : [person, ...unions.map(union => union.spouse).filter(Boolean)];
+      const sizes = order.map(measure), unitW = sizes.reduce((sum, size) => sum + size.w, 0) + link * (order.length - 1);
+      const kids = childUnits.flat();
+      let x = kids.length ? (kids[0].center + kids.at(-1).center) / 2 - unitW / 2 : Math.max(rows[g].right + gap, X0 + shift);
+      x = Math.max(x, rows[g].right + gap);
+      if (x < G1 && x + unitW > G0) x = x + unitW / 2 < 1000 && G0 - unitW >= rows[g].right + gap ? G0 - unitW : G1;
+      if (x + unitW > X1) fits = false;
+      rows[g].right = x + unitW;
+      const row = rows[g], placed = [];
+      let cursor = x;
+      order.forEach((who, i) => {
+        const size = sizes[i], box = { x: cursor, y: row.y, w: size.w, textW: size.textW, h: size.h, photo: size.photo, person: who };
+        boxes.push(box); placed.push(box); row.people.push(who); cursor += size.w + link;
+      });
+      const self = placed[order.indexOf(person)];
+      // Couple links and the drop to each union's children.
+      unions.forEach((union, u) => {
+        const partner = union.spouse ? placed[order.indexOf(union.spouse)] : null, ly = row.y + 14;
+        let dropX = self.x + self.w / 2, dropY = self.y + self.h + 8;
+        if (partner) {
+          const a = partner.x < self.x ? partner : self, b = partner.x < self.x ? self : partner;
+          lines.push(`M${(a.x + a.w + 8).toFixed(1)} ${ly}H${(b.x - 8).toFixed(1)}`);
+          dropX = (a.x + a.w + b.x) / 2; dropY = ly;
+        }
+        const children = childUnits[u];
+        if (!children.length) return;
+        // With two marriages each union gets its own bar height, so the
+        // children of one never read as children of the other.
+        const barY = rows[g + 1].y - Math.min(40, spacing / 2) - (unions.length - 1 - u) * 18;
+        const left = Math.min(dropX, ...children.map(child => child.center)), right = Math.max(dropX, ...children.map(child => child.center));
+        lines.push(`M${dropX.toFixed(1)} ${dropY.toFixed(1)}V${barY.toFixed(1)}`);
+        if (right - left > 1) lines.push(`M${left.toFixed(1)} ${barY.toFixed(1)}H${right.toFixed(1)}`);
+        for (const child of children) lines.push(`M${child.center.toFixed(1)} ${barY.toFixed(1)}V${(rows[g + 1].y - 8).toFixed(1)}`);
+      });
+      return { center: self.x + self.w / 2 };
+    };
+    // Lay out once, then again shifted so the tree sits centred between the
+    // generation column and the outer edge (the fold rule is re-applied).
+    const run = offset => {
+      shift = offset; boxes.length = 0; lines.length = 0; fits = baseFits;
+      rows.forEach(row => { row.right = X0 + offset - gap; row.people = []; });
+      (data.roots || []).forEach(root => place(root, 0));
+      return Math.max(...boxes.map(box => box.x + box.w));
+    };
+    const baseFits = fits, used = run(0);
+    if (fits && used < X1 - 40) {
+      let best = { offset: 0, off: Infinity };
+      for (let offset = 0; offset <= X1 - used; offset += 30) {
+        run(offset);
+        if (!fits) break;
+        const left = Math.min(...boxes.map(box => box.x)), right = Math.max(...boxes.map(box => box.x + box.w)), off = Math.abs((left + right) / 2 - (X0 + X1) / 2);
+        if (off < best.off) best = { offset, off };
+      }
+      run(best.offset);
+    }
+    const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+    const labels = rows.map((row, g) => {
+      const years = row.people.map(who => Number(String(who.dates || '').match(/\d{4}/u)?.[0])).filter(Boolean);
+      return { y: row.y, numeral: roman[g + (data.genOffset || 0)] || '', range: years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '' };
+    });
+    const layout = { H, fits, boxes, lines, labels, people: boxes.length };
+    I03_CACHE.set(data, layout);
     return layout;
   }
 
@@ -544,6 +651,22 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'i03-tree') {
+      const data=page.i03||{roots:[]},tree=familyTreeLayout(data),offset=pageSide==='left'?0:1000;
+      const parts=[`<svg class="dpk-i03-lines" viewBox="${offset} 0 1000 ${tree.H}" preserveAspectRatio="none" aria-hidden="true"><path d="${tree.lines.join('')}"/></svg>`];
+      for(const box of tree.boxes){
+        if(box.x+box.w<=offset||box.x>=offset+1000)continue;
+        const who=box.person;
+        parts.push(`<div class="dpk-i03-person${box.photo?' with-photo':''}" style="left:${Math.round(box.x-offset)}px;top:${Math.round(box.y)}px;width:${Math.round(box.w)}px">`
+          +(box.photo?`<span class="dpk-i03-photo"><img src="${esc(who.photo.src)}" alt="" loading="eager" decoding="async"></span>`:'')
+          +`<span class="dpk-i03-text" style="width:${Math.round(box.textW)}px"><strong>${esc(who.name||'Имя неизвестно')}</strong>${who.dates?`<b>${esc(who.dates)}</b>`:''}${who.place?`<em>${esc(who.place)}</em>`:''}</span></div>`);
+      }
+      if(pageSide==='left'){
+        parts.push(`<div class="dpk-i03-head"><h1>${esc(data.title||'Семейное древо')}</h1>${data.subtitle?`<p>${esc(data.subtitle)}</p>`:''}</div>`);
+        for(const label of tree.labels)parts.push(`<div class="dpk-i03-gen" style="top:${Math.round(label.y)}px"><span>${esc(label.numeral)}</span>поколение${label.range?`<i>${esc(label.range)}</i>`:''}</div>`);
+      }
+      return article('D01-I03',parts.join(''),'dpk-i03');
     }
     if (role === 'i02-route') {
       const data=page.i02||{places:[]},map=i02Layout(data),offset=pageSide==='left'?0:1000;
@@ -1246,5 +1369,5 @@
     return { status: violations.length ? 'fail' : 'pass', pages: pages.length, violations };
   }
 
-  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit, editorialPhrases });
+  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, familyTreeLayout, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit, editorialPhrases });
 })(window);
