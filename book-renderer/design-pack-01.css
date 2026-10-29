@@ -2788,3 +2788,18 @@ body .dpk-page.dpk-i03 .dpk-i03-photo{display:block!important;flex:0 0 92px!impo
 body .dpk-page.dpk-i03 .dpk-i03-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 25%!important;display:block!important}
 body .dpk-page.dpk-i02 .dpk-i02-land-name{position:absolute!important;transform:translate(-50%,-50%)!important;white-space:nowrap!important;font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.3em!important;text-transform:uppercase!important;color:#9a8f7f!important}
 body .dpk-page.dpk-i02 .dpk-i02-era{position:absolute!important;right:62px!important;bottom:40px!important;padding:5px 10px!important;background:rgba(252,251,248,.92)!important;font:italic 400 14px/1.3 'PTSerifCy',Georgia,serif!important;color:#8a8175!important}
+
+/* «Кто на фото»: group photo with numbered marks + legend */
+body .dpk-page.dpk-who{background:#fbfaf7!important;overflow:hidden!important}
+body .dpk-page.dpk-who .dpk-who-photo{position:absolute!important;margin:0!important;overflow:visible!important}
+body .dpk-page.dpk-who .dpk-who-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+body .dpk-page.dpk-who .dpk-who-mark{position:absolute!important;transform:translate(-50%,-50%)!important;width:26px!important;height:26px!important;border-radius:50%!important;background:rgba(252,250,246,.92)!important;color:#24221f!important;font:600 14px/26px 'PTSerifCy',Georgia,serif!important;text-align:center!important;box-shadow:0 1px 3px rgba(0,0,0,.35)!important}
+body .dpk-page.dpk-who .dpk-who-legend{position:absolute!important;left:150px!important;right:120px!important;top:150px!important}
+body .dpk-page.dpk-who .dpk-who-kicker{font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.3em!important;text-transform:uppercase!important;color:#8a8175!important;margin-bottom:22px!important}
+body .dpk-page.dpk-who .dpk-who-legend h2{margin:0 0 10px!important;font:400 44px/1.12 'CormorantCy',Georgia,serif!important;color:#24221f!important}
+body .dpk-page.dpk-who .dpk-who-meta{font:italic 400 18px/1.3 'PTSerifCy',Georgia,serif!important;color:#6a6258!important;margin-bottom:8px!important}
+body .dpk-page.dpk-who .dpk-who-list{list-style:none!important;margin:34px 0 0!important;padding:0!important}
+body .dpk-page.dpk-who .dpk-who-list.two{column-count:2!important;column-gap:40px!important}
+body .dpk-page.dpk-who .dpk-who-list li{break-inside:avoid!important;display:flex!important;gap:14px!important;align-items:baseline!important;margin:0 0 14px!important;font:400 20px/1.35 'PTSerifCy',Georgia,serif!important;color:#2b2622!important}
+body .dpk-page.dpk-who .dpk-who-list li span{flex:0 0 26px!important;height:26px!important;border-radius:50%!important;border:1px solid #9a9086!important;font:600 13px/24px 'PTSerifCy',serif!important;text-align:center!important;color:#3a3631!important;box-sizing:border-box!important}
+body .dpk-page.dpk-who .dpk-who-story{margin:30px 0 0!important;padding-top:22px!important;border-top:1px solid rgba(60,50,40,.18)!important;font:italic 400 18px/1.55 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}

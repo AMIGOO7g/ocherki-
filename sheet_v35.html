@@ -7,6 +7,7 @@
 <script src="book-renderer/editor-source-bridge.js"></script>
 <script src="book-renderer/project-store.js"></script>
 <script src="book-renderer/tree-editor.js"></script>
+<script src="book-renderer/people-marker.js"></script>
 <style>
 :root{
  --paper:#f7efe2; --paper2:#efe0ca; --ink:#3b2a20; --muted:#8e7a69;
@@ -855,6 +856,11 @@ html.photo-modal-root-open body{overflow:visible!important;}
   .photo-hero-toggle{display:flex;align-items:center;gap:10px;cursor:pointer}
   .photo-hero-toggle input{width:20px;height:20px;accent-color:#8a6a45}
   .photo-hero-hint{margin-top:4px;font-size:12px;opacity:.7}
+  .photo-inline-actions{position:relative;z-index:60}
+  /* The photo switch strip only reacts on its arrows, so it never swallows
+     clicks on the photo card fields under it. */
+  .photo-switch{pointer-events:none!important}
+  .photo-switch button{pointer-events:auto!important}
   .photo-hint{margin-top:5px;font:italic 13px/1.35 Georgia,serif;color:rgba(93,62,39,.62)}
   .host-night .photo-hint{color:rgba(236,220,198,.62)}
 </style>
@@ -865,7 +871,7 @@ html.photo-modal-root-open body{overflow:visible!important;}
   <div class="photo-stack" id="photoStack"></div>
   <div class="photo-modal" id="photoModal">
     <div class="photo-modal-head"><span>ФОТОГРАФИЯ</span><button type="button" id="photoCloseX">×</button></div>
-    <div class="photo-modal-top"><img id="photoPreview" alt=""></div><div class="photo-inline-actions"><button type="button" id="photoReplace">заменить</button><button type="button" id="photoDelete">удалить</button></div>
+    <div class="photo-modal-top"><img id="photoPreview" alt=""></div><div class="photo-inline-actions"><button type="button" id="photoReplace">заменить</button><button type="button" id="photoDelete">удалить</button><button type="button" id="photoMarkPeople">отметить, кто на фото</button></div>
     <div class="photo-fields">
       <div class="photo-field wide"><label>ПОДПИСЬ</label><input id="photoCaption" placeholder="Например: Лето у бабушки"><div class="photo-hint">Печатается мелко под фото: коротко — кто, где, когда.</div></div>
       <div class="photo-field"><label>ГОД</label><input id="photoYear" placeholder="1987"><div class="photo-hint">Фото с годом может попасть в «Хронологию».</div></div>
@@ -3512,6 +3518,7 @@ function positionPhotoModal(){
 }
 
 function fillPhotoInfo(p){
+  try{updateMarkButton(p);}catch(_){}
   photoPreview.src=p.src;
   photoCaption.value=p.caption||'';
   photoYear.value=p.year||'';
@@ -3802,6 +3809,23 @@ document.getElementById('treeLaunch')?.addEventListener('click',()=>{
     try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
   }});
 });
+// «Кто на фото» (book-renderer/people-marker.js) from the photo card.
+document.getElementById('photoMarkPeople')?.addEventListener('click',()=>{
+  const photo=currentPhotos()[activePhoto];if(!photo||!window.OcherkiPeopleMarker)return;
+  window.OcherkiPeopleMarker.open({src:photo.src,marks:photo.peopleMarks||[],onDone:marks=>{
+    photo.peopleMarks=marks;
+    const people=document.getElementById('photoPeople'),names=marks.map(mark=>mark.name).filter(Boolean).join(', ');
+    if(people&&!people.value.trim()&&names){people.value=names;photo.people=names;}
+    updateMarkButton(photo);persistSoon();
+    try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
+  }});
+});
+function updateMarkButton(target){
+  const button=document.getElementById('photoMarkPeople'),photo=target||currentPhotos()[activePhoto];
+  if(!button)return;
+  const count=(photo?.peopleMarks||[]).filter(mark=>mark&&mark.name).length;
+  button.textContent=count?`кто на фото: отмечено ${count}`:'отметить, кто на фото';
+}
 const renderWithoutTree=render;
 render=function(){const result=renderWithoutTree.apply(this,arguments);updateTreeUi();return result;};
 render(); restoreProject();
@@ -3947,7 +3971,8 @@ window.addEventListener('message',e=>{
             ctxHandwrittenNote: String(photo?.ctxHandwrittenNote || ''),
             ctxState: String(photo?.ctxState || ''),
             darkFadeState: String(photo?.darkFadeState || ''),
-            revision: Number(photo?.revision || 0)
+            revision: Number(photo?.revision || 0),
+            peopleMarks: Array.isArray(photo?.peopleMarks) ? photo.peopleMarks.map(mark=>({x:Number(mark?.x)||0,y:Number(mark?.y)||0,name:String(mark?.name||'')})) : []
           })) : [],
           bookRole: String(page.bookRole || page.layoutIntent || 'auto'),
           continuation: page.continuation === true,

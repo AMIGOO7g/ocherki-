@@ -244,6 +244,8 @@
     return caption.length>0&&caption.length<=60&&storyLength>=3&&storyLength<=60;
   }
 
+  const isWhoPhoto = photo => Boolean(imageSource(photo)) && Array.isArray(photo?.peopleMarks) && photo.peopleMarks.filter(mark => mark && String(mark.name || '').trim()).length >= 2;
+
   function pageFactory() {
     let serial = 0;
     return (kind, data = {}) => Object.assign({ id: `d01_page_${++serial}`, kind, pageNo: 0 }, data);
@@ -631,7 +633,10 @@
         title: cleanTitle(section.title || first.title, `Глава ${chapterIndex + 1}`),
         episode: first.episode || section.title || '',
         pages,
-        photos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))),
+        // A group photo with people marked on it («Кто на фото») gets its
+        // own spread and stays out of the ordinary photo rhythm.
+        photos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(photo => !isWhoPhoto(photo)),
+        whoPhotos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(isWhoPhoto),
         documents: pages.filter(page => page.type === 'document' || page.bookRole === 'document'),
         text: runs.map(run => run.text).join(''),
         openingLeftVariant: section.openingLeftVariant || first.openingLeftVariant || first.chapterOpeningVariant || '',
@@ -1246,6 +1251,16 @@
         const source={...document,photos:document.photos||[]};
         spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||'',transcript:(source.photos.length?String(document.text||''):''),note:String(document.explanation||document.comment||'')})});
       }
+      // «Кто на фото»: the group photo with small numbers on the left page,
+      // the names by number, the caption and the photo's story on the right.
+      chapter.whoPhotos.forEach((photo,whoIndex)=>{
+        const marks=photo.peopleMarks.filter(mark=>mark&&String(mark.name||'').trim()).map((mark,index)=>({n:index+1,x:Math.max(0,Math.min(100,Number(mark.x)||0)),y:Math.max(0,Math.min(100,Number(mark.y)||0)),name:String(mark.name).trim()}));
+        const who={marks,caption:String(photo.caption||'').trim(),year:String(photo.year||'').trim(),place:String(photo.place||'').trim(),story:String(photo.story||'').trim(),pageFormat:meta.format||'square'};
+        const source={photos:chapter.whoPhotos};
+        spreads.push({master:'D01-SPREAD-WHO',sectionId:chapter.sectionId,fixedRhythm:true,
+          left:P('who-photo',{layout:'who-photo',master:'D01-WHO-PHOTO',meta:bookMeta,source,photoIndex:whoIndex,who}),
+          right:P('who-legend',{layout:'who-legend',master:'D01-WHO-LEGEND',meta:bookMeta,source,photoIndex:whoIndex,who})});
+      });
       // A printed book never leaves half a spread: an unpaired left page would
       // shift every following page to the wrong side. Close it with an unused
       // photograph of the chapter, otherwise with a quiet blank page.
@@ -2468,7 +2483,7 @@
       // masters; treating two text spreads as an error made the QA reject the
       // very low-photo/high-text fallback the director is designed to support.
       const repeatedText = ['D01-SPREAD-TEXT','D01-SPREAD-TEXT-QUOTE','D01-SPREAD-TEXT-RHYTHM'].includes(spread.master);
-      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
+      if (index && spread.master === spreads[index - 1].master && !repeatedText && spread.master !== 'D01-SPREAD-ENDPAPER' && spread.master !== 'D01-SPREAD-WHO' && !String(spread.master).startsWith('D01-SPREAD-DOCUMENT')) violations.push({ rule: 'spread-repeat', spread: index + 1, master: spread.master });
       if (index && spread.master === 'D01-SPREAD-PHOTO-TEXT' && spreads[index - 1].master === 'D01-SPREAD-PHOTO-TEXT') violations.push({ rule: 'photo-text-rhythm', spread: index + 1 });
       if(index&&isHeavySpread(spread.master)&&isHeavySpread(spreads[index-1].master))violations.push({rule:'heavy-spread-rhythm',spread:index+1,master:spread.master});
       [spread.left, spread.right].filter(Boolean).forEach(page => {

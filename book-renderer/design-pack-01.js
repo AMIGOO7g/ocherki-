@@ -96,6 +96,8 @@
     if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
     if (layout === 'i02-route' || kind === 'i02-route') return 'i02-route';
     if (layout === 'i03-tree' || kind === 'i03-tree') return 'i03-tree';
+    if (layout === 'who-photo' || kind === 'who-photo') return 'who-photo';
+    if (layout === 'who-legend' || kind === 'who-legend') return 'who-legend';
     if (layout === 'p01-portrait' || kind === 'p01-portrait') return 'p01-portrait';
     if (layout === 'p01-text' || kind === 'p01-text') return 'p01-text';
     if (layout === 'panorama' || page?.panorama === true || page?.master === 'D01-PANORAMA') return 'panorama';
@@ -670,6 +672,24 @@
       const date=esc(page.dateLabel||inferred.date||'');
       const eraSize=String(page.dateLabel||inferred.date||'').length<=4?'390px':String(page.dateLabel||inferred.date||'').length<=7?'270px':'190px';
       return article('D01-DATE-ERA', `<div class="dpk-era-mark" style="--dpk-era-size:${eraSize}">${date}</div><div class="dpk-era-copy"><div class="dpk-kicker">Дата / период</div><h2>${title}</h2><div class="dpk-short-rule"></div><div class="dpk-columns dpk-reading"><p>${text}</p></div></div>${folio}`);
+    }
+    if (role === 'who-photo') {
+      // «Кто на фото», left page: the photograph as large as the page allows,
+      // with small numbered marks on the people (positions in % of the image).
+      const index=page.photoIndex||0,data=page.who||{marks:[]},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
+      const ratio=Math.min(2.4,Math.max(.6,(()=>{const photo=source?.photos?.[index]||{};return Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1.5;})()));
+      const maxW=820,maxH=formatH-300;
+      const width=Math.round(Math.min(maxW,maxH*ratio)),height=Math.round(width/ratio),left=Math.round((1000-width)/2)+30,top=Math.round((formatH-height)/2-10);
+      const marks=(data.marks||[]).map(mark=>`<span class="dpk-who-mark" style="left:${mark.x}%;top:${mark.y}%">${mark.n}</span>`).join('');
+      return article('D01-WHO-PHOTO',`<figure class="dpk-who-photo" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px">${image(index).replace('loading="lazy"','loading="eager"')}${marks}</figure>`,'dpk-who');
+    }
+    if (role === 'who-legend') {
+      // Right page: who is who by number, then the caption and the story.
+      const data=page.who||{marks:[]},marks=data.marks||[],two=marks.length>7;
+      const meta2=[data.year,data.place].filter(Boolean).join(' · ');
+      const story=String(data.story||'').length>700?String(data.story).slice(0,700).replace(/\s+\S*$/u,'')+'…':String(data.story||'');
+      return article('D01-WHO-LEGEND',`<div class="dpk-who-legend"><div class="dpk-who-kicker">Кто на фото</div>${data.caption?`<h2>${esc(data.caption)}</h2>`:''}${meta2?`<div class="dpk-who-meta">${esc(meta2)}</div>`:''}`
+        +`<ol class="dpk-who-list${two?' two':''}">${marks.map(mark=>`<li><span>${mark.n}</span>${esc(mark.name)}</li>`).join('')}</ol>${story?`<p class="dpk-who-story">${esc(story)}</p>`:''}</div>`,'dpk-who');
     }
     if (role === 'i03-tree') {
       const data=page.i03||{roots:[]},tree=familyTreeLayout(data),offset=pageSide==='left'?0:1000;
