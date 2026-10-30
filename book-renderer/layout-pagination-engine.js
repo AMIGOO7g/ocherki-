@@ -54,7 +54,19 @@
         }
         catch(error){
           // A balancing trial only measures; it must not defer accents or warn.
-          if(original.balanceTrial||error.code!=='ACCENT_UNFIT')throw error;
+          if(original.balanceTrial)throw error;
+          // Last safety net: a page whose decoration (handwritten line,
+          // quote, note) cannot be set is typeset as plain prose rather than
+          // stopping the whole book.
+          if(error.code!=='ACCENT_UNFIT'){
+            if(candidate.rhythm&&candidate.rhythm!=='plain'&&!removed.has('__plain')){
+              removed.add('__plain');
+              warnings.push({code:'PAGE_PLAIN_FALLBACK',template:original.master,kind:candidate.rhythm,text:'',automatic:true,reason:error.message,fallback:'plain-text-page'});
+              candidate={...original,requestedMaster:original.master,master:pack.textMasters.plain,rhythm:'plain',inlineQuote:'',importantLine:'',marginNote:'',autoInlineQuote:false,autoImportant:false,autoMarginNote:false,measuredFlow:undefined};
+              continue;
+            }
+            throw error;
+          }
           const field={quote:'inlineQuote',important:'importantLine',margin:'marginNote'}[error.kind];
           const autoField={quote:'autoInlineQuote',important:'autoImportant',margin:'autoMarginNote'}[error.kind];
           const isAutomatic=Boolean(error.automatic||automaticRequested[error.kind]);

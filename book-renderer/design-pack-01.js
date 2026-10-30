@@ -1335,22 +1335,34 @@
         return selected.sort((a,b)=>a.start-b.start||a.end-b.end);
       };
       const signature=ranges=>ranges.map(item=>`${item.start}:${item.end}:${item.zone||''}`).join('|');
-      const reflow=ranges=>{
+      const reflowOnce=ranges=>{
         activeRanges=ranges;
         rest=String(source??'');offset=0;flow.cells=['',''];flow.cellBreaks=[];flow.sequence=[];flow.maximal=[];flow.inlineRanges=[[],[]];
         article=paint();area=article.querySelector('.dpk-measured-flow');applyGeometry();consumeCell(0);consumeCell(1);
+      };
+      // A handwritten phrase that lands where a column must break cannot be
+      // split; such a phrase is dropped (one at a time) instead of stopping
+      // the whole book.
+      const reflow=ranges=>{
+        try{reflowOnce(ranges);return ranges;}catch(error){if(!ranges.length)throw error;}
+        for(let skip=ranges.length-1;skip>=0;skip--){
+          const fewer=ranges.filter((_,index)=>index!==skip);
+          try{reflowOnce(fewer);return fewer;}catch(_){}
+        }
+        reflowOnce([]);return [];
       };
       let selected=selectRanges(provisional);
       if(!selected.length)throw accentFailure('important',manual,automatic,'В тексте текущей страницы не найдена фраза для прописного акцента.');
       let stable=false;
       for(let attempt=0;attempt<4;attempt++){
-        reflow(selected);
+        selected=reflow(selected);
+        if(!selected.length)break;
         const refreshed=selectRanges(flow.cells);
         if(manual||signature(refreshed)===signature(selected)){stable=true;break;}
         if(!refreshed.length)break;
         selected=refreshed;
       }
-      if(!stable)reflow(selected);
+      if(!stable&&selected.length)selected=reflow(selected);
       const placedRanges=activeRanges.filter(item=>item.end<=offset);
       if(!placedRanges.length)throw accentFailure('important',manual,automatic,'Прописной акцент вышел за пределы текущей страницы после переразметки.');
       const placed=placedRanges.map(item=>rangeText(String(source??''),item.start,item.end));
