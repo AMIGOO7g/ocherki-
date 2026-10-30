@@ -3254,6 +3254,7 @@
           window.dispatchEvent(new CustomEvent("ocherki:project-ready", { detail: config }));
 
           const entry = document.getElementById("constructorEntry");
+          window.OCHERKI_PRELOAD_SHELL?.();
           root.classList.add("is-leaving-for-entry");
           window.setTimeout(() => {
             entry?.classList.add("is-visible");
@@ -3286,6 +3287,37 @@
       const constructorEntry = document.getElementById("constructorEntry");
       const constructorPower = document.getElementById("constructorPower");
       let constructorStarted = false;
+      // The constructor loads in the background while the power screen is
+      // shown, so pressing the key lights it up at once instead of waiting
+      // for the page to load.
+      let shellLoaded = false;
+      window.OCHERKI_PRELOAD_SHELL = () => {
+        const frame = document.getElementById("constructorShellFrame");
+        if (!frame || frame.dataset.preloaded) return;
+        frame.dataset.preloaded = "1";
+        frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
+        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v46";
+      };
+      if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
+
+      // The key itself flies to its working place in the top-left corner of
+      // the constructor (a copy above the black stage), then hands over.
+      const flyPowerKey = () => {
+        const rect = constructorPower.getBoundingClientRect();
+        const ghost = constructorPower.cloneNode(true);
+        ghost.removeAttribute("id");
+        ghost.setAttribute("aria-hidden", "true");
+        Object.assign(ghost.style, { position:"fixed", left:rect.left + "px", top:rect.top + "px", width:rect.width + "px", height:rect.height + "px", margin:"0", zIndex:"9600", pointerEvents:"none",
+          transformOrigin:"0 0", transition:"transform .9s cubic-bezier(.22,.8,.26,1), opacity .45s ease .75s" });
+        document.body.appendChild(ghost);
+        constructorPower.style.visibility = "hidden";
+        const size = 46, scale = size / rect.width;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          ghost.style.transform = `translate(${20 - rect.left}px, ${44 - rect.top}px) scale(${scale})`;
+          ghost.style.opacity = "0";
+        }));
+        window.setTimeout(() => ghost.remove(), 1400);
+      };
 
       if (constructorPower) {
         const pressPower = () => constructorPower.classList.add("is-pressed");
@@ -3307,6 +3339,7 @@
 
           playFx('light', .58);
           constructorEntry?.classList.add("is-on");
+          flyPowerKey();
 
           // Black stage first. The real constructor is loaded only now, so its
           // native light → icons → menus → paper → keyboard boot is visible.
@@ -3341,8 +3374,8 @@
             // one-second tick engine here, after shell.html has loaded, never on
             // the onboarding/start screens.
             window.setTimeout(()=>{
-              try{ frame?.contentWindow?.postMessage({type:'OCHERKI_BOOT_START'}, '*'); }catch(_){}
-            }, 70);
+              try{ frame?.contentWindow?.postMessage({type:'OCHERKI_BOOT_START',handoff:true}, '*'); }catch(_){}
+            }, 20);
             window.setTimeout(() => constructorEntry?.classList.add("is-handoff"), 180);
             window.setTimeout(() => {
               if (constructorEntry) {
@@ -3353,9 +3386,11 @@
           };
 
           if (frame) {
-            frame.addEventListener("load", revealShell, { once:true });
-            // Query flag is only informational; shell keeps the proven v137 boot logic.
-            frame.src = "shell.html?embedded=1&v=demo-book-20261030-v45";
+            if (shellLoaded) revealShell();
+            else {
+              frame.addEventListener("load", revealShell, { once:true });
+              window.OCHERKI_PRELOAD_SHELL();
+            }
           }
         });
       }

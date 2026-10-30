@@ -471,6 +471,9 @@ body{
 .host-night .page-include-toggle{color:#b8a58f!important;opacity:.62}
 
 html,body{width:100%;height:100%;margin:0!important;overflow:visible!important;background:transparent!important}
+/* The editor page itself never scrolls: a tall card or a shadow beyond the
+   edge used to add scrollbars, which narrowed the page and shrank the sheet. */
+html{overflow:hidden!important}
 body{display:block!important;min-height:0!important}
 .workspace{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;overflow:visible!important}
 .sheet{min-height:0!important}
@@ -859,7 +862,7 @@ html,body{overflow:hidden!important}
 
 <style id="v162-photo-shadow-root-paint">
 /* The iframe itself now has extra symmetric paint room. Keep document roots unclipped while the photo card is open. */
-html.photo-modal-root-open,
+html.photo-modal-root-open{overflow:hidden!important;}
 html.photo-modal-root-open body{overflow:visible!important;}
 </style>
 <style id="v163-photo-card-tone">
@@ -884,7 +887,16 @@ html.photo-modal-root-open body{overflow:visible!important;}
      clicks on the photo card fields under it. */
   .photo-switch{pointer-events:none!important}
   .photo-switch button{pointer-events:auto!important}
-  .photo-hint{margin-top:5px;font:italic 13px/1.35 Georgia,serif;color:rgba(93,62,39,.62)}
+  /* A field's explanation shows while that field is being filled, so the
+     card stays compact; placeholders and hints are dark enough to read on
+     the card's warm paper. */
+  .photo-hint{display:none;margin-top:5px;font:italic 13px/1.35 Georgia,serif;color:rgba(78,52,32,.82)}
+  .photo-field:focus-within .photo-hint,.photo-hero-field .photo-hint{display:block}
+  .photo-fields{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  /* Fields shown only for a portrait hero or a document stay hidden otherwise. */
+  .photo-field[hidden]{display:none!important}
+  .photo-field input::placeholder,.photo-field textarea::placeholder{color:rgba(92,64,42,.58);font-style:italic;opacity:1}
+  .photo-field label{color:rgba(84,56,34,.78)!important}
   .host-night .photo-hint{color:rgba(236,220,198,.62)}
 </style>
 </head>
@@ -3567,7 +3579,23 @@ function positionPhotoModal(){
   const arrowLeft=switchRect ? (switchRect.left-wr.left) : (sheetRect.left-wr.left)-170;
   const desiredLeft=arrowLeft-fixedGap-modalWidth;
   const left=Math.max(22,desiredLeft);
-  const top=(sheetRect.top-wr.top)+100;
+  // The card starts level with the sheet and always ends inside the
+  // window; when the window is short its fields scroll inside the card.
+  const fields=photoModal.querySelector('.photo-fields');
+  if(fields)fields.style.maxHeight='none';
+  // The editor frame can be larger than the screen and shifted; the part
+  // the person actually sees is measured from the page that holds it.
+  // Opened from a file, the browser hides the outer page: the sheet itself,
+  // which always fits the screen, then gives the bounds.
+  let viewTop=sheetRect.top,viewBottom=sheetRect.bottom+40;
+  try{
+    const frame=window.frameElement,rect=frame?.getBoundingClientRect(),scale=rect&&rect.height?rect.height/innerHeight:1;
+    if(rect){viewTop=Math.max(0,-rect.top/scale);viewBottom=Math.min(innerHeight,(window.parent.innerHeight-rect.top)/scale);}
+  }catch(_){}
+  const fullHeight=photoModal.offsetHeight||0,room=viewBottom-viewTop-32;
+  if(fields&&fullHeight>room)fields.style.maxHeight=Math.max(160,fields.offsetHeight-(fullHeight-room))+'px';
+  const height=Math.min(fullHeight,room);
+  const top=Math.max(viewTop+16-wr.top,Math.min(sheetRect.top-wr.top,viewBottom-16-height-wr.top));
   photoModal.style.left=Math.round(left)+'px';
   photoModal.style.top=Math.round(top)+'px';
   photoModal.dataset.fixedLeft='1';

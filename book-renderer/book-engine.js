@@ -646,7 +646,12 @@
       const first = pages[0] || {};
       let end = 0, previousText='';
       const runs = pages.filter(page => page.type !== 'document' && page.bookRole !== 'document').map(page => {
-        const rawText = String(page.text ?? '');
+        // Text copied from a website often carries non-breaking and other
+        // special spaces everywhere: a whole paragraph then has no place to
+        // break and can never fit a column. Inside such a long unbreakable
+        // run they become ordinary spaces of the same length (offsets stay
+        // valid); a deliberate non-breaking space in ordinary text is kept.
+        const rawText = String(page.text ?? '').replace(/[^ \t\r\n]{40,}/gu, run => /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/u.test(run) ? run.replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/gu, ' ') : run);
         const prefix=continuationJoin(previousText,rawText,page);
         const text=prefix+rawText;
         const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page, continuation: isContinuation(previousText, rawText, page) };

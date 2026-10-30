@@ -2666,7 +2666,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v45">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v46">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2868,7 +2868,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v45" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v46" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4083,7 +4083,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const top=Math.max(150,r.top+34);
     map.style.left=Math.round(left)+'px';
     map.style.top=Math.round(top)+'px';
-    map.style.maxHeight=Math.max(430,Math.min(window.innerHeight-top-28,r.height-8))+'px';
+    // The map ends above the vertical logo and the clock in the lower-left
+    // corner (their block stands 98px above the bottom; the vertical logo
+    // text reaches about 300px up);
+    // a long book scrolls inside the map instead of running over them.
+    const cornerTop=window.innerHeight-98-300-14;
+    map.style.maxHeight=Math.max(300,Math.min(cornerTop-top,r.height-8))+'px';
     map.classList.add('is-positioned');
   }
 
@@ -4492,10 +4497,13 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     requestAnimationFrame(()=>{
       // Let the clock appear beneath the power key first; it then travels to
       // the permanent lower-left position with the rest of the constructor.
+      // After the start page's key has already flown to the corner the light
+      // comes on at once; opened on its own the constructor keeps its slower
+      // entry with the key in the centre.
       later(()=>{
         const power=document.getElementById('powerBtn');
         if(power && !shell.classList.contains('is-open')){window.__OCHERKI_BOOT_POWER=true;power.click();window.__OCHERKI_BOOT_POWER=false;}
-      },560);
+      },shell.classList.contains('is-handoff')?0:560);
       send({action:'requestState'});later(()=>send({action:'requestState'}),220);
       positionMap();
       later(()=>shell.classList.add('boot-icons'),260);
@@ -4535,17 +4543,17 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   window.OCHERKI_positionMap=positionMap;
   window.OCHERKI_positionPrompt=positionPrompt;
   window.OCHERKI_showPromptFromStructure=showPromptFromStructure;
-  window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_BOOT_START')startBootSequence();});
+  window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_BOOT_START'){if(d.handoff)shell.classList.add('is-handoff');startBootSequence();}});
   const embedded=new URLSearchParams(location.search).get('embedded')==='1';
   if(!embedded && !window.__OCHERKI_AUTH_GATE_PENDING)startBootSequence();
 })();
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v45"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v45"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v45"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v45"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v45"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v45"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v46"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v46"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v46"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v46"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v46"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v46"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4573,8 +4581,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v45"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v45"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v46"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v46"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -6696,6 +6704,19 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }
   }
 
+  // A failed build can be saved as a small report: the book's text and
+  // settings with every photo replaced by its size, the error and the screen.
+  let lastBuildError=null;
+  function saveBuildReport(){
+    const strip=value=>Array.isArray(value)?value.map(strip):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([key,item])=>[key,typeof item==='string'&&(item.startsWith('data:')||item.length>2000&&/^[A-Za-z0-9+/=]+$/.test(item.slice(0,200)))?`[файл ${item.length} знаков]`:strip(item)])):value;
+    const report={createdAt:new Date().toISOString(),error:{message:String(lastBuildError?.message||''),stack:String(lastBuildError?.stack||'')},
+      screen:{width:innerWidth,height:innerHeight,devicePixelRatio,userAgent:navigator.userAgent},design:activeDesign,structure:strip(structure)};
+    const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,1)],{type:'application/json'}));
+    const link=document.createElement('a');link.href=url;link.download=`ocherki-otchet-${Date.now()}.json`;document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+  document.addEventListener('click',event=>{if(event.target.closest?.('.bd-build-report'))saveBuildReport();});
+
   function performBuild(){
     if(!structure) return false;
     window.OCHERKI_PLAY_PAGE_FX?.(.72);
@@ -6710,7 +6731,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       }catch(err){
         console.error('[Book Engine] assemble failed',err);
         built=false;
-        buildMessage=`<div class="bd-build-empty"><strong>${esc(err.message||'Не удалось разложить текст.')}</strong></div>`;
+        buildMessage=`<div class="bd-build-empty"><strong>${esc(err.message||'Не удалось разложить текст.')}</strong><p class="bd-build-report-note">Сохраните отчёт и пришлите его разработчику — по нему ошибку найдут точно. В отчёте только текст книги и подписи, без фотографий.</p><button type="button" class="bd-build-report">Сохранить отчёт</button></div>`;
+        lastBuildError=err;
         renderRightPanel();
         buildBtn.textContent='Ошибка сборки';
       }
@@ -6931,7 +6953,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v45"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v46"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7205,6 +7227,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 })();
 </script>
 
+<style id="build-report-style">
+.bd-build-empty strong{display:block;white-space:normal;overflow-wrap:anywhere;max-width:100%}
+.bd-build-report-note{margin:10px 0 12px;font:13px/1.45 Georgia,serif;opacity:.82;white-space:normal}
+.bd-build-report{border:1px solid rgba(226,183,121,.7);border-radius:18px;background:rgba(226,183,121,.12);color:inherit;font:14px Georgia,serif;padding:8px 16px;cursor:pointer}
+.bd-build-report:hover{background:rgba(226,183,121,.24)}
+</style>
 <style id="v30-hanging-tooltips">
 .hanging-tip{position:fixed;z-index:12020;pointer-events:none;white-space:nowrap;color:#f3e4cf;font:italic 400 14px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em;opacity:0;filter:blur(5px);transform:translate(-50%,6px);transition:opacity .42s ease,filter .42s ease,transform .42s cubic-bezier(.2,.8,.3,1);text-shadow:none}
 .hanging-tip.show{opacity:.92;filter:blur(0);transform:translate(-50%,0)}
@@ -7466,6 +7494,20 @@ function waitPreviewReady(cb){
 }
 </style>
 
+
+<style id="power-handoff">
+/* Started from the start page: its power key has flown to the corner, so the
+   constructor's own key and the clock stand in their working places from the
+   first frame; nothing travels, the light simply comes on. */
+html body .shell.is-handoff.is-handoff .power-dock{left:20px!important;top:44px!important;transform:none!important;animation:none!important;transition:opacity .35s ease .75s!important}
+html body .shell.is-handoff.is-handoff:not(.is-open) .power-dock{opacity:0!important}
+html body .shell.is-handoff.is-handoff .power-swing .key{--size:var(--top-key-size)!important}
+html body .shell.is-handoff.is-handoff .power-swing .cap svg{width:18px!important;height:18px!important}
+html body .shell.is-handoff.is-handoff .power-copy{display:none!important}
+html body .shell.is-handoff.is-handoff .bottom-left{left:40px!important;top:auto!important;bottom:98px!important;transform:none!important;animation:none!important;transition:opacity .9s ease .5s!important}
+html body .shell.is-handoff.is-handoff:not(.is-open) .bottom-left{opacity:0!important}
+@media(max-width:900px){html body .shell.is-handoff.is-handoff .bottom-left{left:14px!important;bottom:72px!important}html body .shell.is-handoff.is-handoff .power-dock{top:34px!important}}
+</style>
 </body>
 
 <style id="v121-preview-motion-format">
