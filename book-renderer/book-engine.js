@@ -1122,8 +1122,13 @@
         // The chapter's last text (about one spread, ~7000 characters) goes beside a waiting
         // photo rather than leaving the photos to pile up after it.
         const lastTextWithPhoto=rest.length<7500&&unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition])||!portraitGiven);
+        // Photos are spread through the chapter: when the photos still waiting
+        // need more beats (about 1.6 photos each) than there are text pages
+        // left (~3900 characters a page), a beat comes without waiting for
+        // whole text spreads, so they do not pile up after the last text.
+        const photoPressure=unusedNow.length/1.6>Math.max(1,rest.length/3900);
         // A demo/acceptance book with a list of required beats places them without waiting for text spreads.
-        if(photoBeatAvailable&&(textSpreadStreak>=textSpreadsBetweenPhotos||lastTextWithPhoto||forcedBeatQueue.length>0)){
+        if(photoBeatAvailable&&(textSpreadStreak>=textSpreadsBetweenPhotos||lastTextWithPhoto||photoPressure||forcedBeatQueue.length>0)){
           const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
           const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening);
           const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
@@ -1177,7 +1182,11 @@
             // P01 is the author's explicit choice: portrait on the left, a short
             // name/years/role block on the right; variants rotate B → A → C.
             const photoIndex=take(portraitHeroes[0]),photo=chapter.photos[photoIndex];
-            let variant=String(photo.heroVariant||['A','C'][portraitCount++%2]).toUpperCase()==='C'?'C':'A';
+            // The dark variant is only for a portrait whose edges are already
+            // dark: a light studio background would turn into a grey haze.
+            // A photo not yet measured (edgeTone empty) keeps the old rotation.
+            const edgeTone=String(photo.edgeTone||'');
+            let variant=String(photo.heroVariant||(edgeTone==='light'||edgeTone==='mid'?'A':edgeTone==='dark'?'C':['A','C'][portraitCount++%2])).toUpperCase()==='C'?'C':'A';
             if(variant==='C'&&chapterAccents.dark&&!photo.heroVariant)variant='A';
             if(variant==='C')chapterAccents.dark++;
             const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
@@ -1192,7 +1201,9 @@
             // Text goes to the side away from the subject; light and dark alternate.
             const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50;
             const side=focalX<45?'right':focalX>55?'left':'right';
-            let tone=String(photo.t12Tone||['A','B'][t12Count++%2]).toUpperCase()==='B'?'B':'A';
+            // The dark tone needs a photograph that is dark where the text lies.
+            const textSideTone=String((side==='right'?photo.rightTone:photo.edgeTone)||'');
+            let tone=String(photo.t12Tone||(textSideTone==='light'?'A':['A','B'][t12Count++%2])).toUpperCase()==='B'?'B':'A';
             if(tone==='B'&&chapterAccents.dark)tone='A';
             if(tone==='B')chapterAccents.dark++;chapterAccents.t12++;
             const textPage=nextTextPage('left');

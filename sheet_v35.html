@@ -895,6 +895,8 @@ html.photo-modal-root-open body{overflow:visible!important;}
   .photo-fields{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
   /* Fields shown only for a portrait hero or a document stay hidden otherwise. */
   .photo-field[hidden]{display:none!important}
+  /* The card lies above the sheet when a narrow screen brings them together. */
+  #workspace .photo-modal{z-index:60!important}
   .photo-field input::placeholder,.photo-field textarea::placeholder{color:rgba(92,64,42,.58);font-style:italic;opacity:1}
   .photo-field label{color:rgba(84,56,34,.78)!important}
   .host-night .photo-hint{color:rgba(236,220,198,.62)}
@@ -1404,7 +1406,7 @@ window.LifeBookPhotoVision = window.LifeBookPhotoVision || {
 // to keep colour and monochrome photographs off the same spread.
 function detectPhotoColorKind(photo){
   return new Promise(resolve=>{
-    if(!photo?.src||photo.colorKind){resolve(photo);return;}
+    if(!photo?.src||(photo.colorKind&&photo.edgeTone)){resolve(photo);return;}
     const img=new Image();
     img.onload=()=>{
       try{
@@ -1414,6 +1416,14 @@ function detectPhotoColorKind(photo){
         for(let i=0;i<d.length;i+=4)chroma+=Math.max(d[i],d[i+1],d[i+2])-Math.min(d[i],d[i+1],d[i+2]);
         // Sepia and toned prints have a weak, uniform chroma: still "monochrome".
         photo.colorKind=chroma/(d.length/4)/255<.075?'bw':'color';
+        // Brightness of the frame's edges and of its right part: a dark
+        // template lets only a photograph that is already dark there fade
+        // into the black page (a light studio background turns grey).
+        const lum=i=>(.2126*d[i]+.7152*d[i+1]+.0722*d[i+2])/255;
+        let edge=0,edgeN=0,right=0,rightN=0;
+        for(let y=0;y<48;y++)for(let x=0;x<48;x++){const i=(y*48+x)*4;if(x<6||x>41||y<6||y>41){edge+=lum(i);edgeN++;}if(x>=30){right+=lum(i);rightN++;}}
+        const tone=v=>v<.32?'dark':v>.55?'light':'mid';
+        photo.edgeTone=tone(edge/edgeN);photo.rightTone=tone(right/rightN);
       }catch(_){}
       resolve(photo);
     };
@@ -1423,7 +1433,7 @@ function detectPhotoColorKind(photo){
 }
 // Photographs saved before this measurement existed are measured once after load.
 setTimeout(()=>{
-  const all=[];try{sections.forEach(sec=>(sec.pages||[]).forEach(page=>(page.photos||[]).forEach(photo=>{if(photo&&!photo.colorKind)all.push(photo);})));}catch(_){}
+  const all=[];try{sections.forEach(sec=>(sec.pages||[]).forEach(page=>(page.photos||[]).forEach(photo=>{if(photo&&(!photo.colorKind||!photo.edgeTone))all.push(photo);})));}catch(_){}
   if(all.length)Promise.all(all.map(detectPhotoColorKind)).then(()=>window.__OCHERKI_EMIT_STRUCTURE?.());
 },1800);
 function analyzePhotoInBackground(photo){
@@ -2664,6 +2674,7 @@ editor.addEventListener('input',()=>{
 });
 
 function closePhotoImmediate(){
+  try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:false},'*');}catch(_){}
   photoModal.classList.remove('open','reveal','hide','preload-hide');
   workspace.classList.remove('photo-modal-visible');
   document.documentElement.classList.remove('photo-modal-root-open');
@@ -2777,7 +2788,7 @@ document.addEventListener('click',e=>{
     document.querySelectorAll('.popover').forEach(x=>x.classList.remove('open'));
   }
   if(photoModal?.classList.contains('open') && !inPhotoModal && !e.target.closest('.photo-card') && !e.target.closest('.photo-switch')){
-    closePhoto(false);
+    closePhoto(true);
   }
 });
 document.querySelectorAll('.popover').forEach(x=>x.onclick=e=>e.stopPropagation());
@@ -3490,7 +3501,9 @@ photoDeleteBtn?.addEventListener('click',e=>{
   photos.splice(activePhoto,1);
   currentPage().photoOffset=Math.min(currentPage().photoOffset||0,Math.max(0,photos.length-1));
   window.__OCHERKI_EMIT_STRUCTURE?.();
-  closePhoto(false,true);
+  // The photo is gone: nothing of the card is written anywhere.
+  activePhoto=-1;photoSnapshot=null;photoEdited=false;
+  closePhoto(true,true);
   renderPhotos();
 });
 
@@ -3587,21 +3600,24 @@ function positionPhotoModal(){
   // the person actually sees is measured from the page that holds it.
   // Opened from a file, the browser hides the outer page: the sheet itself,
   // which always fits the screen, then gives the bounds.
-  let viewTop=sheetRect.top,viewBottom=sheetRect.bottom+40;
+  let viewTop=sheetRect.top,viewBottom=sheetRect.bottom+40,viewLeft=0;
   try{
     const frame=window.frameElement,rect=frame?.getBoundingClientRect(),scale=rect&&rect.height?rect.height/innerHeight:1;
-    if(rect){viewTop=Math.max(0,-rect.top/scale);viewBottom=Math.min(innerHeight,(window.parent.innerHeight-rect.top)/scale);}
+    if(rect){viewTop=Math.max(0,-rect.top/scale);viewBottom=Math.min(innerHeight,(window.parent.innerHeight-rect.top)/scale);viewLeft=Math.max(0,-rect.left/scale);}
   }catch(_){}
-  const fullHeight=photoModal.offsetHeight||0,room=viewBottom-viewTop-32;
+  photoModal.style.left=Math.round(Math.max(left,viewLeft+16-wr.left))+'px';
+  // The top row of brass keys stays clear: the card starts below it.
+  const topClear=viewTop+108;
+  const fullHeight=photoModal.offsetHeight||0,room=viewBottom-topClear-16;
   if(fields&&fullHeight>room)fields.style.maxHeight=Math.max(160,fields.offsetHeight-(fullHeight-room))+'px';
   const height=Math.min(fullHeight,room);
-  const top=Math.max(viewTop+16-wr.top,Math.min(sheetRect.top-wr.top,viewBottom-16-height-wr.top));
-  photoModal.style.left=Math.round(left)+'px';
+  const top=Math.max(topClear-wr.top,Math.min(sheetRect.top-wr.top,viewBottom-16-height-wr.top));
   photoModal.style.top=Math.round(top)+'px';
   photoModal.dataset.fixedLeft='1';
 }
 
 function fillPhotoInfo(p){
+  photoSnapshot=Object.fromEntries(PHOTO_FIELDS.map(key=>[key,p?.[key]]));photoSnapshot.__explanation=currentPage()?.explanation;photoEdited=false;
   try{updateMarkButton(p);updatePairButton(p);}catch(_){}
   photoPreview.src=p.src;
   photoCaption.value=p.caption||'';
@@ -3661,6 +3677,8 @@ function openPhoto(idx){
 
   activePhoto=idx;
   fillPhotoInfo(p);
+  // The constructor hides the book map and the clock under the card.
+  try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:true},'*');}catch(_){}
 
   positionPhotoModal();
 
@@ -3671,26 +3689,46 @@ function openPhoto(idx){
   }));
 }
 
-function closePhoto(save=false,force=false){
+// The card's fields are written to the photo as they are typed, so nothing
+// is lost however the card is closed; only «Отмена» puts back what the photo
+// had when the card opened.
+const PHOTO_FIELDS=['caption','year','place','people','source','story','photoMode','portraitHero','heroYears','heroRole'];
+let photoSnapshot=null,photoEdited=false;
+function applyPhotoFields(p){
+  if(!p)return;
+  p.caption=photoCaption.value.trim();
+  p.year=photoYear.value.trim();
+  p.place=photoPlace.value.trim();
+  p.people=photoPeople.value.trim();
+  p.source=photoSource.value.trim();
+  p.story=photoStory.value.trim();
+  p.photoMode=photoModePreference?.value||'auto';
+  p.portraitHero=Boolean(photoPortraitHero?.checked);
+  p.heroYears=photoHeroYears?.value.trim()||'';
+  p.heroRole=photoHeroRole?.value.trim()||'';
+  if(currentPage()?.type==='document') currentPage().explanation=documentExplanation?.value.trim()||'';
+}
+photoModal.addEventListener('input',()=>{const p=currentPhotos()[activePhoto];if(p){applyPhotoFields(p);photoEdited=true;persistSoon();}});
+photoModal.addEventListener('change',()=>{const p=currentPhotos()[activePhoto];if(p){applyPhotoFields(p);photoEdited=true;persistSoon();}});
+function closePhoto(save=true,force=false){
   const photos=currentPhotos();
+  const p=activePhoto>=0?photos[activePhoto]:null;
 
-  if(save&&activePhoto>=0&&photos[activePhoto]){
-    const p=photos[activePhoto];
-    p.caption=photoCaption.value.trim();
-    p.year=photoYear.value.trim();
-    p.place=photoPlace.value.trim();
-    p.people=photoPeople.value.trim();
-    p.source=photoSource.value.trim();
-    p.story=photoStory.value.trim();
-    p.photoMode=photoModePreference?.value||'auto';
-    p.portraitHero=Boolean(photoPortraitHero?.checked);
-    p.heroYears=photoHeroYears?.value.trim()||'';
-    p.heroRole=photoHeroRole?.value.trim()||'';
-    if(currentPage()?.type==='document') currentPage().explanation=documentExplanation?.value.trim()||'';
+  if(p&&save){
+    applyPhotoFields(p);
+  }else if(p&&photoSnapshot){
+    PHOTO_FIELDS.forEach(key=>{if(photoSnapshot[key]===undefined)delete p[key];else p[key]=photoSnapshot[key];});
+    if(currentPage()?.type==='document')currentPage().explanation=photoSnapshot.__explanation;
+  }
+  if(p&&(photoEdited||!save)){
     updatePhotoStatus(p);
     renderPhotos();
-    window.__OCHERKI_EMIT_STRUCTURE?.();
+    persistSoon();
+    // The book is told after the card has closed, so the closing motion is
+    // never held up by the rebuild.
+    setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);
   }
+  photoSnapshot=null;photoEdited=false;
 
   if(force){
     closePhotoImmediate();
@@ -3715,6 +3753,7 @@ function closePhoto(save=false,force=false){
     photoModal.classList.remove('open','hide');
     activePhoto=-1;
   },380);
+  try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:false},'*');}catch(_){}
 }
 
 /* Section navigation by vertical wheel.
@@ -3838,7 +3877,7 @@ window.addEventListener('wheel' ,e=>{
   }
 },{passive:false});
 
-document.getElementById('photoCloseX').onclick=()=>closePhoto(false); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
+document.getElementById('photoCloseX').onclick=()=>closePhoto(true); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
 window.addEventListener('resize',()=>{try{updatePrompts();}catch(_){}});
 // Family tree form (book-renderer/tree-editor.js).
@@ -4066,6 +4105,8 @@ window.addEventListener('message',e=>{
             story: String(photo?.story || ''),
             photoMode: String(photo?.photoMode || 'auto'),
             colorKind: String(photo?.colorKind || ''),
+            edgeTone: String(photo?.edgeTone || ''),
+            rightTone: String(photo?.rightTone || ''),
             layoutPreference: String(photo?.layoutPreference || 'auto'),
             portraitHero: photo?.portraitHero === true,
             heroYears: String(photo?.heroYears || ''),

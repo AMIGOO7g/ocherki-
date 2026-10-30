@@ -2666,7 +2666,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v46">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v47">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2868,7 +2868,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v46" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v47" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -3959,8 +3959,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
    const cap=btn.querySelector('.editor-cap');
    if(!cap)return '';
    const raw=(cap.innerText||'').trim();
-   if(/^Key/.test(code)) return raw.charAt(0);
-   if(/^Digit/.test(code)) return raw.split(/\s+/).pop()||'';
+   // Caps on the key caps are only labels: letters are lowercase unless CAPS
+   // is on or SHIFT was pressed for the next key.
+   const upper=capsOn!==shiftOnce;
+   if(/^Key/.test(code)) return upper?raw.charAt(0).toLocaleUpperCase('ru'):raw.charAt(0).toLocaleLowerCase('ru');
+   if(/^Digit/.test(code)){const parts=raw.split(/\s+/);return (shiftOnce?parts[0]:parts.pop())||'';}
    if(code==='Comma')return ',';
    if(code==='Period')return '.';
    if(code==='Slash')return '/';
@@ -3970,10 +3973,19 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
    if(code==='Equal')return '=';
    return raw.charAt(0);
  }
+ let capsOn=false,shiftOnce=false;
+ const showModifiers=()=>{
+   document.querySelectorAll('.editor-key[data-code="CapsLock"]').forEach(k=>k.classList.toggle('is-latched',capsOn));
+   document.querySelectorAll('.editor-key[data-code^="Shift"]').forEach(k=>k.classList.toggle('is-latched',shiftOnce));
+ };
  document.addEventListener('click',e=>{
    const b=e.target.closest('.editor-key'); if(!b)return;
+   const code=b.dataset.code||'';
+   if(code==='CapsLock'){capsOn=!capsOn;showModifiers();return;}
+   if(/^Shift/.test(code)){shiftOnce=!shiftOnce;showModifiers();return;}
    const key=keyText(b); if(!key)return;
    try{frame()?.contentWindow?.postMessage({type:'ocherki-key',key},'*')}catch(_){}
+   if(shiftOnce&&key.length===1){shiftOnce=false;showModifiers();}
  });
 })();
 </script>
@@ -4543,6 +4555,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   window.OCHERKI_positionMap=positionMap;
   window.OCHERKI_positionPrompt=positionPrompt;
   window.OCHERKI_showPromptFromStructure=showPromptFromStructure;
+  window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_PHOTO_CARD')shell.classList.toggle('is-photo-card-open',d.open===true);});
   window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_BOOT_START'){if(d.handoff)shell.classList.add('is-handoff');startBootSequence();}});
   const embedded=new URLSearchParams(location.search).get('embedded')==='1';
   if(!embedded && !window.__OCHERKI_AUTH_GATE_PENDING)startBootSequence();
@@ -4550,10 +4563,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v46"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v46"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v46"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v46"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v46"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v46"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v47"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v47"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v47"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4567,7 +4580,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     await saveOpenBook();
     let books=[];
     try{books=await window.OcherkiStore.list();}catch(_){}
-    window.OcherkiBookcase?.open({books,currentId:activeId(),
+    window.OcherkiBookcase?.open({books,currentId:activeId(),currentTitle:(document.getElementById('projectTitle')?.textContent||'').trim(),
       onOpen:id=>{
         try{localStorage.setItem('ocherkiActiveBook',id);}catch(_){}
         const title=books.find(book=>book.id===id)?.title;
@@ -4581,8 +4594,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v46"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v46"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v47"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4716,7 +4729,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         (page.photos||[]).map(photo=>[
           fastFingerprint(photo.src||photo.dataUrl||photo.dataURL||photo.url||photo.preview||photo.objectUrl||''),
           photo.caption,photo.year,photo.place,photo.people,photo.story,
-          photo.photoMode,photo.colorKind,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
+          photo.photoMode,photo.colorKind,photo.edgeTone,photo.rightTone,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
           photo.focalX,photo.focalY,photo.focalConfirmed,photo.focalSource,photo.ctxHandwrittenNote,JSON.stringify(photo.detailRoi||photo.ctxRoi||photo.roi||null),JSON.stringify(photo.regions||null)
         ].join('\u001f')).join('\u001e')
       ].join('\u001f')).join('\u001e')
@@ -4827,6 +4840,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const warning=document.getElementById('bookRhythmWarning');
     const text=document.getElementById('bookRhythmWarningText');
     if(!warning)return;
+    // The book's director already never repeats a composition on adjacent
+    // spreads; the old manual «Сменить» forced a heavy rebuild inside the
+    // preview and could hang it, so the warning is no longer shown.
+    warning.hidden=true;warning.classList.remove('is-visible');
+    if(true)return;
     const violation=rhythmViolations().find(pair=>pair.includes(activeSpread));
     if(!violation){
       warning.hidden=true;
@@ -6717,7 +6735,16 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   }
   document.addEventListener('click',event=>{if(event.target.closest?.('.bd-build-report'))saveBuildReport();});
 
-  function performBuild(){
+  // A change in the manuscript only marks the book as changed: rebuilding a
+  // whole book takes seconds and used to freeze the constructor after every
+  // edit. It is rebuilt by the button or when the preview is opened.
+  let bookOutdated=false;
+  function markBookOutdated(){
+    bookOutdated=true;
+    if(buildBtn&&!buildBtn.disabled){buildBtn.textContent='Пересобрать книгу';buildBtn.classList.add('is-outdated');}
+  }
+  window.OCHERKI_MARK_BOOK_OUTDATED=markBookOutdated;
+  function performBuild(after){
     if(!structure) return false;
     window.OCHERKI_PLAY_PAGE_FX?.(.72);
     buildBtn.textContent='Собираем…';
@@ -6728,6 +6755,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         assemble();
         requestAnimationFrame(scaleAllPageCanvases);
         buildBtn.textContent=bookSpreads.length?'Книга собрана':'Нет данных';
+        bookOutdated=false;buildBtn.classList.remove('is-outdated');
+        if(previewModal?.classList.contains('open'))previewRender();
+        if(typeof after==='function')setTimeout(after,60);
       }catch(err){
         console.error('[Book Engine] assemble failed',err);
         built=false;
@@ -6881,6 +6911,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       console.error('[Preview] modal not found');
       return;
     }
+    if(built&&bookOutdated&&!buildBtn.disabled){performBuild(openPreview);return;}
     if(!built || !bookSpreads.length){
       previewRender();
       previewModal.setAttribute('aria-hidden','false');
@@ -6953,7 +6984,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v46"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v47"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7100,7 +7131,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     b.innerHTML=`<span class="bd-swatch ${cls}"><span class="bd-aa">Aa</span></span><span class="bd-card-label">${label}</span>`;
     // Designs that are not finished yet are shown as «скоро» and cannot be chosen.
     if(!READY_DESIGNS.has(key)){b.disabled=true;b.classList.add('is-soon');b.title='Дизайн готовится';b.querySelector('.bd-card-label').insertAdjacentHTML('beforeend','<span class="bd-soon">скоро</span>');}
-    b.addEventListener('click',()=>{activeDesign=key;[...designGrid.children].forEach(x=>x.classList.toggle('is-active',x===b));if(built){assemble();if(previewModal?.classList.contains('open'))previewRender();}});
+    b.addEventListener('click',()=>{activeDesign=key;[...designGrid.children].forEach(x=>x.classList.toggle('is-active',x===b));if(built)performBuild();});
     designGrid?.appendChild(b);
   });
   function applyActiveFormat(){
@@ -7126,9 +7157,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     b.addEventListener('click',()=>{
       activeFormat=key;
       [...formatGrid.children].forEach(x=>x.classList.toggle('is-active',x===b));
-      if(built)assemble();
       applyActiveFormat();
-      if(previewModal?.classList.contains('open'))previewRender();
+      if(built)performBuild();
     });
     formatGrid?.appendChild(b);
   });
@@ -7141,7 +7171,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const b=document.createElement('button');b.type='button';b.className='bd-photo-mode-option';b.dataset.mode=key;b.setAttribute('role','radio');
     b.innerHTML=`<span class="bd-card-label">${label}</span><span class="bd-photo-mode-hint">${hint}</span>`;
     const sync=()=>[...photoModeGrid.children].forEach(x=>{const on=x.dataset.mode===window.OCHERKI_BOOK_META.bookPhotoMode;x.classList.toggle('is-active',on);x.setAttribute('aria-checked',on?'true':'false');});
-    b.addEventListener('click',()=>{window.OCHERKI_BOOK_META.bookPhotoMode=key;try{localStorage.setItem('ocherki_book_photo_mode',key);}catch(_){}sync();if(built){assemble();if(previewModal?.classList.contains('open'))previewRender();}});
+    b.addEventListener('click',()=>{window.OCHERKI_BOOK_META.bookPhotoMode=key;try{localStorage.setItem('ocherki_book_photo_mode',key);}catch(_){}sync();if(built)performBuild();});
     photoModeGrid?.appendChild(b);sync();
   });
   formatGrid?.querySelector('[data-format="square"]')?.classList.add('is-active');
@@ -7167,12 +7197,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // now that the structure has arrived. Preview never triggers this path.
     if(!built)renderRightPanel();
     if(built&&hadStructure&&contentChanged){
-      clearTimeout(directorRebuildTimer);
-      directorRebuildTimer=setTimeout(()=>{
-        assemble();
-        renderRightPanel();
-        if(previewModal?.classList.contains('open'))previewRender();
-      },260);
+      markBookOutdated();
     }else if(built&&hadStructure){
       // A page click changes only active flags. Move the right-panel highlight
       // without rebuilding the text metrics or replacing image DOM nodes.
@@ -7228,6 +7253,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 <style id="build-report-style">
+.editor-key.is-latched{color:var(--gold,#b56e27)!important}
+.editor-key.is-latched .editor-cap{text-shadow:0 0 8px rgba(214,150,70,.55)}
+.book-map-shell,.bottom-left{transition-property:opacity,transform,left,top,bottom!important}
+html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body .shell.is-photo-card-open.is-photo-card-open .bottom-left{opacity:0!important;pointer-events:none!important}
+.bd-build-book.is-outdated{box-shadow:0 0 0 1px rgba(232,186,120,.9),0 0 14px rgba(232,170,90,.35)!important}
 .bd-build-empty strong{display:block;white-space:normal;overflow-wrap:anywhere;max-width:100%}
 .bd-build-report-note{margin:10px 0 12px;font:13px/1.45 Georgia,serif;opacity:.82;white-space:normal}
 .bd-build-report{border:1px solid rgba(226,183,121,.7);border-radius:18px;background:rgba(226,183,121,.12);color:inherit;font:14px Georgia,serif;padding:8px 16px;cursor:pointer}
@@ -7507,6 +7537,10 @@ html body .shell.is-handoff.is-handoff .power-copy{display:none!important}
 html body .shell.is-handoff.is-handoff .bottom-left{left:40px!important;top:auto!important;bottom:98px!important;transform:none!important;animation:none!important;transition:opacity .9s ease .5s!important}
 html body .shell.is-handoff.is-handoff:not(.is-open) .bottom-left{opacity:0!important}
 @media(max-width:900px){html body .shell.is-handoff.is-handoff .bottom-left{left:14px!important;bottom:72px!important}html body .shell.is-handoff.is-handoff .power-dock{top:34px!important}}
+/* Turning the light off after work sends only the power key to the centre;
+   the clock and the logo stay where they are. */
+html body .shell.has-entered.has-entered:not(.is-open) .bottom-left{left:40px!important;top:auto!important;bottom:98px!important;transform:none!important;transition:opacity 1.2s ease!important}
+@media(max-width:900px){html body .shell.has-entered.has-entered:not(.is-open) .bottom-left{left:14px!important;bottom:72px!important}}
 </style>
 </body>
 

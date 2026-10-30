@@ -2125,6 +2125,7 @@
   .start-auth-key__pendulum.lb-hanging-icon:hover svg{color:#b56e27!important}
   .start-auth-key__pendulum.lb-hanging-icon:active{filter:brightness(.94)}
   </style>
+<link rel="stylesheet" href="book-renderer/fonts.css">
 </head>
 <body class="" id="pageBody">
 
@@ -3196,6 +3197,29 @@
 
       createButton.addEventListener("click", () => goToStep(2));
 
+      // «Мои проекты»: the same bookcase as in the constructor. Opening a book
+      // goes straight to the power screen, without the first steps; «+»
+      // starts a new book from the first steps.
+      document.getElementById("lbOpenProjects")?.addEventListener("click", async () => {
+        if (!window.OcherkiBookcase) return;
+        let books = [];
+        try { books = await window.OcherkiStore.list(); } catch (_) {}
+        // On the start screen no book is open yet: every spine opens its book.
+        window.OcherkiBookcase.open({ books, currentId: "",
+          onOpen: id => {
+            try { localStorage.setItem("ocherkiActiveBook", id); } catch (_) {}
+            const entry = document.getElementById("constructorEntry");
+            window.OCHERKI_PRELOAD_SHELL?.();
+            root.classList.add("is-leaving-for-entry");
+            window.setTimeout(() => { entry?.classList.add("is-visible"); entry?.setAttribute("aria-hidden", "false"); }, 360);
+            window.setTimeout(() => { root.style.visibility = "hidden"; }, 1650);
+          },
+          onNew: () => {
+            try { localStorage.setItem("ocherkiActiveBook", "book-" + Date.now().toString(36)); localStorage.removeItem("ocherkiLifeProjectDraft"); } catch (_) {}
+            goToStep(2);
+          } });
+      });
+
       // Выбор карточек
       window.selectCard = (stepNum, title, cardElement) => {
         const grid = document.getElementById(`cardsGrid${stepNum}`);
@@ -3296,7 +3320,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v46";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v47";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3796,5 +3820,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v47"></script>
 </body>
 </html>

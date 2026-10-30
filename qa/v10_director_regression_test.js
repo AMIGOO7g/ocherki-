@@ -52,7 +52,9 @@ const proof=fs.readFileSync(path.join(root,'book-renderer','master-proof.html'),
 if(!/s\.included=true/.test(sheet)||!/Можно выключить · сейчас включено/.test(sheet))fail('Default system-section policy is missing');
 if(!/showIncludeToggle=optionalAuto\(\)/.test(sheet))fail('Mandatory pages still expose the optional toggle');
 if(!/userCreated:true/.test(sheet)||!/page\.userCreated===true/.test(sheet))fail('Empty user-created sheet removal is missing');
-if(!/directorRebuildTimer=setTimeout/.test(shell))fail('Automatic full-book recalculation is missing');
+// A manuscript change marks the book as changed; it is rebuilt by the button
+// or when the preview opens (an automatic rebuild froze the constructor).
+if(!/markBookOutdated\(\)/.test(shell)||!/performBuild\(openPreview\)/.test(shell))fail('Changed book is not rebuilt before the preview');
 if(!/design-thumbnail-bw\.png/.test(shell)||!/ОЧЕРКИ/.test(shell))fail('Editorial cover thumbnail is missing');
 if(!/D01-TWO-PHOTO/.test(proof)||!/D01-PHOTO-OVER-TEXT/.test(proof))fail('V10 masters are missing from master proof');
 console.log(JSON.stringify({status:'pass',panorama:true,twoPhotoSpread:true,triptych:true,duo:true,photoOverText:true,manualQuotePriority:true,automaticEpisodeQuote:true},null,2));
