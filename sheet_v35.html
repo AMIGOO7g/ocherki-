@@ -437,6 +437,19 @@ body{
   display:block!important;white-space:pre-line!important;pointer-events:none;color:#9a8878!important;opacity:.85;font-style:italic!important;text-align:left!important;hyphens:none!important;
   content:"Разговор с героем книги. Вопрос — отдельной строкой со знаком «?» в конце, ниже — ответ своими словами.\A\A Каким было ваше первое воспоминание?\A Помню, как отец посадил меня на лошадь. Мне было года три…\A\A Чему вас научила жизнь?\A Тому, что всё можно пережить, если рядом свои.\A\A Строки до первого вопроса станут коротким вступлением.";
 }
+/* A short sample under the text of an editorial sheet: it stays visible
+   while the author writes, so the format is never lost. */
+.page-sample{position:absolute;left:58px;right:58px;bottom:112px;z-index:21;border-top:1px solid rgba(143,110,80,.22);padding:10px 2px 0;font:italic 15px/1.45 Georgia,"Times New Roman",serif;color:#8f7c69;white-space:pre-line}
+.page-sample[hidden]{display:none}
+.page-sample__head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:600 11px/1.2 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#a88a6c;margin-bottom:4px}
+.page-sample__head button,.page-sample__insert{border:0;background:none;padding:0;color:#8f5a2e;font:italic 14px Georgia,serif;text-decoration:underline;cursor:pointer;letter-spacing:0;text-transform:none}
+.page-sample__insert{display:inline-block;margin-top:6px;font-style:normal;font-size:15px;color:#fff8ee;background:#a8692f;border-radius:18px;padding:7px 16px;text-decoration:none}
+.page-sample__insert:hover{background:#94591f}
+.page-sample.is-collapsed .page-sample__body{display:none}
+.paper.has-page-sample .editor-wrap{bottom:var(--page-sample-room,230px)!important}
+.editor p.is-question{font-weight:700!important;color:#7a4a24!important;margin-top:.9em!important}
+.host-night .editor p.is-question{color:#e2b98c!important}
+.host-night .page-sample{color:#bfae98;border-top-color:rgba(230,190,140,.2)}
 .editor .sample-lead,
 .editor .sample-body{
   color:#9a8878!important;
@@ -976,6 +989,7 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
         <div class="episode-row page-content-fade"><div class="episode">Эпизод 1. Поворот тропы</div></div>
         <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div></div>
         <button type="button" id="treeLaunch" class="tree-launch" hidden>Составить древо по шагам</button>
+        <div class="page-sample" id="pageSample" hidden></div>
         <div class="page-context-actions page-content-fade" id="pageContextActions" aria-label="Быстро добавить">
           <button type="button" id="quickPhotoBtn">＋ Фото</button>
           <button type="button" id="quickQuoteBtn">＋ Цитата</button>
@@ -3959,8 +3973,65 @@ function updatePrompts(){
   box.classList.toggle('is-collapsed',!!page.promptsHidden);
   box.innerHTML=`<div class="page-prompts__head"><span>Вопросы к главе · ${questions.length}</span><button type="button" data-hide>${page.promptsHidden?'Показать':'Свернуть'}</button></div>`+(page.promptsHidden?'':`<ol>${questions.map(question=>`<li>${esc(question)}</li>`).join('')}</ol><p class="page-prompts__note">Это подсказки, в книгу они не попадут.</p>`);
 }
+// Short samples for the editorial sheets; the interview sheet can also
+// receive ready questions (an unanswered one stays out of the book).
+const PAGE_SAMPLES={
+  interview:'Вопрос — отдельной строкой со знаком «?» в конце, ответ — строкой ниже.\nКаким было ваше первое воспоминание?\nПомню, как отец посадил меня на лошадь…',
+  voices:'Воспоминание — отдельным абзацем, строкой ниже с тире — кто это сказал.\nБабушка пекла пироги каждую субботу.\n— внучка Анна',
+  recipes:'Первая строка — название, строки с тире — что нужно, дальше — как готовили.\nПироги с капустой бабушки Марии\n— мука — 500 г\nТесто ставили с вечера…',
+  timeline:'Каждое событие — с новой строки: год — место — что произошло.\n1921 — Владикавказ — Новый этап для семьи\nок. 1930 — Ташкент — Переезд всей семьёй',
+  'family-tree':'Каждый человек — с новой строки, супруг через «+», дети ниже с тире.\nИван Петров + Мария Петрова\n— Анна Петрова'
+};
+const READY_QUESTIONS=['Каким было ваше первое воспоминание?','Какой была ваша семья, когда вы были ребёнком?','Кого вы считаете своим главным учителем в жизни?','Каким был самый счастливый день в вашей жизни?','Что было самым трудным и как вы это пережили?','Чему вас научила жизнь?','Что бы вы хотели передать внукам?'];
+let pageSamplesHidden=false;
+try{pageSamplesHidden=localStorage.getItem('ocherkiSamplesHidden')==='1';}catch(e){}
+function updatePageSample(){
+  const box=document.getElementById('pageSample');if(!box)return;
+  const page=currentPage(),type=page?.type,sample=PAGE_SAMPLES[type];
+  const paperEl=activeSheet.querySelector('.paper');
+  const hasTree=type==='family-tree'&&page?.treeData&&page.treeData.people;
+  const empty=!String(page?.text||'').trim();
+  // An empty sheet already shows the full example inside the text area.
+  const show=!!sample&&!hasTree&&(!empty||type==='interview');
+  box.hidden=!show;paperEl?.classList.toggle('has-page-sample',show);
+  if(!show)return;
+  const lines=sample.split('\n');
+  const insert=type==='interview'&&READY_QUESTIONS.some(question=>!String(page.text||'').includes(question))?'<button type="button" class="page-sample__insert" data-insert-questions>Вставить готовые вопросы</button>':'';
+  box.classList.toggle('is-collapsed',pageSamplesHidden);
+  box.innerHTML=empty
+    ?`<div class="page-sample__head"><span>Можно начать с готовых вопросов</span></div>${insert}`
+    :`<div class="page-sample__head"><span>Образец</span><button type="button" data-toggle-sample>${pageSamplesHidden?'Показать':'Свернуть'}</button></div><div class="page-sample__body"><div>${esc(lines[0])}</div><div style="color:#a8968a">${lines.slice(1).map(esc).join('<br>')}</div>${insert}</div>`;
+  requestAnimationFrame(()=>paperEl?.style.setProperty('--page-sample-room',Math.round(box.offsetHeight+130)+'px'));
+}
+document.getElementById('pageSample')?.addEventListener('click',event=>{
+  if(event.target.closest('[data-toggle-sample]')){pageSamplesHidden=!pageSamplesHidden;try{localStorage.setItem('ocherkiSamplesHidden',pageSamplesHidden?'1':'0');}catch(e){}updatePageSample();return;}
+  if(event.target.closest('[data-insert-questions]')){
+    const page=currentPage();if(!page)return;
+    const have=String(page.text||'');
+    const fresh=READY_QUESTIONS.filter(question=>!have.includes(question));
+    if(!fresh.length)return;
+    page.text=(have.trim()?have.replace(/\s+$/u,'')+'\n\n':'')+fresh.join('\n\n');
+    page.userEdited=true;page.sample=false;
+    editor.innerHTML=htmlFromText(page.text);
+    editor.dispatchEvent(new Event('input',{bubbles:true}));
+    updatePageSample();
+    // The caret goes to the end of the first new question: Enter, then the answer.
+    const target=[...editor.querySelectorAll('p')].find(p=>p.textContent.trim()===fresh[0]);
+    if(target){editor.focus();const range=document.createRange();range.selectNodeContents(target);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
+  }
+});
+editor.addEventListener('input',()=>{const box=document.getElementById('pageSample');const empty=!String(currentPage()?.text||'').trim();if(PAGE_SAMPLES[currentPage()?.type]&&(box?.hidden||box?.dataset.empty!==String(empty))){box&&(box.dataset.empty=String(empty));updatePageSample();}});
+// On the interview sheet a question (a line ending with «?») is set apart
+// from the answers, so the author sees at once where to write.
+function markInterviewQuestions(){
+  const isInterview=currentPage()?.type==='interview';
+  editor.querySelectorAll('p').forEach(p=>p.classList.toggle('is-question',isInterview&&/\?\s*$/u.test(p.textContent)));
+}
+editor.addEventListener('input',markInterviewQuestions);
 function updateTreeUi(){
   updatePrompts();
+  updatePageSample();
+  markInterviewQuestions();
   const button=document.getElementById('treeLaunch');if(!button)return;
   const page=currentPage(),isTree=currentSection()?.id==='family-tree'&&page;
   button.hidden=!isTree;

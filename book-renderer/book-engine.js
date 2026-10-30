@@ -1569,13 +1569,16 @@
     // as it needs by an estimate of each paragraph's height; a paragraph
     // that does not fit is carried over sentence by sentence.
     const interviewSource=byId('interview')?.pages?.find(page=>page.included!==false);
-    if(interviewSource&&/\?\s*$/mu.test(String(interviewSource.text||''))){
-      const blocks=[];
-      for(const raw of String(interviewSource.text).split(/\r?\n/u)){
-        const line=raw.trim();if(!line)continue;
-        if(/\?$/u.test(line))blocks.push({kind:'q',text:line});
-        else blocks.push({kind:blocks.some(block=>block.kind==='q')?'a':'intro',text:line});
-      }
+    // A ready question the author has not answered yet stays out of the book.
+    const interviewBlocks=[];
+    for(const raw of String(interviewSource?.text||'').split(/\r?\n/u)){
+      const line=raw.trim();if(!line)continue;
+      if(/\?$/u.test(line))interviewBlocks.push({kind:'q',text:line});
+      else interviewBlocks.push({kind:interviewBlocks.some(block=>block.kind==='q')?'a':'intro',text:line});
+    }
+    for(let i=interviewBlocks.length-1;i>=0;i--)if(interviewBlocks[i].kind==='q'&&interviewBlocks[i+1]?.kind!=='a')interviewBlocks.splice(i,1);
+    if(interviewSource&&interviewBlocks.some(block=>block.kind==='q')){
+      const blocks=interviewBlocks;
       const H=(meta.format||'square')==='portrait'?1196:1000,perLine=66;
       const heightOf=block=>{const font=block.kind==='q'?20:block.kind==='intro'?21:19,lead=block.kind==='q'?1.35:1.55;return Math.ceil(block.text.length/(block.kind==='q'?58:perLine))*font*lead+(block.kind==='q'?30:16);};
       const pages=[];let current=[],room=H-330;
