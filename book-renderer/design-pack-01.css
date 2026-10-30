@@ -2851,3 +2851,7 @@ body .dpk-page.dpk-who .dpk-caption.dpk-caption-line.dpk-who-caption{white-space
 body .dpk-page.dpk-who .dpk-who-legend{top:180px!important}
 body .dpk-page.dpk-who p.dpk-who-story{margin:0 0 .7em!important;padding:0!important;border:0!important;font:400 19px/1.6 'PTSerifCy',Georgia,serif!important;font-style:normal!important;color:#2b2622!important}
 body .dpk-page.dpk-who .dpk-who-meta{margin-bottom:34px!important}
+/* «Для тех, кто продолжит»: separate hairlines, evenly spaced */
+body .dpk-page.dpk-notes .dpk-notes-lines i{position:absolute!important;left:91px!important;right:91px!important;height:0!important;border-top:1px solid rgba(110,101,92,.32)!important;display:block!important}
+body .dpk-page.dpk-notes.left .dpk-notes-lines i{left:70px!important}
+body .dpk-page.dpk-notes.right .dpk-notes-lines i{right:70px!important}

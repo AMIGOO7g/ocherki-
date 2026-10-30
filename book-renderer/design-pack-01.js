@@ -803,7 +803,11 @@
     if (role === 'notes-page') {
       // Ruled pages left empty for the family to write in; the left page opens
       // with one handwritten line.
-      return article('D01-NOTES',`${page.notesHeading?`<p class="dpk-notes-heading">${esc(page.notesHeading)}</p>`:''}<div class="dpk-notes-rules${page.notesHeading?' dpk-notes-rules-below':''}"></div>${folio}`,'dpk-notes');
+      // Each rule is its own hairline at a whole-pixel position, so print and
+      // zoom never thin out or double a line.
+      const formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000,top=page.notesHeading?282:150,step=44;
+      const rules=Array.from({length:Math.floor((formatH-110-top)/step)},(_,i)=>`<i style="top:${top+step*(i+1)}px"></i>`).join('');
+      return article('D01-NOTES',`${page.notesHeading?`<p class="dpk-notes-heading">${esc(page.notesHeading)}</p>`:''}<div class="dpk-notes-lines">${rules}</div>${folio}`,'dpk-notes');
     }
     if (role === 'episode-photo') {
       // Left page of an episode opening: a small archive photograph, lots of
@@ -811,7 +815,9 @@
       const index=page.photoIndex||0,ratio=photoRatio(index),formatH=(page.pageFormat||meta.format)==='portrait'?1196:1000;
       // The photo and its handwritten caption are centred together on the
       // page height (slightly above the middle) in both formats.
-      const width=Math.round(Math.min(440,300*ratio)),height=Math.round(width/ratio),group=height+(page.handCaption?92:0),top=Math.round((formatH-group)/2-20);
+      // Horizontal photos keep their width, vertical ones their height, so
+      // a portrait frame is not shrunk to a stamp.
+      const width=Math.round(ratio>=1?Math.min(460,330*ratio):Math.min(400,430*ratio)),height=Math.round(width/ratio),group=height+(page.handCaption?92:0),top=Math.round((formatH-group)/2-20);
       return article('D01-EPISODE-PHOTO',`<figure class="dpk-episode-photo" style="width:${width}px;height:${height}px;top:${top}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${page.handCaption?`<p class="dpk-episode-caption" style="top:${top+height+48}px">${esc(page.handCaption)}</p>`:''}${folio}`,'dpk-episode-left');
     }
     if (role === 't12-photo') {
@@ -1210,19 +1216,24 @@
     if(!area)throw new Error('Роль не подключена к измеряемому рендеру Design Pack.');
     const sample=area.querySelector('[data-flow-cell] .dpk-source-copy');
     const leading=parseFloat(getComputedStyle(sample).lineHeight);
-    const articleRect=article.getBoundingClientRect();
-    let origin=area.getBoundingClientRect().top-articleRect.top;
+    // Geometry in page units: a zoomed or scaled preview must not change how
+    // many lines a page holds (screen rectangles are divided by the scale).
+    const articleRect=article.getBoundingClientRect(),pageHeight=parseFloat(getComputedStyle(article).height)||articleRect.height,scale=articleRect.height/pageHeight||1;
+    let origin=(area.getBoundingClientRect().top-articleRect.top)/scale;
     if(mode==='chapter'){
       const head=article.querySelector('.dpk-chapter-title'),rule=article.querySelector('.dpk-chapter-rule');
-      origin=Math.max(head.getBoundingClientRect().bottom,rule.getBoundingClientRect().bottom)-articleRect.top+leading;
+      origin=(Math.max(head.getBoundingClientRect().bottom,rule.getBoundingClientRect().bottom)-articleRect.top)/scale+leading;
       area.style.setProperty('top',`${origin}px`,'important');
     }
-    const available=articleRect.height-94-origin;
+    const available=pageHeight-94-origin;
     if(!(leading>0&&available>=leading))throw new Error('Заголовок не оставляет места для целой строки.');
     // flowLineLimit shortens the working height to whole lines; the engine
     // uses it to balance the columns and pages that close a chapter.
     const fullLines=Math.floor(available/leading),lineLimit=Math.floor(Number(page.flowLineLimit)||0);
     const height=(lineLimit>0?Math.min(fullLines,lineLimit):fullLines)*leading;
+    // A full page ends exactly on the common bottom margin: the part of a
+    // line left over goes above the text, not below it.
+    if(!(lineLimit>0&&lineLimit<fullLines)){origin=pageHeight-94-height;area.style.setProperty('top',`${origin}px`,'important');}
     flow.fullLines=fullLines;
     flow.geometry={origin,height,leading};
     const applyGeometry=()=>{

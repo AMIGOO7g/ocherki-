@@ -244,6 +244,15 @@
     return caption.length>0&&caption.length<=60&&storyLength>=3&&storyLength<=60;
   }
 
+  // The handwritten line under an episode title, when the author gave none:
+  // a short whole sentence from the episode (not its first one, which the
+  // reader meets right below), one line long.
+  function episodeLineFrom(text) {
+    const sentences = String(text || '').split(/\n+/u).join(' ').match(/[^.!?…]+[.!?…]+/gu) || [];
+    const fit = sentence => { const clean = sentence.trim(); return clean.length >= 24 && clean.length <= 70 && !/[«»"„“:;]/u.test(clean); };
+    const pick = sentences.slice(1, 14).find(fit) || sentences.slice(0, 1).find(fit) || '';
+    return pick.trim().replace(/[.…]+$/u, '');
+  }
   const isWhoPhoto = photo => Boolean(imageSource(photo)) && Array.isArray(photo?.peopleMarks) && photo.peopleMarks.filter(mark => mark && String(mark.name || '').trim()).length >= 2;
 
   // Then/now pairs: photos that name each other in pairWith. «Было» is the
@@ -858,6 +867,8 @@
     if(photoHeavy){photoBeatWeights.t07=45;photoBeatWeights.t06=40;photoBeatWeights.t10=35;photoBeatWeights.two=30;}
     if(textHeavy){photoBeatWeights.t08=40;photoBeatWeights.hspread=40;photoBeatWeights.three=5;}
     let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0, t12Count = 0;
+    // meta.forcePhotoBeat as a list (demo and acceptance books): each beat is used once, as soon as it is eligible.
+    const forcedBeatQueue = Array.isArray(meta.forcePhotoBeat) ? meta.forcePhotoBeat.slice() : [];
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
@@ -879,7 +890,7 @@
         photo._episodeOpening=true;
         return {offset:run.start+(run.text.length-String(run.page.text).length),photoPosition,opened:false,
           title:String(run.page.episode||run.page.title||'').replace(/^\u042d\u043f\u0438\u0437\u043e\u0434\s+\d+[.:]?\s*/iu,'').trim()||String(run.page.title||'').trim(),
-          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:''),caption:String(photo.caption||'').trim()};
+          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:'')||episodeLineFrom(run.page.text),caption:String(photo.caption||'').trim()};
       }).filter(Boolean);
       const pendingEpisode=()=>episodes.find(item=>!item.opened&&item.offset===sourceOffset);
       const consume = (page,side) => {
@@ -1106,7 +1117,8 @@
         // The chapter's last text (about one spread, ~7000 characters) goes beside a waiting
         // photo rather than leaving the photos to pile up after it.
         const lastTextWithPhoto=rest.length<7500&&unusedNow.some(photoPosition=>!isPortraitHero(chapter.photos[photoPosition])||!portraitGiven);
-        if(photoBeatAvailable&&(textSpreadStreak>=textSpreadsBetweenPhotos||lastTextWithPhoto)){
+        // A demo/acceptance book with a list of required beats places them without waiting for text spreads.
+        if(photoBeatAvailable&&(textSpreadStreak>=textSpreadsBetweenPhotos||lastTextWithPhoto||forcedBeatQueue.length>0)){
           const free=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
           const portraitHeroes=free.filter(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening);
           const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
@@ -1149,8 +1161,10 @@
           const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
-          const forced=eligible.find(([candidate])=>candidate===meta.forcePhotoBeat)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
+          const forcedQueue=Array.isArray(meta.forcePhotoBeat)?forcedBeatQueue:[meta.forcePhotoBeat];
+          const forced=forcedQueue.map(wanted=>eligible.find(([candidate])=>candidate===wanted)).find(Boolean)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
           const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
+          if(Array.isArray(meta.forcePhotoBeat)&&forcedBeatQueue.includes(beat))forcedBeatQueue.splice(forcedBeatQueue.indexOf(beat),1);
           lastPhotoBeat=beat;recentPhotoBeats=[...recentPhotoBeats,beat].slice(-3);
           if(beat==='p01'){
             // P01 is the author's explicit choice: portrait on the left, a short

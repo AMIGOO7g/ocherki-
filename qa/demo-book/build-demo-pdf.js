@@ -28,7 +28,7 @@ const MM = FORMAT === 'portrait' ? 335 : 280;
       .side{position:relative;width:1000px;height:${H}px;overflow:hidden;--book-page-w:1000px;--book-page-h:${H}px;background:#fff}
       .side.empty{background:#e9e5de}
       .spread::after{content:'';position:absolute;left:999px;top:0;bottom:0;width:2px;background:linear-gradient(90deg,rgba(0,0,0,.06),rgba(0,0,0,0));pointer-events:none}
-      body{zoom:${(MM * 2 / 25.4 * 96 / 2000).toFixed(5)}}</style></head>
+</style></head>
     <body><div id="book"></div>${scripts}<script charset="utf-8" src="demo-book/demo-structure.js"></script></body></html>`, { waitUntil: 'networkidle' });
   const summary = await page.evaluate(async ([format]) => {
     await OcherkiLayoutPagination.readyFonts();
@@ -56,11 +56,12 @@ const MM = FORMAT === 'portrait' ? 335 : 280;
   }, [FORMAT]);
   if (summary.error) { console.error('Сборка не удалась:', summary.error); process.exit(1); }
   await page.waitForTimeout(1500);
-  await page.pdf({ path: OUT, width: `${MM * 2}mm`, height: `${MM}mm`, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+  // 2000 CSS px fill the 560 mm sheet through the print scale, so the
+  // pages are laid out at their real size.
+  await page.pdf({ path: OUT, width: `${MM * 2}mm`, height: `${MM}mm`, scale: MM * 2 / 25.4 * 96 / 2000, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
   // PNG previews of every spread.
   const previews = path.join(path.dirname(OUT), 'spreads');
   fs.mkdirSync(previews, { recursive: true });
-  await page.evaluate(() => { document.body.style.zoom = '1'; });
   const rows = await page.$$('.spread');
   for (let i = 0; i < rows.length; i++) await rows[i].screenshot({ path: path.join(previews, `${String(i + 1).padStart(2, '0')}.png`) });
   console.log(JSON.stringify({ ...summary, pdf: OUT, errors }, null, 1));
