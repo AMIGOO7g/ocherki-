@@ -118,6 +118,28 @@
             candidate={...original,requestedMaster:original.master,master:pack.textMasters.plain,rhythm:'plain',inlineQuote:'',importantLine:'',marginNote:'',autoInlineQuote:false,autoImportant:false,autoMarginNote:false,measuredFlow:undefined};
             continue;
           }
+          // The author's own margin note is always kept: when the measurement
+          // finds it a hair too long it is placed the same way the book's
+          // last-resort notes are, instead of disappearing from the page.
+          if(error.kind==='margin'&&!candidate.forceMarginPlacement){
+            warnings.push({code:'ACCENT_MANUAL_MARGIN_FORCED',template:original.master,kind:'margin',text:error.text||'',automatic:false,reason:error.message,fallback:'author-note-kept'});
+            candidate={...candidate,allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:undefined};
+            continue;
+          }
+          if(error.kind==='margin'){
+            const authorNote=String(candidate.marginNote||original.marginNote||'');
+            const plain={...candidate,master:pack.textMasters.plain,rhythm:'plain',marginNote:'',autoMarginNote:false,allowSafeMarginAudit:false,forceMarginPlacement:false,measuredFlow:undefined};
+            const result=renderer().paginateText(plain,source,host,render,side);
+            const geometry=plain.measuredFlow.geometry||{},height=Number(geometry.height)||810;
+            plain.measuredFlow.mode=original.rhythm;plain.measuredFlow.noteLines=2;
+            plain.measuredFlow.accentOverflow={...(plain.measuredFlow.accentOverflow||{}),margin:false};
+            const noteLength=Math.max(1,Math.round((height-86)*.8));
+            Object.assign(plain.measuredFlow.geometry,{'note-length':noteLength,'note-depth':64,'note-footer-gap':30,'note-inset':side==='left'?Math.max(28,height-58-noteLength):28});
+            candidate={...candidate,master:original.master,rhythm:original.rhythm,marginNote:authorNote,autoMarginNote:false,allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:plain.measuredFlow};
+            result.measuredFlow=plain.measuredFlow;Object.assign(page,candidate);
+            warnings.push({code:'ACCENT_MANUAL_MARGIN_KEPT',template:original.master,kind:'margin',text:authorNote,automatic:false,reason:error.message,fallback:'plain-measurement-with-author-note'});
+            return result;
+          }
           if(error.kind==='margin'||error.kind==='quote'){
             // An author's note or quote that does not fit two lines never
             // stops the book: the page is set without it and the author is
