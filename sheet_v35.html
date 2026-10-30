@@ -906,7 +906,11 @@ html.photo-modal-root-open body{overflow:visible!important;}
 /* Night: the lamp stands to the upper left. The sheet casts a deep shadow
    to the right and down, and a warm pool of light lies on its upper-left
    part, fading towards the far corner. */
-.host-night .sheet.active{box-shadow:4px 6px 10px rgba(0,0,0,.35),18px 26px 46px rgba(0,0,0,.55),34px 46px 90px rgba(0,0,0,.45)!important}
+/* The deep shadow falls from the whole pile, under the last sheet, so it
+   never darkens the sheets lying under the active one (their numbers stay
+   readable); the active sheet keeps only a soft contact shadow. */
+.host-night .sheet.active{box-shadow:2px 3px 6px rgba(0,0,0,.22)!important}
+.host-night .sheet-stack{filter:drop-shadow(14px 20px 22px rgba(0,0,0,.5)) drop-shadow(30px 40px 60px rgba(0,0,0,.35))}
 .host-night .sheet.active .paper::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:30;border-radius:inherit;
   background:radial-gradient(120% 95% at 12% 6%,rgba(255,214,150,.20) 0%,rgba(255,200,130,.08) 38%,rgba(0,0,0,0) 62%),
              radial-gradient(140% 120% at 100% 100%,rgba(30,18,8,.16) 0%,rgba(30,18,8,0) 55%);

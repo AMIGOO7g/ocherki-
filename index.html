@@ -3207,7 +3207,7 @@
         switchMusicTrack(-1);
       });
 
-      createButton.addEventListener("click", () => goToStep(2));
+      createButton.addEventListener("click", () => { window.__ocherkiCreatingBook = true; goToStep(2); });
 
       // «Мои проекты»: the same bookcase as in the constructor. Opening a book
       // goes straight to the power screen, without the first steps; «+»
@@ -3227,7 +3227,8 @@
             window.setTimeout(() => { root.style.visibility = "hidden"; }, 1650);
           },
           onNew: () => {
-            try { localStorage.setItem("ocherkiActiveBook", "book-" + Date.now().toString(36)); localStorage.removeItem("ocherkiLifeProjectDraft"); } catch (_) {}
+            try { localStorage.removeItem("ocherkiLifeProjectDraft"); } catch (_) {}
+            window.__ocherkiCreatingBook = true;
             goToStep(2);
           } });
       });
@@ -3284,6 +3285,12 @@
           // A new setup id lets the constructor apply these answers once
           // (chapters, title page, the tree's main person) to a fresh book.
           window.OCHERKI_SETUP_ID = String(Date.now());
+          // «Создать книгу» makes a new, empty book; the previous one stays on
+          // the shelf in «Мои проекты».
+          if (window.__ocherkiCreatingBook) {
+            try { localStorage.setItem("ocherkiActiveBook", "book-" + Date.now().toString(36)); } catch (_) {}
+            window.__ocherkiCreatingBook = false;
+          }
           const config = getProjectConfig();
           persistDraft();
           window.OCHERKI_PROJECT_CONFIG = config;
@@ -3332,7 +3339,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v51";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v52";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3832,7 +3839,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v51"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v51"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v52"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v52"></script>
 </body>
 </html>

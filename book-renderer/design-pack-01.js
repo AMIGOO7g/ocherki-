@@ -1048,7 +1048,8 @@
     const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);const rects=[];let text;
     while((text=walker.nextNode())){
       const range=document.createRange();range.selectNodeContents(text);
-      for(const rect of range.getClientRects())if(rect.height>0)rects.push(rect);
+      const hand=Boolean(text.parentElement?.closest?.('.dpk-inline-handwritten'));
+      for(const rect of range.getClientRects())if(rect.height>0)rects.push(hand?{top:rect.top,bottom:rect.bottom,left:rect.left,right:rect.right,height:rect.height,width:rect.width,hand:true}:rect);
     }
     return rects;
   }
@@ -1074,7 +1075,12 @@
     const box=target.parentElement.getBoundingClientRect(),rect=target.getBoundingClientRect();
     if(box.width<=0||box.height<0)throw new Error('Рабочая область DOM не готова.');
     if(!target.textContent)return true;
-    return rect.height<=box.height+0.1 && sourceRects(target).every(r=>r.bottom<=box.bottom+0.1&&r.top>=box.top-0.1);
+    // Glyph boxes of the handwritten font are taller than a text line: they
+    // may rise above or hang below the line box by part of a line (and by a
+    // pixel of rounding on a scaled screen) without leaving the column.
+    const leading=parseFloat(getComputedStyle(target).lineHeight)||24,slack=leading*.45;
+    const normal=0.6;
+    return rect.height<=box.height+normal && sourceRects(target).every(r=>{const hand=r.hand;return r.bottom<=box.bottom+(hand?slack:normal)&&r.top>=box.top-(hand?slack:normal);});
   }
   function clipRanges(ranges,end){return (ranges||[]).filter(item=>item.start<end).map(item=>({...item,end:Math.min(end,item.end)})).filter(item=>item.end>item.start);}
   function splitRenderedText(target, source, breaks = [], inlineRanges = [], startsParagraph = false) {
