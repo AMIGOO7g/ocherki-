@@ -95,6 +95,7 @@
     if (layout === 'x-rail-photo') return 'x-rail-photo';
     if (layout === 'x-fade-photo') return 'x-fade-photo';
     if (layout === 'x-quote-band') return 'x-quote-band';
+    if (layout === 'x-vignette') return 'x-vignette';
     if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
     if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
     if (layout === 'i02-route' || kind === 'i02-route') return 'i02-route';
@@ -532,6 +533,13 @@
       // Photo across 1.5 pages: the inner part of the photograph continues
       // from the facing page; the text keeps one outer column.
       const railPhoto=page.railPhoto?`<figure class="dpk-x-rail-half" data-source-photo-index="${page.railPhoto.photoIndex}">${image(page.railPhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
+      // A photograph under the text (pale or darkened), a photograph beside
+      // a dark column, or photographs below the text under a small heading.
+      const bg=page.bgPhoto?`<figure class="dpk-x-bg">${image(page.bgPhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure><i class="dpk-x-bg-veil" aria-hidden="true"></i>`:'';
+      const sidePhoto=page.sidePhoto?`<figure class="dpk-x-side" data-source-photo-index="${page.sidePhoto.photoIndex}">${image(page.sidePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
+      const bottomPhotos=page.bottomPhotos?`<div class="dpk-x-bottom" style="height:${Number(page.bottomPhotos.height)||390}px">${page.bottomPhotos.photoIndices.map(index=>`<figure data-source-photo-index="${index}">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`).join('')}</div>`:'';
+      const smallHead=page.bottomPhotos?`<div class="dpk-x-head"><span>${esc(page.episode||page.title||'')}</span></div>`:'';
+      const xClass=`${page.bgPhoto?` dpk-x-bg-page dpk-x-bg-${page.bgPhoto.tone==='light'?'light':'dark'} dpk-x-bg-span-${page.bgPhoto.span==='spread'?'spread':'page'}`:''}${page.sidePhoto?' dpk-x-side-page':''}${page.bottomPhotos?' dpk-x-text-photos':''}`;
       const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
       const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto||page.episodeOpening?'':running;
@@ -539,8 +547,8 @@
       // Episode opening: title in one line in the heading colour, a long
       // horizontal handwritten line, air, then the shared text flow.
       const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
-      const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):page.railPhoto?captionLine([page.railPhoto.photoIndex]):'';
-      return article(page.master,`${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}`)
+      const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):page.railPhoto?captionLine([page.railPhoto.photoIndex]):page.bottomPhotos?captionLine(page.bottomPhotos.photoIndices):'';
+      return article(page.master,`${bg}${sidePhoto}${bottomPhotos}${smallHead}${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}${xClass}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
@@ -849,6 +857,12 @@
       // The photograph fills the page and dissolves towards the fold.
       const index=page.photoIndex||0,dark=page.fadeTone==='dark';
       return article('D01-X-FADE',`<figure class="dpk-x-fade-photo">${image(index).replace('loading="lazy"','loading="eager"')}</figure><i class="dpk-x-fade-veil" aria-hidden="true"></i>${caption(index)?`<div class="dpk-caption">${caption(index)}</div>`:''}${folio}`,`dpk-x-fade dpk-x-fade-${dark?'dark dpk-dark':'light'} dpk-x-fade-side-${page.fadeSide==='right'?'right':'left'}`);
+    }
+    if (role === 'x-vignette') {
+      // The whole photograph on a black sheet, its edges sinking into darkness.
+      const index=page.photoIndex||0,ratio=photoRatio(index),pageH=(page.pageFormat||meta.format)==='portrait'?1196:1000;
+      const h=pageH-120,w=Math.min(900,Math.round(h*ratio)),hh=Math.round(w/ratio);
+      return article('D01-X-VIGNETTE',`<figure class="dpk-x-vignette-photo" style="width:${w}px;height:${hh}px;left:${Math.round((1000-w)/2)}px;top:${Math.round((pageH-hh)/2)}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${folio}`,'dpk-dark dpk-x-vignette');
     }
     if (role === 'x-quote-band') {
       // Two photographs under one gold line from the text just read; the
@@ -1259,7 +1273,9 @@
       origin=(Math.max(head.getBoundingClientRect().bottom,rule.getBoundingClientRect().bottom)-articleRect.top)/scale+leading;
       area.style.setProperty('top',`${origin}px`,'important');
     }
-    const available=pageHeight-94-origin;
+    // A page with photographs below its text keeps that space free.
+    const reserve=Number(page.flowReserveBottom)||94;
+    const available=pageHeight-reserve-origin;
     if(!(leading>0&&available>=leading))throw new Error('Заголовок не оставляет места для целой строки.');
     // flowLineLimit shortens the working height to whole lines; the engine
     // uses it to balance the columns and pages that close a chapter.
@@ -1267,7 +1283,7 @@
     const height=(lineLimit>0?Math.min(fullLines,lineLimit):fullLines)*leading;
     // A full page ends exactly on the common bottom margin: the part of a
     // line left over goes above the text, not below it.
-    if(!(lineLimit>0&&lineLimit<fullLines)){origin=pageHeight-94-height;area.style.setProperty('top',`${origin}px`,'important');}
+    if(!(lineLimit>0&&lineLimit<fullLines)&&!page.flowReserveBottom){origin=pageHeight-94-height;area.style.setProperty('top',`${origin}px`,'important');}
     flow.fullLines=fullLines;
     flow.geometry={origin,height,leading};
     const applyGeometry=()=>{

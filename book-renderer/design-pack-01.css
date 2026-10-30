@@ -2894,3 +2894,44 @@ body .dpk-page.dpk-x-quote-band .dpk-x-band-photo img{width:100%!important;heigh
 body .dpk-page.dpk-x-quote-band .dpk-caption{bottom:44px!important;left:70px!important;right:70px!important}
 /* The full-page pause quote, nearer the size of the episode's handwritten line. */
 body .dpk-page.dpk-t08 .dpk-t08-quote p{font-size:27px!important}
+/* Text over a photograph: pale (light) or darkened (dark), on one page or across the spread. */
+body .dpk-page.dpk-x-bg-page .dpk-x-bg{position:absolute!important;inset:0!important;margin:0!important;overflow:hidden!important;z-index:0!important}
+body .dpk-page.dpk-x-bg-page .dpk-x-bg img{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-x-bg-span-spread .dpk-x-bg img{width:2000px!important}
+body .dpk-page.dpk-x-bg-span-spread.right .dpk-x-bg img{left:-1000px!important}
+body .dpk-page.dpk-x-bg-page .dpk-x-bg-veil{position:absolute!important;inset:0!important;z-index:1!important;pointer-events:none!important}
+body .dpk-page.dpk-x-bg-light .dpk-x-bg img{filter:grayscale(.15) contrast(.9)!important}
+body .dpk-page.dpk-x-bg-light .dpk-x-bg-veil{background:linear-gradient(90deg,rgba(255,255,255,.9) 0,rgba(255,255,255,.78) 55%,rgba(255,255,255,.62) 100%)!important}
+body .dpk-page.dpk-x-bg-dark{background:#11110f!important}
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-page .dpk-x-bg-veil{background:linear-gradient(90deg,rgba(12,12,11,.86) 0,rgba(12,12,11,.74) 45%,rgba(12,12,11,.18) 72%,rgba(12,12,11,0) 100%)!important}
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-spread .dpk-x-bg-veil{background:rgba(12,12,11,.7)!important}
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-spread.left .dpk-x-bg-veil{background:linear-gradient(90deg,rgba(12,12,11,.9) 0,rgba(12,12,11,.68) 100%)!important}
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-spread.right .dpk-x-bg-veil{background:linear-gradient(270deg,rgba(12,12,11,.9) 0,rgba(12,12,11,.68) 100%)!important}
+body .dpk-page.dpk-x-bg-dark .dpk-source-copy,body .dpk-page.dpk-x-bg-dark .dpk-source-copy *{color:#f3eee4!important;text-shadow:0 1px 2px rgba(0,0,0,.45)!important}
+body .dpk-page.dpk-x-bg-dark .dpk-running,body .dpk-page.dpk-x-bg-dark .dpk-folio,body .dpk-page.dpk-x-bg-dark .dpk-episode-head h2{color:#d8c7a5!important}
+/* White text over one photograph keeps one column on the dark side. */
+body .dpk-page.dpk-dom-paginated.dpk-x-bg-dark.dpk-x-bg-span-page .dpk-measured-flow{right:520px!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 0px!important;column-gap:0!important;row-gap:0!important}
+/* Dark pair: a text column beside its own photograph. */
+body .dpk-page.dpk-dom-paginated.dpk-x-side-page .dpk-measured-flow{right:520px!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 0px!important;column-gap:0!important;row-gap:0!important}
+body .dpk-page.dpk-x-side-page .dpk-x-side{position:absolute!important;left:520px!important;right:36px!important;top:70px!important;bottom:94px!important;margin:0!important;overflow:hidden!important;z-index:1!important}
+body .dpk-page.dpk-x-side-page .dpk-x-side img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;display:block!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-x-side-page .dpk-running{right:520px!important}
+/* A small heading, two columns and the photographs below. */
+body .dpk-page.dpk-dom-paginated.dpk-x-text-photos{--dpk-flow-origin:150px}
+body .dpk-page.dpk-x-text-photos .dpk-running{display:none!important}
+body .dpk-page.dpk-x-text-photos .dpk-x-head{position:absolute!important;left:70px!important;right:91px!important;top:70px!important;font:600 30px/1.15 'CormorantCy',Georgia,serif!important;color:#3d3328!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .dpk-page.dpk-x-text-photos .dpk-x-bottom{position:absolute!important;left:70px!important;right:91px!important;bottom:94px!important;display:flex!important;gap:24px!important;z-index:1!important}
+body .dpk-page.dpk-x-text-photos .dpk-x-bottom figure{flex:1 1 0!important;margin:0!important;overflow:hidden!important;min-width:0!important}
+body .dpk-page.dpk-x-text-photos .dpk-x-bottom img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;display:block!important}
+/* Dark vignette: the photograph sinks into a black sheet. */
+body .dpk-page.dpk-x-vignette{background:#0b0b0a!important;padding:0!important;overflow:hidden!important}
+body .dpk-page.dpk-x-vignette .dpk-x-vignette-photo{position:absolute!important;margin:0!important;overflow:hidden!important;-webkit-mask-image:radial-gradient(ellipse 70% 72% at 50% 46%,#000 42%,rgba(0,0,0,.55) 68%,transparent 100%)!important;mask-image:radial-gradient(ellipse 70% 72% at 50% 46%,#000 42%,rgba(0,0,0,.55) 68%,transparent 100%)!important}
+body .dpk-page.dpk-x-vignette .dpk-x-vignette-photo img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;display:block!important}
+/* White text over a photograph: the photograph sits to the outer-right part
+   of the page and dissolves to black under the text column. */
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-page .dpk-x-bg{left:300px!important}
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-page .dpk-x-bg-veil{background:linear-gradient(90deg,#11110f 0,#11110f 300px,rgba(17,17,15,.82) 420px,rgba(17,17,15,.35) 560px,rgba(17,17,15,0) 720px)!important}
+body .dpk-page.dpk-dom-paginated.dpk-x-bg-dark.dpk-x-bg-span-page .dpk-measured-flow{right:540px!important}
+body .dpk-page.dpk-x-bg-dark.dpk-x-bg-span-spread .dpk-x-bg-veil{opacity:.86!important}
+body .dpk-page.dpk-x-bg-light .dpk-x-bg-veil{background:linear-gradient(90deg,rgba(255,255,255,.9) 0,rgba(255,255,255,.8) 45%,rgba(255,255,255,.58) 100%)!important}
+body .dpk-page.dpk-x-bg-light .dpk-x-bg-veil{background:linear-gradient(90deg,rgba(255,255,255,.9) 0,rgba(255,255,255,.72) 42%,rgba(255,255,255,.42) 100%)!important}

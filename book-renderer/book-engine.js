@@ -854,7 +854,7 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15, rail:25, fade:20, darkside:12, darkfade:10, pair:10, mosaic:14, quoteband:12 };
+    const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15, rail:25, fade:18, darkside:10, darkfade:10, pair:10, mosaic:14, quoteband:12, overlay:16, darkgrad:10, darkpair:10, textphotos:18 };
     // Book rhythm profile from the start wizard: how many text spreads come
     // between photo beats, and which visual sequences are favoured.
     const balance=String(meta.contentBalance||'').toLowerCase();
@@ -1179,7 +1179,8 @@
           const railPhoto=[...unused].filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.2).sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
           const fadePhoto=ordinary[0];
           const extraFits={rail:railPhoto!=null&&rest.length>1500,fade:fadePhoto!=null&&rest.length>1500,darkside:fadePhoto!=null&&rest.length>1500&&!chapterAccents.dark,
-            darkfade:fadePhoto!=null&&!chapterAccents.dark,pair:ordinary.length>=2,mosaic:ordinary.length>=4&&rest.length>1200,quoteband:ordinary.length>=2&&rest.length>0};
+            darkfade:fadePhoto!=null&&!chapterAccents.dark&&rest.length>1500,overlay:fadePhoto!=null&&rest.length>1500,darkgrad:fadePhoto!=null&&rest.length>2600&&!chapterAccents.dark,
+            darkpair:ordinary.length>=2&&rest.length>2600&&!chapterAccents.dark,textphotos:ordinary.length>=1&&rest.length>1500,pair:ordinary.length>=2,mosaic:ordinary.length>=4&&rest.length>1200,quoteband:ordinary.length>=2&&rest.length>0};
           const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12',...Object.keys(extraFits)].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat in extraFits?extraFits[beat]:beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
@@ -1304,23 +1305,66 @@
             textSpreadStreak=0;
             continue;
           }
-          if(beat==='fade'||beat==='darkside'){
-            // A full-bleed photograph dissolving towards the fold into the
-            // paper (light) or into a dark sheet that carries the text.
-            const dark=beat==='darkside';if(dark)chapterAccents.dark++;
+          if(beat==='darkside'){
+            // A full-bleed photograph dissolving towards the fold into a dark
+            // sheet that carries the text.
+            chapterAccents.dark++;
             const before=spreads[spreads.length-1],photoLeft=!(before?.left&&!before.left.measuredFlow);
             const photoIndex=take(fadePhoto);
-            const photoPage=P('fade-photo',{layout:'x-fade-photo',master:'D01-X-FADE',sectionId:chapter.sectionId,source:chapter,photoIndex,fadeTone:dark?'dark':'light',fadeSide:photoLeft?'left':'right',title:chapter.title});
-            const textPage=nextTextPage(photoLeft?'right':'left',dark?{darkFlow:true,forceRhythm:'plain'}:{forceRhythm:'plain'});
-            spreads.push({master:dark?'D01-SPREAD-X-DARKSIDE':'D01-SPREAD-X-FADE',sectionId:chapter.sectionId,left:photoLeft?photoPage:textPage,right:photoLeft?textPage:photoPage,fixedRhythm:true,beat});
+            const photoPage=P('fade-photo',{layout:'x-fade-photo',master:'D01-X-FADE',sectionId:chapter.sectionId,source:chapter,photoIndex,fadeTone:'dark',fadeSide:photoLeft?'left':'right',title:chapter.title});
+            const textPage=nextTextPage(photoLeft?'right':'left',{darkFlow:true,forceRhythm:'plain'});
+            spreads.push({master:'D01-SPREAD-X-DARKSIDE',sectionId:chapter.sectionId,left:photoLeft?photoPage:textPage,right:photoLeft?textPage:photoPage,fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='fade'||beat==='overlay'){
+            // fade: the text runs over a pale, whitened photograph;
+            // overlay: white text over the darkened side of a photograph.
+            const photoIndex=take(fadePhoto),tone=beat==='fade'?'light':'dark';
+            const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone,span:'page'},forceRhythm:'plain'});
+            const right=nextTextPage('right');
+            spreads.push({master:beat==='fade'?'D01-SPREAD-X-LIGHT-GRADIENT':'D01-SPREAD-X-OVERLAY',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='darkgrad'){
+            // One darkened photograph under the whole spread, light text on both pages.
+            chapterAccents.dark++;
+            const photoIndex=take(fadePhoto);
+            const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'});
+            const right=nextTextPage('right',{bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'});
+            spreads.push({master:'D01-SPREAD-X-DARK-GRADIENT',sectionId:chapter.sectionId,left,right,fixedRhythm:true,continuousImage:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='darkpair'){
+            // Two dark sheets, each a text column beside its own photograph.
+            chapterAccents.dark++;
+            const [first,second]=ordinary.slice(0,2).map(take);
+            const left=nextTextPage('left',{photoIndex:first,sidePhoto:{photoIndex:first},darkFlow:true,forceRhythm:'plain'});
+            const right=nextTextPage('right',{photoIndex:second,sidePhoto:{photoIndex:second},darkFlow:true,forceRhythm:'plain'});
+            spreads.push({master:'D01-SPREAD-X-DARK-PAIR',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='textphotos'){
+            // A small heading, two columns of text and the photographs below.
+            const indices=ordinary.slice(0,2).map(take);
+            const portrait=meta.format==='portrait';
+            const left=nextTextPage('left',{photoIndices:indices,bottomPhotos:{photoIndices:indices,height:portrait?470:390},flowReserveBottom:portrait?600:520,forceRhythm:'plain'});
+            const right=nextTextPage('right');
+            spreads.push({master:'D01-SPREAD-X-TEXT-PHOTOS',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
           if(beat==='darkfade'){
-            const photoIndex=take(fadePhoto),ratio=photoAspect(chapter.photos[photoIndex]);chapterAccents.dark++;
-            const state=String(chapter.photos[photoIndex].darkFadeState||(ratio<.82?'V':ratio>1.22?'H':'S')).toUpperCase();
-            const base=P('dark-fade',{layout:'dark-fade-2.2',master:'D01-DARK-FADE-2.2',sectionId:chapter.sectionId,source:chapter,photoIndex,darkFadeState:state,darkFadeSide:'left',title:chapter.title});
-            spreads.push({master:'D01-SPREAD-DARK-FADE-2.2',sectionId:chapter.sectionId,left:base,right:{...base,id:`${base.id}_right`,darkFadeSide:'right'},fixedRhythm:true,beat});
+            // A photograph in a black sheet whose edges sink into darkness;
+            // the facing dark sheet carries the text.
+            chapterAccents.dark++;
+            const photoIndex=take(fadePhoto);
+            const photoPage=P('vignette',{layout:'x-vignette',master:'D01-X-VIGNETTE',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,pageFormat:meta.format||'square'});
+            const textPage=nextTextPage('right',{darkFlow:true,forceRhythm:'plain'});
+            spreads.push({master:'D01-SPREAD-X-VIGNETTE',sectionId:chapter.sectionId,left:photoPage,right:textPage,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
