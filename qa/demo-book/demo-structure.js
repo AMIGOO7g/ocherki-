@@ -47,7 +47,7 @@
 Вечерами он читал. В доме была небольшая библиотека: Евангелие, несколько томов Пушкина, греческие книги, оставшиеся от деда, и подшивки газет, которые он выписывал из Тифлиса. Варвара читать не любила, но любила слушать, как читает муж. Она садилась рядом с шитьём, и он читал ей вслух — иногда до полуночи, пока не догорала свеча.
 
 Дети засыпали под его голос. Лазарь потом говорил, что первые стихи узнал не из книги, а из-за двери родительской спальни, лёжа в темноте и стараясь не пропустить ни слова. Мария запомнила другое: как отец, дочитав, закрывал книгу, гладил обложку ладонью и говорил: «Ну, вот и прожили ещё один день».`, [
-      photo('nikolai', 'nikolai_portrait', 710, 830, { caption: 'Николай Фёдорович Евстафиади', year: '1910', place: 'Карс', portraitHero: true, heroName: 'Николай Фёдорович', heroYears: '1868 – 1937', heroRole: 'Хранитель дома', colorKind: 'bw' }),
+      photo('nikolai', 'nikolai_portrait', 710, 830, { caption: 'Николай Фёдорович Евстафиади', year: '1910', place: 'Карс', portraitHero: true, heroName: 'Николай Фёдорович', heroYears: '1868 – 1937', heroRole: 'Хранитель дома', heroVariant: 'C', colorKind: 'bw' }),
       photo('kars', 'city_kars', 699, 500, { caption: 'Вид на крепость', year: '1905', place: 'Карс', colorKind: 'bw' }),
       photo('young-nikolai', 'tree_nikolai', 500, 643, { caption: 'Николай Фёдорович в год свадьбы', year: '1893', place: 'Карс', colorKind: 'bw' })
     ], { episode: 'Дом на склоне', isEpisodeStart: true }),
@@ -424,12 +424,12 @@
       photo('lake-pier', 'lake_child_pier', 655, 500, { caption: 'Холодная вода', year: '2022', colorKind: 'color' }),
       photo('mountains', 'mountains_father_son', 715, 802, { caption: 'Отец и сын над озером', year: '2022', colorKind: 'color' }),
       photo('hats', 'mother_daughter_hats', 500, 589, { caption: 'Анна с дочкой', year: '2023', colorKind: 'color' }),
-      photo('bay', 'bay_panorama', 1964, 500, { caption: 'Залив, где мы встречаемся каждое лето', year: '2023', colorKind: 'color' }),
+      photo('bay', 'bay_panorama', 1934, 500, { caption: 'Залив, где мы встречаемся каждое лето', year: '2023', colorKind: 'color' }),
       photo('mountains-family', 'mountains_family', 500, 575, { caption: 'Вся семья на перевале', year: '2023', colorKind: 'color' }),
       photo('ridge', 'ridge_father_son', 674, 720, { caption: 'Миша с сыном над озером', year: '2023', colorKind: 'color' }),
       photo('lake-two', 'lake_two', 378, 214, { caption: 'Вечер на берегу', year: '2023', colorKind: 'color' }),
-      photo('sunset-children', 'sunset_children', 685, 687, { caption: 'Брат и сестра', year: '2024', place: 'Мыс над озером', colorKind: 'color', story: 'Они могут ссориться весь день, но на закат всегда приходят вместе и садятся на один камень.' }),
-      photo('mother-kiss', 'mother_kiss', 555, 699, { caption: 'Утро в доме у озера', year: '2024', place: 'Дом у озера', colorKind: 'color', story: 'В этом доме никто не встаёт по будильнику. Младшие приходят будить маму сами — и это лучшее начало дня.' }),
+      photo('sunset-children', 'sunset_children', 685, 687, { caption: 'Брат и сестра', year: '2024', place: 'Мыс над озером', colorKind: 'color', t12Tone: 'B', story: 'Они могут ссориться весь день, но на закат всегда приходят вместе и садятся на один камень.' }),
+      photo('mother-kiss', 'mother_kiss', 555, 699, { caption: 'Утро в доме у озера', year: '2024', place: 'Дом у озера', colorKind: 'color', t12Tone: 'B', story: 'В этом доме никто не встаёт по будильнику. Младшие приходят будить маму сами — и это лучшее начало дня.' }),
       photo('beach-walk', 'beach_walk', 364, 218, { caption: 'Первая прогулка к морю', year: '2024', colorKind: 'color' }),
       photo('family-sunset', 'family_sunset', 754, 359, { caption: 'Вечер на море', year: '2024', colorKind: 'color' }),
       photo('boy-dog', 'boy_dog', 357, 351, { caption: 'Тёма и Лорд', year: '2024', colorKind: 'color' }),

@@ -1151,7 +1151,9 @@
           const t08Photo=ordinary.find(photoPosition=>photoAspect(chapter.photos[photoPosition])<=.85);
           const t08Fits=t08Photo!=null&&rest.length>900;
           // T10: a main frame (the widest available) plus a different card frame.
-          const t10Main=[...ordinary].sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
+          // A panorama-wide frame (≥ 1.9) would leave the page empty above and below
+          // and shrink the card, so it is kept for the panorama beat.
+          const t10Main=[...ordinary].filter(photoPosition=>photoAspect(chapter.photos[photoPosition])<1.9).sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
           const t10Card=ordinary.find(photoPosition=>photoPosition!==t10Main);
           const t10Fits=t10Main!=null&&t10Card!=null&&rest.length>900;
           // T12: a photograph the author gave a caption and a short story

@@ -43,9 +43,10 @@ for(const contract of [
   /\[data-ctx-state="S"\] :is\([^}]+left:44px!important;top:365px!important;width:350px!important;height:350px!important;transform:rotate\(-5deg\)/s,
   /\[data-ctx-state="V"\] :is\([^}]+left:51px!important;top:129px!important;width:370px!important;height:704px!important;transform:rotate\(-6deg\)/s
 ])assert(contract.test(css),'approved CTX v1.7 geometry changed');
-assert(/\[data-dark-fade-state="H"\][\s\S]*?#000 55%[\s\S]*?transparent 82%/.test(css),'DARK FADE H changed');
-assert(/\[data-dark-fade-state="V"\][\s\S]*?#000 38%[\s\S]*?transparent 67%/.test(css),'DARK FADE V changed');
-assert(/\[data-dark-fade-state="S"\][\s\S]*?#000 44%[\s\S]*?transparent 62%/.test(css),'DARK FADE S compact mask missing');
+// The fade is a print-safe veil; its stops are the approved mask stops.
+assert(/\[data-dark-fade-state="H"\] \.dpk-dark-fade-veil\{[^}]*rgba\(16,16,15,0\) 55%[^}]*rgba\(16,16,15,1\) 82%/.test(css),'DARK FADE H changed');
+assert(/\[data-dark-fade-state="V"\] \.dpk-dark-fade-veil\{[^}]*rgba\(16,16,15,0\) 38%[^}]*rgba\(16,16,15,1\) 67%/.test(css),'DARK FADE V changed');
+assert(/\[data-dark-fade-state="S"\] \.dpk-dark-fade-veil\{[^}]*rgba\(16,16,15,0\) 44%[^}]*rgba\(16,16,15,1\) 62%/.test(css),'DARK FADE S compact fade missing');
 assert(/dpk-dark-fade-image\{[\s\S]*?filter:none!important/.test(css)&&!(/brightness\(/.test(css.split('DARK FADE 2.2')[1]||'')),'DARK FADE alters image colour');
 
 assert(renderer.includes("geometry['quote-text-height']")&&renderer.includes("consumeCell(0);consumeCell(1);consumeCell(2)"),'dynamic in-column quote reflow missing');

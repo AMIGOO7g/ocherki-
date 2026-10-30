@@ -23,7 +23,7 @@ assert(renderer.includes('data-ctx-accent="secondary-photo"'));
 assert(renderer.includes('secondaryPhotoAssetId'));
 assert(!renderer.includes('data-literal-crop="same-source-pixels"'));
 assert(renderer.includes("data-alpha-mask=\"true\""));
-assert(/\.dpk-dark-fade[^]*mask-image:linear-gradient/.test(css));
+assert(/\.dpk-dark-fade-veil\{background:linear-gradient/.test(css));
 assert(/\.dpk-margin-note\{[^}]*z-index:3!important;opacity:\.9!important/s.test(css));
 assert(/\.dpk-measured-flow\{[^}]*z-index:2!important/s.test(css));
 assert(!/Math\.random\(\)/.test(book.slice(book.indexOf('function assembleExactText'),book.indexOf('function auditExactText'))));

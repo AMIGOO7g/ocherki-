@@ -588,7 +588,7 @@
       const state=String(page.darkFadeState||photo.darkFadeState||(ratio<.82?'V':ratio>1.22?'H':'S')).toUpperCase();
       const safeState=['V','S','H'].includes(state)?state:'S';
       const tone=photoToneClass(photo);
-      return article('D01-DARK-FADE-2.2',`<div class="dpk-dark-fade-stage" data-dark-fade-state="${safeState}" data-alpha-mask="true" data-source-photo-index="${index}"><img class="dpk-dark-fade-image${tone?` ${tone}`:''}" src="${esc(src)}" alt="" loading="lazy" decoding="async"></div>${folio}`,`dpk-dark dpk-dark-fade dpk-dark-fade-${page.darkFadeSide==='right'?'right':'left'}`);
+      return article('D01-DARK-FADE-2.2',`<div class="dpk-dark-fade-stage" data-dark-fade-state="${safeState}" data-alpha-mask="true" data-source-photo-index="${index}"><img class="dpk-dark-fade-image${tone?` ${tone}`:''}" src="${esc(src)}" alt="" loading="lazy" decoding="async"><i class="dpk-dark-fade-veil" aria-hidden="true"></i></div>${folio}`,`dpk-dark dpk-dark-fade dpk-dark-fade-${page.darkFadeSide==='right'?'right':'left'}`);
     }
     if (role === 'three-photo') {
       const indexes = Array.isArray(page.photoIndices) ? page.photoIndices.slice(0, 3) : [0, 1, 2];

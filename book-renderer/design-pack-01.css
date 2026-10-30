@@ -2517,26 +2517,28 @@ body .dpk-page.dpk-dark-fade .dpk-dark-fade-stage{position:absolute!important;in
 body .dpk-page.dpk-dark-fade .dpk-dark-fade-image{
   position:absolute!important;display:block!important;max-width:none!important;max-height:none!important;
   filter:none!important;box-shadow:none!important;transform:none!important;
-  -webkit-mask-repeat:no-repeat!important;mask-repeat:no-repeat!important;
-  -webkit-mask-size:100% 100%!important;mask-size:100% 100%!important;
 }
 body .dpk-page.dpk-dark-fade-left .dpk-dark-fade-image{left:0!important}
 body .dpk-page.dpk-dark-fade-right .dpk-dark-fade-image{left:-1000px!important}
 body .dpk-page.dpk-dark-fade [data-dark-fade-state="H"] .dpk-dark-fade-image{
   top:0!important;width:2000px!important;height:1000px!important;object-fit:cover!important;object-position:center!important;
-  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 55%,rgba(0,0,0,.96) 61%,rgba(0,0,0,.68) 69%,rgba(0,0,0,.22) 76%,transparent 82%)!important;
-  mask-image:linear-gradient(90deg,#000 0%,#000 55%,rgba(0,0,0,.96) 61%,rgba(0,0,0,.68) 69%,rgba(0,0,0,.22) 76%,transparent 82%)!important;
 }
 body .dpk-page.dpk-dark-fade [data-dark-fade-state="V"] .dpk-dark-fade-image{
   top:0!important;width:2000px!important;height:1000px!important;object-fit:contain!important;object-position:14% center!important;
-  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 38%,rgba(0,0,0,.94) 47%,rgba(0,0,0,.52) 57%,transparent 67%)!important;
-  mask-image:linear-gradient(90deg,#000 0%,#000 38%,rgba(0,0,0,.94) 47%,rgba(0,0,0,.52) 57%,transparent 67%)!important;
 }
 body .dpk-page.dpk-dark-fade [data-dark-fade-state="S"] .dpk-dark-fade-image{
   top:0!important;width:2000px!important;height:1000px!important;object-fit:contain!important;object-position:18% center!important;
-  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 44%,rgba(0,0,0,.92) 49%,rgba(0,0,0,.48) 55%,transparent 62%)!important;
-  mask-image:linear-gradient(90deg,#000 0%,#000 44%,rgba(0,0,0,.92) 49%,rgba(0,0,0,.48) 55%,transparent 62%)!important;
 }
+/* The fade is a graphite veil over the untouched image. Visually it equals
+   an alpha mask, but a print PDF keeps it as a vector gradient: masks and
+   blurred shadows are printed as raster tiles that some viewers (iPhone)
+   draw as grey rectangles. */
+body .dpk-page.dpk-dark-fade .dpk-dark-fade-veil{position:absolute!important;top:0!important;width:2000px!important;height:100%!important;z-index:1!important;pointer-events:none!important}
+body .dpk-page.dpk-dark-fade-left .dpk-dark-fade-veil{left:0!important}
+body .dpk-page.dpk-dark-fade-right .dpk-dark-fade-veil{left:-1000px!important}
+body .dpk-page.dpk-dark-fade [data-dark-fade-state="H"] .dpk-dark-fade-veil{background:linear-gradient(90deg,rgba(16,16,15,0) 0%,rgba(16,16,15,0) 55%,rgba(16,16,15,0.04) 61%,rgba(16,16,15,0.32) 69%,rgba(16,16,15,0.78) 76%,rgba(16,16,15,1) 82%)!important}
+body .dpk-page.dpk-dark-fade [data-dark-fade-state="V"] .dpk-dark-fade-veil{background:linear-gradient(90deg,rgba(16,16,15,0) 0%,rgba(16,16,15,0) 38%,rgba(16,16,15,0.06) 47%,rgba(16,16,15,0.48) 57%,rgba(16,16,15,1) 67%)!important}
+body .dpk-page.dpk-dark-fade [data-dark-fade-state="S"] .dpk-dark-fade-veil{background:linear-gradient(90deg,rgba(16,16,15,0) 0%,rgba(16,16,15,0) 44%,rgba(16,16,15,0.08) 49%,rgba(16,16,15,0.52) 55%,rgba(16,16,15,1) 62%)!important}
 body .dpk-page.dpk-dark-fade .dpk-folio{color:#aba69d!important;z-index:3!important}
 
 /* Shared measured text slots; existing photograph geometry is unchanged. */
@@ -2582,13 +2584,11 @@ body .dpk-page.dpk-p01.dpk-p01-dark{background:#121110!important;color:#ece7de!i
 body .dpk-page.dpk-p01 .dpk-p01-portrait{position:absolute!important;margin:0!important;left:50%!important;top:max(15px,calc((var(--book-page-h,1000px) - var(--dpk-p01-h,800px)) / 2))!important;transform:translateX(-50%)!important;overflow:hidden!important}
 body .dpk-page.dpk-p01 .dpk-p01-portrait img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
 /* B and C: edges dissolve into the page (alpha mask, pixels untouched). */
-body .dpk-page.dpk-p01-c .dpk-p01-portrait img{
-  /* Every edge dissolves: horizontal and vertical ramps are intersected, so
-     no straight border of the source frame remains visible. */
-  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 16%,#000 80%,transparent 100%)!important;
-  -webkit-mask-composite:source-in!important;
-  mask-image:linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 16%,#000 80%,transparent 100%)!important;
-  mask-composite:intersect!important}
+body .dpk-page.dpk-p01-c .dpk-p01-portrait::after{
+  /* Every edge dissolves into the dark page: horizontal and vertical veils
+     multiply exactly like intersected masks, and print as vector gradients. */
+  content:''!important;position:absolute!important;inset:-1px!important;pointer-events:none!important;
+  background:linear-gradient(to right,#121110 0,rgba(18,17,16,0) 22%,rgba(18,17,16,0) 78%,#121110 100%),linear-gradient(to bottom,#121110 0,rgba(18,17,16,0) 16%,rgba(18,17,16,0) 80%,#121110 100%)!important}
 body .dpk-page.dpk-p01 .dpk-p01-block{position:absolute!important;left:12%!important;right:12%!important;top:38%!important;text-align:center!important}
 body .dpk-page.dpk-p01 .dpk-p01-name{margin:0!important;font:400 40px/1.15 'CormorantCy',Georgia,serif!important;letter-spacing:.02em!important;color:#2a2826!important}
 body .dpk-page.dpk-p01 .dpk-p01-years{margin:18px 0 0!important;font:400 17px/1.3 'PTSerifCy',Georgia,serif!important;letter-spacing:.32em!important;color:#6a645c!important}
@@ -2644,7 +2644,7 @@ body .dpk-page.dpk-dom-paginated.dpk-t10-text .dpk-measured-flow{left:70px!impor
 body .dpk-page.dpk-t10-text .dpk-running{right:470px!important}
 body .dpk-page.dpk-t10 .dpk-t10-main,body .dpk-page.dpk-t10 .dpk-t10-card{position:absolute!important;margin:0!important;overflow:hidden!important;background:#f1efeb!important}
 body .dpk-page.dpk-t10 .dpk-t10-main{z-index:1!important}
-body .dpk-page.dpk-t10 .dpk-t10-card{z-index:3!important;box-sizing:border-box!important;border:10px solid #fff!important;box-shadow:0 10px 26px rgba(0,0,0,.22),0 2px 6px rgba(0,0,0,.12)!important;transform-origin:50% 50%!important}
+body .dpk-page.dpk-t10 .dpk-t10-card{z-index:3!important;box-sizing:border-box!important;border:10px solid #fff!important;box-shadow:0 0 0 1px rgba(0,0,0,.07),0 3px 0 1px rgba(0,0,0,.05),0 6px 0 3px rgba(0,0,0,.04),0 9px 0 6px rgba(0,0,0,.03),0 12px 0 9px rgba(0,0,0,.02)!important;transform-origin:50% 50%!important}
 body .dpk-page.dpk-t10 .dpk-t10-main img,body .dpk-page.dpk-t10 .dpk-t10-card img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important}
 
 /* One caption rule for the whole book: the folio keeps the outer bottom
@@ -2766,7 +2766,7 @@ body .dpk-page.dpk-i02 .dpk-i02-label.left{text-align:right!important}
 body .dpk-page.dpk-i02 .dpk-i02-label strong{display:block!important;white-space:nowrap!important;font:500 29px/1.1 'CormorantCy',Georgia,serif!important;color:#1f1d1a!important}
 body .dpk-page.dpk-i02 .dpk-i02-label b{display:block!important;margin-top:3px!important;font:400 14px/1.3 'PTSerifCy',Georgia,serif!important;letter-spacing:.06em!important;color:#6a6258!important}
 body .dpk-page.dpk-i02 .dpk-i02-label em{display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important;margin-top:6px!important;font:italic 400 15px/1.35 'PTSerifCy',Georgia,serif!important;color:#4a4540!important}
-body .dpk-page.dpk-i02 .dpk-i02-photo{position:absolute!important;display:block!important;overflow:hidden!important;box-shadow:0 1px 3px rgba(40,34,28,.18)!important;background:#ddd!important}
+body .dpk-page.dpk-i02 .dpk-i02-photo{position:absolute!important;display:block!important;overflow:hidden!important;box-shadow:0 0 0 1px rgba(40,34,28,.14)!important;background:#ddd!important}
 body .dpk-page.dpk-i02 .dpk-i02-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 
 /* I03 — family tree: names, years and thin lines; portraits only for key people */
@@ -2785,7 +2785,7 @@ body .dpk-page.dpk-i03 .dpk-i03-person b{display:block!important;font:400 16px/2
 body .dpk-page.dpk-i03 .dpk-i03-person em{display:block!important;font:normal 400 15px/22px 'PTSerifCy',Georgia,serif!important;color:#6a6258!important}
 body .dpk-page.dpk-i03 .dpk-i03-person.with-photo{display:flex!important;align-items:flex-start!important;gap:14px!important;text-align:left!important}
 body .dpk-page.dpk-i03 .dpk-i03-text{display:block!important}
-body .dpk-page.dpk-i03 .dpk-i03-photo{display:block!important;flex:0 0 92px!important;width:92px!important;height:118px!important;overflow:hidden!important;box-shadow:0 1px 3px rgba(40,34,28,.2)!important}
+body .dpk-page.dpk-i03 .dpk-i03-photo{display:block!important;flex:0 0 92px!important;width:92px!important;height:118px!important;overflow:hidden!important;box-shadow:0 0 0 1px rgba(40,34,28,.14)!important}
 body .dpk-page.dpk-i03 .dpk-i03-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 25%!important;display:block!important}
 body .dpk-page.dpk-i02 .dpk-i02-land-name{position:absolute!important;transform:translate(-50%,-50%)!important;white-space:nowrap!important;font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.3em!important;text-transform:uppercase!important;color:#9a8f7f!important}
 body .dpk-page.dpk-i02 .dpk-i02-era{position:absolute!important;right:62px!important;bottom:40px!important;padding:5px 10px!important;background:rgba(252,251,248,.92)!important;font:italic 400 14px/1.3 'PTSerifCy',Georgia,serif!important;color:#8a8175!important}
@@ -2794,7 +2794,7 @@ body .dpk-page.dpk-i02 .dpk-i02-era{position:absolute!important;right:62px!impor
 body .dpk-page.dpk-who{background:#fff!important;overflow:hidden!important}
 body .dpk-page.dpk-who .dpk-who-photo{position:absolute!important;margin:0!important;overflow:visible!important}
 body .dpk-page.dpk-who .dpk-who-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
-body .dpk-page.dpk-who .dpk-who-mark{position:absolute!important;transform:translate(-50%,-50%)!important;width:26px!important;height:26px!important;border-radius:50%!important;background:rgba(252,250,246,.92)!important;color:#24221f!important;font:600 14px/26px 'PTSerifCy',Georgia,serif!important;text-align:center!important;box-shadow:0 1px 3px rgba(0,0,0,.35)!important}
+body .dpk-page.dpk-who .dpk-who-mark{position:absolute!important;transform:translate(-50%,-50%)!important;width:26px!important;height:26px!important;border-radius:50%!important;background:rgba(252,250,246,.92)!important;color:#24221f!important;font:600 14px/26px 'PTSerifCy',Georgia,serif!important;text-align:center!important;box-shadow:0 0 0 1px rgba(40,34,28,.14)!important}
 body .dpk-page.dpk-who .dpk-who-legend{position:absolute!important;left:150px!important;right:120px!important;top:150px!important}
 body .dpk-page.dpk-who .dpk-who-kicker{font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.3em!important;text-transform:uppercase!important;color:#8a8175!important;margin-bottom:22px!important}
 body .dpk-page.dpk-who .dpk-who-legend h2{margin:0 0 10px!important;font:400 44px/1.12 'CormorantCy',Georgia,serif!important;color:#24221f!important}
@@ -2818,7 +2818,7 @@ body .dpk-page.dpk-voices-page .dpk-voice figcaption{margin-top:12px!important;f
 
 /* «Семейный рецепт / традиция» */
 body .dpk-page.dpk-recipe{background:#fff!important;overflow:hidden!important}
-body .dpk-page.dpk-recipe .dpk-recipe-photo{position:absolute!important;margin:0!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(40,30,20,.16)!important}
+body .dpk-page.dpk-recipe .dpk-recipe-photo{position:absolute!important;margin:0!important;overflow:hidden!important;box-shadow:0 0 0 1px rgba(40,34,28,.14)!important}
 body .dpk-page.dpk-recipe .dpk-recipe-photo img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 body .dpk-page.dpk-recipe .dpk-recipe-card{position:absolute!important;left:140px!important;right:130px!important;top:120px!important}
 body .dpk-page.dpk-recipe .dpk-recipe-kicker{font:400 13px/1 'PTSerifCy',serif!important;letter-spacing:.3em!important;text-transform:uppercase!important;color:#8a7d6c!important;margin-bottom:20px!important}

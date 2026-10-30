@@ -52,7 +52,7 @@
     const darkStructure={sections:[chapter('dark-'+letter,'DARK FADE '+letter,0,[photo('dark-photo',src,width,height,{darkFadeState:letter})])]};
     const dark=OcherkiLayoutPagination.build(darkStructure,{format:'square',composition:'dark-fade-2.2'}),darkRendered=renderBook(dark);
     const images=darkRendered.map(item=>item.article.querySelector('.dpk-dark-fade-image')).filter(Boolean);
-    check(dark.spreads.length===1&&images.length===2&&images.every(image=>getComputedStyle(image).webkitMaskImage!=='none'||getComputedStyle(image).maskImage!=='none'),`${letter==='H'?'M':letter==='V'?'N':'O'}: DARK FADE ${letter} использует alpha-mask`);
+    check(dark.spreads.length===1&&images.length===2&&images.every(image=>{const veil=image.parentElement.querySelector('.dpk-dark-fade-veil');return veil&&/linear-gradient/.test(getComputedStyle(veil).backgroundImage);}),`${letter==='H'?'M':letter==='V'?'N':'O'}: DARK FADE ${letter} затемняется градиентом поверх фото`);
   }
   result.status='pass';
  }catch(error){result.status='fail';result.error=error.message;}
