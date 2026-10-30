@@ -92,6 +92,9 @@
     if (layout === 't10-photos' || kind === 't10-photos') return 't10-photos';
     if (layout === 't12-photo' || kind === 't12-photo') return 't12-photo';
     if (layout === 'episode-photo' || kind === 'episode-photo') return 'episode-photo';
+    if (layout === 'x-rail-photo') return 'x-rail-photo';
+    if (layout === 'x-fade-photo') return 'x-fade-photo';
+    if (layout === 'x-quote-band') return 'x-quote-band';
     if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
     if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
     if (layout === 'i02-route' || kind === 'i02-route') return 'i02-route';
@@ -526,6 +529,9 @@
       const pair=page.topPair?t06Pair(page.topPair.photoIndices):null;
       // T08: one vertical photograph running into the fold; the text keeps a
       // single outer column (the second flow cell has zero height).
+      // Photo across 1.5 pages: the inner part of the photograph continues
+      // from the facing page; the text keeps one outer column.
+      const railPhoto=page.railPhoto?`<figure class="dpk-x-rail-half" data-source-photo-index="${page.railPhoto.photoIndex}">${image(page.railPhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
       const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto||page.episodeOpening?'':running;
@@ -533,8 +539,8 @@
       // Episode opening: title in one line in the heading colour, a long
       // horizontal handwritten line, air, then the shared text flow.
       const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
-      const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):'';
-      return article(page.master,`${topPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}`)
+      const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):page.railPhoto?captionLine([page.railPhoto.photoIndex]):'';
+      return article(page.master,`${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
@@ -834,6 +840,22 @@
       const focalX=Number.isFinite(Number(photo.focalX))?Number(photo.focalX):50,focalY=Number.isFinite(Number(photo.focalY))?Number(photo.focalY):45;
       const kicker=esc(page.t12Kicker||''),heading=esc(page.t12Title||''),body=esc(page.t12Text||'');
       return article('D01-T12',`<figure class="dpk-t12-photo" style="--dpk-t12-focus:${focalX}% ${focalY}%">${image(index).replace('loading="lazy"','loading="eager"')}</figure><div class="dpk-t12-fade"></div><div class="dpk-t12-copy">${kicker?`<div class="dpk-t12-kicker">${kicker}</div>`:''}${heading?`<h2>${heading}</h2>`:''}<i></i>${body?`<p>${body}</p>`:''}</div>${folio}`,`dpk-t12 dpk-t12-${dark?'dark':'light'} dpk-t12-text-${textSide}${dark?' dpk-dark':''}`);
+    }
+    if (role === 'x-rail-photo') {
+      const index=page.photoIndex||0;
+      return article('D01-X-RAIL',`<figure class="dpk-x-rail-main" data-source-photo-index="${index}">${image(index).replace('loading="lazy"','loading="eager"')}</figure>${folio}`,'dpk-x-rail');
+    }
+    if (role === 'x-fade-photo') {
+      // The photograph fills the page and dissolves towards the fold.
+      const index=page.photoIndex||0,dark=page.fadeTone==='dark';
+      return article('D01-X-FADE',`<figure class="dpk-x-fade-photo">${image(index).replace('loading="lazy"','loading="eager"')}</figure><i class="dpk-x-fade-veil" aria-hidden="true"></i>${caption(index)?`<div class="dpk-caption">${caption(index)}</div>`:''}${folio}`,`dpk-x-fade dpk-x-fade-${dark?'dark dpk-dark':'light'} dpk-x-fade-side-${page.fadeSide==='right'?'right':'left'}`);
+    }
+    if (role === 'x-quote-band') {
+      // Two photographs under one gold line from the text just read; the
+      // line sits on the left page, the right page keeps the same top air.
+      const index=page.photoIndex||0,used=page.avoidAccents||[];
+      const quote=page.bandSide==='left'?(page.pauseQuote||((freshPhrases(page.quoteSource||'',used).find(item=>item.text.length<=120&&item.text.length>=18)||{}).text)||''):'';
+      return article('D01-X-QUOTE-BAND',`<div class="dpk-x-band">${quote?`<p>«${esc(quote.replace(/[.…]+$/u,''))}»</p>`:''}</div><figure class="dpk-x-band-photo">${image(index)}</figure>${caption(index)?`<div class="dpk-caption">${caption(index)}</div>`:''}${folio}`,`dpk-x-quote-band dpk-x-band-${page.bandSide==='right'?'right':'left'}`);
     }
     if (role === 't08-pause') {
       // T08 right page: a quiet pause with one short quote from the facing

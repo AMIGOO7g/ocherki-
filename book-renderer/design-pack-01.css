@@ -2855,3 +2855,42 @@ body .dpk-page.dpk-who .dpk-who-meta{margin-bottom:34px!important}
 body .dpk-page.dpk-notes .dpk-notes-lines i{position:absolute!important;left:91px!important;right:91px!important;height:0!important;border-top:1px solid rgba(110,101,92,.32)!important;display:block!important}
 body .dpk-page.dpk-notes.left .dpk-notes-lines i{left:70px!important}
 body .dpk-page.dpk-notes.right .dpk-notes-lines i{right:70px!important}
+
+/* Author compositions brought back from the old preview (engine beats). */
+/* Photo across 1.5 pages: left page full bleed, the photo continues over the fold. */
+body .dpk-page.dpk-x-rail{padding:0!important;overflow:hidden!important}
+body .dpk-page .dpk-x-rail-main,body .dpk-page .dpk-x-rail-half{position:absolute!important;top:0!important;bottom:0!important;margin:0!important;overflow:hidden!important;z-index:1!important;background:#f1efeb!important}
+body .dpk-page .dpk-x-rail-main{left:0!important;right:0!important}
+body .dpk-page .dpk-x-rail-half{left:0!important;width:440px!important}
+body .dpk-page .dpk-x-rail-main img,body .dpk-page .dpk-x-rail-half img{position:absolute!important;top:0!important;left:0!important;width:1440px!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;box-shadow:none!important}
+body .dpk-page .dpk-x-rail-half img{left:-1000px!important}
+body .dpk-page.dpk-dom-paginated.dpk-x-rail-text .dpk-measured-flow{left:520px!important;right:70px!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) 0px!important;column-gap:0!important;row-gap:0!important}
+body .dpk-page.dpk-x-rail-text .dpk-running{left:520px!important}
+body .dpk-page.dpk-x-rail-text .dpk-caption.dpk-caption-line{left:520px!important;right:70px!important}
+/* A photo dissolving into the paper or into a dark sheet towards the fold. */
+body .dpk-page.dpk-x-fade{padding:0!important;overflow:hidden!important}
+body .dpk-page.dpk-x-fade .dpk-x-fade-photo{position:absolute!important;inset:0!important;margin:0!important;overflow:hidden!important}
+body .dpk-page.dpk-x-fade .dpk-x-fade-photo img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;display:block!important;border:0!important;box-shadow:none!important}
+body .dpk-page.dpk-x-fade .dpk-x-fade-veil{position:absolute!important;inset:0!important;z-index:2!important;pointer-events:none!important}
+body .dpk-page.dpk-x-fade-light.dpk-x-fade-side-left .dpk-x-fade-veil{background:linear-gradient(90deg,rgba(255,255,255,0) 52%,rgba(255,255,255,.55) 78%,#fff 99%)!important}
+body .dpk-page.dpk-x-fade-light.dpk-x-fade-side-right .dpk-x-fade-veil{background:linear-gradient(270deg,rgba(255,255,255,0) 52%,rgba(255,255,255,.55) 78%,#fff 99%)!important}
+body .dpk-page.dpk-x-fade-dark.dpk-x-fade-side-left .dpk-x-fade-veil{background:linear-gradient(90deg,rgba(17,17,15,0) 45%,rgba(17,17,15,.6) 75%,#11110f 99%)!important}
+body .dpk-page.dpk-x-fade-dark.dpk-x-fade-side-right .dpk-x-fade-veil{background:linear-gradient(270deg,rgba(17,17,15,0) 45%,rgba(17,17,15,.6) 75%,#11110f 99%)!important}
+body .dpk-page.dpk-x-fade .dpk-caption{z-index:3!important;bottom:31px!important}
+body .dpk-page.dpk-x-fade-side-left .dpk-caption{left:70px!important;right:auto!important;max-width:520px!important;text-align:left!important}
+body .dpk-page.dpk-x-fade-side-right .dpk-caption{right:70px!important;left:auto!important;max-width:520px!important;text-align:right!important}
+body .dpk-page.dpk-x-fade-light .dpk-caption{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.55)!important}
+/* The text sheet facing a dark photo. */
+body .dpk-page.dpk-x-dark-flow .dpk-source-copy,body .dpk-page.dpk-x-dark-flow .dpk-source-copy *{color:#e9e2d4!important}
+body .dpk-page.dpk-x-dark-flow .dpk-episode-head h2,body .dpk-page.dpk-x-dark-flow .dpk-chapter-title h1{color:#d8c7a5!important}
+/* Two photographs under one gold line. */
+body .dpk-page.dpk-x-quote-band{padding:0!important}
+body .dpk-page.dpk-x-quote-band .dpk-x-band{position:absolute!important;left:90px!important;right:90px!important;top:70px!important;height:120px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+body .dpk-page.dpk-x-quote-band .dpk-x-band p{margin:0!important;text-align:center!important;font:italic 400 27px/1.34 'CormorantCy',Georgia,serif!important;color:#8a7454!important}
+body .dpk-page.dpk-x-quote-band .dpk-x-band-photo{position:absolute!important;top:220px!important;bottom:90px!important;margin:0!important;overflow:hidden!important}
+body .dpk-page.dpk-x-band-left .dpk-x-band-photo{left:70px!important;right:36px!important}
+body .dpk-page.dpk-x-band-right .dpk-x-band-photo{left:36px!important;right:70px!important}
+body .dpk-page.dpk-x-quote-band .dpk-x-band-photo img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;display:block!important}
+body .dpk-page.dpk-x-quote-band .dpk-caption{bottom:44px!important;left:70px!important;right:70px!important}
+/* The full-page pause quote, nearer the size of the episode's handwritten line. */
+body .dpk-page.dpk-t08 .dpk-t08-quote p{font-size:27px!important}

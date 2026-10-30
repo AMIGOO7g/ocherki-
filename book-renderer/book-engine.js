@@ -854,7 +854,7 @@
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
     // beat twice in a row across the book, in a repeatable seeded order.
-    const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15 };
+    const photoBeatWeights = { t12:40, t10:25, t08:25, t07:30, t06:30, hspread:30, panorama:20, two:20, three:10, single:15, rail:25, fade:20, darkside:12, darkfade:10, pair:10, mosaic:14, quoteband:12 };
     // Book rhythm profile from the start wizard: how many text spreads come
     // between photo beats, and which visual sequences are favoured.
     const balance=String(meta.contentBalance||'').toLowerCase();
@@ -1171,7 +1171,16 @@
           // (up to 60 words) — that text is what the page carries.
           const t12Photo=ordinary.find(photoPosition=>t12Eligible(chapter.photos[photoPosition]));
           const t12Fits=t12Photo!=null&&rest.length>900;
-          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12'].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
+          // The author's favourite compositions from the old preview, now laid
+          // out by the engine with the text flowing through the book:
+          // photo across 1.5 pages, a photo dissolving into paper or a dark
+          // sheet, a dark vignette spread, two large photos, a mosaic and a
+          // pair of photos under a quote.
+          const railPhoto=[...unused].filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.2).sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
+          const fadePhoto=ordinary[0];
+          const extraFits={rail:railPhoto!=null&&rest.length>1500,fade:fadePhoto!=null&&rest.length>1500,darkside:fadePhoto!=null&&rest.length>1500&&!chapterAccents.dark,
+            darkfade:fadePhoto!=null&&!chapterAccents.dark,pair:ordinary.length>=2,mosaic:ordinary.length>=4&&rest.length>1200,quoteband:ordinary.length>=2&&rest.length>0};
+          const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12',...Object.keys(extraFits)].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat in extraFits?extraFits[beat]:beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forcedQueue=Array.isArray(meta.forcePhotoBeat)?forcedBeatQueue:[meta.forcePhotoBeat];
@@ -1196,7 +1205,7 @@
             const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
             spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
               left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
-              right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true});
+              right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true,beat});
             portraitGiven=true;textSpreadStreak=0;
             continue;
           }
@@ -1213,7 +1222,7 @@
             const textPage=nextTextPage('left');
             const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
               t12Kicker:String(photo.place||photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
-            spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
@@ -1237,7 +1246,7 @@
             const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
             const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
             const photoPage=P('t10-photos',{layout:'t10-photos',master:'D01-T10-PHOTOS',sectionId:chapter.sectionId,source:chapter,t10:layout,title:chapter.title});
-            spreads.push({master:'D01-SPREAD-T10',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-T10',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
@@ -1245,7 +1254,7 @@
             const photoIndex=take(t08Photo);
             const textPage=nextTextPage('left',{spinePhoto:{photoIndex},forceRhythm:'plain'});
             const pause=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:textPage?.text||'',avoidAccents:usedAccents.slice()});
-            spreads.push({master:'D01-SPREAD-T08',sectionId:chapter.sectionId,left:textPage,right:pause,fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-T08',sectionId:chapter.sectionId,left:textPage,right:pause,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
@@ -1254,7 +1263,7 @@
             const indices=t07.indices.map(take);
             const textPage=nextTextPage(photosLeft?'right':'left',{forceRhythm:'plain'});
             const photoPage=P('t07-photos',{layout:'t07-photos',master:'D01-T07-PHOTOS',sectionId:chapter.sectionId,source:chapter,photoIndices:indices,t07Variant:t07.variant,title:chapter.title,pageFormat:meta.format||'square'});
-            spreads.push({master:'D01-SPREAD-T07',sectionId:chapter.sectionId,left:photosLeft?photoPage:textPage,right:photosLeft?textPage:photoPage,t07Variant:t07.variant,fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-T07',sectionId:chapter.sectionId,left:photosLeft?photoPage:textPage,right:photosLeft?textPage:photoPage,t07Variant:t07.variant,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
@@ -1265,7 +1274,7 @@
             const hero=take(t06Hero),pair=t06Pair.map(take);
             const textPage=nextTextPage(heroLeft?'right':'left',{topPair:{photoIndices:pair},forceRhythm:'plain'});
             const heroPage=P('t06-hero',{layout:'t06-hero',master:'D01-T06-HERO',sectionId:chapter.sectionId,source:chapter,photoIndex:hero,title:chapter.title,pageFormat:meta.format||'square'});
-            spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
@@ -1273,24 +1282,73 @@
             const photoIndex=take(horizontal.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
             const left=nextTextPage('left',{topPhoto:{photoIndex}});
             const right=nextTextPage('right',{topPhoto:{photoIndex}})||P('hspread-photo',{layout:'hspread-photo',master:'D01-HSPREAD-TOP',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title});
-            spreads.push({master:'D01-SPREAD-HSPREAD-TOP',sectionId:chapter.sectionId,left,right,fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-HSPREAD-TOP',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
           if(beat==='panorama'){
             const photoIndex=take(wide.sort((a,b)=>photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
             const base={layout:'panorama',master:'D01-PANORAMA',sectionId:chapter.sectionId,source:chapter,photoIndex,panorama:true,title:chapter.title};
-            spreads.push({master:'D01-SPREAD-PANORAMA',sectionId:chapter.sectionId,left:P('photo',{...base,panoramaSide:'left'}),right:P('photo',{...base,panoramaSide:'right',hideCaption:true}),fixedRhythm:true});
+            spreads.push({master:'D01-SPREAD-PANORAMA',sectionId:chapter.sectionId,left:P('photo',{...base,panoramaSide:'left'}),right:P('photo',{...base,panoramaSide:'right',hideCaption:true}),fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='rail'){
+            // The photograph runs from the left page's outer edge over the
+            // fold into the inner part of the right page; text keeps one
+            // column on the right page's outer side.
+            const photoIndex=take(railPhoto);
+            const photoPage=P('rail-photo',{layout:'x-rail-photo',master:'D01-X-RAIL',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title});
+            const textPage=nextTextPage('right',{railPhoto:{photoIndex},forceRhythm:'plain'});
+            spreads.push({master:'D01-SPREAD-X-RAIL',sectionId:chapter.sectionId,left:photoPage,right:textPage,fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='fade'||beat==='darkside'){
+            // A full-bleed photograph dissolving towards the fold into the
+            // paper (light) or into a dark sheet that carries the text.
+            const dark=beat==='darkside';if(dark)chapterAccents.dark++;
+            const before=spreads[spreads.length-1],photoLeft=!(before?.left&&!before.left.measuredFlow);
+            const photoIndex=take(fadePhoto);
+            const photoPage=P('fade-photo',{layout:'x-fade-photo',master:'D01-X-FADE',sectionId:chapter.sectionId,source:chapter,photoIndex,fadeTone:dark?'dark':'light',fadeSide:photoLeft?'left':'right',title:chapter.title});
+            const textPage=nextTextPage(photoLeft?'right':'left',dark?{darkFlow:true,forceRhythm:'plain'}:{forceRhythm:'plain'});
+            spreads.push({master:dark?'D01-SPREAD-X-DARKSIDE':'D01-SPREAD-X-FADE',sectionId:chapter.sectionId,left:photoLeft?photoPage:textPage,right:photoLeft?textPage:photoPage,fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='darkfade'){
+            const photoIndex=take(fadePhoto),ratio=photoAspect(chapter.photos[photoIndex]);chapterAccents.dark++;
+            const state=String(chapter.photos[photoIndex].darkFadeState||(ratio<.82?'V':ratio>1.22?'H':'S')).toUpperCase();
+            const base=P('dark-fade',{layout:'dark-fade-2.2',master:'D01-DARK-FADE-2.2',sectionId:chapter.sectionId,source:chapter,photoIndex,darkFadeState:state,darkFadeSide:'left',title:chapter.title});
+            spreads.push({master:'D01-SPREAD-DARK-FADE-2.2',sectionId:chapter.sectionId,left:base,right:{...base,id:`${base.id}_right`,darkFadeSide:'right'},fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='pair'){
+            const large=photoPosition=>P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:take(photoPosition),title:chapter.title});
+            const [first,second]=ordinary.slice(0,2);
+            spreads.push({master:'D01-SPREAD-X-PAIR',sectionId:chapter.sectionId,left:large(first),right:large(second),fixedRhythm:true,beat});
+            textSpreadStreak=0;
+            continue;
+          }
+          if(beat==='quoteband'){
+            // Two photographs under one quiet line taken from the text just read.
+            const [first,second]=ordinary.slice(0,2).map(take);
+            const lastText=[...spreads].reverse().flatMap(spread=>[spread.right,spread.left]).find(page=>page?.measuredFlow)?.text||'';
+            const shared={layout:'x-quote-band',master:'D01-X-QUOTE-BAND',sectionId:chapter.sectionId,source:chapter,title:chapter.title};
+            spreads.push({master:'D01-SPREAD-X-QUOTE-BAND',sectionId:chapter.sectionId,left:P('quote-band',{...shared,photoIndex:first,quoteSource:lastText,avoidAccents:usedAccents.slice(),bandSide:'left'}),right:P('quote-band',{...shared,photoIndex:second,bandSide:'right'}),fixedRhythm:true,beat});
             textSpreadStreak=0;
             continue;
           }
           const textPage=nextTextPage('left');
-          const photoPage=beat==='three'
+          const photoPage=beat==='mosaic'
+            ?P('mosaic',{layout:'mosaic',master:'D01-MOSAIC',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,Math.min(5,ordinary.length)).map(take),title:chapter.title})
+            :beat==='three'
             ?P('three-photo',{layout:'photo-triptych',master:'D01-THREE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,3).map(take),title:chapter.title})
             :beat==='two'
               ?P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,2).map(take),title:chapter.title})
               :P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:take(ordinary[0]),title:chapter.title});
-          spreads.push({master:'D01-SPREAD-TEXT-PHOTO-RHYTHM',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true});
+          spreads.push({master:'D01-SPREAD-TEXT-PHOTO-RHYTHM',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat});
           textSpreadStreak=0;
           if(meta.forceDarkFadeSequence===true&&!darkFadeInserted){
             const darkIndex=nextVisualPhoto();
