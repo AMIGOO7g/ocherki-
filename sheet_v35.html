@@ -447,6 +447,9 @@ body{
 .page-sample__insert:hover{background:#94591f}
 .page-sample.is-collapsed .page-sample__body{display:none}
 .paper.has-page-sample .editor-wrap{bottom:var(--page-sample-room,230px)!important}
+.page-sample__map{margin-top:8px;font:14px/1.4 Georgia,serif;font-style:normal;color:#9a4f32;white-space:normal}
+.page-sample__map.is-ok{color:#5f7a4a}
+.page-sample.is-collapsed .page-sample__map{display:block}
 .editor p.is-question{font-weight:700!important;color:#7a4a24!important;margin-top:.9em!important}
 .host-night .editor p.is-question{color:#e2b98c!important}
 .host-night .page-sample{color:#bfae98;border-top-color:rgba(230,190,140,.2)}
@@ -4001,7 +4004,29 @@ function updatePageSample(){
   box.innerHTML=empty
     ?`<div class="page-sample__head"><span>Можно начать с готовых вопросов</span></div>${insert}`
     :`<div class="page-sample__head"><span>Образец</span><button type="button" data-toggle-sample>${pageSamplesHidden?'Показать':'Свернуть'}</button></div><div class="page-sample__body"><div>${esc(lines[0])}</div><div style="color:#a8968a">${lines.slice(1).map(esc).join('<br>')}</div>${insert}</div>`;
+  if(type==='timeline'&&!empty){const status=timelineMapStatus(page.text);if(status)box.insertAdjacentHTML('beforeend',status);}
   requestAnimationFrame(()=>paperEl?.style.setProperty('--page-sample-room',Math.round(box.offsetHeight+130)+'px'));
+}
+// The map «География семьи» needs at least three places the book knows;
+// the timeline sheet says which places were found and which were not,
+// instead of the map silently not appearing.
+function timelineMapStatus(text){
+  let geo=null;try{geo=window.parent?.OcherkiGeo||window.OcherkiGeo;}catch(e){geo=window.OcherkiGeo;}
+  if(!geo?.resolve)return '';
+  const found=[],missing=[];
+  for(const line of String(text||'').split(/\r?\n/u)){
+    const match=line.match(/^\s*((?:(?:ок\.|около|до|после|с|весна|лето|осень|зима)\s+)?(\d{4})(?:-е)?(?:\s*[–-]\s*\d{4})?)\s*(?:[—–-]+\s*|[.,:]\s*|\s+)(.+)$/iu);if(!match)continue;
+    const parts=match[3].split(/\s+[—–-]+\s+/u).map(part=>part.trim()).filter(Boolean);
+    const place=parts.length>1?parts[0]:'';if(!place)continue;
+    const hit=geo.resolve(place);
+    if(hit){const key=hit.lat.toFixed(1)+','+hit.lon.toFixed(1);if(!found.includes(key))found.push(key);}else if(!missing.includes(place))missing.push(place);
+  }
+  if(!found.length&&!missing.length)return '<div class="page-sample__map">Для карты пишите место между годом и событием: «1930 — Батуми — …».</div>';
+  const ok=found.length>=3;
+  const head=ok?`Карта «География семьи» будет: мест на ней — ${Math.min(found.length,8)}.`:`Карта появится, когда будет 3 известных места (сейчас ${found.length}).`;
+  const miss=missing.length?` Не нашлось: ${missing.slice(0,4).map(esc).join(', ')}${missing.length>4?'…':''} — допишите через запятую ближайший город, например «${esc(missing[0])}, Краснодар».`:'';
+  const many=found.length>8?' На карте поместится 8 мест: оставьте главные.':'';
+  return `<div class="page-sample__map${ok?' is-ok':''}">${head}${miss}${many}</div>`;
 }
 document.getElementById('pageSample')?.addEventListener('click',event=>{
   if(event.target.closest('[data-toggle-sample]')){pageSamplesHidden=!pageSamplesHidden;try{localStorage.setItem('ocherkiSamplesHidden',pageSamplesHidden?'1':'0');}catch(e){}updatePageSample();return;}
@@ -4020,6 +4045,7 @@ document.getElementById('pageSample')?.addEventListener('click',event=>{
     if(target){editor.focus();const range=document.createRange();range.selectNodeContents(target);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
   }
 });
+let timelineStatusTimer=0;editor.addEventListener('input',()=>{if(currentPage()?.type==='timeline'){clearTimeout(timelineStatusTimer);timelineStatusTimer=setTimeout(updatePageSample,700);}});
 editor.addEventListener('input',()=>{const box=document.getElementById('pageSample');const empty=!String(currentPage()?.text||'').trim();if(PAGE_SAMPLES[currentPage()?.type]&&(box?.hidden||box?.dataset.empty!==String(empty))){box&&(box.dataset.empty=String(empty));updatePageSample();}});
 // On the interview sheet a question (a line ending with «?») is set apart
 // from the answers, so the author sees at once where to write.

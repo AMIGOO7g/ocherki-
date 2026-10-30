@@ -394,12 +394,22 @@
       }
       run(best.offset);
     }
+    // A small tree on the right-hand page is drawn larger, centred on that
+    // page; the generation labels on the left follow its rows.
+    let zoom = null;
+    if (fits && boxes.length && boxes.every(box => box.x >= G1)) {
+      const minX = Math.min(...boxes.map(box => box.x)), maxX = Math.max(...boxes.map(box => box.x + box.w));
+      const minY = Math.min(...boxes.map(box => box.y)), maxY = Math.max(...boxes.map(box => box.y + box.h));
+      const s = Math.min(1.55, 760 / Math.max(1, maxX - minX), (bottom - top) / Math.max(1, maxY - minY));
+      if (s > 1.05) zoom = { s, ox: (minX + maxX) / 2, oy: (minY + maxY) / 2, tx: (G1 + X1) / 2, ty: (top + bottom) / 2 };
+    }
     const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
     const labels = rows.map((row, g) => {
       const years = row.people.map(who => Number(String(who.dates || '').match(/\d{4}/u)?.[0])).filter(Boolean);
-      return { y: row.y, numeral: roman[g + (data.genOffset || 0)] || '', range: years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '' };
+      const rowY = zoom ? zoom.ty + (row.y - zoom.oy) * zoom.s : row.y;
+      return { y: rowY, numeral: roman[g + (data.genOffset || 0)] || '', range: years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '' };
     });
-    const layout = { H, fits, boxes, lines, labels, people: boxes.length };
+    const layout = { H, fits, boxes, lines, labels, zoom, people: boxes.length };
     I03_CACHE.set(data, layout);
     return layout;
   }
@@ -766,6 +776,11 @@
         parts.push(`<div class="dpk-i03-person${box.photo?' with-photo':''}" style="left:${Math.round(box.x-offset)}px;top:${Math.round(box.y)}px;width:${Math.round(box.w)}px">`
           +(box.photo?`<span class="dpk-i03-photo"><img src="${esc(who.photo.src)}" alt="" loading="eager" decoding="async"></span>`:'')
           +`<span class="dpk-i03-text" style="width:${Math.round(box.textW)}px"><strong>${esc(who.name||'Имя неизвестно')}</strong>${who.dates?`<b>${esc(who.dates)}</b>`:''}${who.place?`<em>${esc(who.place)}</em>`:''}</span></div>`);
+      }
+      if(tree.zoom&&pageSide==='right'){
+        const z=tree.zoom;
+        parts.unshift(`<div class="dpk-i03-stage" style="position:absolute;inset:0;transform-origin:0 0;transform:translate(${(z.tx-offset).toFixed(1)}px,${z.ty.toFixed(1)}px) scale(${z.s.toFixed(3)}) translate(${(-(z.ox-offset)).toFixed(1)}px,${(-z.oy).toFixed(1)}px)">`);
+        parts.push('</div>');
       }
       if(pageSide==='left'){
         parts.push(`<div class="dpk-i03-head"><h1>${esc(data.title||'Семейное древо')}</h1>${data.subtitle?`<p>${esc(data.subtitle)}</p>`:''}</div>`);

@@ -825,8 +825,11 @@
         if(stops.at(-1)?.key===key)continue;
         stops.push({key,name:hit.label.replace(/,.*$/u,'').trim()||hit.label,lat:hit.lat,lon:hit.lon,date:event.date,text:event.text});
       }
-      const unique=[...new Map(stops.map(stop=>[stop.key,stop])).values()];
-      if(unique.length>=3&&unique.length<=8){
+      const all=[...new Map(stops.map(stop=>[stop.key,stop])).values()];
+      // More than eight places: eight spread evenly in time, first and last kept.
+      const unique=all.length>8?Array.from({length:8},(_,i)=>all[Math.round(i*(all.length-1)/7)]):all;
+      if(all.length>8){const keep=new Set(unique.map(place=>place.key));for(let i=stops.length-1;i>=0;i--)if(!keep.has(stops[i].key))stops.splice(i,1);}
+      if(unique.length>=3){
         const photoFor=new Map();
         for(const chapter of chapters)for(const photo of chapter.photos){
           if(photoFor.size>=4)break;
@@ -1522,6 +1525,10 @@
       }
       if(current.length)pages.push(current);
       if(pages.length%2)pages.push([]);
+      // A few voices are shared by both pages instead of leaving the right
+      // one empty; a single voice faces the heading on its own page.
+      if(pages.length===2&&!pages[1].length&&pages[0].length<=4)pages[0]=pages[0].map(voice=>({...voice,size:voice.size+8}));
+      if(pages.length===2&&!pages[1].length){const all=pages[0];pages[0]=all.length>1?all.slice(0,Math.ceil(all.length/2)):[];pages[1]=all.length>1?all.slice(Math.ceil(all.length/2)):all;}
       const heading=String(voicesSource.title||'').trim()||'Голоса семьи';
       for(let i=0;i<pages.length&&i<6;i+=2)
         spreads.push({master:'D01-SPREAD-VOICES',left:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i],heading:i===0?heading:'',pageFormat:meta.format||'square'}),right:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i+1],heading:'',pageFormat:meta.format||'square'})});
