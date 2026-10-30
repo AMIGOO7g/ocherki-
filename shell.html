@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v62">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v63">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2813,6 +2813,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       <div class="book-map-spine" aria-hidden="true"></div>
       <div class="book-map-group" id="bookMapAuto"></div>
       <div class="book-map-group" id="bookMapChapters"></div>
+      <button class="book-map-extras" id="bookMapExtras" type="button" hidden></button>
       <div class="book-map-group" id="bookMapBack"></div>
     </div>
     <div class="book-map-footer">
@@ -2883,7 +2884,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v62" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v63" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4214,6 +4215,17 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const frontAutos = all.filter((s,i)=>s.auto && i < firstChapter);
     const backAutos = all.filter((s,i)=>s.auto && i > lastChapter);
     const chapters = all.filter(s=>!s.auto && s.type==='chapter');
+    // Only the author's own content stays in view (the cover, chapters and
+    // episodes); the book's other sections fold under one line.
+    const extras=[...frontAutos,...backAutos].filter(s=>s.id!=='cover');
+    const extrasBtn=document.getElementById('bookMapExtras');
+    if(extrasBtn){
+      let open=false;try{open=localStorage.getItem('ocherkiMapExtras')==='1';}catch(_){}
+      map?.classList.toggle('show-extras',open);
+      extrasBtn.hidden=!extras.length;
+      extrasBtn.innerHTML=open?`<span class="bm-extras-dot"></span>Скрыть другие разделы`:`<span class="bm-extras-dot"></span>Другие разделы книги · ${extras.length}<i>›</i>`;
+      if(!extrasBtn.dataset.bound){extrasBtn.dataset.bound='1';extrasBtn.addEventListener('click',()=>{let now=false;try{now=localStorage.getItem('ocherkiMapExtras')!=='1';localStorage.setItem('ocherkiMapExtras',now?'1':'0');}catch(_){now=!map?.classList.contains('show-extras');}render(true);});}
+    }
     autoGroup.innerHTML = frontAutos.map(autoRow).join('');
     chapterGroup.innerHTML = chapters.map(chapterRow).join('');
     if(backGroup) backGroup.innerHTML = backAutos.map(autoRow).join('');
@@ -4344,6 +4356,19 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const top=sane ? Math.max(18,r.top-108) : Math.max(18,window.innerHeight*.12);
     // On a low screen the sheet reaches the top edge: the question is then
     // written in dark ink so it still reads over the paper.
+    // With the right-hand panel now a narrow column, the question is
+    // written to the right of the sheet when there is room for it.
+    const railLeft=document.querySelector('.book-design-shell.is-rail')?.getBoundingClientRect().left||window.innerWidth-100;
+    const side=sane?railLeft-r.right-56:0;
+    if(side>=280){
+      const sw=Math.min(380,side);
+      promptEl.classList.remove('is-on-paper');promptEl.classList.add('is-beside');
+      promptEl.style.width=Math.round(sw)+'px';
+      promptEl.style.left=Math.round(r.right+28)+'px';
+      promptEl.style.top=Math.round(Math.max(150,r.top+r.height*.22))+'px';
+      return;
+    }
+    promptEl.classList.remove('is-beside');
     promptEl.classList.toggle('is-on-paper',sane&&r.top<120);
     promptEl.style.left=Math.round(left)+'px';
     promptEl.style.top=Math.round(top)+'px';
@@ -4606,10 +4631,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v62"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v62"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v62"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v62"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v62"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v62"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v63"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v63"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v63"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v63"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v63"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v63"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4637,8 +4662,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v62"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v62"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v63"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v63"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7193,7 +7218,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v62"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v63"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7822,6 +7847,88 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
   document.getElementById('editorKeyboardWrap')?.addEventListener('pointerdown',wake);
   // After the constructor has settled it rests until the first key.
   window.addEventListener('message',event=>{if((event.data||{}).type==='OCHERKI_BOOT_START'){clearTimeout(timer);timer=setTimeout(rest,6000);}});
+})();
+</script>
+
+<style id="right-rail">
+/* Map: the cover, chapters and episodes stay in view; the other sections
+   fold under «Другие разделы книги». The section being edited stays visible. */
+.book-map-shell:not(.show-extras) .bm-auto-section:not([data-section-id="cover"]):not(:has(.book-map-row.active)){display:none}
+.book-map-extras{display:flex;align-items:center;gap:12px;margin:10px 0 4px 6px;padding:6px 0;border:0;background:none;color:inherit;font:italic 15px/1.3 Georgia,"Times New Roman",serif;opacity:.78;cursor:pointer;text-align:left}
+.book-map-extras:hover{opacity:1}
+.book-map-extras i{font-style:normal;margin-left:6px}
+.book-map-extras[hidden]{display:none}
+.bm-extras-dot{width:7px;height:7px;border-radius:50%;border:1px solid currentColor;opacity:.7;margin-left:4px}
+/* Right side: a narrow column of round keys instead of the spreads panel;
+   each key opens its panel beside the column. */
+.shell .book-design-shell.is-rail{width:64px!important;padding:0!important;display:flex!important;flex-direction:column;align-items:center;gap:16px;top:50%!important;transform:translateY(-50%)!important;overflow:visible!important;contain:none!important}
+.shell.is-open .book-design-shell.is-rail{opacity:1}
+.book-design-shell.is-rail > .bd-section{display:none!important}
+.book-design-shell.is-rail > .bd-section.is-rail-open{display:block!important;position:absolute!important;right:84px;top:50%;transform:translateY(-50%);width:min(420px,calc(100vw - 180px));max-height:80vh;overflow:auto;padding:22px 24px!important;border-radius:16px;background:rgba(40,31,24,.93);color:#f3e7d6;box-shadow:0 20px 50px rgba(0,0,0,.35);backdrop-filter:blur(6px)}
+.book-design-shell.is-rail > .bd-section.is-rail-open .bd-head h2{color:#f3e7d6!important;margin:0 0 14px!important}
+.book-design-shell.is-rail .bd-section.is-rail-open .bd-spreads-head,.book-design-shell.is-rail .bd-section.is-rail-open .bd-spreads-viewport .bd-spread-row,.book-design-shell.is-rail .bd-section.is-rail-open .bd-timeline,.book-design-shell.is-rail .bd-section.is-rail-open #buildBookBtn{display:none!important}
+.book-design-shell.is-rail .bd-section.is-rail-open .bd-spreads-viewport{height:auto!important;min-height:0!important;overflow:visible!important}
+.bd-rail-key{--size:54px}
+.bd-rail-key .cap svg{width:22px;height:22px}
+.bd-rail-key.is-active{color:var(--gold)}
+.bd-rail-key[hidden]{display:none}
+.bd-rail-tip{position:absolute;right:68px;white-space:nowrap;pointer-events:none;opacity:0;transform:translateX(6px);transition:opacity .2s,transform .2s;font:italic 15px Georgia,serif;color:var(--bd-text,#f3e7d6);text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.bd-rail-key:hover .bd-rail-tip{opacity:1;transform:none}
+.bd-rail-badge{position:absolute;top:-2px;right:-2px;z-index:5;min-width:20px;height:20px;border-radius:10px;background:#a8692f;color:#fff8ee;font:600 12px/20px Arial,sans-serif;text-align:center;padding:0 5px}
+@media(max-width:1280px){.shell .book-design-shell.is-rail{display:flex!important}}
+.shell.is-book-preview .book-design-shell.is-rail{opacity:0!important;pointer-events:none!important}
+.bd-rail-key.is-active .bd-rail-tip{display:none}
+#bookDesignShell.is-rail .bd-section.is-rail-open .bd-spreads-viewport{height:auto!important;min-height:0!important;max-height:none!important}
+.book-design-shell.is-rail .bd-section.is-rail-open .bd-spreads-body,.book-design-shell.is-rail .bd-section.is-rail-open #bdSpreadRows{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;transform:none!important}
+.shell:has(.bd-section.is-rail-open) .writing-prompt{opacity:0!important;pointer-events:none!important}
+</style>
+<script id="right-rail-script">
+(()=>{
+  const panel=document.getElementById('bookDesignShell');if(!panel)return;
+  const sections=[...panel.querySelectorAll(':scope > .bd-section')];
+  const find=selector=>sections.find(section=>section.querySelector(selector));
+  const icons={
+    book:'<path d="M3 5.5c3-1.4 6-1.4 9 .6 3-2 6-2 9-.6V19c-3-1.4-6-1.4-9 .6-3-2-6-2-9-.6Z"/><path d="M12 6.1v13.5"/>',
+    tips:'<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3Z"/>',
+    design:'<path d="M4 20c4 0 6-2 6-5"/><path d="M10 15 19 6a2 2 0 0 0-3-3l-9 9"/><path d="M7 12l3 3"/>',
+    format:'<rect x="4" y="6" width="8" height="12" rx="1"/><rect x="14" y="8" width="7" height="7" rx="1"/>',
+    photo:'<rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>'
+  };
+  const items=[
+    {id:'book',tip:'Посмотреть книгу',run:()=>document.getElementById('buildBookBtn')?.click()},
+    {id:'tips',tip:'Что улучшить в книге',section:find('#bdSpreadRows')},
+    {id:'design',tip:'Дизайн книги',section:find('#bdDesignGrid')},
+    {id:'format',tip:'Формат книги',section:find('#bdFormatGrid')},
+    {id:'photo',tip:'Фото в книге',section:find('#bdPhotoMode')}
+  ];
+  const rail=document.createElement('div');rail.className='bd-rail';rail.style.cssText='display:flex;flex-direction:column;gap:18px;align-items:center';
+  for(const item of items){
+    const key=document.createElement('button');key.type='button';key.className='key bd-rail-key';key.dataset.rail=item.id;key.setAttribute('aria-label',item.tip);
+    key.innerHTML=`<span class="cap"><svg viewBox="0 0 24 24">${icons[item.id]}</svg></span><span class="bd-rail-tip">${item.tip}</span>`;
+    key.addEventListener('click',event=>{
+      event.stopPropagation();
+      if(item.run){close();item.run();return;}
+      const open=item.section?.classList.contains('is-rail-open');
+      close();
+      if(!open&&item.section){item.section.classList.add('is-rail-open');key.classList.add('is-active');}
+    });
+    item.key=key;rail.appendChild(key);
+  }
+  const close=()=>{sections.forEach(section=>section.classList.remove('is-rail-open'));rail.querySelectorAll('.bd-rail-key').forEach(key=>key.classList.remove('is-active'));};
+  panel.prepend(rail);panel.classList.add('is-rail');
+  document.addEventListener('click',event=>{if(!panel.contains(event.target))close();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')close();});
+  // The tips key shows how many steps are left before a good book.
+  const tipsKey=items[1].key,rows=document.getElementById('bdSpreadRows');
+  const updateBadge=()=>{
+    const steps=rows?.querySelectorAll('.bd-book-tips li').length||0;
+    let badge=tipsKey.querySelector('.bd-rail-badge');
+    if(!steps){badge?.remove();return;}
+    if(!badge){badge=document.createElement('span');badge.className='bd-rail-badge';tipsKey.appendChild(badge);}
+    badge.textContent=String(steps);
+  };
+  if(rows)new MutationObserver(updateBadge).observe(rows,{childList:true,subtree:true});
+  updateBadge();
 })();
 </script>
 </body>

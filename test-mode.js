@@ -9,7 +9,7 @@
       request={id:++serial,structure,meta,resolve,reject};
       runner=document.createElement('iframe');runner.className='tm-runner';runner.title='Раскладка материала';runner.setAttribute('aria-hidden','true');runner.tabIndex=-1;
       const [w,h]=engine.FORMATS[meta.format||'square'];runner.width=String(w);runner.height=String(h);
-      if(standaloneRunner)runner.srcdoc=standaloneRunner;else runner.src='test-mode-runner.html?v=demo-book-20261030-v62';
+      if(standaloneRunner)runner.srcdoc=standaloneRunner;else runner.src='test-mode-runner.html?v=demo-book-20261030-v63';
       document.body.appendChild(runner);
       startupTimer=setTimeout(()=>{if(request){const pending=request;request=null;pending.reject(Error('Не удалось загрузить модуль раскладки. Проверьте, что сервер запущен и архив распакован целиком.'));runner?.remove();runner=null;}},15000);
     });
