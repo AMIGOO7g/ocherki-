@@ -4269,6 +4269,9 @@ window.addEventListener('message',e=>{
             focalX: Number.isFinite(Number(photo?.focalX)) ? Number(photo.focalX) : 50,
             focalY: Number.isFinite(Number(photo?.focalY)) ? Number(photo.focalY) : 50,
             focalConfirmed: photo?.focalConfirmed === true,
+            frameX: photo?.frameX == null ? undefined : Number(photo.frameX),
+            frameY: photo?.frameY == null ? undefined : Number(photo.frameY),
+            frameZoom: photo?.frameZoom == null ? undefined : Number(photo.frameZoom),
             focalSource: String(photo?.focalSource || ''),
             detailRoi: photo?.detailRoi && typeof photo.detailRoi === 'object' ? Object.assign({},photo.detailRoi) : null,
             regions: Array.isArray(photo?.regions) ? photo.regions.map(region=>Object.assign({},region)) : [],
@@ -4522,6 +4525,16 @@ window.addEventListener('message',e=>{
         persistSoon();
         render();
         emitStructure();
+      }
+    }
+    else if(a === 'setPhotoFrame') {
+      // The author moved or enlarged a photo inside its frame in the book
+      // preview; «reset» returns it to the book's own framing.
+      const photo = sections.flatMap(section => section.pages || []).flatMap(item => item.photos || []).find(item => String(item?.id || '') === String(d.photoId || ''));
+      if(photo) {
+        if(d.reset){ delete photo.frameX; delete photo.frameY; delete photo.frameZoom; }
+        else { photo.frameX = Math.round(Math.min(100, Math.max(0, Number(d.frameX) || 0)) * 10) / 10; photo.frameY = Math.round(Math.min(100, Math.max(0, Number(d.frameY) || 0)) * 10) / 10; photo.frameZoom = Math.round(Math.min(3, Math.max(1, Number(d.frameZoom) || 1)) * 100) / 100; }
+        persistSoon();
       }
     }
     else if(a === 'setEditorialAccent') {

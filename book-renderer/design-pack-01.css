@@ -2939,3 +2939,5 @@ body .dpk-page.dpk-x-bg-light .dpk-x-bg-veil{background:linear-gradient(90deg,rg
 body .dpk-page.dpk-i03 .dpk-i03-lines path{stroke:#8a4b4f!important;stroke-width:1.3!important}
 /* A page of voices without the heading keeps them in the middle of the page. */
 body .dpk-page.dpk-voices-page .dpk-voices:not(.has-head){top:110px!important;bottom:110px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+/* A photo enlarged by the author stays inside its frame. */
+body .dpk-page figure:has(> img[data-frame-photo][style*="scale"]),body .dpk-page span:has(> img[data-frame-photo][style*="scale"]){overflow:hidden!important}

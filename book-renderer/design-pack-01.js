@@ -454,10 +454,18 @@
       if (mode === 'color' || mode === 'colour') return 'dpk-photo-image-color';
       return '';
     };
+    // The author's framing (moved and enlarged inside the frame in the
+    // preview) is kept on the photo as frameX / frameY (%) and frameZoom.
+    const frameStyle = photo => {
+      const num = value => value == null || value === '' ? NaN : Number(value), fx = num(photo?.frameX), fy = num(photo?.frameY), zoom = Math.min(3, Math.max(1, Number(photo?.frameZoom) || 1));
+      if (!Number.isFinite(fx) && !Number.isFinite(fy) && zoom === 1) return '';
+      const x = Number.isFinite(fx) ? Math.min(100, Math.max(0, fx)) : 50, y = Number.isFinite(fy) ? Math.min(100, Math.max(0, fy)) : 50;
+      return ` style="object-position:${x}% ${y}%!important${zoom > 1 ? `;transform:scale(${zoom.toFixed(3)})!important;transform-origin:${x}% ${y}%!important` : ''}"`;
+    };
     const image = index => {
       const src = ctx.image ? ctx.image(source, index) : '';
-      const tone = photoToneClass(source?.photos?.[index]);
-      return src ? `<img${tone ? ` class="${tone}"` : ''} src="${esc(src)}" alt="" loading="lazy" decoding="async">` : '<span class="dpk-photo-missing"></span>';
+      const photo = source?.photos?.[index], tone = photoToneClass(photo);
+      return src ? `<img${tone ? ` class="${tone}"` : ''} src="${esc(src)}" alt="" loading="lazy" decoding="async" data-frame-photo="${esc(photo?.id || '')}" data-frame-index="${index}"${frameStyle(photo)}>` : '<span class="dpk-photo-missing"></span>';
     };
     const caption = index => esc(ctx.caption ? ctx.caption(source, index) : '');
     // One source image in one viewport across both pages of the spread.
