@@ -18,7 +18,9 @@ assert(automatic.marginNote);
 assert.equal(automatic.allowSafeMarginAudit,true);
 assert(session.warnings.some(item=>item.code==='ACCENT_AUTO_MARGIN_FORCED'));
 const manual={master:'D01-TEXT-MARGIN',rhythm:'margin',autoMarginNote:false,marginNote:'Ручная заметка'};
-assert.throws(()=>session.textPage(manual,'Текст страницы','left'),/Заметка на поле не помещается в две строки/);
+// A manual note that does not fit is reported and the page is set without it.
+session.textPage(manual,'Текст страницы','left');
+assert(session.warnings.some(item=>item.code==='ACCENT_UNFIT'&&item.automatic===false&&/Заметка на поле не помещается в две строки/.test(item.reason)));
 session.dispose();
 const source=read('book-renderer/design-pack-01.js'),css=read('book-renderer/design-pack-01.css');
 assert(source.includes("noteInset=side==='left'")&&source.includes("geometry['note-inset']=noteInset"));

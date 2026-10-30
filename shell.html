@@ -2666,7 +2666,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v48">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v49">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2868,7 +2868,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v48" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v49" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4587,10 +4587,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v48"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v48"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v48"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v48"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v48"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v49"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v49"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v49"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v49"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v49"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v49"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4618,8 +4618,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v48"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v49"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v49"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4938,8 +4938,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     return {section,page,sectionId,pageUid};
   }
 
+  // At most one line break, no empty lines, no spaces at the ends.
   function previewAccentText(field){
-    return String(field?.innerText ?? field?.textContent ?? '');
+    return String(field?.innerText ?? field?.textContent ?? '').replace(/[ \t]*\n[\s]*/g,'\n').trim();
   }
 
   function previewAccentWordCount(value){
@@ -5644,6 +5645,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   function assemble(){
     if(activeDesign==='editorial'&&window.OcherkiBookEngine){
       const external=window.OcherkiLayoutPagination.build(structure,Object.assign({},window.OCHERKI_BOOK_META||{},{format:activeFormat}));
+      window.__ocherkiLastWarnings=(external.layout?.warnings||external.warnings||[]);
+      window.__ocherkiLastStructure=structure;
       if(!external.ready){
         built=false;
         buildMessage=`<div class="bd-build-empty"><strong>${esc(external.message||'Недостаточно материала для сборки.')}</strong></div>`;
@@ -6590,6 +6593,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     };
     const strip=bookSpreads.map((sp,i)=>{const [k,t]=kind(sp);return `<i class="bd-rhythm-${k}" title="Разворот ${i+1}: ${t}"></i>`;}).join('');
     const tips=[];
+    // An author's note or quote that did not fit: the page was set without it.
+    (window.__ocherkiLastWarnings||[]).filter(w=>w&&w.code==='ACCENT_UNFIT'&&w.automatic===false).slice(0,2).forEach(w=>tips.push(`${w.kind==='quote'?'Цитата':'Заметка на поле'} «${esc(String(w.text||'').replace(/\s+/g,' ').slice(0,40))}» не поместилась в две строки — страница собрана без неё. Сократите её.`));
     const chapterSections=(structure?.sections||[]).filter(s=>s&&s.type==='chapter'&&s.included!==false);
     const allPhotos=chapterSections.flatMap(s=>(s.pages||[]).flatMap(p=>p.photos||[]));
     chapterSections.filter(s=>(s.pages||[]).some(p=>String(p.text||'').trim())&&!(s.pages||[]).some(p=>(p.photos||[]).length)).slice(0,1).forEach(s=>tips.push(`В главе «${esc(String(s.title||'').replace(/^Глава\s+\d+[.:]?\s*/i,''))}» нет фотографий — добавьте хотя бы одну, и глава станет живее.`));
@@ -6784,7 +6789,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const runBuild=()=>requestAnimationFrame(()=>setTimeout(()=>{
       try{
         revealSpreadsOnRender=true;
+        // The open spread stays where the author was (a rebuild after a
+        // note edit used to jump to another spread).
+        const keepSpread=activeSpread;
         assemble();
+        if(previewModal?.classList.contains('open')&&bookSpreads.length)activeSpread=Math.max(0,Math.min(keepSpread,bookSpreads.length-1));
         requestAnimationFrame(scaleAllPageCanvases);
         buildBtn.textContent=bookSpreads.length?'Книга собрана':'Нет данных';
         bookOutdated=false;buildBtn.classList.remove('is-outdated');
@@ -7024,7 +7033,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v48"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v49"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();

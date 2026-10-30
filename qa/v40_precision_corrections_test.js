@@ -53,7 +53,7 @@ assert(renderer.includes("geometry['quote-text-height']")&&renderer.includes("co
 assert(renderer.includes('Заметка слишком длинная для этой области. Сократите текст.'),'note overflow warning missing');
 assert(/white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important/.test(css),'multiline note wrap missing');
 assert(shell.includes('assemble();')&&shell.includes("kind==='ctx-handwritten'")&&shell.includes("['important','margin','inline-quote','ctx-handwritten']"),'shared relayout/edit bridge missing');
-assert(layout.includes('Заметка на поле не помещается в две строки. Сократите её и пересоберите книгу.'),'manual note overflow is not surfaced');
+assert(layout.includes('Заметка на поле не помещается в две строки'),'manual note overflow is not surfaced');
 assert(runner.includes('leftPage:pageSnapshot(s.left)')&&runner.includes('OcherkiLayoutPagination.build'),'Test Mode lost shared page models');
 for(let i=1;i<=26;i++)assert(new RegExp(`T${i}(?=[:,'\"]|\\b)`).test(testMode),`Test Mode scenario T${i} missing`);
 assert(!/Math\.random\(/.test(renderer+layout+testMode),'random editorial selection reintroduced');

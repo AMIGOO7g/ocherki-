@@ -22,6 +22,8 @@ assert.equal(automatic.forceMarginPlacement,true);
 assert(session.warnings.some(item=>item.code==='ACCENT_AUTO_MARGIN_RECOVERED'));
 assert(!session.warnings.some(item=>item.code==='ACCENT_REQUIRED'));
 const manual={master:'D01-TEXT-MARGIN',rhythm:'margin',autoMarginNote:false,marginNote:'Ручная заметка'};
-assert.throws(()=>session.textPage(manual,'Текст страницы','left'),/Заметка на поле не помещается в две строки/);
+// A manual note that does not fit is reported and the page is set without it.
+session.textPage(manual,'Текст страницы','left');
+assert(session.warnings.some(item=>item.code==='ACCENT_UNFIT'&&item.automatic===false&&/Заметка на поле не помещается в две строки/.test(item.reason)));
 session.dispose();
 console.log(JSON.stringify({status:'pass',automaticMargin:'never-blocks',manualMargin:'still-validated'}));

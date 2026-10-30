@@ -9,7 +9,7 @@
       request={id:++serial,structure,meta,resolve,reject};
       runner=document.createElement('iframe');runner.className='tm-runner';runner.title='Раскладка материала';runner.setAttribute('aria-hidden','true');runner.tabIndex=-1;
       const [w,h]=engine.FORMATS[meta.format||'square'];runner.width=String(w);runner.height=String(h);
-      if(standaloneRunner)runner.srcdoc=standaloneRunner;else runner.src='test-mode-runner.html?v=demo-book-20261030-v48';
+      if(standaloneRunner)runner.srcdoc=standaloneRunner;else runner.src='test-mode-runner.html?v=demo-book-20261030-v49';
       document.body.appendChild(runner);
       startupTimer=setTimeout(()=>{if(request){const pending=request;request=null;pending.reject(Error('Не удалось загрузить модуль раскладки. Проверьте, что сервер запущен и архив распакован целиком.'));runner?.remove();runner=null;}},15000);
     });
@@ -142,7 +142,8 @@
       const noteView=await build(noteInput,{format:'square',composition:'margin'});
       const overflowInput=noteStructure(noteOverflow);overflowInput.sections[0].pages[0].marginNote=noteOverflow;
       let overflowError=null;
-      try{await build(overflowInput,{format:'square',composition:'margin'});}
+      // A note that does not fit no longer stops the book: it is reported.
+      try{const overflowView=await build(overflowInput,{format:'square',composition:'margin'});const reported=(overflowView?.layout?.warnings||[]).find(item=>item.code==='ACCENT_UNFIT'&&item.kind==='margin');if(reported)overflowError=new Error('Заметка на поле не помещается в две строки. Сократите её и пересоберите книгу.');}
       catch(error){overflowError=error;}
       const darkViews=await darkAcceptanceViews();for(const darkView of darkViews){view.spreads.push(...darkView.spreads);view.layout.warnings.push(...(darkView.layout?.warnings||[]));}
       refreshCombinedView(view);

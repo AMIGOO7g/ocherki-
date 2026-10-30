@@ -994,7 +994,8 @@
         // A page inside a photo composition may ask for a quiet page; the
         // editorial cycle then waits for the next ordinary text page.
         const rhythm=extra.forceRhythm||nextRhythm(), occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
-        const overrides=input.editorialOverrides||{};
+        // An author's correction keeps at most one line break and no empty lines.
+        const overrides=Object.fromEntries(Object.entries(input.editorialOverrides||{}).map(([name,value])=>[name,String(value??'').replace(/[ \t]*\n\s*/g,'\n').trim()]).filter(([,value])=>value));
         const noteKey=rhythm==='important-margin'?`${key}:margin`:key;
         const page=P('text',{
           layout:'prose-dense',master:masters[rhythm],rhythm,sectionId:chapter.sectionId,source:chapter,

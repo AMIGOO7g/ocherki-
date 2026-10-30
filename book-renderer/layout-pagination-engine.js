@@ -106,10 +106,15 @@
             continue;
           }
           if(error.kind==='margin'||error.kind==='quote'){
+            // An author's note or quote that does not fit two lines never
+            // stops the book: the page is set without it and the author is
+            // told which text to shorten.
             const message=error.kind==='margin'
-              ?'Заметка на поле не помещается в две строки. Сократите её и пересоберите книгу.'
-              :'Цитата не помещается в две строки. Сократите её и пересоберите книгу.';
-            throw Object.assign(new Error(message),{code:'ACCENT_UNFIT',kind:error.kind,text:error.text,automatic:false});
+              ?'Заметка на поле не помещается в две строки — страница собрана без неё. Сократите заметку.'
+              :'Цитата не помещается в две строки — страница собрана без неё. Сократите цитату.';
+            warnings.push({code:'ACCENT_UNFIT',template:original.master,kind:error.kind,text:error.text||'',automatic:false,reason:message,fallback:'plain-text-page'});
+            candidate={...original,requestedMaster:original.master,master:pack.textMasters.plain,rhythm:'plain',inlineQuote:'',importantLine:'',marginNote:'',autoInlineQuote:false,autoImportant:false,autoMarginNote:false,measuredFlow:undefined};
+            continue;
           }
           if(removed.has(error.kind))throw error;
           removed.add(error.kind);

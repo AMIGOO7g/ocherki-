@@ -16,7 +16,7 @@ assert(/\.right \.dpk-margin-note span\{[^}]*rotate\(91deg\)/.test(css),'right n
 assert(rendererSource.includes("noteFooterGap=30")&&rendererSource.includes("noteMaxLines=2")&&rendererSource.includes("geometry['note-length']"),'measured two-line note geometry is missing');
 assert(rendererSource.includes("['top','middle','bottom']")&&rendererSource.includes('return selected.sort'),'distributed inline handwriting selection is missing');
 assert(rendererSource.includes("note-footer-clearance")&&rendererSource.includes("note-more-than-two-lines"),'final note DOM audit is incomplete');
-assert(layout.includes('Заметка на поле не помещается в две строки. Сократите её и пересоберите книгу.'),'manual note overflow is not reported');
+assert(layout.includes('Заметка на поле не помещается в две строки'),'manual note overflow is not reported');
 
 const left='Дом у воды оставался главным воспоминанием. Прошлое становилось близким. Самое важное сохранялось в паузах.';
 const right='Голос звучал рядом. Всё начиналось с дороги. Мы это помним и сегодня.';
