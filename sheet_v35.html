@@ -901,6 +901,19 @@ html.photo-modal-root-open body{overflow:visible!important;}
   .photo-field label{color:rgba(84,56,34,.78)!important}
   .host-night .photo-hint{color:rgba(236,220,198,.62)}
 </style>
+
+<style id="night-lamp">
+/* Night: the lamp stands to the upper left. The sheet casts a deep shadow
+   to the right and down, and a warm pool of light lies on its upper-left
+   part, fading towards the far corner. */
+.host-night .sheet.active{box-shadow:4px 6px 10px rgba(0,0,0,.35),18px 26px 46px rgba(0,0,0,.55),34px 46px 90px rgba(0,0,0,.45)!important}
+.host-night .sheet.active .paper::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:30;border-radius:inherit;
+  background:radial-gradient(120% 95% at 12% 6%,rgba(255,214,150,.20) 0%,rgba(255,200,130,.08) 38%,rgba(0,0,0,0) 62%),
+             radial-gradient(140% 120% at 100% 100%,rgba(30,18,8,.16) 0%,rgba(30,18,8,0) 55%);
+  mix-blend-mode:multiply}
+.host-night .sheet.active .paper::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:29;border-radius:inherit;
+  background:radial-gradient(110% 90% at 12% 6%,rgba(255,226,180,.16),rgba(255,226,180,0) 58%);mix-blend-mode:screen}
+</style>
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
@@ -3891,6 +3904,11 @@ function bookPhotos(){
 }
 // Questions for a prompted chapter, beside the sheet (not in the book).
 function updatePrompts(){
+  // The chapter's questions now appear above the sheet, written by hand out
+  // of a mist (the constructor shows them); the old card beside the sheet
+  // stays hidden.
+  const old=document.getElementById('pagePrompts');if(old)old.hidden=true;
+  if(true)return;
   let box=document.getElementById('pagePrompts');
   const page=currentPage(),questions=Array.isArray(page?.prompts)?page.prompts.filter(Boolean):[];
   if(!questions.length){if(box)box.hidden=true;return;}
@@ -4094,6 +4112,7 @@ window.addEventListener('message',e=>{
           wordCount: (page.userEdited===true||page._userEdited===true) && String(page.text||'').trim() ? String(page.text||'').trim().split(/\s+/).filter(Boolean).length : 0,
           userEdited: !!(page.userEdited===true||page._userEdited===true),
           photoCount: Array.isArray(page.photos) ? page.photos.length : 0,
+          prompts: Array.isArray(page.prompts) ? page.prompts.filter(Boolean).map(String) : [],
           photos: Array.isArray(page.photos) ? page.photos.slice(0,12).map(photo => ({
             id: String(photo?.id || ''),
             src: String(photo?.src || ''),

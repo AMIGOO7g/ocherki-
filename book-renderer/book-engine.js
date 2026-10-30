@@ -1040,16 +1040,16 @@
         if(unused!=null){usedPhotoIndices.add(unused);usedPhotoSources.add(imageSource(chapter.photos[unused]));return unused;}
         return -1;
       };
-      // Chapter ending, as a typesetter would close it: the last page has
-      // balanced columns, and when it would be a stub of a few lines the
-      // preceding pages give up a few lines each, keeping facing pages level.
+      // Chapter ending, as a typesetter would close it: when the last page
+      // would be a stub of a few lines the preceding pages give up a few
+      // lines each, keeping facing pages level.
       // Every trial re-measures the untouched source; on any doubt the
       // original pagination is restored.
       // The same closes an episode before the next one opens (endOffset is
       // then the next episode's start). A stub is judged by its text, not by
       // column height, which a tall margin note can inflate.
       function balanceChapterEnding(endOffset=chapter.text.length){
-        const minimumLines=6,maximumBorrow=4,minimumChars=700;
+        const maximumBorrow=4,minimumChars=700;
         const textSpreads=spreads.slice(segmentSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07','D01-SPREAD-T12'].includes(spread.master));
         const last=textSpreads.at(-1);
         if(!last)return;
@@ -1077,25 +1077,18 @@
         };
         const attempt=(items,limits)=>{try{return reflow(items,limits);}catch(error){return false;}};
         const fullLines=item=>item.page.measuredFlow?.fullLines||0;
-        // Smallest per-column height that still holds the whole final page.
-        const balanceFinal=()=>{
-          let low=1,high=fullLines(final);
-          if(!high||!attempt([final],[0]))return 0;
-          while(low<high){const middle=Math.floor((low+high)/2);if(attempt([final],[middle]))high=middle;else low=middle+1;}
-          return attempt([final],[low])?low:0;
-        };
+        // The final page is not balanced: its left column runs to the common
+        // bottom margin and the rest goes to the right column, as on every
+        // other page. Only a stub (too little text) borrows lines from the
+        // pages before it.
         const fulls=donors.map(fullLines);
         let settled=false;
         for(let borrow=0;borrow<=(donors.length?maximumBorrow:0)&&!settled;borrow++){
           const limits=donors.map((donor,i)=>borrow?fulls[i]-borrow:0);
-          if(limits.some(limit=>limit<0)||donors.length&&!attempt(chain,[...limits,0]))continue;
-          const lines=balanceFinal();
-          if(lines&&((lines>=minimumLines&&String(final.page.text||'').length>=minimumChars)||borrow===maximumBorrow||!donors.length))settled=true;
+          if(limits.some(limit=>limit<0)||!attempt(chain,[...limits,0]))continue;
+          if(String(final.page.text||'').length>=minimumChars||borrow===maximumBorrow||!donors.length)settled=true;
         }
-        if(!settled){
-          reflow(chain,chain.map(()=>0));
-          if(!balanceFinal())reflow(chain,chain.map(()=>0));
-        }
+        if(!settled)reflow(chain,chain.map(()=>0));
         for(const item of chain)delete item.page.balanceTrial;
       }
       while(rest){
@@ -1219,16 +1212,17 @@
             const main=mainRatio>=1.2
               ?(()=>{const w=1250,h=Math.min(pageH-2*pad-60,Math.round(w/mainRatio));return {x:1930-w,y:pad,w,h};})()
               :(()=>{const h=pageH-2*pad,w=Math.min(870,Math.round(h*mainRatio));return {x:960,y:pad,w,h};})();
-            // The card reads as a second meaningful frame (about a third of the
-            // main photograph's area), not as a sticker.
-            const long=Math.round(.8*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
+            // The card is a smaller second frame: it covers only a corner of the
+            // main photograph and never reaches the text column on the left
+            // page (the text page keeps 470px free on its right).
+            const long=Math.round(.58*Math.min(main.w,main.h)),cw=Math.round(cardRatio>=1?long:long*cardRatio),ch=Math.round(cardRatio>=1?long/cardRatio:long);
             // Approved angles in a fixed order across the book (no randomness).
             const angle=[-4,6,-2,4,-6,2][t10Count++%6];chapterAccents.t10++;
             // Main photo and card are centred together on the page height; the
             // card hangs a little below the main photograph.
             const groupH=main.h+Math.round(ch*.18);
             if(mainRatio>=1.2)main.y=Math.max(pad,Math.round((pageH-groupH)/2));
-            const card={x:Math.round(1000-.75*cw),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
+            const card={x:Math.max(560,Math.round(1000-.6*cw)),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
             const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
             const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
             const photoPage=P('t10-photos',{layout:'t10-photos',master:'D01-T10-PHOTOS',sectionId:chapter.sectionId,source:chapter,t10:layout,title:chapter.title});

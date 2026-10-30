@@ -2666,7 +2666,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v47">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v48">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2814,8 +2814,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <aside class="writing-prompt" id="writingPrompt" aria-live="polite" aria-label="Подсказка для письма">
     <div class="writing-prompt-text" id="writingPromptText"></div>
     <div class="writing-prompt-actions">
-      <button class="writing-prompt-link" id="writingPromptAgree" type="button">согласен</button>
-      <button class="writing-prompt-link" id="writingPromptNext" type="button">следующий вопрос</button>
+      <button class="writing-prompt-link" id="writingPromptAgree" type="button">‹ назад</button>
+      <button class="writing-prompt-link" id="writingPromptNext" type="button">дальше ›</button>
       <button class="writing-prompt-link" id="writingPromptHide" type="button">скрыть</button>
     </div>
   </aside>
@@ -2868,7 +2868,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v47" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v48" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4303,6 +4303,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(s.id==='colophon') return ['Какие данные об издании вы хотите сохранить: автор, составитель, год, место?', 'Нужно ли указать фотографов, архивы или дизайн?'];
     if(s.id==='back-cover') return ['Какое последнее ощущение должна оставить книга?', 'Нужна ли на задней обложке короткая аннотация или только знак/год?'];
     if(s.type==='chapter'){
+      // A chapter made from the start steps carries its own questions; any
+      // other chapter (a new «Глава 2» too) gets questions for its stage.
+      const planned=(p.prompts&&p.prompts.length?p.prompts:(s.pages||[]).find(page=>page.prompts&&page.prompts.length)?.prompts)||[];
+      if(planned.length) return planned;
       if(wc < 35) return ['С какого конкретного момента начинается этот эпизод?', 'Где это происходило и кто был рядом?', 'Что вы помните первым: человека, место, звук или запах?'];
       if(pc===0 && wc>120) return ['Сохранилась фотография, письмо или документ, связанный с этим эпизодом?', 'Есть ли предмет или место, которое можно показать рядом с этим текстом?'];
       return ['Что в этом воспоминании нельзя потерять при сокращении?', 'Какую одну деталь вы видите перед глазами лучше всего?', 'Что тогда чувствовал герой, но не говорил вслух?'];
@@ -4320,8 +4324,17 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const left=Math.max(22,Math.min(window.innerWidth-w-22,centerX-w/2));
     /* Always above the settled paper. Never anchor to a transient offscreen boot rect. */
     const top=sane ? Math.max(18,r.top-108) : Math.max(18,window.innerHeight*.12);
+    // On a low screen the sheet reaches the top edge: the question is then
+    // written in dark ink so it still reads over the paper.
+    promptEl.classList.toggle('is-on-paper',sane&&r.top<120);
     promptEl.style.left=Math.round(left)+'px';
     promptEl.style.top=Math.round(top)+'px';
+    // No room above the sheet: the question settles in dark ink in the
+    // quiet strip at the bottom of the sheet, above its word count.
+    if(sane&&r.top<120){
+      const bottom=Math.min(window.innerHeight-12,r.bottom-64);
+      promptEl.style.top=Math.round(bottom-(promptEl.offsetHeight||90))+'px';
+    }
     if(promptRestoreEl){
       promptRestoreEl.style.left=Math.round(r.left+r.width/2-5)+'px';
       promptRestoreEl.style.top=Math.round(Math.max(18,r.top-48))+'px';
@@ -4384,7 +4397,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     clearTimeout(promptTimer);
     hidePrompt(false);
     promptTimer=setTimeout(()=>{
-      promptTextEl.textContent=qs[promptIndex % qs.length];
+      writePromptText(qs[promptIndex % qs.length]);
       positionPrompt();
       promptEl.classList.remove('is-leaving');
       void promptEl.offsetWidth;
@@ -4393,13 +4406,24 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }, immediate ? 180 : 1350);
   }
 
+  // The question is written by hand out of a mist: every letter appears
+  // from a blur one after another, and leaves the same way.
+  // The sheet still travels for a moment after the constructor opens; the
+  // question follows it until it settles.
+  setInterval(()=>{if(promptEl?.classList.contains('is-visible'))positionPrompt();},700);
+  function writePromptText(text){
+    if(!promptTextEl)return;
+    let i=0;
+    promptTextEl.innerHTML=String(text||'').split(/(\s+)/).map(part=>/^\s+$/.test(part)?part:`<span class="wp-word">${[...part].map(ch=>`<span class="wp-ch" style="--i:${i++}">${ch.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</span>`).join('')}</span>`).join('');
+    promptTextEl.style.setProperty('--wp-count',String(i));
+  }
   function swapPromptQuestion(qs,nextIndex){
     if(!promptEl||!promptTextEl||!qs.length)return;
     promptEl.classList.remove('is-visible');
     promptEl.classList.add('is-leaving');
     window.setTimeout(()=>{
       promptIndex=(nextIndex+qs.length)%qs.length;
-      promptTextEl.textContent=qs[promptIndex];
+      writePromptText(qs[promptIndex]);
       positionPrompt();
       promptEl.classList.remove('is-leaving');
       void promptEl.offsetWidth;
@@ -4409,7 +4433,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   promptAgreeEl?.addEventListener('click',()=>{
     const ctx=activeContext(structure),qs=questionsFor(ctx);
     if(!qs.length)return hidePrompt(false);
-    swapPromptQuestion(qs,promptIndex+1);
+    swapPromptQuestion(qs,promptIndex-1);
   });
   promptHideEl?.addEventListener('click',()=>{
     promptsGloballyHidden = true;
@@ -4563,10 +4587,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v47"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v47"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v47"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v47"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v47"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v48"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v48"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v48"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4594,8 +4618,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v47"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v48"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4977,10 +5001,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // Rebuild immediately through the same DOM pagination engine so a longer
     // or shorter quote/note gives space back to the surrounding text.
     directorContentFingerprint=contentFingerprint(structure);
-    assemble();
-    renderRightPanel();
-    if(previewModal?.classList.contains('open'))previewRender();
     send({action:'setEditorialAccent',sectionId,pageUid,kind,overrideKey:key,text:value});
+    performBuild();
   }
 
   function bindPreviewAccentEditors(){
@@ -5009,6 +5031,15 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       field.addEventListener('keydown',event=>{
         if(event.key==='Enter'){
           event.preventDefault();
+          // In a margin note the first Enter starts its second line (a note
+          // has at most two); otherwise Enter finishes the edit.
+          const kind=String(field.dataset.editorialAccent||'').trim().toLowerCase();
+          if(kind==='margin'&&!previewAccentText(field).includes('\n')){
+            document.execCommand('insertText',false,'\n');
+            if(!previewAccentFits(field,kind))restorePreviewAccent(field);
+            else field.dataset.editorialLastValidText=previewAccentText(field);
+            return;
+          }
           field.blur();
         }
         if(event.key==='Escape'){
@@ -6565,7 +6596,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(allPhotos.length>=3&&!allPhotos.some(p=>p.portraitHero))tips.push('Отметьте в окне фото «Портрет героя книги» — книга выделит этого человека отдельным разворотом.');
     const noCaption=allPhotos.filter(p=>!p.caption&&!p.year&&!p.place).length;
     if(noCaption)tips.push(`У ${noCaption} фото нет подписи. Подпись, год и место появятся внизу страницы рядом с фото.`);
-    return `<div class="bd-book-rhythm"><div class="bd-rhythm-strip" aria-label="Ритм книги">${strip}</div><div class="bd-rhythm-legend"><span><i class="bd-rhythm-text"></i>текст</span><span><i class="bd-rhythm-photo"></i>фото</span><span><i class="bd-rhythm-pause"></i>пауза</span><span><i class="bd-rhythm-open"></i>открытие</span><span><i class="bd-rhythm-dark"></i>тёмный</span></div>${tips.length?`<ul class="bd-book-tips">${tips.slice(0,3).map(t=>`<li>${t}</li>`).join('')}</ul>`:''}</div>`;
+    // Only the advice stays: the coloured rhythm strip meant nothing to an author.
+    return `<div class="bd-book-rhythm">${tips.length?`<ul class="bd-book-tips">${tips.slice(0,3).map(t=>`<li>${t}</li>`).join('')}</ul>`:''}</div>`;
   }
   function renderRightPanel(){
     if(!rowsEl)return;
@@ -6794,7 +6826,15 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 
 
   // PREVIEW: existing hanging eye icon opens the actual assembled spread.
+  // A note or a handwritten line being edited is saved before the spread is
+  // redrawn (turning the page used to drop it: the field vanished before it
+  // lost focus).
+  function flushPreviewAccent(){
+    const field=document.activeElement?.closest?.('[data-editorial-accent]');
+    if(field&&field.dataset.editorialCommitted!=='1'&&previewAccentText(field)!==(field.dataset.editorialLastValidText||''))commitPreviewAccent(field);
+  }
   function previewRender(){
+    flushPreviewAccent();
     initPreviewDom();
     if(!previewSpread) {
       console.error('[Preview] bookPreviewSpread not found');
@@ -6984,7 +7024,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v47"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v48"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7013,6 +7053,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   async function saveBookAsPdf(){openPdfExport();}
   let previewPaging=false;
   function closePreview(){
+    flushPreviewAccent();
     initPreviewDom();
     window.OCHERKI_PLAY_PAGE_FX?.(.60);
     if(!previewModal)return;
@@ -7541,6 +7582,28 @@ html body .shell.is-handoff.is-handoff:not(.is-open) .bottom-left{opacity:0!impo
    the clock and the logo stay where they are. */
 html body .shell.has-entered.has-entered:not(.is-open) .bottom-left{left:40px!important;top:auto!important;bottom:98px!important;transform:none!important;transition:opacity 1.2s ease!important}
 @media(max-width:900px){html body .shell.has-entered.has-entered:not(.is-open) .bottom-left{left:14px!important;bottom:72px!important}}
+</style>
+
+<style id="writing-prompt-mist">
+/* Questions above the sheet: white handwriting out of a mist. */
+html body .shell .writing-prompt-text{font:400 30px/1.25 'SignThatS','CormorantCy',Georgia,serif!important;font-style:normal!important;color:#fbf6ee!important;letter-spacing:.01em;
+  text-shadow:0 0 14px rgba(255,248,236,.35),0 1px 2px rgba(0,0,0,.25)!important}
+.writing-prompt .wp-word{white-space:nowrap}
+.writing-prompt .wp-ch{display:inline-block;opacity:0;filter:blur(7px);transform:translateY(3px)}
+.writing-prompt.is-visible .wp-ch{animation:wpMistIn .9s cubic-bezier(.2,.7,.25,1) forwards;animation-delay:calc(var(--i) * 34ms)}
+.writing-prompt.is-leaving .wp-ch{opacity:1;filter:blur(0);transform:none;animation:wpMistOut .6s ease forwards;animation-delay:calc(var(--i) * 10ms)}
+@keyframes wpMistIn{to{opacity:1;filter:blur(0);transform:none}}
+@keyframes wpMistOut{to{opacity:0;filter:blur(8px);transform:translateY(-3px)}}
+/* The block itself no longer blurs: the letters do. */
+html body .writing-prompt,html body .writing-prompt.is-visible,html body .writing-prompt.is-leaving{filter:none!important}
+/* An old rule hid the prompts everywhere; in the constructor they show again. */
+html body .shell.is-open.menus-ready .writing-prompt{display:block!important}
+html body .shell.is-open.menus-ready .writing-prompt-restore{display:block!important}
+html body .shell .writing-prompt.is-on-paper .writing-prompt-text{font-size:24px!important;color:#5a3d26!important;text-shadow:0 0 10px rgba(255,250,240,.9)!important}
+html body .shell .writing-prompt.is-on-paper .writing-prompt-link{color:rgba(90,61,38,.85)!important}
+.writing-prompt-link{font:italic 14px Georgia,serif!important;color:rgba(255,246,232,.82)!important}
+@media(max-width:1180px){html body .writing-prompt{display:block!important}html body .shell .writing-prompt-text{font-size:24px!important}}
+@media (prefers-reduced-motion: reduce){.writing-prompt .wp-ch{animation:none!important;opacity:1;filter:none;transform:none}}
 </style>
 </body>
 

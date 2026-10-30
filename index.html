@@ -2126,6 +2126,18 @@
   .start-auth-key__pendulum.lb-hanging-icon:active{filter:brightness(.94)}
   </style>
 <link rel="stylesheet" href="book-renderer/fonts.css">
+<style id="wizard-fields-reveal">
+/* The fields of a step appear one after another, after the cards, like the
+   rest of the start screens. */
+.step-container .wizard-field{opacity:0;transform:translateY(12px);filter:blur(5px)}
+.step-container.is-visible .wizard-field{animation:wizardFieldIn .9s cubic-bezier(.2,.75,.25,1) forwards}
+.step-container.is-visible .wizard-field:nth-child(1){animation-delay:1.05s}
+.step-container.is-visible .wizard-field:nth-child(2){animation-delay:1.25s}
+.step-container.is-visible .wizard-field:nth-child(3){animation-delay:1.45s}
+.step-container.is-visible .wizard-field:nth-child(4){animation-delay:1.65s}
+@keyframes wizardFieldIn{to{opacity:1;transform:none;filter:none}}
+@media (prefers-reduced-motion: reduce){.step-container .wizard-field{opacity:1;transform:none;filter:none;animation:none!important}}
+</style>
 </head>
 <body class="" id="pageBody">
 
@@ -3320,7 +3332,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v47";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v48";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3820,7 +3832,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v47"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v47"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v48"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v48"></script>
 </body>
 </html>

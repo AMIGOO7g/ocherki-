@@ -25,7 +25,7 @@
   const rendered=renderBook(desktop),fixed=desktop.spreads.filter(item=>item.master==='D01-SPREAD-POST-OPENING-CTX');
   check(fixed.length===3&&fixed.every(item=>item.left?.measuredFlow&&item.right?.master==='D01-CTX-DETAIL-SQ'),'A: после открытия текст слева, CTX справа');
   const short=fixed.find(item=>item.sectionId==='h');
-  check(Boolean(short?.left?.text)&&(short.left.measuredFlow.cells.filter(Boolean).length<=2||short.left.measuredFlow.geometry.height<short.left.measuredFlow.fullLines*short.left.measuredFlow.geometry.leading-.5),'B: короткий остаток завершается естественно');
+  check(Boolean(short?.left?.text)&&short.left.measuredFlow.geometry.height>=short.left.measuredFlow.fullLines*short.left.measuredFlow.geometry.leading-.5,'B: короткий остаток: колонки идут до общего нижнего поля, остаток справа');
   const noPhotoSpreads=desktop.spreads.filter(item=>item.sectionId==='none');
   check(noPhotoSpreads.every(item=>item.right?.master!=='D01-CTX-DETAIL-SQ'&&item.left?.master!=='D01-CTX-DETAIL-SQ')&&noPhotoSpreads.some(item=>item.ctxSkipped),'C: без фото CTX и пустых контейнеров нет');
   check(fixed.every(item=>item.left&&item.right&&item.spread!==null&&item.right.photoIndex!==desktop.spreads.find(open=>open.sectionId===item.sectionId&&open.master==='D01-SPREAD-CHAPTER')?.left?.photoIndex),'D: фото открытия не повторяется в соседнем CTX');
@@ -44,7 +44,10 @@
   const quotePages=rendered.filter(item=>item.page.measuredFlow?.mode==='inline-quote');
   const quoteContinues=item=>item.article.querySelector('.dpk-flow-column-quote [data-flow-cell]:last-child')?.textContent.trim().length>0;
   check(quotePages.some(item=>item.page.measuredFlow.quoteColumn==='left'&&quoteContinues(item)),'K: продолжение под цитатой слева');
-  check(quotePages.some(item=>item.page.measuredFlow.quoteColumn==='right'&&quoteContinues(item)),'L: продолжение под цитатой справа');
+  // The last page of a chapter fills its left column to the common bottom
+  // margin first, so a quote on its right may end the chapter.
+  const lastOfSection=item=>!rendered.slice(rendered.indexOf(item)+1).some(other=>other.page.sectionId===item.page.sectionId&&other.page.measuredFlow);
+  check(quotePages.some(item=>item.page.measuredFlow.quoteColumn==='right')&&quotePages.filter(item=>item.page.measuredFlow.quoteColumn==='right'&&!lastOfSection(item)).every(quoteContinues),'L: продолжение под цитатой справа');
   const audits=rendered.filter(item=>item.page.measuredFlow).map(item=>OcherkiLayoutPagination.auditPage(item.article,item.page));
   check(audits.every(item=>item.status==='pass'),'Строки физически заполнены без преждевременного разрыва',audits.flatMap(item=>item.violations));
   check(desktop.expectedManuscripts.every(source=>desktop.pages.filter(page=>page.sectionId===source.sectionId&&page.measuredFlow).map(page=>page.text).join('')===source.text),'Исходный текст сохранён без потерь и дублей');

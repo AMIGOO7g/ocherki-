@@ -552,7 +552,13 @@
     if (role === 'photo' || role === 'large-photo') {
       const index = page.photoIndex || 0;
       const master = role === 'large-photo' ? 'D01-LARGE-PHOTO' : 'D01-PHOTO';
-      return article(master, `<figure>${image(index)}</figure>${caption(index) ? `<div class="dpk-caption">${caption(index)}</div>` : ''}${folio}`, role === 'large-photo' ? 'dpk-edge-photo' : '');
+      // A clearly vertical photograph (a portrait, a document) is shown whole
+      // at full height, centred, instead of being cut into the page's square.
+      const photo=source?.photos?.[index]||{},trueRatio=Number(photo.width)>0&&Number(photo.height)>0?Number(photo.width)/Number(photo.height):1;
+      const pageH=(page.pageFormat||meta.format)==='portrait'?1196:1000,areaW=928,areaH=pageH-36-(role==='large-photo'?82:58);
+      let figureStyle='';
+      if(trueRatio<areaW/areaH-.12){const w=Math.round(areaH*trueRatio);figureStyle=` style="inset:36px auto auto ${Math.round((1000-w)/2)}px!important;width:${w}px!important;height:${areaH}px!important"`;}
+      return article(master, `<figure${figureStyle}>${image(index)}</figure>${caption(index) ? `<div class="dpk-caption">${caption(index)}</div>` : ''}${folio}`, role === 'large-photo' ? 'dpk-edge-photo' : '');
     }
     if (role === 'ctx-detail-sq') {
       const index=Number(page.photoIndex)||0;
@@ -1155,7 +1161,7 @@
   }
   function inlineAccentRanges(value, manual = '', targetZone = 'middle', used = []) {
     const source=String(value??''),candidates=[];
-    const zoneRatio={top:.18,middle:.5,bottom:.82}[targetZone]??.5;
+    const zoneRatio=typeof targetZone==='number'?targetZone:({top:.18,middle:.5,bottom:.82}[targetZone]??.5);
     const semanticScore=text=>phraseScore(clean(text));
     for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(source)){
       const words=[...new Intl.Segmenter('ru',{granularity:'word'}).segment(sentence.segment)].filter(item=>item.isWordLike);
@@ -1295,14 +1301,24 @@
       const preferred=page.accentColumn==='right'?1:0;
       const selectRanges=cells=>{
         const selected=[],offsets=[0,cells[0]?.length||0],columns=manual?[0,1]:[preferred,1-preferred];
+        // One handwritten phrase per column, at a height taken from the text
+        // itself, so the two columns (and neighbouring pages) never carry
+        // their phrases on the same lines.
+        let seed=7;for(const ch of String(cells[0]||'').slice(0,160))seed=(seed*31+ch.codePointAt(0))>>>0;
+        // The page's zone (rotated by the book) goes to the first column, a
+        // different band to the second, each shifted a little inside it, so
+        // no two phrases sit level.
+        const bands=[.2,.5,.8],firstBand=Math.max(0,['top','middle','bottom'].indexOf(targetZone)),secondBand=(firstBand+1+((seed>>4)&1))%3;
+        const jitter=shift=>((seed>>shift)%1000)/1000*.16-.08;
+        const ratios=[bands[firstBand]+jitter(6),bands[secondBand]+jitter(16)];
         for(const index of columns){
-          const text=cells[index]||'',zones=manual?[targetZone]:['top','middle','bottom'];
+          const text=cells[index]||'',zones=manual?[targetZone]:[ratios[columns.indexOf(index)]];
           for(const zone of zones){
             const range=inlineAccentRanges(text,manual,zone,page.avoidAccents).find(item=>{
               const start=item.start+offsets[index],end=item.end+offsets[index];
               return !selected.some(other=>start<other.end&&end>other.start);
             });
-            if(range)selected.push({...range,start:range.start+offsets[index],end:range.end+offsets[index],zone});
+            if(range)selected.push({...range,start:range.start+offsets[index],end:range.end+offsets[index],zone:typeof zone==='number'?(zone<.34?'top':zone>.66?'bottom':'middle'):zone});
             if(manual&&selected.length)break;
           }
           if(manual&&selected.length)break;

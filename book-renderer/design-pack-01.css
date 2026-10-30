@@ -2723,7 +2723,7 @@ body .dpk-page.dpk-endpaper-grid .dpk-endpaper-pattern span{position:absolute!im
 
 /* «Для тех, кто продолжит эту историю» — ruled pages for handwriting. */
 body .dpk-page.dpk-notes{background:#fff!important}
-body .dpk-page.dpk-notes .dpk-notes-heading{position:absolute!important;left:91px!important;right:91px!important;top:150px!important;margin:0!important;text-align:center!important;font:400 34px/1.2 'SignThatS','CormorantCy',serif!important;color:#4a4540!important}
+body .dpk-page.dpk-notes .dpk-notes-heading{position:absolute!important;left:91px!important;right:91px!important;top:150px!important;margin:0!important;text-align:center!important;font:400 28px/1.2 'SignThatS','CormorantCy',serif!important;color:#4a4540!important}
 body .dpk-page.dpk-notes .dpk-notes-rules{position:absolute!important;left:91px!important;right:91px!important;top:150px!important;bottom:110px!important;
   background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 43px,rgba(110,101,92,.28) 43px,rgba(110,101,92,.28) 44px)!important}
 body .dpk-page.dpk-notes.left .dpk-notes-rules{left:70px!important}
