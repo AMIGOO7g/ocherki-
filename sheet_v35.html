@@ -909,9 +909,17 @@ html.photo-modal-root-open body{overflow:visible!important;}
 /* The deep shadow belongs to the lowest sheet of the pile, so it never
    darkens the sheets lying under the active one; it fades in with the
    night like the keys do. */
-.sheet{transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
-.host-night .sheet.active{box-shadow:2px 3px 6px rgba(0,0,0,.22)!important}
-.host-night .sheet.is-pile-bottom{box-shadow:4px 6px 10px rgba(0,0,0,.3),18px 26px 46px rgba(0,0,0,.5),34px 46px 90px rgba(0,0,0,.4)!important}
+/* The shadow is its own layer that fades with the light (2.45 s, the same
+   curve as the room and the keys), so it never blinks before the rest. It
+   falls mostly to the right and only a little down, so the bottom edge of
+   the window does not cut it. */
+/* Every sheet keeps only a short contact shadow; the long one is the
+   pile's (below), so nothing is cut by the bottom of the window. */
+html body .sheet.active{box-shadow:0 8px 18px rgba(0,0,0,.22),3px 4px 8px rgba(47,28,17,.12),inset 0 1px rgba(255,255,255,.72)!important}
+html body .sheet.ghost{box-shadow:0 5px 12px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.4)!important}
+.sheet.is-pile-bottom::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  box-shadow:14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.host-night .sheet.is-pile-bottom::after{opacity:1}
 .host-night .sheet.active .paper::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:30;border-radius:inherit;
   background:radial-gradient(120% 95% at 12% 6%,rgba(255,214,150,.20) 0%,rgba(255,200,130,.08) 38%,rgba(0,0,0,0) 62%),
              radial-gradient(140% 120% at 100% 100%,rgba(30,18,8,.16) 0%,rgba(30,18,8,0) 55%);

@@ -997,13 +997,16 @@
         // An author's correction keeps at most one line break and no empty lines.
         const overrides=Object.fromEntries(Object.entries(input.editorialOverrides||{}).map(([name,value])=>[name,String(value??'').replace(/[ \t]*\n\s*/g,'\n').trim()]).filter(([,value])=>value));
         const noteKey=rhythm==='important-margin'?`${key}:margin`:key;
+        // «∅» is the author's «no note here»: the page keeps its other accents.
+        const noNote=['margin','important-margin'].includes(rhythm)&&overrides[noteKey]==='∅';
+        const pageRhythm=noNote?(rhythm==='important-margin'?'important':'plain'):rhythm;
         const page=P('text',{
-          layout:'prose-dense',master:masters[rhythm],rhythm,sectionId:chapter.sectionId,source:chapter,
+          layout:'prose-dense',master:masters[pageRhythm],rhythm:pageRhythm,sectionId:chapter.sectionId,source:chapter,
           sourcePageUid:owner?.sourcePageUid,title:chapter.title,episode:input.episode||chapter.episode,
           importantLine:['important','important-margin'].includes(rhythm)?String(overrides[key]??input.importantLine??''):'',
           inlineQuote:rhythm==='inline-quote'?String(overrides[key]??input.inlineQuote??input.quote??''):'',
           quoteColumn:rhythm==='inline-quote'?(occurrence%2===0?'left':'right'):'',
-          marginNote:['margin','important-margin'].includes(rhythm)?String(overrides[noteKey]??input.marginNote??input.explanation??''):'',
+          marginNote:!noNote&&['margin','important-margin'].includes(rhythm)?String(overrides[noteKey]??input.marginNote??input.explanation??''):'',
           editorialAccentEditable:true,editorialAccentKind:rhythm,editorialAccentOccurrence:occurrence,
           editorialOverrideKey:key,editorialSourcePageUid:owner?.sourcePageUid,
           dateWatermark:input.dateWatermark||input.eraDate||''
@@ -1050,6 +1053,10 @@
       // then the next episode's start). A stub is judged by its text, not by
       // column height, which a tall margin note can inflate.
       function balanceChapterEnding(endOffset=chapter.text.length){
+        // Every column runs to the common bottom margin, as in an ordinary
+        // book; pages before a chapter's or episode's end are no longer
+        // shortened to lift a short tail (the author found it wrong).
+        if(meta.balanceEndings!==true)return;
         const maximumBorrow=4,minimumChars=700;
         const textSpreads=spreads.slice(segmentSpreadStart).filter(spread=>['D01-SPREAD-POST-OPENING-TEXT','D01-SPREAD-POST-OPENING-CTX','D01-SPREAD-TEXT-RHYTHM','D01-SPREAD-TEXT-PHOTO-RHYTHM','D01-SPREAD-HSPREAD-TOP','D01-SPREAD-T06','D01-SPREAD-T07','D01-SPREAD-T12'].includes(spread.master));
         const last=textSpreads.at(-1);

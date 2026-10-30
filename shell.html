@@ -2666,7 +2666,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v53">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v54">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2875,7 +2875,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v53" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v54" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -3005,6 +3005,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     });
     if (typeof data.title === 'string' && data.title.trim()) projectTitle.textContent = data.title.trim();
     const mapSubtitle = document.querySelector('.book-map-subtitle');
+    window.__ocherkiWorkMode = data.workMode || '';
     if (mapSubtitle && data.workMode) mapSubtitle.textContent = data.workMode === 'С вопросами-подсказками' ? 'с вопросами-подсказками' : 'свободное письмо';
     if (data.pageCount !== undefined && data.pageCount !== null) pageCount.textContent = String(data.pageCount);
   });
@@ -4297,6 +4298,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 
   function questionsFor(ctx){
     if(!ctx) return [];
+    // «Свободное письмо»: no questions over the sheet (the author chose it).
+    if(window.__ocherkiWorkMode&&window.__ocherkiWorkMode!=='С вопросами-подсказками') return [];
     const {section:s,page:p}=ctx;
     const wc=Number(p.wordCount||0), pc=Number(p.photoCount||0);
     if(s.id==='cover') return ['Как вы хотите назвать эту книгу?', 'Есть ли короткая фраза, которая объясняет, о чём эта история?'];
@@ -4595,10 +4598,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v53"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v53"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v53"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v53"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v53"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v53"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v54"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v54"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v54"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v54"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v54"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v54"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4626,8 +4629,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v53"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v53"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v54"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v54"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4993,10 +4996,23 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // while typing; anything else is simply saved.
     if(!previewAccentFits(field,kind)){field.dataset.editorialCommitted='1';restorePreviewAccent(field);return;}
     if(!page.editorialOverrides||typeof page.editorialOverrides!=='object'||Array.isArray(page.editorialOverrides)) page.editorialOverrides={};
-    if(value) page.editorialOverrides[key]=value;
+    // An emptied margin note means «no note on this page» («∅»), not «let
+    // the book pick another one».
+    const stored=kind==='margin'&&!value?'∅':value;
+    if(stored) page.editorialOverrides[key]=stored;
     else delete page.editorialOverrides[key];
     if(kind==='ctx-handwritten')page.ctxHandwrittenNote=value;
     field.dataset.editorialCommitted='1';
+    if(kind==='margin'){
+      // A margin note lies in the margin and moves no text: it is saved and
+      // shown at once, without rebuilding the book (a rebuild used to move
+      // the preview to another spread and could drop notes).
+      bookSpreads.forEach(sp=>['left','right'].forEach(side=>{const pg=sp?.[side];if(pg&&pg.editorialOverrideKey&&String(pg.sourcePageUid||pg.editorialSourcePageUid||'')===String(pageUid)&&(key===pg.editorialOverrideKey||key===`${pg.editorialOverrideKey}:margin`))pg.marginNote=value;}));
+      directorContentFingerprint=contentFingerprint(structure);
+      send({action:'setEditorialAccent',sectionId,pageUid,kind,overrideKey:key,text:stored});
+      field.dataset.editorialLastValidText=value;
+      return;
+    }
     // A manual editorial change is a data change, not a visual translation.
     // Rebuild immediately through the same DOM pagination engine so a longer
     // or shorter quote/note gives space back to the surrounding text.
@@ -5019,7 +5035,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       const label=field.dataset.editorialAccent==='important'?'Важная строка':field.dataset.editorialAccent==='margin'?'Заметка на внешнем поле':field.dataset.editorialAccent==='ctx-handwritten'?'Рукописный акцент CTX':'Цитата внутри повествования';
       field.setAttribute('aria-label',`${label}. Нажмите, чтобы исправить`);
       field.addEventListener('click',event=>event.stopPropagation());
-      field.addEventListener('focus',()=>{field.dataset.editorialLastValidText=previewAccentText(field);});
+      // Every new edit of the same note is saved again.
+      field.addEventListener('focus',()=>{field.dataset.editorialCommitted='0';field.dataset.editorialLastValidText=previewAccentText(field);});
       field.addEventListener('input',()=>{
         const kind=String(field.dataset.editorialAccent||'').trim().toLowerCase();
         if(['margin','inline-quote'].includes(kind)&&!previewAccentFits(field,kind)){
@@ -7043,7 +7060,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v53"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v54"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();

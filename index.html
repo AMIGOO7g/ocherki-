@@ -3339,7 +3339,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v53";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v54";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3383,6 +3383,10 @@
           playFx('light', .58);
           constructorEntry?.classList.add("is-on");
           flyPowerKey();
+          // The start steps never show through while the constructor lights up.
+          root.style.visibility = "hidden";
+          const stageNow = document.getElementById("constructorShellStage");
+          if (stageNow) { stageNow.style.transition = "none"; }
 
           // Black stage first. The real constructor is loaded only now, so its
           // native light → icons → menus → paper → keyboard boot is visible.
@@ -3839,7 +3843,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v53"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v53"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v54"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v54"></script>
 </body>
 </html>
