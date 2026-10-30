@@ -922,12 +922,18 @@ html body .sheet.ghost{box-shadow:0 5px 12px rgba(0,0,0,.14),inset 0 1px rgba(25
 /* By day the same shadow, lighter: the sheets keep their depth. */
 .sheet.is-pile-bottom::after{opacity:.45}
 .host-night .sheet.is-pile-bottom::after{opacity:1}
-.host-night .sheet.active .paper::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:30;border-radius:inherit;
+.sheet.active .paper::after{opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.sheet.active .paper::before{opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.host-night .sheet.active .paper::after,.host-night .sheet.active .paper::before{opacity:1}
+.sheet.active .paper::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:30;border-radius:inherit;
   background:radial-gradient(120% 95% at 12% 6%,rgba(255,214,150,.20) 0%,rgba(255,200,130,.08) 38%,rgba(0,0,0,0) 62%),
              radial-gradient(140% 120% at 100% 100%,rgba(30,18,8,.16) 0%,rgba(30,18,8,0) 55%);
   mix-blend-mode:multiply}
-.host-night .sheet.active .paper::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:29;border-radius:inherit;
+.sheet.active .paper::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:29;border-radius:inherit;
   background:radial-gradient(110% 90% at 12% 6%,rgba(255,226,180,.16),rgba(255,226,180,0) 58%);mix-blend-mode:screen}
+</style>
+<style id="paper-fade">
+.sheet,.sheet .paper{transition:background-color 2.45s cubic-bezier(.37,0,.63,1),background 2.45s cubic-bezier(.37,0,.63,1),color 2.45s cubic-bezier(.37,0,.63,1),filter 2.45s cubic-bezier(.37,0,.63,1),transform .52s cubic-bezier(.2,.8,.2,1),opacity .34s ease!important}
 </style>
 <script>
 // Marks the lowest visible sheet of the pile (it carries the night shadow).
