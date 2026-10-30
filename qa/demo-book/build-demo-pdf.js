@@ -3,7 +3,7 @@
 // stand alone on their spread). Also writes a PNG of every spread for a
 // quick look. Usage: start a static server in the project root on PORT
 // (default 8849), then
-//   node qa/demo-book/build-demo-pdf.js [PORT] [out.pdf] [format]
+//   node qa/demo-book/build-demo-pdf.js [PORT] [out.pdf] [format] [structure.js]
 const path = require('path');
 const fs = require('fs');
 const { chromium } = require('playwright');
@@ -11,6 +11,9 @@ const { chromium } = require('playwright');
 const PORT = process.argv[2] || '8849';
 const OUT = path.resolve(process.argv[3] || path.join(__dirname, 'demo-book.pdf'));
 const FORMAT = process.argv[4] || 'square';
+// An optional fifth argument adds a script that replaces the demo's content
+// (e.g. qa/user-book/user-structure.js), relative to qa/.
+const EXTRA = process.argv[5] ? `<script charset="utf-8" src="${process.argv[5].replace(/^qa\//, '')}"></script>` : '';
 const H = FORMAT === 'portrait' ? 1196 : 1000;
 const MM = FORMAT === 'portrait' ? 335 : 280;
 
@@ -29,7 +32,7 @@ const MM = FORMAT === 'portrait' ? 335 : 280;
       .side.empty{background:#e9e5de}
       .spread::after{content:'';position:absolute;left:999px;top:0;bottom:0;width:2px;background:linear-gradient(90deg,rgba(0,0,0,.06),rgba(0,0,0,0));pointer-events:none}
 </style></head>
-    <body><div id="book"></div>${scripts}<script charset="utf-8" src="demo-book/demo-structure.js"></script></body></html>`, { waitUntil: 'networkidle' });
+    <body><div id="book"></div>${scripts}<script charset="utf-8" src="demo-book/demo-structure.js"></script>${EXTRA}</body></html>`, { waitUntil: 'networkidle' });
   const summary = await page.evaluate(async ([format]) => {
     await OcherkiLayoutPagination.readyFonts();
     const { structure, meta } = window.OcherkiDemoBook;
