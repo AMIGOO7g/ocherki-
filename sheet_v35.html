@@ -2341,6 +2341,12 @@ function flowCurrentPageOverflow(expectedPage){
   }
 }
 
+// Pasted text arrives as plain text in the sheet's own type: the formatting
+// of a website or a Word file (large fonts, colours) never reaches the page.
+editor.addEventListener('paste',event=>{
+  const plain=event.clipboardData?.getData('text/plain');
+  if(plain!=null&&plain!==''){event.preventDefault();document.execCommand('insertText',false,plain.replace(/\r\n?/g,'\n'));}
+},true);
 editor.addEventListener('paste',()=>{
   const p=currentPage();
   setTimeout(()=>{
@@ -4412,9 +4418,11 @@ window.addEventListener('message',e=>{
       saveEditor();
       const section = sections.find(item => item.id === d.sectionId);
       const page = section?.pages?.find(item => item.uid === d.pageUid);
-      const photo = page?.photos?.find(item => String(item?.id || '') === String(d.photoId || ''));
+      const photo = page?.photos?.find(item => String(item?.id || '') === String(d.photoId || ''))
+        || (section?.pages||[]).flatMap(item => item.photos || []).find(item => String(item?.id || '') === String(d.photoId || ''));
       if(photo) {
         photo.layoutPreference = String(d.layoutPreference || 'auto');
+        persistSoon();
         render();
         emitStructure();
       }

@@ -18,7 +18,8 @@ if(/id="photoLayoutField"/.test(sheet)||/id="photoLayoutPreference"/.test(sheet)
 if(!/id="bookPreviewLayout"/.test(shell)||!/id="bookPreviewLayoutPrev"/.test(shell)||!/id="bookPreviewLayoutNext"/.test(shell))fail('bidirectional preview composition controls are missing');
 const catalogBlock=shell.match(/const PREVIEW_COMPOSITION_CATALOG=Object\.freeze\(\[([\s\S]*?)\]\);/);
 const catalogIds=catalogBlock?[...catalogBlock[1].matchAll(/\{id:'([^']+)'/g)].map(match=>match[1]):[];
-if(catalogIds.length!==20||!catalogIds.includes('dark-gradient-photo')||!catalogIds.includes('dark-fade-2.2')||!catalogIds.includes('ctx-detail-sq')||!catalogIds.includes('spread')||!catalogIds.includes('photo-rail'))fail('manual composition catalog is incomplete');
+// The manual choice now offers the book's own compositions (built by the director).
+if(!['auto','panorama','hspread','t06','t07','t08','t10','t12'].every(id=>catalogIds.includes(id)))fail('manual composition catalog is incomplete');
 if(/id="paperAirplane"/.test(index)||/setAirplaneFlight/.test(index)||/movePaperAirplane/.test(index))fail('paper airplane should be removed from onboarding');
 if(!/class="lb-start is-preauth"/.test(index)||!/start-auth-key__pendulum lb-hanging-icon/.test(index))fail('start auth sequence is not hanging/pre-auth');
 if(!/setTimeout\(\(\) => \{\s*if \(!isSkipped\) showStartAuth\(\);\s*\}, 1050\)/.test(index))fail('auth does not appear after the light');

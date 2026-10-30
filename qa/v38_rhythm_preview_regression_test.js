@@ -23,7 +23,7 @@ if (!/previewCompositionLabel\(sp\)/.test(shell)) fail('Preview does not identif
 if (!/PREVIEW_COMPOSITION_CATALOG=Object\.freeze\(\[[\s\S]*photo-rail/.test(shell) || !/let previewCompositionOverride=null/.test(shell) || !/renderPreviewCompositionOverride/.test(shell) || !/const overrideId=previewCompositionOverride/.test(shell)) fail('Preview composition override is missing');
 const catalogBlock = shell.match(/const PREVIEW_COMPOSITION_CATALOG=Object\.freeze\(\[([\s\S]*?)\]\);/);
 const catalogIds = catalogBlock ? [...catalogBlock[1].matchAll(/\bid:'([^']+)'/g)].map(match => match[1]) : [];
-if (catalogIds.length !== 20 || new Set(catalogIds).size !== 20) fail('Preview composition catalog must contain exactly 20 unique layouts');
+if (catalogIds.length < 10 || new Set(catalogIds).size !== catalogIds.length) fail('Preview composition catalog must contain unique layouts');
 if (!/previewPinnedTarget/.test(shell) || !/const target=previewPendingTarget\|\|previewPinnedTarget/.test(shell)) fail('Preview composition target is not pinned through rebuild');
 if (!/maxAngle=\.22/.test(shell) || !/kick\(\.014\)/.test(shell) || !/Math\.abs\(dx\)>24/.test(shell)) fail('Preview pendulum impulse is still too strong');
 if (!/book-preview-spread\.is-empty::after\{display:none!important\}/.test(shell) || !/book-preview-layout-hanger\.is-empty/.test(shell) || !/Создайте хотя бы одну главу/.test(shell)) fail('Empty preview still exposes book controls or spine');

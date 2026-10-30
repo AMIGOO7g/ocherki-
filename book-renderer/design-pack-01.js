@@ -964,10 +964,7 @@
       const documentImage = ctx.image ? ctx.image(source, page.photoIndex || 0) : '';
       const documentCaption = caption(page.photoIndex || 0);
       if (documentImage) return article('D01-DOCUMENT', `<figure class="dpk-document-scan">${image(page.photoIndex || 0)}</figure>${documentCaption ? `<div class="dpk-caption">${documentCaption}</div>` : ''}${folio}`, 'dpk-document-image');
-      // A long transcript gets a smaller hand so it stays on its page; the
-      // page never lets text run below its bottom edge.
-      const docLen=String(page.text||'').length,docSize=docLen<=900?null:Math.max(13,Math.round(26*Math.sqrt(900/docLen)));
-      return article('D01-DOCUMENT', `<div class="dpk-document-transcript" style="overflow:hidden;max-height:calc(var(--book-page-h,1000px) - 150px)"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p${docSize?` style="font-size:${docSize}px!important;line-height:1.45!important"`:''}>${text}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
+      return article('D01-DOCUMENT', `<div class="dpk-document-transcript"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p>${text}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
     }
     if (role === 'document-comment') {
       const documentDate=esc([inferred.place,inferred.date].filter(Boolean).join(', '));

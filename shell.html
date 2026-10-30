@@ -2666,7 +2666,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v56">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v57">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2875,7 +2875,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v56" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v57" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4598,10 +4598,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v56"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v56"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v56"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v56"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v56"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v56"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v57"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v57"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v57"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v57"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v57"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v57"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4629,8 +4629,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v56"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v56"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v57"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v57"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4663,27 +4663,21 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   // nineteenth composition: once the author opens the picker, every stop is
   // one of these eighteen deliberate layouts and can be traversed in either
   // direction.
+  // «Сменить композицию» offers the book's own compositions: the choice is
+  // stored on the photo and the director builds it for real (text flows,
+  // nothing is cut, it survives closing the book).
   const PREVIEW_COMPOSITION_CATALOG=Object.freeze([
-    {id:'photo-top-text',label:'Фото сверху — текст снизу'},
-    {id:'text-top-photo',label:'Текст сверху — фото снизу'},
-    {id:'photo-side-text',label:'Фото сбоку — текст сбоку'},
-    {id:'photo-1p5-text',label:'Фото на 1,5 листа — текст сбоку'},
-    {id:'spread',label:'Фото на весь разворот'},
-    {id:'spread-pair',label:'Две разные фотографии на развороте'},
-    {id:'duo',label:'Две фотографии на одном листе'},
-    {id:'triptych',label:'Три фотографии'},
-    {id:'mosaic',label:'Мозаика'},
-    {id:'quote-band-pair',label:'Цитатная полоса'},
-    {id:'photo-gradient-text',label:'Светлый градиент — фото и текст'},
-    {id:'ctx-detail-sq',label:'CTX Detail SQ v1.7'},
-    {id:'dark-fade-2.2',label:'DARK FADE 2.2'},
-    {id:'dark-gradient-photo',label:'Тёмный градиент — фото и текст'},
-    {id:'dark-split',label:'Тёмный лист — фото и текст'},
-    {id:'dark-photo-pair',label:'Тёмная пара фотографий'},
-    {id:'photo-overlay-text',label:'Фото с текстом поверх'},
-    {id:'large-photo',label:'Большая фотография'},
-    {id:'text-quote',label:'Текст с цитатой'},
-    {id:'photo-rail',label:'Фото с текстовой рейкой'}
+    {id:'auto',label:'Как выберет книга'},
+    {id:'single',label:'Текст и большое фото'},
+    {id:'two',label:'Текст и два фото'},
+    {id:'three',label:'Текст и три фото'},
+    {id:'panorama',label:'Фото на весь разворот'},
+    {id:'hspread',label:'Фото сверху через разворот — текст снизу'},
+    {id:'t06',label:'Главное фото и пара снимков над текстом'},
+    {id:'t07',label:'Текст и сетка фото'},
+    {id:'t08',label:'Вертикальное фото у сгиба и пауза'},
+    {id:'t10',label:'Фото с карточкой'},
+    {id:'t12',label:'Текст поверх фото'}
   ]);
 
   function initPreviewDom(){
@@ -6822,7 +6816,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         // note edit used to jump to another spread).
         const keepSpread=activeSpread;
         assemble();
-        if(previewModal?.classList.contains('open')&&bookSpreads.length){activeSpread=Math.max(0,Math.min(keepSpread,bookSpreads.length-1));previewPendingTarget=null;previewPinnedTarget=null;}
+        if(previewModal?.classList.contains('open')&&bookSpreads.length){
+          activeSpread=Math.max(0,Math.min(keepSpread,bookSpreads.length-1));previewPendingTarget=null;previewPinnedTarget=null;
+          const focus=window.__ocherkiFocusPhoto;window.__ocherkiFocusPhoto='';
+          if(focus){const at=bookSpreads.findIndex(spread=>[spread?.left,spread?.right].some(pg=>{const list=[pg?.photoIndex,...(pg?.photoIndices||[]),pg?.t10?.main?.index,pg?.t10?.card?.index].filter(Number.isInteger);return list.some(i=>String(pg?.source?.photos?.[i]?.id||'')===focus);}));if(at>=0)activeSpread=at;}
+        }
         requestAnimationFrame(scaleAllPageCanvases);
         buildBtn.textContent=bookSpreads.length?'Посмотреть книгу':'Нет данных';
         bookOutdated=false;buildBtn.classList.remove('is-outdated');
@@ -6950,8 +6948,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   function updateLocalPhotoLayout(page,photo,photoIndex,layoutPreference){
     if(photo)photo.layoutPreference=layoutPreference;
     const section=(structure?.sections||[]).find(item=>String(item?.id||'')===String(page?.sectionId||''));
-    const sourcePage=(section?.pages||[]).find(item=>String(item?.uid||item?.id||'')===String(page?.sourcePageUid||''));
-    const sourcePhoto=sourcePage?.photos?.[photoIndex];
+    // The photo is found by its id in the section (photoIndex counts the
+    // whole chapter, not one manuscript page).
+    const sourcePhoto=(section?.pages||[]).flatMap(item=>item?.photos||[]).find(item=>photo?.id&&String(item?.id||'')===String(photo.id));
     if(sourcePhoto)sourcePhoto.layoutPreference=layoutPreference;
   }
   function changePreviewComposition(direction=1){
@@ -6980,9 +6979,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // Render the selected composition immediately in the current preview.
     // The director may rebuild asynchronously after the bridge command, but
     // the pinned target and override keep this exact spread on screen.
-    previewCompositionOverride={target,id:next.id};
-    if(previewModal?.classList.contains('open'))previewRender();
-    send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:page.sourcePageUid||photo._sourcePageUid||'',photoId:photo.id||'',layoutPreference:next.id});
+    send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:photo._sourcePageUid||page.sourcePageUid||'',photoId:photo.id||'',layoutPreference:next.id});
+    // Rebuild with the choice and stay on the spread that holds this photo.
+    window.__ocherkiFocusPhoto=String(photo.id||'');
+    window.OCHERKI_SHOW_TOAST?.(next.label);
+    setTimeout(()=>performBuild(),120);
     if(previewLayout){
       previewLayout.setAttribute('aria-label',next.label);
       previewLayout.title=next.label;
@@ -7069,7 +7070,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v56"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v57"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();

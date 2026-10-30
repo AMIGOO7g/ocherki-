@@ -1175,7 +1175,10 @@
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forcedQueue=Array.isArray(meta.forcePhotoBeat)?forcedBeatQueue:[meta.forcePhotoBeat];
-          const forced=forcedQueue.map(wanted=>eligible.find(([candidate])=>candidate===wanted)).find(Boolean)||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
+          // The author's choice from «Сменить композицию» (kept on the photo as
+          // layoutPreference) wins whenever that composition fits here.
+          const authorChoice=unused.map(photoPosition=>String(chapter.photos[photoPosition]?.layoutPreference||'')).map(choice=>eligible.find(([candidate])=>candidate===choice)).find(Boolean);
+          const forced=forcedQueue.map(wanted=>eligible.find(([candidate])=>candidate===wanted)).find(Boolean)||authorChoice||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
           const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
           if(Array.isArray(meta.forcePhotoBeat)&&forcedBeatQueue.includes(beat))forcedBeatQueue.splice(forcedBeatQueue.indexOf(beat),1);
           lastPhotoBeat=beat;recentPhotoBeats=[...recentPhotoBeats,beat].slice(-3);
@@ -1329,8 +1332,28 @@
         }
       }
       // Document/photos retain their existing masters; manuscript text is never routed through them.
+      // A long transcript continues on the following pages at its usual size
+      // (cut at sentence ends: ~190 words with the heading, ~240 after).
+      const splitDocument=text=>{
+        const sentences=String(text||'').match(/[^.!?…]+[.!?…»"]*\s*/gu)||[];
+        const pages=[];let current='',limit=190;
+        for(const sentence of sentences){
+          const words=(current+sentence).trim().split(/\s+/).length;
+          if(current&&words>limit){pages.push(current.trim());current='';limit=240;}
+          current+=sentence;
+        }
+        if(current.trim())pages.push(current.trim());
+        return pages.length?pages:[String(text||'')];
+      };
       for(const document of chapter.documents){
         const source={...document,photos:document.photos||[]};
+        const parts=source.photos.length?[]:splitDocument(document.text);
+        if(parts.length>1){
+          const pages=parts.map((copy,index)=>P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:index?`${document.title||'Архивный документ'} · продолжение`:document.title,text:copy}));
+          pages.push(P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||'',transcript:'',note:String(document.explanation||document.comment||'')}));
+          for(let at=0;at<pages.length;at+=2)spreads.push({master:at?'D01-SPREAD-DOCUMENT-CONTINUATION':'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:pages[at],right:pages[at+1]||P('blank',{meta:bookMeta})});
+          continue;
+        }
         spreads.push({master:'D01-SPREAD-DOCUMENT',sectionId:chapter.sectionId,left:P('document',{layout:'document-letter',master:'D01-DOCUMENT',source,title:document.title,text:document.text||''}),right:P('document-comment',{master:'D01-DOCUMENT-COMMENT',source,title:document.title,text:document.explanation||document.comment||'',transcript:(source.photos.length?String(document.text||''):''),note:String(document.explanation||document.comment||'')})});
       }
       // «Кто на фото»: the group photo with small numbers on the left page,
