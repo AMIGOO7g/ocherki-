@@ -1333,13 +1333,14 @@
       }
       // Document/photos retain their existing masters; manuscript text is never routed through them.
       // A long transcript continues on the following pages at its usual size
-      // (cut at sentence ends: ~190 words with the heading, ~240 after).
+      // (cut at sentence ends, as full as a text page).
       const splitDocument=text=>{
         const sentences=String(text||'').match(/[^.!?…]+[.!?…»"]*\s*/gu)||[];
-        const pages=[];let current='',limit=190;
+        // A page of the handwritten transcript holds ~22 lines of ~100
+        // characters; it is filled to ~2050 characters, cut at a sentence end.
+        const pages=[];let current='';const limit=2050;
         for(const sentence of sentences){
-          const words=(current+sentence).trim().split(/\s+/).length;
-          if(current&&words>limit){pages.push(current.trim());current='';limit=240;}
+          if(current&&(current+sentence).trim().length>limit){pages.push(current.trim());current='';}
           current+=sentence;
         }
         if(current.trim())pages.push(current.trim());
