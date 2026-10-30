@@ -906,11 +906,12 @@ html.photo-modal-root-open body{overflow:visible!important;}
 /* Night: the lamp stands to the upper left. The sheet casts a deep shadow
    to the right and down, and a warm pool of light lies on its upper-left
    part, fading towards the far corner. */
-/* The deep shadow falls from the whole pile, under the last sheet, so it
-   never darkens the sheets lying under the active one (their numbers stay
-   readable); the active sheet keeps only a soft contact shadow. */
+/* The deep shadow belongs to the lowest sheet of the pile, so it never
+   darkens the sheets lying under the active one; it fades in with the
+   night like the keys do. */
+.sheet{transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .host-night .sheet.active{box-shadow:2px 3px 6px rgba(0,0,0,.22)!important}
-.host-night .sheet-stack{filter:drop-shadow(14px 20px 22px rgba(0,0,0,.5)) drop-shadow(30px 40px 60px rgba(0,0,0,.35))}
+.host-night .sheet.is-pile-bottom{box-shadow:4px 6px 10px rgba(0,0,0,.3),18px 26px 46px rgba(0,0,0,.5),34px 46px 90px rgba(0,0,0,.4)!important}
 .host-night .sheet.active .paper::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:30;border-radius:inherit;
   background:radial-gradient(120% 95% at 12% 6%,rgba(255,214,150,.20) 0%,rgba(255,200,130,.08) 38%,rgba(0,0,0,0) 62%),
              radial-gradient(140% 120% at 100% 100%,rgba(30,18,8,.16) 0%,rgba(30,18,8,0) 55%);
@@ -918,6 +919,10 @@ html.photo-modal-root-open body{overflow:visible!important;}
 .host-night .sheet.active .paper::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:29;border-radius:inherit;
   background:radial-gradient(110% 90% at 12% 6%,rgba(255,226,180,.16),rgba(255,226,180,0) 58%);mix-blend-mode:screen}
 </style>
+<script>
+// Marks the lowest visible sheet of the pile (it carries the night shadow).
+setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')].filter(el=>el.offsetParent!==null&&getComputedStyle(el).display!=='none'&&!el.classList.contains('stack-hidden-for-section'));const bottom=all[0];document.querySelectorAll('.sheet.is-pile-bottom').forEach(el=>{if(el!==bottom)el.classList.remove('is-pile-bottom');});bottom?.classList.add('is-pile-bottom');},400);
+</script>
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
@@ -4097,7 +4102,10 @@ window.addEventListener('message',e=>{
           type: page.type || 'text',
           title: page.title || section.title || 'Лист',
           episode: page.episode || '',
-          text: String(page.text || ''),
+          // Sentences glued without a space («побуждениями.Александр», as
+          // text pasted from a website often is) get their space back, so a
+          // justified line does not stretch around one long «word».
+          text: String(page.text || '').replace(/([а-яё][.!?…»])(?=[А-ЯЁ])/gu, '$1 '),
           semanticHtml: String(page.semanticHtml || ''),
           quote: String(page.quote || ''),
           eraDate: String(page.eraDate || ''),

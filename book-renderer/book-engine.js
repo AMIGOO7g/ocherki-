@@ -895,7 +895,7 @@
         photo._episodeOpening=true;
         return {offset:run.start+(run.text.length-String(run.page.text).length),photoPosition,opened:false,
           title:String(run.page.episode||run.page.title||'').replace(/^\u042d\u043f\u0438\u0437\u043e\u0434\s+\d+[.:]?\s*/iu,'').trim()||String(run.page.title||'').trim(),
-          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:'')||episodeLineFrom(run.page.text),caption:String(photo.caption||'').trim()};
+          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:'')||episodeLineFrom(run.page.text),caption:[String(photo.caption||'').trim()||String(photo.people||'').trim(),String(photo.year||'').trim()].filter(Boolean).join(', ')};
       }).filter(Boolean);
       const pendingEpisode=()=>episodes.find(item=>!item.opened&&item.offset===sourceOffset);
       const consume = (page,side) => {

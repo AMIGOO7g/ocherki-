@@ -4,7 +4,8 @@
   const clone=value=>JSON.parse(JSON.stringify(value));
   const escape=value=>String(value??'').replace(/[&<>"'\r]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','\r':'&#13;'}[c]));
   const image=(source,index=0)=>{const p=source?.photos?.[index];return String(p?.src||p?.dataUrl||p?.dataURL||p?.url||p?.preview||p?.objectUrl||'');};
-  const caption=(source,index=0)=>{const p=source?.photos?.[index]||{};return [p.caption,p.year,p.place].filter(Boolean).join(' · ');};
+  // The caption under a photo: its own caption, or who is on it, then year and place.
+  const caption=(source,index=0)=>{const p=source?.photos?.[index]||{};return [String(p.caption||'').trim()||String(p.people||'').trim(),p.year,p.place].filter(Boolean).join(' · ');};
   const accentWords=value=>[...new Intl.Segmenter('ru',{granularity:'word'}).segment(String(value||''))].filter(item=>item.isWordLike).map(item=>item.segment);
   const compactAccent=(value,fallback,attempt=0,minimum=1)=>{
     const words=accentWords(value).length?accentWords(value):accentWords(fallback);
