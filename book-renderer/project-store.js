@@ -72,7 +72,11 @@
       const response = await api(`/api/photos?ref=${encodeURIComponent(ref)}`);
       return response.ok ? response.text() : null;
     },
-    async remove() {}
+    async list() {
+      const response = await api('/api/projects');
+      return response.ok ? response.json() : [];
+    },
+    async remove(id) { await api(`/api/projects/${encodeURIComponent(id)}`, { method: 'DELETE' }); }
   };
   const remoteReady = serverReady.then(ok => { if (ok && !remote) remote = serverAdapter; return ok; });
 
@@ -124,9 +128,27 @@
     if (remote) { try { await remote.remove(id); } catch (_) {} }
   }
 
+  // Every book of this computer and of the account: [{id, title, author,
+  // pages, savedAt}], newest copy of each. Records keep a small «book»
+  // summary so the list never loads photos or text.
+  const summary = (id, record) => ({ id: String(id), title: String(record?.book?.title || '').trim(), author: String(record?.book?.author || '').trim(), pages: Number(record?.book?.pages) || 0, savedAt: Number(record?.savedAt) || 0 });
+  async function list() {
+    const books = new Map();
+    try {
+      await open().then(db => new Promise((resolve, reject) => {
+        const t = db.transaction(STORE, 'readonly'), request = t.objectStore(STORE).openCursor();
+        request.onsuccess = () => { const cursor = request.result; if (cursor) { books.set(String(cursor.key), summary(cursor.key, cursor.value)); cursor.continue(); } };
+        t.oncomplete = resolve; t.onerror = () => reject(t.error);
+      }));
+    } catch (_) {}
+    await remoteReady;
+    if (remote?.list) { try { for (const item of await remote.list()) { const book = summary(item.id, item); if (!books.has(book.id) || book.savedAt > books.get(book.id).savedAt) books.set(book.id, book); } } catch (_) {} }
+    return [...books.values()].sort((a, b) => b.savedAt - a.savedAt);
+  }
+
   root.OcherkiStore = Object.freeze({
-    save, load, remove,
-    // adapter: {save(id, record), load(id), photo(ref), remove(id)}.
+    save, load, remove, list,
+    // adapter: {save(id, record), load(id), photo(ref), remove(id), list()}.
     useRemote(adapter) { remote = adapter || null; },
     // Resolves to true when the book is also kept in the user's account.
     signedIn() { return remoteReady; },

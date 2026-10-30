@@ -1746,9 +1746,18 @@ function showSaved(ok){
 // Autosave: the whole manuscript (text, pages, photos) goes to the project
 // store a moment after each change and when the tab is hidden; on start the
 // last saved copy is restored.
-var PROJECT_ID='current';
+// Several books per account: the open one is named in «ocherkiActiveBook»
+// (the bookcase switches it); the first book keeps its old id «current».
+var PROJECT_ID=(()=>{try{return localStorage.getItem('ocherkiActiveBook')||'current';}catch(_){return 'current';}})();
 var persistTimer=0, projectRestoring=true;
-function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,sections};}
+// A small summary rides along for the bookcase, so the shelf never loads
+// the manuscript itself.
+function bookSummary(){
+  const firstLine=id=>String(sections.find(section=>section.id===id)?.pages?.[0]?.text||'').split(/\n+/).map(line=>line.trim()).filter(line=>line&&line!==SAMPLE_PREFIX);
+  const titleLines=firstLine('title').length?firstLine('title'):firstLine('cover');
+  return {title:titleLines[0]||'',author:titleLines[2]||titleLines[1]||'',pages:sections.reduce((sum,section)=>sum+(section.pages||[]).length,0)};
+}
+function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,sections,book:bookSummary()};}
 function persistSoon(){clearTimeout(persistTimer);persistTimer=setTimeout(persistNow,700);}
 function persistNow(){
   clearTimeout(persistTimer);

@@ -123,12 +123,21 @@ async function api(req, res, url) {
   if (url.pathname === '/api/me') return user ? send(res, 200, { email: user.email }) : send(res, 401, { error: 'not signed in' });
   if (!user) return send(res, 401, { error: 'not signed in' });
 
+  // The bookcase: id, save time and the small «book» summary of every book.
+  if (url.pathname === '/api/projects' && req.method === 'GET') {
+    const rows = db.prepare("SELECT id, saved_at, json_extract(body, '$.book') AS book FROM projects WHERE user_id = ? ORDER BY saved_at DESC").all(user.id);
+    return send(res, 200, rows.map(row => ({ id: row.id, savedAt: row.saved_at, book: row.book ? JSON.parse(row.book) : null })));
+  }
   const project = url.pathname.match(/^\/api\/projects\/([\w-]{1,64})$/u);
   if (project && req.method === 'GET') {
     const row = db.prepare('SELECT body FROM projects WHERE user_id = ? AND id = ?').get(user.id, project[1]);
     if (!row) return send(res, 404, { error: 'not found' });
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
     return res.end(row.body);
+  }
+  if (project && req.method === 'DELETE') {
+    db.prepare('DELETE FROM projects WHERE user_id = ? AND id = ?').run(user.id, project[1]);
+    return send(res, 200, { ok: true });
   }
   if (project && req.method === 'PUT') {
     const body = await readBody(req, MAX_PROJECT), record = JSON.parse(body);
