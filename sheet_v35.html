@@ -4560,6 +4560,42 @@ html body .sheet.active .footer .cloud svg{stroke:#4a3628!important}
 html body .page-context-actions button{color:#4a3628!important;opacity:1!important;font-size:14px!important}
 html body .page-context-actions button:hover{color:#a8692f!important}
 </style>
+
+<style id="photo-card-two-levels">
+/* The photo card in two levels: first who is in the picture and when and
+   where it was taken; the story behind one button; everything else under
+   «Ещё». */
+.photo-fields .pf-who{order:1}.photo-fields .pf-year{order:2}.photo-fields .pf-place{order:3}
+.photo-fields .pf-story{order:5}.photo-fields .pf-extra{order:7}.photo-fields .pf-more{order:4}.photo-fields .pf-meta{order:9}
+.photo-fields .pf-story,.photo-fields .pf-extra{display:none}
+.photo-modal.show-story .pf-story{display:flex}
+.photo-modal.show-more .pf-extra{display:flex}
+.photo-modal.show-more .pf-extra[hidden]{display:none!important}
+.pf-more{grid-column:1/-1;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:2px 0 4px}
+.pf-more button{border:0;background:none;padding:4px 2px;font:italic 15px Georgia,serif;color:#8a5a2e;cursor:pointer;border-bottom:1px solid rgba(138,90,46,.35)}
+.pf-more button:hover{color:#5c3a1c}
+.photo-modal.show-story .pf-more [data-more="story"],.photo-modal.show-more .pf-more [data-more="more"]{display:none}
+</style>
+<script id="photo-card-two-levels-js">
+(()=>{
+  const modal=document.getElementById('photoModal');if(!modal)return;
+  const field=id=>document.getElementById(id)?.closest('.photo-field');
+  const tag=(id,cls)=>field(id)?.classList.add(cls);
+  tag('photoPeople','pf-who');tag('photoYear','pf-year');tag('photoPlace','pf-place');tag('photoStory','pf-story');
+  ['photoCaption','photoSource','photoPortraitHero','photoHeroYears','photoHeroRole','photoModePreference','documentExplanation'].forEach(id=>tag(id,'pf-extra'));
+  document.getElementById('photoObjectMeta')?.closest('.photo-field')?.classList.add('pf-meta','pf-extra');
+  const peopleField=field('photoPeople');if(peopleField){const label=peopleField.querySelector('label');if(label)label.textContent='КТО НА ФОТО';}
+  const more=document.createElement('div');more.className='pf-more';
+  more.innerHTML='<button type="button" data-more="story">Рассказать историю этого снимка</button><button type="button" data-more="more">Ещё: подпись, портрет героя, тон</button>';
+  modal.querySelector('.photo-fields')?.appendChild(more);
+  more.addEventListener('click',event=>{const b=event.target.closest('[data-more]');if(!b)return;modal.classList.add(b.dataset.more==='story'?'show-story':'show-more');(b.dataset.more==='story'?document.getElementById('photoStory'):document.getElementById('photoCaption'))?.focus();try{positionPhotoModal();}catch(_){}});
+  // A card whose hidden fields already hold something opens them at once.
+  const sync=()=>{const has=id=>{const el=document.getElementById(id);return el&&(el.type==='checkbox'?el.checked:String(el.value||'').trim()&&el.value!=='auto');};
+    modal.classList.toggle('show-story',Boolean(has('photoStory')));
+    modal.classList.toggle('show-more',['photoCaption','photoSource','photoPortraitHero','photoModePreference'].some(has));};
+  new MutationObserver(()=>{if(modal.classList.contains('open')&&!modal.dataset.levelSynced){modal.dataset.levelSynced='1';sync();try{positionPhotoModal();}catch(_){}}if(!modal.classList.contains('open'))delete modal.dataset.levelSynced;}).observe(modal,{attributes:true,attributeFilter:['class']});
+})();
+</script>
 </body>
 </html>
 
