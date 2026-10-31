@@ -8,28 +8,23 @@
 <link rel="stylesheet" href="../book-renderer/design-pack-01.css">
 <style>
 /* A test page for a realistic page turn over the real demo book, built by
-   the same engine as the constructor. The turning leaf is cut into narrow
-   vertical strips, each hinged on the one before: rotating each a little
-   more than the last bends the leaf like paper. Light and shade follow
-   each strip's angle; the leaf casts a shadow on the page it uncovers. */
+   the same engine as the constructor. Seen straight from above, a turning
+   page is paper folded over itself along one line: the part beyond the fold
+   lies on top showing its back, the fold catches light, and the folded part
+   casts a soft shadow on the page it uncovers. One whole sheet, no slices. */
 :root{--paper:#fbf8f2}
 html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 30%,#d9b98e 0%,#9c7449 55%,#3b2a1c 100%);overflow:hidden;font-family:Georgia,"Times New Roman",serif}
 .stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-/* Seen straight from above: the book lies flat, the leaf lifts towards the
-   reader as it turns (a long perspective, so the view stays top-down). */
-.book{position:relative;transform-style:preserve-3d;perspective:5200px;filter:drop-shadow(0 22px 30px rgba(40,22,8,.42))}
+.book{position:relative;box-shadow:0 26px 44px rgba(40,22,8,.42),0 3px 8px rgba(40,22,8,.25)}
 .side{position:absolute;top:0;overflow:hidden;background:var(--paper)}
 .side.left{left:0}.side.right{right:0}
-.side.left::after,.side.right::after{content:'';position:absolute;top:0;bottom:0;width:60px;pointer-events:none;z-index:5}
-.side.left::after{right:0;background:linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.16))}
-.side.right::after{left:0;background:linear-gradient(270deg,rgba(0,0,0,0),rgba(0,0,0,.2))}
+/* The gutter: a soft shade on both sides of the spine. */
+.gutter{position:absolute;top:0;bottom:0;width:120px;margin-left:-60px;pointer-events:none;z-index:16;
+  background:linear-gradient(90deg,rgba(0,0,0,0) 0,rgba(0,0,0,.05) 30%,rgba(0,0,0,.16) 49%,rgba(0,0,0,.2) 50%,rgba(0,0,0,.12) 52%,rgba(0,0,0,.04) 72%,rgba(0,0,0,0) 100%)}
 .pg{position:absolute;left:0;top:0;transform-origin:0 0;background:var(--paper);overflow:hidden}
-.cast{position:absolute;top:0;bottom:0;pointer-events:none;z-index:6;opacity:0}
-.leaf{position:absolute;top:0;transform-style:preserve-3d;z-index:20}
-.strip{position:absolute;top:0;height:100%;transform-style:preserve-3d}
-.face{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--paper)}
-.face.back{transform:rotateY(180deg)}
-.shade{position:absolute;inset:0;pointer-events:none;z-index:9}
+.clip{position:absolute;top:0;height:100%;overflow:hidden;z-index:10}
+.flap{z-index:20}
+.fx{position:absolute;top:0;height:100%;pointer-events:none}
 .hud{position:fixed;left:0;right:0;bottom:22px;display:flex;justify-content:center;gap:14px;align-items:center;color:#fff6e6;font-size:16px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .hud button{border:0;border-radius:22px;padding:9px 18px;background:rgba(40,28,18,.7);color:#fff6e6;font:15px Georgia,serif;cursor:pointer}
 .hud button:hover{background:rgba(40,28,18,.9)}
@@ -57,7 +52,6 @@ html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 30%,#d
 <script>
 (async()=>{
   'use strict';
-  const STRIPS=20;            // narrow strips that bend the leaf
   const bookEl=document.getElementById('book'),info=document.getElementById('info');
   // Pages as ready HTML: built here by the engine, or already embedded in
   // a standalone copy of this page (window.OCHERKI_FLIP_PAGES).
@@ -72,76 +66,89 @@ html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 30%,#d
   const PAGE_H=1000;
   let S=0,H=0,scale=1,index=0,busy=false;
 
-  // A page as HTML scaled to the book size; each strip shows its slice.
+  // A page as HTML scaled to the book size.
   const pageHtml=html=>`<div class="pg" style="width:1000px;height:${PAGE_H}px;transform:scale(${scale});--book-page-w:1000px;--book-page-h:${PAGE_H}px">${html||''}</div>`;
   const layout=()=>{
     S=Math.floor(Math.min((innerWidth-120)/2,(innerHeight-150)));H=S;scale=S/1000;
     bookEl.style.width=2*S+'px';bookEl.style.height=H+'px';
   };
   const sideEl=(cls,page,side)=>{const el=document.createElement('div');el.className='side '+cls;el.style.cssText=`width:${S}px;height:${H}px`;el.innerHTML=pageHtml(page,side);return el;};
+  // The two pages lying open stay in place for the whole turn; only the
+  // page being uncovered changes under the fold, so nothing flickers.
+  let leftEl=null,rightEl=null,gutter=null;
   function show(){
     bookEl.innerHTML='';
     const sp=spreads[index];
-    bookEl.append(sideEl('left',sp.left,'left'),sideEl('right',sp.right,'right'));
+    leftEl=sideEl('left',sp.left,'left');rightEl=sideEl('right',sp.right,'right');
+    gutter=document.createElement('i');gutter.className='gutter';gutter.style.left=S+'px';
+    bookEl.append(leftEl,rightEl,gutter);
     info.textContent=`Разворот ${index+1} из ${spreads.length}`;
   }
-  // The leaf: a chain of strips, each a child of the one before and hinged
-  // on its left edge. front = page being turned, back = the page behind it.
-  function makeLeaf(front,frontSide,back,backSide,forward){
-    const leaf=document.createElement('div');leaf.className='leaf';
-    leaf.style.cssText=`width:${S}px;height:${H}px;left:${forward?S:0}px;transform-origin:${forward?'0':'100%'} 50%`;
-    const w=S/STRIPS,strips=[];let parent=leaf;
-    for(let i=0;i<STRIPS;i++){
-      const k=forward?i:STRIPS-1-i;      // slice of the page this strip shows
-      const strip=document.createElement('div');strip.className='strip';
-      strip.style.cssText=`width:${Math.ceil(w)+2}px;${forward?`left:${i===0?0:w}px;transform-origin:0 50%`:`right:${i===0?0:w}px;transform-origin:100% 50%`}`;
-      const f=document.createElement('div');f.className='face';f.innerHTML=pageHtml(front,frontSide)+'<i class="shade"></i>';f.firstChild.style.left=(-k*w)+'px';
-      const b=document.createElement('div');b.className='face back';b.innerHTML=pageHtml(back,backSide)+'<i class="shade"></i>';b.firstChild.style.left=(-(STRIPS-1-k)*w)+'px';
-      strip.append(f,b);parent.appendChild(strip);parent=strip;strips.push({strip,fs:f.lastChild,bs:b.lastChild});
-    }
-    return {leaf,strips};
-  }
-  // Angles for progress p (0..1): the whole leaf turns 180°, and in the
-  // middle of the turn its free edge runs ahead, so the leaf curves.
-  function pose(leafObj,p,forward){
-    const total=180*p,curl=Math.sin(Math.PI*p)*58,base=total-curl*.55;
-    const weights=leafObj.strips.map((_,i)=>Math.pow((i+1)/STRIPS,2.2)),sum=weights.reduce((a,b)=>a+b,0);
-    const sign=forward?-1:1,angles=[];let acc=base;
-    leafObj.leaf.style.transform=`rotateY(${sign*base}deg)`;
-    leafObj.strips.forEach((item,i)=>{
-      const step=i===0?0:curl*weights[i]/sum;acc+=step;angles.push(Math.min(180,acc));
-      if(i>0)item.strip.style.transform=`rotateY(${sign*step}deg)`;
-    });
-    // Light: a strip facing the reader is bright; tilted, it darkens. Each
-    // strip blends from its neighbours' light, so the bend reads as one
-    // smooth surface rather than slats.
-    const dark=angle=>{const face=Math.cos(angle*Math.PI/180);return Math.max(0,1-Math.abs(face))*.42;};
-    const shine=angle=>{const a=angle*Math.PI/180;return Math.max(0,Math.sin(a))*.16*Math.max(0,1-Math.abs(Math.cos(a)-.35));};
-    leafObj.strips.forEach((item,i)=>{
-      const left=(angles[Math.max(0,i-1)]+angles[i])/2,right=(angles[i]+angles[Math.min(angles.length-1,i+1)])/2;
-      const [l,r]=forward?[left,right]:[right,left];
-      item.fs.style.background=`linear-gradient(90deg,rgba(0,0,0,${dark(l).toFixed(3)}),rgba(0,0,0,${dark(r).toFixed(3)})),linear-gradient(90deg,rgba(255,248,230,${shine(l).toFixed(3)}),rgba(255,248,230,${shine(r).toFixed(3)}))`;
-      item.bs.style.background=`linear-gradient(90deg,rgba(0,0,0,${(dark(r)*.8).toFixed(3)}),rgba(0,0,0,${(dark(l)*.8).toFixed(3)}))`;
-    });
+  // A piece of a page: `html` placed at book position `at`, visible only
+  // between book positions a and b.
+  function clipEl(cls){const el=document.createElement('div');el.className='clip '+cls;el.innerHTML=pageHtml('');return el;}
+  function place(el,html,at,a,b){
+    if(el._html!==html){el.innerHTML=pageHtml(html);el._html=html;}
+    el.style.left=a+'px';el.style.width=Math.max(0,b-a)+'px';el.firstChild.style.left=(at-a)+'px';
   }
   function animate(from,to,ms,step){return new Promise(done=>{const t0=performance.now();const tick=now=>{const t=Math.min(1,(now-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;step(from+(to-from)*e);if(t<1)requestAnimationFrame(tick);else done();};requestAnimationFrame(tick);});}
 
   // One turn, forward or back; drag gives p directly, a click animates it.
+  // Book coordinates run 0..2S with the spine at S. The fold line F moves
+  // from the outer edge to the spine; a point of the turning sheet at X
+  // lands at 2F−X, so its back (the next page) appears shifted by 2F−2S.
   function startTurn(forward){
     const target=index+(forward?1:-1);if(busy||target<0||target>=spreads.length)return null;
     busy=true;
     const cur=spreads[index],nxt=spreads[target];
-    bookEl.innerHTML='';
-    // Underneath: the side being uncovered already shows the next spread.
-    const left=sideEl('left',forward?cur.left:nxt.left,'left'),right=sideEl('right',forward?nxt.right:cur.right,'right');
-    const cast=document.createElement('i');cast.className='cast';
-    (forward?right:left).appendChild(cast);
-    cast.style.cssText+=`;width:${S}px;${forward?'left:0':'right:0'};background:linear-gradient(${forward?'90deg':'270deg'},rgba(0,0,0,.45),rgba(0,0,0,0) 70%)`;
-    const leafObj=forward?makeLeaf(cur.right,'right',nxt.left,'left',true):makeLeaf(cur.left,'left',nxt.right,'right',false);
-    bookEl.append(left,right,leafObj.leaf);
-    const set=p=>{pose(leafObj,p,forward);cast.style.opacity=String(Math.sin(Math.PI*Math.min(1,p*1.15))*.9);};
+    // The uncovered side shows the next spread underneath.
+    const under=forward?rightEl:leftEl;
+    under.innerHTML=pageHtml(forward?nxt.right:nxt.left);
+    const rest=clipEl('rest'),flap=clipEl('flap');
+    const castUnder=document.createElement('i');castUnder.className='fx';castUnder.style.zIndex='15';
+    const flapShade=document.createElement('i');flapShade.className='fx';flapShade.style.zIndex='25';
+    const restShade=document.createElement('i');restShade.className='fx';restShade.style.zIndex='12';
+    bookEl.append(rest,castUnder,restShade,flap,flapShade);
+    const set=p=>{
+      p=Math.max(0,Math.min(1,p));
+      const F=forward?2*S-p*S:p*S,shift=2*F-2*S,lift=Math.sin(Math.PI*p);
+      if(forward){
+        place(rest,cur.right,S,S,F);                 // the part not yet folded
+        place(flap,nxt.left,shift,2*F-2*S,F);        // the folded part, back side up
+      }else{
+        place(rest,cur.left,0,F,S);
+        place(flap,nxt.right,S+shift,F,2*F);
+      }
+      const flapA=forward?2*F-2*S:F,flapB=forward?F:2*F,w=flapB-flapA;
+      const soft=Math.max(18,Math.min(90,w*.35))*(.4+.6*lift);
+      // Light on the fold: the curved edge is brighter, then a soft shade.
+      flapShade.style.left=flapA+'px';flapShade.style.width=w+'px';
+      flapShade.style.background=forward
+        ?`linear-gradient(270deg,rgba(255,252,244,${(.55*lift).toFixed(3)}) 0,rgba(0,0,0,${(.10*lift).toFixed(3)}) ${Math.min(40,soft*.5)}px,rgba(0,0,0,0) ${soft*1.6}px),linear-gradient(90deg,rgba(0,0,0,${(.08*lift).toFixed(3)}),rgba(0,0,0,0) 40%)`
+        :`linear-gradient(90deg,rgba(255,252,244,${(.55*lift).toFixed(3)}) 0,rgba(0,0,0,${(.10*lift).toFixed(3)}) ${Math.min(40,soft*.5)}px,rgba(0,0,0,0) ${soft*1.6}px),linear-gradient(270deg,rgba(0,0,0,${(.08*lift).toFixed(3)}),rgba(0,0,0,0) 40%)`;
+      flap.style.boxShadow=`${forward?'-':''}${(6*lift).toFixed(1)}px 0 ${(22*lift).toFixed(1)}px rgba(0,0,0,${(.28*lift).toFixed(3)})`;
+      // The sheet rising off the page darkens it just beside the fold.
+      const castW=Math.max(24,soft*1.4);
+      castUnder.style.left=(forward?F:F-castW)+'px';castUnder.style.width=castW+'px';
+      castUnder.style.background=`linear-gradient(${forward?'90deg':'270deg'},rgba(0,0,0,${(.32*lift).toFixed(3)}),rgba(0,0,0,0))`;
+      // The unfolded part bends up towards the fold.
+      const restW=Math.min(soft,Math.abs(F-S));
+      restShade.style.left=(forward?F-restW:F)+'px';restShade.style.width=restW+'px';
+      restShade.style.background=`linear-gradient(${forward?'90deg':'270deg'},rgba(0,0,0,0),rgba(0,0,0,${(.14*lift).toFixed(3)}))`;
+    };
     set(0);
-    return {set,finish:async(p,done)=>{const ms=(document.getElementById('slow').checked?2600:900)*Math.abs((done?1:0)-p);await animate(p,done?1:0,Math.max(120,ms),set);if(done)index=target;busy=false;show();}};
+    return {set,finish:async(p,done)=>{
+      const ms=(document.getElementById('slow').checked?2600:900)*Math.abs((done?1:0)-p);
+      await animate(p,done?1:0,Math.max(120,ms),set);
+      if(done){
+        // The turned sheet now lies on the other side: put that page in place
+        // first, then remove the moving pieces, so nothing blinks.
+        index=target;(forward?leftEl:rightEl).innerHTML=pageHtml(forward?nxt.left:nxt.right);
+        info.textContent=`Разворот ${index+1} из ${spreads.length}`;
+      }else under.innerHTML=pageHtml(forward?cur.right:cur.left);
+      rest.remove();flap.remove();castUnder.remove();flapShade.remove();restShade.remove();
+      busy=false;
+    }};
   }
   async function turn(forward){const t=startTurn(forward);if(t)await t.finish(0,true);}
 
