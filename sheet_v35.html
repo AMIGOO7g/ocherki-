@@ -453,6 +453,15 @@ body{
 .editor p.is-question{font-weight:700!important;color:#7a4a24!important;margin-top:.9em!important}
 .host-night .editor p.is-question{color:#e2b98c!important}
 .host-night .page-sample{color:#bfae98;border-top-color:rgba(230,190,140,.2)}
+.voice-btn{display:inline-flex;align-items:center;justify-content:center}
+.voice-btn.is-listening{color:#b23a2a!important;animation:voicePulse 1.2s ease-in-out infinite}
+@keyframes voicePulse{50%{transform:scale(1.18)}}
+.voice-status{position:absolute;right:58px;top:52px;z-index:60;max-width:440px;padding:9px 14px;border-radius:12px;background:rgba(43,30,20,.92);color:#f6ead6;font:italic 15px/1.35 Georgia,serif;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.voice-status b{font-style:normal;color:#ffb39a;margin-right:6px}
+.large-ui-toggle.is-on::before{content:'✓ ';color:#a35f1d}
+/* «Крупный интерфейс»: everything around the text grows for easier reading. */
+html.large-ui .topbar,html.large-ui .popover,html.large-ui .page-sample,html.large-ui .page-include-wrap,html.large-ui .page-context-actions,html.large-ui .photo-card,html.large-ui .voice-status{zoom:1.22}
+html.large-ui .page-sample{font-size:17px}
 .editor .sample-lead,
 .editor .sample-body{
   color:#9a8878!important;
@@ -987,7 +996,7 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
     <div class="sheet active" id="activeSheet">
       
       <div class="paper">
-        <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn">•••</button></div></div>
+        <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><button class="icon voice-btn" id="voiceBtn" type="button" title="Говорить вместо печати" aria-label="Голосовой ввод"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn">•••</button></div></div>
         <div class="divider page-content-fade"></div>
         <div class="episode-row page-content-fade"><div class="episode">Эпизод 1. Поворот тропы</div></div>
         <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div></div>
@@ -1007,7 +1016,8 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
         <div class="footer-line page-content-fade"></div>
         <div class="footer page-content-fade"><div class="fill-indicator project-stats" id="fillIndicator">0 слов   0 фото   0 документов <span class="fill-track"><span id="fillBar"></span></span></div><div class="status" id="saveState">Черновик сохранён</div><div class="cloud" title="Синхронизировано"><svg viewBox="0 0 24 24"><path d="M7.5 18.2h9.1a4.1 4.1 0 0 0 .8-8.1A6 6 0 0 0 6 8.1a4.2 4.2 0 0 0 1.5 10.1Z"/></svg></div></div>
         <div class="popover" id="sheetMenu"><button id="addPageBtn">Добавить страницу</button><button id="deletePageBtn">Удалить лист</button><button id="duplicateBtn">Дублировать лист</button><button id="prevBtn">Предыдущий лист</button><button id="nextBtn">Следующий лист</button></div>
-        <div class="popover" id="textMenu"><button data-size="14">Мельче</button><button data-size="15">По умолчанию</button><button data-size="16">Крупнее</button><button id="tightBtn">Плотнее</button><button id="looseBtn">Свободнее</button></div>
+        <div class="popover" id="textMenu"><button data-size="14">Мельче</button><button data-size="15">По умолчанию</button><button data-size="16">Крупнее</button><button id="tightBtn">Плотнее</button><button id="looseBtn">Свободнее</button><button id="largeUiBtn" class="large-ui-toggle">Крупный интерфейс</button></div>
+        <div class="voice-status" id="voiceStatus" hidden></div>
         <div class="popover" id="moreMenu"><button id="addPhotoBtn">Добавить фото</button><button id="addQuoteBtn">Добавить цитату</button><button id="addDateBtn">Добавить дату</button><button id="deleteDateBtn" hidden>Удалить дату</button><button id="addDocumentBtn">Новый документ</button><button id="newEpisodeBtn">Новый эпизод</button><button id="newPageBtn">Новый лист</button></div>
       </div>
     </div>
@@ -2956,6 +2966,67 @@ document.getElementById('backBtn').onclick=()=>{
 
 document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{fontSize=+b.dataset.size;render()});
 document.getElementById('tightBtn').onclick=()=>{lineHeight=1.42;render()};
+// «Крупный интерфейс»: larger text on the sheet and larger controls around
+// it, here and in the constructor around the sheet (shared choice).
+function applyLargeUi(on,fromUser){
+  document.documentElement.classList.toggle('large-ui',on);
+  document.getElementById('largeUiBtn')?.classList.toggle('is-on',on);
+  if(fromUser){fontSize=on?Math.max(fontSize,18):15;try{localStorage.setItem('ocherkiLargeUI',on?'1':'0');}catch(e){}render();persistSoon();}
+  try{window.parent.postMessage({type:'OCHERKI_LARGE_UI',on},'*');}catch(e){}
+}
+document.getElementById('largeUiBtn').onclick=()=>applyLargeUi(!document.documentElement.classList.contains('large-ui'),true);
+try{if(localStorage.getItem('ocherkiLargeUI')==='1')applyLargeUi(true,false);}catch(e){}
+
+// Voice input (the browser's own speech recognition): the words go where
+// the caret is; «точка», «запятая», «новый абзац»… become punctuation.
+(()=>{
+  const btn=document.getElementById('voiceBtn'),status=document.getElementById('voiceStatus');
+  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let rec=null,listening=false,savedRange=null,startOfSentence=true;
+  const say=(html,ms)=>{status.innerHTML=html;status.hidden=false;clearTimeout(say.t);if(ms)say.t=setTimeout(()=>{status.hidden=true;},ms);};
+  const SPOKEN=[[/\s*(?<!\p{L})вопросительный знак(?!\p{L})/giu,'?'],[/\s*(?<!\p{L})восклицательный знак(?!\p{L})/giu,'!'],[/\s*(?<!\p{L})точка с запятой(?!\p{L})/giu,';'],[/\s*(?<!\p{L})точка(?!\p{L})/giu,'.'],[/\s*(?<!\p{L})запятая(?!\p{L})/giu,','],[/\s*(?<!\p{L})двоеточие(?!\p{L})/giu,':'],[/\s*(?<!\p{L})многоточие(?!\p{L})/giu,'…'],[/\s*(?<!\p{L})тире(?!\p{L})/giu,' —'],[/\s*(?<!\p{L})(?:новый абзац|новая строка|с новой строки)(?!\p{L})\s*/giu,'\n']];
+  const tidy=text=>{
+    let out=' '+text.trim();
+    for(const [re,to] of SPOKEN)out=out.replace(re,to);
+    out=out.replace(/\s+([.,!?;:…])/gu,'$1').replace(/([.,!?;:…])(?=[^\s\n])/gu,'$1 ');
+    // A capital letter after the end of a sentence and at the start.
+    out=out.replace(/(^\s*|[.!?…]\s+|\n\s*)(\p{Ll})/gu,(m,a,b)=>a+b.toUpperCase());
+    if(startOfSentence)out=out.replace(/^\s*(\p{Ll})/u,(m,b)=>b.toUpperCase());
+    return out;
+  };
+  const insert=text=>{
+    editor.focus();
+    const sel=window.getSelection();
+    if(savedRange&&editor.contains(savedRange.startContainer)){sel.removeAllRanges();sel.addRange(savedRange);}
+    const range=sel.rangeCount?sel.getRangeAt(0):null,prev=range?range.startContainer.textContent.slice(0,range.startOffset):'';
+    if(!prev||/\s$/u.test(prev))text=text.replace(/^ +/u,'');
+    const parts=text.split('\n');
+    parts.forEach((part,i)=>{if(i>0)document.execCommand('insertParagraph');if(part)document.execCommand('insertText',false,i>0?part.replace(/^\s+/u,''):part);});
+    savedRange=sel.rangeCount?sel.getRangeAt(0).cloneRange():null;
+    startOfSentence=/[.!?…\n]\s*$/u.test(text);
+  };
+  const stop=()=>{listening=false;btn.classList.remove('is-listening');try{rec?.stop();}catch(e){}};
+  // Pressing the button must not take the caret away from the text.
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();const sel=window.getSelection();if(sel.rangeCount&&editor.contains(sel.anchorNode))savedRange=sel.getRangeAt(0).cloneRange();});
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(!Recognition){say('Голосовой ввод работает в браузерах Chrome, Edge и Яндекс Браузер.',6000);return;}
+    if(listening){stop();say('Готово.',1500);return;}
+    if(!savedRange){const range=document.createRange();range.selectNodeContents(editor);range.collapse(false);savedRange=range;}
+    if(editorShowsSample())clearSampleTextIfNeeded();
+    const before=savedRange.startContainer.textContent.slice(0,savedRange.startOffset);
+    startOfSentence=!before.trim()||/[.!?…]\s*$/u.test(before);
+    rec=new Recognition();rec.lang='ru-RU';rec.continuous=true;rec.interimResults=true;
+    rec.onresult=event=>{
+      let interim='';
+      for(let i=event.resultIndex;i<event.results.length;i++){const r=event.results[i];if(r.isFinal)insert(tidy(r[0].transcript));else interim+=r[0].transcript;}
+      say(`<b>●</b>${interim?esc(interim):'Слушаю… говорите спокойно. Нажмите микрофон ещё раз, чтобы закончить.'}`);
+    };
+    rec.onerror=event=>{stop();say(event.error==='not-allowed'||event.error==='service-not-allowed'?'Браузер не дал доступ к микрофону. Разрешите микрофон для этой страницы (значок слева от адреса) и нажмите ещё раз.':event.error==='no-speech'?'Не слышно голоса. Нажмите микрофон и говорите.':'Голосовой ввод сейчас недоступен. Проверьте интернет и микрофон.',7000);};
+    rec.onend=()=>{if(listening){try{rec.start();}catch(e){stop();}}};
+    try{rec.start();listening=true;btn.classList.add('is-listening');say('<b>●</b>Слушаю… говорите спокойно. Нажмите микрофон ещё раз, чтобы закончить.');}catch(err){say('Не удалось включить микрофон.',5000);}
+  });
+})();
 document.getElementById('looseBtn').onclick=()=>{lineHeight=1.58;render()};
 function closeMoreMenu(){
   document.getElementById('moreMenu')?.classList.remove('open');
