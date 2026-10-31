@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Листание книги — тест</title>
+<link rel="stylesheet" href="../book-renderer/fonts.css">
+<link rel="stylesheet" href="../book-renderer/design-pack-01.css">
+<style>
+/* A test page for a realistic page turn over the real demo book, built by
+   the same engine as the constructor. The turning leaf is cut into narrow
+   vertical strips, each hinged on the one before: rotating each a little
+   more than the last bends the leaf like paper. Light and shade follow
+   each strip's angle; the leaf casts a shadow on the page it uncovers. */
+:root{--paper:#fbf8f2}
+html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 30%,#d9b98e 0%,#9c7449 55%,#3b2a1c 100%);overflow:hidden;font-family:Georgia,"Times New Roman",serif}
+.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:2800px}
+.book{position:relative;transform-style:preserve-3d;transform:rotateX(14deg);filter:drop-shadow(0 30px 40px rgba(40,22,8,.45))}
+.side{position:absolute;top:0;overflow:hidden;background:var(--paper)}
+.side.left{left:0}.side.right{right:0}
+.side.left::after,.side.right::after{content:'';position:absolute;top:0;bottom:0;width:60px;pointer-events:none;z-index:5}
+.side.left::after{right:0;background:linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.16))}
+.side.right::after{left:0;background:linear-gradient(270deg,rgba(0,0,0,0),rgba(0,0,0,.2))}
+.pg{position:absolute;left:0;top:0;transform-origin:0 0;background:var(--paper);overflow:hidden}
+.cast{position:absolute;top:0;bottom:0;pointer-events:none;z-index:6;opacity:0}
+.leaf{position:absolute;top:0;transform-style:preserve-3d;z-index:20}
+.strip{position:absolute;top:0;height:100%;transform-style:preserve-3d}
+.face{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--paper)}
+.face.back{transform:rotateY(180deg)}
+.shade{position:absolute;inset:0;pointer-events:none;z-index:9}
+.hud{position:fixed;left:0;right:0;bottom:22px;display:flex;justify-content:center;gap:14px;align-items:center;color:#fff6e6;font-size:16px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.hud button{border:0;border-radius:22px;padding:9px 18px;background:rgba(40,28,18,.7);color:#fff6e6;font:15px Georgia,serif;cursor:pointer}
+.hud button:hover{background:rgba(40,28,18,.9)}
+.hud label{display:flex;gap:6px;align-items:center}
+.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff6e6;font:italic 22px Georgia,serif}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">Собираю демо-книгу…</div>
+<div class="stage"><div class="book" id="book"></div></div>
+<div class="hud">
+  <button type="button" id="prev">‹ Назад</button>
+  <span id="info"></span>
+  <button type="button" id="next">Вперёд ›</button>
+  <label><input type="checkbox" id="slow"> медленно</label>
+</div>
+<div id="measure" style="position:absolute;left:-99999px;top:0;width:1000px"></div>
+<script charset="utf-8" src="../book-renderer/geo-cities.js"></script>
+<script charset="utf-8" src="../book-renderer/geo-atlas.js"></script>
+<script charset="utf-8" src="../book-renderer/design-pack-01.js"></script>
+<script charset="utf-8" src="../book-renderer/book-engine.js"></script>
+<script charset="utf-8" src="../book-renderer/design-pack-01.layout.js"></script>
+<script charset="utf-8" src="../book-renderer/layout-pagination-engine.js"></script>
+<script charset="utf-8" src="demo-book/demo-structure.js"></script>
+<script>
+(async()=>{
+  'use strict';
+  const STRIPS=20;            // narrow strips that bend the leaf
+  const bookEl=document.getElementById('book'),info=document.getElementById('info');
+  await OcherkiLayoutPagination.readyFonts();
+  const {structure,meta}=OcherkiDemoBook;
+  const built=OcherkiLayoutPagination.build(structure,{...meta,format:'square',continuationPages:true});
+  const spreads=built.spreads;
+  document.getElementById('loading').remove();
+  const PAGE_H=1000;
+  let S=0,H=0,scale=1,index=0,busy=false;
+
+  // A page as HTML scaled to the book size; each strip shows its slice.
+  const pageHtml=(page,side)=>page?`<div class="pg" style="width:1000px;height:${PAGE_H}px;transform:scale(${scale});--book-page-w:1000px;--book-page-h:${PAGE_H}px">${OcherkiLayoutPagination.renderPage(page,side)}</div>`:`<div class="pg" style="width:1000px;height:${PAGE_H}px;transform:scale(${scale})"></div>`;
+  const layout=()=>{
+    S=Math.floor(Math.min((innerWidth-120)/2,(innerHeight-150)));H=S;scale=S/1000;
+    bookEl.style.width=2*S+'px';bookEl.style.height=H+'px';
+  };
+  const sideEl=(cls,page,side)=>{const el=document.createElement('div');el.className='side '+cls;el.style.cssText=`width:${S}px;height:${H}px`;el.innerHTML=pageHtml(page,side);return el;};
+  function show(){
+    bookEl.innerHTML='';
+    const sp=spreads[index];
+    bookEl.append(sideEl('left',sp.left,'left'),sideEl('right',sp.right,'right'));
+    info.textContent=`Разворот ${index+1} из ${spreads.length}`;
+  }
+  // The leaf: a chain of strips, each a child of the one before and hinged
+  // on its left edge. front = page being turned, back = the page behind it.
+  function makeLeaf(front,frontSide,back,backSide,forward){
+    const leaf=document.createElement('div');leaf.className='leaf';
+    leaf.style.cssText=`width:${S}px;height:${H}px;left:${forward?S:0}px;transform-origin:${forward?'0':'100%'} 50%`;
+    const w=S/STRIPS,strips=[];let parent=leaf;
+    for(let i=0;i<STRIPS;i++){
+      const k=forward?i:STRIPS-1-i;      // slice of the page this strip shows
+      const strip=document.createElement('div');strip.className='strip';
+      strip.style.cssText=`width:${Math.ceil(w)+2}px;${forward?`left:${i===0?0:w}px;transform-origin:0 50%`:`right:${i===0?0:w}px;transform-origin:100% 50%`}`;
+      const f=document.createElement('div');f.className='face';f.innerHTML=pageHtml(front,frontSide)+'<i class="shade"></i>';f.firstChild.style.left=(-k*w)+'px';
+      const b=document.createElement('div');b.className='face back';b.innerHTML=pageHtml(back,backSide)+'<i class="shade"></i>';b.firstChild.style.left=(-(STRIPS-1-k)*w)+'px';
+      strip.append(f,b);parent.appendChild(strip);parent=strip;strips.push({strip,fs:f.lastChild,bs:b.lastChild});
+    }
+    return {leaf,strips};
+  }
+  // Angles for progress p (0..1): the whole leaf turns 180°, and in the
+  // middle of the turn its free edge runs ahead, so the leaf curves.
+  function pose(leafObj,p,forward){
+    const total=180*p,curl=Math.sin(Math.PI*p)*58,base=total-curl*.55;
+    const weights=leafObj.strips.map((_,i)=>Math.pow((i+1)/STRIPS,2.2)),sum=weights.reduce((a,b)=>a+b,0);
+    const sign=forward?-1:1,angles=[];let acc=base;
+    leafObj.leaf.style.transform=`rotateY(${sign*base}deg)`;
+    leafObj.strips.forEach((item,i)=>{
+      const step=i===0?0:curl*weights[i]/sum;acc+=step;angles.push(Math.min(180,acc));
+      if(i>0)item.strip.style.transform=`rotateY(${sign*step}deg)`;
+    });
+    // Light: a strip facing the reader is bright; tilted, it darkens. Each
+    // strip blends from its neighbours' light, so the bend reads as one
+    // smooth surface rather than slats.
+    const dark=angle=>{const face=Math.cos(angle*Math.PI/180);return Math.max(0,1-Math.abs(face))*.42;};
+    const shine=angle=>{const a=angle*Math.PI/180;return Math.max(0,Math.sin(a))*.16*Math.max(0,1-Math.abs(Math.cos(a)-.35));};
+    leafObj.strips.forEach((item,i)=>{
+      const left=(angles[Math.max(0,i-1)]+angles[i])/2,right=(angles[i]+angles[Math.min(angles.length-1,i+1)])/2;
+      const [l,r]=forward?[left,right]:[right,left];
+      item.fs.style.background=`linear-gradient(90deg,rgba(0,0,0,${dark(l).toFixed(3)}),rgba(0,0,0,${dark(r).toFixed(3)})),linear-gradient(90deg,rgba(255,248,230,${shine(l).toFixed(3)}),rgba(255,248,230,${shine(r).toFixed(3)}))`;
+      item.bs.style.background=`linear-gradient(90deg,rgba(0,0,0,${(dark(r)*.8).toFixed(3)}),rgba(0,0,0,${(dark(l)*.8).toFixed(3)}))`;
+    });
+  }
+  function animate(from,to,ms,step){return new Promise(done=>{const t0=performance.now();const tick=now=>{const t=Math.min(1,(now-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;step(from+(to-from)*e);if(t<1)requestAnimationFrame(tick);else done();};requestAnimationFrame(tick);});}
+
+  // One turn, forward or back; drag gives p directly, a click animates it.
+  function startTurn(forward){
+    const target=index+(forward?1:-1);if(busy||target<0||target>=spreads.length)return null;
+    busy=true;
+    const cur=spreads[index],nxt=spreads[target];
+    bookEl.innerHTML='';
+    // Underneath: the side being uncovered already shows the next spread.
+    const left=sideEl('left',forward?cur.left:nxt.left,'left'),right=sideEl('right',forward?nxt.right:cur.right,'right');
+    const cast=document.createElement('i');cast.className='cast';
+    (forward?right:left).appendChild(cast);
+    cast.style.cssText+=`;width:${S}px;${forward?'left:0':'right:0'};background:linear-gradient(${forward?'90deg':'270deg'},rgba(0,0,0,.45),rgba(0,0,0,0) 70%)`;
+    const leafObj=forward?makeLeaf(cur.right,'right',nxt.left,'left',true):makeLeaf(cur.left,'left',nxt.right,'right',false);
+    bookEl.append(left,right,leafObj.leaf);
+    const set=p=>{pose(leafObj,p,forward);cast.style.opacity=String(Math.sin(Math.PI*Math.min(1,p*1.15))*.9);};
+    set(0);
+    return {set,finish:async(p,done)=>{const ms=(document.getElementById('slow').checked?2600:900)*Math.abs((done?1:0)-p);await animate(p,done?1:0,Math.max(120,ms),set);if(done)index=target;busy=false;show();}};
+  }
+  async function turn(forward){const t=startTurn(forward);if(t)await t.finish(0,true);}
+
+  document.getElementById('next').onclick=()=>turn(true);
+  document.getElementById('prev').onclick=()=>turn(false);
+  addEventListener('keydown',e=>{if(e.key==='ArrowRight')turn(true);if(e.key==='ArrowLeft')turn(false);});
+  // Drag a page by its outer half: the leaf follows the hand.
+  bookEl.addEventListener('pointerdown',e=>{
+    if(busy)return;
+    const r=bookEl.getBoundingClientRect(),forward=e.clientX>r.left+r.width/2;
+    const t=startTurn(forward);if(!t)return;
+    const x0=e.clientX;let p=0,moved=false;
+    const move=ev=>{moved=true;p=Math.max(0,Math.min(1,(forward?x0-ev.clientX:ev.clientX-x0)/(r.width*.9)));t.set(p);};
+    const up=()=>{removeEventListener('pointermove',move);removeEventListener('pointerup',up);t.finish(p,moved?p>.32:true);};
+    addEventListener('pointermove',move);addEventListener('pointerup',up);
+  });
+  addEventListener('resize',()=>{if(!busy){layout();show();}});
+  layout();show();
+  window.__flip={turn,startTurn,count:()=>spreads.length};
+})();
+</script>
+</body>
+</html>
