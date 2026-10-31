@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v64">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v65">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2884,7 +2884,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v64" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" src="sheet_v35.html?v=demo-book-20261030-v65" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4631,10 +4631,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v64"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v64"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v64"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v64"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v64"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v64"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v65"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v65"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v65"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v65"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v65"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v65"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4662,8 +4662,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v64"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v64"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v65"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v65"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7218,7 +7218,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v64"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v65"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7290,6 +7290,53 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       });
     },1520);
   }
+  // A page turn seen from above (the approved test, qa/book-flip-test.html):
+  // the sheet folds over itself along one line; the folded part shows its
+  // back (the next page) and casts a soft shadow. The new spread is already
+  // rendered underneath; copies of the old pages lie on top and are cut away
+  // as the fold moves, so nothing blinks.
+  function previewFlip(forward,target){
+    const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
+    if(hosts.length!==2)return false;
+    const L=hosts[0].getBoundingClientRect(),R=hosts[1].getBoundingClientRect();
+    if(!(L.width>40&&Math.abs(L.width-R.width)<4&&Math.abs(L.right-R.left)<4))return false;
+    const S=L.width,H=L.height,X0=L.left,Y0=L.top;
+    const oldL=hosts[0].cloneNode(true),oldR=hosts[1].cloneNode(true);
+    activeSpread=target;
+    previewRender();
+    renderActiveOnly();
+    const fresh=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
+    if(fresh.length!==2)return true;
+    const back=(forward?fresh[0]:fresh[1]).cloneNode(true);
+    const layer=document.createElement('div');
+    layer.style.cssText=`position:fixed;left:${X0}px;top:${Y0}px;width:${2*S}px;height:${H}px;z-index:2147482000;pointer-events:none`;
+    const piece=(host,z)=>{const box=document.createElement('div');box.style.cssText=`position:absolute;top:0;height:${H}px;overflow:hidden;z-index:${z}`;host.style.cssText+=`;position:absolute;top:0;left:0;width:${S}px;height:${H}px;margin:0;transform:none`;box.appendChild(host);layer.appendChild(box);return box;};
+    const place=(box,at,a,b)=>{box.style.left=a+'px';box.style.width=Math.max(0,b-a)+'px';box.firstChild.style.left=(at-a)+'px';};
+    const fx=z=>{const el=document.createElement('i');el.style.cssText=`position:absolute;top:0;height:${H}px;z-index:${z}`;layer.appendChild(el);return el;};
+    const still=piece(forward?oldL:oldR,5),rest=piece(forward?oldR:oldL,10),cast=fx(15),restShade=fx(12),flap=piece(back,20),flapShade=fx(25);
+    document.body.appendChild(layer);
+    const set=p=>{
+      const F=forward?2*S-p*S:p*S,shift=2*F-2*S,lift=Math.sin(Math.PI*p);
+      const flapA=forward?2*F-2*S:F,flapB=forward?F:2*F,w=flapB-flapA;
+      if(forward){place(still,0,0,Math.min(S,flapA));place(rest,S,S,F);place(flap,shift,flapA,flapB);}
+      else{place(still,S,Math.max(S,flapB),2*S);place(rest,0,F,S);place(flap,S+shift,flapA,flapB);}
+      const soft=Math.max(18,Math.min(90,w*.35))*(.4+.6*lift);
+      flapShade.style.left=flapA+'px';flapShade.style.width=w+'px';
+      flapShade.style.background=`linear-gradient(${forward?'270deg':'90deg'},rgba(255,252,244,${(.55*lift).toFixed(3)}) 0,rgba(0,0,0,${(.10*lift).toFixed(3)}) ${Math.min(40,soft*.5)}px,rgba(0,0,0,0) ${soft*1.6}px)`;
+      flap.style.boxShadow=`${forward?'-':''}${(6*lift).toFixed(1)}px 0 ${(22*lift).toFixed(1)}px rgba(0,0,0,${(.28*lift).toFixed(3)})`;
+      const castW=Math.max(24,soft*1.4);
+      cast.style.left=(forward?F:F-castW)+'px';cast.style.width=castW+'px';
+      cast.style.background=`linear-gradient(${forward?'90deg':'270deg'},rgba(0,0,0,${(.32*lift).toFixed(3)}),rgba(0,0,0,0))`;
+      const restW=Math.min(soft,Math.abs(F-S));
+      restShade.style.left=(forward?F-restW:F)+'px';restShade.style.width=restW+'px';
+      restShade.style.background=`linear-gradient(${forward?'90deg':'270deg'},rgba(0,0,0,0),rgba(0,0,0,${(.14*lift).toFixed(3)}))`;
+    };
+    set(0);
+    const t0=performance.now(),ms=900;
+    const tick=now=>{const t=Math.min(1,(now-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;set(e);if(t<1)requestAnimationFrame(tick);else{layer.remove();previewPaging=false;}};
+    requestAnimationFrame(tick);
+    return true;
+  }
   function previewGo(delta){
     if(!bookSpreads.length || previewPaging)return;
     const target=Math.max(0,Math.min(bookSpreads.length-1,activeSpread+delta));
@@ -7301,6 +7348,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(!previewSpread)return;
     previewPaging=true;
     window.OCHERKI_PLAY_PAGE_FX?.(.48);
+    const flipFrom=bookSpreads[activeSpread],flipTo=bookSpreads[target];
+    if(!flipFrom?.single&&!flipTo?.single&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      try{if(previewFlip(delta>0,target))return;}catch(error){document.querySelectorAll('body > div[style*="2147482000"]').forEach(el=>el.remove());}
+    }
     const dir=delta>0?'next':'prev';
     previewSpread.classList.remove('page-in-next','page-in-prev');
     previewSpread.classList.add(dir==='next'?'page-out-next':'page-out-prev');
