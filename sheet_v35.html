@@ -1025,6 +1025,10 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
 .footer .status{transition:opacity .4s ease}.footer:has(.sheet-keys.is-open) .status{opacity:0}
 /* The floating «＋ Фото ＋ Цитата ＋ Дата» near the caret repeated these keys. */
 .page-context-actions{display:none!important}
+/* The sheet menu (add, delete, duplicate, previous, next) moved to «Рукопись». */
+#sheetBtn{display:none!important}
+/* «Крупный интерфейс» is a hanging key of the constructor now; «Аа» is the sheet's text size. */
+#largeUiBtn{display:none!important}
 .sheet-keys{display:none!important}
 </style>
 <style id="next-step-style">
@@ -3069,6 +3073,7 @@ function applyLargeUi(on,fromUser){
   try{window.parent.postMessage({type:'OCHERKI_LARGE_UI',on},'*');}catch(e){}
 }
 document.getElementById('largeUiBtn').onclick=()=>applyLargeUi(!document.documentElement.classList.contains('large-ui'),true);
+addEventListener('message',e=>{if(e.data&&e.data.type==='OCHERKI_LARGE_UI_SET')applyLargeUi(!!e.data.on,true);});
 try{if(localStorage.getItem('ocherkiLargeUI')==='1')applyLargeUi(true,false);}catch(e){}
 
 // Voice input (the browser's own speech recognition): the words go where
@@ -4882,7 +4887,7 @@ window.addEventListener('message',e=>{
         if(!Array.isArray(page.photos)) page.photos = [];
         d.photos.forEach(item => {
           if(!item?.src) return;
-          const rec = {id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:String(item.src),caption:'',year:'',place:'',people:'',source:'',story:'',photoMode:'auto',layoutPreference:'auto',isDocument:page.type==='document',status:'uploaded',_newEntry:true,
+          const rec = {id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:String(item.src),caption:String(item.caption||''),year:'',place:String(item.place||''),people:String(item.people||''),source:'',story:String(item.story||''),photoMode:'auto',layoutPreference:'auto',isDocument:page.type==='document',status:'uploaded',_newEntry:true,
             width:Number(item.width)||0,height:Number(item.height)||0};
           rec.orientation = rec.width > rec.height ? 'landscape' : rec.height > rec.width ? 'portrait' : 'square';
           page.photos.push(rec);
