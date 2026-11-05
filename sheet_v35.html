@@ -462,6 +462,40 @@ body{
 /* «Крупный интерфейс»: everything around the text grows for easier reading. */
 html.large-ui .topbar,html.large-ui .popover,html.large-ui .page-sample,html.large-ui .page-include-wrap,html.large-ui .page-context-actions,html.large-ui .photo-card,html.large-ui .voice-status{zoom:1.22}
 html.large-ui .page-sample{font-size:17px}
+
+/* Forms for the family sections: one clear field per thing to write. */
+.paper.has-form .editor{display:none!important}
+.paper.has-form .page-sample{display:none!important}
+.page-form{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:2px 6px 30px 2px;font-family:Georgia,"Times New Roman",serif;color:#3b2a20;scrollbar-width:thin}
+.page-form[hidden]{display:none}
+.pf-intro{margin:0 0 16px;font:italic 16px/1.45 Georgia,serif;color:#7d6656}
+.pf-card{position:relative;margin:0 0 18px;padding:16px 18px 14px;border-radius:14px;background:rgba(255,252,246,.75);box-shadow:inset 0 0 0 1px rgba(143,110,80,.22)}
+.pf-card-no{font:600 11px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#a88a6c;margin-bottom:10px}
+.pf-label{display:block;margin:10px 0 5px;font:15px/1.3 Georgia,serif;color:#6b5240}
+.pf-label:first-of-type{margin-top:0}
+.pf-input,.pf-text{display:block;width:100%;box-sizing:border-box;border:0;border-bottom:1px solid rgba(143,110,80,.35);background:transparent;padding:6px 2px;font:17px/1.45 Georgia,"Times New Roman",serif;color:#2f2219;outline:none;resize:vertical}
+.pf-text{min-height:3.2em;border:1px solid rgba(143,110,80,.25);border-radius:8px;padding:8px 10px;background:rgba(255,255,255,.55)}
+.pf-input:focus,.pf-text:focus{border-color:#a35f1d;box-shadow:0 1px 0 #a35f1d}
+.pf-input::placeholder,.pf-text::placeholder{color:#b3a090;font-style:italic}
+.pf-row{display:flex;gap:10px;align-items:flex-end}
+.pf-row .pf-year{flex:0 0 92px}.pf-row .pf-place{flex:0 0 32%}.pf-row .pf-what{flex:1 1 auto}
+.pf-item{display:flex;gap:8px;align-items:center}
+.pf-item::before{content:'—';color:#a88a6c}
+.pf-add{display:inline-flex;align-items:center;gap:8px;margin:4px 0 0;border:0;border-radius:20px;padding:9px 18px;background:#a8692f;color:#fff8ee;font:16px Georgia,serif;cursor:pointer}
+.pf-add:hover{background:#94591f}
+.pf-add.pf-small{padding:4px 2px;background:none;color:#8f5a2e;font-size:15px;text-decoration:underline}
+.pf-remove{position:absolute;right:12px;top:10px;border:0;background:none;color:#a88a6c;font:14px Georgia,serif;cursor:pointer;text-decoration:underline}
+.pf-remove:hover{color:#a8452f}
+.pf-free{display:block;margin:22px 0 0;border:0;background:none;color:#8f7c69;font:italic 14px Georgia,serif;cursor:pointer;text-decoration:underline}
+.pf-status{margin:10px 0 14px;font:15px/1.4 Georgia,serif;color:#9a4f32}
+.pf-status.is-ok{color:#5f7a4a}
+.pf-tablehead{display:flex;gap:10px;font:13px/1.2 Georgia,serif;color:#8f7c69;margin:0 0 4px}
+.pf-tablehead span:nth-child(1){flex:0 0 92px}.pf-tablehead span:nth-child(2){flex:0 0 32%}
+.host-night .page-form{color:#ead8bd}
+.host-night .pf-card{background:rgba(60,46,36,.6)}
+.host-night .pf-input,.host-night .pf-text{color:#f3e5cf}
+html.large-ui .page-form{zoom:1.15}
+.free-back{display:block;margin:6px 0 0;border:0;background:none;color:#8f5a2e;font:15px Georgia,serif;cursor:pointer;text-decoration:underline;padding:0}
 .editor .sample-lead,
 .editor .sample-body{
   color:#9a8878!important;
@@ -999,7 +1033,7 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
         <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><button class="icon voice-btn" id="voiceBtn" type="button" title="Говорить вместо печати" aria-label="Голосовой ввод"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn">•••</button></div></div>
         <div class="divider page-content-fade"></div>
         <div class="episode-row page-content-fade"><div class="episode">Эпизод 1. Поворот тропы</div></div>
-        <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div></div>
+        <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div><div class="page-form" id="pageForm" hidden></div></div>
         <button type="button" id="treeLaunch" class="tree-launch" hidden>Составить древо по шагам</button>
         <div class="page-sample" id="pageSample" hidden></div>
         <div class="page-context-actions page-content-fade" id="pageContextActions" aria-label="Быстро добавить">
@@ -1570,7 +1604,8 @@ function htmlFromText(t){
       return `<p>${esc(val.trim())}</p>`;
     }).join('');
   }
-  const parts=raw.split(/\n{2,}/).map(x=>x.trim()).filter(Boolean);
+  // The family sections are read line by line: every line is its own paragraph.
+  const parts=raw.split(['recipes','voices','interview','timeline'].includes(pageType)?/\n+/:/\n{2,}/).map(x=>x.trim()).filter(Boolean);
   if(!parts.length)return '<p><br></p>';
   const isSample=page?.sample===true || parts[0]===SAMPLE_PREFIX;
   return parts.map((p,i)=>{
@@ -1671,7 +1706,11 @@ function syncSemanticHtml(page){
   page.semanticHtml=hasSemantic ? editor.innerHTML : '';
 }
 
+// The family sections are filled in through simple forms; the form writes
+// the page text itself, so the hidden editor never overwrites it.
+function pageUsesForm(page){return ['recipes','voices','interview','timeline'].includes(page?.type)&&!page?.freeText;}
 function textFromEditor(){
+  if(pageUsesForm(currentPage()))return String(currentPage()?.text||'');
   if(isMultiFieldPageType(editor.dataset.pageType)){
     const ps=[...editor.querySelectorAll('p')];
     return ps.map(p=>{
@@ -4067,16 +4106,18 @@ function updatePageSample(){
   const hasTree=type==='family-tree'&&page?.treeData&&page.treeData.people;
   const empty=!String(page?.text||'').trim();
   // An empty sheet already shows the full example inside the text area.
-  const show=!!sample&&!hasTree&&(!empty||type==='interview');
+  const show=!!sample&&!hasTree&&!pageUsesForm(page)&&(!empty||type==='interview');
   box.hidden=!show;paperEl?.classList.toggle('has-page-sample',show);
   if(!show)return;
   const lines=sample.split('\n');
   const insert=type==='interview'&&READY_QUESTIONS.some(question=>!String(page.text||'').includes(question))?'<button type="button" class="page-sample__insert" data-insert-questions>Вставить готовые вопросы</button>':'';
   box.classList.toggle('is-collapsed',pageSamplesHidden);
+  const backToForm=PAGE_FORMS[type]&&page?.freeText?'<button type="button" class="free-back" data-form-back>Вернуться к удобной форме</button>':'';
   box.innerHTML=empty
     ?`<div class="page-sample__head"><span>Можно начать с готовых вопросов</span></div>${insert}`
     :`<div class="page-sample__head"><span>Образец</span><button type="button" data-toggle-sample>${pageSamplesHidden?'Показать':'Свернуть'}</button></div><div class="page-sample__body"><div>${esc(lines[0])}</div><div style="color:#a8968a">${lines.slice(1).map(esc).join('<br>')}</div>${insert}</div>`;
   if(type==='timeline'&&!empty){const status=timelineMapStatus(page.text);if(status)box.insertAdjacentHTML('beforeend',status);}
+  if(backToForm)box.insertAdjacentHTML('beforeend',backToForm);
   requestAnimationFrame(()=>paperEl?.style.setProperty('--page-sample-room',Math.round(box.offsetHeight+130)+'px'));
 }
 // The map «География семьи» needs at least three places the book knows;
@@ -4101,6 +4142,7 @@ function timelineMapStatus(text){
   return `<div class="page-sample__map${ok?' is-ok':''}">${head}${miss}${many}</div>`;
 }
 document.getElementById('pageSample')?.addEventListener('click',event=>{
+  if(event.target.closest('[data-form-back]')){const page=currentPage();if(page){page.freeText=false;persistSoon();render();}return;}
   if(event.target.closest('[data-toggle-sample]')){pageSamplesHidden=!pageSamplesHidden;try{localStorage.setItem('ocherkiSamplesHidden',pageSamplesHidden?'1':'0');}catch(e){}updatePageSample();return;}
   if(event.target.closest('[data-insert-questions]')){
     const page=currentPage();if(!page)return;
@@ -4126,8 +4168,112 @@ function markInterviewQuestions(){
   editor.querySelectorAll('p').forEach(p=>p.classList.toggle('is-question',isInterview&&/\?\s*$/u.test(p.textContent)));
 }
 editor.addEventListener('input',markInterviewQuestions);
+// ---- Forms for «Рецепты и традиции», «Голоса семьи», «Вопросы и ответы»,
+// «Хронология». The page text keeps the book's own format (the book engine
+// reads it as before); the author only fills in fields.
+const PAGE_FORMS={
+  recipes:{
+    intro:'Каждый рецепт или семейная традиция — отдельной карточкой. Фото к ним добавьте кнопкой «＋ Фото» на этом листе.',
+    add:'＋ Ещё рецепт или традиция',
+    parse:text=>String(text||'').split(/^\s*\*{3,}\s*$/mu).map(block=>{
+      const lines=block.split(/\r?\n/u).map(line=>line.trim()).filter(Boolean);if(!lines.length)return null;
+      const items=[],how=[];for(const line of lines.slice(1)){const m=line.match(/^[—–\-•·*]\s*(.+)$/u);if(m)items.push(m[1]);else how.push(line);}
+      return {title:lines[0],items,how:how.join('\n')};
+    }).filter(Boolean),
+    empty:()=>({title:'',items:['',''],how:''}),
+    write:list=>list.map(r=>[r.title.trim(),...r.items.map(i=>i.trim()).filter(Boolean).map(i=>'— '+i),...String(r.how||'').split(/\n+/u).map(l=>l.trim()).filter(Boolean)].filter(Boolean).join('\n')).filter(Boolean).join('\n***\n'),
+    card:(r,i)=>`<div class="pf-card-no">Рецепт или традиция ${i+1}</div>
+      <label class="pf-label">Название</label><input class="pf-input" data-f="title" value="${esc(r.title)}" placeholder="Например: Пироги с капустой бабушки Марии">
+      <label class="pf-label">Что нужно — по одной строчке <i style="color:#a88a6c">(для традиции можно пропустить)</i></label>
+      <div data-list>${(r.items.length?r.items:['']).map(item=>`<div class="pf-item"><input class="pf-input" data-f="item" value="${esc(item)}" placeholder="Например: мука — 500 г"></div>`).join('')}</div>
+      <button type="button" class="pf-add pf-small" data-act="item">＋ ещё строчка</button>
+      <label class="pf-label">Как готовили или как это было</label><textarea class="pf-text" data-f="how" rows="4" placeholder="Например: Тесто ставили с вечера, а утром вся семья лепила пироги…">${esc(r.how)}</textarea>`,
+    read:card=>({title:card.querySelector('[data-f=title]').value,items:[...card.querySelectorAll('[data-f=item]')].map(x=>x.value),how:card.querySelector('[data-f=how]').value})
+  },
+  voices:{
+    intro:'Короткие воспоминания разных людей о герое или о семье. Каждое — отдельной карточкой.',
+    add:'＋ Ещё воспоминание',
+    parse:text=>String(text||'').split(/\n\s*\n/u).map(block=>{const lines=block.split(/\r?\n/u).map(l=>l.trim()).filter(Boolean);if(!lines.length)return null;const last=lines.at(-1).match(/^[—–-]\s*(.+)$/u);return {text:(last?lines.slice(0,-1):lines).join(' '),who:last?last[1].trim():''};}).filter(v=>v&&(v.text||v.who)),
+    empty:()=>({text:'',who:''}),
+    write:list=>list.filter(v=>v.text.trim()).map(v=>v.text.trim().replace(/\n+/gu,' ')+(v.who.trim()?'\n— '+v.who.trim():'')).join('\n\n'),
+    card:(v,i)=>`<div class="pf-card-no">Воспоминание ${i+1}</div>
+      <label class="pf-label">Что он или она вспоминает</label><textarea class="pf-text" data-f="text" rows="3" placeholder="Например: Бабушка пекла пироги каждую субботу, и весь двор знал, что у нас праздник.">${esc(v.text)}</textarea>
+      <label class="pf-label">Кто это сказал</label><input class="pf-input" data-f="who" value="${esc(v.who)}" placeholder="Например: внучка Анна">`,
+    read:card=>({text:card.querySelector('[data-f=text]').value,who:card.querySelector('[data-f=who]').value})
+  },
+  interview:{
+    intro:'Разговор с героем книги: вопрос и ответ его словами. Вопросы без ответа в книгу не попадут.',
+    add:'＋ Ещё вопрос',
+    parse:text=>{const out=[];for(const raw of String(text||'').split(/\r?\n/u)){const line=raw.trim();if(!line)continue;if(/\?$/u.test(line))out.push({q:line,a:''});else if(out.length)out.at(-1).a+=(out.at(-1).a?'\n':'')+line;else out.push({q:'',a:line,intro:true});}return out;},
+    empty:()=>({q:'',a:''}),
+    write:list=>list.map(x=>{const q=x.q.trim(),a=String(x.a||'').split(/\n+/u).map(l=>l.trim()).filter(Boolean).join('\n');if(!q)return a;return (/\?$/u.test(q)?q:q.replace(/[.!…]*$/u,'')+'?')+(a?'\n'+a:'');}).filter(Boolean).join('\n\n'),
+    card:(x,i)=>`<div class="pf-card-no">${x.intro?'Вступление':'Вопрос '+(i+1)}</div>
+      ${x.intro?'':`<label class="pf-label">Вопрос</label><input class="pf-input" data-f="q" value="${esc(x.q)}" placeholder="Например: Каким было ваше первое воспоминание?">`}
+      <label class="pf-label">${x.intro?'Несколько слов перед разговором':'Ответ — словами героя'}</label><textarea class="pf-text" data-f="a" rows="3" placeholder="${x.intro?'Например: Этот разговор мы записали летом, на даче.':'Например: Помню, как отец посадил меня на лошадь. Мне было года три…'}">${esc(x.a)}</textarea>`,
+    read:card=>({q:card.querySelector('[data-f=q]')?.value||'',a:card.querySelector('[data-f=a]').value,intro:!card.querySelector('[data-f=q]')})
+  },
+  timeline:{
+    intro:'Главные события семьи — по одному в строке. Из них соберутся разворот «Хронология» и карта «География семьи».',
+    add:'＋ Ещё событие',table:true,
+    parse:text=>String(text||'').split(/\r?\n/u).map(line=>line.trim()).filter(Boolean).map(line=>{
+      const m=line.match(/^((?:(?:ок\.|около|до|после|с|весна|лето|осень|зима)\s+)?\d{4}(?:-е)?(?:\s*[–-]\s*\d{4})?)\s*(?:[—–-]+\s*|[.,:]\s*|\s+)(.+)$/iu);
+      if(!m)return {year:'',place:'',what:line};
+      const parts=m[2].split(/\s+[—–-]+\s+/u).map(p=>p.trim()).filter(Boolean);
+      return parts.length>1?{year:m[1].trim(),place:parts[0],what:parts.slice(1).join(' — ')}:{year:m[1].trim(),place:'',what:parts[0]||''};
+    }),
+    empty:()=>({year:'',place:'',what:''}),
+    write:list=>list.filter(e=>e.year.trim()||e.what.trim()).map(e=>[e.year.trim(),e.place.trim(),e.what.trim()].filter(Boolean).join(' — ')).join('\n'),
+    card:e=>`<div class="pf-row"><input class="pf-input pf-year" data-f="year" value="${esc(e.year)}" placeholder="1930"><input class="pf-input pf-place" data-f="place" value="${esc(e.place)}" placeholder="Батуми"><input class="pf-input pf-what" data-f="what" value="${esc(e.what)}" placeholder="Дедушка работает в порту"></div>`,
+    read:card=>({year:card.querySelector('[data-f=year]').value,place:card.querySelector('[data-f=place]').value,what:card.querySelector('[data-f=what]').value})
+  }
+};
+let pageFormFor=null,pageFormEmit=0;
+function saveFormText(text){
+  const p=currentPage();if(!p)return;
+  p.text=text;p.userEdited=true;p._userEdited=true;p.sample=false;
+  try{syncSemanticHtml(p);}catch(e){}
+  try{pageIdentity(p);}catch(e){}
+  try{window.LifeBookPageBlocks?.syncText(p,p.text);}catch(e){}
+  persistSoon();
+  clearTimeout(pageFormEmit);pageFormEmit=setTimeout(()=>{try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(e){}if(p.type==='timeline')updateFormStatus();},500);
+}
+function updateFormStatus(){
+  const box=document.getElementById('pageForm')?.querySelector('.pf-status');if(!box)return;
+  const html=timelineMapStatus(currentPage()?.text||'');
+  const tmp=document.createElement('div');tmp.innerHTML=html;const node=tmp.firstElementChild;
+  box.className='pf-status'+(node?.classList.contains('is-ok')?' is-ok':'');box.textContent=node?node.textContent:'';
+}
+function updatePageForm(){
+  const form=document.getElementById('pageForm'),paperEl=activeSheet.querySelector('.paper');if(!form)return;
+  const page=currentPage(),def=PAGE_FORMS[page?.type];
+  const on=Boolean(def&&pageUsesForm(page));
+  paperEl?.classList.toggle('has-form',on);form.hidden=!on;
+  if(!on){pageFormFor=null;return;}
+  if(pageFormFor===page)return;   // the form is not redrawn while typing
+  pageFormFor=page;
+  let list=def.parse(page.sample?'':page.text);
+  if(!list.length)list=[def.empty()];
+  const ready=page.type==='interview'?`<button type="button" class="pf-add pf-small" data-act="ready">Добавить готовые вопросы</button>`:'';
+  form.innerHTML=`<p class="pf-intro">${def.intro}</p>${page.type==='timeline'?'<div class="pf-status"></div><div class="pf-tablehead"><span>Год</span><span>Место</span><span>Что произошло</span></div>':''}<div data-cards>${list.map((item,i)=>`<div class="${def.table?'pf-line':'pf-card'}" data-card>${def.table?'':'<button type="button" class="pf-remove" data-act="remove">убрать</button>'}${def.card(item,i)}</div>`).join('')}</div><button type="button" class="pf-add" data-act="add">${def.add}</button> ${ready}<button type="button" class="pf-free" data-act="free">Писать обычным текстом</button>`;
+  if(page.type==='timeline')updateFormStatus();
+}
+(()=>{
+  const form=document.getElementById('pageForm');if(!form)return;
+  const collect=()=>{const page=currentPage(),def=PAGE_FORMS[page?.type];if(!def)return;saveFormText(def.write([...form.querySelectorAll('[data-card]')].map(def.read)));};
+  form.addEventListener('input',collect);
+  form.addEventListener('click',event=>{
+    const act=event.target.closest('[data-act]')?.dataset.act;if(!act)return;
+    const page=currentPage(),def=PAGE_FORMS[page?.type];if(!def)return;
+    if(act==='add'){const cards=form.querySelector('[data-cards]'),n=cards.children.length;const div=document.createElement('div');div.className=def.table?'pf-line':'pf-card';div.dataset.card='';div.innerHTML=(def.table?'':'<button type="button" class="pf-remove" data-act="remove">убрать</button>')+def.card(def.empty(),n);cards.appendChild(div);div.querySelector('input,textarea')?.focus();div.scrollIntoView({block:'nearest',behavior:'smooth'});return;}
+    if(act==='item'){const list=event.target.closest('[data-card]').querySelector('[data-list]');const row=document.createElement('div');row.className='pf-item';row.innerHTML='<input class="pf-input" data-f="item" placeholder="Например: молоко — 1 стакан">';list.appendChild(row);row.querySelector('input').focus();return;}
+    if(act==='remove'){const card=event.target.closest('[data-card]');const filled=[...card.querySelectorAll('input,textarea')].some(x=>x.value.trim());if(filled&&!card.dataset.sure){card.dataset.sure='1';event.target.textContent='точно убрать?';return;}card.remove();collect();return;}
+    if(act==='ready'){const have=String(page.text||'');const fresh=READY_QUESTIONS.filter(q=>!have.includes(q));if(!fresh.length)return;saveFormText((have.trim()?have.trim()+'\n\n':'')+fresh.join('\n\n'));pageFormFor=null;updatePageForm();return;}
+    if(act==='free'){page.freeText=true;persistSoon();pageFormFor=null;render();return;}
+  });
+})();
 function updateTreeUi(){
   updatePrompts();
+  updatePageForm();
   updatePageSample();
   markInterviewQuestions();
   const button=document.getElementById('treeLaunch');if(!button)return;
@@ -4285,6 +4431,8 @@ window.addEventListener('message',e=>{
         title: section.title || 'Раздел',
         type: section.type || 'text',
         auto: isAuto(section),
+        // A chapter the author has not touched yet (only the sample text).
+        sample: section.type === 'chapter' && (section.pages || []).every(page => !(page.userEdited === true || page._userEdited === true) && !(page.photos || []).length),
         included: section.included !== false,
         active: sectionIndex === activeSection,
         activePage: section.active || 0,
@@ -4601,6 +4749,21 @@ window.addEventListener('message',e=>{
         persistSoon();
         render();
         emitStructure();
+      }
+    }
+    else if(a === 'removeSampleChapters') {
+      // «Убрать образцы»: untouched sample chapters leave the book; at least
+      // one chapter always stays.
+      saveEditor();
+      const isSampleChapter = section => section.type === 'chapter' && (section.pages || []).every(page => !(page.userEdited === true || page._userEdited === true) && !(page.photos || []).length);
+      const current = sections[activeSection];
+      const keepOne = sections.filter(section => section.type === 'chapter').every(isSampleChapter) ? sections.find(section => section.type === 'chapter') : null;
+      const next = sections.filter(section => !isSampleChapter(section) || section === keepOne);
+      if(next.length !== sections.length){
+        sections.splice(0, sections.length, ...next);
+        activeSection = Math.max(0, sections.indexOf(current));
+        if(activeSection < 0 || !sections[activeSection]) activeSection = Math.max(0, sections.findIndex(section => section.type === 'chapter'));
+        persistSoon(); render(); emitStructure();
       }
     }
     else if(a === 'setPhotoFrame') {
