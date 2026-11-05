@@ -14,7 +14,7 @@ assert(!/maxFit\(tokens\)/.test(sheet.match(/function flowCurrentPageOverflow[\s
 const photo=(id,src,width,height,extra={})=>({id,src,width,height,...extra});
 const pages=[
   {uid:'a',text:'Первая запись завершается полной фразой.',photos:[photo('open','open.jpg',900,1200),photo('portrait','portrait.jpg',800,1200,{caption:'Личный архив'})],userEdited:true},
-  {uid:'b',text:'Вторая запись начинается новым смысловым абзацем и продолжается без потери символов.',photos:[photo('city','city.jpg',1600,900,{regions:[{type:'door',x:72,y:44,width:18,height:24,confidence:.94}]})],userEdited:true}
+  {uid:'b',text:'Вторая запись начинается новым смысловым абзацем и продолжается без потери символов. '.repeat(4).trim(),photos:[photo('city','city.jpg',1600,900,{regions:[{type:'door',x:72,y:44,width:18,height:24,confidence:.94}]})],userEdited:true}
 ];
 const source={sections:[{id:'chapter',type:'chapter',title:'Дом',pages}]};
 const paginate=(page,text)=>{

@@ -509,17 +509,15 @@
       return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async"${frameAttrs(0)}>` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>Семейная хроника</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
     }
     if (role === 'endpaper') {
-      // F-END / B-END — typographic grid pattern: the first letter of the book
-      // title on one strict grid across the whole spread (every other row
-      // shifted by half a step); each page draws its part, so the spine does
-      // not restart the grid.
-      const letter=esc((String(meta.title||'Семейная хроника').match(/\p{L}/u)?.[0]||'С').toUpperCase());
-      const stepX=212,stepY=92,offset=pageSide==='left'?0:1000,glyphs=[];
-      for(let row=0;row*stepY<1260;row++){
-        const shift=row%2?stepX/2:0;
-        for(let x=58+shift;x<2000;x+=stepX){const local=x-offset;if(local>-80&&local<1040)glyphs.push(`<span style="left:${Math.round(local)}px;top:${36+row*stepY}px">${letter}</span>`);}
-      }
-      return article('D01-ENDPAPER', `<div class="dpk-endpaper-pattern" aria-hidden="true">${glyphs.join('')}</div>`, 'dpk-endpaper-grid');
+      // F-END / B-END — the family monogram on a fine grid: the letter of the
+      // family name in a double gold ring, the name below in spaced capitals,
+      // centred on the right-hand page; the left page carries the grid only.
+      const title=String(meta.title||'Семейная хроника').trim();
+      const family=(title.match(/^(?:семья|род|история семьи)\s+(\S+)/iu)||[])[1]||'';
+      const letter=esc(((family||title).match(/\p{L}/u)?.[0]||'С').toUpperCase());
+      const name=esc(family?`Семья ${family}`:title);
+      const mark=pageSide==='right'?`<div class="dpk-monogram"><div class="dpk-monogram-ring"><span>${letter}</span></div><div class="dpk-monogram-name">${name}</div></div>`:'';
+      return article('D01-ENDPAPER', `<div class="dpk-endpaper-grid-lines" aria-hidden="true"></div>${mark}`, 'dpk-endpaper-mono');
     }
     if (role === 'blank') return article('D01-ENDPAPER', '');
     if (role === 'half-title') return article('D01-HALF-TITLE', `<div class="dpk-kicker">Очерки жизни</div><h1>${esc(meta.title || 'Семейная хроника')}</h1><div class="dpk-half-meta">${esc(meta.subtitle || '')}</div>${folio}`);
@@ -568,7 +566,8 @@
       // horizontal handwritten line, air, then the shared text flow.
       const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
       const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):page.railPhoto?captionLine([page.railPhoto.photoIndex]):page.bottomPhotos?captionLine(page.bottomPhotos.photoIndices):'';
-      return article(page.master,`${bg}${sidePhoto}${bottomPhotos}${smallHead}${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}${xClass}`)
+      const endMark=page.chapterEndMark?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':'';
+      return article(page.master,`${endMark}${bg}${sidePhoto}${bottomPhotos}${smallHead}${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}${xClass}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);

@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v71">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v72">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2885,7 +2885,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v71" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v72" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4664,10 +4664,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v71"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v71"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v71"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v71"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v71"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v71"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v72"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v72"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v72"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v72"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v72"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v72"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4702,8 +4702,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v71"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v71"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v72"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v72"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7004,9 +7004,18 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(!box){box=document.createElement('div');box.id='bookNotice';box.className='book-notice';document.body.appendChild(box);
       box.addEventListener('click',event=>{if(event.target.closest('[data-notice-close]'))box.hidden=true;});}
     box.innerHTML=`<button type="button" class="book-notice-close" data-notice-close aria-label="Закрыть">×</button><div class="book-notice-text">${html}</div>${withReport?'<p class="bd-build-report-note">Нажмите «Сохранить отчёт» и пришлите файл — по нему ошибку найдут точно. В отчёте только текст книги и подписи, без фотографий.</p><button type="button" class="bd-build-report">Сохранить отчёт</button>':''}`;
-    box.hidden=false;
+    box.hidden=false;hideBuilding();
   }
   window.__ocherkiShowBookNotice=showBookNotice;
+  // While the book is being put together: a calm «Собираю книгу…» in the
+  // middle of the screen, so the wait never looks like nothing is happening.
+  function showBuilding(){
+    let el=document.getElementById('bookBuilding');
+    if(!el){el=document.createElement('div');el.id='bookBuilding';el.className='book-building';el.innerHTML='<div class="book-building-card"><i></i><span>Собираю книгу…</span></div>';document.body.appendChild(el);}
+    clearTimeout(showBuilding.guard);showBuilding.guard=setTimeout(hideBuilding,25000);
+    requestAnimationFrame(()=>el.classList.add('is-on'));
+  }
+  function hideBuilding(){document.getElementById('bookBuilding')?.classList.remove('is-on');}
   function hideBookNotice(){const box=document.getElementById('bookNotice');if(box)box.hidden=true;}
   function performBuild(after){
     if(!structure) return false;
@@ -7070,6 +7079,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // One button: the book is (re)built when needed and opened at once.
     // Always from the current manuscript: a rebuild takes seconds, a stale
     // book (a caption typed a moment ago missing) is worse.
+    showBuilding();
     performBuild(openPreview);
   });
 
@@ -7081,6 +7091,47 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   function flushPreviewAccent(){
     const field=document.activeElement?.closest?.('[data-editorial-accent]');
     if(field&&field.dataset.editorialCommitted!=='1'&&previewAccentText(field)!==(field.dataset.editorialLastValidText||''))commitPreviewAccent(field);
+  }
+  // «Все развороты»: a strip along the bottom of the preview with every
+  // spread, grouped by chapter. A click opens that spread; a double click
+  // opens its page in the editor.
+  function previewStripMarkup(){
+    const titleOf=id=>String((structure?.sections||[]).find(section=>String(section.id)===String(id))?.title||'');
+    let lastSection=null;const parts=[];
+    bookSpreads.forEach((sp,i)=>{
+      const pages=[sp.left,sp.right].filter(Boolean);
+      const section=sp.sectionId||pages.find(pg=>pg.sectionId)?.sectionId||'';
+      if(section&&section!==lastSection){const title=titleOf(section);if(title)parts.push(`<div class="ps-head">${esc(title)}</div>`);}
+      lastSection=section||lastSection;
+      const photoPage=pages.find(pg=>pg?.source?.photos&&(Number.isInteger(pg.photoIndex)||Array.isArray(pg.photoIndices)));
+      const index=photoPage?(Array.isArray(photoPage.photoIndices)?photoPage.photoIndices[0]:photoPage.photoIndex):null;
+      const src=photoPage&&index!=null?imageSource(photoPage.source.photos[index]):'';
+      const label=sp.single?(sp.single==='right'?'Обложка':'Задняя обложка'):`${sp.left?.pageNo||''}${sp.right?'–'+sp.right.pageNo:''}`;
+      parts.push(`<button type="button" class="ps-item${i===activeSpread?' is-current':''}" data-strip="${i}" title="Щелчок — открыть разворот, двойной щелчок — открыть страницу в редакторе">${src?`<img src="${esc(src)}" alt="" loading="lazy">`:'<span class="ps-text"></span>'}<b>${esc(label)}</b></button>`);
+    });
+    return parts.join('');
+  }
+  function ensurePreviewStrip(){
+    if(!previewModal)return null;
+    let strip=document.getElementById('previewStrip');
+    if(!strip){
+      const toggle=document.createElement('button');toggle.type='button';toggle.id='previewStripToggle';toggle.className='preview-strip-toggle';toggle.textContent='Все развороты';
+      strip=document.createElement('div');strip.id='previewStrip';strip.className='preview-strip';
+      previewModal.append(toggle,strip);
+      toggle.addEventListener('click',event=>{event.stopPropagation();const open=!previewModal.classList.contains('strip-open');previewModal.classList.toggle('strip-open',open);toggle.textContent=open?'Скрыть развороты':'Все развороты';if(open){strip.innerHTML=previewStripMarkup();strip.querySelector('.is-current')?.scrollIntoView({inline:'center',block:'nearest'});}});
+      strip.addEventListener('click',event=>{const item=event.target.closest('[data-strip]');if(!item)return;event.stopPropagation();const i=Number(item.dataset.strip);if(i===activeSpread||previewPaging)return;
+        previewPendingTarget=null;previewPinnedTarget=null;previewCompositionOverride=null;activeSpread=i;previewRender();renderActiveOnly();});
+      strip.addEventListener('dblclick',event=>{const item=event.target.closest('[data-strip]');if(!item)return;const sp=bookSpreads[Number(item.dataset.strip)];
+        const page=[sp?.left,sp?.right].find(pg=>pg?.sourcePageUid&&pg?.sectionId)||[sp?.left,sp?.right].find(pg=>pg?.sectionId);
+        if(page){send({action:'select',sectionId:page.sectionId,pageUid:page.sourcePageUid||''});closePreview();}});
+    }
+    return strip;
+  }
+  function syncPreviewStrip(){
+    const strip=ensurePreviewStrip();if(!strip||!previewModal.classList.contains('strip-open'))return;
+    if(strip.childElementCount!==bookSpreads.length+strip.querySelectorAll('.ps-head').length)strip.innerHTML=previewStripMarkup();
+    strip.querySelectorAll('.ps-item').forEach(item=>item.classList.toggle('is-current',Number(item.dataset.strip)===activeSpread));
+    strip.querySelector('.is-current')?.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});
   }
   function previewRender(){
     flushPreviewAccent();
@@ -7150,6 +7201,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // every time, so re-attach the size observer -- it never carries over from
     // the previous spread's (now-discarded) hosts.
     bindPreviewAccentEditors();
+    syncPreviewStrip();
     if(frameTools){frameTools.hidden=true;frameTarget=null;}
     observePageCanvasHosts();
     scaleAllPageCanvases();
@@ -7246,6 +7298,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const justBuilt=!bookOutdated&&Date.now()-(window.__ocherkiBuiltAt||0)<4000;
     if(!justBuilt&&!window.__ocherkiPreviewFresh&&!buildBtn.disabled){window.__ocherkiPreviewFresh=true;performBuild(()=>{openPreview();window.__ocherkiPreviewFresh=false;});return;}
     if(!built || !bookSpreads.length){
+      hideBuilding();
       previewRender();
       previewModal.setAttribute('aria-hidden','false');
       previewModal.classList.add('open');
@@ -7257,6 +7310,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // Give the modal its final geometry while it is still invisible. This
     // lets page canvases scale at their real width before the first visible
     // frame, so the two sheets never appear separated and then snap together.
+    hideBuilding();
     previewModal.classList.add('open','is-preparing');
     previewModal.setAttribute('aria-hidden','false');
     shell?.classList.add('is-book-preview');
@@ -7319,7 +7373,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v71"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v72"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7396,6 +7450,32 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   // back (the next page) and casts a soft shadow. The new spread is already
   // rendered underneath; copies of the old pages lie on top and are cut away
   // as the fold moves, so nothing blinks.
+  // The front cover is a hard board: it moves to the spine and swings open
+  // around it, showing its inside, while the first spread appears beneath.
+  function previewOpenCover(target){
+    const host=previewSpread.querySelector(':scope > .book-preview-half');if(!host)return false;
+    const r=host.getBoundingClientRect();if(r.width<40)return false;
+    const board=document.createElement('div');board.className='cover-board';
+    board.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:2147482000;pointer-events:none;transform-origin:0 50%;transform-style:preserve-3d`;
+    const front=host.cloneNode(true);front.style.cssText+=';position:absolute;inset:0;margin:0;transform:none;backface-visibility:hidden;-webkit-backface-visibility:hidden';
+    const inside=document.createElement('div');inside.style.cssText='position:absolute;inset:0;background:#efe7da;transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:inset -30px 0 40px rgba(0,0,0,.12)';
+    board.append(front,inside);document.body.appendChild(board);
+    activeSpread=target;previewRender();renderActiveOnly();
+    const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
+    const spine=hosts.length===2?hosts[0].getBoundingClientRect().right:r.left+r.width/2;
+    previewSpread.style.opacity='0';
+    const shift=spine-r.left,t0=performance.now(),ms=1500;
+    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const tick=now=>{
+      const t=Math.min(1,(now-t0)/ms),move=ease(Math.min(1,t/.35)),turn=ease(Math.max(0,(t-.25)/.75));
+      board.style.transform=`perspective(${Math.round(r.width*3)}px) translateX(${(shift*move).toFixed(1)}px) rotateY(${(-180*turn).toFixed(2)}deg)`;
+      board.style.filter=`drop-shadow(${(-24*Math.sin(Math.PI*turn)).toFixed(1)}px 18px 26px rgba(0,0,0,${(.35*Math.sin(Math.PI*turn)).toFixed(3)}))`;
+      previewSpread.style.opacity=String(Math.min(1,Math.max(0,(t-.2)/.5)));
+      if(t<1)requestAnimationFrame(tick);else{board.remove();previewSpread.style.opacity='';previewPaging=false;}
+    };
+    requestAnimationFrame(tick);
+    return true;
+  }
   function previewFlip(forward,target){
     const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
     if(hosts.length!==2)return false;
@@ -7450,6 +7530,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     previewPaging=true;
     window.OCHERKI_PLAY_PAGE_FX?.(.48);
     const flipFrom=bookSpreads[activeSpread],flipTo=bookSpreads[target];
+    if(flipFrom?.single==='right'&&delta>0&&!flipTo?.single&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      try{if(previewOpenCover(target))return;}catch(error){document.querySelectorAll('body > .cover-board').forEach(el=>el.remove());}
+    }
     if(!flipFrom?.single&&!flipTo?.single&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
       try{if(previewFlip(delta>0,target))return;}catch(error){document.querySelectorAll('body > div[style*="2147482000"]').forEach(el=>el.remove());}
     }
@@ -7661,6 +7744,22 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .bd-build-report:hover{background:rgba(226,183,121,.24)}
 .book-notice{position:fixed;right:110px;top:50%;transform:translateY(-50%);z-index:3000;width:min(380px,calc(100vw - 160px));padding:20px 22px 18px;border-radius:16px;background:rgba(40,31,24,.95);color:#f3e7d6;font:15px/1.45 Georgia,serif;box-shadow:0 20px 50px rgba(0,0,0,.35)}
 .book-notice[hidden]{display:none}
+.book-building{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.book-building.is-on{opacity:1}
+.book-building-card{display:flex;align-items:center;gap:16px;padding:18px 28px;border-radius:30px;background:rgba(40,31,24,.9);color:#f3e7d6;font:italic 20px Georgia,serif;box-shadow:0 18px 44px rgba(0,0,0,.35)}
+.book-building-card i{width:26px;height:26px;border-radius:50%;border:2px solid rgba(226,183,121,.3);border-top-color:#e2b779;animation:bookSpin 1s linear infinite}
+@keyframes bookSpin{to{transform:rotate(360deg)}}
+.preview-strip-toggle{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:2147482500;border:0;border-radius:20px;padding:8px 18px;background:rgba(40,31,24,.82);color:#f3e7d6;font:15px Georgia,serif;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:bottom .45s cubic-bezier(.2,.8,.3,1)}
+.preview-strip-toggle:hover{background:rgba(40,31,24,.95)}
+.preview-strip{position:fixed;left:0;right:0;bottom:0;z-index:2147482400;display:flex;align-items:flex-end;gap:10px;overflow-x:auto;overflow-y:hidden;padding:14px 24px 16px;background:rgba(30,23,17,.9);box-shadow:0 -10px 30px rgba(0,0,0,.3);transform:translateY(105%);transition:transform .45s cubic-bezier(.2,.8,.3,1);scrollbar-width:thin}
+.book-preview-modal.strip-open .preview-strip{transform:none}
+.book-preview-modal.strip-open .preview-strip-toggle{bottom:136px}
+.preview-strip .ps-head{flex:0 0 auto;align-self:stretch;display:flex;align-items:center;max-width:150px;padding:0 4px 0 10px;border-left:1px solid rgba(226,183,121,.4);font:italic 13px/1.25 Georgia,serif;color:#e2b779}
+.preview-strip .ps-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;padding:0;cursor:pointer;color:#e8dcc8;font:12px Georgia,serif}
+.preview-strip .ps-item img,.preview-strip .ps-item .ps-text{display:block;width:120px;height:66px;object-fit:cover;border-radius:4px;background:repeating-linear-gradient(180deg,#f3ece0 0 5px,#e4dacb 5px 6px);box-shadow:0 2px 6px rgba(0,0,0,.3);outline:2px solid transparent;outline-offset:2px;transition:outline-color .2s,transform .2s}
+.preview-strip .ps-item:hover img,.preview-strip .ps-item:hover .ps-text{transform:translateY(-3px)}
+.preview-strip .ps-item.is-current img,.preview-strip .ps-item.is-current .ps-text{outline-color:#e2b779}
+.preview-strip .ps-item.is-current b{color:#e2b779}
 .composition-menu{position:fixed;z-index:2147483100;width:360px;max-height:70vh;overflow:auto;padding:12px 8px;border-radius:16px;background:rgba(40,31,24,.96);color:#f3e7d6;box-shadow:0 20px 50px rgba(0,0,0,.4);font:15px/1.3 Georgia,serif}
 .composition-menu[hidden]{display:none}
 .composition-menu-head{padding:4px 12px 10px;font:600 11px/1.2 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c9a46c}

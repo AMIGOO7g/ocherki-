@@ -1030,7 +1030,9 @@
         occurrences[rhythm]=occurrence+1;
         return consume(page,side);
       };
-      const detail=ctxPhoto&&(secondaryPhoto||ctxNote)?P('ctx-detail-sq',{
+      // With no text left after the opening page the detail spread would face
+      // an empty page: it is left out and its photos close the chapter.
+      const detail=fixedText.text&&ctxPhoto&&(secondaryPhoto||ctxNote)?P('ctx-detail-sq',{
         layout:'ctx-detail-sq',master:'D01-CTX-DETAIL-SQ',sectionId:chapter.sectionId,source:chapter,
         photoIndex:ctxPhotoIndex,secondaryPhotoIndex:secondaryPhotoIndex>=0?secondaryPhotoIndex:null,
         mainPhotoAssetId:assetId(ctxPhoto,ctxPhotoIndex),secondaryPhotoAssetId:secondaryPhoto?assetId(secondaryPhoto,secondaryPhotoIndex):null,
@@ -1040,7 +1042,7 @@
       }):null;
       if(detail){usedPhotoIndices.add(ctxPhotoIndex);usedPhotoSources.add(imageSource(ctxPhoto));if(secondaryPhoto){usedPhotoIndices.add(secondaryPhotoIndex);usedPhotoSources.add(imageSource(secondaryPhoto));}}
       const textFallback=detail?null:nextTextPage('right');
-      if(fixedText.text||detail||textFallback)spreads.push({id:`d01_chapter_${index+1}_${detail?'ctx_detail':'text_fallback'}`,master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT',sectionId:chapter.sectionId,left:fixedText,right:detail||textFallback,fixedRhythm:true,ctxSkipped:!detail});
+      if(fixedText.text)spreads.push({id:`d01_chapter_${index+1}_${detail?'ctx_detail':'text_fallback'}`,master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT',sectionId:chapter.sectionId,left:fixedText,right:detail||textFallback,fixedRhythm:true,ctxSkipped:!detail});
       const usablePhotoIndices=chapter.photos.map((photo,photoPosition)=>imageSource(photo)?photoPosition:-1).filter(photoPosition=>photoPosition>=0);
       let portraitGiven=false;
       // P01 — the hero's portrait (the author ticked «Портрет героя»): portrait
@@ -1452,6 +1454,25 @@
         textSpreadStreak++;
       }
       balanceChapterEnding();
+      // The chapter's last text page: a short tail is shared by both columns
+      // (the fewest lines per column that still hold it all) and closed by a
+      // small gold ending mark, instead of one short column beside an empty one.
+      {
+        const lastText=[...spreads].reverse().flatMap(spread=>spread.sectionId===chapter.sectionId?[spread.right,spread.left]:[]).find(page=>page?.measuredFlow&&page.sourceRange&&page.layout==='prose-dense');
+        const flow=lastText?.measuredFlow;
+        if(flow&&lastText.sourceRange.end===chapter.text.length&&['plain','important'].includes(flow.mode)&&!lastText.topPhoto&&!lastText.spinePhoto&&!lastText.railPhoto&&!lastText.bgPhoto&&!lastText.sidePhoto&&!lastText.bottomPhotos&&!lastText.t10&&!lastText.topPair){
+          const side=spreads.find(spread=>spread.right===lastText)?'right':'left',text=lastText.text,full=Number(flow.fullLines)||0;
+          const original={limit:lastText.flowLineLimit,flow};
+          const fits=limit=>{try{lastText.flowLineLimit=limit;const split=meta.paginateText(lastText,text,side);return split.head===text&&!split.tail?split:null;}catch(error){return null;}};
+          let low=1,high=full,best=null,bestLimit=0;
+          while(low<=high){const mid=Math.floor((low+high)/2),split=fits(mid);if(split){best=split;bestLimit=mid;high=mid-1;}else low=mid+1;}
+          if(best&&bestLimit<full){
+            const split=fits(bestLimit);
+            lastText.measuredFlow=split.measuredFlow;lastText.text=split.head;lastText.sourceText=split.head;lastText.flowLineLimit=bestLimit;
+            lastText.chapterEndMark=bestLimit<=full-3;
+          }else{lastText.flowLineLimit=original.limit;lastText.measuredFlow=original.flow;}
+        }
+      }
       // Photos left when the text ran out are never dropped: they close the
       // chapter on photo spreads (two on one page and one large opposite,
       // or one large photo per page).
