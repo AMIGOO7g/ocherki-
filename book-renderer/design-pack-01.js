@@ -516,7 +516,9 @@
       const family=(title.match(/^(?:семья|род|история семьи)\s+(\S+)/iu)||[])[1]||'';
       const letter=esc(((family||title).match(/\p{L}/u)?.[0]||'С').toUpperCase());
       const name=esc(family?`Семья ${family}`:title);
-      const mark=pageSide==='right'?`<div class="dpk-monogram"><div class="dpk-monogram-ring"><span>${letter}</span></div><div class="dpk-monogram-name">${name}</div></div>`:'';
+      // Front endpaper: the monogram on the right page; back endpaper: on the
+      // left (mirrored); the inside of the back cover is plain paper.
+      const mark=!page.plainEndpaper&&pageSide===(page.endpaperBack?'left':'right')?`<div class="dpk-monogram"><div class="dpk-monogram-ring"><span>${letter}</span></div><div class="dpk-monogram-name">${name}</div></div>`:'';
       return article('D01-ENDPAPER', `<div class="dpk-endpaper-grid-lines" aria-hidden="true"></div>${mark}`, 'dpk-endpaper-mono');
     }
     if (role === 'blank') return article('D01-ENDPAPER', '');

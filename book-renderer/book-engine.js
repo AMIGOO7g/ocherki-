@@ -1271,7 +1271,9 @@
             const pageH=meta.format==='portrait'?1196:1000,pad=70,mainRatio=photoAspect(chapter.photos[t10Main]),cardRatio=photoAspect(chapter.photos[t10Card]);
             const main=mainRatio>=1.2
               ?(()=>{const w=1250,h=Math.min(pageH-2*pad-60,Math.round(w/mainRatio));return {x:1930-w,y:pad,w,h};})()
-              :(()=>{const h=pageH-2*pad,w=Math.min(870,Math.round(h*mainRatio));return {x:960,y:pad,w,h};})();
+              // A vertical main photo stands in the middle of the right page, a
+              // little towards its outer edge, never across the fold.
+              :(()=>{const h=pageH-2*pad,w=Math.min(760,Math.round(h*mainRatio));return {x:Math.min(1930-w,1000+Math.round((1000-w)/2)+60),y:pad,w,h};})();
             // The card is a smaller second frame: it covers only a corner of the
             // main photograph and never reaches the text column on the left
             // page (the text page keeps 470px free on its right).
@@ -1282,7 +1284,9 @@
             // card hangs a little below the main photograph.
             const groupH=main.h+Math.round(ch*.18);
             if(mainRatio>=1.2)main.y=Math.max(pad,Math.round((pageH-groupH)/2));
-            const card={x:Math.max(560,Math.round(1000-.6*cw)),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
+            // With a vertical main photo the card overlaps its lower-left corner
+            // and stays on the right page.
+            const card={x:mainRatio>=1.2?Math.max(560,Math.round(1000-.6*cw)):Math.max(1036,Math.round(main.x-.45*cw)),y:Math.min(pageH-60-ch,Math.round(main.y+main.h-ch*.82)),w:cw,h:ch,angle};
             const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
             const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
             const photoPage=P('t10-photos',{layout:'t10-photos',master:'D01-T10-PHOTOS',sectionId:chapter.sectionId,source:chapter,t10:layout,title:chapter.title});
@@ -1469,7 +1473,13 @@
         const pages=spreads.filter(spread=>spread.sectionId===chapter.sectionId).flatMap(spread=>[[spread.left,'left'],[spread.right,'right']]).filter(([page])=>page?.measuredFlow&&page.sourceRange&&page.layout==='prose-dense'&&endings.has(page.sourceRange.end));
         for(const [lastText,side] of pages){
           const flow=lastText.measuredFlow;
-          if(!['plain','important'].includes(flow.mode)||lastText.topPhoto||lastText.spinePhoto||lastText.railPhoto||lastText.bgPhoto||lastText.sidePhoto||lastText.bottomPhotos||lastText.t10||lastText.topPair)continue;
+          // A margin note the book chose itself gives way on an ending page
+          // (the author's own note stays and the page is left as it is).
+          const saved={rhythm:lastText.rhythm,master:lastText.master,marginNote:lastText.marginNote};
+          if(['margin','important-margin'].includes(flow.mode)&&lastText.autoMarginNote){lastText.rhythm=flow.mode==='margin'?'plain':'important';lastText.master=masters[lastText.rhythm]||lastText.master;lastText.marginNote='';}
+          const restoreNote=()=>Object.assign(lastText,saved);
+          if(!['plain','important'].includes(lastText.rhythm||flow.mode)){restoreNote();continue;}
+          if(lastText.topPhoto||lastText.spinePhoto||lastText.railPhoto||lastText.bgPhoto||lastText.sidePhoto||lastText.bottomPhotos||lastText.t10||lastText.topPair){restoreNote();continue;}
           const text=lastText.text,full=Number(flow.fullLines)||0,original={limit:lastText.flowLineLimit,flow};
           const fits=limit=>{try{lastText.flowLineLimit=limit;const split=meta.paginateText(lastText,text,side);return split.head===text&&!split.tail?split:null;}catch(error){return null;}};
           let low=1,high=full,bestLimit=0;
@@ -1478,7 +1488,7 @@
           if(split){
             lastText.measuredFlow=split.measuredFlow;lastText.text=split.head;lastText.sourceText=split.head;lastText.flowLineLimit=bestLimit;
             lastText.chapterEndMark=bestLimit<=full-3;
-          }else{lastText.flowLineLimit=original.limit;lastText.measuredFlow=original.flow;}
+          }else{lastText.flowLineLimit=original.limit;lastText.measuredFlow=original.flow;restoreNote();}
         }
       }
       // Photos left when the text ran out are never dropped: they close the
@@ -1732,8 +1742,8 @@
     // where children and grandchildren write their own lines by hand. On by
     // default; meta.continuationPages === false leaves it out.
     if(meta.continuationPages!==false)spreads.push({master:'D01-SPREAD-CONTINUATION',left:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta,notesHeading:'Для тех, кто продолжит эту историю'}),right:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta})});
-    if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta}),right:P('endpaper',{meta:bookMeta})});
-    if(byId('inside-back-cover'))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta})});
+    if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperBack:true}),right:P('endpaper',{meta:bookMeta,endpaperBack:true})});
+    if(byId('inside-back-cover'))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     const [backCoverText,backCoverMark]=fieldValues(byId('back-cover'),2);
     if(byId('back-cover'))spreads.push({master:'D01-SPREAD-BACK-COVER',left:P('back-cover',{layout:'back-cover',source:backCoverSource,meta:{...bookMeta,backCoverText,backCoverMark},photoIndex:0}),right:null,single:'left'});
     spreads.forEach((spread,index)=>{if(!spread.id)spread.id=`d01_spread_${index+1}`;});
@@ -2847,8 +2857,8 @@
     ] });
     if(byId('afterword')||byId('thanks')) spreads.push({ master: 'D01-SPREAD-AFTERWORD-THANKS', left: byId('afterword')?epilogue:P('blank',{meta:bookMeta}), right: byId('thanks')?thanks:P('blank',{meta:bookMeta}) });
     if(byId('sources')||byId('colophon')) spreads.push({ master: 'D01-SPREAD-SOURCES-COLOPHON', left: byId('sources')?sources:P('blank',{meta:bookMeta}), right: byId('colophon')?colophon:P('blank',{meta:bookMeta}) });
-    if(byId('back-endpaper')) spreads.push({ master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta }), right: P('endpaper', { meta: bookMeta }) });
-    if(byId('inside-back-cover')) spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta})});
+    if(byId('back-endpaper')) spreads.push({ master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta, endpaperBack: true }), right: P('endpaper', { meta: bookMeta, endpaperBack: true }) });
+    if(byId('inside-back-cover')) spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     if(byId('back-cover')) spreads.push({ master: 'D01-SPREAD-BACK-COVER', left: P('back-cover', { layout: 'back-cover', meta:Object.assign({},bookMeta,{backCoverText,backCoverMark}), source: backCoverSource, photoIndex: 0 }), right: null, single: 'left' });
 
     const pages = spreads.flatMap(spread => [spread.left, spread.right].filter(Boolean));

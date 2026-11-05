@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v74">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v75">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2886,7 +2886,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v74" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v75" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4666,10 +4666,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v74"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v74"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v74"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v74"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v74"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v74"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v75"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v75"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v75"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v75"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v75"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v75"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4704,8 +4704,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v74"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v74"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v75"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v75"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7036,7 +7036,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         if(previewModal?.classList.contains('open')&&bookSpreads.length){
           activeSpread=Math.max(0,Math.min(keepSpread,bookSpreads.length-1));previewPendingTarget=null;previewPinnedTarget=null;
           const focus=window.__ocherkiFocusPhoto;window.__ocherkiFocusPhoto='';
-          if(focus){const at=bookSpreads.findIndex(spread=>[spread?.left,spread?.right].some(pg=>{const list=[pg?.photoIndex,...(pg?.photoIndices||[]),pg?.t10?.main?.index,pg?.t10?.card?.index].filter(Number.isInteger);return list.some(i=>String(pg?.source?.photos?.[i]?.id||'')===focus);}));if(at>=0)activeSpread=at;}
+          if(focus){const at=bookSpreads.findIndex(spread=>[spread?.left,spread?.right].some(pg=>{const list=[pg?.photoIndex,...(pg?.photoIndices||[]),pg?.t10?.main?.index,pg?.t10?.card?.index].filter(Number.isInteger);return list.some(i=>String(pg?.source?.photos?.[i]?.id||'')===focus);}));
+            // Stay where the composition can still be changed: a spread the photo
+            // moved to at the chapter's end (no composition) does not take focus.
+            if(at>=0&&bookSpreads[at]?.beat&&bookSpreads[at].beat!=='p01')activeSpread=at;}
         }
         requestAnimationFrame(scaleAllPageCanvases);
         buildBtn.textContent=bookSpreads.length?'Посмотреть книгу':'Нет данных';
@@ -7238,6 +7241,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     let menu=document.getElementById('compositionMenu');
     if(menu&&!menu.hidden){menu.hidden=true;return;}
     const sp=bookSpreads[activeSpread],ref=spreadPhotoRef(sp);if(!ref)return;
+    if(previewSpread?.classList.contains('is-recomposing'))return;
     if(!menu){menu=document.createElement('div');menu.id='compositionMenu';menu.className='composition-menu';(previewModal||document.body).appendChild(menu);
       menu.addEventListener('click',event=>{const item=event.target.closest('[data-composition]');if(!item||item.disabled)return;event.stopPropagation();menu.hidden=true;changePreviewComposition(1,item.dataset.composition);});
       // A click beside the open list only closes the list (it used to close the book).
@@ -7250,6 +7254,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   }
   function changePreviewComposition(direction=1,chosen){
     if(!built||!bookSpreads.length)return;
+    // One change at a time: a press while the book is being rebuilt is ignored
+    // (presses that overlapped used to leave the controls stuck).
+    if(previewSpread?.classList.contains('is-recomposing'))return;
     const sp=bookSpreads[activeSpread];
     const ref=spreadPhotoRef(sp);
     const page=ref?.page;
@@ -7383,7 +7390,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v74"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v75"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7424,6 +7431,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // The editor opens on the page of the spread the author was looking at.
     try{const sp=bookSpreads[activeSpread];const page=[sp?.left,sp?.right].find(pg=>pg?.sourcePageUid&&pg?.sectionId)||[sp?.left,sp?.right].find(pg=>pg?.sectionId);if(page)send({action:'select',sectionId:page.sectionId,pageUid:page.sourcePageUid||''});}catch(_){}
     document.getElementById('compositionMenu')?.setAttribute('hidden','');
+    // The question beside the sheet waits until the editor has settled, then
+    // fades in where it belongs (it used to jump across the sheet).
+    const prompt=document.getElementById('writingPrompt');
+    if(prompt){prompt.classList.add('is-settling');setTimeout(()=>{window.dispatchEvent(new Event('resize'));setTimeout(()=>prompt.classList.remove('is-settling'),120);},900);}
     previewModal.classList.add('is-closing');
     previewModal.setAttribute('aria-hidden','true');
     shell?.classList.remove('is-book-preview');
@@ -7470,19 +7481,22 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const r=host.getBoundingClientRect();if(r.width<40)return false;
     const board=document.createElement('div');board.className='cover-board';
     board.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:2147482000;pointer-events:none;transform-origin:0 50%;transform-style:preserve-3d`;
-    const front=host.cloneNode(true);front.style.cssText+=';position:absolute;inset:0;margin:0;transform:none;backface-visibility:hidden;-webkit-backface-visibility:hidden';
+    const front=host.cloneNode(true);
+    // The page's own styles must not resize the copy (it used to end up 0px high).
+    [['position','absolute'],['left','0'],['top','0'],['width',r.width+'px'],['height',r.height+'px'],['margin','0'],['transform','none'],['opacity','1'],['backface-visibility','hidden'],['-webkit-backface-visibility','hidden']].forEach(([k,v])=>front.style.setProperty(k,v,'important'));
     const inside=document.createElement('div');inside.style.cssText='position:absolute;inset:0;background:#efe7da;transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:inset -30px 0 40px rgba(0,0,0,.12)';
     board.append(front,inside);document.body.appendChild(board);
     activeSpread=target;previewRender();renderActiveOnly();
     const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
     const spine=hosts.length===2?hosts[0].getBoundingClientRect().right:r.left+r.width/2;
     previewSpread.style.opacity='0';
-    const shift=spine-r.left,t0=performance.now(),ms=1500;
+    const shift=spine-r.left,t0=performance.now(),ms=window.__ocherkiCoverMs||1500;
     const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
     const tick=now=>{
       const t=Math.min(1,(now-t0)/ms),move=ease(Math.min(1,t/.35)),turn=ease(Math.max(0,(t-.25)/.75));
       board.style.transform=`perspective(${Math.round(r.width*3)}px) translateX(${(shift*move).toFixed(1)}px) rotateY(${(-180*turn).toFixed(2)}deg)`;
-      board.style.filter=`drop-shadow(${(-24*Math.sin(Math.PI*turn)).toFixed(1)}px 18px 26px rgba(0,0,0,${(.35*Math.sin(Math.PI*turn)).toFixed(3)}))`;
+      // A plain shadow: a filter would flatten the 3D turn and show the cover mirrored.
+      const lift=Math.sin(Math.PI*turn);front.style.setProperty('box-shadow',`0 18px 30px rgba(0,0,0,${(.35*lift).toFixed(3)})`,'important');inside.style.boxShadow=`inset -30px 0 40px rgba(0,0,0,.12),0 18px 30px rgba(0,0,0,${(.35*lift).toFixed(3)})`;
       previewSpread.style.opacity=String(Math.min(1,Math.max(0,(t-.2)/.5)));
       if(t<1)requestAnimationFrame(tick);else{board.remove();previewSpread.style.opacity='';previewPaging=false;}
     };
@@ -7784,6 +7798,7 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .book-preview-spread.is-recomposing>*{opacity:.75;transition:opacity .3s}
 .recompose-note{position:fixed;z-index:2147483100;transform:translateX(-50%);font:italic 17px Georgia,serif;color:#3a2a1c;text-shadow:0 1px 0 rgba(255,250,240,.6);opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .recompose-note.is-on{opacity:1}
+.book-preview-modal:has(.book-preview-spread.is-recomposing) .book-preview-layout-hanger{opacity:.45;pointer-events:none;transition:opacity .3s}
 .book-notice strong{font-weight:600;color:#f6dcae}
 .book-notice-close{position:absolute;right:10px;top:8px;border:0;background:none;color:#f3e7d6;font:22px/1 Georgia,serif;cursor:pointer;opacity:.7}
 .book-notice-close:hover{opacity:1}
@@ -8180,6 +8195,17 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
     format:'<rect x="4" y="6" width="8" height="12" rx="1"/><rect x="14" y="8" width="7" height="7" rx="1"/>',
     photo:'<rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>'
   };
+  // The same gentle pendulum as the hanging keys at the top (≈1° at most).
+  function swingKey(el){
+    let angle=0,velocity=0,raf=0,hovering=false;
+    const step=()=>{velocity+=-.010*angle;velocity*=.991;angle+=velocity;if(angle>1.1){angle=1.1;velocity*=-.12;}if(angle<-1.1){angle=-1.1;velocity*=-.12;}
+      el.style.transform=`rotate(${angle.toFixed(2)}deg)`;
+      if(!hovering&&Math.abs(angle)<.01&&Math.abs(velocity)<.002){angle=0;velocity=0;el.style.transform='';raf=0;return;}
+      raf=requestAnimationFrame(step);};
+    const kick=dir=>{velocity=Math.max(-.2,Math.min(.2,velocity+.11*dir));if(!raf)raf=requestAnimationFrame(step);};
+    el.addEventListener('pointerenter',e=>{hovering=true;kick(e.movementX<0?-1:1);});
+    el.addEventListener('pointerleave',()=>{hovering=false;if(!raf)raf=requestAnimationFrame(step);});
+  }
   const items=[
     {id:'book',tip:'Посмотреть книгу',run:()=>document.getElementById('buildBookBtn')?.click()},
     {id:'tips',tip:'Что улучшить в книге',section:find('#bdSpreadRows')},
@@ -8190,7 +8216,9 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
   const rail=document.createElement('div');rail.className='bd-rail';rail.style.cssText='display:flex;flex-direction:column;gap:18px;align-items:center';
   for(const item of items){
     const key=document.createElement('button');key.type='button';key.className='key bd-rail-key';key.dataset.rail=item.id;key.setAttribute('aria-label',item.tip);
-    key.innerHTML=`<span class="cap"><svg viewBox="0 0 24 24">${icons[item.id]}</svg></span><span class="bd-rail-tip">${item.tip}</span>`;
+    key.innerHTML=`<span class="cap"><svg viewBox="0 0 24 24">${icons[item.id]}</svg></span>`;
+    // The label sits beside the key, outside it, so it never sways with it.
+    const wrap=document.createElement('div');wrap.className='bd-rail-item';wrap.innerHTML=`<span class="bd-rail-tip">${item.tip}</span>`;wrap.prepend(key);swingKey(key);
     key.addEventListener('click',event=>{
       event.stopPropagation();
       if(item.run){close();item.run();return;}
@@ -8198,7 +8226,7 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
       close();
       if(!open&&item.section){item.section.classList.add('is-rail-open');key.classList.add('is-active');}
     });
-    item.key=key;rail.appendChild(key);
+    item.key=key;rail.appendChild(wrap);
   }
   const close=()=>{sections.forEach(section=>section.classList.remove('is-rail-open'));rail.querySelectorAll('.bd-rail-key').forEach(key=>key.classList.remove('is-active'));};
   panel.prepend(rail);panel.classList.add('is-rail');
@@ -8236,7 +8264,10 @@ addEventListener('message',e=>{if(e.data&&e.data.type==='OCHERKI_LARGE_UI')apply
 <style id="prompt-colours">
 /* The question beside the sheet reads in one colour: dark ink by day over the
    light background, light ink at night; the counter and the links follow. */
-html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-text{color:#3e2a1b!important;text-shadow:0 0 12px rgba(255,248,236,.6)!important}
+html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-text{color:#3e2a1b!important;text-shadow:none!important}
+html body .shell .writing-prompt .writing-prompt-text,html body .shell .writing-prompt .wp-ch{text-shadow:none!important}
+.writing-prompt-text,.writing-prompt-link,.writing-prompt-count,.writing-prompt-why{transition:color 2.45s cubic-bezier(.37,0,.63,1),opacity .8s ease!important}
+.writing-prompt.is-settling{opacity:0!important;transition:none!important}
 html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-link,
 html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-count,
 html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-why{color:#5a3d26!important;opacity:.9}
@@ -8251,7 +8282,10 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
    hanging keys at the top. */
 @keyframes railSway{0%{transform:rotate(0)}25%{transform:rotate(-7deg)}55%{transform:rotate(5deg)}80%{transform:rotate(-2deg)}100%{transform:rotate(0)}}
 .bd-rail-key{transform-origin:50% -26px}
-.bd-rail-key:hover{animation:railSway .95s cubic-bezier(.36,.07,.19,.97)}
+.bd-rail-item{position:relative;display:flex;align-items:center;justify-content:center}
+.bd-rail-item .bd-rail-tip{right:72px}
+.bd-rail-item:hover .bd-rail-tip{opacity:1;transform:none}
+.bd-rail-item:has(.bd-rail-key.is-active) .bd-rail-tip{display:none}
 @media (prefers-reduced-motion: reduce){.bd-rail-key:hover{animation:none}}
 /* Carousel: no backing panel; the cards come in from the right. */
 .book-design-shell.is-rail > .bd-section.is-carousel.is-rail-open{background:none!important;box-shadow:none!important;backdrop-filter:none!important;padding:0!important;width:auto!important;max-width:min(560px,calc(100vw - 180px));overflow:visible!important;color:var(--bd-text)}
@@ -9274,7 +9308,7 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
     // The thread is now screen-height, so the same angular impulse used by a
     // short control would throw the key far outside its hit area. Keep this
     // long pendulum within the gentle ±0.22° movement of the upper controls.
-    const gravity=.010,damping=.991,maxAngle=.22,pushForce=.025,cooldown=90;
+    const gravity=.010,damping=.991,maxAngle=.07,pushForce=.008,cooldown=140;
     const apply=()=>{el.style.transform=`rotate(${angle.toFixed(2)}deg)`};
     const animate=()=>{
       velocity+=-gravity*angle;

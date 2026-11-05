@@ -25,7 +25,8 @@ const catalogBlock = shell.match(/const PREVIEW_COMPOSITION_CATALOG=Object\.free
 const catalogIds = catalogBlock ? [...catalogBlock[1].matchAll(/\bid:'([^']+)'/g)].map(match => match[1]) : [];
 if (catalogIds.length < 10 || new Set(catalogIds).size !== catalogIds.length) fail('Preview composition catalog must contain unique layouts');
 if (!/previewPinnedTarget/.test(shell) || !/const target=previewPendingTarget\|\|previewPinnedTarget/.test(shell)) fail('Preview composition target is not pinned through rebuild');
-if (!/maxAngle=\.22/.test(shell) || !/kick\(\.014\)/.test(shell) || !/Math\.abs\(dx\)>24/.test(shell)) fail('Preview pendulum impulse is still too strong');
+// The author asked for a gentler pendulum over the preview: at most ±0.07°.
+if (!/maxAngle=\.07/.test(shell) || !/kick\(\.014\)/.test(shell) || !/Math\.abs\(dx\)>24/.test(shell)) fail('Preview pendulum impulse is still too strong');
 if (!/book-preview-spread\.is-empty::after\{display:none!important\}/.test(shell) || !/book-preview-layout-hanger\.is-empty/.test(shell) || !/Создайте хотя бы одну главу/.test(shell)) fail('Empty preview still exposes book controls or spine');
 if (!/v39-entry-empty-preview-map-clock/.test(shell) || !/top:calc\(50% \+ 78px\)/.test(shell)) fail('Entry clock travel is missing');
 
