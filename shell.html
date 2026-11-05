@@ -9728,31 +9728,37 @@ html body .shell .editor-stage{top:112px!important;transform:translateX(-50%)!im
 html body .shell .editor-paper-wrap{max-width:calc((100vh - 136px) * 210 / 297)!important;min-width:min(560px,calc((100vh - 136px) * 210 / 297))!important}
 </style>
 <style id="tool-plate-style">
-/* The sheet's tools hang above it in one brass plate, like «Очерки жизни»:
-   photo, new sheet, see it in the book; «›» opens quote, date, episode and
-   document in the same frame. The words show on hover. */
-.tool-top{position:fixed;top:44px;left:0;z-index:24;opacity:0;filter:blur(8px);pointer-events:none;transition:opacity 1s cubic-bezier(.18,.78,.24,1),filter 1s cubic-bezier(.18,.78,.24,1),top 1.2s cubic-bezier(.2,.72,.2,1)}
-.shell.is-open .tool-top.is-placed{opacity:1;filter:none;pointer-events:auto}
+/* Top centre: the sheet's tools in one brass plate (photo, new sheet, see it
+   in the book). «⌄» lets a second, smaller plate slide down beneath it with
+   quote, date, episode and document. The book's title hangs to the right;
+   the number of sheets hangs beside the title, never over the sheet. */
+.tool-top{position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:25;opacity:0;filter:blur(8px);pointer-events:none;transition:opacity 1s cubic-bezier(.18,.78,.24,1),filter 1s cubic-bezier(.18,.78,.24,1),top 1.2s cubic-bezier(.2,.72,.2,1)}
+.shell.is-open .tool-top{opacity:1;filter:none;pointer-events:auto}
 .shell.is-open.is-book-preview .tool-top{top:-190px;pointer-events:none}
-.tool-top .tool-plate{display:flex!important;align-items:center;gap:2px;min-width:0!important;width:auto!important;height:54px;padding:0 10px!important;cursor:default}
-.tool-top .tool-plate>*{position:relative;z-index:1}
+.tool-top .tool-plate,.tool-top .tool-extra{display:flex!important;align-items:center;gap:2px;min-width:0!important;width:auto!important;padding:0 10px!important;cursor:default}
+.tool-top .tool-plate{height:54px}
+.tool-top .tool-plate>*,.tool-top .tool-extra>*{position:relative;z-index:1}
 .tool-top .str{position:absolute!important;top:-44px;width:1px;height:44px;background:linear-gradient(to bottom,rgba(87,65,47,.64),rgba(111,82,55,.28));pointer-events:none;z-index:0!important}
 .shell.is-night .tool-top .str{background:linear-gradient(to bottom,rgba(245,225,198,.40),rgba(245,225,198,.16))}
-.tool-top button{appearance:none;border:0;background:none;width:34px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;color:inherit;cursor:pointer;border-radius:12px}
+.tool-top .tool-extra{position:absolute!important;left:50%;top:72px;height:46px;opacity:0;pointer-events:none;transform:translate(-50%,-14px);transition:opacity .45s ease,transform .6s cubic-bezier(.2,.8,.3,1)}
+.tool-top .tool-extra .str{top:-20px;height:20px}
+.tool-top.is-open .tool-extra{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.tool-top button{appearance:none;border:0;background:none;width:36px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;color:inherit;cursor:pointer;border-radius:12px}
 .tool-top button[hidden]{display:none}
-.tool-top svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:filter .4s ease}
+.tool-top svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:filter .4s ease,transform .45s cubic-bezier(.2,.8,.3,1)}
 .tool-top button:hover svg{filter:drop-shadow(0 0 3px rgba(226,160,80,.8)) drop-shadow(0 0 7px rgba(226,160,80,.35))}
 .tool-top .sep{width:1px;height:24px;background:currentColor;opacity:.25;margin:0 3px}
-.tool-top .tool-extra{display:none;align-items:center;gap:2px}
-.tool-top.is-open .tool-extra{display:flex}
-@keyframes toolIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
-.tool-top.is-open .tool-extra button{animation:toolIn .5s cubic-bezier(.2,.8,.3,1) both}
-.tool-top.is-open .tool-extra button:nth-child(2){animation-delay:.06s}.tool-top.is-open .tool-extra button:nth-child(3){animation-delay:.12s}.tool-top.is-open .tool-extra button:nth-child(4){animation-delay:.18s}
-.tool-top .more svg{transition:transform .45s cubic-bezier(.2,.8,.3,1),filter .4s}
 .tool-top.is-open .more svg{transform:rotate(180deg)}
-.tool-top .tool-tip{position:absolute;left:0;top:64px;white-space:nowrap;font:italic 15px Georgia,serif;color:#3a2a1c;opacity:0;transform:translateY(-5px);transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.3,1);pointer-events:none}
+.tool-top .tool-tip{position:absolute;left:0;top:64px;white-space:nowrap;font:italic 15px Georgia,serif;color:#3a2a1c;opacity:0;transform:translateY(-5px);transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.3,1);pointer-events:none;z-index:3}
+.tool-top.is-open .tool-tip.is-extra{top:126px}
 .shell.is-night .tool-top .tool-tip{color:#f3e7d6}
 .tool-top .tool-tip.is-on{opacity:1;transform:none}
+/* «Очерки жизни» to the right of the tools, the sheet count beside it. */
+html body .shell .project-top{left:calc(50% + 116px)!important;right:auto!important;transform:none!important}
+html body .shell .project-top .project-hanger{flex-direction:row!important;align-items:flex-start!important}
+html body .shell .project-top .pages-child{margin:4px 0 0 18px!important}
+html body .shell .project-top .pages-child::before{top:-48px!important;height:48px!important}
+@media(max-width:1600px){html body .shell .project-top .project-key{min-width:260px!important;width:260px!important}}
 </style>
 <script id="tool-plate-script">
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
@@ -9763,47 +9769,28 @@ html body .shell .editor-paper-wrap{max-width:calc((100vh - 136px) * 210 / 297)!
    +B('photo','Добавить фото','<rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>')
    +B('page','Новый лист','<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M12 11v6M9 14h6"/>')
    +B('view','Посмотреть этот лист в книге','<path d="M3 5.5c3-1.4 6-1.4 9 .6 3-2 6-2 9-.6V19c-3-1.4-6-1.4-9 .6-3-2-6-2-9-.6Z"/><path d="M12 6.1v13.5"/>')
-   +`<span class="sep"></span><span class="tool-extra">`
+   +`<span class="sep"></span>`+B('more','Ещё','<path d="M7 10l5 5 5-5"/>','more')+`</div>`
+   +`<div class="project-key tool-extra"><i class="str" style="left:22%"></i><i class="str" style="left:78%"></i>`
    +B('quote','Цитата','<path d="M5 17c2.5-1 4-3 4-6V7H5v4h4"/><path d="M14 17c2.5-1 4-3 4-6V7h-4v4h4"/>')
    +B('date','Дата','<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>')
    +B('episode','Новый эпизод','<path d="M7 3h10v18l-5-4-5 4Z"/>')
    +B('document','Архивный документ: письмо, справка, грамота','<path d="M6 3h12v18H6Z"/><path d="M9 8h6M9 12h6M9 16h4"/>')
-   +`</span>`+B('more','Ещё','<path d="M10 7l5 5-5 5"/>','more')+`</div><span class="tool-tip"></span>`;
+   +`</div><span class="tool-tip"></span>`;
   shell.appendChild(top);
-  const tip=top.querySelector('.tool-tip'),plate=top.querySelector('.tool-plate');
+  const tip=top.querySelector('.tool-tip');
   const frame=()=>document.getElementById('v35SheetFrame');
-  const setOpen=on=>{top.classList.toggle('is-open',on);const m=top.querySelector('.more');m.dataset.tip=on?'Свернуть':'Ещё';place();};
+  const setOpen=on=>{top.classList.toggle('is-open',on);top.querySelector('.more').dataset.tip=on?'Свернуть':'Ещё';};
   top.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b)return;e.stopPropagation();const act=b.dataset.act;
     if(act==='more'){setOpen(!top.classList.contains('is-open'));return;}
     if(b.closest('.tool-extra'))setOpen(false);
     try{frame()?.contentWindow?.postMessage({type:'OCHERKI_SHEET_ACTION',act},'*');}catch(err){}});
-  top.addEventListener('pointerover',e=>{const b=e.target.closest('button[data-act]');if(!b)return;tip.textContent=b.dataset.tip;
+  top.addEventListener('pointerover',e=>{const b=e.target.closest('button[data-act]');if(!b)return;tip.textContent=b.dataset.tip;tip.classList.toggle('is-extra',!!b.closest('.tool-extra'));
     const r=b.getBoundingClientRect(),t=top.getBoundingClientRect();tip.style.left=Math.round(r.left-t.left+r.width/2-tip.offsetWidth/2)+'px';tip.classList.add('is-on');});
-  top.addEventListener('pointerleave',()=>tip.classList.remove('is-on'));
+  top.addEventListener('pointerout',e=>{if(!e.relatedTarget||!e.relatedTarget.closest?.('button[data-act]'))tip.classList.remove('is-on');});
   document.addEventListener('click',e=>{if(!top.contains(e.target))setOpen(false);});
   // Which tools fit the page the author is on (no photo on the contents…).
   addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_SHEET_TOOLS')return;
-    Object.entries(d.hidden||{}).forEach(([act,h])=>{const b=top.querySelector(`[data-act="${act}"]`);if(b)b.hidden=!!h;});place();});
-  // It hangs beside «Очерки жизни», on the side with room, and never over
-  // the book map; it grows away from the plate when opened.
-  function place(){
-    const title=document.querySelector('.project-top')?.getBoundingClientRect(),paper=document.querySelector('.editor-paper')?.getBoundingClientRect();
-    const map=document.querySelector('.book-map-shell')?.getBoundingClientRect(),acts=document.querySelector('.project-actions')?.getBoundingClientRect();
-    if(!title||!title.width||!paper||!paper.width)return;
-    const w=plate.offsetWidth,gap=26,leftLimit=Math.max(16,(map&&map.width?map.right:0)+16);
-    // The side is chosen for the opened plate, so opening never makes it jump:
-    // on the left it grows leftwards from «Очерки жизни», on the right rightwards.
-    const extra=[...top.querySelectorAll('.tool-extra button')].filter(b=>!b.hidden).length*36+4;
-    const openW=(top.classList.contains('is-open')?w:w+extra);
-    const leftFits=title.left-gap-openW>=Math.max(leftLimit,paper.left-60);
-    let x=leftFits?title.left-gap-w:title.right+gap;
-    // On the right it keeps clear of the keys in the corner.
-    if(!leftFits&&acts&&acts.width)x=Math.max(title.right+10,Math.min(x,acts.left-16-openW));
-    top.style.left=Math.round(x)+'px';top.classList.add('is-placed');
-  }
-  addEventListener('resize',()=>requestAnimationFrame(place));
-  new MutationObserver(()=>requestAnimationFrame(place)).observe(shell,{attributes:true,attributeFilter:['class']});
-  setTimeout(place,300);setTimeout(place,2500);setTimeout(place,6000);
+    Object.entries(d.hidden||{}).forEach(([act,h])=>{const b=top.querySelector(`[data-act="${act}"]`);if(b)b.hidden=!!h;});});
 })();
 </script>
 <style id="preview-arc-style">
