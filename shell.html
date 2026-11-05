@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v78">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v79">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2886,7 +2886,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261105-v78" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261105-v79" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4669,10 +4669,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261105-v78"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261105-v78"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261105-v78"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261105-v78"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261105-v78"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261105-v78"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261105-v79"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261105-v79"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261105-v79"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261105-v79"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261105-v79"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261105-v79"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4707,8 +4707,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261105-v78"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261105-v78"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261105-v79"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261105-v79"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7152,6 +7152,24 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }
     return strip;
   }
+  // What the arc of spreads under the open book needs from here.
+  window.__ocherkiArcApi={
+    spreads:()=>bookSpreads,active:()=>activeSpread,built:()=>built,pageSize:()=>currentPageSize(),esc,
+    host:(page,side)=>pageCanvasHost(page,side,'mini'),
+    scale:()=>requestAnimationFrame(()=>{observePageCanvasHosts();scaleAllPageCanvases();}),
+    label:i=>{const sp=bookSpreads[i]||{},pages=[sp.left,sp.right].filter(Boolean);
+      const section=sp.sectionId||pages.find(pg=>pg.sectionId)?.sectionId||'',prev=bookSpreads[i-1];
+      const prevSection=prev?(prev.sectionId||[prev.left,prev.right].find(pg=>pg?.sectionId)?.sectionId||''):'';
+      const title=String((structure?.sections||[]).find(item=>String(item.id)===String(section))?.title||'');
+      const chapter=section&&section!==prevSection&&/^Глава\s/i.test(title)?title.split('.')[0]:'';
+      const item=PREVIEW_COMPOSITION_CATALOG.find(c=>c.id===String(sp.beat||''));
+      const name=sp.single?(sp.single==='right'?'Обложка':'Задняя обложка'):(item?.label||(chapter?title:''));
+      const pagesLabel=sp.single?'':`страницы ${sp.left?.pageNo||''}${sp.right?'–'+sp.right.pageNo:''}`;
+      return {name,pages:pagesLabel,chapter};},
+    go:i=>{if(previewPaging||i===activeSpread)return;previewGo(i-activeSpread);},
+    edit:i=>{const sp=bookSpreads[i];const page=[sp?.left,sp?.right].find(pg=>pg?.sourcePageUid&&pg?.sectionId)||[sp?.left,sp?.right].find(pg=>pg?.sectionId);
+      if(page){send({action:'select',sectionId:page.sectionId,pageUid:page.sourcePageUid||''});closePreview();}}
+  };
   function syncPreviewStrip(){
     const strip=ensurePreviewStrip();if(!strip||!previewModal.classList.contains('strip-open'))return;
     if(strip.childElementCount!==bookSpreads.length+strip.querySelectorAll('.ps-head').length)strip.innerHTML=previewStripMarkup();
@@ -7231,6 +7249,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // the previous spread's (now-discarded) hosts.
     bindPreviewAccentEditors();
     syncPreviewStrip();
+    window.__ocherkiArcSync?.(true);
     if(frameTools){frameTools.hidden=true;frameTarget=null;}
     observePageCanvasHosts();
     scaleAllPageCanvases();
@@ -7471,7 +7490,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v78"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v79"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -9785,5 +9804,103 @@ html body .shell .editor-paper-wrap{max-width:calc((100vh - 136px) * 210 / 297)!
   addEventListener('resize',()=>requestAnimationFrame(place));
   new MutationObserver(()=>requestAnimationFrame(place)).observe(shell,{attributes:true,attributeFilter:['class']});
   setTimeout(place,300);setTimeout(place,2500);setTimeout(place,6000);
+})();
+</script>
+<style id="preview-arc-style">
+/* Book view: the open book in the middle and every spread lying in an arc
+   («улыбка») under it. The spread in the arc's centre is the largest and
+   brightest; the others grow smaller and fainter, as if further away. */
+#bookPreviewModal.has-arc{align-items:flex-start!important}
+#bookPreviewModal.has-arc .book-preview-stage{width:calc(var(--arc-book-w) + 180px)!important;max-width:none!important;max-height:none!important;margin-top:var(--arc-stage-top,120px)!important;padding:0 90px!important}
+#bookPreviewModal.has-arc #bookPreviewSpread{width:var(--arc-book-w)!important;max-width:none!important;max-height:none!important;margin:0 auto!important}
+#bookPreviewModal.has-arc #previewStripToggle,#bookPreviewModal.has-arc #previewStrip{display:none!important}
+#bookPreviewModal.has-arc #bookPreviewInfo{position:fixed!important;left:0!important;right:0!important;width:auto!important;max-width:none!important;text-align:center!important;top:var(--arc-info-top,auto)!important;bottom:auto!important;margin:0!important;transform:none!important}
+.preview-arc{position:fixed;inset:0;pointer-events:none;z-index:5;opacity:0;transition:opacity .9s ease .3s}
+#bookPreviewModal.open.has-arc .preview-arc{opacity:1}
+#bookPreviewModal.is-preparing .preview-arc{opacity:0;transition:none}
+.pa-item{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;transition:transform .7s cubic-bezier(.2,.8,.25,1),opacity .7s ease,width .7s cubic-bezier(.2,.8,.25,1);will-change:transform}
+.pa-spread{position:relative;display:grid;grid-template-columns:1fr 1fr;width:100%;background:#fff;box-shadow:0 6px 14px rgba(50,30,12,.30);border-radius:1px;overflow:hidden;outline:2px solid transparent;outline-offset:3px;transition:outline-color .4s,box-shadow .4s}
+.pa-spread>.page-canvas-host{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;inset:auto!important;width:100%!important;height:auto!important;aspect-ratio:var(--pa-page);overflow:hidden!important;transform:none!important;box-shadow:none!important;margin:0!important}
+.pa-spread>.pa-blank{aspect-ratio:var(--pa-page)}
+.pa-spread.is-cover{background:transparent;box-shadow:none}
+.pa-spread.is-cover>.page-canvas-host{box-shadow:0 6px 14px rgba(50,30,12,.30)!important}
+.pa-item:hover .pa-spread{box-shadow:0 10px 22px rgba(50,30,12,.4)}
+.pa-item.is-on .pa-spread{outline-color:#c08a45}
+.pa-tip{position:absolute;left:50%;bottom:calc(100% + 9px);transform:translate(-50%,6px);white-space:nowrap;text-align:center;font:italic 14px Georgia,serif;color:#3a2a1c;opacity:0;transition:opacity .4s,transform .5s;pointer-events:none}
+.pa-tip small{display:block;font:11px Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(58,42,28,.62)}
+.pa-item:hover .pa-tip{opacity:1;transform:translate(-50%,0)}
+.pa-item[data-ch]::after{content:attr(data-ch);position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);white-space:nowrap;font:600 10px Georgia,serif;letter-spacing:.2em;text-transform:uppercase;color:#b07a3a}
+#bookPreviewModal.is-night .pa-tip{color:#f3e7d6}
+.shell.is-book-preview .bottom-left{opacity:0!important;pointer-events:none!important;transition:opacity .8s ease!important}
+#bookPreviewModal.is-night .pa-tip small{color:rgba(243,231,214,.65)}
+</style>
+<script id="preview-arc-script">
+(()=>{
+  const modal=document.getElementById('bookPreviewModal');if(!modal)return;
+  const api=()=>window.__ocherkiArcApi;
+  const arc=document.createElement('div');arc.className='preview-arc';arc.id='previewArc';modal.appendChild(arc);
+  const STEP=15,SIZE=[190,156,128,106,90,78,68,60],FADE=[1,.9,.8,.7,.55,.38,.2,.08],WINDOW=SIZE.length;
+  let turn=0,spreadsRef=null,items=new Map();
+  // Size and place the book so the composition keys above it and the arc
+  // below it fit on any screen.
+  function geometry(){
+    const a=api();if(!a)return null;
+    const W=innerWidth,H=innerHeight,[pw,ph]=a.pageSize(),ratio=(pw*2)/ph,T=120;
+    const maxH=Math.max(220,H-T-24-30-190);
+    const bw=Math.round(Math.min(W*.56,maxH*ratio,1500));
+    modal.style.setProperty('--arc-book-w',bw+'px');modal.style.setProperty('--arc-stage-top',T+'px');
+    return {W,H,ratio,pw,ph};
+  }
+  function render(i){
+    const a=api(),sp=a.spreads()[i];if(!sp)return null;
+    const el=document.createElement('div');el.className='pa-item';el.dataset.i=i;
+    const [pw,ph]=a.pageSize();el.style.setProperty('--pa-page',`${pw}/${ph}`);
+    const blank='<div class="pa-blank"></div>';
+    const left=sp.single==='right'?blank:(sp.left?a.host(sp.left,'left'):blank),right=sp.single==='left'?blank:(sp.right?a.host(sp.right,'right'):blank);
+    const info=a.label(i);
+    if(info.chapter)el.dataset.ch=info.chapter;
+    el.innerHTML=`<div class="pa-spread${sp.single?' is-cover':''}">${left}${right}</div><div class="pa-tip">${info.name?a.esc(info.name):''}<small>${a.esc(info.pages)}</small></div>`;
+    el.addEventListener('click',e=>{e.stopPropagation();a.go(i);});
+    el.addEventListener('dblclick',e=>{e.stopPropagation();a.edit(i);});
+    return el;
+  }
+  function layout(){
+    const a=api();if(!a)return;const list=a.spreads();
+    const on=modal.classList.contains('open')&&a.built()&&list.length>0;
+    modal.classList.toggle('has-arc',on);if(!on){arc.replaceChildren();items.clear();return;}
+    if(spreadsRef!==list){spreadsRef=list;arc.replaceChildren();items.clear();}
+    const g=geometry();
+    const book=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();if(!book||!book.width)return;
+    const cx=book.left+book.width/2,cy=book.top+book.height/2;
+    modal.style.setProperty('--arc-info-top',Math.round(book.bottom+14)+'px');
+    const rx=Math.min(g.W/2-80,Math.max(book.width/2+170,g.W*.42)),ry=book.height/2+Math.min(g.H*.2,175);
+    // Smaller screens get smaller spreads; the step keeps neighbours apart.
+    const k=Math.max(.7,Math.min(1.15,g.H/1050));
+    const step=Math.max(STEP,Math.asin(Math.min(.6,((SIZE[0]+SIZE[1])/2+30)*k/rx))*180/Math.PI);
+    const active=a.active();
+    for(const [i,el] of items){if(Math.abs(i-turn)>=WINDOW){el.remove();items.delete(i);}}
+    let added=false;
+    for(let i=Math.max(0,turn-WINDOW+1);i<=Math.min(list.length-1,turn+WINDOW-1);i++){
+      let el=items.get(i);if(!el){el=render(i);if(!el)continue;arc.appendChild(el);items.set(i,el);added=true;}
+      const n=Math.abs(i-turn),deg=(i-turn)*step,th=deg*Math.PI/180,w=Math.round(SIZE[n]*k),h=w/g.ratio;
+      el.style.width=w+'px';
+      el.style.transform=`translate(${Math.round(cx+rx*Math.sin(th)-w/2)}px,${Math.round(cy+ry*Math.cos(th)-h/2)}px)`;
+      el.style.opacity=FADE[n];el.style.zIndex=String(100-n);el.style.pointerEvents=n<WINDOW-1?'auto':'none';
+      el.classList.toggle('is-on',i===active);
+    }
+    if(added)a.scale();
+  }
+  // Wheel or drag turns the arc; pressing a spread opens it in the book.
+  let lock=0;
+  modal.addEventListener('wheel',e=>{if(!modal.classList.contains('has-arc'))return;if(e.target.closest('#bookPreviewSpread,.composition-menu'))return;
+    if(Date.now()<lock)return;lock=Date.now()+110;const n=api().spreads().length;turn=Math.max(0,Math.min(n-1,turn+((e.deltaY+e.deltaX)>0?1:-1)));layout();},{passive:true});
+  let sx=null,st=0,moved=false;
+  arc.addEventListener('pointerdown',e=>{sx=e.clientX;st=turn;moved=false;});
+  addEventListener('pointermove',e=>{if(sx==null||!(e.buttons&1))return;const t=Math.round(st-(e.clientX-sx)/90);const n=api()?.spreads().length||0;if(t!==turn&&n){moved=true;turn=Math.max(0,Math.min(n-1,t));layout();}});
+  addEventListener('pointerup',()=>{sx=null;});
+  arc.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false;}},true);
+  window.__ocherkiArcSync=(follow=true)=>{const a=api();if(!a)return;if(follow)turn=a.active();requestAnimationFrame(layout);};
+  addEventListener('resize',()=>requestAnimationFrame(layout));
+  new MutationObserver(()=>window.__ocherkiArcSync(true)).observe(modal,{attributes:true,attributeFilter:['class']});
 })();
 </script>
