@@ -99,7 +99,7 @@ const structure = {
   await page.locator('#buildBookBtn').click();
   await page.waitForFunction(() => document.querySelectorAll('.bd-spread-card').length > 0, null, { timeout: 10000 });
   await page.waitForTimeout(800);
-  await page.locator('#previewBtn').click();
+  await page.evaluate(() => document.getElementById('previewBtn').click());
   await page.waitForSelector('#bookPreviewModal.open');
   await page.addStyleTag({ content: `
     #bookPreviewModal{background:#d9d6cf!important;align-items:flex-start!important;justify-content:flex-start!important;padding:0!important}

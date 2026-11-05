@@ -1000,6 +1000,47 @@ html body .sheet.ghost{box-shadow:0 5px 12px rgba(0,0,0,.14),inset 0 1px rgba(25
 // Marks the lowest visible sheet of the pile (it carries the night shadow).
 setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')].filter(el=>el.offsetParent!==null&&getComputedStyle(el).display!=='none'&&!el.classList.contains('stack-hidden-for-section'));const bottom=all[0];document.querySelectorAll('.sheet.is-pile-bottom').forEach(el=>{if(el!==bottom)el.classList.remove('is-pile-bottom');});bottom?.classList.add('is-pile-bottom');},400);
 </script>
+<style id="sheet-keys-style">
+/* Three keys beside the sheet's title (photo, new sheet, see it in the book)
+   and «ещё» that slides out four more; the words show only on hover. */
+.sheet-keys{position:absolute;left:calc(50% - 75px);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:10px;z-index:40}
+.skey{appearance:none;border:0;padding:0;width:30px;height:30px;border-radius:50%;cursor:pointer;position:relative;display:inline-flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 38% 30%,#fffaf0 0,#efe0c4 58%,#d6bd96 100%);box-shadow:0 2px 5px rgba(70,45,20,.32),inset 0 1px 0 rgba(255,255,255,.85),inset 0 -1px 2px rgba(120,85,45,.25);
+  transition:transform .3s cubic-bezier(.2,.8,.3,1),box-shadow .3s}
+.skey svg{width:16px;height:16px;fill:none;stroke:#5a3f2a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:filter .4s ease}
+.skey:hover{transform:translateY(-1px)}
+.skey:hover svg,.skey[aria-expanded="true"] svg{filter:drop-shadow(0 0 3px rgba(226,160,80,.8)) drop-shadow(0 0 7px rgba(226,160,80,.35))}
+.skey[hidden]{display:none}
+.skey::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 9px);right:50%;white-space:nowrap;pointer-events:none;opacity:0;transform:translate(50%,6px);
+  transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.3,1);font:italic 14px Georgia,serif;color:#4a3322;z-index:60}
+.skey:hover::after{opacity:1;transform:translate(50%,0)}
+.skey-more svg{transition:transform .45s cubic-bezier(.2,.8,.3,1),filter .4s}
+.sheet-keys-extra{display:flex;gap:10px;align-items:center}
+.sheet-keys:not(.is-open) .sheet-keys-extra{display:none}
+@keyframes skeyIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.sheet-keys.is-open .sheet-keys-extra .skey{animation:skeyIn .5s cubic-bezier(.2,.8,.3,1) both}
+.sheet-keys.is-open .sheet-keys-extra .skey:nth-child(2){animation-delay:.06s}.sheet-keys.is-open .sheet-keys-extra .skey:nth-child(3){animation-delay:.12s}.sheet-keys.is-open .sheet-keys-extra .skey:nth-child(4){animation-delay:.18s}
+.skey-more svg{transform:rotate(-90deg)}.skey-more[aria-expanded="true"] svg{transform:rotate(90deg)}
+.host-night .skey::after{color:#ead8bd}
+.footer .status{transition:opacity .4s ease}.footer:has(.sheet-keys.is-open) .status{opacity:0}
+/* The floating «＋ Фото ＋ Цитата ＋ Дата» near the caret repeated these keys. */
+.page-context-actions{display:none!important}
+</style>
+<style id="next-step-style">
+/* «Следующий шаг» in the sheet's corner: one short line, one press does it. */
+.next-step{position:absolute;left:0;bottom:2px;appearance:none;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:baseline;gap:8px;max-width:calc(50% - 90px);text-align:left;z-index:41;align-items:center}
+.next-step[hidden]{display:none}
+.next-step .ns-dot{width:7px;height:7px;border-radius:50%;background:#c8924f;align-self:center;box-shadow:0 0 0 0 rgba(200,146,79,.5);animation:nsPulse 2.8s ease-in-out infinite}
+@keyframes nsPulse{0%,100%{box-shadow:0 0 0 0 rgba(200,146,79,.45)}50%{box-shadow:0 0 0 6px rgba(200,146,79,0)}}
+.next-step .ns-label{font:600 10px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#a07a52;white-space:nowrap}
+.next-step .ns-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:italic 14px Georgia,serif;color:#5a3d26;border-bottom:1px solid rgba(90,61,38,.25);transition:color .3s,border-color .3s}
+.next-step:hover .ns-text{color:#8a4b2a;border-bottom-color:rgba(138,75,42,.6)}
+.next-step.is-new .ns-text{animation:nsIn .7s cubic-bezier(.2,.8,.3,1) both}
+@keyframes nsIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.footer:has(.next-step:not([hidden])) .fill-indicator{visibility:hidden}
+.host-night .next-step .ns-text{color:#ead8bd;border-bottom-color:rgba(234,216,189,.3)}
+.host-night .next-step .ns-label{color:#c9a57a}
+</style>
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
@@ -1032,7 +1073,7 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
     <div class="sheet active" id="activeSheet">
       
       <div class="paper">
-        <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><button class="icon voice-btn" id="voiceBtn" type="button" title="Говорить вместо печати" aria-label="Голосовой ввод"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn">•••</button></div></div>
+        <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><button class="icon voice-btn" id="voiceBtn" type="button" title="Говорить вместо печати" aria-label="Голосовой ввод"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn" hidden>•••</button></div></div>
         <div class="divider page-content-fade"></div>
         <div class="episode-row page-content-fade"><div class="episode">Эпизод 1. Поворот тропы</div></div>
         <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div><div class="page-form" id="pageForm" hidden></div></div>
@@ -1050,7 +1091,17 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
         </div>
         <div class="page-include-wrap page-content-fade" id="pageIncludeWrap"><span id="pageIncludeState"></span><button class="page-include-toggle" id="pageIncludeToggle" type="button" aria-label="Переключить состояние страницы"></button></div>
         <div class="footer-line page-content-fade"></div>
-        <div class="footer page-content-fade"><div class="fill-indicator project-stats" id="fillIndicator">0 слов   0 фото   0 документов <span class="fill-track"><span id="fillBar"></span></span></div><div class="status" id="saveState">Черновик сохранён</div><div class="cloud" title="Синхронизировано"><svg viewBox="0 0 24 24"><path d="M7.5 18.2h9.1a4.1 4.1 0 0 0 .8-8.1A6 6 0 0 0 6 8.1a4.2 4.2 0 0 0 1.5 10.1Z"/></svg></div></div>
+        <div class="footer page-content-fade"><button type="button" class="next-step" id="nextStep" title="Следующий шаг" hidden><span class="ns-dot"></span><span class="ns-label">Дальше</span><span class="ns-text"></span></button><div class="fill-indicator project-stats" id="fillIndicator">0 слов   0 фото   0 документов <span class="fill-track"><span id="fillBar"></span></span></div><div class="sheet-keys" id="sheetKeys">
+<button type="button" class="skey" data-act="photo" data-tip="Добавить фото" aria-label="Добавить фото"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></button>
+<button type="button" class="skey" data-act="page" data-tip="Новый лист" aria-label="Новый лист"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M12 11v6M9 14h6"/></svg></button>
+<button type="button" class="skey" data-act="view" data-tip="Посмотреть этот лист в книге" aria-label="Посмотреть этот лист в книге"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5c3-1.4 6-1.4 9 .6 3-2 6-2 9-.6V19c-3-1.4-6-1.4-9 .6-3-2-6-2-9-.6Z"/><path d="M12 6.1v13.5"/></svg></button>
+<button type="button" class="skey skey-more" data-act="more" data-tip="Ещё" aria-label="Ещё" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+<div class="sheet-keys-extra" id="sheetKeysExtra">
+<button type="button" class="skey" data-act="quote" data-tip="Цитата" aria-label="Добавить цитату"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17c2.5-1 4-3 4-6V7H5v4h4"/><path d="M14 17c2.5-1 4-3 4-6V7h-4v4h4"/></svg></button>
+<button type="button" class="skey" data-act="date" data-tip="Дата" aria-label="Добавить дату"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
+<button type="button" class="skey" data-act="episode" data-tip="Новый эпизод" aria-label="Новый эпизод"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-5-4-5 4Z"/></svg></button>
+<button type="button" class="skey" data-act="document" data-tip="Архивный документ: письмо, справка, грамота" aria-label="Архивный документ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6Z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></button>
+</div></div><div class="status" id="saveState">Черновик сохранён</div><div class="cloud" title="Синхронизировано"><svg viewBox="0 0 24 24"><path d="M7.5 18.2h9.1a4.1 4.1 0 0 0 .8-8.1A6 6 0 0 0 6 8.1a4.2 4.2 0 0 0 1.5 10.1Z"/></svg></div></div>
         <div class="popover" id="sheetMenu"><button id="addPageBtn">Добавить страницу</button><button id="deletePageBtn">Удалить лист</button><button id="duplicateBtn">Дублировать лист</button><button id="prevBtn">Предыдущий лист</button><button id="nextBtn">Следующий лист</button></div>
         <div class="popover" id="textMenu"><button data-size="14">Мельче</button><button data-size="15">По умолчанию</button><button data-size="16">Крупнее</button><button id="tightBtn">Плотнее</button><button id="looseBtn">Свободнее</button><button id="largeUiBtn" class="large-ui-toggle">Крупный интерфейс</button></div>
         <div class="voice-status" id="voiceStatus" hidden></div>
@@ -4994,6 +5045,67 @@ html body .page-context-actions button:hover{color:#a8692f!important}
     modal.classList.toggle('show-story',Boolean(has('photoStory')));
     modal.classList.toggle('show-more',['photoCaption','photoSource','photoPortraitHero','photoModePreference'].some(has));};
   new MutationObserver(()=>{if(modal.classList.contains('open')&&!modal.dataset.levelSynced){modal.dataset.levelSynced='1';sync();try{positionPhotoModal();}catch(_){}}if(!modal.classList.contains('open'))delete modal.dataset.levelSynced;}).observe(modal,{attributes:true,attributeFilter:['class']});
+})();
+</script>
+<script id="sheet-keys-script">
+(()=>{const box=document.getElementById('sheetKeys');if(!box)return;
+  const click=id=>document.getElementById(id)?.click();
+  const acts={photo:()=>click('addPhotoBtn'),page:()=>click('newPageBtn'),quote:()=>click('addQuoteBtn'),date:()=>click('addDateBtn'),episode:()=>click('newEpisodeBtn'),document:()=>click('addDocumentBtn'),
+    view:()=>{try{const p=typeof currentPage==='function'?currentPage():null;window.parent.postMessage({type:'OCHERKI_VIEW_IN_BOOK',pageUid:String(p?.uid||p?.id||'')},'*');}catch(e){}}};
+  const more=box.querySelector('[data-act="more"]');
+  const setOpen=on=>{box.classList.toggle('is-open',on);more.setAttribute('aria-expanded',on?'true':'false');};
+  // The caret is remembered before the key takes the focus, so a quote or a
+  // date lands where the author was writing.
+  box.addEventListener('pointerdown',e=>{if(e.target.closest('.skey'))try{semanticCaretBookmark=saveEditorCaretBookmark()||semanticCaretBookmark;}catch(err){}});
+  box.addEventListener('click',e=>{const key=e.target.closest('.skey');if(!key)return;e.stopPropagation();const act=key.dataset.act;
+    if(act==='more'){setOpen(!box.classList.contains('is-open'));return;}
+    if(key.closest('.sheet-keys-extra'))setOpen(false);acts[act]?.();});
+  document.addEventListener('click',e=>{if(!box.contains(e.target))setOpen(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false);});
+  // Only what fits this page: no photo key on a contents page, and so on.
+  const sync=()=>{try{const p=currentPage();const editable=!!p&&!p.autoContents&&p.type!=='contents';
+    box.querySelector('[data-act="photo"]').hidden=!editable||!canHavePhotos(p);
+    ['quote','date'].forEach(a=>box.querySelector(`[data-act="${a}"]`).hidden=!editable);
+    const sec=typeof currentSection==='function'?currentSection():null;
+    ['episode','document'].forEach(a=>box.querySelector(`[data-act="${a}"]`).hidden=!sec||sec.type!=='chapter');}catch(e){}};
+  if(typeof updateContextActions==='function'){const base=updateContextActions;window.updateContextActions=updateContextActions=function(){const r=base.apply(this,arguments);sync();return r;};}
+  setTimeout(sync,300);
+})();
+</script>
+<script id="next-step-script">
+(()=>{const btn=document.getElementById('nextStep');if(!btn)return;
+  let act=null,last='';
+  const click=id=>document.getElementById(id)?.click();
+  const focusEnd=()=>{try{editor.focus();const r=document.createRange();r.selectNodeContents(editor);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);}catch(e){}};
+  const view=()=>{try{const p=currentPage();window.parent.postMessage({type:'OCHERKI_VIEW_IN_BOOK',pageUid:String(p?.uid||p?.id||'')},'*');}catch(e){}};
+  // The one thing worth doing next on this sheet.
+  function pick(){
+    const sec=typeof currentSection==='function'?currentSection():null,p=typeof currentPage==='function'?currentPage():null;
+    if(!sec||!p||p.autoContents)return null;
+    const pages=Array.isArray(sec.pages)?sec.pages:[p];
+    if(sec.type==='cover'){
+      const own=!p.sample&&String(textFromEditor()||'').trim();
+      return own?null:{text:'Назовите книгу',run:focusEnd};}
+    if(sec.type!=='chapter')return null;
+    if(p.sample)return {text:'Начните писать',why:'Начните писать — образец исчезнет',run:focusEnd};
+    const words=pages.map(pg=>pg===p?textFromEditor():String(pg.text||'')).join(' ').trim().split(/\s+/).filter(Boolean).length;
+    if(words<120)return {text:'Расскажите ещё немного',run:focusEnd};
+    const photos=pages.flatMap(pg=>Array.isArray(pg.photos)?pg.photos:[]);
+    if(!photos.length&&canHavePhotos(p))return {text:'Добавьте фото к главе',run:()=>click('addPhotoBtn')};
+    const shown=typeof currentPhotos==='function'?currentPhotos():(p.photos||[]);const idx=(shown||[]).findIndex(ph=>ph&&!ph.isDocument&&!String(ph.caption||ph.people||'').trim());
+    if(idx>=0)return {text:'Подпишите фото',why:'Подпишите фото: кто на нём?',run:()=>{try{openPhoto(idx);}catch(e){}}};
+    return {text:'Посмотрите главу в книге',run:view};
+  }
+  function sync(){
+    let step=null;try{step=pick();}catch(e){step=null;}
+    btn.hidden=!step;act=step?.run||null;btn.title='Следующий шаг: '+(step?.why||step?.text||'');
+    const text=step?.text||'';
+    if(text!==last){last=text;btn.querySelector('.ns-text').textContent=text;btn.classList.remove('is-new');void btn.offsetWidth;if(text)btn.classList.add('is-new');}
+  }
+  btn.addEventListener('click',e=>{e.stopPropagation();act?.();setTimeout(sync,400);});
+  if(typeof updateContextActions==='function'){const base=updateContextActions;window.updateContextActions=updateContextActions=function(){const r=base.apply(this,arguments);sync();return r;};}
+  let t=0;editor?.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(sync,700);});
+  setTimeout(sync,400);
 })();
 </script>
 </body>
