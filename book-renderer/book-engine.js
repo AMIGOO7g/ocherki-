@@ -892,7 +892,9 @@
       // an opening spread. Their text always begins on a fresh page: no page
       // is filled across an episode boundary.
       const episodes=chapter.runs.filter(run=>run.page?.isEpisodeStart===true&&run.start>0&&String(run.page.text||'').trim()).map(run=>{
-        const photoPosition=chapter.photos.findIndex(photo=>photo._sourcePageUid===run.sourcePageUid&&imageSource(photo));
+        // A photo marked as the hero's portrait keeps its own spread: it never
+        // opens an episode.
+        const photoPosition=chapter.photos.findIndex(photo=>photo._sourcePageUid===run.sourcePageUid&&imageSource(photo)&&photo.portraitHero!==true&&!String(photo.heroName||'').trim());
         if(photoPosition<0)return null;
         const photo=chapter.photos[photoPosition],story=String(photo.story||'').trim().match(/^[^.!?…]+[.!?…]?/u)?.[0]||'';
         photo._episodeOpening=true;
@@ -1177,7 +1179,7 @@
           const unused=free.filter(photoPosition=>!portraitHeroes.includes(photoPosition));
           // A photo the author gave a composition goes into it itself: it leads
           // every pool below (the beat used to take the chapter's first photo).
-          const authorPhoto=unused.find(photoPosition=>{const choice=String(chapter.photos[photoPosition]?.layoutPreference||'');return choice&&choice!=='auto';});
+          const authorPhoto=unused.find(photoPosition=>{const choice=String(chapter.photos[photoPosition]?.layoutPreference||'');return choice&&choice!=='auto'&&choice in photoBeatWeights;});
           if(authorPhoto!=null){unused.splice(unused.indexOf(authorPhoto),1);unused.unshift(authorPhoto);}
           const byAuthor=(a,b)=>(b===authorPhoto)-(a===authorPhoto);
           const take=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
@@ -1226,7 +1228,7 @@
           const railPhoto=[...unused].filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.2).sort((a,b)=>byAuthor(a,b)||photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
           const fadePhoto=ordinary[0];
           const extraFits={rail:railPhoto!=null&&rest.length>1500,fade:fadePhoto!=null&&rest.length>1500,darkside:fadePhoto!=null&&rest.length>1500&&!chapterAccents.dark,
-            darkfade:fadePhoto!=null&&!chapterAccents.dark&&rest.length>1500,overlay:fadePhoto!=null&&rest.length>1500,darkgrad:fadePhoto!=null&&rest.length>2600&&!chapterAccents.dark,
+            darkfade:fadePhoto!=null&&!chapterAccents.dark&&rest.length>1500,overlay:fadePhoto!=null&&rest.length>1500&&!chapterAccents.dark,darkgrad:fadePhoto!=null&&rest.length>2600&&!chapterAccents.dark,
             darkpair:ordinary.length>=2&&rest.length>2600&&!chapterAccents.dark,textphotos:ordinary.length>=1&&rest.length>1500,pair:ordinary.length>=2,mosaic:ordinary.length>=4&&rest.length>1200,quoteband:ordinary.length>=2&&rest.length>0};
           const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12',...Object.keys(extraFits)].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat in extraFits?extraFits[beat]:beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           // What else would fit here: the preview offers exactly these.
@@ -1356,8 +1358,10 @@
             // fade: the text runs over a pale, whitened photograph;
             // overlay: white text over the darkened side of a photograph.
             const photoIndex=take(fadePhoto),tone=beat==='fade'?'light':'dark';
+            // White text over a dark photo: the facing page is a dark sheet too.
+            if(tone==='dark')chapterAccents.dark++;
             const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone,span:'page'},forceRhythm:'plain'});
-            const right=nextTextPage('right');
+            const right=nextTextPage('right',tone==='dark'?{darkFlow:true,forceRhythm:'plain'}:{});
             spreads.push({master:beat==='fade'?'D01-SPREAD-X-LIGHT-GRADIENT':'D01-SPREAD-X-OVERLAY',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions});
             textSpreadStreak=0;
             continue;
@@ -1454,20 +1458,22 @@
         textSpreadStreak++;
       }
       balanceChapterEnding();
-      // The chapter's last text page: a short tail is shared by both columns
-      // (the fewest lines per column that still hold it all) and closed by a
-      // small gold ending mark, instead of one short column beside an empty one.
+      // The last text page of the chapter and of every episode: a short tail is
+      // shared by both columns (the fewest lines per column that still hold it
+      // all) and closed by a small gold ending mark, instead of one short
+      // column beside an empty one.
       {
-        const lastText=[...spreads].reverse().flatMap(spread=>spread.sectionId===chapter.sectionId?[spread.right,spread.left]:[]).find(page=>page?.measuredFlow&&page.sourceRange&&page.layout==='prose-dense');
-        const flow=lastText?.measuredFlow;
-        if(flow&&lastText.sourceRange.end===chapter.text.length&&['plain','important'].includes(flow.mode)&&!lastText.topPhoto&&!lastText.spinePhoto&&!lastText.railPhoto&&!lastText.bgPhoto&&!lastText.sidePhoto&&!lastText.bottomPhotos&&!lastText.t10&&!lastText.topPair){
-          const side=spreads.find(spread=>spread.right===lastText)?'right':'left',text=lastText.text,full=Number(flow.fullLines)||0;
-          const original={limit:lastText.flowLineLimit,flow};
+        const endings=new Set([chapter.text.length,...episodes.map(item=>item.offset)]);
+        const pages=spreads.filter(spread=>spread.sectionId===chapter.sectionId).flatMap(spread=>[[spread.left,'left'],[spread.right,'right']]).filter(([page])=>page?.measuredFlow&&page.sourceRange&&page.layout==='prose-dense'&&endings.has(page.sourceRange.end));
+        for(const [lastText,side] of pages){
+          const flow=lastText.measuredFlow;
+          if(!['plain','important'].includes(flow.mode)||lastText.topPhoto||lastText.spinePhoto||lastText.railPhoto||lastText.bgPhoto||lastText.sidePhoto||lastText.bottomPhotos||lastText.t10||lastText.topPair)continue;
+          const text=lastText.text,full=Number(flow.fullLines)||0,original={limit:lastText.flowLineLimit,flow};
           const fits=limit=>{try{lastText.flowLineLimit=limit;const split=meta.paginateText(lastText,text,side);return split.head===text&&!split.tail?split:null;}catch(error){return null;}};
-          let low=1,high=full,best=null,bestLimit=0;
-          while(low<=high){const mid=Math.floor((low+high)/2),split=fits(mid);if(split){best=split;bestLimit=mid;high=mid-1;}else low=mid+1;}
-          if(best&&bestLimit<full){
-            const split=fits(bestLimit);
+          let low=1,high=full,bestLimit=0;
+          while(low<=high){const mid=Math.floor((low+high)/2);if(fits(mid)){bestLimit=mid;high=mid-1;}else low=mid+1;}
+          const split=bestLimit&&bestLimit<full?fits(bestLimit):null;
+          if(split){
             lastText.measuredFlow=split.measuredFlow;lastText.text=split.head;lastText.sourceText=split.head;lastText.flowLineLimit=bestLimit;
             lastText.chapterEndMark=bestLimit<=full-3;
           }else{lastText.flowLineLimit=original.limit;lastText.measuredFlow=original.flow;}

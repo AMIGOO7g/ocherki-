@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v72">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v73">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2829,6 +2829,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 
   <aside class="writing-prompt" id="writingPrompt" aria-live="polite" aria-label="Подсказка для письма">
     <div class="writing-prompt-text" id="writingPromptText"></div>
+    <div class="writing-prompt-why">Подсказка: ответьте на вопрос прямо на листе, своими словами.</div>
     <div class="writing-prompt-actions">
       <span class="writing-prompt-count" id="writingPromptCount"></span>
       <button class="writing-prompt-link" id="writingPromptAgree" type="button">‹ назад</button>
@@ -2885,7 +2886,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v72" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v73" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4390,12 +4391,13 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // With the right-hand panel now a narrow column, the question is
     // written to the right of the sheet when there is room for it.
     const railLeft=document.querySelector('.book-design-shell.is-rail')?.getBoundingClientRect().left||window.innerWidth-100;
-    const side=sane?railLeft-r.right-56:0;
+    const side=sane?railLeft-r.right-100:0;
     if(side>=280){
       const sw=Math.min(380,side);
       promptEl.classList.remove('is-on-paper');promptEl.classList.add('is-beside');
       promptEl.style.width=Math.round(sw)+'px';
-      promptEl.style.left=Math.round(r.right+28)+'px';
+      // Clear of the stack of pages that shows beside the sheet.
+      promptEl.style.left=Math.round(r.right+72)+'px';
       promptEl.style.top=Math.round(Math.max(150,r.top+r.height*.22))+'px';
       return;
     }
@@ -4664,10 +4666,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v72"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v72"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v72"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v72"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v72"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v72"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v73"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v73"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v73"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v73"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v73"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v73"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4702,8 +4704,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v72"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v72"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v73"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v73"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7191,7 +7193,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       previewLayout.disabled=!canCompose;
       if(!canCompose){previewLayout.title=disabledTitle;if(previewLayoutPrev){previewLayoutPrev.disabled=true;previewLayoutPrev.title=disabledTitle;}if(previewLayoutNext){previewLayoutNext.disabled=true;previewLayoutNext.title=disabledTitle;}document.getElementById('compositionMenu')?.setAttribute('hidden','');}
     }
-    if(previewLayout&&sp?.beat){
+    if(previewLayout&&sp?.beat&&sp.beat!=='p01'&&previewPhotoPage){
       previewLayout.title='Выбрать композицию разворота';
       if(previewLayoutPrev){previewLayoutPrev.disabled=false;previewLayoutPrev.title='Предыдущая подходящая композиция';}
       if(previewLayoutNext){previewLayoutNext.disabled=false;previewLayoutNext.title='Следующая подходящая композиция';}
@@ -7238,7 +7240,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sp=bookSpreads[activeSpread],ref=spreadPhotoRef(sp);if(!ref)return;
     if(!menu){menu=document.createElement('div');menu.id='compositionMenu';menu.className='composition-menu';(previewModal||document.body).appendChild(menu);
       menu.addEventListener('click',event=>{const item=event.target.closest('[data-composition]');if(!item||item.disabled)return;event.stopPropagation();menu.hidden=true;changePreviewComposition(1,item.dataset.composition);});
-      document.addEventListener('click',event=>{if(!menu.hidden&&!menu.contains(event.target)&&!event.target.closest('#bookPreviewLayout'))menu.hidden=true;});}
+      // A click beside the open list only closes the list (it used to close the book).
+      document.addEventListener('click',event=>{if(!menu.hidden&&!menu.contains(event.target)&&!event.target.closest('#bookPreviewLayout')){menu.hidden=true;event.stopPropagation();event.preventDefault();}},true);}
     const own=String(ref.photo.layoutPreference||'auto').toLowerCase(),current=own!=='auto'?own:'auto',shown=sp.beat||'';
     menu.innerHTML=`<div class="composition-menu-head">Композиция разворота</div>`+compositionChoices(sp).map(item=>`<button type="button" data-composition="${item.id}"${item.ok?'':' disabled'} class="${item.id===current?'is-current':''}${item.id===shown&&current==='auto'?' is-shown':''}"><span>${esc(item.label)}</span>${item.ok?'':`<i>${esc(item.why)}</i>`}</button>`).join('');
     const r=(previewLayout||document.body).getBoundingClientRect();
@@ -7275,11 +7278,18 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // The director may rebuild asynchronously after the bridge command, but
     // the pinned target and override keep this exact spread on screen.
     send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:photo._sourcePageUid||page.sourcePageUid||'',photoId:photo.id||'',layoutPreference:next.id});
+    // An older choice on another photo of the chapter that is not shown in the
+    // book any more is forgotten: it would otherwise take over this spread.
+    bookSpreads.forEach(other=>{if(other===sp)return;[other.left,other.right].forEach(pg=>{const list=[pg?.photoIndex,...(pg?.photoIndices||[])].filter(Number.isInteger);list.forEach(idx=>{const ph=pg?.source?.photos?.[idx];const want=String(ph?.layoutPreference||'auto');if(ph&&ph.id&&ph.id!==photo.id&&want!=='auto'&&want!==other.beat&&String(pg.sectionId)===String(page.sectionId)){ph.layoutPreference='auto';updateLocalPhotoLayout(pg,ph,idx,'auto');send({action:'setPhotoLayout',sectionId:pg.sectionId,pageUid:ph._sourcePageUid||pg.sourcePageUid||'',photoId:ph.id,layoutPreference:'auto'});}});});});
     // Rebuild with the choice and stay on the spread that holds this photo.
     window.__ocherkiFocusPhoto=String(photo.id||'');
     window.OCHERKI_SHOW_TOAST?.(next.label);
-    previewSpread?.classList.add('is-recomposing');
-    const done=()=>previewSpread?.classList.remove('is-recomposing');
+    let note=document.getElementById('recomposeNote');
+    if(!note){note=document.createElement('div');note.id='recomposeNote';note.className='recompose-note';note.textContent='Меняю композицию…';(previewModal||document.body).appendChild(note);}
+    const keys=(document.getElementById('bookPreviewLayoutHanger')||previewLayout)?.getBoundingClientRect();
+    if(keys){note.style.top=Math.round(keys.bottom+6)+'px';note.style.left=Math.round(keys.left+keys.width/2)+'px';}
+    note.classList.add('is-on');previewSpread?.classList.add('is-recomposing');
+    const done=()=>{note.classList.remove('is-on');previewSpread?.classList.remove('is-recomposing');};
     setTimeout(done,20000);
     setTimeout(()=>{if(!performBuild(done))done();},120);
     if(previewLayout){
@@ -7373,7 +7383,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v72"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v73"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7411,6 +7421,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     previewCompositionOverride=null;
     previewPaging=false;
     previewSpread?.classList.remove('page-out-next','page-out-prev','page-in-next','page-in-prev');
+    // The editor opens on the page of the spread the author was looking at.
+    try{const sp=bookSpreads[activeSpread];const page=[sp?.left,sp?.right].find(pg=>pg?.sourcePageUid&&pg?.sectionId)||[sp?.left,sp?.right].find(pg=>pg?.sectionId);if(page)send({action:'select',sectionId:page.sectionId,pageUid:page.sourcePageUid||''});}catch(_){}
+    document.getElementById('compositionMenu')?.setAttribute('hidden','');
     previewModal.classList.add('is-closing');
     previewModal.setAttribute('aria-hidden','true');
     shell?.classList.remove('is-book-preview');
@@ -7768,9 +7781,9 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .composition-menu button[disabled]{opacity:.42;cursor:default}
 .composition-menu button i{display:block;font-size:12.5px;opacity:.9;margin-top:2px}
 .composition-menu button.is-current span::before,.composition-menu button.is-shown span::before{content:'✓ ';color:#e2b779}
-.book-preview-spread.is-recomposing{position:relative}
-.book-preview-spread.is-recomposing>*{filter:blur(1.5px) brightness(.92);transition:filter .3s}
-.book-preview-spread.is-recomposing::after{content:'Меняю композицию…';white-space:nowrap;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:12px 22px;border-radius:22px;background:rgba(40,31,24,.9);color:#f3e7d6;font:italic 17px Georgia,serif}
+.book-preview-spread.is-recomposing>*{opacity:.75;transition:opacity .3s}
+.recompose-note{position:fixed;z-index:2147483100;transform:translateX(-50%);font:italic 17px Georgia,serif;color:#3a2a1c;text-shadow:0 1px 0 rgba(255,250,240,.6);opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.recompose-note.is-on{opacity:1}
 .book-notice strong{font-weight:600;color:#f6dcae}
 .book-notice-close{position:absolute;right:10px;top:8px;border:0;background:none;color:#f3e7d6;font:22px/1 Georgia,serif;cursor:pointer;opacity:.7}
 .book-notice-close:hover{opacity:1}
@@ -8217,6 +8230,19 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
 try{apply(localStorage.getItem('ocherkiLargeUI')==='1');}catch(e){}
 addEventListener('message',e=>{if(e.data&&e.data.type==='OCHERKI_LARGE_UI')apply(e.data.on);});})();
 </script>
+<style id="prompt-colours">
+/* The question beside the sheet reads in one colour: dark ink by day over the
+   light background, light ink at night; the counter and the links follow. */
+html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-text{color:#3e2a1b!important;text-shadow:0 0 12px rgba(255,248,236,.6)!important}
+html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-link,
+html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-count,
+html body .shell:not(.is-night) .writing-prompt.is-beside .writing-prompt-why{color:#5a3d26!important;opacity:.9}
+html body .shell.is-night .writing-prompt .writing-prompt-count,
+html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!important;opacity:.85}
+.writing-prompt-link{font-size:15px!important}
+.writing-prompt-why{margin-top:8px;font:italic 14px/1.35 Georgia,serif;color:rgba(255,255,255,.8);text-align:center}
+.writing-prompt:not(.is-beside) .writing-prompt-why{display:none}
+</style>
 </body>
 
 <style id="v121-preview-motion-format">
