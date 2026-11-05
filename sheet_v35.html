@@ -4866,6 +4866,25 @@ window.addEventListener('message',e=>{
     else if(a === 'renamePage') { /* names are edited in the sheet only */ }
     else if(a === 'reorderChapters') reorderChapters(d.ids);
     else if(a === 'reorderPages') reorderPages(d.sectionId, d.ids);
+    // «Рукопись»: a new sheet at the end of a chapter, and a sheet carried
+    // to another chapter (the chapter it leaves keeps at least one sheet).
+    else if(a === 'addPageAt') {
+      const si = sections.findIndex(item => item.id === d.sectionId);
+      if(si >= 0){ saveEditor(); activeSection = si; sections[si].active = Math.max(0, (sections[si].pages || []).length - 1); render(); addPageFromHost(); }
+    }
+    else if(a === 'movePage') {
+      saveEditor();
+      const from = sections.find(item => item.id === d.sectionId), to = sections.find(item => item.id === d.toSectionId);
+      const index = (from?.pages || []).findIndex(item => (item.uid || item.id) === d.pageUid);
+      if(from && to && from !== to && index >= 0 && from.pages.length > 1){
+        const [page] = from.pages.splice(index, 1);
+        if(page.type === 'chapter' && to.type === 'chapter') page.title = to.title;
+        const at = Number.isInteger(d.toIndex) ? Math.max(0, Math.min(to.pages.length, d.toIndex)) : to.pages.length;
+        to.pages.splice(at, 0, page);
+        from.active = Math.min(from.active || 0, from.pages.length - 1);
+        persistSoon(); render(); emitStructure();
+      }
+    }
     else if(a === 'saveProject') {
       saveEditor();
       window.__ocherkiPersistNow?.();
