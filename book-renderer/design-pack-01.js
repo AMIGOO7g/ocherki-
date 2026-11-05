@@ -462,6 +462,8 @@
       const x = Number.isFinite(fx) ? Math.min(100, Math.max(0, fx)) : 50, y = Number.isFinite(fy) ? Math.min(100, Math.max(0, fy)) : 50;
       return ` style="object-position:${x}% ${y}%!important${zoom > 1 ? `;transform:scale(${zoom.toFixed(3)})!important;transform-origin:${x}% ${y}%!important` : ''}"`;
     };
+    // The same framing marks for photos drawn by their own templates.
+    const frameAttrs = index => { const photo = source?.photos?.[index]; return photo ? ` data-frame-photo="${esc(photo.id || '')}" data-frame-index="${index}"${frameStyle(photo)}` : ''; };
     const image = index => {
       const src = ctx.image ? ctx.image(source, index) : '';
       const photo = source?.photos?.[index], tone = photoToneClass(photo);
@@ -504,7 +506,7 @@
       const coverSource = ctx.image ? ctx.image(source, 0) : '';
       const coverTone = photoToneClass(source?.photos?.[0]);
       const footer=esc(meta.coverFooter || '');
-      return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async">` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>Семейная хроника</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
+      return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async"${frameAttrs(0)}>` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>Семейная хроника</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
     }
     if (role === 'endpaper') {
       // F-END / B-END — typographic grid pattern: the first letter of the book
@@ -608,10 +610,10 @@
       if(secondarySrc===src||secondarySrc&&page.mainPhotoAssetId&&page.secondaryPhotoAssetId===page.mainPhotoAssetId)throw new Error('CTX Detail SQ v1.7 требует другую фотографию для secondary card.');
       if(!secondarySrc&&!handwritten)throw new Error('CTX Detail SQ v1.7 требует вторую фотографию или рукописный акцент.');
       const tone=photoToneClass(photo);
-      const img=className=>`<img class="${className}${tone?` ${tone}`:''}" src="${esc(src)}" alt="" loading="lazy" decoding="async">`;
+      const img=className=>`<img class="${className}${tone?` ${tone}`:''}" src="${esc(src)}" alt="" loading="lazy" decoding="async"${frameAttrs(index)}>`;
       const secondaryPhoto=source?.photos?.[secondaryIndex]||{};
       const secondaryTone=photoToneClass(secondaryPhoto);
-      const secondaryImg=secondarySrc?`<img class="dpk-ctx-secondary-image${secondaryTone?` ${secondaryTone}`:''}" src="${esc(secondarySrc)}" alt="" loading="lazy" decoding="async">`:'';
+      const secondaryImg=secondarySrc?`<img class="dpk-ctx-secondary-image${secondaryTone?` ${secondaryTone}`:''}" src="${esc(secondarySrc)}" alt="" loading="lazy" decoding="async"${frameAttrs(secondaryIndex)}>`:'';
       const accent=secondarySrc
         ?`<figure class="dpk-ctx-card" data-ctx-accent="secondary-photo" data-source-photo-index="${secondaryIndex}" data-photo-asset-id="${esc(page.secondaryPhotoAssetId||secondaryPhoto.id||secondarySrc)}">${secondaryImg}</figure>`
         :`<div class="dpk-ctx-handwritten-card" data-ctx-accent="handwritten-note"${editorialAttrs('ctx-handwritten')}><span>${esc(handwritten)}</span></div>`;
@@ -626,7 +628,7 @@
       const state=String(page.darkFadeState||photo.darkFadeState||(ratio<.82?'V':ratio>1.22?'H':'S')).toUpperCase();
       const safeState=['V','S','H'].includes(state)?state:'S';
       const tone=photoToneClass(photo);
-      return article('D01-DARK-FADE-2.2',`<div class="dpk-dark-fade-stage" data-dark-fade-state="${safeState}" data-alpha-mask="true" data-source-photo-index="${index}"><img class="dpk-dark-fade-image${tone?` ${tone}`:''}" src="${esc(src)}" alt="" loading="lazy" decoding="async"><i class="dpk-dark-fade-veil" aria-hidden="true"></i></div>${folio}`,`dpk-dark dpk-dark-fade dpk-dark-fade-${page.darkFadeSide==='right'?'right':'left'}`);
+      return article('D01-DARK-FADE-2.2',`<div class="dpk-dark-fade-stage" data-dark-fade-state="${safeState}" data-alpha-mask="true" data-source-photo-index="${index}"><img class="dpk-dark-fade-image${tone?` ${tone}`:''}" src="${esc(src)}" alt="" loading="lazy" decoding="async"${frameAttrs(index)}><i class="dpk-dark-fade-veil" aria-hidden="true"></i></div>${folio}`,`dpk-dark dpk-dark-fade dpk-dark-fade-${page.darkFadeSide==='right'?'right':'left'}`);
     }
     if (role === 'three-photo') {
       const indexes = Array.isArray(page.photoIndices) ? page.photoIndices.slice(0, 3) : [0, 1, 2];

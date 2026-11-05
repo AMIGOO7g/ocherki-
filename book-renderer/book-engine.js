@@ -922,7 +922,13 @@
       // A photograph the author marked as the hero's portrait is reserved for P01.
       // Photographs that open an episode are reserved for that opening as well.
       const isPortraitHero = photo => photo?.portraitHero === true || Boolean(String(photo?.heroName||'').trim()) || photo?._episodeOpening === true;
-      const heroIndex = chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo)&&photoAspect(photo)<=1.05);
+      // The chapter opens with a photo from its own first page when there is
+      // one that fits the opening page (vertical or square first, then a
+      // moderately wide one); only then with a photo from further on.
+      const firstPageOf=photo=>Number(photo?._sourcePageIndex||0)===Number(chapter.photos.find(item=>heroEligible(item))?._sourcePageIndex||0);
+      const openingFits=(photo,maxAspect)=>heroEligible(photo)&&!isPortraitHero(photo)&&photoAspect(photo)<=maxAspect;
+      const firstPageIndex=[1.05,1.6].map(maxAspect=>chapter.photos.findIndex(photo=>firstPageOf(photo)&&openingFits(photo,maxAspect))).find(index=>index>=0);
+      const heroIndex = firstPageIndex!=null ? firstPageIndex : chapter.photos.findIndex(photo=>openingFits(photo,1.05));
       const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo));
       const openingQuote = String(chapter.first.quote || chapter.first.pullQuote || chapter.title);
       const left = photoIndex >= 0
@@ -1037,9 +1043,34 @@
       if(fixedText.text||detail||textFallback)spreads.push({id:`d01_chapter_${index+1}_${detail?'ctx_detail':'text_fallback'}`,master:detail?'D01-SPREAD-POST-OPENING-CTX':'D01-SPREAD-POST-OPENING-TEXT',sectionId:chapter.sectionId,left:fixedText,right:detail||textFallback,fixedRhythm:true,ctxSkipped:!detail});
       const usablePhotoIndices=chapter.photos.map((photo,photoPosition)=>imageSource(photo)?photoPosition:-1).filter(photoPosition=>photoPosition>=0);
       let portraitGiven=false;
+      // P01 — the hero's portrait (the author ticked «Портрет героя»): portrait
+      // on the left, a short name/years/role block on the right; variants
+      // rotate B → A → C.
+      const placePortrait=photoIndex=>{
+        const photo=chapter.photos[photoIndex];
+        // The dark variant is only for a portrait whose edges are already
+        // dark: a light studio background would turn into a grey haze.
+        // A photo not yet measured (edgeTone empty) keeps the old rotation.
+        const edgeTone=String(photo.edgeTone||'');
+        let variant=String(photo.heroVariant||(edgeTone==='light'||edgeTone==='mid'?'A':edgeTone==='dark'?'C':['A','C'][portraitCount++%2])).toUpperCase()==='C'?'C':'A';
+        if(variant==='C'&&chapterAccents.dark&&!photo.heroVariant)variant='A';
+        if(variant==='C')chapterAccents.dark++;
+        const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
+        spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
+          left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
+          right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true,beat:'p01'});
+        portraitGiven=true;
+      };
       // Accent budget: per chapter at most one angled-card spread (T10, beside
       // the opening CTX), one text-over-photo page (T12) and one dark accent.
       const chapterAccents={t10:0,t12:0,dark:0};
+      // The hero's portrait comes right after the chapter opening, so a short
+      // chapter never runs out of text before it (it used to end up paired
+      // with another photo at the chapter's end).
+      {
+        const hero=usablePhotoIndices.find(photoPosition=>isPortraitHero(chapter.photos[photoPosition])&&!chapter.photos[photoPosition]._episodeOpening&&!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
+        if(hero!=null){usedPhotoIndices.add(hero);usedPhotoSources.add(imageSource(chapter.photos[hero]));placePortrait(hero);}
+      }
       let textSpreadStreak=detail?0:(fixedText.text?1:0);
       let darkFadeInserted=false;
       const nextVisualPhoto=()=>{
@@ -1203,21 +1234,7 @@
           if(Array.isArray(meta.forcePhotoBeat)&&forcedBeatQueue.includes(beat))forcedBeatQueue.splice(forcedBeatQueue.indexOf(beat),1);
           lastPhotoBeat=beat;recentPhotoBeats=[...recentPhotoBeats,beat].slice(-3);
           if(beat==='p01'){
-            // P01 is the author's explicit choice: portrait on the left, a short
-            // name/years/role block on the right; variants rotate B → A → C.
-            const photoIndex=take(portraitHeroes[0]),photo=chapter.photos[photoIndex];
-            // The dark variant is only for a portrait whose edges are already
-            // dark: a light studio background would turn into a grey haze.
-            // A photo not yet measured (edgeTone empty) keeps the old rotation.
-            const edgeTone=String(photo.edgeTone||'');
-            let variant=String(photo.heroVariant||(edgeTone==='light'||edgeTone==='mid'?'A':edgeTone==='dark'?'C':['A','C'][portraitCount++%2])).toUpperCase()==='C'?'C':'A';
-            if(variant==='C'&&chapterAccents.dark&&!photo.heroVariant)variant='A';
-            if(variant==='C')chapterAccents.dark++;
-            const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
-            spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
-              left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
-              right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true,beat,beatOptions});
-            portraitGiven=true;textSpreadStreak=0;
+            placePortrait(take(portraitHeroes[0]));textSpreadStreak=0;
             continue;
           }
           if(beat==='t12'){
@@ -1436,8 +1453,12 @@
         const left=usablePhotoIndices.filter(photoPosition=>!usedPhotoIndices.has(photoPosition)&&!usedPhotoSources.has(imageSource(chapter.photos[photoPosition])));
         const mark=photoPosition=>{usedPhotoIndices.add(photoPosition);usedPhotoSources.add(imageSource(chapter.photos[photoPosition]));return photoPosition;};
         const large=photoPosition=>P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:mark(photoPosition),title:chapter.title});
+        // A page the text left empty takes the next photo instead of staying blank.
+        const lastSpread=spreads[spreads.length-1];
+        if(left.length&&lastSpread&&lastSpread.sectionId===chapter.sectionId&&lastSpread.left&&!lastSpread.right)lastSpread.right=large(left.shift());
         while(left.length){
-          if(left.length===1){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:P('blank',{meta:bookMeta}),fixedRhythm:true});break;}
+          // One photo left: a quiet quote from the chapter faces it, never an empty page.
+          if(left.length===1){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()}),fixedRhythm:true});break;}
           if(left.length===2||left.length===4){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:large(left.shift()),fixedRhythm:true});continue;}
           const pair=[left.shift(),left.shift()].map(mark);
           spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:pair,title:chapter.title}),right:large(left.shift()),fixedRhythm:true});
