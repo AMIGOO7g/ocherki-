@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v66">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v67">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2884,7 +2884,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v66" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v67" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4631,10 +4631,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v66"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v66"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v66"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v66"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v66"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v66"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v67"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v67"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v67"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v67"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v67"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v67"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4662,8 +4662,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v66"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v66"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v67"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v67"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4745,7 +4745,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     bind(previewClose,e=>{e.preventDefault();e.stopPropagation();closePreview();});
     bind(previewPrev,e=>{e.preventDefault();e.stopPropagation();previewGo(-1);});
     bind(previewNext,e=>{e.preventDefault();e.stopPropagation();previewGo(1);});
-    bind(previewLayout,e=>{e.preventDefault();e.stopPropagation();changePreviewComposition(1);});
+    bind(previewLayout,e=>{e.preventDefault();e.stopPropagation();toggleCompositionMenu();});
     bind(previewLayoutPrev,e=>{e.preventDefault();e.stopPropagation();changePreviewComposition(-1);});
     bind(previewLayoutNext,e=>{e.preventDefault();e.stopPropagation();changePreviewComposition(1);});
     initPhotoFraming();
@@ -5040,7 +5040,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }
     // The director's own choice is kept on the spread; the author's choice wins.
     const ref=spreadPhotoRef(sp);
-    const own=String(ref?.photo?.layoutPreference||'').toLowerCase(),raw=(own&&own!=='auto'?own:String(sp?.beat||ref?.photo?._directorPreference||'')).toLowerCase();
+    // What really stands on the spread: the director's beat; a spread with no
+    // beat (chapter opening, closing photos) is named by its kind.
+    const raw=String(sp?.beat||'').toLowerCase();
     const item=PREVIEW_COMPOSITION_CATALOG.find(candidate=>candidate.id===raw ||
       (candidate.id==='photo-rail'&&['photo-rail-left','photo-rail-right'].includes(raw)));
     if(item)return item.label;
@@ -5802,6 +5804,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       if(!external.ready){
         built=false;
         buildMessage=`<div class="bd-build-empty"><strong>${esc(external.message||'Недостаточно материала для сборки.')}</strong></div>`;
+        showBookNotice(`<strong>${esc(external.message||'Недостаточно материала для сборки.')}</strong>`,false);
         if(countEl)countEl.textContent='нужна 1 глава';
         renderRightPanel();
         return false;
@@ -6951,11 +6954,24 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(buildBtn&&!buildBtn.disabled){buildBtn.textContent='Посмотреть книгу';buildBtn.classList.add('is-outdated');}
   }
   window.OCHERKI_MARK_BOOK_OUTDATED=markBookOutdated;
+  // A visible note beside the right-hand keys: why the book did not open
+  // (the old spreads panel that used to show it is folded away).
+  function showBookNotice(html,withReport){
+    let box=document.getElementById('bookNotice');
+    if(!box){box=document.createElement('div');box.id='bookNotice';box.className='book-notice';document.body.appendChild(box);
+      box.addEventListener('click',event=>{if(event.target.closest('[data-notice-close]'))box.hidden=true;});}
+    box.innerHTML=`<button type="button" class="book-notice-close" data-notice-close aria-label="Закрыть">×</button><div class="book-notice-text">${html}</div>${withReport?'<p class="bd-build-report-note">Нажмите «Сохранить отчёт» и пришлите файл — по нему ошибку найдут точно. В отчёте только текст книги и подписи, без фотографий.</p><button type="button" class="bd-build-report">Сохранить отчёт</button>':''}`;
+    box.hidden=false;
+  }
+  window.__ocherkiShowBookNotice=showBookNotice;
+  function hideBookNotice(){const box=document.getElementById('bookNotice');if(box)box.hidden=true;}
   function performBuild(after){
     if(!structure) return false;
+    hideBookNotice();
     if(typeof after!=='function')window.OCHERKI_PLAY_PAGE_FX?.(.72);
     buildBtn.textContent='Собираем…';
     buildBtn.disabled=true;
+    clearTimeout(performBuild.guard);performBuild.guard=setTimeout(()=>{if(buildBtn.disabled){buildBtn.disabled=false;buildBtn.textContent='Посмотреть книгу';}},20000);
     const runBuild=()=>requestAnimationFrame(()=>setTimeout(()=>{
       try{
         revealSpreadsOnRender=true;
@@ -6970,7 +6986,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         }
         requestAnimationFrame(scaleAllPageCanvases);
         buildBtn.textContent=bookSpreads.length?'Посмотреть книгу':'Нет данных';
-        bookOutdated=false;buildBtn.classList.remove('is-outdated');
+        bookOutdated=false;buildBtn.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();
         if(previewModal?.classList.contains('open'))previewRender();
         // The preview opens once the freshly built pages have settled, so its
         // gliding entrance plays smoothly instead of jumping in.
@@ -6981,6 +6997,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         buildMessage=`<div class="bd-build-empty"><strong>${esc(err.message||'Не удалось разложить текст.')}</strong><p class="bd-build-report-note">Сохраните отчёт и пришлите его разработчику — по нему ошибку найдут точно. В отчёте только текст книги и подписи, без фотографий.</p><button type="button" class="bd-build-report">Сохранить отчёт</button></div>`;
         lastBuildError=err;
         renderRightPanel();
+        showBookNotice(`<strong>Книгу не удалось собрать.</strong><br>${esc(err.message||'Не удалось разложить текст.')}`,true);
         buildBtn.textContent='Ошибка сборки';
       }
       buildBtn.disabled=false;
@@ -7001,6 +7018,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         if(pendingBuildRequest){
           pendingBuildRequest=false;
           buildBtn.textContent='Посмотреть книгу';
+          showBookNotice('<strong>Книга ещё не загрузилась в редактор.</strong><br>Подождите пару секунд и нажмите «Посмотреть книгу» ещё раз. Если не поможет — откройте книгу заново через «Мои книги».',false);
         }
       },2200);
       return;
@@ -7072,13 +7090,17 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       ?`${sp.single==='right'?'Обложка':'Задняя обложка'} · ${activeSpread+1} из ${bookSpreads.length}${composition}`
       :`Разворот ${activeSpread+1} из ${bookSpreads.length} · страницы ${sp.left?.pageNo||''}${sp.right?'–'+sp.right.pageNo:''}${composition}`;
     if(previewLayout){
-      previewLayout.disabled=!previewPhotoPage;
-      const disabledTitle='На этом развороте нет фотографии для ручной смены композиции';
-      previewLayout.title=previewPhotoPage?'Сменить композицию выбранной фотографии':disabledTitle;
-      if(previewLayoutPrev)previewLayoutPrev.disabled=!previewPhotoPage;
-      if(previewLayoutNext)previewLayoutNext.disabled=!previewPhotoPage;
-      if(previewLayoutPrev)previewLayoutPrev.title=previewPhotoPage?'Предыдущая композиция':disabledTitle;
-      if(previewLayoutNext)previewLayoutNext.title=previewPhotoPage?'Следующая композиция':disabledTitle;
+      // Only a spread the director composed can change its composition; the
+      // chapter opening and the closing photo pages follow their own rule.
+      const canCompose=Boolean(previewPhotoPage&&sp?.beat);
+      const disabledTitle=previewPhotoPage?'Этот разворот собирается по своему правилу (открытие или конец главы) — его композиция не меняется':'На этом развороте нет фотографии для смены композиции';
+      previewLayout.disabled=!canCompose;
+      if(!canCompose){previewLayout.title=disabledTitle;if(previewLayoutPrev){previewLayoutPrev.disabled=true;previewLayoutPrev.title=disabledTitle;}if(previewLayoutNext){previewLayoutNext.disabled=true;previewLayoutNext.title=disabledTitle;}document.getElementById('compositionMenu')?.setAttribute('hidden','');}
+    }
+    if(previewLayout&&sp?.beat){
+      previewLayout.title='Выбрать композицию разворота';
+      if(previewLayoutPrev){previewLayoutPrev.disabled=false;previewLayoutPrev.title='Предыдущая подходящая композиция';}
+      if(previewLayoutNext){previewLayoutNext.disabled=false;previewLayoutNext.title='Следующая подходящая композиция';}
     }
     updateRhythmWarning();
     // This innerHTML replacement creates brand-new .page-canvas-host elements
@@ -7101,7 +7123,32 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sourcePhoto=(section?.pages||[]).flatMap(item=>item?.photos||[]).find(item=>photo?.id&&String(item?.id||'')===String(photo.id));
     if(sourcePhoto)sourcePhoto.layoutPreference=layoutPreference;
   }
-  function changePreviewComposition(direction=1){
+  // Why a composition does not fit this spread, in the author's words.
+  const COMPOSITION_NEEDS={two:'нужно 2 фото в главе',three:'нужно 3 фото в главе',mosaic:'нужно 4 фото в главе',pair:'нужно 2 фото в главе',quoteband:'нужно 2 фото в главе',
+    darkpair:'нужно 2 фото; одна тёмная композиция на главу',t06:'нужно 3 фото, главное — вертикальное или квадратное',t07:'нужно 2–4 фото подходящей формы',t08:'нужно вертикальное фото',
+    t10:'нужно 2 фото',t12:'у фото нужны подпись и короткая история',hspread:'нужно очень широкое фото и больше текста',panorama:'нужно широкое фото',rail:'нужно горизонтальное фото',
+    darkside:'одна тёмная композиция на главу',darkfade:'одна тёмная композиция на главу',darkgrad:'одна тёмная композиция на главу и больше текста',
+    fade:'нужно больше текста после этого места',overlay:'нужно больше текста после этого места',textphotos:'нужно больше текста после этого места',single:'не подходит здесь'};
+  function compositionChoices(sp){
+    const fits=new Set(sp?.beatOptions||[]);if(sp?.beat)fits.add(sp.beat);
+    return PREVIEW_COMPOSITION_CATALOG.map(item=>({...item,ok:item.id==='auto'||fits.has(item.id),why:COMPOSITION_NEEDS[item.id]||'не подходит здесь'}));
+  }
+  // The list of every composition: the ones that fit are bright, the
+  // others grey with the reason; the current one is ticked.
+  function toggleCompositionMenu(){
+    let menu=document.getElementById('compositionMenu');
+    if(menu&&!menu.hidden){menu.hidden=true;return;}
+    const sp=bookSpreads[activeSpread],ref=spreadPhotoRef(sp);if(!ref)return;
+    if(!menu){menu=document.createElement('div');menu.id='compositionMenu';menu.className='composition-menu';(previewModal||document.body).appendChild(menu);
+      menu.addEventListener('click',event=>{const item=event.target.closest('[data-composition]');if(!item||item.disabled)return;event.stopPropagation();menu.hidden=true;changePreviewComposition(1,item.dataset.composition);});
+      document.addEventListener('click',event=>{if(!menu.hidden&&!menu.contains(event.target)&&!event.target.closest('#bookPreviewLayout'))menu.hidden=true;});}
+    const own=String(ref.photo.layoutPreference||'auto').toLowerCase(),current=own!=='auto'?own:'auto',shown=sp.beat||'';
+    menu.innerHTML=`<div class="composition-menu-head">Композиция разворота</div>`+compositionChoices(sp).map(item=>`<button type="button" data-composition="${item.id}"${item.ok?'':' disabled'} class="${item.id===current?'is-current':''}${item.id===shown&&current==='auto'?' is-shown':''}"><span>${esc(item.label)}</span>${item.ok?'':`<i>${esc(item.why)}</i>`}</button>`).join('');
+    const r=(previewLayout||document.body).getBoundingClientRect();
+    menu.style.left=Math.round(Math.max(16,Math.min(innerWidth-376,r.left+r.width/2-180)))+'px';menu.style.top=Math.round(r.bottom+14)+'px';
+    menu.hidden=false;
+  }
+  function changePreviewComposition(direction=1,chosen){
     if(!built||!bookSpreads.length)return;
     const sp=bookSpreads[activeSpread];
     const ref=spreadPhotoRef(sp);
@@ -7109,12 +7156,15 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const photo=ref?.photo;
     const photoIndex=ref?.photoIndex;
     if(!page||!photo||!Number.isInteger(photoIndex))return;
-    const choices=PREVIEW_COMPOSITION_CATALOG;
-    const current=String(photo.layoutPreference||'auto').toLowerCase();
-    const currentIndex=choices.findIndex(item=>item.id===current||
-      (item.id==='photo-rail'&&['photo-rail-left','photo-rail-right'].includes(current)));
+    // The arrows step only through compositions that fit this spread, so
+    // every press really changes the spread.
+    const choices=compositionChoices(sp).filter(item=>item.ok&&item.id!=='auto');
+    if(!chosen&&!choices.length){window.OCHERKI_SHOW_TOAST?.('Для этого разворота нет других композиций');return;}
+    const current=String(sp.beat||photo.layoutPreference||'auto').toLowerCase();
+    const currentIndex=choices.findIndex(item=>item.id===current);
     const baseIndex=currentIndex<0?(direction<0?0:-1):currentIndex;
-    const next=choices[(baseIndex+direction+choices.length)%choices.length];
+    const next=chosen?PREVIEW_COMPOSITION_CATALOG.find(item=>item.id===chosen):choices[(baseIndex+direction+choices.length)%choices.length];
+    if(!next)return;
     const target={sectionId:page.sectionId,pageUid:page.sourcePageUid||photo._sourcePageUid||'',photoId:photo.id||'',photoIndex};
     previewPinnedTarget=target;
     previewPendingTarget=target;
@@ -7131,7 +7181,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // Rebuild with the choice and stay on the spread that holds this photo.
     window.__ocherkiFocusPhoto=String(photo.id||'');
     window.OCHERKI_SHOW_TOAST?.(next.label);
-    setTimeout(()=>performBuild(),120);
+    previewSpread?.classList.add('is-recomposing');
+    const done=()=>previewSpread?.classList.remove('is-recomposing');
+    setTimeout(done,20000);
+    setTimeout(()=>{if(!performBuild(done))done();},120);
     if(previewLayout){
       previewLayout.setAttribute('aria-label',next.label);
       previewLayout.title=next.label;
@@ -7143,7 +7196,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       console.error('[Preview] modal not found');
       return;
     }
-    if(!window.__ocherkiPreviewFresh&&!buildBtn.disabled){window.__ocherkiPreviewFresh=true;performBuild(()=>{openPreview();window.__ocherkiPreviewFresh=false;});return;}
+    // A book built a moment ago (the button builds, then opens) is not
+    // built a second time.
+    const justBuilt=!bookOutdated&&Date.now()-(window.__ocherkiBuiltAt||0)<4000;
+    if(!justBuilt&&!window.__ocherkiPreviewFresh&&!buildBtn.disabled){window.__ocherkiPreviewFresh=true;performBuild(()=>{openPreview();window.__ocherkiPreviewFresh=false;});return;}
     if(!built || !bookSpreads.length){
       previewRender();
       previewModal.setAttribute('aria-hidden','false');
@@ -7218,7 +7274,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v66"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v67"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7495,6 +7551,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }
   });
 
+  window.addEventListener('message',event=>{
+    const d=event.data;if(!d||d.type!=='OCHERKI_STRUCTURE_ERROR')return;
+    lastBuildError=Object.assign(new Error(d.message||'Ошибка передачи книги'),{stack:d.stack||''});
+    if(pendingBuildRequest){pendingBuildRequest=false;buildBtn.textContent='Посмотреть книгу';}
+    showBookNotice(`<strong>Редактор не смог передать книгу для сборки.</strong><br>${esc(d.message||'')}`,true);
+  });
   frame?.addEventListener('load',()=>setTimeout(()=>send({action:'requestState'}),100));
   window.addEventListener('resize',()=>{position();fitViewport();layoutTimeline(false);scaleAllPageCanvases()});
   new ResizeObserver(()=>{position();fitViewport()}).observe(paperWrap);
@@ -7552,6 +7614,22 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .bd-build-report-note{margin:10px 0 12px;font:13px/1.45 Georgia,serif;opacity:.82;white-space:normal}
 .bd-build-report{border:1px solid rgba(226,183,121,.7);border-radius:18px;background:rgba(226,183,121,.12);color:inherit;font:14px Georgia,serif;padding:8px 16px;cursor:pointer}
 .bd-build-report:hover{background:rgba(226,183,121,.24)}
+.book-notice{position:fixed;right:110px;top:50%;transform:translateY(-50%);z-index:3000;width:min(380px,calc(100vw - 160px));padding:20px 22px 18px;border-radius:16px;background:rgba(40,31,24,.95);color:#f3e7d6;font:15px/1.45 Georgia,serif;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.book-notice[hidden]{display:none}
+.composition-menu{position:fixed;z-index:2147483100;width:360px;max-height:70vh;overflow:auto;padding:12px 8px;border-radius:16px;background:rgba(40,31,24,.96);color:#f3e7d6;box-shadow:0 20px 50px rgba(0,0,0,.4);font:15px/1.3 Georgia,serif}
+.composition-menu[hidden]{display:none}
+.composition-menu-head{padding:4px 12px 10px;font:600 11px/1.2 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c9a46c}
+.composition-menu button{display:block;width:100%;text-align:left;border:0;border-radius:10px;background:none;color:inherit;font:inherit;padding:8px 12px;cursor:pointer}
+.composition-menu button:hover:not([disabled]){background:rgba(226,183,121,.16)}
+.composition-menu button[disabled]{opacity:.42;cursor:default}
+.composition-menu button i{display:block;font-size:12.5px;opacity:.9;margin-top:2px}
+.composition-menu button.is-current span::before,.composition-menu button.is-shown span::before{content:'✓ ';color:#e2b779}
+.book-preview-spread.is-recomposing{position:relative}
+.book-preview-spread.is-recomposing>*{filter:blur(1.5px) brightness(.92);transition:filter .3s}
+.book-preview-spread.is-recomposing::after{content:'Меняю композицию…';white-space:nowrap;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;padding:12px 22px;border-radius:22px;background:rgba(40,31,24,.9);color:#f3e7d6;font:italic 17px Georgia,serif}
+.book-notice strong{font-weight:600;color:#f6dcae}
+.book-notice-close{position:absolute;right:10px;top:8px;border:0;background:none;color:#f3e7d6;font:22px/1 Georgia,serif;cursor:pointer;opacity:.7}
+.book-notice-close:hover{opacity:1}
 </style>
 <style id="v30-hanging-tooltips">
 .hanging-tip{position:fixed;z-index:12020;pointer-events:none;white-space:nowrap;color:#f3e4cf;font:italic 400 14px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em;opacity:0;filter:blur(5px);transform:translate(-50%,6px);transition:opacity .42s ease,filter .42s ease,transform .42s cubic-bezier(.2,.8,.3,1);text-shadow:none}

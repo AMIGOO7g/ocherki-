@@ -1268,7 +1268,9 @@
     .lb-start.is-leaving-for-entry #step7Content,
     .lb-start.is-leaving-for-entry .lb-top-nav,
     .lb-start.is-leaving-for-entry .lb-progress {
-      opacity: .18;
+      /* The last step dissolves completely: nothing shows through the dark
+         entry screen. */
+      opacity: 0;
       filter: blur(7px);
       transition:
         opacity 1.15s ease,
@@ -3339,7 +3341,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v66";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261030-v67";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3843,7 +3845,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v66"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v66"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v67"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v67"></script>
 </body>
 </html>

@@ -1272,6 +1272,14 @@
     return fallback||{text:'',lines:0,fits:true};
   }
   function flowSourceText(flow) { return flow.sequence.map(part=>part.text).join(''); }
+  // Layout checks in the author's words (their codes stay in the report).
+  const RULE_WORDS={'accent-invisible':'акцент не виден','accent-outside-reservation':'акцент вышел за своё место','chapter-source-mismatch':'текст главы не совпал с рукописью',
+    'glyph-outside-column':'буквы вышли за колонку','handwritten-font-missing':'не загрузился рукописный шрифт','heavy-spread-rhythm':'два тяжёлых разворота подряд','important-line-missing':'не найдена выделенная фраза',
+    'line-outside-column':'строка вышла за колонку','linebox-outside-column':'строка вышла за колонку','manuscript-loss-or-duplicate':'часть текста потерялась или повторилась','note-footer-clearance':'заметка слишком близко к номеру страницы',
+    'note-glyph-outside-page':'заметка вышла за край страницы','note-more-than-two-lines':'заметка длиннее двух строк','note-orientation':'заметка повёрнута неверно','note-outside-working-height':'заметка не помещается по высоте',
+    'premature-column-break':'колонка оборвалась раньше времени','rendered-source-mismatch':'на странице не тот текст, что в рукописи','source-gap-or-overlap':'в тексте пропуск или повтор','text-under-quote':'текст ушёл под цитату',
+    'unequal-working-bottom':'колонки разной высоты','unfilled-measured-cell':'колонка заполнена не до конца'};
+  const ruleWords=rules=>rules.map(rule=>RULE_WORDS[rule]||rule).join('; ');
   function accentFailure(kind,text,automatic,message){return Object.assign(new Error(message),{code:'ACCENT_UNFIT',kind,text,automatic});}
 
   function paginateText(page, source, host, render = renderPage, side = 'right') {
@@ -1476,9 +1484,9 @@
       const rules=verification.violations.map(item=>item.rule);
       if(rules.every(rule=>['accent-outside-reservation','note-outside-working-height','note-glyph-outside-page','note-more-than-two-lines','note-footer-clearance'].includes(rule))){
         const note=rules.some(rule=>rule.startsWith('note-')),kind=note?'margin':withQuote?'quote':'important';
-        throw accentFailure(kind,note?page.marginNote:withQuote?page.inlineQuote:page.importantLine,Boolean(flow.promoted[kind]),`Проверка DOM: ${rules.join(', ')}`);
+        throw accentFailure(kind,note?page.marginNote:withQuote?page.inlineQuote:page.importantLine,Boolean(flow.promoted[kind]),`Не удалось разместить: ${ruleWords(rules)}.`);
       }
-      throw new Error(`Проверка DOM: ${rules.join(', ')}`);
+      throw new Error(`Страница не сложилась: ${ruleWords(rules)}.`);
     }
     return {head:flow.sourceText,tail:rest,measuredFlow:flow};
   }
@@ -1566,5 +1574,5 @@
     return { status: violations.length ? 'fail' : 'pass', pages: pages.length, violations };
   }
 
-  global.OcherkiBookRenderer = Object.freeze({ pack: PACK, resolveRole, renderPage, familyTreeLayout, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit, editorialPhrases });
+  global.OcherkiBookRenderer = Object.freeze({ ruleWords, pack: PACK, resolveRole, renderPage, familyTreeLayout, paginateText, splitRenderedText, sourceMarkup, readyFonts, auditMeasuredPage, audit, editorialPhrases });
 })(window);

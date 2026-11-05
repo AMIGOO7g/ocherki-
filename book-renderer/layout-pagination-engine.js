@@ -296,7 +296,7 @@
       const metrics=[];
       for(const spread of result.spreads)for(const side of ['left','right']){
         const page=spread[side];if(!page)continue;session.host.innerHTML=session.render(page,side);
-        const check=auditPage(session.host.firstElementChild,page);if(check.status!=='pass')throw Error(`Страница ${page.pageNo}: ${check.violations.map(v=>v.rule).join(', ')}`);
+        const check=auditPage(session.host.firstElementChild,page);if(check.status!=='pass')throw Error(`Страница ${page.pageNo}: ${(globalThis.OcherkiBookRenderer?.ruleWords||(rules=>rules.join(', ')))(check.violations.map(v=>v.rule))}`);
         metrics.push({page:page.pageNo,master:page.master,geometry:page.measuredFlow?.geometry||page.nativeFlow&&{height:page.nativeFlow.height,columns:page.nativeFlow.columns,gap:page.nativeFlow.gap}});
       }
       result.layout={module:'OcherkiLayoutPagination',renderer:'OcherkiBookRenderer.renderPage',paginator:'OcherkiBookRenderer.paginateText',format:settings.format||'square',metrics,warnings:session.warnings,sourceInvariant:'exact',geometrySignature:geometrySignature(result)};return result;

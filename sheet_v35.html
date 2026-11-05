@@ -4368,7 +4368,11 @@ window.addEventListener('message',e=>{
 
   function emitStructure(){
     try{ window.__ocherkiPersistSoon?.(); }catch(_){ }
-    try{ window.parent.postMessage({type:'OCHERKI_STRUCTURE_STATE', payload:state()}, '*'); }catch(_){ }
+    // A book the editor cannot hand over (an old saved book, damaged data)
+    // must not fail silently: the constructor shows the reason and offers
+    // the report.
+    try{ window.parent.postMessage({type:'OCHERKI_STRUCTURE_STATE', payload:state()}, '*'); }
+    catch(error){ try{ window.parent.postMessage({type:'OCHERKI_STRUCTURE_ERROR', message:String(error?.message||error), stack:String(error?.stack||'').slice(0,4000)}, '*'); }catch(_){ } }
   }
   function emitActiveState(){
     try{
