@@ -4896,6 +4896,44 @@ window.addEventListener('message',e=>{
         emitStructure();
       }
     }
+    // «Рукопись»: a sheet carried to the bin. A chapter's own sheet is
+    // removed (a chapter's last sheet takes the chapter with it, if other
+    // chapters remain); a sheet of the book's own sections only leaves the
+    // book. «Вернуть» brings back exactly what was removed.
+    else if(a === 'deletePage') {
+      saveEditor();
+      const si = sections.findIndex(item => item.id === d.sectionId);
+      const section = sections[si];
+      const index = (section?.pages || []).findIndex(item => (item.uid || item.id) === d.pageUid);
+      if(section && index >= 0){
+        const current = sections[activeSection];
+        if(section.type === 'chapter' && section.pages.length > 1){
+          const [page] = section.pages.splice(index, 1);
+          window.__ocherkiLastDeleted = {kind:'page', sectionId:section.id, index, page};
+          section.active = Math.min(section.active || 0, section.pages.length - 1);
+        } else if(section.type === 'chapter' && sections.filter(item => item.type === 'chapter').length > 1){
+          sections.splice(si, 1);
+          window.__ocherkiLastDeleted = {kind:'section', index:si, section};
+          renumberChapters();
+        } else if(section.type !== 'chapter'){
+          const page = section.pages[index];
+          window.__ocherkiLastDeleted = {kind:'exclude', sectionId:section.id, pageUid:d.pageUid, sectionIncluded:section.included, pageIncluded:page.included};
+          page.included = false;
+          if(section.pages.every(item => item.included === false)) section.included = false;
+        } else { window.parent.postMessage({type:'OCHERKI_MANUSCRIPT_NOTE', text:'Это единственная глава — в книге должна остаться хотя бы одна'}, '*'); return; }
+        activeSection = Math.max(0, sections.indexOf(current));
+        if(activeSection < 0 || !sections[activeSection]) activeSection = Math.max(0, sections.findIndex(item => item.type === 'chapter'));
+        persistSoon(); render(); emitStructure();
+        window.parent.postMessage({type:'OCHERKI_MANUSCRIPT_DELETED'}, '*');
+      }
+    }
+    else if(a === 'undoDelete') {
+      const last = window.__ocherkiLastDeleted; window.__ocherkiLastDeleted = null;
+      if(last?.kind === 'page'){ const section = sections.find(item => item.id === last.sectionId); if(section) section.pages.splice(Math.min(last.index, section.pages.length), 0, last.page); }
+      else if(last?.kind === 'section'){ sections.splice(Math.min(last.index, sections.length), 0, last.section); renumberChapters(); }
+      else if(last?.kind === 'exclude'){ const section = sections.find(item => item.id === last.sectionId); const page = section?.pages?.find(item => (item.uid || item.id) === last.pageUid); if(page) page.included = last.pageIncluded; if(section) section.included = last.sectionIncluded; }
+      if(last){ persistSoon(); render(); emitStructure(); }
+    }
     else if(a === 'movePage') {
       saveEditor();
       const from = sections.find(item => item.id === d.sectionId), to = sections.find(item => item.id === d.toSectionId);
