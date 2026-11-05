@@ -4658,6 +4658,13 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       onNew:()=>{
         try{localStorage.setItem('ocherkiActiveBook','book-'+Date.now().toString(36));localStorage.removeItem('ocherkiLifeProjectDraft');}catch(_){}
         (window.top||window).location.href='index.html';
+      },
+      // The open book was deleted: the editor stops saving it and the start
+      // screen opens.
+      onDeleteCurrent:()=>{
+        try{const sheet=frame()?.contentWindow;if(sheet)sheet.__ocherkiNoSave=true;}catch(_){}
+        try{localStorage.removeItem('ocherkiActiveBook');localStorage.removeItem('ocherkiLifeProjectDraft');}catch(_){}
+        setTimeout(()=>{(window.top||window).location.href='index.html';},600);
       }});
   });
 })();

@@ -77,6 +77,18 @@
     box-shadow:0 10px 28px rgba(0,0,0,.4),inset 0 0 0 1px rgba(226,190,130,.3);color:#f1e2c8;text-align:center;
     opacity:0;transform:translate(-100%,-50%) translateX(8px);transition:opacity .28s ease,transform .28s ease}
   .bc-tip.show{opacity:1;transform:translate(-100%,-50%)}
+  .bc-card{position:fixed;z-index:12004;width:300px;padding:18px 20px 16px;border-radius:14px;background:rgba(32,22,14,.97);box-shadow:0 14px 34px rgba(0,0,0,.5),inset 0 0 0 1px rgba(226,190,130,.3);color:#f1e2c8;transform:translate(-100%,-50%)}
+  .bc-card[hidden]{display:none}
+  .bc-card b{display:block;font:400 22px/1.2 'CormorantCy',Georgia,serif}
+  .bc-card i{display:block;margin-top:4px;font:italic 14px/1.35 Georgia,serif;color:#cfb68e}
+  .bc-card p{margin:12px 0 0;font:15px/1.4 Georgia,serif}
+  .bc-card-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .bc-card button{border:0;border-radius:20px;padding:9px 16px;font:15px Georgia,serif;cursor:pointer}
+  .bc-card .bc-go{background:#c9a46c;color:#2a1c10}
+  .bc-card .bc-del{background:none;color:#e6a08f;box-shadow:inset 0 0 0 1px rgba(230,160,143,.55)}
+  .bc-card .bc-del.is-danger{background:#a8452f;color:#fff3ea;box-shadow:none}
+  .bc-card .bc-cancel{background:none;color:#f1e2c8;box-shadow:inset 0 0 0 1px rgba(241,226,200,.4)}
+  .bc-book.is-leaving{transition:transform .5s ease,opacity .5s ease!important;transform:translateY(-30px) scale(.9)!important;opacity:0!important}
   .bc-tip b{display:block;font:400 19px/1.2 'CormorantCy',Georgia,serif;letter-spacing:.01em}
   .bc-tip i{display:block;margin-top:4px;font:italic 400 13px/1.3 Georgia,serif;color:#cfb68e}
   @media (prefers-reduced-motion: reduce){.bc-case,.bc-veil,.bc-book{transition:none!important}.bc-dust{display:none}}`;
@@ -123,7 +135,7 @@
     setTimeout(() => { stopDust(); veil.remove(); shelf.remove(); }, 950);
   }
 
-  function open({ books = [], currentId = '', currentTitle = '', onOpen, onNew } = {}) {
+  function open({ books = [], currentId = '', currentTitle = '', onOpen, onNew, onDeleteCurrent } = {}) {
     if (current) { close(); return; }
     if (!document.getElementById('bc-style')) { const style = document.createElement('style'); style.id = 'bc-style'; style.textContent = STYLE; document.head.appendChild(style); }
     const veil = document.createElement('div'); veil.className = 'bc-veil';
@@ -172,7 +184,8 @@
         button.setAttribute('aria-label', title);
         button.dataset.tipTitle = title;
         button.dataset.tipNote = book.id === currentId ? 'открыта сейчас' : [when(book.savedAt) && `изменена ${when(book.savedAt)}`, book.pages && `${book.pages} ${pagesWord(book.pages)}`].filter(Boolean).join(' · ');
-        button.addEventListener('click', () => { if (book.id === currentId) { close(); return; } close(); onOpen && onOpen(book.id); });
+        // A click opens a small card: open the book, or delete it (asked twice).
+        button.addEventListener('click', event => { event.stopPropagation(); showCard(button, book); });
       }
       niche.appendChild(button);
       used += width + 3; order++;
@@ -193,7 +206,33 @@
     shelf.addEventListener('mouseover', event => { const button = event.target.closest('.bc-book'); if (button) showTip(button); });
     shelf.addEventListener('mouseout', event => { if (event.target.closest('.bc-book') && !event.relatedTarget?.closest?.('.bc-book')) tip.classList.remove('show'); });
     shelf.addEventListener('focusin', event => { const button = event.target.closest('.bc-book'); if (button) showTip(button); });
-    shelf.querySelector('.bc-close').addEventListener('click', close);
+    const card = document.createElement('div'); card.className = 'bc-card'; card.hidden = true; document.body.appendChild(card);
+    const showCard = (button, book) => {
+      tip.classList.remove('show');
+      const title = String(book.title || '').trim() || 'Книга без названия', isOpen = book.id === currentId;
+      const r = button.getBoundingClientRect();
+      card.style.left = `${shelf.getBoundingClientRect().left - 14}px`;
+      card.style.top = `${Math.max(110, Math.min(innerHeight - 110, r.top + r.height / 2))}px`;
+      const main = () => {
+        card.innerHTML = `<b>${esc(title)}</b><i>${esc(button.dataset.tipNote || '')}</i><div class="bc-card-actions"><button type="button" class="bc-go">${isOpen ? 'Вернуться к книге' : 'Открыть книгу'}</button><button type="button" class="bc-del">Удалить книгу</button></div>`;
+        card.querySelector('.bc-go').onclick = () => { card.remove(); close(); if (!isOpen) onOpen && onOpen(book.id); };
+        card.querySelector('.bc-del').onclick = ask;
+      };
+      const ask = () => {
+        card.innerHTML = `<b>Удалить «${esc(title)}»?</b><p>Книга исчезнет с полки вместе с текстом и фотографиями. Вернуть её будет нельзя.</p><div class="bc-card-actions"><button type="button" class="bc-del is-danger">Да, удалить</button><button type="button" class="bc-cancel">Отмена</button></div>`;
+        card.querySelector('.bc-cancel').onclick = main;
+        card.querySelector('.bc-del').onclick = async () => {
+          try { await root.OcherkiStore?.remove(book.id); } catch (_) {}
+          card.hidden = true; button.classList.add('is-leaving');
+          setTimeout(() => button.remove(), 500);
+          if (isOpen) { card.remove(); close(); onDeleteCurrent && onDeleteCurrent(book.id); }
+        };
+      };
+      main(); card.hidden = false;
+    };
+    shelf.addEventListener('click', event => { if (!event.target.closest('.bc-book')) card.hidden = true; });
+    shelf.querySelector('.bc-close').addEventListener('click', () => { card.remove(); close(); });
+    veil.addEventListener('click', () => card.remove());
     veil.addEventListener('click', close);
     const onKey = event => { if (event.key === 'Escape') close(); };
     document.addEventListener('keydown', onKey);

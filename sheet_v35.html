@@ -1848,7 +1848,8 @@ function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,s
 function persistSoon(){clearTimeout(persistTimer);persistTimer=setTimeout(persistNow,700);}
 function persistNow(){
   clearTimeout(persistTimer);
-  if(projectRestoring||!window.OcherkiStore)return Promise.resolve();
+  // A book deleted from the shelf while open is never written back.
+  if(projectRestoring||!window.OcherkiStore||window.__ocherkiNoSave)return Promise.resolve();
   return window.OcherkiStore.save(PROJECT_ID,projectSnapshot()).then(()=>showSaved(true),()=>showSaved(false));
 }
 window.__ocherkiPersistSoon=persistSoon;
