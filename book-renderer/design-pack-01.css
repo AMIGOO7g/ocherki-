@@ -2945,3 +2945,10 @@ body .dpk-page figure:has(> img[data-frame-photo][style*="scale"]),body .dpk-pag
 /* The small heading over text and photos: the book's gold, the same face as
    the episode headings. */
 body .dpk-page.dpk-x-text-photos .dpk-x-head{font:400 38px/1.12 'CormorantCy',Georgia,serif!important;color:var(--dpk-accent)!important}
+/* Headings of the family sections in the book's gold, like chapter titles. */
+body .dpk-page.dpk-recipe .dpk-recipe-card h2,
+body .dpk-page.dpk-voices-page .dpk-voices h2,
+body .dpk-page .dpk-interview h2,
+body .dpk-page.dpk-i01 .dpk-i01-head h1,
+body .dpk-page.dpk-i02 .dpk-i02-head h1,
+body .dpk-page.dpk-i03 .dpk-i03-head h1{color:var(--dpk-accent)!important}

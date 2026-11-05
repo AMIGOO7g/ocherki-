@@ -1056,9 +1056,15 @@
         if(variant==='C'&&chapterAccents.dark&&!photo.heroVariant)variant='A';
         if(variant==='C')chapterAccents.dark++;
         const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
+        const heroName=String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears=String(photo.heroYears||photo.year||'').trim(),heroRole=String(photo.heroRole||'').trim();
+        // Without a name, years or role the right page would stand empty:
+        // the chapter's text goes on there instead (or a quiet quote).
+        const right=heroName||heroYears||heroRole
+          ?P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName,heroYears,heroRole})
+          :nextTextPage('right')||P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()});
         spreads.push({master:'D01-SPREAD-P01',sectionId:chapter.sectionId,
           left:P('p01-portrait',{...shared,layout:'p01-portrait',master:'D01-P01-PORTRAIT'}),
-          right:P('p01-text',{...shared,layout:'p01-text',master:'D01-P01-TEXT',heroName:String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears:String(photo.heroYears||photo.year||'').trim(),heroRole:String(photo.heroRole||'').trim()}),fixedRhythm:true,beat:'p01'});
+          right,fixedRhythm:true,beat:'p01'});
         portraitGiven=true;
       };
       // Accent budget: per chapter at most one angled-card spread (T10, beside
@@ -1456,12 +1462,30 @@
         // A page the text left empty takes the next photo instead of staying blank.
         const lastSpread=spreads[spreads.length-1];
         if(left.length&&lastSpread&&lastSpread.sectionId===chapter.sectionId&&lastSpread.left&&!lastSpread.right)lastSpread.right=large(left.shift());
+        // The closing photo spreads can be changed by the author too: the
+        // first photo of each spread carries the choice (layoutPreference).
+        const pause=()=>P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()});
+        const closing=(left,right,beat,beatOptions,extra={})=>spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,...extra});
         while(left.length){
-          // One photo left: a quiet quote from the chapter faces it, never an empty page.
-          if(left.length===1){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()}),fixedRhythm:true});break;}
-          if(left.length===2||left.length===4){spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:large(left.shift()),right:large(left.shift()),fixedRhythm:true});continue;}
+          const first=left[0],wish=String(chapter.photos[first]?.layoutPreference||''),isWide=photoAspect(chapter.photos[first])>=1.45;
+          const options=[...(left.length>=2?['pair','quoteband']:[]),...(left.length>=3?['closing3']:[]),'photoquote',...(isWide?['panorama']:[])];
+          const choice=options.includes(wish)?wish:left.length===1?'photoquote':left.length===2||left.length===4?'pair':'closing3';
+          if(choice==='panorama'){
+            const photoIndex=mark(left.shift());
+            const base={layout:'panorama',master:'D01-PANORAMA',sectionId:chapter.sectionId,source:chapter,photoIndex,panorama:true,title:chapter.title};
+            closing(P('photo',{...base,panoramaSide:'left'}),P('photo',{...base,panoramaSide:'right',hideCaption:true}),'panorama',options,{master:'D01-SPREAD-PANORAMA'});
+            continue;
+          }
+          if(choice==='photoquote'){closing(large(left.shift()),pause(),'photoquote',options);continue;}
+          if(choice==='quoteband'){
+            const [a,b2]=[left.shift(),left.shift()].map(mark);
+            const shared={layout:'x-quote-band',master:'D01-X-QUOTE-BAND',sectionId:chapter.sectionId,source:chapter,title:chapter.title};
+            closing(P('quote-band',{...shared,photoIndex:a,quoteSource:chapter.text,avoidAccents:usedAccents.slice(),bandSide:'left'}),P('quote-band',{...shared,photoIndex:b2,bandSide:'right'}),'quoteband',options);
+            continue;
+          }
+          if(choice==='pair'){closing(large(left.shift()),large(left.shift()),'pair',options);continue;}
           const pair=[left.shift(),left.shift()].map(mark);
-          spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left:P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:pair,title:chapter.title}),right:large(left.shift()),fixedRhythm:true});
+          closing(P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:pair,title:chapter.title}),left.length?large(left.shift()):pause(),'closing3',options);
         }
       }
       // Document/photos retain their existing masters; manuscript text is never routed through them.

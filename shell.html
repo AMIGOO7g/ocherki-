@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v70">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v71">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2885,7 +2885,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v70" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v71" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4042,6 +4042,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap');
 #bookMapBack{margin-top:14px}
 .writing-prompt-count{font:italic 14px Georgia,serif;opacity:.75;margin-right:6px}
+@keyframes bmAppear{0%{opacity:0;transform:translateY(-8px)}35%{opacity:1;transform:none}}
+@keyframes bmGlow{0%,100%{background:transparent}30%{background:rgba(224,149,74,.18)}}
+.book-map-section.bm-appear{animation:bmAppear .6s cubic-bezier(.2,.8,.3,1) var(--bm-delay,0ms) both,bmGlow 1.6s ease var(--bm-delay,0ms) both;border-radius:8px}
+@media (prefers-reduced-motion: reduce){.book-map-section.bm-appear{animation:none}}
 .bm-samples{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin:6px 0 2px}
 .bm-samples-remove{border:0;background:none;color:inherit;opacity:.6;font:italic 14px Georgia,serif;text-decoration:underline;cursor:pointer;padding:6px 0}
 .bm-samples-remove:hover{opacity:1}
@@ -4211,8 +4215,17 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     structure=next;
   }
 
+  // Sections that appear in the map (other sections, sample chapters) slide
+  // in one after another and glow for a moment, so the eye finds them.
+  function visibleMapSections(){return new Set([...(scroll||document).querySelectorAll('.book-map-section')].filter(el=>el.offsetParent!==null).map(el=>el.dataset.sectionId));}
+  function revealNewMapSections(before){
+    const fresh=[...(scroll||document).querySelectorAll('.book-map-section')].filter(el=>el.offsetParent!==null&&!before.has(el.dataset.sectionId));
+    fresh.forEach((el,i)=>{el.style.setProperty('--bm-delay',`${i*60}ms`);el.classList.remove('bm-appear');void el.offsetWidth;el.classList.add('bm-appear');setTimeout(()=>el.classList.remove('bm-appear'),1800+i*60);});
+    const first=fresh[0];
+    if(first&&scroll){const sr=scroll.getBoundingClientRect(),r=first.getBoundingClientRect();if(r.top<sr.top||r.bottom>sr.bottom)scroll.scrollTo({top:scroll.scrollTop+(r.top-sr.top)-40,behavior:'smooth'});}
+  }
   chapterGroup?.addEventListener('click',event=>{
-    if(event.target.closest('[data-samples-toggle]')){event.stopPropagation();try{localStorage.setItem('ocherkiMapSamples',localStorage.getItem('ocherkiMapSamples')==='1'?'0':'1');}catch(_){}render(true);return;}
+    if(event.target.closest('[data-samples-toggle]')){event.stopPropagation();const before=visibleMapSections();try{localStorage.setItem('ocherkiMapSamples',localStorage.getItem('ocherkiMapSamples')==='1'?'0':'1');}catch(_){}render(true);revealNewMapSections(before);return;}
     const remove=event.target.closest('[data-samples-remove]');
     if(remove){event.stopPropagation();
       if(!remove.dataset.sure){remove.dataset.sure='1';remove.textContent='Точно убрать пустые главы?';setTimeout(()=>{if(remove.isConnected){remove.dataset.sure='';remove.textContent='Убрать образцы';}},5000);return;}
@@ -4236,7 +4249,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       map?.classList.toggle('show-extras',open);
       extrasBtn.hidden=!extras.length;
       extrasBtn.innerHTML=open?`<span class="bm-extras-dot"></span>Скрыть другие разделы`:`<span class="bm-extras-dot"></span>Другие разделы книги · ${extras.length}<i>›</i>`;
-      if(!extrasBtn.dataset.bound){extrasBtn.dataset.bound='1';extrasBtn.addEventListener('click',()=>{let now=false;try{now=localStorage.getItem('ocherkiMapExtras')!=='1';localStorage.setItem('ocherkiMapExtras',now?'1':'0');}catch(_){now=!map?.classList.contains('show-extras');}render(true);});}
+      if(!extrasBtn.dataset.bound){extrasBtn.dataset.bound='1';extrasBtn.addEventListener('click',()=>{const before=visibleMapSections();let now=false;try{now=localStorage.getItem('ocherkiMapExtras')!=='1';localStorage.setItem('ocherkiMapExtras',now?'1':'0');}catch(_){now=!map?.classList.contains('show-extras');}render(true);revealNewMapSections(before);});}
     }
     autoGroup.innerHTML = frontAutos.map(autoRow).join('');
     // Untouched sample chapters fold into one line; the chapter being
@@ -4651,10 +4664,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v70"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v70"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v70"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v70"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v70"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v70"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v71"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v71"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v71"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261030-v71"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261030-v71"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261030-v71"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4689,8 +4702,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v70"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v70"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v71"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v71"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4739,6 +4752,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     {id:'t10',label:'Фото с карточкой'},
     {id:'t12',label:'Текст поверх фото'},
     {id:'p01',label:'Портрет героя — меняется отметкой в карточке фото'},
+    {id:'closing3',label:'Две фото на странице и одно большое'},
+    {id:'photoquote',label:'Фото и цитата из главы'},
     {id:'rail',label:'Фото на полтора листа — текст сбоку'},
     {id:'overlay',label:'Белый текст поверх фото'},
     {id:'fade',label:'Текст на светлом, растворённом фото'},
@@ -7156,10 +7171,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     darkpair:'нужно 2 фото; одна тёмная композиция на главу',t06:'нужно 3 фото, главное — вертикальное или квадратное',t07:'нужно 2–4 фото подходящей формы',t08:'нужно вертикальное фото',
     t10:'нужно 2 фото',t12:'у фото нужны подпись и короткая история',hspread:'нужно очень широкое фото и больше текста',panorama:'нужно широкое фото',rail:'нужно горизонтальное фото',
     darkside:'одна тёмная композиция на главу',darkfade:'одна тёмная композиция на главу',darkgrad:'одна тёмная композиция на главу и больше текста',
-    fade:'нужно больше текста после этого места',overlay:'нужно больше текста после этого места',textphotos:'нужно больше текста после этого места',single:'не подходит здесь'};
+    closing3:'нужно ещё 3 фото в конце главы',photoquote:'',fade:'нужно больше текста после этого места',overlay:'нужно больше текста после этого места',textphotos:'нужно больше текста после этого места',single:'не подходит здесь'};
   function compositionChoices(sp){
     const fits=new Set(sp?.beatOptions||[]);if(sp?.beat)fits.add(sp.beat);
-    return PREVIEW_COMPOSITION_CATALOG.filter(item=>item.id!=='p01').map(item=>({...item,ok:item.id==='auto'||fits.has(item.id),why:COMPOSITION_NEEDS[item.id]||'не подходит здесь'}));
+    // The photos closing a chapter have their own, photo-only choices.
+    const closing=(sp?.beatOptions||[]).includes('photoquote'),closingIds=['auto','pair','quoteband','closing3','photoquote','panorama'];
+    return PREVIEW_COMPOSITION_CATALOG.filter(item=>item.id!=='p01'&&(closing?closingIds.includes(item.id):!['closing3','photoquote'].includes(item.id))).map(item=>({...item,ok:item.id==='auto'||fits.has(item.id),why:COMPOSITION_NEEDS[item.id]||'не подходит здесь'}));
   }
   // The list of every composition: the ones that fit are bright, the
   // others grey with the reason; the current one is ticked.
@@ -7302,7 +7319,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v70"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v71"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();

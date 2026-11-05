@@ -487,6 +487,8 @@ html.large-ui .page-sample{font-size:17px}
 .pf-remove{position:absolute;right:12px;top:10px;border:0;background:none;color:#a88a6c;font:14px Georgia,serif;cursor:pointer;text-decoration:underline}
 .pf-remove:hover{color:#a8452f}
 .pf-free{display:block;margin:22px 0 0;border:0;background:none;color:#8f7c69;font:italic 14px Georgia,serif;cursor:pointer;text-decoration:underline}
+.pf-photo{display:flex;align-items:center;gap:12px;margin:12px 0 2px;font:italic 14px/1.35 Georgia,serif;color:#8f7c69}
+.pf-photo img{width:84px;height:84px;object-fit:cover;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .pf-status{margin:10px 0 14px;font:15px/1.4 Georgia,serif;color:#9a4f32}
 .pf-status.is-ok{color:#5f7a4a}
 .pf-tablehead{display:flex;gap:10px;font:13px/1.2 Georgia,serif;color:#8f7c69;margin:0 0 4px}
@@ -4173,7 +4175,7 @@ editor.addEventListener('input',markInterviewQuestions);
 // reads it as before); the author only fills in fields.
 const PAGE_FORMS={
   recipes:{
-    intro:'Каждый рецепт или семейная традиция — отдельной карточкой. Фото к ним добавьте кнопкой «＋ Фото» на этом листе.',
+    intro:'Каждый рецепт или семейная традиция — отдельной карточкой. Фото встают по порядку: первое — к первому рецепту, второе — ко второму.',
     add:'＋ Ещё рецепт или традиция',
     parse:text=>String(text||'').split(/^\s*\*{3,}\s*$/mu).map(block=>{
       const lines=block.split(/\r?\n/u).map(line=>line.trim()).filter(Boolean);if(!lines.length)return null;
@@ -4187,6 +4189,7 @@ const PAGE_FORMS={
       <label class="pf-label">Что нужно — по одной строчке <i style="color:#a88a6c">(для традиции можно пропустить)</i></label>
       <div data-list>${(r.items.length?r.items:['']).map(item=>`<div class="pf-item"><input class="pf-input" data-f="item" value="${esc(item)}" placeholder="Например: мука — 500 г"></div>`).join('')}</div>
       <button type="button" class="pf-add pf-small" data-act="item">＋ ещё строчка</button>
+      <div class="pf-photo" data-photo-slot="${i}"></div>
       <label class="pf-label">Как готовили или как это было</label><textarea class="pf-text" data-f="how" rows="4" placeholder="Например: Тесто ставили с вечера, а утром вся семья лепила пироги…">${esc(r.how)}</textarea>`,
     read:card=>({title:card.querySelector('[data-f=title]').value,items:[...card.querySelectorAll('[data-f=item]')].map(x=>x.value),how:card.querySelector('[data-f=how]').value})
   },
@@ -4249,13 +4252,24 @@ function updatePageForm(){
   const on=Boolean(def&&pageUsesForm(page));
   paperEl?.classList.toggle('has-form',on);form.hidden=!on;
   if(!on){pageFormFor=null;return;}
-  if(pageFormFor===page)return;   // the form is not redrawn while typing
+  if(pageFormFor===page){refreshRecipePhotos();return;}   // the form is not redrawn while typing
   pageFormFor=page;
   let list=def.parse(page.sample?'':page.text);
   if(!list.length)list=[def.empty()];
   const ready=page.type==='interview'?`<button type="button" class="pf-add pf-small" data-act="ready">Добавить готовые вопросы</button>`:'';
   form.innerHTML=`<p class="pf-intro">${def.intro}</p>${page.type==='timeline'?'<div class="pf-status"></div><div class="pf-tablehead"><span>Год</span><span>Место</span><span>Что произошло</span></div>':''}<div data-cards>${list.map((item,i)=>`<div class="${def.table?'pf-line':'pf-card'}" data-card>${def.table?'':'<button type="button" class="pf-remove" data-act="remove">убрать</button>'}${def.card(item,i)}</div>`).join('')}</div><button type="button" class="pf-add" data-act="add">${def.add}</button> ${ready}<button type="button" class="pf-free" data-act="free">Писать обычным текстом</button>`;
   if(page.type==='timeline')updateFormStatus();
+  refreshRecipePhotos();
+}
+// Each recipe card shows its photo (the page's photos in order) or offers to add one.
+function refreshRecipePhotos(){
+  const page=currentPage();if(page?.type!=='recipes')return;
+  const photos=(page.photos||[]).filter(photo=>photo&&(photo.src||photo.dataUrl));
+  document.querySelectorAll('#pageForm [data-photo-slot]').forEach(slot=>{
+    const photo=photos[Number(slot.dataset.photoSlot)];
+    const html=photo?`<img src="${esc(photo.src||photo.dataUrl)}" alt=""><span>Фото к этому рецепту. Убрать или заменить его можно в карточке фото на листе.</span>`:`<button type="button" class="pf-add pf-small" data-act="photo">＋ Добавить фото к рецепту</button><span>Без фото рецепт займёт страницу целиком.</span>`;
+    if(slot.dataset.html!==html){slot.innerHTML=html;slot.dataset.html=html;}
+  });
 }
 (()=>{
   const form=document.getElementById('pageForm');if(!form)return;
@@ -4268,6 +4282,7 @@ function updatePageForm(){
     if(act==='item'){const list=event.target.closest('[data-card]').querySelector('[data-list]');const row=document.createElement('div');row.className='pf-item';row.innerHTML='<input class="pf-input" data-f="item" placeholder="Например: молоко — 1 стакан">';list.appendChild(row);row.querySelector('input').focus();return;}
     if(act==='remove'){const card=event.target.closest('[data-card]');const filled=[...card.querySelectorAll('input,textarea')].some(x=>x.value.trim());if(filled&&!card.dataset.sure){card.dataset.sure='1';event.target.textContent='точно убрать?';return;}card.remove();collect();return;}
     if(act==='ready'){const have=String(page.text||'');const fresh=READY_QUESTIONS.filter(q=>!have.includes(q));if(!fresh.length)return;saveFormText((have.trim()?have.trim()+'\n\n':'')+fresh.join('\n\n'));pageFormFor=null;updatePageForm();return;}
+    if(act==='photo'){document.getElementById('quickPhotoBtn')?.click();return;}
     if(act==='free'){page.freeText=true;persistSoon();pageFormFor=null;render();return;}
   });
 })();
