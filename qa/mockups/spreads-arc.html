@@ -44,15 +44,15 @@ spreads.forEach((s,i)=>s.pages=`страницы ${2+i*2}–${3+i*2}`);
 const arc=document.getElementById('arc');let at=0,turn=0;
 const els=spreads.map((s,i)=>{const d=document.createElement('div');d.className='th'+(s.first?' chap':'');if(s.first)d.dataset.ch=s.ch.split('.')[0];
   d.innerHTML=`<img src="carousel/s_${s.img}.jpg" alt=""><div class="tip">${s.name}<small>${s.pages}</small></div>`;d.onclick=()=>open(i);arc.appendChild(d);return d;});
-const STEP=12.5; // градусов между разворотами на дуге
+const STEP=15; // градусов между разворотами на дуге
 function layout(){
   const W=innerWidth,H=innerHeight,book=document.getElementById('book').getBoundingClientRect();
-  const cx=W/2,cy=book.top+book.height/2,rx=Math.max(book.width/2+150,W*.36),ry=book.height/2+Math.min(H*.2,170);
+  const cx=W/2,cy=book.top+book.height/2,rx=Math.max(book.width/2+170,W*.43),ry=book.height/2+Math.min(H*.2,170);
   els.forEach((el,i)=>{const deg=(i-turn)*STEP,a=Math.abs(deg),th=deg*Math.PI/180;
     const big=i===at?168:128;el.style.width=big+'px';
     const x=cx+rx*Math.sin(th)-big/2,y=cy+ry*Math.cos(th)-big/4;
-    el.style.transform=`translate(${x}px,${y}px) rotate(${(-deg*.55).toFixed(1)}deg)`;
-    el.style.opacity=a>92?0:a>70?.35:a>40?.75:1;el.style.pointerEvents=a>92?'none':'auto';el.style.zIndex=100-Math.round(a);
+    el.style.transform=`translate(${x}px,${y}px)`;
+    const n=Math.abs(i-turn),FADE=[1,.9,.8,.7,.55,.38,.2,.08];el.style.opacity=FADE[n]??0;el.style.pointerEvents=n<FADE.length?'auto':'none';el.style.zIndex=100-Math.round(a);
     el.classList.toggle('is-on',i===at);});
   document.getElementById('count').textContent=`Разворот ${at+1} из ${spreads.length}`;document.getElementById('chapter').textContent=spreads[at].ch;
 }
