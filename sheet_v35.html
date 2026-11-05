@@ -4949,7 +4949,13 @@ window.addEventListener('message',e=>{
       window.__ocherkiBin = [];
       window.parent.postMessage({type:'OCHERKI_MANUSCRIPT_BIN', items:[]}, '*');
     }
-    // «Можно добавить»: one of the book's own sections joins the book.
+    else if(a === 'excludeSection') {
+      const section = sections.find(item => item.id === d.sectionId);
+      if(section && section.type !== 'chapter'){ saveEditor(); const current = sections[activeSection]; section.included = false;
+        if(current === section){ activeSection = Math.max(0, sections.findIndex(item => item.type === 'chapter')); }
+        persistSoon(); render(); emitStructure(); }
+    }
+    // «Разделы книги»: one of the book's own sections joins the book.
     else if(a === 'includeSection') {
       const section = sections.find(item => item.id === d.sectionId);
       if(section){ saveEditor(); section.included = true; (section.pages || []).forEach(page => { if(page.included === false) page.included = true; }); persistSoon(); render(); emitStructure(); }
