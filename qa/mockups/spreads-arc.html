@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Макет: развороты дугой вокруг книги</title>
+<style>
+:root{--ink:#3a2a1c;--ink2:rgba(58,42,28,.62);--gold:#c08a45}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:Georgia,serif;color:var(--ink);background:radial-gradient(ellipse 70% 75% at 50% 42%,#f6e6c9 0,#e2c398 42%,#a77d52 80%,#4a3423 100%)}
+.top{position:absolute;left:0;right:0;top:28px;text-align:center;z-index:5}
+.top .chapter{font:italic 23px Georgia,serif}
+.top .count{margin-top:6px;font:12px Georgia,serif;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2)}
+/* книга: читается как обычно */
+.book{position:absolute;left:50%;top:41%;width:min(50vw,52vh*2);aspect-ratio:2/1;transform:translate(-50%,-50%);z-index:4}
+.book img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#fff;box-shadow:0 26px 60px rgba(50,30,12,.38),0 4px 10px rgba(50,30,12,.2);transition:opacity .45s ease}
+.book::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:44px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.07) 45%,rgba(0,0,0,.13) 50%,rgba(0,0,0,.07) 55%,transparent);pointer-events:none}
+/* дуга разворотов */
+.arc{position:absolute;inset:0;z-index:6;pointer-events:none}
+.th{position:absolute;left:0;top:0;width:128px;aspect-ratio:2/1;pointer-events:auto;cursor:pointer;
+  transition:transform .7s cubic-bezier(.2,.8,.25,1),opacity .7s ease,width .7s cubic-bezier(.2,.8,.25,1)}
+.th img{display:block;width:100%;height:100%;object-fit:cover;background:#fff;border-radius:2px;box-shadow:0 6px 14px rgba(50,30,12,.32);transition:box-shadow .4s,outline-color .4s;outline:2px solid transparent;outline-offset:3px}
+.th:hover img{box-shadow:0 10px 22px rgba(50,30,12,.4)}
+.th.is-on img{outline-color:var(--gold)}
+.th .tip{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translate(-50%,6px);white-space:nowrap;font:italic 14px Georgia,serif;color:var(--ink);opacity:0;transition:opacity .4s,transform .5s;pointer-events:none}
+.th:hover .tip,.th.is-on .tip{opacity:1;transform:translate(-50%,0)}
+.th .tip small{display:block;text-align:center;font:11px Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.th.chap::before{content:attr(data-ch);position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;font:600 10px Georgia,serif;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.close{position:absolute;right:28px;top:26px;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 38% 30%,#fffaf0,#efe0c4 58%,#d6bd96);box-shadow:0 3px 8px rgba(60,40,20,.3);font:20px/44px Georgia,serif;color:#5a3f2a;z-index:9}
+.hint{position:absolute;right:28px;bottom:22px;max-width:320px;font:italic 13px/1.45 Georgia,serif;color:var(--ink2);text-align:right;z-index:9}
+</style>
+</head>
+<body>
+<div class="top"><div class="chapter" id="chapter">Глава 1. Начало</div><div class="count" id="count"></div></div>
+<button class="close" title="Закрыть книгу">✕</button>
+<div class="book" id="book"><img id="bookImg" src="carousel/s_0.jpg" alt=""></div>
+<div class="arc" id="arc"></div>
+<div class="hint">Под книгой дугой лежат все развороты. Колёсико или перетаскивание вращают дугу; нажмите на разворот — книга перелистнётся на него.</div>
+<script>
+const names=['Открытие главы','Фото с деталью','Портрет героя','Текст','Текст и фото снизу','Фото и пауза','Заметки'];
+// Две главы для примера (в макете картинки разворотов повторяются).
+const spreads=[...names.map((n,i)=>({img:i,name:n,ch:'Глава 1. Начало',first:i===0})),...names.map((n,i)=>({img:(i+3)%7,name:n,ch:'Глава 2. Тифлис',first:i===0}))];
+spreads.forEach((s,i)=>s.pages=`страницы ${2+i*2}–${3+i*2}`);
+const arc=document.getElementById('arc');let at=0,turn=0;
+const els=spreads.map((s,i)=>{const d=document.createElement('div');d.className='th'+(s.first?' chap':'');if(s.first)d.dataset.ch=s.ch.split('.')[0];
+  d.innerHTML=`<img src="carousel/s_${s.img}.jpg" alt=""><div class="tip">${s.name}<small>${s.pages}</small></div>`;d.onclick=()=>open(i);arc.appendChild(d);return d;});
+const STEP=12.5; // градусов между разворотами на дуге
+function layout(){
+  const W=innerWidth,H=innerHeight,book=document.getElementById('book').getBoundingClientRect();
+  const cx=W/2,cy=book.top+book.height/2,rx=Math.max(book.width/2+150,W*.36),ry=book.height/2+Math.min(H*.2,170);
+  els.forEach((el,i)=>{const deg=(i-turn)*STEP,a=Math.abs(deg),th=deg*Math.PI/180;
+    const big=i===at?168:128;el.style.width=big+'px';
+    const x=cx+rx*Math.sin(th)-big/2,y=cy+ry*Math.cos(th)-big/4;
+    el.style.transform=`translate(${x}px,${y}px) rotate(${(-deg*.55).toFixed(1)}deg)`;
+    el.style.opacity=a>92?0:a>70?.35:a>40?.75:1;el.style.pointerEvents=a>92?'none':'auto';el.style.zIndex=100-Math.round(a);
+    el.classList.toggle('is-on',i===at);});
+  document.getElementById('count').textContent=`Разворот ${at+1} из ${spreads.length}`;document.getElementById('chapter').textContent=spreads[at].ch;
+}
+function open(i){at=Math.max(0,Math.min(spreads.length-1,i));turn=at;const img=document.getElementById('bookImg');img.style.opacity=0;setTimeout(()=>{img.src=`carousel/s_${spreads[at].img}.jpg`;img.style.opacity=1;},280);layout();}
+let lock=0;addEventListener('wheel',e=>{if(Date.now()<lock)return;lock=Date.now()+120;turn=Math.max(0,Math.min(spreads.length-1,turn+(e.deltaY+e.deltaX>0?1:-1)));layout();},{passive:true});
+let sx=null,st=0;addEventListener('pointerdown',e=>{sx=e.clientX;st=turn;});addEventListener('pointermove',e=>{if(sx==null||!(e.buttons&1))return;const t=Math.round(st-(e.clientX-sx)/90);if(t!==turn){turn=Math.max(0,Math.min(spreads.length-1,t));layout();}});addEventListener('pointerup',()=>sx=null);
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')open(at-1);if(e.key==='ArrowRight')open(at+1);});
+addEventListener('resize',layout);open(2);
+</script>
+</body>
+</html>
