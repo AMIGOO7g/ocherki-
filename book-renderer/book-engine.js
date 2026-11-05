@@ -794,7 +794,9 @@
         return {data,fits:total<=20&&treeLayout(data).fits};
       };
       const full=plan(roots,baseTitle,'',0);
-      if(people>=4&&full.fits)treeSpreads.push(full.data);
+      // Even a small tree (a couple and a child) gets its spread: it is drawn
+      // larger in the middle of the page.
+      if(people>=2&&full.fits)treeSpreads.push(full.data);
       else if(people>=4){
         // Overview: founders and their children (without the children's
         // spouses when that is what it takes to fit); then one spread per
