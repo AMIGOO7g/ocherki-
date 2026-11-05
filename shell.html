@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v76">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v77">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2886,7 +2886,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261030-v76" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261105-v77" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4669,10 +4669,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261030-v76"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261030-v76"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261030-v76"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261030-v76"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261030-v76"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261030-v76"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261105-v77"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261105-v77"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261105-v77"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261105-v77"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261105-v77"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261105-v77"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4707,8 +4707,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261030-v76"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261030-v76"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261105-v77"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261105-v77"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4990,33 +4990,48 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     return sp.single ? [sp.single==='right'?sp.right:sp.left] : [sp.left,sp.right];
   }
 
+  // Every photo a page shows: its own photo(s), and the photos the director
+  // sets into a text page (on top, at the side, under the text, behind it).
+  // Compositions that keep the photo only inside a text page used to look
+  // photo-less, and the composition keys locked on them for good.
+  function pagePhotoIndexes(page){
+    if(!page)return [];
+    const out=[],add=value=>{if(Number.isInteger(value)&&!out.includes(value))out.push(value);};
+    if(Array.isArray(page.photoIndices))page.photoIndices.forEach(add);else add(page.photoIndex);
+    add(page.t10?.main?.index);add(page.t10?.card?.index);
+    [page.topPhoto,page.railPhoto,page.bgPhoto,page.sidePhoto,page.spinePhoto].forEach(item=>add(item?.photoIndex));
+    (page.bottomPhotos?.photoIndices||[]).forEach(add);(page.topPair?.photoIndices||[]).forEach(add);
+    return out;
+  }
+  window.__ocherkiPagePhotoIndexes=pagePhotoIndexes;
+
   function spreadPhotoPage(sp){
     return spreadPageList(sp).find(page=>{
       if(!page||!Array.isArray(page.source?.photos))return false;
-      const indexes=Array.isArray(page.photoIndices)
-        ? page.photoIndices
-        : Number.isInteger(page.photoIndex)?[page.photoIndex]:[];
-      return indexes.some(index=>page.source.photos[index]);
+      return pagePhotoIndexes(page).some(index=>page.source.photos[index]);
     });
   }
 
+  // The photo the spread's composition belongs to: the one the author gave a
+  // composition to (it may stand on either page, e.g. the big photo of T06
+  // after the small pair), else the first photo of the spread.
+  function spreadPhotoRefs(sp){
+    const refs=[];
+    spreadPageList(sp).forEach(page=>{if(!page||!Array.isArray(page.source?.photos))return;
+      pagePhotoIndexes(page).forEach(photoIndex=>{const photo=page.source.photos[photoIndex];if(photo&&!refs.some(ref=>ref.photo===photo))refs.push({page,photoIndex,photo});});});
+    return refs;
+  }
   function spreadPhotoRef(sp){
-    const page=spreadPhotoPage(sp);
-    if(!page)return null;
-    const indexes=Array.isArray(page.photoIndices)
-      ? page.photoIndices
-      : Number.isInteger(page.photoIndex)?[page.photoIndex]:[];
-    const photoIndex=indexes.find(index=>page.source?.photos?.[index]);
-    return Number.isInteger(photoIndex)?{page,photoIndex,photo:page.source.photos[photoIndex]}:null;
+    const refs=spreadPhotoRefs(sp);
+    const own=ref=>String(ref.photo.layoutPreference||'auto').toLowerCase();
+    return refs.find(ref=>own(ref)===String(sp?.beat||'').toLowerCase())||refs.find(ref=>own(ref)!=='auto')||refs[0]||null;
   }
 
   function locatePreviewTarget(target){
     if(!target)return -1;
     return bookSpreads.findIndex(sp=>spreadPageList(sp).some(page=>{
       if(!page||!Array.isArray(page.source?.photos))return false;
-      const indexes=Array.isArray(page.photoIndices)
-        ? page.photoIndices
-        : Number.isInteger(page.photoIndex)?[page.photoIndex]:[];
+      const indexes=pagePhotoIndexes(page);
       return indexes.some(index=>{
         const photo=page.source.photos[index];
         if(!photo)return false;
@@ -7039,7 +7054,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         if(previewModal?.classList.contains('open')&&bookSpreads.length){
           activeSpread=Math.max(0,Math.min(keepSpread,bookSpreads.length-1));previewPendingTarget=null;previewPinnedTarget=null;
           const focus=window.__ocherkiFocusPhoto;window.__ocherkiFocusPhoto='';
-          if(focus){const at=bookSpreads.findIndex(spread=>[spread?.left,spread?.right].some(pg=>{const list=[pg?.photoIndex,...(pg?.photoIndices||[]),pg?.t10?.main?.index,pg?.t10?.card?.index].filter(Number.isInteger);return list.some(i=>String(pg?.source?.photos?.[i]?.id||'')===focus);}));
+          if(focus){const at=bookSpreads.findIndex(spread=>[spread?.left,spread?.right].some(pg=>{const list=pagePhotoIndexes(pg);return list.some(i=>String(pg?.source?.photos?.[i]?.id||'')===focus);}));
             // Stay where the composition can still be changed: a spread the photo
             // moved to at the chapter's end (no composition) does not take focus.
             if(at>=0&&bookSpreads[at]?.beat&&bookSpreads[at].beat!=='p01')activeSpread=at;}
@@ -7175,16 +7190,20 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const override=overrideId?renderPreviewCompositionOverride(sp,overrideId):null;
     const [pageW,pageH]=currentPageSize();
     const isSingle=!!sp.single&&!override;
-    previewSpread.classList.toggle('is-single',isSingle);
-    previewSpread.style.aspectRatio=isSingle?`${pageW}/${pageH}`:`${pageW*2}/${pageH}`;
+    // A cover stands where it stands in a real book: the front cover on the
+    // right page, the back cover on the left, at exactly a page's size, with
+    // an empty place beside it. Turning it is the same page turn as any other
+    // (it used to sit centred, then jump, grow and slide before turning).
+    previewSpread.classList.remove('is-single');
+    previewSpread.classList.toggle('is-cover',isSingle);
+    previewSpread.style.aspectRatio=`${pageW*2}/${pageH}`;
     previewSpread.dataset.format=activeFormat;
     previewSpread.dataset.master=override?.composition?.master||sp.master||'';
     if(override){
       previewSpread.innerHTML=override.html;
     }else if(isSingle){
-      const singlePage=sp.single==='right'?sp.right:sp.left;
-      const singleSide=sp.single==='right'?'right':'left';
-      previewSpread.innerHTML=pageCanvasHost(singlePage,singleSide,'preview',true);
+      const ghost=side=>`<div class="book-preview-half ${side} is-ghost" aria-hidden="true"></div>`;
+      previewSpread.innerHTML=sp.single==='right'?ghost('left')+pageCanvasHost(sp.right,'right','preview'):pageCanvasHost(sp.left,'left','preview')+ghost('right');
     }else{
       previewSpread.innerHTML=`${pageCanvasHost(sp.left,'left','preview')}${sp.right?pageCanvasHost(sp.right,'right','preview'):''}`;
     }
@@ -7235,7 +7254,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     darkside:'одна тёмная композиция на главу',darkfade:'одна тёмная композиция на главу',darkgrad:'одна тёмная композиция на главу и больше текста',
     closing3:'нужно ещё 3 фото в конце главы',photoquote:'',fade:'нужно больше текста после этого места',overlay:'нужно больше текста после этого места',textphotos:'нужно больше текста после этого места',single:'не подходит здесь'};
   function compositionChoices(sp){
-    const fits=new Set(sp?.beatOptions||[]);if(sp?.beat)fits.add(sp.beat);
+    // Only what can really show this spread's photo (a panorama needs a wide
+    // one…); older books without the per-photo list use the spread's list.
+    const id=String(spreadPhotoRef(sp)?.photo?.id||''),own=id&&sp?.beatOptionsByPhoto?.[id];
+    const fits=new Set(Array.isArray(own)?own:(sp?.beatOptions||[]));if(sp?.beat)fits.add(sp.beat);
     // The photos closing a chapter have their own, photo-only choices.
     const closing=(sp?.beatOptions||[]).includes('photoquote'),closingIds=['auto','pair','quoteband','closing3','photoquote','panorama'];
     return PREVIEW_COMPOSITION_CATALOG.filter(item=>item.id!=='p01'&&(closing?closingIds.includes(item.id):!['closing3','photoquote'].includes(item.id))).map(item=>({...item,ok:item.id==='auto'||fits.has(item.id),why:COMPOSITION_NEEDS[item.id]||'не подходит здесь'}));
@@ -7272,7 +7294,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // every press really changes the spread.
     const choices=compositionChoices(sp).filter(item=>item.ok&&item.id!=='auto');
     if(!chosen&&!choices.length){window.OCHERKI_SHOW_TOAST?.('Для этого разворота нет других композиций');return;}
-    const current=String(sp.beat||photo.layoutPreference||'auto').toLowerCase();
+    // The arrows step on from the author's last choice even when the book
+    // could not honour it here (the photo went to another composition): stepping
+    // from the shown one asked for the same impossible choice again and again.
+    const asked=String(photo.layoutPreference||'auto').toLowerCase();
+    const current=(asked!=='auto'&&choices.some(item=>item.id===asked)?asked:String(sp.beat||'auto')).toLowerCase();
     const currentIndex=choices.findIndex(item=>item.id===current);
     const baseIndex=currentIndex<0?(direction<0?0:-1):currentIndex;
     const next=chosen?PREVIEW_COMPOSITION_CATALOG.find(item=>item.id===chosen):choices[(baseIndex+direction+choices.length)%choices.length];
@@ -7292,7 +7318,13 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:photo._sourcePageUid||page.sourcePageUid||'',photoId:photo.id||'',layoutPreference:next.id});
     // An older choice on another photo of the chapter that is not shown in the
     // book any more is forgotten: it would otherwise take over this spread.
-    bookSpreads.forEach(other=>{if(other===sp)return;[other.left,other.right].forEach(pg=>{const list=[pg?.photoIndex,...(pg?.photoIndices||[])].filter(Number.isInteger);list.forEach(idx=>{const ph=pg?.source?.photos?.[idx];const want=String(ph?.layoutPreference||'auto');if(ph&&ph.id&&ph.id!==photo.id&&want!=='auto'&&want!==other.beat&&String(pg.sectionId)===String(page.sectionId)){ph.layoutPreference='auto';updateLocalPhotoLayout(pg,ph,idx,'auto');send({action:'setPhotoLayout',sectionId:pg.sectionId,pageUid:ph._sourcePageUid||pg.sourcePageUid||'',photoId:ph.id,layoutPreference:'auto'});}});});});
+    // Another photo of this very spread keeps no choice of its own: it would
+    // win the spread back and the change would seem to do nothing.
+    // A photo of the chapter that holds this spread's composition as its own
+    // choice gives it up too (it may sit in the spread's small pair).
+    (page.source?.photos||[]).forEach((other,idx)=>{if(other===photo||!other?.id)return;const want=String(other.layoutPreference||'auto').toLowerCase();if(want==='auto'||want!==String(sp.beat||'').toLowerCase())return;other.layoutPreference='auto';updateLocalPhotoLayout(page,other,idx,'auto');send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:other._sourcePageUid||page.sourcePageUid||'',photoId:other.id,layoutPreference:'auto'});});
+    spreadPhotoRefs(sp).forEach(other=>{if(other.photo===photo||!other.photo.id)return;if(String(other.photo.layoutPreference||'auto')==='auto')return;other.photo.layoutPreference='auto';updateLocalPhotoLayout(other.page,other.photo,other.photoIndex,'auto');send({action:'setPhotoLayout',sectionId:other.page.sectionId,pageUid:other.photo._sourcePageUid||other.page.sourcePageUid||'',photoId:other.photo.id,layoutPreference:'auto'});});
+    bookSpreads.forEach(other=>{if(other===sp)return;[other.left,other.right].forEach(pg=>{const list=pagePhotoIndexes(pg);list.forEach(idx=>{const ph=pg?.source?.photos?.[idx];const want=String(ph?.layoutPreference||'auto');if(ph&&ph.id&&ph.id!==photo.id&&want!=='auto'&&want!==other.beat&&String(pg.sectionId)===String(page.sectionId)){ph.layoutPreference='auto';updateLocalPhotoLayout(pg,ph,idx,'auto');send({action:'setPhotoLayout',sectionId:pg.sectionId,pageUid:ph._sourcePageUid||pg.sourcePageUid||'',photoId:ph.id,layoutPreference:'auto'});}});});});
     // Rebuild with the choice and stay on the spread that holds this photo.
     window.__ocherkiFocusPhoto=String(photo.id||'');
     window.OCHERKI_SHOW_TOAST?.(next.label);
@@ -7401,7 +7433,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261030-v76"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}</body></html>`;
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v77"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+.book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
+.book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
+</style>
+</body></html>`;
   }
   async function exportBookPdf(){
     const el=pdfElements();
@@ -7441,7 +7477,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     previewSpread?.classList.remove('page-out-next','page-out-prev','page-in-next','page-in-prev');
     // The editor opens on the page of the spread the author was looking at.
     try{
-      const uidOf=pg=>{if(!pg)return '';if(pg.sourcePageUid)return pg.sourcePageUid;const list=[pg.photoIndex,...(pg.photoIndices||[])].filter(Number.isInteger);for(const i of list){const uid=pg.source?.photos?.[i]?._sourcePageUid;if(uid)return uid;}return '';};
+      const uidOf=pg=>{if(!pg)return '';if(pg.sourcePageUid)return pg.sourcePageUid;const list=pagePhotoIndexes(pg);for(const i of list){const uid=pg.source?.photos?.[i]?._sourcePageUid;if(uid)return uid;}return '';};
       let target=null;
       for(let i=activeSpread;i>=0&&!target;i--){const sp=bookSpreads[i];for(const pg of [sp?.left,sp?.right]){const uid=uidOf(pg);if(uid&&pg.sectionId){target={sectionId:pg.sectionId,pageUid:uid};break;}}}
       if(target)send({action:'select',...target});
@@ -7490,50 +7526,6 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   // back (the next page) and casts a soft shadow. The new spread is already
   // rendered underneath; copies of the old pages lie on top and are cut away
   // as the fold moves, so nothing blinks.
-  // The front cover opens like the pages: soft, folding over itself. It first
-  // moves to where the right-hand page lies, then folds over to the left,
-  // showing its inside (the first page of the spread beneath).
-  function previewOpenCover(target){
-    const host=previewSpread.querySelector(':scope > .book-preview-half');if(!host)return false;
-    const cr=host.getBoundingClientRect();if(cr.width<40)return false;
-    const cover=host.cloneNode(true);
-    activeSpread=target;previewRender();renderActiveOnly();
-    const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
-    if(hosts.length!==2){previewPaging=false;return true;}
-    const L=hosts[0].getBoundingClientRect(),S=L.width,H=L.height,X0=L.left,Y0=L.top;
-    const back=hosts[0].cloneNode(true);
-    hosts[0].style.visibility='hidden';hosts[1].style.visibility='hidden';
-    const layer=document.createElement('div');
-    layer.style.cssText=`position:fixed;left:${X0}px;top:${Y0}px;width:${2*S}px;height:${H}px;z-index:2147482000;pointer-events:none`;
-    const piece=(node,z)=>{const box=document.createElement('div');box.style.cssText=`position:absolute;top:0;height:${H}px;overflow:hidden;z-index:${z}`;[['position','absolute'],['left','0'],['top','0'],['width',S+'px'],['height',H+'px'],['margin','0'],['transform','none'],['opacity','1'],['visibility','visible']].forEach(([k,v])=>node.style.setProperty(k,v,'important'));box.appendChild(node);layer.appendChild(box);return box;};
-    const place=(box,at,a,b)=>{box.style.left=a+'px';box.style.width=Math.max(0,b-a)+'px';box.firstChild.style.left=(at-a)+'px';};
-    const fx=z=>{const el=document.createElement('i');el.style.cssText=`position:absolute;top:0;height:${H}px;z-index:${z}`;layer.appendChild(el);return el;};
-    const rest=piece(cover,10),cast=fx(15),flap=piece(back,20),flapShade=fx(25);
-    document.body.appendChild(layer);
-    const set=p=>{
-      const F=2*S-p*S,shift=2*F-2*S,lift=Math.sin(Math.PI*p);
-      place(rest,S,S,F);place(flap,shift,2*F-2*S,F);
-      const flapA=2*F-2*S,w=F-flapA,soft=Math.max(18,Math.min(90,w*.35))*(.4+.6*lift);
-      flapShade.style.left=flapA+'px';flapShade.style.width=w+'px';
-      flapShade.style.background=`linear-gradient(270deg,rgba(255,252,244,${(.55*lift).toFixed(3)}) 0,rgba(0,0,0,${(.10*lift).toFixed(3)}) ${Math.min(40,soft*.5)}px,rgba(0,0,0,0) ${soft*1.6}px)`;
-      flap.style.boxShadow=`-${(6*lift).toFixed(1)}px 0 ${(22*lift).toFixed(1)}px rgba(0,0,0,${(.28*lift).toFixed(3)})`;
-      const castW=Math.max(24,soft*1.4);cast.style.left=F+'px';cast.style.width=castW+'px';
-      cast.style.background=`linear-gradient(90deg,rgba(0,0,0,${(.32*lift).toFixed(3)}),rgba(0,0,0,0))`;
-    };
-    set(0);
-    const from=cr.left-(X0+S),ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,slideMs=480,foldMs=window.__ocherkiCoverMs||1100,t0=performance.now();
-    layer.style.transform=`translateX(${from}px)`;
-    const tick=now=>{
-      const e=now-t0;
-      if(e<slideMs){layer.style.transform=`translateX(${(from*(1-ease(e/slideMs))).toFixed(1)}px)`;requestAnimationFrame(tick);return;}
-      layer.style.transform='';hosts[1].style.visibility='';
-      const p=Math.min(1,(e-slideMs)/foldMs);set(ease(p));
-      if(p<1){requestAnimationFrame(tick);return;}
-      hosts[0].style.visibility='';layer.remove();previewPaging=false;
-    };
-    requestAnimationFrame(tick);
-    return true;
-  }
   function previewFlip(forward,target){
     const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
     if(hosts.length!==2)return false;
@@ -7547,6 +7539,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const fresh=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
     if(fresh.length!==2)return true;
     const back=(forward?fresh[0]:fresh[1]).cloneNode(true);
+    // Turning away from a cover: the place beside it was empty, so the page
+    // under it shows only when the turning page lands there.
+    const waiting=(forward?hosts[0]:hosts[1]).classList.contains('is-ghost')?(forward?fresh[0]:fresh[1]):null;
+    if(waiting)waiting.style.visibility='hidden';
+    back.style.visibility='visible';
     const layer=document.createElement('div');
     layer.style.cssText=`position:fixed;left:${X0}px;top:${Y0}px;width:${2*S}px;height:${H}px;z-index:2147482000;pointer-events:none`;
     const piece=(host,z)=>{const box=document.createElement('div');box.style.cssText=`position:absolute;top:0;height:${H}px;overflow:hidden;z-index:${z}`;host.style.cssText+=`;position:absolute;top:0;left:0;width:${S}px;height:${H}px;margin:0;transform:none`;box.appendChild(host);layer.appendChild(box);return box;};
@@ -7572,7 +7569,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     };
     set(0);
     const t0=performance.now(),ms=900;
-    const tick=now=>{const t=Math.min(1,(now-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;set(e);if(t<1)requestAnimationFrame(tick);else{layer.remove();previewPaging=false;}};
+    const tick=now=>{const t=Math.min(1,(now-t0)/ms),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;set(e);if(t<1)requestAnimationFrame(tick);else{if(waiting)waiting.style.visibility='';layer.remove();previewPaging=false;}};
     requestAnimationFrame(tick);
     return true;
   }
@@ -7588,10 +7585,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     previewPaging=true;
     window.OCHERKI_PLAY_PAGE_FX?.(.48);
     const flipFrom=bookSpreads[activeSpread],flipTo=bookSpreads[target];
-    if(flipFrom?.single==='right'&&delta>0&&!flipTo?.single&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
-      try{if(previewOpenCover(target))return;}catch(error){previewSpread.querySelectorAll(':scope > .book-preview-half').forEach(el=>el.style.visibility='');}
-    }
-    if(!flipFrom?.single&&!flipTo?.single&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
       try{if(previewFlip(delta>0,target))return;}catch(error){document.querySelectorAll('body > div[style*="2147482000"]').forEach(el=>el.remove());}
     }
     const dir=delta>0?'next':'prev';
@@ -7671,8 +7665,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       card.style.aspectRatio=`${pageW*2}/${pageH}`;
     });
     if(previewSpread){
-      const current=bookSpreads[activeSpread];
-      previewSpread.style.aspectRatio=current?.single?`${pageW}/${pageH}`:`${pageW*2}/${pageH}`;
+      previewSpread.style.aspectRatio=`${pageW*2}/${pageH}`;
       previewSpread.dataset.format=activeFormat;
     }
     requestAnimationFrame(()=>{observePageCanvasHosts();scaleAllPageCanvases();});
@@ -8277,8 +8270,24 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
     if(!badge){badge=document.createElement('span');badge.className='bd-rail-badge';tipsKey.appendChild(badge);}
     badge.textContent=String(steps);
   };
-  if(rows)new MutationObserver(updateBadge).observe(rows,{childList:true,subtree:true});
-  updateBadge();
+  // The advice comes one at a time, like the design cards: it slides in,
+  // and the small arrows bring the next one («2 из 5»).
+  let tipAt=0,tipDir=1;
+  const tipsCarousel=()=>{
+    const list=rows?.querySelector('.bd-book-tips');if(!list)return;
+    const lis=[...list.children].filter(li=>li.tagName==='LI');
+    let nav=list.parentElement.querySelector(':scope > .bd-tips-nav');
+    if(lis.length<2){nav?.remove();lis.forEach(li=>li.classList.add('is-current'));return;}
+    tipAt=Math.max(0,Math.min(tipAt,lis.length-1));
+    lis.forEach((li,k)=>{li.classList.toggle('is-current',k===tipAt);li.classList.toggle('from-left',tipDir<0);});
+    if(!nav){nav=document.createElement('div');nav.className='bd-tips-nav';nav.innerHTML='<button type="button" data-tip-step="-1" aria-label="Предыдущий совет">‹</button><span></span><button type="button" data-tip-step="1" aria-label="Следующий совет">›</button>';list.after(nav);}
+    const label=`${tipAt+1} из ${lis.length}`;if(nav.querySelector('span').textContent!==label)nav.querySelector('span').textContent=label;
+  };
+  rows?.addEventListener('click',event=>{const step=event.target.closest('[data-tip-step]');if(!step)return;event.stopPropagation();
+    const n=rows.querySelectorAll('.bd-book-tips > li').length;if(!n)return;tipDir=+step.dataset.tipStep;tipAt=(tipAt+tipDir+n)%n;tipsCarousel();});
+  tipsKey.addEventListener('click',()=>{tipAt=0;tipDir=1;tipsCarousel();});
+  if(rows)new MutationObserver(()=>{updateBadge();tipsCarousel();}).observe(rows,{childList:true,subtree:true});
+  updateBadge();tipsCarousel();
 })();
 </script>
 <style id="large-ui-style">
@@ -8340,6 +8349,23 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 .shell.is-large-ui .key .cap svg{width:23px;height:23px}
 /* A drag over a photo moves the photo, never the page. */
 .book-preview-spread img[data-frame-photo]{touch-action:none}
+</style>
+<style id="tips-carousel">
+/* The labels beside the right-hand keys glide out from the key. */
+.bd-rail-item .bd-rail-tip{transform:translateX(16px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1)!important}
+.bd-rail-item:hover .bd-rail-tip{transform:none}
+/* «Что улучшить»: the heading and one piece of advice at a time slide in
+   like the design cards. */
+@keyframes tipIn{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes tipInLeft{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+.bd-section.is-rail-open .bd-book-rhythm{animation:tipIn .6s cubic-bezier(.2,.8,.3,1) both}
+.bd-book-tips{list-style:none;padding-left:0!important;font-family:Georgia,serif!important}
+.bd-book-tips:has(+ .bd-tips-nav) > li:not(.is-current){display:none}
+.bd-book-tips > li.is-current{animation:tipIn .55s cubic-bezier(.2,.8,.3,1) .12s both}
+.bd-book-tips > li.is-current.from-left{animation-name:tipInLeft}
+.bd-tips-nav{display:flex;align-items:center;gap:14px;margin-top:10px;font:italic 14px Georgia,serif;opacity:.85}
+.bd-tips-nav button{all:unset;cursor:pointer;font:22px/1 Georgia,serif;padding:0 6px;opacity:.8;transition:opacity .3s}
+.bd-tips-nav button:hover{opacity:1}
 </style>
 <style id="tips-no-panel">
 /* «Что улучшить в книге»: no backing panel; the text hangs on its own like

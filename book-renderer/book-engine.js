@@ -1235,12 +1235,30 @@
           const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12',...Object.keys(extraFits)].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat in extraFits?extraFits[beat]:beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           // What else would fit here: the preview offers exactly these.
           const beatOptions=eligible.map(([id])=>id);
+          // Which of those compositions can really show a given photo: a
+          // panorama needs that photo to be wide, T08 vertical, and so on. The
+          // preview offers a photo only these, so every choice changes the
+          // spread instead of sending the photo off to another one.
+          const ratioOf=photoPosition=>photoAspect(chapter.photos[photoPosition]);
+          const beatTakes=(candidate,photoPosition)=>{const r=ratioOf(photoPosition);
+            if(candidate==='panorama')return wide.includes(photoPosition);
+            if(candidate==='hspread')return horizontal.includes(photoPosition);
+            if(candidate==='rail')return r>=1.2;
+            if(candidate==='t08')return r<=.85&&ordinary.includes(photoPosition);
+            if(candidate==='t06')return ordinary.includes(photoPosition)&&(r<=1.05||t06Pair.includes(photoPosition));
+            if(candidate==='t07')return Boolean(t07?.indices?.includes(photoPosition));
+            if(candidate==='t10')return ordinary.includes(photoPosition)&&r<1.9;
+            if(candidate==='t12')return t12Eligible(chapter.photos[photoPosition]);
+            if(['single','fade','overlay','darkside','darkfade','darkgrad','two','three','pair','mosaic','quoteband','darkpair','textphotos'].includes(candidate))return ordinary.includes(photoPosition);
+            return true;};
+          const beatOptionsByPhoto={};
+          unused.forEach(photoPosition=>{const id=chapter.photos[photoPosition]?.id;if(id)beatOptionsByPhoto[id]=beatOptions.filter(candidate=>beatTakes(candidate,photoPosition));});
           let pick=photoBeatRandom()*eligible.reduce((sum,[,weight])=>sum+weight,0);
           // meta.forcePhotoBeat lets acceptance checks request one beat when it is eligible.
           const forcedQueue=Array.isArray(meta.forcePhotoBeat)?forcedBeatQueue:[meta.forcePhotoBeat];
           // The author's choice from «Сменить композицию» (kept on the photo as
           // layoutPreference) wins whenever that composition fits here.
-          const authorChoice=unused.map(photoPosition=>String(chapter.photos[photoPosition]?.layoutPreference||'')).map(choice=>eligible.find(([candidate])=>candidate===choice)).find(Boolean);
+          const authorChoice=unused.map(photoPosition=>[photoPosition,String(chapter.photos[photoPosition]?.layoutPreference||'')]).map(([photoPosition,choice])=>beatTakes(choice,photoPosition)&&eligible.find(([candidate])=>candidate===choice)).find(Boolean);
           const forced=forcedQueue.map(wanted=>eligible.find(([candidate])=>candidate===wanted)).find(Boolean)||authorChoice||(portraitHeroes.length&&!portraitGiven?['p01',0]:null);
           const beat=(forced||eligible.find(([,weight])=>(pick-=weight)<0)||eligible.at(-1)||['single'])[0];
           if(Array.isArray(meta.forcePhotoBeat)&&forcedBeatQueue.includes(beat))forcedBeatQueue.splice(forcedBeatQueue.indexOf(beat),1);
@@ -1262,7 +1280,7 @@
             const textPage=nextTextPage('left');
             const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
               t12Kicker:String(photo.place||photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
-            spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1290,7 +1308,7 @@
             const layout={main:{index:take(t10Main),...main},card:{index:take(t10Card),...card}};
             const textPage=nextTextPage('left',{t10:layout,forceRhythm:'plain'});
             const photoPage=P('t10-photos',{layout:'t10-photos',master:'D01-T10-PHOTOS',sectionId:chapter.sectionId,source:chapter,t10:layout,title:chapter.title});
-            spreads.push({master:'D01-SPREAD-T10',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-T10',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1298,7 +1316,7 @@
             const photoIndex=take(t08Photo);
             const textPage=nextTextPage('left',{spinePhoto:{photoIndex},forceRhythm:'plain'});
             const pause=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:textPage?.text||'',avoidAccents:usedAccents.slice()});
-            spreads.push({master:'D01-SPREAD-T08',sectionId:chapter.sectionId,left:textPage,right:pause,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-T08',sectionId:chapter.sectionId,left:textPage,right:pause,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1307,7 +1325,7 @@
             const indices=t07.indices.map(take);
             const textPage=nextTextPage(photosLeft?'right':'left',{forceRhythm:'plain'});
             const photoPage=P('t07-photos',{layout:'t07-photos',master:'D01-T07-PHOTOS',sectionId:chapter.sectionId,source:chapter,photoIndices:indices,t07Variant:t07.variant,title:chapter.title,pageFormat:meta.format||'square'});
-            spreads.push({master:'D01-SPREAD-T07',sectionId:chapter.sectionId,left:photosLeft?photoPage:textPage,right:photosLeft?textPage:photoPage,t07Variant:t07.variant,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-T07',sectionId:chapter.sectionId,left:photosLeft?photoPage:textPage,right:photosLeft?textPage:photoPage,t07Variant:t07.variant,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1318,7 +1336,7 @@
             const hero=take(t06Hero),pair=t06Pair.map(take);
             const textPage=nextTextPage(heroLeft?'right':'left',{topPair:{photoIndices:pair},forceRhythm:'plain'});
             const heroPage=P('t06-hero',{layout:'t06-hero',master:'D01-T06-HERO',sectionId:chapter.sectionId,source:chapter,photoIndex:hero,title:chapter.title,pageFormat:meta.format||'square'});
-            spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-T06',sectionId:chapter.sectionId,left:heroLeft?heroPage:textPage,right:heroLeft?textPage:heroPage,sideVariant:heroLeft?'heroLeft':'heroRight',fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1326,14 +1344,14 @@
             const photoIndex=take(horizontal.sort((a,b)=>byAuthor(a,b)||photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
             const left=nextTextPage('left',{topPhoto:{photoIndex}});
             const right=nextTextPage('right',{topPhoto:{photoIndex}})||P('hspread-photo',{layout:'hspread-photo',master:'D01-HSPREAD-TOP',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title});
-            spreads.push({master:'D01-SPREAD-HSPREAD-TOP',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-HSPREAD-TOP',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
           if(beat==='panorama'){
             const photoIndex=take(wide.sort((a,b)=>byAuthor(a,b)||photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0]);
             const base={layout:'panorama',master:'D01-PANORAMA',sectionId:chapter.sectionId,source:chapter,photoIndex,panorama:true,title:chapter.title};
-            spreads.push({master:'D01-SPREAD-PANORAMA',sectionId:chapter.sectionId,left:P('photo',{...base,panoramaSide:'left'}),right:P('photo',{...base,panoramaSide:'right',hideCaption:true}),fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-PANORAMA',sectionId:chapter.sectionId,left:P('photo',{...base,panoramaSide:'left'}),right:P('photo',{...base,panoramaSide:'right',hideCaption:true}),fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1344,7 +1362,7 @@
             const photoIndex=take(railPhoto);
             const photoPage=P('rail-photo',{layout:'x-rail-photo',master:'D01-X-RAIL',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title});
             const textPage=nextTextPage('right',{railPhoto:{photoIndex},forceRhythm:'plain'});
-            spreads.push({master:'D01-SPREAD-X-RAIL',sectionId:chapter.sectionId,left:photoPage,right:textPage,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-RAIL',sectionId:chapter.sectionId,left:photoPage,right:textPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1356,7 +1374,7 @@
             const photoIndex=take(fadePhoto);
             const photoPage=P('fade-photo',{layout:'x-fade-photo',master:'D01-X-FADE',sectionId:chapter.sectionId,source:chapter,photoIndex,fadeTone:'dark',fadeSide:photoLeft?'left':'right',title:chapter.title});
             const textPage=nextTextPage(photoLeft?'right':'left',{darkFlow:true,forceRhythm:'plain'});
-            spreads.push({master:'D01-SPREAD-X-DARKSIDE',sectionId:chapter.sectionId,left:photoLeft?photoPage:textPage,right:photoLeft?textPage:photoPage,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-DARKSIDE',sectionId:chapter.sectionId,left:photoLeft?photoPage:textPage,right:photoLeft?textPage:photoPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1368,7 +1386,7 @@
             if(tone==='dark')chapterAccents.dark++;
             const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone,span:'page'},forceRhythm:'plain'});
             const right=nextTextPage('right',tone==='dark'?{darkFlow:true,forceRhythm:'plain'}:{});
-            spreads.push({master:beat==='fade'?'D01-SPREAD-X-LIGHT-GRADIENT':'D01-SPREAD-X-OVERLAY',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:beat==='fade'?'D01-SPREAD-X-LIGHT-GRADIENT':'D01-SPREAD-X-OVERLAY',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1378,7 +1396,7 @@
             const photoIndex=take(fadePhoto);
             const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'});
             const right=nextTextPage('right',{bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'});
-            spreads.push({master:'D01-SPREAD-X-DARK-GRADIENT',sectionId:chapter.sectionId,left,right,fixedRhythm:true,continuousImage:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-DARK-GRADIENT',sectionId:chapter.sectionId,left,right,fixedRhythm:true,continuousImage:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1388,7 +1406,7 @@
             const [first,second]=ordinary.slice(0,2).map(take);
             const left=nextTextPage('left',{photoIndex:first,sidePhoto:{photoIndex:first},darkFlow:true,forceRhythm:'plain'});
             const right=nextTextPage('right',{photoIndex:second,sidePhoto:{photoIndex:second},darkFlow:true,forceRhythm:'plain'});
-            spreads.push({master:'D01-SPREAD-X-DARK-PAIR',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-DARK-PAIR',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1398,7 +1416,7 @@
             const portrait=meta.format==='portrait';
             const left=nextTextPage('left',{photoIndices:indices,bottomPhotos:{photoIndices:indices,height:portrait?470:390},flowReserveBottom:portrait?600:520,forceRhythm:'plain'});
             const right=nextTextPage('right');
-            spreads.push({master:'D01-SPREAD-X-TEXT-PHOTOS',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-TEXT-PHOTOS',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1409,14 +1427,14 @@
             const photoIndex=take(fadePhoto);
             const photoPage=P('vignette',{layout:'x-vignette',master:'D01-X-VIGNETTE',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,pageFormat:meta.format||'square'});
             const textPage=nextTextPage('right',{darkFlow:true,forceRhythm:'plain'});
-            spreads.push({master:'D01-SPREAD-X-VIGNETTE',sectionId:chapter.sectionId,left:photoPage,right:textPage,fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-VIGNETTE',sectionId:chapter.sectionId,left:photoPage,right:textPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
           if(beat==='pair'){
             const large=photoPosition=>P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:take(photoPosition),title:chapter.title});
             const [first,second]=ordinary.slice(0,2);
-            spreads.push({master:'D01-SPREAD-X-PAIR',sectionId:chapter.sectionId,left:large(first),right:large(second),fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-PAIR',sectionId:chapter.sectionId,left:large(first),right:large(second),fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1425,7 +1443,7 @@
             const [first,second]=ordinary.slice(0,2).map(take);
             const lastText=[...spreads].reverse().flatMap(spread=>[spread.right,spread.left]).find(page=>page?.measuredFlow)?.text||'';
             const shared={layout:'x-quote-band',master:'D01-X-QUOTE-BAND',sectionId:chapter.sectionId,source:chapter,title:chapter.title};
-            spreads.push({master:'D01-SPREAD-X-QUOTE-BAND',sectionId:chapter.sectionId,left:P('quote-band',{...shared,photoIndex:first,quoteSource:lastText,avoidAccents:usedAccents.slice(),bandSide:'left'}),right:P('quote-band',{...shared,photoIndex:second,bandSide:'right'}),fixedRhythm:true,beat,beatOptions});
+            spreads.push({master:'D01-SPREAD-X-QUOTE-BAND',sectionId:chapter.sectionId,left:P('quote-band',{...shared,photoIndex:first,quoteSource:lastText,avoidAccents:usedAccents.slice(),bandSide:'left'}),right:P('quote-band',{...shared,photoIndex:second,bandSide:'right'}),fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
@@ -1437,7 +1455,7 @@
             :beat==='two'
               ?P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndices:ordinary.slice(0,2).map(take),title:chapter.title})
               :P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:take(ordinary[0]),title:chapter.title});
-          spreads.push({master:'D01-SPREAD-TEXT-PHOTO-RHYTHM',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions});
+          spreads.push({master:'D01-SPREAD-TEXT-PHOTO-RHYTHM',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
           textSpreadStreak=0;
           if(meta.forceDarkFadeSequence===true&&!darkFadeInserted){
             const darkIndex=nextVisualPhoto();
