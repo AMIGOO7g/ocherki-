@@ -1025,6 +1025,7 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
 .footer .status{transition:opacity .4s ease}.footer:has(.sheet-keys.is-open) .status{opacity:0}
 /* The floating «＋ Фото ＋ Цитата ＋ Дата» near the caret repeated these keys. */
 .page-context-actions{display:none!important}
+.sheet-keys{display:none!important}
 </style>
 <style id="next-step-style">
 /* «Следующий шаг» in the sheet's corner: one short line, one press does it. */
@@ -5067,7 +5068,13 @@ html body .page-context-actions button:hover{color:#a8692f!important}
     box.querySelector('[data-act="photo"]').hidden=!editable||!canHavePhotos(p);
     ['quote','date'].forEach(a=>box.querySelector(`[data-act="${a}"]`).hidden=!editable);
     const sec=typeof currentSection==='function'?currentSection():null;
-    ['episode','document'].forEach(a=>box.querySelector(`[data-act="${a}"]`).hidden=!sec||sec.type!=='chapter');}catch(e){}};
+    ['episode','document'].forEach(a=>box.querySelector(`[data-act="${a}"]`).hidden=!sec||sec.type!=='chapter');
+    const hidden={};box.querySelectorAll('.skey[data-act]').forEach(k=>hidden[k.dataset.act]=k.hidden);
+    window.parent.postMessage({type:'OCHERKI_SHEET_TOOLS',hidden},'*');}catch(e){}};
+  // The plate above the sheet (in the shell) asks for the same actions.
+  addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_SHEET_ACTION')return;
+    try{semanticCaretBookmark=saveEditorCaretBookmark()||semanticCaretBookmark;}catch(err){}
+    acts[d.act]?.();});
   if(typeof updateContextActions==='function'){const base=updateContextActions;window.updateContextActions=updateContextActions=function(){const r=base.apply(this,arguments);sync();return r;};}
   setTimeout(sync,300);
 })();
