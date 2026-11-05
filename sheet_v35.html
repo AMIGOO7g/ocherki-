@@ -1046,6 +1046,15 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
 .host-night .next-step .ns-text{color:#ead8bd;border-bottom-color:rgba(234,216,189,.3)}
 .host-night .next-step .ns-label{color:#c9a57a}
 </style>
+<style id="next-step-v85">
+/* «Дальше» reads clearly; «в книге ›» is always there beside it. */
+.footer .next-step{max-width:calc(100% - 330px)!important;opacity:1!important}
+.footer .next-step .ns-text{color:#3e2a1b!important;opacity:1!important;border-bottom-color:rgba(62,42,27,.35)!important}
+.footer .next-step .ns-label{color:#9a6a35!important;opacity:1!important}
+.ns-book{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);appearance:none;border:0;background:none;cursor:pointer;font:italic 14px Georgia,serif;color:#9a6a35;border-bottom:1px solid rgba(154,106,53,.35);padding:0 0 1px;z-index:41;transition:color .3s}
+.ns-book:hover{color:#6b3f1a}
+.host-night .footer .next-step .ns-text{color:#ead8bd!important}
+</style>
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
@@ -1096,7 +1105,7 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
         </div>
         <div class="page-include-wrap page-content-fade" id="pageIncludeWrap"><span id="pageIncludeState"></span><button class="page-include-toggle" id="pageIncludeToggle" type="button" aria-label="Переключить состояние страницы"></button></div>
         <div class="footer-line page-content-fade"></div>
-        <div class="footer page-content-fade"><button type="button" class="next-step" id="nextStep" title="Следующий шаг" hidden><span class="ns-dot"></span><span class="ns-label">Дальше</span><span class="ns-text"></span></button><div class="fill-indicator project-stats" id="fillIndicator">0 слов   0 фото   0 документов <span class="fill-track"><span id="fillBar"></span></span></div><div class="sheet-keys" id="sheetKeys">
+        <div class="footer page-content-fade"><button type="button" class="ns-book" id="nsBook" title="Посмотреть этот лист в книге">в книге ›</button><button type="button" class="next-step" id="nextStep" title="Следующий шаг" hidden><span class="ns-dot"></span><span class="ns-label">Дальше</span><span class="ns-text"></span></button><div class="fill-indicator project-stats" id="fillIndicator">0 слов   0 фото   0 документов <span class="fill-track"><span id="fillBar"></span></span></div><div class="sheet-keys" id="sheetKeys">
 <button type="button" class="skey" data-act="photo" data-tip="Добавить фото" aria-label="Добавить фото"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></button>
 <button type="button" class="skey" data-act="page" data-tip="Новый лист" aria-label="Новый лист"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M12 11v6M9 14h6"/></svg></button>
 <button type="button" class="skey" data-act="view" data-tip="Посмотреть этот лист в книге" aria-label="Посмотреть этот лист в книге"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5c3-1.4 6-1.4 9 .6 3-2 6-2 9-.6V19c-3-1.4-6-1.4-9 .6-3-2-6-2-9-.6Z"/><path d="M12 6.1v13.5"/></svg></button>
@@ -4887,7 +4896,7 @@ window.addEventListener('message',e=>{
         if(!Array.isArray(page.photos)) page.photos = [];
         d.photos.forEach(item => {
           if(!item?.src) return;
-          const rec = {id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:String(item.src),caption:String(item.caption||''),year:'',place:String(item.place||''),people:String(item.people||''),source:'',story:String(item.story||''),photoMode:'auto',layoutPreference:'auto',isDocument:page.type==='document',status:'uploaded',_newEntry:true,
+          const rec = {id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:String(item.src),caption:String(item.caption||''),year:String(item.year||''),place:String(item.place||''),people:String(item.people||''),source:'',story:String(item.story||''),portraitHero:item.portraitHero===true,photoMode:'auto',layoutPreference:'auto',isDocument:page.type==='document',status:'uploaded',_newEntry:true,
             width:Number(item.width)||0,height:Number(item.height)||0};
           rec.orientation = rec.width > rec.height ? 'landscape' : rec.height > rec.width ? 'portrait' : 'square';
           page.photos.push(rec);
@@ -5222,6 +5231,7 @@ html body .page-context-actions button:hover{color:#a8692f!important}
     if(text!==last){last=text;btn.querySelector('.ns-text').textContent=text;btn.classList.remove('is-new');void btn.offsetWidth;if(text)btn.classList.add('is-new');}
   }
   btn.addEventListener('click',e=>{e.stopPropagation();act?.();setTimeout(sync,400);});
+  document.getElementById('nsBook')?.addEventListener('click',e=>{e.stopPropagation();view();});
   if(typeof updateContextActions==='function'){const base=updateContextActions;window.updateContextActions=updateContextActions=function(){const r=base.apply(this,arguments);sync();return r;};}
   let t=0;editor?.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(sync,700);});
   setTimeout(sync,400);

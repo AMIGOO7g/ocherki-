@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v84">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v85">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2893,7 +2893,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261105-v84" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261105-v85" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4409,7 +4409,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       // Clear of the stack of pages that shows beside the sheet.
       // Well away from the sheet: in the middle of the free space before the keys.
       promptEl.style.left=Math.round(r.right+Math.max(110,(railLeft-r.right-sw)/2))+'px';
-      promptEl.style.top=Math.round(Math.max(150,r.top+r.height*.22))+'px';
+      promptEl.style.top=Math.round(Math.max(150,r.top+r.height/2-(promptEl.offsetHeight||180)/2))+'px';
       return;
     }
     promptEl.classList.remove('is-beside');
@@ -4677,10 +4677,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261105-v84"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261105-v84"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261105-v84"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261105-v84"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261105-v84"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261105-v84"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261105-v85"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261105-v85"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261105-v85"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261105-v85"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261105-v85"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261105-v85"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4715,8 +4715,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261105-v84"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261105-v84"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261105-v85"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261105-v85"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7498,7 +7498,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v84"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261105-v85"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -9844,9 +9844,9 @@ html body .shell .project-top .pages-child::before{top:-48px!important;height:48
     const W=innerWidth,H=innerHeight,[pw,ph]=a.pageSize(),ratio=(pw*2)/ph;
     // The book and the arc under it sit in the middle of the screen; the
     // composition keys above the book always have room.
-    const maxH=Math.max(220,H-140-24-30-190);
+    const maxH=Math.max(220,H-210-24-30-190);
     const bw=Math.round(Math.min(W*.56,maxH*ratio,1500)),bh=bw/ratio;
-    const T=Math.round(Math.max(140,(H-(bh+30+190))/2+30));
+    const T=Math.round(Math.max(210,(H-(bh+30+190))/2+30));
     modal.style.setProperty('--arc-book-w',bw+'px');modal.style.setProperty('--arc-stage-top',T+'px');
     return {W,H,ratio,pw,ph};
   }
@@ -9893,7 +9893,7 @@ html body .shell .project-top .pages-child::before{top:-48px!important;height:48
   // One turn of the wheel = one step. A mouse notch (and a touchpad swipe)
   // sends a burst of events; only the first one of a burst moves, a long
   // steady scroll moves on calmly one step at a time.
-  const wheelStep=(()=>{let quietTimer=0,used=false,last=0;return fn=>{const now=Date.now();clearTimeout(quietTimer);quietTimer=setTimeout(()=>{used=false;},200);if(used&&now-last<700)return;used=true;last=now;fn();};})();
+  const wheelStep=(()=>{let quietTimer=0,used=false;return fn=>{clearTimeout(quietTimer);quietTimer=setTimeout(()=>{used=false;},260);if(used)return;used=true;fn();};})();
   addEventListener('wheel',e=>{if(!modal.classList.contains('has-arc')||!modal.classList.contains('open'))return;if(e.target.closest?.('#bookPreviewSpread,.composition-menu,.book-design-shell'))return;
     const dir=(e.deltaY+e.deltaX)>0?1:-1;wheelStep(()=>{const n=api().spreads().length;turn=Math.max(0,Math.min(n-1,turn+dir));layout();});},{passive:true});
   let sx=null,st=0,moved=false;
@@ -9912,7 +9912,7 @@ html body .shell .project-top .pages-child::before{top:-48px!important;height:48
    at the top centre on every screen. */
 .tool-top{display:none!important}
 .shell .book-map-shell{display:none!important}
-.mode-switch{position:fixed;left:50%;top:44px;transform:rotate(var(--sw-rot,0deg));transform-origin:50% calc(-1 * var(--sw-thread,44px));color:var(--sw-ink,var(--ink));filter:var(--sw-filter,drop-shadow(0 8px 12px rgba(0,0,0,.14)))!important;z-index:2147483200;display:flex!important;align-items:center;gap:4px;min-width:0!important;width:auto!important;height:54px;padding:0 8px!important;opacity:0;filter:blur(8px);pointer-events:none;transition:opacity 1s cubic-bezier(.18,.78,.24,1),filter 1s cubic-bezier(.18,.78,.24,1)}
+.mode-switch{position:fixed;left:50%;top:44px;rotate:var(--sw-rot,0deg);transform-origin:50% calc(-1 * var(--sw-thread,44px));color:var(--sw-ink,var(--ink));filter:var(--sw-filter,drop-shadow(0 8px 12px rgba(0,0,0,.14)))!important;z-index:2147483200;display:flex!important;align-items:center;gap:4px;min-width:0!important;width:auto!important;height:54px;padding:0 8px!important;opacity:0;filter:blur(8px);pointer-events:none;transition:opacity 1s cubic-bezier(.18,.78,.24,1),filter 1s cubic-bezier(.18,.78,.24,1)}
 .shell.is-open ~ .mode-switch,.mode-switch.is-ready{opacity:1;filter:none;pointer-events:auto}
 .mode-switch>*{position:relative;z-index:1}
 .mode-switch.project-key::before{background:var(--sw-rim)!important;box-shadow:var(--sw-rim-shadow)!important}
@@ -9951,7 +9951,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const modal=document.getElementById('bookPreviewModal');
   const sw=document.createElement('div');sw.className='project-key mode-switch';sw.setAttribute('role','tablist');sw.setAttribute('aria-label','Экраны');
-  sw.innerHTML='<i class="str" style="left:18%"></i><i class="str" style="left:82%"></i><button type="button" data-mode="manuscript">Рукопись</button><button type="button" data-mode="write">Писать</button><button type="button" data-mode="book">Книга</button>';
+  sw.innerHTML='<i class="str" style="left:18%"></i><i class="str" style="left:82%"></i><button type="button" data-mode="write">Писать</button><button type="button" data-mode="manuscript">Рукопись</button><button type="button" data-mode="book">Книга</button>';
   shell.after(sw);
   const mode=()=>modal?.classList.contains('open')?'book':shell.classList.contains('is-manuscript')?'manuscript':'write';
   const sync=()=>{const m=mode();sw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
@@ -9981,10 +9981,9 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
     const w=sw.offsetWidth,acts=document.querySelector('.project-actions')?.getBoundingClientRect();
     const rightLimit=(acts&&acts.width?acts.left:innerWidth)-34;
     const title=document.querySelector('.project-top'),tw=title?Math.max(title.getBoundingClientRect().width,title.scrollWidth):0;
-    // To the left of the sheet, level with its top edge (below the row of
-    // hanging keys), on longer threads.
-    let x=lastPaper.left-28-w,y=Math.max(44,Math.round(lastPaper.top+4));
-    if(x<16){x=lastPaper.cx-w/2;y=44;}
+    // In the row of hanging keys, centred on the sheet's axis; the book's
+    // title hangs to the right of the sheet.
+    const x=lastPaper.cx-w/2,y=44;
     sw.style.left=Math.round(x)+'px';sw.style.top=y+'px';sw.style.setProperty('--sw-thread',y+'px');
     const tx=Math.min(rightLimit-tw,lastPaper.right+26);
     document.documentElement.style.setProperty('--title-left',Math.round(tx)+'px');
@@ -10127,7 +10126,9 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
   let state=null,groups=[],focus=0,els=[],isOpen=false,rowsTotal=1,groupRow0=[],groupRows=[],activeUid='',gap=null,closeTimer=0;
   addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_ACTIVE_STATE'&&d.payload?.pageUid)activeUid=d.payload.pageUid;
     if(d.type==='OCHERKI_STRUCTURE_STATE'){for(const sec of d.payload?.sections||[])for(const pg of sec.pages||[])if(pg.active)activeUid=pg.uid;}});
-  addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_STRUCTURE_STATE')return;state=d.payload;if(isOpen&&!drag)build();});
+  let holdUntil=0,holdTimer=0;
+  addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_STRUCTURE_STATE')return;state=d.payload;if(!isOpen||drag)return;
+    const wait=holdUntil-Date.now();clearTimeout(holdTimer);if(wait>0)holdTimer=setTimeout(()=>{if(isOpen&&!drag)build();},wait);else build();});
   // The book as groups: its beginning, each chapter, the appendices.
   function makeGroups(){
     const secs=(state?.sections||[]).filter(s=>s.included!==false);
@@ -10198,8 +10199,9 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
       return `<div class="ms-sec${on?' is-on':''}${locked?' is-locked':''}" data-sec="${esc(s.id)}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON(s.id)}</svg><b>${esc(s.title)}</b><small>${esc(ABOUT[s.id]||'')}</small>`
         +(locked?'<span class="ms-sec-lock">в любой книге</span>':on?'<span class="ms-sec-state">✓ в книге<button type="button" data-exclude="'+esc(s.id)+'">убрать</button></span>':'<button type="button" class="ms-sec-add" data-include="'+esc(s.id)+'">＋ Добавить</button>')+'</div>';};
     const before=secs.slice(0,Math.max(0,firstCh)).filter(s=>s.type!=='chapter'),after=secs.slice(lastCh+1).filter(s=>s.type!=='chapter');
-    secPanel.innerHTML=`<div class="ms-sec-head">Разделы книги<button type="button" class="ms-sec-close" aria-label="Закрыть">×</button></div><p class="ms-sec-note">Режиссёр уже поставил нужные разделы на свои места. Добавьте те, что хотите, или уберите лишние — книга сама соберётся в правильном порядке.</p>`
-      +`<div class="ms-sec-group">Начало книги</div><div class="ms-sec-grid">${before.map(row).join('')}</div><div class="ms-sec-group">В конце книги</div><div class="ms-sec-grid">${after.map(row).join('')}</div>`;}
+    secPanel.innerHTML=`<div class="ms-sec-head">Разделы книги<button type="button" class="ms-sec-close" aria-label="Закрыть">×</button></div><p class="ms-sec-note">Нажмите на раздел, который уже в книге, — он выйдет вперёд в рукописи. «＋ Добавить» и «убрать» — книга сама соберётся в правильном порядке.</p>`
+      +`<p class="ms-sec-always"><b>Есть в любой книге:</b> ${secs.filter(s=>LOCKED.has(s.id)).map(s=>esc(s.title)).join(', ')} — их режиссёр ставит сам.</p>`
+      +`<div class="ms-sec-group">Начало книги</div><div class="ms-sec-grid">${before.filter(s=>!LOCKED.has(s.id)).map(row).join('')}</div><div class="ms-sec-group">В конце книги</div><div class="ms-sec-grid">${after.filter(s=>!LOCKED.has(s.id)).map(row).join('')}</div>`;}
   const veil=scr.querySelector('.ms-sec-veil');
   const setSections=on=>{secPanel.hidden=!on;veil.hidden=!on;scr.classList.toggle('is-sections',on);};
   window.OCHERKI_MS_SECTIONS=()=>setSections(secPanel.hidden);
@@ -10209,7 +10211,9 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
     const inc=e.target.closest('[data-include]'),exc=e.target.closest('[data-exclude]');
     if(inc){send({action:'includeSection',sectionId:inc.dataset.include});return;}
     if(exc){send({action:'excludeSection',sectionId:exc.dataset.exclude});return;}
-    const sec=e.target.closest('.ms-sec.is-on');if(sec&&e.target.closest('button'))return;if(sec){const c=groups.findIndex(g=>g.sheets.some(x=>x.s.id===sec.dataset.sec));if(c>=0){const i=groups[c].sheets.findIndex(x=>x.s.id===sec.dataset.sec);setSections(false);goRow(groupRow0[c]+Math.floor(i/colsFor(innerWidth)));}}});
+    const sec=e.target.closest('.ms-sec.is-on');if(sec&&e.target.closest('button'))return;if(sec){const c=groups.findIndex(g=>g.sheets.some(x=>x.s.id===sec.dataset.sec));if(c>=0){const i=groups[c].sheets.findIndex(x=>x.s.id===sec.dataset.sec);setSections(false);goRow(groupRow0[c]+Math.floor(i/colsFor(innerWidth)));
+      const uid=groups[c].sheets[i].p.uid;world.querySelectorAll('.is-target').forEach(x=>x.classList.remove('is-target'));world.querySelector(`.ms-sheet[data-uid="${uid}"]`)?.classList.add('is-target');}}});
+  scr.addEventListener('pointerdown',e=>{if(!e.target.closest('.ms-sections,.ms-sec-veil'))setTimeout(()=>world.querySelectorAll('.is-target').forEach(x=>x.classList.remove('is-target')),1200);});
 
   // ——— Layout: the corridor. The row at the wheel's position is in front,
   // bright; the next two rows of the same chapter wait behind it, higher,
@@ -10228,7 +10232,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
       el.style.opacity=Math.max(0,op);el.style.filter=dd>.3?`blur(${Math.min(5,dd*1.7)}px)`:'none';el.style.pointerEvents=dd<2.5?'auto':'none';});
     let order=0;
     els.forEach(el=>{if(!el.classList.contains('ms-label'))return;const c=+el.dataset.c;
-      if(c===cg){el.classList.remove('is-far-title');el.style.transform='translate3d(-50%,-430px,0px)';el.style.opacity=1;el.style.filter='none';el.style.pointerEvents='none';return;}
+      if(c===cg){el.classList.remove('is-far-title');el.style.transform='translate3d(-50%,-372px,0px)';el.style.opacity=1;el.style.filter='none';el.style.pointerEvents='none';return;}
       if(c<cg){el.classList.remove('is-far-title');el.style.transform='translate3d(-50%,500px,400px)';el.style.opacity=0;el.style.pointerEvents='none';return;}
       order++;el.classList.add('is-far-title');
       const behind=groupRow0[cg]+groupRows[cg]-1-Math.round(focus),quiet=behind>0?.4:1;
@@ -10239,7 +10243,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
   // One turn of the wheel = one step. A mouse notch (and a touchpad swipe)
   // sends a burst of events; only the first one of a burst moves, a long
   // steady scroll moves on calmly one step at a time.
-  const wheelStep=(()=>{let quietTimer=0,used=false,last=0;return fn=>{const now=Date.now();clearTimeout(quietTimer);quietTimer=setTimeout(()=>{used=false;},200);if(used&&now-last<700)return;used=true;last=now;fn();};})();
+  const wheelStep=(()=>{let quietTimer=0,used=false;return fn=>{clearTimeout(quietTimer);quietTimer=setTimeout(()=>{used=false;},260);if(used)return;used=true;fn();};})();
   scr.addEventListener('wheel',e=>{if(e.target.closest('.ms-toc,.ms-bin-list,.ms-sections'))return;
     const dir=(e.deltaY+e.deltaX)>0?1:-1;wheelStep(()=>goRow(Math.round(focus)+dir));},{passive:true});
   addEventListener('keydown',e=>{if(!isOpen||secPanel.contains(document.activeElement))return;if(e.key==='ArrowDown'||e.key==='PageDown')goRow(focus+1);if(e.key==='ArrowUp'||e.key==='PageUp')goRow(focus-1);});
@@ -10247,7 +10251,10 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
   // ——— Press = open the sheet (a sheet of a chapter behind brings the whole
   // chapter forward first); drag = move it, to another chapter, or to the bin.
   let drag=null;
-  function startDrag(e,el,sh,g,c){if(e.button!==0)return;
+  // The browser's own picture-dragging would cancel the move of a sheet
+  // that has a photo on it.
+  scr.addEventListener('dragstart',e=>e.preventDefault());
+  function startDrag(e,el,sh,g,c){if(e.button!==0)return;e.preventDefault();
     if(+el.dataset.k!==Math.round(focus)){e.preventDefault();goRow(+el.dataset.k);return;}
     drag={el,sh,g,sx:e.clientX,sy:e.clientY,base:el.style.transform,moved:false};el.setPointerCapture?.(e.pointerId);}
   const overBin=(x,y)=>{const r=bin.getBoundingClientRect();return x>r.left-50&&x<r.right+40&&y>r.top-60&&y<r.bottom+20;};
@@ -10258,7 +10265,8 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
     // Where it would land: the sheets of the row part to make room.
     const wr=world.getBoundingClientRect(),gx=e.clientX-wr.left;const k=Math.round(focus);
     const nextGap=(!over&&!bin.classList.contains('is-over')&&+drag.el.dataset.c===currentGroup())?{c:+drag.el.dataset.c,k,x:gx}:null;
-    if(JSON.stringify(nextGap&&{c:nextGap.c,k:nextGap.k,s:Math.round(nextGap.x/40)})!==JSON.stringify(gap&&{c:gap.c,k:gap.k,s:Math.round(gap.x/40)})){gap=nextGap;layout();}else gap=nextGap;});
+    if(JSON.stringify(nextGap&&{c:nextGap.c,k:nextGap.k,s:Math.round(nextGap.x/40)})!==JSON.stringify(gap&&{c:gap.c,k:gap.k,s:Math.round(gap.x/40)})){gap=nextGap;layout();}else gap=nextGap;},true);
+  // Heard first (capture): other parts of the page stop this event on its way.
   addEventListener('pointerup',e=>{if(!drag)return;const {el,sh,g,moved}=drag;drag=null;el.classList.remove('is-dragging');toc.querySelectorAll('button').forEach(b=>b.classList.remove('drop'));
     const toBin=bin.classList.contains('is-over');scr.classList.remove('is-sheet-dragging');bin.classList.remove('is-over');if(!moved||toBin)gap=null;
     if(!moved){openSheet(el,sh);return;}
@@ -10268,23 +10276,39 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
     const target=document.elementsFromPoint(e.clientX,e.clientY).map(n=>n.closest&&n.closest('.ms-toc button[data-c],.ms-label.is-far-title')).find(Boolean);
     if(target){const tg=groups[+target.dataset.c];if(tg&&tg.chapter&&g.chapter&&tg.chapter.id!==g.chapter.id){send({action:'movePage',sectionId:sh.s.id,pageUid:sh.p.uid,toSectionId:tg.chapter.id});return;}layout();return;}
     if(!g.chapter){gap=null;layout();return;}
-    if(gap){const row=[...world.querySelectorAll(`.ms-sheet[data-c="${el.dataset.c}"][data-k="${gap.k}"]:not(.is-new)`)].filter(x=>x!==el);
-      const before=row.filter(x=>+x.dataset.x0<gap.x).length,rowStart=(gap.k-groupRow0[+el.dataset.c])*colsFor(innerWidth);
-      const order=g.sheets.map(x=>x.p.uid),ids=order.filter(id=>id!==sh.p.uid);let at=rowStart+before;ids.splice(Math.min(ids.length,at),0,sh.p.uid);
-      // land: glide into the gap, then the book takes the new order
-      const gx=gap.x;gap=null;el.style.transition='transform .45s cubic-bezier(.2,.8,.3,1)';el.style.transform=`translate3d(${gx}px,60px,0px)`;layout();
-      setTimeout(()=>{el.style.transition='';if(ids.join()!==order.join())send({action:'reorderPages',sectionId:sh.s.id,ids});else layout();},430);return;}
+    if(gap){const c=+el.dataset.c,row=[...world.querySelectorAll(`.ms-sheet[data-c="${c}"][data-k="${gap.k}"]:not(.is-new)`)].filter(x=>x!==el);
+      const before=row.filter(x=>+x.dataset.x0<gap.x).length,cols=colsFor(innerWidth),rowStart=(gap.k-groupRow0[c])*cols;
+      const order=g.sheets.map(x=>x.p.uid),ids=order.filter(id=>id!==sh.p.uid);ids.splice(Math.min(ids.length,rowStart+before),0,sh.p.uid);
+      gap=null;
+      if(ids.join()===order.join()){layout();return;}
+      // The new order at once: every sheet glides to its new place, the one
+      // carried lands in the gap; the book takes the order meanwhile.
+      const byUid=new Map([...world.querySelectorAll(`.ms-sheet[data-c="${c}"]`)].filter(x=>x.dataset.uid).map(x=>[x.dataset.uid,x]));
+      const total=ids.length+(g.chapter?1:0),rows=Math.max(1,Math.ceil(total/cols)),k0=groupRow0[c];
+      const setPos=(x,i)=>{x.dataset.i=i;x.dataset.k=k0+Math.floor(i/cols);x.dataset.col=i%cols;x.dataset.inrow=Math.floor(i/cols)<rows-1?cols:total-cols*(rows-1);};
+      ids.forEach((uid,i)=>{const x=byUid.get(uid);if(x)setPos(x,i);});
+      const ghost=world.querySelector(`.ms-sheet.is-new[data-c="${c}"]`);if(ghost)setPos(ghost,ids.length);
+      g.sheets=ids.map(uid=>g.sheets.find(x=>x.p.uid===uid)).filter(Boolean);
+      holdUntil=Date.now()+900;layout();
+      send({action:'reorderPages',sectionId:sh.s.id,ids});return;}
     const others=[...world.querySelectorAll(`.ms-sheet[data-c="${el.dataset.c}"]:not(.is-new)`)].filter(x=>x!==el&&x.style.pointerEvents!=='none');
     // the new place: the sheet nearest to where it was dropped
     const order=g.sheets.map(x=>x.p.uid);let best=-1,bd=1e9;others.forEach((x,k)=>{const r=x.getBoundingClientRect(),dd=Math.hypot(r.left+r.width/2-e.clientX,r.top+r.height/2-e.clientY);if(dd<bd){bd=dd;best=k;}});
     let to=0;if(best>=0){const near=others[best],r=near.getBoundingClientRect(),nearUid=g.sheets[+near.dataset.i]?.p.uid;const ids0=order.filter(id=>id!==sh.p.uid);to=ids0.indexOf(nearUid)+(e.clientX>r.left+r.width/2?1:0);}
     const ids=order.filter(id=>id!==sh.p.uid);ids.splice(Math.max(0,to),0,sh.p.uid);
-    if(ids.join()!==g.sheets.map(x=>x.p.uid).join())send({action:'reorderPages',sectionId:sh.s.id,ids});else layout();});
+    if(ids.join()!==g.sheets.map(x=>x.p.uid).join())send({action:'reorderPages',sectionId:sh.s.id,ids});else layout();},true);
+  // A paper that flies between a sheet of the manuscript and the editor.
+  function flyer(fromRect,toRect,html,done){
+    const f=document.createElement('div');f.className='ms-flyer';f.innerHTML=html||'<div class="ms-paper"></div>';
+    const paper=f.firstElementChild;const fit=r=>{f.style.left=r.left+'px';f.style.top=r.top+'px';f.style.width=r.width+'px';f.style.height=r.height+'px';if(paper){paper.style.transform=`scale(${r.width/250},${r.height/354})`;paper.style.width='250px';paper.style.height='354px';paper.style.transition='transform .7s cubic-bezier(.3,.7,.2,1)';}};
+    fit(fromRect);document.body.appendChild(f);void f.offsetWidth;requestAnimationFrame(()=>{fit(toRect);});
+    setTimeout(()=>{done?.(f);},720);return f;}
+  const editorRect=()=>{const r=document.querySelector('.editor-paper')?.getBoundingClientRect();return r&&r.width>100?r:{left:innerWidth/2-300,top:110,width:600,height:840};};
   function openSheet(el,sh){
-    send({action:'select',sectionId:sh.s.id,pageUid:sh.p.uid});
-    el.classList.add('is-picked');scr.classList.add('is-opening');
-    el.style.transition='transform .75s cubic-bezier(.3,.7,.2,1),opacity .6s ease .35s';el.style.transform='translate3d(0px,20px,520px) rotateY(0deg) scale(1.15)';
-    setTimeout(()=>{window.OCHERKI_SET_MODE?.('write');},620);}
+    send({action:'select',sectionId:sh.s.id,pageUid:sh.p.uid});activeUid=sh.p.uid;
+    const from=el.querySelector('.ms-paper').getBoundingClientRect();
+    el.classList.add('is-picked');scr.classList.add('is-opening');el.style.opacity=0;
+    flyer(from,editorRect(),el.querySelector('.ms-paper').outerHTML,f=>{window.OCHERKI_SET_MODE?.('write');f.style.opacity=0;setTimeout(()=>f.remove(),400);});}
   // ——— Arriving: the sheet that was open in «Писать» starts large in front
   // and flies back to its place; the others come out of the depth.
   function open(){if(isOpen)return;isOpen=true;clearTimeout(closeTimer);scr.classList.remove('is-opening');world.querySelectorAll('.ms-sheet.is-picked').forEach(el=>el.classList.remove('is-picked'));
@@ -10293,12 +10317,15 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
     try{localStorage.setItem('ocherki_ms_seen','1');}catch(e){}
     try{frame()?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'requestState'},'*');}catch(e){}
     build();const active=(activeUid&&world.querySelector(`.ms-sheet[data-uid="${activeUid}"]`))||world.querySelector('.ms-sheet.is-active');if(active)focus=+active.dataset.k;
+    let landing=null;
+    if(active){active.style.transition='none';layout();active.style.transition='none';const to=active.querySelector('.ms-paper').getBoundingClientRect();
+      landing=()=>{active.style.opacity='0';flyer(editorRect(),to,active.querySelector('.ms-paper').outerHTML,f=>{active.style.transition='';active.style.opacity='1';f.style.opacity=0;setTimeout(()=>f.remove(),350);});};}
     world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>{el.style.transition='none';
-      if(el===active){el.style.opacity='1';el.style.transform='translate3d(0px,20px,520px) scale(1.15)';return;}
+      if(el===active)return;
       el.style.opacity='0';el.style.transform=(el.classList.contains('ms-label')?'translate3d(-50%,-420px,-1600px)':'translate3d(0px,0px,-1800px)');});
     void world.offsetWidth;
     world.querySelectorAll('.ms-sheet,.ms-label').forEach((el,k)=>{el.style.transition='';el.style.transitionDelay=el===active?'0ms':(120+Math.min(k,14)*45)+'ms';});
-    shell.classList.add('is-manuscript');requestAnimationFrame(()=>{scr.classList.add('on');layout();setTimeout(()=>world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>el.style.transitionDelay=''),1700);});}
+    shell.classList.add('is-manuscript');landing?.();requestAnimationFrame(()=>{scr.classList.add('on');layout();if(active)active.style.opacity='0';setTimeout(()=>world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>el.style.transitionDelay=''),1700);});}
   function close(){if(!isOpen)return;isOpen=false;scr.classList.remove('on','is-sections');secPanel.hidden=true;shell.classList.remove('is-manuscript');bin.querySelector('.ms-bin-list').hidden=true;closeTimer=setTimeout(()=>{scr.classList.remove('is-opening');world.querySelectorAll('.ms-sheet').forEach(el=>{el.classList.remove('is-picked');el.style.transition='';});},800);}
   window.OCHERKI_MANUSCRIPT={open,close,isOpen:()=>isOpen,
     sheetOf:el=>{const g=groups[+el?.dataset.c],sh=g?.sheets?.[+el?.dataset.i];if(!sh)return null;
@@ -10415,12 +10442,21 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
   const send=cmd=>{try{frame()?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',...cmd},'*');}catch(e){}};
   const tray=document.createElement('div');tray.className='ms-tray';
   tray.innerHTML='<div class="ms-tray-note" hidden></div><div class="ms-prints"></div><button type="button" class="ms-add-photos">＋ Фото</button><button type="button" class="ms-add-photos ms-sections-open">Разделы книги</button><input type="file" accept="image/*" multiple hidden>'
-    +'<div class="ms-photo-card" hidden><img alt=""><label>Кто на фото<input data-f="who" placeholder="Например: бабушка Мария с внуком"></label><label>Когда и где<input data-f="when" placeholder="Например: лето 1958, станица"></label><label>Что здесь происходит<textarea data-f="story" rows="2" placeholder="Одна-две фразы"></textarea></label><div class="ms-pc-row"><span>Потом перетащите фото на нужный лист</span><button type="button">Готово</button></div></div>';
+    +'<div class="ms-photo-card" hidden><div class="ms-pc-head"><span>ФОТОГРАФИЯ</span><button type="button" data-pc="close" aria-label="Закрыть">×</button></div><div class="ms-pc-top"><img alt=""></div><div class="ms-pc-fields">'
+    +'<div class="ms-pc-field wide"><label>КТО НА ФОТО</label><input data-f="people" placeholder="Имена"><div class="ms-pc-hint">Имена пригодятся для подписи портрета.</div></div>'
+    +'<div class="ms-pc-field"><label>ГОД</label><input data-f="year" placeholder="1987"><div class="ms-pc-hint">Фото с годом может попасть в «Хронологию».</div></div>'
+    +'<div class="ms-pc-field"><label>МЕСТО</label><input data-f="place" placeholder="Город, деревня…"><div class="ms-pc-hint">Город — и фото может появиться на карте.</div></div>'
+    +'<div class="ms-pc-field wide"><label>ИСТОРИЯ ФОТОГРАФИИ</label><textarea data-f="story" placeholder="Почему этот снимок важен..."></textarea></div>'
+    +'<div class="ms-pc-field wide"><label>ПОДПИСЬ</label><input data-f="caption" placeholder="Например: Лето у бабушки"><div class="ms-pc-hint">Печатается мелко под фото: коротко — кто, где, когда.</div></div>'
+    +'<div class="ms-pc-field wide"><label class="ms-pc-hero"><input type="checkbox" data-f="portraitHero"> ПОРТРЕТ ГЕРОЯ КНИГИ</label><div class="ms-pc-hint">Книга выделит этот портрет отдельным разворотом.</div></div>'
+    +'</div><div class="ms-pc-actions"><button type="button" data-pc="close">Отмена</button><button type="button" data-pc="done">Готово</button></div><div class="ms-pc-note">Потом перетащите фото на нужный лист.</div></div>';
   tray.querySelector('.ms-sections-open').addEventListener('click',e=>{e.stopPropagation();window.OCHERKI_MS_SECTIONS?.();});
-  const pcard=tray.querySelector('.ms-photo-card');let pcItem=null;
-  const openCard=p=>{pcItem=p;pcard.querySelector('img').src=p.src;pcard.querySelectorAll('[data-f]').forEach(f=>f.value=p[f.dataset.f]||'');pcard.hidden=false;pcard.querySelector('[data-f="who"]').focus();};
-  pcard.addEventListener('input',e=>{const f=e.target.closest('[data-f]');if(f&&pcItem){pcItem[f.dataset.f]=f.value;save();}});
-  pcard.querySelector('.ms-pc-row button').addEventListener('click',()=>{pcard.hidden=true;pcItem=null;});
+  const pcard=tray.querySelector('.ms-photo-card');scr.appendChild(pcard);let pcItem=null;
+  const openCard=p=>{pcItem=p;pcard.querySelector('img').src=p.src;pcard.querySelectorAll('[data-f]').forEach(f=>{if(f.type==='checkbox')f.checked=!!p[f.dataset.f];else f.value=p[f.dataset.f]||'';});pcard.hidden=false;scr.classList.add('is-photo-card');setTimeout(()=>pcard.querySelector('[data-f="people"]').focus(),60);};
+  const closeCard=()=>{pcard.hidden=true;pcItem=null;scr.classList.remove('is-photo-card');};
+  pcard.addEventListener('input',e=>{const f=e.target.closest('[data-f]');if(f&&pcItem){pcItem[f.dataset.f]=f.type==='checkbox'?f.checked:f.value;save();}});
+  pcard.addEventListener('click',e=>{const b=e.target.closest('[data-pc]');if(b){e.stopPropagation();closeCard();}});
+  scr.addEventListener('pointerdown',e=>{if(!pcard.hidden&&!pcard.contains(e.target))closeCard();});
   scr.appendChild(tray);
   const toast=document.createElement('div');toast.className='ms-toast';scr.appendChild(toast);
   const say=t=>{toast.textContent=t;toast.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('on'),2200);};
@@ -10437,7 +10473,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
   const sheetRef=el=>window.OCHERKI_MANUSCRIPT?.sheetOf?.(el);
   function place(el,photos){const ref=sheetRef(el);if(!ref)return false;
     if(!['chapter','recipes'].includes(ref.s.type)&&ref.p.type!=='document'){say('На этот лист фото не кладутся — выберите лист главы');return false;}
-    send({action:'addPhotos',sectionId:ref.s.id,pageUid:ref.p.uid,photos:photos.map(p=>({src:p.src,width:p.width,height:p.height,people:p.who||'',caption:p.who||'',place:p.when||'',story:p.story||''}))});
+    send({action:'addPhotos',sectionId:ref.s.id,pageUid:ref.p.uid,photos:photos.map(p=>({src:p.src,width:p.width,height:p.height,people:p.people||'',caption:p.caption||'',year:p.year||'',place:p.place||'',story:p.story||'',portraitHero:!!p.portraitHero}))});
     el.classList.remove('is-photo-landed');void el.offsetWidth;el.classList.add('is-photo-landed');
     say(photos.length>1?`Фото легли на лист «${ref.title}»`:`Фото легло на лист «${ref.title}»`);return true;}
   input.addEventListener('change',()=>{readFiles(input.files).then(list=>{stack.push(...list);save();draw();if(list.length)say('Фото в стопке — перетащите каждое на свой лист');});input.value='';});
@@ -10454,7 +10490,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
   let carrying=null;
   function carry(e,el,p){if(e.button!==0)return;e.preventDefault();const r=el.getBoundingClientRect();carrying={el,p,dx:e.clientX-r.left,dy:e.clientY-r.top,sx:e.clientX,sy:e.clientY,lifted:false,r};}
   addEventListener('pointermove',e=>{if(!carrying)return;
-    if(!carrying.lifted){if(Math.hypot(e.clientX-carrying.sx,e.clientY-carrying.sy)<6)return;carrying.lifted=true;const {el,r}=carrying;pcard.hidden=true;el.classList.add('is-dragging');el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.width=r.width+'px';document.body.appendChild(el);}
+    if(!carrying.lifted){if(Math.hypot(e.clientX-carrying.sx,e.clientY-carrying.sy)<6)return;carrying.lifted=true;const {el,r}=carrying;closeCard();el.classList.add('is-dragging');el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.width=r.width+'px';document.body.appendChild(el);}
     carrying.el.style.left=(e.clientX-carrying.dx)+'px';carrying.el.style.top=(e.clientY-carrying.dy)+'px';
     scr.querySelectorAll('.is-photo-target').forEach(x=>x.classList.remove('is-photo-target'));sheetAt(e.clientX,e.clientY)?.classList.add('is-photo-target');});
   addEventListener('pointerup',e=>{if(!carrying)return;const {el,p,lifted}=carrying;carrying=null;if(!lifted){openCard(p);return;}el.remove();
@@ -10514,3 +10550,61 @@ html body .shell .writing-prompt,html body .shell .writing-prompt.is-visible,htm
   new MutationObserver(sync).observe(shell,{attributes:true,attributeFilter:['class']});sync();
 })();
 </script>
+<style id="switch-v85">
+html body .mode-switch.project-key,html body .mode-switch.project-key:hover{color:var(--sw-ink,#3a2a1c)!important}
+html body .mode-switch button{transition:color .3s,text-shadow .3s!important;background:none!important;box-shadow:none!important;border-radius:12px}
+html body .mode-switch button:hover{color:#a8692f!important;opacity:1}
+html body .mode-switch.is-night button:hover{color:#f0c68a!important}
+html body .mode-switch button.on{opacity:1;box-shadow:inset 0 2px 4px rgba(40,24,10,.32),inset 0 0 0 1px rgba(73,52,35,.28),0 1px 0 rgba(255,246,228,.35)!important;background:rgba(120,85,50,.08)!important}
+html body .mode-switch.is-night button.on{box-shadow:inset 0 2px 5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(0,0,0,.5),0 1px 0 rgba(255,235,205,.08)!important;background:rgba(0,0,0,.18)!important}
+</style>
+<style id="title-two-threads">
+html body .shell .project-top .project-hanger::before{display:none!important}
+.title-thread{position:absolute;top:-58px;width:1px;height:58px;background:linear-gradient(to bottom,rgba(87,65,47,.64),rgba(111,82,55,.28));pointer-events:none;z-index:0}
+.shell.is-night .title-thread{background:linear-gradient(to bottom,rgba(245,225,198,.40),rgba(245,225,198,.16))}
+</style>
+<script id="title-two-threads-js">
+(()=>{const h=document.querySelector('.project-top .project-hanger'),k=document.getElementById('projectBtn');if(!h||!k)return;
+  const a=document.createElement('i'),b=document.createElement('i');a.className=b.className='title-thread';h.prepend(a,b);
+  const place=()=>{const w=k.offsetWidth;a.style.left=Math.round(w*.2)+'px';b.style.left=Math.round(w*.8)+'px';};place();setTimeout(place,1500);addEventListener('resize',place);})();
+</script>
+<style id="arc-leaves-at-once">
+#bookPreviewModal.is-closing .preview-arc,#bookPreviewModal:not(.open) .preview-arc{opacity:0!important;transition:none!important}
+.shell:not(.is-book-preview) ~ #bookPreviewModal .preview-arc{opacity:0!important;transition:none!important}
+</style>
+<style id="ms-v85">
+.ms-undo{left:auto!important;right:24px!important;bottom:150px!important;transform:translateY(12px)!important}
+.ms-undo.on{transform:none!important}
+/* prints lie still: no scrollbar appearing under a lifted print */
+.ms-prints{overflow:visible!important}
+.ms-print{margin:0 -14px!important}
+.ms-print:hover{transform:rotate(0) translateY(-10px) scale(1.06)!important}
+/* the section just chosen in «Разделы книги» glows in front */
+.ms-sheet.is-target .ms-paper{box-shadow:0 0 0 3px #e2b06a,0 0 34px rgba(226,176,106,.75),0 30px 50px rgba(40,22,8,.32)!important}
+.ms-sec-always{margin:0 0 16px;font:italic 13.5px/1.5 Georgia,serif;color:#8a7058}
+.ms-sec-always b{font-style:normal;font-weight:600;color:#6b4a2e}
+/* the flyer: a sheet travelling between the editor and the manuscript */
+.ms-flyer{position:fixed;z-index:2147483150;pointer-events:none;border-radius:2px;background:linear-gradient(160deg,#fffaf1 0,#f6ecdc 55%,#eddcc2 100%);box-shadow:0 30px 60px rgba(40,22,8,.35);overflow:hidden;transition:left .7s cubic-bezier(.3,.7,.2,1),top .7s cubic-bezier(.3,.7,.2,1),width .7s cubic-bezier(.3,.7,.2,1),height .7s cubic-bezier(.3,.7,.2,1),opacity .35s ease}
+.ms-flyer .ms-paper{position:absolute;inset:0;transform-origin:0 0}
+/* photo card: like the editor's, in the middle, everything else hazy */
+.ms-photo-card{position:fixed!important;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:332px!important;padding:18px 18px 16px!important;border-radius:30px!important;background:linear-gradient(180deg,#f8eddb,#efe0c9)!important;border:1px solid rgba(100,68,42,.18);box-shadow:0 26px 68px rgba(28,17,10,.30)!important;color:#4b3527;font-family:Georgia,serif;z-index:40!important;max-height:calc(100vh - 60px);overflow:auto}
+.ms-screen.is-photo-card .ms-space,.ms-screen.is-photo-card .ms-toc,.ms-screen.is-photo-card .ms-prints,.ms-screen.is-photo-card .ms-hint,.ms-screen.is-photo-card .ms-bin{filter:blur(6px);opacity:.55;transition:filter .4s,opacity .4s}
+.ms-pc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font:600 9px/1 Arial,sans-serif;letter-spacing:.15em;color:rgba(93,62,39,.58)}
+.ms-pc-head button{border:0;background:none;color:#825a39;font-size:24px;line-height:1;cursor:pointer}
+.ms-photo-card .ms-pc-top{height:182px;border-radius:18px;overflow:hidden;background:rgba(98,74,51,.06)}
+.ms-photo-card .ms-pc-top img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
+.ms-pc-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:14px}
+.ms-pc-field{display:flex;flex-direction:column;gap:5px;min-width:0}.ms-pc-field.wide{grid-column:1/-1}
+.ms-pc-field>label,.ms-pc-hero{font:600 9px/1 Arial,sans-serif!important;letter-spacing:.13em;color:rgba(93,62,39,.58)!important;margin:0!important}
+.ms-pc-field input,.ms-pc-field textarea,.ms-pc-field select{width:100%;border:0!important;border-bottom:1px solid rgba(112,77,48,.18)!important;border-radius:0!important;background:transparent!important;padding:4px 0 7px!important;font:15px Georgia,serif!important;color:#4c3628!important;outline:none;resize:none;margin:0!important}
+.ms-pc-field textarea{min-height:44px}
+.ms-pc-hint{font:italic 11.5px/1.35 Georgia,serif;color:rgba(93,62,39,.6)}
+.ms-pc-hero{display:flex;align-items:center;gap:8px;cursor:pointer}
+.ms-pc-actions{display:flex;justify-content:flex-end;gap:18px;margin-top:18px}
+.ms-pc-actions button{border:0;background:none;color:#765036;font:600 11px Arial,sans-serif;cursor:pointer;padding:0}
+.ms-pc-actions button:hover{color:#a0642d}
+.ms-pc-note{margin-top:12px;font:italic 12px Georgia,serif;color:#8a7058}
+</style>
+<style id="ms-no-native-drag">
+.ms-screen img{-webkit-user-drag:none;user-drag:none;user-select:none}
+</style>
