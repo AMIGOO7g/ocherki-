@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Макет: развороты каруселью</title>
+<style>
+:root{--ink:#3a2a1c;--ink2:rgba(58,42,28,.62);--gold:#b8894f}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:Georgia,serif;color:var(--ink);background:radial-gradient(ellipse 70% 75% at 50% 45%,#f6e6c9 0,#e2c398 42%,#a77d52 78%,#4a3423 100%)}
+.top{position:absolute;left:0;right:0;top:34px;text-align:center}
+.top .chapter{font:italic 24px Georgia,serif}
+.top .count{margin-top:6px;font:13px Georgia,serif;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2)}
+.stage{position:absolute;inset:0;perspective:2200px}
+.card{position:absolute;left:50%;top:50%;width:min(54vw,1020px);aspect-ratio:2/1;margin:0;cursor:pointer;
+  transition:transform .75s cubic-bezier(.2,.8,.25,1),opacity .75s ease,filter .75s ease;will-change:transform}
+.card img{display:block;width:100%;height:100%;object-fit:cover;background:#fff;box-shadow:0 26px 60px rgba(50,30,12,.38),0 4px 10px rgba(50,30,12,.2)}
+.card::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:40px;transform:translateX(-50%);pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.07) 45%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.07) 55%,rgba(0,0,0,0))}
+.card .lbl{position:absolute;left:0;right:0;top:calc(100% + 18px);text-align:center;font:italic 17px Georgia,serif;color:var(--ink);opacity:0;transition:opacity .5s ease .2s}
+.card .lbl small{display:block;margin-top:4px;font:12px Georgia,serif;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+.card.is-center .lbl{opacity:1}
+.card.is-center{cursor:zoom-in}
+.nav{position:absolute;bottom:26px;width:54px;height:54px;border-radius:50%;border:0;cursor:pointer;
+  background:radial-gradient(circle at 38% 30%,#fffaf0,#efe0c4 58%,#d6bd96);box-shadow:0 4px 10px rgba(60,40,20,.35),inset 0 1px 0 #fff;font:26px/54px Georgia,serif;color:#5a3f2a;z-index:50}
+.nav.prev{left:calc(50% - 190px)}.nav.next{left:calc(50% + 136px)}
+.ticks{position:absolute;left:50%;bottom:49px;transform:translateX(-50%);display:flex;gap:10px;align-items:center}
+.ticks i{width:7px;height:7px;border-radius:50%;background:rgba(58,42,28,.25);cursor:pointer;transition:all .4s}
+.ticks i.on{width:26px;border-radius:4px;background:var(--gold)}
+.hint{position:absolute;right:28px;bottom:26px;max-width:330px;font:italic 14px/1.45 Georgia,serif;color:var(--ink2);text-align:right}
+.toast{position:absolute;left:50%;top:110px;transform:translateX(-50%);font:italic 18px Georgia,serif;opacity:0;transition:opacity .4s}
+.toast.on{opacity:1}
+.close{position:absolute;right:28px;top:26px;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 38% 30%,#fffaf0,#efe0c4 58%,#d6bd96);box-shadow:0 3px 8px rgba(60,40,20,.3);font:20px/44px Georgia,serif;color:#5a3f2a}
+</style>
+</head>
+<body>
+<div class="top"><div class="chapter" id="chapter">Глава 1. Начало</div><div class="count" id="count">Разворот 1 из 7</div></div>
+<button class="close" title="Вернуться к книге">✕</button>
+<div class="toast" id="toast"></div>
+<div class="stage" id="stage"></div>
+<button class="nav prev" id="prev" aria-label="Назад">‹</button>
+<button class="nav next" id="next" aria-label="Вперёд">›</button>
+<div class="ticks" id="ticks"></div>
+<div class="hint">Листайте стрелками, колёсиком или перетаскиванием. Нажмите на разворот сбоку — он выедет в центр. Нажмите на центральный — откроется в книге. Двойное нажатие — перейти к этому месту в редакторе.</div>
+<script>
+const spreads=[
+  ['Открытие главы','страницы 2–3'],['Фото с деталью','страницы 4–5'],['Портрет героя','страницы 6–7'],
+  ['Текст','страницы 8–9'],['Заголовок, текст и фото снизу','страницы 10–11'],['Фото и пауза — конец главы','страницы 12–13'],['Заметки','страницы 14–15']];
+const stage=document.getElementById('stage'),ticks=document.getElementById('ticks');let at=2;
+const cards=spreads.map(([name,pages],i)=>{const c=document.createElement('figure');c.className='card';c.innerHTML=`<img src="carousel/s_${i}.jpg" alt=""><div class="lbl">${name}<small>${pages}</small></div>`;
+  c.onclick=()=>{if(i===at)say('Открываю разворот в книге…');else go(i);};c.ondblclick=()=>say('Перехожу к этому месту в редакторе…');stage.appendChild(c);
+  const t=document.createElement('i');t.onclick=()=>go(i);ticks.appendChild(t);return c;});
+function layout(){cards.forEach((c,i)=>{const d=i-at,a=Math.abs(d);
+  const x=d===0?0:Math.sign(d)*(37+(a-1)*12);const s=d===0?1:a===1?.44:.3;const ry=d===0?0:-Math.sign(d)*18;
+  c.style.transform=`translate(-50%,-50%) translateX(${x}vw) rotateY(${ry}deg) scale(${s})`;
+  c.style.opacity=a>2?0:d===0?1:a===1?.55:.25;c.style.filter=d===0?'none':`blur(${a===1?.6:1.4}px) saturate(.75)`;
+  c.style.zIndex=10-a;c.style.pointerEvents=a>2?'none':'auto';c.classList.toggle('is-center',d===0);});
+  [...ticks.children].forEach((t,i)=>t.classList.toggle('on',i===at));
+  document.getElementById('count').textContent=`Разворот ${at+1} из ${spreads.length}`;}
+function go(i){at=Math.max(0,Math.min(spreads.length-1,i));layout();}
+function say(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>el.classList.remove('on'),1600);}
+document.getElementById('prev').onclick=()=>go(at-1);document.getElementById('next').onclick=()=>go(at+1);
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')go(at-1);if(e.key==='ArrowRight')go(at+1);});
+let wheelLock=0;addEventListener('wheel',e=>{if(Date.now()<wheelLock)return;wheelLock=Date.now()+450;go(at+(e.deltaY+e.deltaX>0?1:-1));},{passive:true});
+let sx=null;addEventListener('pointerdown',e=>sx=e.clientX);addEventListener('pointerup',e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60)go(at+(dx<0?1:-1));});
+layout();
+</script>
+</body>
+</html>
