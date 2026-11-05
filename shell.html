@@ -10015,7 +10015,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 <script id="manuscript-screen-script">
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const scr=document.createElement('div');scr.className='ms-screen';scr.setAttribute('aria-label','Рукопись');
-  scr.innerHTML='<div class="ms-dust"></div><div class="ms-space"><div class="ms-world"></div></div><nav class="ms-toc"></nav><div class="ms-hint">Колёсико — лететь от главы к главе. Нажмите на лист — он откроется для письма. Перетащите лист: внутри главы — поменять порядок, на название главы справа — перенести туда.</div>';
+  scr.innerHTML='<div class="ms-dust"></div><div class="ms-space"><div class="ms-world"></div></div><nav class="ms-toc"></nav><div class="ms-hint">Колёсико — от главы к главе. Нажмите на лист — откроется для письма. Перетащите лист, чтобы поменять порядок или перенести в другую главу (на её название справа). Фото с компьютера просто бросьте сюда.</div>';
   document.body.appendChild(scr);
   const world=scr.querySelector('.ms-world'),toc=scr.querySelector('.ms-toc');
   const dust=scr.querySelector('.ms-dust');for(let i=0;i<44;i++){const d=document.createElement('i');const s=1+Math.random()*3;Object.assign(d.style,{left:Math.random()*100+'%',top:Math.random()*100+'%',width:s+'px',height:s+'px',opacity:(.2+Math.random()*.6).toFixed(2),animationDuration:(14+Math.random()*20)+'s',animationDelay:(-Math.random()*20)+'s'});dust.appendChild(d);}
@@ -10098,7 +10098,9 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
     build();const g=groups.findIndex(x=>x.sheets.some(s=>s.p.active));if(g>=0)focus=g;layout();
     shell.classList.add('is-manuscript');requestAnimationFrame(()=>scr.classList.add('on'));}
   function close(){if(!isOpen)return;isOpen=false;scr.classList.remove('on','is-opening');shell.classList.remove('is-manuscript');}
-  window.OCHERKI_MANUSCRIPT={open,close,isOpen:()=>isOpen};
+  window.OCHERKI_MANUSCRIPT={open,close,isOpen:()=>isOpen,
+    sheetOf:el=>{const g=groups[+el?.dataset.c],sh=g?.sheets?.[+el?.dataset.i];if(!sh)return null;
+      const title=String(sh.p.episode&&sh.s.type==='chapter'?String(sh.p.episode).replace(/^Эпизод\s+\d+[.:]?\s*/i,''):(sh.p.title||sh.s.title||'')).trim();return {s:sh.s,p:sh.p,title};}};
   addEventListener('resize',()=>{if(isOpen)layout();});
 })();
 </script>
@@ -10116,3 +10118,67 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 <style id="book-screen-panel-arc">
 .shell:has(.bd-section.is-rail-open) ~ #bookPreviewModal .preview-arc{opacity:.12!important;transition:opacity .5s ease}
 </style>
+<style id="manuscript-photos-style">
+/* Photos in «Рукопись»: dropped from the computer (or chosen with «＋ Фото»)
+   they lie at the bottom as a small stack of prints; each print is carried
+   onto the sheet it belongs to. */
+.ms-tray{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:16px;z-index:5;max-width:min(980px,calc(100vw - 520px))}
+.ms-prints{display:flex;align-items:flex-end;gap:0;padding:0 10px;overflow-x:auto;overflow-y:visible;max-width:100%;scrollbar-width:none}
+.ms-print{flex:0 0 auto;width:92px;margin:0 -8px;padding:6px 6px 16px;background:#fbf5ea;box-shadow:0 10px 22px rgba(40,22,8,.35);cursor:grab;transform:rotate(var(--r,0deg));transition:transform .35s cubic-bezier(.2,.8,.3,1),box-shadow .35s;animation:msPrintIn .6s cubic-bezier(.2,.8,.3,1) both;touch-action:none}
+.ms-print:hover{transform:rotate(0) translateY(-14px) scale(1.08);z-index:2;box-shadow:0 18px 30px rgba(40,22,8,.4)}
+.ms-print img{display:block;width:100%;height:76px;object-fit:cover;pointer-events:none}
+.ms-print.is-dragging{position:fixed;z-index:2147483100;margin:0;transition:none;cursor:grabbing;pointer-events:none;animation:none;box-shadow:0 30px 50px rgba(40,22,8,.45)}
+@keyframes msPrintIn{from{opacity:0;transform:translateY(40px) rotate(var(--r,0deg))}to{opacity:1;transform:rotate(var(--r,0deg))}}
+.ms-add-photos{flex:0 0 auto;appearance:none;border:1.5px dashed rgba(255,244,226,.75);background:rgba(255,248,235,.12);color:#f6ead8;border-radius:10px;padding:14px 16px;cursor:pointer;font:italic 16px Georgia,serif;white-space:nowrap;transition:background .3s}
+.ms-add-photos:hover{background:rgba(255,248,235,.24)}
+.ms-tray-note{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);white-space:nowrap;font:italic 14px Georgia,serif;color:rgba(255,246,232,.85);text-shadow:0 1px 6px rgba(60,35,15,.4);pointer-events:none}
+.ms-sheet.is-photo-target .ms-paper{box-shadow:0 0 0 3px #e2b06a,0 0 30px rgba(226,176,106,.7),0 30px 50px rgba(40,22,8,.32)!important;transform:translateZ(40px) scale(1.04)}
+.ms-screen.is-file-over::after{content:"Отпустите — фото лягут в стопку внизу, а если над листом — прямо на лист";position:absolute;inset:18px;border:2px dashed rgba(255,244,226,.8);border-radius:22px;display:flex;align-items:center;justify-content:center;font:italic 22px Georgia,serif;color:#fff6e8;background:rgba(40,25,12,.25);pointer-events:none;z-index:30;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.ms-toast{position:absolute;left:50%;top:120px;transform:translate(-50%,-8px);font:italic 18px Georgia,serif;color:#fff6e8;text-shadow:0 2px 10px rgba(40,25,12,.5);opacity:0;transition:opacity .4s,transform .5s;pointer-events:none;z-index:31}
+.ms-toast.on{opacity:1;transform:translate(-50%,0)}
+.ms-hint{max-width:300px!important}
+</style>
+<script id="manuscript-photos-script">
+(()=>{const scr=document.querySelector('.ms-screen');if(!scr)return;
+  const frame=()=>document.getElementById('v35SheetFrame');
+  const send=cmd=>{try{frame()?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',...cmd},'*');}catch(e){}};
+  const tray=document.createElement('div');tray.className='ms-tray';
+  tray.innerHTML='<div class="ms-tray-note" hidden></div><div class="ms-prints"></div><button type="button" class="ms-add-photos">＋ Фото</button><input type="file" accept="image/*" multiple hidden>';
+  scr.appendChild(tray);
+  const toast=document.createElement('div');toast.className='ms-toast';scr.appendChild(toast);
+  const say=t=>{toast.textContent=t;toast.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('on'),2200);};
+  const prints=tray.querySelector('.ms-prints'),note=tray.querySelector('.ms-tray-note'),input=tray.querySelector('input');
+  // The stack is kept in the browser (IndexedDB) until each print finds its sheet.
+  const DB='ocherki-photo-tray';let stack=[];
+  const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('t');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);});
+  const save=()=>idb().then(db=>{const tx=db.transaction('t','readwrite');tx.objectStore('t').put(stack,'stack');}).catch(()=>{});
+  idb().then(db=>{const rq=db.transaction('t').objectStore('t').get('stack');rq.onsuccess=()=>{stack=Array.isArray(rq.result)?rq.result:[];draw();};}).catch(()=>{});
+  function draw(){prints.innerHTML='';stack.forEach((p,i)=>{const el=document.createElement('div');el.className='ms-print';el.dataset.id=p.id;el.style.setProperty('--r',(((i*37)%9)-4)+'deg');el.innerHTML=`<img src="${p.src}" alt="">`;el.addEventListener('pointerdown',e=>carry(e,el,p));prints.appendChild(el);});
+    note.hidden=!stack.length;note.textContent=stack.length?`${stack.length} ${stack.length%10===1&&stack.length%100!==11?'фото ждёт':'фото ждут'} своего листа — перетащите на нужный лист`:'';}
+  const readFiles=files=>Promise.all([...files].filter(f=>/^image\//.test(f.type)).map(f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>ok({id:'tray_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),src:r.result,width:im.naturalWidth,height:im.naturalHeight});im.onerror=()=>ok(null);im.src=r.result;};r.onerror=()=>ok(null);r.readAsDataURL(f);}))).then(list=>list.filter(Boolean));
+  const sheetAt=(x,y)=>document.elementsFromPoint(x,y).map(n=>n.closest&&n.closest('.ms-sheet')).find(el=>el&&!el.classList.contains('is-new')&&el.style.pointerEvents!=='none');
+  const sheetRef=el=>window.OCHERKI_MANUSCRIPT?.sheetOf?.(el);
+  function place(el,photos){const ref=sheetRef(el);if(!ref)return false;
+    if(!['chapter','recipes'].includes(ref.s.type)&&ref.p.type!=='document'){say('На этот лист фото не кладутся — выберите лист главы');return false;}
+    send({action:'addPhotos',sectionId:ref.s.id,pageUid:ref.p.uid,photos:photos.map(p=>({src:p.src,width:p.width,height:p.height}))});
+    say(photos.length>1?`Фото легли на лист «${ref.title}»`:`Фото легло на лист «${ref.title}»`);return true;}
+  input.addEventListener('change',()=>{readFiles(input.files).then(list=>{stack.push(...list);save();draw();if(list.length)say('Фото в стопке — перетащите каждое на свой лист');});input.value='';});
+  tray.querySelector('.ms-add-photos').addEventListener('click',()=>input.click());
+  // Files dragged from the computer.
+  let depth=0;
+  scr.addEventListener('dragenter',e=>{if(![...(e.dataTransfer?.types||[])].includes('Files'))return;e.preventDefault();depth++;scr.classList.add('is-file-over');});
+  scr.addEventListener('dragleave',()=>{depth=Math.max(0,depth-1);if(!depth)scr.classList.remove('is-file-over');});
+  scr.addEventListener('dragover',e=>{if(![...(e.dataTransfer?.types||[])].includes('Files'))return;e.preventDefault();scr.querySelectorAll('.is-photo-target').forEach(x=>x.classList.remove('is-photo-target'));sheetAt(e.clientX,e.clientY)?.classList.add('is-photo-target');});
+  scr.addEventListener('drop',e=>{if(!e.dataTransfer?.files?.length)return;e.preventDefault();depth=0;scr.classList.remove('is-file-over');
+    const target=sheetAt(e.clientX,e.clientY);scr.querySelectorAll('.is-photo-target').forEach(x=>x.classList.remove('is-photo-target'));
+    readFiles(e.dataTransfer.files).then(list=>{if(!list.length)return;if(target&&place(target,list))return;stack.push(...list);save();draw();say('Фото в стопке — перетащите каждое на свой лист');});});
+  // A print carried onto a sheet.
+  let carrying=null;
+  function carry(e,el,p){if(e.button!==0)return;e.preventDefault();const r=el.getBoundingClientRect();carrying={el,p,dx:e.clientX-r.left,dy:e.clientY-r.top};el.classList.add('is-dragging');el.style.left=r.left+'px';el.style.top=r.top+'px';el.style.width=r.width+'px';document.body.appendChild(el);}
+  addEventListener('pointermove',e=>{if(!carrying)return;carrying.el.style.left=(e.clientX-carrying.dx)+'px';carrying.el.style.top=(e.clientY-carrying.dy)+'px';
+    scr.querySelectorAll('.is-photo-target').forEach(x=>x.classList.remove('is-photo-target'));sheetAt(e.clientX,e.clientY)?.classList.add('is-photo-target');});
+  addEventListener('pointerup',e=>{if(!carrying)return;const {el,p}=carrying;carrying=null;el.remove();
+    const target=sheetAt(e.clientX,e.clientY);scr.querySelectorAll('.is-photo-target').forEach(x=>x.classList.remove('is-photo-target'));
+    if(target&&place(target,[p])){stack=stack.filter(x=>x.id!==p.id);save();}draw();});
+})();
+</script>

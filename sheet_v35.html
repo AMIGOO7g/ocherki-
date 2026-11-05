@@ -4872,6 +4872,30 @@ window.addEventListener('message',e=>{
       const si = sections.findIndex(item => item.id === d.sectionId);
       if(si >= 0){ saveEditor(); activeSection = si; sections[si].active = Math.max(0, (sections[si].pages || []).length - 1); render(); addPageFromHost(); }
     }
+    // «Рукопись»: photos laid onto a sheet there (carried from the stack or
+    // dropped straight from the computer).
+    else if(a === 'addPhotos') {
+      saveEditor();
+      const section = sections.find(item => item.id === d.sectionId);
+      const page = section?.pages?.find(item => (item.uid || item.id) === d.pageUid);
+      if(page && canHavePhotos(page) && Array.isArray(d.photos)){
+        if(!Array.isArray(page.photos)) page.photos = [];
+        d.photos.forEach(item => {
+          if(!item?.src) return;
+          const rec = {id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:String(item.src),caption:'',year:'',place:'',people:'',source:'',story:'',photoMode:'auto',layoutPreference:'auto',isDocument:page.type==='document',status:'uploaded',_newEntry:true,
+            width:Number(item.width)||0,height:Number(item.height)||0};
+          rec.orientation = rec.width > rec.height ? 'landscape' : rec.height > rec.width ? 'portrait' : 'square';
+          page.photos.push(rec);
+          if(window.LifeBookPageBlocks) LifeBookPageBlocks.addPhoto(page, rec);
+          try{ analyzePhotoInBackground(rec); }catch(_){ }
+        });
+        if(window.LifeBookCompositionEngine) window.LifeBookCompositionEngine.update(page);
+        page.included = true; section.included = true;
+        persistSoon();
+        if(currentPage() === page){ try{ renderPhotos(); updateContextActions(); }catch(_){ } }
+        emitStructure();
+      }
+    }
     else if(a === 'movePage') {
       saveEditor();
       const from = sections.find(item => item.id === d.sectionId), to = sections.find(item => item.id === d.toSectionId);
