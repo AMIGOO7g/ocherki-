@@ -1490,7 +1490,7 @@
       // column beside an empty one.
       {
         const endings=new Set([chapter.text.length,...episodes.map(item=>item.offset)]);
-        const pages=spreads.filter(spread=>spread.sectionId===chapter.sectionId).flatMap(spread=>[[spread.left,'left'],[spread.right,'right']]).filter(([page])=>page?.measuredFlow&&page.sourceRange&&['prose-dense','chapter-intro'].includes(page.layout)&&endings.has(page.sourceRange.end));
+        const pages=spreads.filter(spread=>spread.sectionId===chapter.sectionId).flatMap(spread=>[[spread.left,'left'],[spread.right,'right']]).filter(([page])=>page?.measuredFlow&&page.sourceRange&&!['quote','t08-pause','x-quote-band','quote-band-photo'].includes(page.layout)&&endings.has(page.sourceRange.end));
         for(const [lastText,side] of pages){
           const flow=lastText.measuredFlow;
           // A margin note the book chose itself gives way on an ending page
@@ -1503,8 +1503,9 @@
           if((lastText.rhythm||flow.mode)==='inline-quote'&&lastText.autoInlineQuote){lastText.rhythm='plain';lastText.master=masters.plain||lastText.master;lastText.inlineQuote='';}
           const restoreNote=()=>Object.assign(lastText,saved);
           // The chapter opening page is balanced too when the whole chapter fits on it.
-          if(!['plain','important'].includes(lastText.rhythm||flow.mode)&&!(lastText.layout==='chapter-intro'&&flow.mode==='chapter')){restoreNote();continue;}
-          if(lastText.topPhoto||lastText.spinePhoto||lastText.railPhoto||lastText.bgPhoto||lastText.sidePhoto||lastText.bottomPhotos||lastText.t10||lastText.topPair){restoreNote();continue;}
+          if(!['plain','important'].includes(lastText.rhythm||flow.mode)&&flow.mode!=='chapter'&&lastText.layout==='prose-dense'){restoreNote();continue;}
+          // Pages that share the spread with photos (dark gradient, text over
+          // photos, photo beside the text) close the chapter the same way.
           const text=lastText.text,full=Number(flow.fullLines)||0,original={limit:lastText.flowLineLimit,flow};
           const fits=limit=>{try{lastText.flowLineLimit=limit;const split=meta.paginateText(lastText,text,side);return split.head===text&&!split.tail?split:null;}catch(error){return null;}};
           let low=1,high=full,bestLimit=0;

@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v94">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v95">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v94" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v95" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v94"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v94"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v94"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v94"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v94"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v94"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v95"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v95"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v95"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261106-v95"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v95"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v95"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v94"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v94"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v95"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v95"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -4765,7 +4765,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     {id:'t08',label:'Вертикальное фото у сгиба и пауза'},
     {id:'t10',label:'Фото с карточкой'},
     {id:'t12',label:'Текст поверх фото'},
-    {id:'p01',label:'Портрет героя — меняется отметкой в карточке фото'},
+    {id:'p01',label:'Портрет героя · светлый или тёмный — стрелками сверху'},
     {id:'closing3',label:'Две фото на странице и одно большое'},
     {id:'photoquote',label:'Фото и цитата из главы'},
     {id:'rail',label:'Фото на полтора листа — текст сбоку'},
@@ -7277,12 +7277,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(previewLayout){
       // Only a spread the director composed can change its composition; the
       // chapter opening and the closing photo pages follow their own rule.
-      const canCompose=Boolean(previewPhotoPage&&sp?.beat&&sp.beat!=='p01');
+      const canCompose=Boolean(previewPhotoPage&&sp?.beat);
       const disabledTitle=sp?.beat==='p01'?'Это «Портрет героя»: разворот появляется по отметке в карточке фото. Чтобы выбрать другую композицию, снимите отметку «Портрет героя».':previewPhotoPage?'Этот разворот собирается по своему правилу (открытие или конец главы) — его композиция не меняется':'На этом развороте нет фотографии для смены композиции';
       previewLayout.disabled=!canCompose;
       if(!canCompose){previewLayout.title=disabledTitle;if(previewLayoutPrev){previewLayoutPrev.disabled=true;previewLayoutPrev.title=disabledTitle;}if(previewLayoutNext){previewLayoutNext.disabled=true;previewLayoutNext.title=disabledTitle;}document.getElementById('compositionMenu')?.setAttribute('hidden','');}
     }
-    if(previewLayout&&sp?.beat&&sp.beat!=='p01'&&previewPhotoPage){
+    if(previewLayout&&sp?.beat&&previewPhotoPage){
       previewLayout.title='Выбрать композицию разворота';
       if(previewLayoutPrev){previewLayoutPrev.disabled=false;previewLayoutPrev.title='Предыдущая подходящая композиция';}
       if(previewLayoutNext){previewLayoutNext.disabled=false;previewLayoutNext.title='Следующая подходящая композиция';}
@@ -7317,6 +7317,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     darkside:'одна тёмная композиция на главу',darkfade:'одна тёмная композиция на главу',darkgrad:'одна тёмная композиция на главу и больше текста',
     closing3:'нужно ещё 3 фото в конце главы',photoquote:'',fade:'нужно больше текста после этого места',overlay:'нужно больше текста после этого места',textphotos:'нужно больше текста после этого места',single:'не подходит здесь'};
   function compositionChoices(sp){
+    // The hero's portrait has its own two choices: on a dark or on a light page.
+    if(sp?.beat==='p01'){const cur=String([sp.left,sp.right].find(p=>p?.p01Variant)?.p01Variant||'C');return [{id:'hero-dark',label:'Портрет героя на тёмном',ok:cur!=='C'},{id:'hero-light',label:'Портрет героя на светлом',ok:cur!=='A'}].map(x=>({...x,ok:true,current:(x.id==='hero-dark')===(cur==='C')}));}
     // Only what can really show this spread's photo (a panorama needs a wide
     // one…); older books without the per-photo list use the spread's list.
     const id=String(spreadPhotoRef(sp)?.photo?.id||''),own=id&&sp?.beatOptionsByPhoto?.[id];
@@ -7398,6 +7400,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const photo=ref?.photo;
     const photoIndex=ref?.photoIndex;
     if(!page||!photo||!Number.isInteger(photoIndex))return;
+    if(sp.beat==='p01'){
+      const cur=String([sp.left,sp.right].find(p=>p?.p01Variant)?.p01Variant||'C');
+      const want=chosen==='hero-light'?'A':chosen==='hero-dark'?'C':(cur==='C'?'A':'C');if(want===cur&&chosen)return;
+      for(const ph of framePhotos(String(photo.id||'')))ph.heroVariant=want;
+      try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'setPhotoProps',photoId:String(photo.id||''),props:{heroVariant:want}},'*');}catch(_){}
+      previewSpread?.classList.add('is-recomposing');performBuild();return;}
     // The arrows step only through compositions that fit this spread, so
     // every press really changes the spread.
     const choices=compositionChoices(sp).filter(item=>item.ok&&item.id!=='auto');
@@ -7542,7 +7550,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v94"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v95"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -9909,7 +9917,7 @@ window.__ocherkiWheel=()=>{let last=-1e9,sign=0,acc=0,stepped=false,lastStep=-1e
   const api=()=>window.__ocherkiArcApi;
   const arc=document.createElement('div');arc.className='preview-arc';arc.id='previewArc';modal.appendChild(arc);
   const STEP=15,SIZE=[190,156,128,106,90,78,68,60],FADE=[1,.9,.8,.7,.55,.38,.2,.08],WINDOW=SIZE.length;
-  let turn=0,spreadsRef=null,items=new Map(),prevTurn=null;
+  let turn=0,spreadsRef=null,items=new Map(),prevTurn=null,prevSigs=null,changedSpreads=new Set(),changedTimer=0;
   // Size and place the book so the composition keys above it and the arc
   // below it fit on any screen.
   function geometry(){
@@ -9939,7 +9947,13 @@ window.__ocherkiWheel=()=>{let last=-1e9,sign=0,acc=0,stepped=false,lastStep=-1e
     const a=api();if(!a)return;const list=a.spreads();
     const on=modal.classList.contains('open')&&a.built()&&list.length>0;
     modal.classList.toggle('has-arc',on);if(!on){arc.replaceChildren();items.clear();prevTurn=null;return;}
-    if(spreadsRef!==list){spreadsRef=list;arc.replaceChildren();items.clear();prevTurn=null;}
+    if(spreadsRef!==list){
+      // After a rebuild the spreads that came out different glow for a few seconds in the arc.
+      const sig=sp=>[sp?.left,sp?.right].map(p=>p?[p.layout,p.photoIndex??'',p.sourceRange?.start??'',String(p.text||'').length,p.p01Variant||''].join(':'):'0').join('|');
+      const now=list.map(sig),diff=new Set();if(prevSigs&&modal.classList.contains('open'))now.forEach((x,i)=>{if(prevSigs[i]!==x)diff.add(i);});prevSigs=now;
+      if(diff.size&&diff.size<=list.length*.6){changedSpreads=diff;clearTimeout(changedTimer);}
+      if(diff.size)changedTimer=setTimeout(()=>{changedSpreads.clear();arc.querySelectorAll('.pa-item.is-changed').forEach(x=>x.classList.remove('is-changed'));},6500);
+      spreadsRef=list;arc.replaceChildren();items.clear();prevTurn=null;}
     const g=geometry();
     const book=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();if(!book||!book.width)return;
     const cx=book.left+book.width/2,cy=book.top+book.height/2;
@@ -9963,7 +9977,7 @@ window.__ocherkiWheel=()=>{let last=-1e9,sign=0,acc=0,stepped=false,lastStep=-1e
     let added=false;const fresh=[];
     for(let i=Math.max(0,turn-WINDOW+1);i<=Math.min(list.length-1,turn+WINDOW-1);i++){
       let el=items.get(i);if(!el){el=render(i);if(!el)continue;el.style.transition='none';place(el,i,from);if(from===turn)el.style.opacity=0;arc.appendChild(el);items.set(i,el);added=true;fresh.push(el);}
-      el.classList.toggle('is-on',i===active);
+      el.classList.toggle('is-on',i===active);el.classList.toggle('is-changed',changedSpreads.has(i));
     }
     if(fresh.length)void arc.offsetWidth;
     fresh.forEach(el=>el.style.transition='');
@@ -10056,7 +10070,7 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 .ct-card input{background:transparent!important}
 .ct-card ::placeholder{color:rgba(90,61,38,.38);transition:color .3s}
 .ct-card :focus::placeholder{color:transparent}
-.ct-stamp{position:absolute;right:4%;top:4%;width:96px;height:auto;transform:rotate(4deg);filter:drop-shadow(0 3px 5px rgba(40,20,5,.35));pointer-events:none}
+.ct-stamp{position:absolute;right:4%;top:4%;width:96px;height:auto;transform:rotate(4deg);pointer-events:none;mix-blend-mode:multiply}
 .ct-foot{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:12px}
 .ct-foot small{font:italic 13px Georgia,serif;color:#5a4632}.ct-foot small a{color:#5a4632}
 .ct-send{border:0;border-radius:999px;padding:11px 26px;background:linear-gradient(180deg,#6b4a2c,#4a3322);color:#f7ecd8;font:italic 17px Georgia,serif;cursor:pointer;box-shadow:0 0 0 1px #c59664,0 6px 14px rgba(40,20,5,.35);transition:transform .3s,box-shadow .3s}
@@ -10132,7 +10146,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
 /* A closed manuscript never catches the pointer (its sheets set their own
    pointer-events, and used to answer clicks over the editor's text). */
 .ms-screen:not(.on),.ms-screen:not(.on) *{pointer-events:none!important}
-#bookPreviewModal.is-to-ms{opacity:0!important;pointer-events:none!important;transition:opacity .45s ease!important}
+#bookPreviewModal.is-to-ms{opacity:0!important;pointer-events:none!important;transition:opacity .75s ease!important}
 .shell.is-manuscript .book-design-shell{opacity:0!important;pointer-events:none!important;transition:opacity .3s ease!important}
 .mode-switch:not([data-mode="write"]) button.is-hint::after{display:none}
 .shell:not(.is-open) ~ .mode-switch{opacity:0!important;pointer-events:none!important;transition:opacity .35s ease!important}
@@ -10156,14 +10170,16 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   const closeBook=()=>{if(modal?.classList.contains('open'))document.getElementById('bookPreviewClose')?.click();};
   // One flight for every screen change: a clean sheet of paper travels
   // from where the page was to where it will be.
-  function flyPaper(from,to,{ms=900,html='',fadeIn=false}={}){
+  function flyPaper(from,to,{ms=900,html='',fadeIn=false,dissolve=false}={}){
     if(!from||!to||!from.width||!to.width)return null;const f=document.createElement('div');f.className='ms-flyer';
     f.style.cssText=`left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;transition:left ${ms}ms cubic-bezier(.3,.7,.2,1),top ${ms}ms cubic-bezier(.3,.7,.2,1),width ${ms}ms cubic-bezier(.3,.7,.2,1),height ${ms}ms cubic-bezier(.3,.7,.2,1),opacity .45s ease`;
-    document.body.appendChild(f);void f.offsetWidth;requestAnimationFrame(()=>{f.style.left=to.left+'px';f.style.top=to.top+'px';f.style.width=to.width+'px';f.style.height=to.height+'px';});
+    document.body.appendChild(f);void f.offsetWidth;requestAnimationFrame(()=>{f.style.left=to.left+'px';f.style.top=to.top+'px';f.style.width=to.width+'px';f.style.height=to.height+'px';
+      // Dissolving on the way: it never stands over the page it arrives on.
+      if(dissolve){f.style.transition+=`,opacity ${Math.round(ms*.55)}ms ease ${Math.round(ms*.45)}ms`;f.style.opacity='0';}});
     setTimeout(()=>{f.style.opacity=0;setTimeout(()=>f.remove(),500);},ms+120);return f;}
   const pageRectOfBook=()=>{const sp=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();if(!sp||!sp.width)return null;const half=sp.width/2;return {left:sp.left+half,top:sp.top,width:half,height:sp.height};};
   const editorTarget=()=>{const ed=document.querySelector('.editor-paper')?.getBoundingClientRect();if(ed&&ed.width>100&&ed.left>=0&&ed.right<=innerWidth)return ed;if(!lastPaper)return null;const w=lastPaper.right-lastPaper.left;return {left:lastPaper.left,top:lastPaper.top,width:w,height:Math.min(innerHeight-lastPaper.top-20,w*1.41)};};
-  function flyBookToEditor(){flyPaper(pageRectOfBook(),editorTarget());}
+  function flyBookToEditor(){flyPaper(pageRectOfBook(),editorTarget(),{ms:850});}
   // The ✕ of the book: the same flight into the editor.
   document.addEventListener('click',e=>{if(e.target.closest?.('#bookPreviewClose')&&modal?.classList.contains('open')&&!modal.classList.contains('is-to-ms'))flyBookToEditor();},true);
   window.OCHERKI_SET_MODE=target=>{
@@ -10173,11 +10189,13 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
       // From «Рукопись» straight into the book: the manuscript stays while
       // «Собираю книгу…» turns, and fades once the book is open under it.
       if(now==='manuscript'&&window.OCHERKI_MANUSCRIPT?.isOpen()){
-        const msSheet=document.querySelector('.ms-sheet.is-active .ms-paper')?.getBoundingClientRect();
+        const msActive=document.querySelector('.ms-sheet.is-active'),msSheet=msActive?.querySelector('.ms-paper')?.getBoundingClientRect();
+        // The book opens on the sheet the manuscript shows as open.
+        if(msActive?.dataset.uid)window.__ocherkiFocusPageUid=msActive.dataset.uid;
         document.getElementById('buildBookBtn')?.click();const t0=Date.now();
         const iv=setInterval(()=>{if(modal?.classList.contains('open')||Date.now()-t0>20000){clearInterval(iv);window.OCHERKI_MANUSCRIPT.close();setTimeout(sync,60);
           // The chosen sheet flies into the open spread.
-          if(msSheet)setTimeout(()=>flyPaper(msSheet,pageRectOfBook(),{ms:850}),420);}},60);
+          if(msSheet)setTimeout(()=>{const sp=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();flyPaper(msSheet,sp,{ms:800,dissolve:true});},300);}},60);
       }else document.getElementById('buildBookBtn')?.click();}
     else if(target==='write'){
       if(now==='manuscript'&&!window.__msFlying){const M=window.OCHERKI_MANUSCRIPT,pick=M?.frontPick?.(),uid=pick?.pageUid||M?.activeUid?.();
@@ -10198,7 +10216,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
         window.OCHERKI_MANUSCRIPT?.open({fromBook:true,uid,fromRect});
         // The book lies above the manuscript: once the manuscript has come up
         // beneath it, the book fades away and closes unseen.
-        modal?.classList.add('is-to-ms');setTimeout(()=>{closeBook();setTimeout(()=>modal?.classList.remove('is-to-ms'),1600);},460);}
+        modal?.classList.add('is-to-ms');setTimeout(()=>{closeBook();setTimeout(()=>modal?.classList.remove('is-to-ms'),1600);},780);}
       else window.OCHERKI_MANUSCRIPT?.open();}
     setTimeout(sync,60);
   };
@@ -10416,6 +10434,9 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   // in rows; all the rows of the book make one corridor the wheel travels.
   function build(){
     groups=makeGroups();if(!groups.length)return;
+    // Where every sheet stood before: after the rebuild each one glides from
+    // there to its new place (nothing jumps when a sheet goes to the bin).
+    const before=new Map([...world.querySelectorAll('.ms-sheet[data-uid]')].map(el=>[el.dataset.uid,{t:el.style.transform,o:el.style.opacity,f:el.style.filter}]));
     world.innerHTML='';els=[];toc.innerHTML='';groupRow0=[];groupRows=[];
     const cols=colsFor(innerWidth);let k=0;
     groups.forEach((g,c)=>{
@@ -10451,7 +10472,10 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     const add=document.createElement('button');add.type='button';add.className='add';add.textContent='＋ Новая глава';add.onclick=()=>{send({action:'addChapter'});pendingNewChapter=true;};toc.appendChild(add);
     drawSections();
     if(pendingNewChapter){pendingNewChapter=false;const last=groups.map(g=>!!g.chapter).lastIndexOf(true);if(last>=0)focus=groupRow0[last];}
-    focus=Math.max(0,Math.min(rowsTotal-1,focus));layout();}
+    focus=Math.max(0,Math.min(rowsTotal-1,focus));
+    if(before.size&&isOpen){let moved=false;world.querySelectorAll('.ms-sheet[data-uid]').forEach(el=>{const b=before.get(el.dataset.uid);if(!b||!b.t)return;el.style.transition='none';el.style.transform=b.t;el.style.opacity=b.o;el.style.filter=b.f;moved=true;});
+      if(moved){void world.offsetWidth;world.querySelectorAll('.ms-sheet[data-uid]').forEach(el=>{el.style.transition='';});}}
+    layout();}
   const groupOfRow=k=>{let c=0;groupRow0.forEach((k0,i)=>{if(k>=k0)c=i;});return c;};
   const currentGroup=()=>groupOfRow(Math.round(focus));
 
@@ -10742,6 +10766,9 @@ html body .ms-sections .ms-sec .ms-sec-leaf{transition:transform .6s cubic-bezie
 .ms-sec-line{transition:opacity .22s ease;min-height:24px}
 </style>
 <style id="ms-v87">
+.pa-item.is-changed .pa-spread{box-shadow:0 0 0 2px rgba(226,170,90,.95),0 0 26px 8px rgba(255,200,120,.55),0 6px 14px rgba(50,30,12,.3)!important;transition:box-shadow 1.2s ease}
+.pa-item.is-changed::before{content:"изменён";position:absolute;left:50%;top:-20px;transform:translateX(-50%);font:italic 12px Georgia,serif;color:#a8692f;white-space:nowrap}
+
 .ms-toc button{position:relative}
 .ms-toc-del{display:inline-block;margin-right:8px;font:15px Georgia,serif;opacity:.35;transition:opacity .3s;white-space:nowrap;cursor:pointer;color:inherit}
 .ms-toc button:hover .ms-toc-del,.ms-toc-del.is-ask{opacity:.9}
@@ -10945,8 +10972,8 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
     if(edited&&stack.includes(edited)){recentPrint=edited.id;stack=stack.filter(x=>x!==edited);stack.push(edited);save();draw();}});
   scr.addEventListener('pointerdown',e=>{if(!pcard.hidden&&!pcard.contains(e.target))closeCard();});
   // A wide picture cannot be the hero's portrait: the card says so at once.
-  pcard.addEventListener('change',e=>{if(!e.target.matches('[data-f="portraitHero"]'))return;const h=pcard.querySelector('.ms-hero-hint');const w=+pcItem?.width||0,ht=+pcItem?.height||0,wide=w&&ht&&w/ht>1.15;
-    if(h){h.textContent=e.target.checked&&wide?'Этот снимок горизонтальный — для портрета героя нужен вертикальный снимок одного человека. Книга поставит его как обычное фото.':'Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот';h.style.color=e.target.checked&&wide?'#a4472f':'';}});
+  pcard.addEventListener('change',e=>{if(!e.target.matches('[data-f="portraitHero"]'))return;const h=pcard.querySelector('.ms-hero-hint');const im=pcard.querySelector('img');const w=im?.naturalWidth||+pcItem?.width||0,ht=im?.naturalHeight||+pcItem?.height||0,wide=w&&ht&&w/ht>1.15;
+    if(h){h.textContent=e.target.checked&&wide?'Снимок горизонтальный: книга обрежет его по высоте страницы. Если на нём один человек — в книге сдвиньте фото, чтобы он оказался в центре.':'Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот';h.style.color=e.target.checked&&wide?'#a4472f':'';}});
   scr.appendChild(tray);
   const toast=document.createElement('div');toast.className='ms-toast';scr.appendChild(toast);
   const say=t=>{toast.textContent=t;toast.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('on'),2200);};
