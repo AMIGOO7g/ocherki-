@@ -5252,6 +5252,44 @@ html body .page-context-actions button:hover{color:#a8692f!important}
   setTimeout(sync,400);
 })();
 </script>
+<script id="empty-sheet-goes">
+// Like Word: a sheet of a chapter with no words and no photos goes away
+// when Backspace is pressed on it again; the caret moves to the end of the
+// sheet before it. (It goes to the bin, so «Вернуть» brings it back.)
+(()=>{
+  const ed=document.getElementById('editor');if(!ed)return;
+  ed.addEventListener('keydown',e=>{
+    if(e.key!=='Backspace'&&e.key!=='Delete')return;
+    const sec=currentSection(),page=currentPage();if(!sec||!page||sec.type!=='chapter'||(sec.pages||[]).length<2)return;
+    if(String(ed.innerText||'').replace(/[\s\u200b]/g,'')!==''||(page.photos||[]).some(p=>p&&p.src))return;
+    e.preventDefault();e.stopPropagation();
+    const idx=sec.active||0,prev=sec.pages[Math.max(0,idx-1)]===page?sec.pages[idx+1]:sec.pages[Math.max(0,idx-1)];
+    window.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'deletePage',sectionId:sec.id,pageUid:page.uid||page.id},'*');
+    setTimeout(()=>{if(prev)window.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:sec.id,pageUid:prev.uid||prev.id},'*');
+      setTimeout(()=>{const el=document.getElementById('editor');if(!el)return;el.focus();const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);},180);},60);
+  },true);
+})();
+</script>
+<style id="photo-card-all-open">
+/* The photo card opens with every field at once (no «Рассказать историю…»
+   / «Ещё…» steps), and the hero switch is the same as in «Рукопись». */
+.photo-modal .pf-more{display:none!important}
+.photo-modal .pf-story,.photo-modal .pf-extra{display:flex!important}
+.photo-modal .pf-extra[hidden],.photo-modal #photoHeroYearsField[hidden],.photo-modal #photoHeroRoleField[hidden]{display:none!important}
+.photo-modal .photo-hero-field{border:1px solid rgba(90,61,38,.18);border-radius:16px;background:rgba(255,250,240,.6);padding:12px 14px!important;display:block!important}
+.photo-modal .photo-hero-toggle{display:flex!important;align-items:center;gap:12px;font:15px/1.3 Georgia,serif!important;text-transform:none!important;letter-spacing:0!important;color:#2c1f14!important;cursor:pointer}
+#photoModal #photoPortraitHero,.photo-modal .photo-hero-toggle input[type=checkbox]{appearance:none!important;-webkit-appearance:none!important;width:40px!important;height:22px!important;min-width:40px!important;min-height:22px!important;max-height:22px!important;border-radius:11px!important;border:0!important;background:rgba(90,61,38,.25)!important;position:relative;transition:background .3s;flex:0 0 auto;margin:0!important;padding:0!important;cursor:pointer;box-shadow:none!important}
+#photoModal #photoPortraitHero::before{display:none!important}
+#photoModal #photoPortraitHero::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .3s}
+#photoModal #photoPortraitHero:checked,.photo-modal .photo-hero-toggle input[type=checkbox]:checked{background:#8a5a2e!important}
+#photoModal #photoPortraitHero:checked::after{left:20px}
+.photo-modal .photo-hero-hint{margin:4px 0 0 52px;font:italic 12.5px/1.35 Georgia,serif!important;color:#7a5a3a!important}
+</style>
+<script>
+(()=>{const lab=document.querySelector('.photo-modal .photo-hero-toggle');if(!lab)return;const box=lab.querySelector('input');
+  lab.textContent='';lab.append(box,document.createTextNode('Это портрет героя книги'));
+  const hint=document.querySelector('.photo-modal .photo-hero-hint');if(hint)hint.textContent='Книга откроет главу этим портретом на целый разворот. Имя — из поля «Кто на фото».';})();
+</script>
 </body>
 </html>
 

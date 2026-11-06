@@ -296,7 +296,16 @@
       const metrics=[];
       for(const spread of result.spreads)for(const side of ['left','right']){
         const page=spread[side];if(!page)continue;session.host.innerHTML=session.render(page,side);
-        const check=auditPage(session.host.firstElementChild,page);const cosmetic=['premature-column-break','unequal-working-bottom','unfilled-measured-cell'];if(check.status!=='pass'&&check.violations.every(v=>cosmetic.includes(v.rule))){session.warnings.push({code:'PAGE_COSMETIC',page:page.pageNo,rules:check.violations.map(v=>v.rule)});}else if(check.status!=='pass')throw Error(`Страница ${page.pageNo}: ${(globalThis.OcherkiBookRenderer?.ruleWords||(rules=>rules.join(', ')))(check.violations.map(v=>v.rule))}`);
+        let check=auditPage(session.host.firstElementChild,page);const cosmetic=['premature-column-break','unequal-working-bottom','unfilled-measured-cell'];
+        // A margin note or an accent that no longer fits on this screen's
+        // fonts is taken off the page (the text stays whole); the book still builds.
+        const accentRule=r=>/^(note-|accent-)/.test(r);
+        if(check.status!=='pass'&&check.violations.some(v=>accentRule(v.rule))&&check.violations.every(v=>accentRule(v.rule)||cosmetic.includes(v.rule))){
+          const dropped=check.violations.map(v=>v.rule);
+          if(dropped.some(r=>r.startsWith('note-'))){page.marginNote='';page.autoMarginNote=false;page.forceMarginPlacement=false;}
+          session.host.innerHTML=session.render(page,side);check=auditPage(session.host.firstElementChild,page);
+          session.warnings.push({code:'PAGE_ACCENT_DROPPED',page:page.pageNo,rules:dropped});
+        }if(check.status!=='pass'&&globalThis.OCHERKI_TOLERANT_LAYOUT&&check.violations.every(v=>cosmetic.includes(v.rule))){session.warnings.push({code:'PAGE_COSMETIC',page:page.pageNo,rules:check.violations.map(v=>v.rule)});}else if(check.status!=='pass')throw Error(`Страница ${page.pageNo}: ${(globalThis.OcherkiBookRenderer?.ruleWords||(rules=>rules.join(', ')))(check.violations.map(v=>v.rule))}`);
         metrics.push({page:page.pageNo,master:page.master,geometry:page.measuredFlow?.geometry||page.nativeFlow&&{height:page.nativeFlow.height,columns:page.nativeFlow.columns,gap:page.nativeFlow.gap}});
       }
       result.layout={module:'OcherkiLayoutPagination',renderer:'OcherkiBookRenderer.renderPage',paginator:'OcherkiBookRenderer.paginateText',format:settings.format||'square',metrics,warnings:session.warnings,sourceInvariant:'exact',geometrySignature:geometrySignature(result)};return result;

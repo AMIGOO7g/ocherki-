@@ -1493,7 +1493,7 @@
       // height) loses no text: the page is kept and the book still builds;
       // only lost, repeated or overflowing text stops the build.
       const cosmetic=['premature-column-break','unequal-working-bottom','unfilled-measured-cell'];
-      if(rules.every(rule=>cosmetic.includes(rule))){page.layoutWarnings=[...(page.layoutWarnings||[]),...rules];return {head:flow.sourceText,tail:rest,measuredFlow:flow};}
+      if(globalThis.OCHERKI_TOLERANT_LAYOUT&&rules.every(rule=>cosmetic.includes(rule))){page.layoutWarnings=[...(page.layoutWarnings||[]),...rules];return {head:flow.sourceText,tail:rest,measuredFlow:flow};}
       throw new Error(`Страница не сложилась: ${ruleWords(rules)}.`);
     }
     return {head:flow.sourceText,tail:rest,measuredFlow:flow};

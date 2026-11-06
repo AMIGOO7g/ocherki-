@@ -996,6 +996,8 @@
       occurrences['inline-quote']=1;
       let cycleStep=fixedText.rhythm==='inline-quote'?1:0,quietGiven=false;
       const nextRhythm=()=>{
+        // Safe layout: the second attempt after a failed build sets plain pages only.
+        if(globalThis.OCHERKI_SAFE_LAYOUT)return 'plain';
         if(quietPageAfterCycle&&cycleStep>0&&cycleStep%accentCycle.length===0&&!quietGiven){quietGiven=true;return 'plain';}
         quietGiven=false;
         return accentCycle[cycleStep++%accentCycle.length];
