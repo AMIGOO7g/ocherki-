@@ -194,7 +194,7 @@ body{
   font:400 13px/1 Arial,sans-serif;opacity:.55;margin-left:2px;
 }
 .host-night .context-suggestion button{color:#b8a58f}
-.editor{box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:100%;margin:0;padding-left:0;padding-right:0;overflow:hidden;outline:none;font-size:14px;line-height:1.42;color:#3b2a20;caret-color:#a35f1d;position:relative;z-index:1;white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:auto;-webkit-hyphens:auto}
+.editor{box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:100%;margin:0;padding-left:0;padding-right:0;overflow:hidden;outline:none;font-size:14px;line-height:1.42;color:#3b2a20;caret-color:#a35f1d;position:relative;z-index:1;white-space:normal;word-break:normal;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
 .editor p{margin:0 0 .72em}
 .footer-line{position:absolute;left:58px;right:58px;bottom:54px;height:1px;background:linear-gradient(90deg,transparent,var(--line) 15%,var(--line) 85%,transparent)}
 .footer{position:absolute;left:58px;right:58px;bottom:17px;height:28px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:end;color:#9a8878;font:11px Arial,sans-serif;z-index:15}
@@ -2962,13 +2962,17 @@ photoToneBtn?.addEventListener('click',e=>{
   updateSave();
   window.__OCHERKI_EMIT_STRUCTURE?.();
 });
+// A press that starts inside the card (selecting text and letting go
+// outside it) never closes the card.
+let pressStartedInCard=false;
+document.addEventListener('pointerdown',e=>{pressStartedInCard=!!e.target.closest?.('.photo-modal');},true);
 document.addEventListener('click',e=>{
   const inPopover=e.target.closest('.popover');
   const inPhotoModal=e.target.closest('.photo-modal');
   if(!inPopover&&!inPhotoModal){
     document.querySelectorAll('.popover').forEach(x=>x.classList.remove('open'));
   }
-  if(photoModal?.classList.contains('open') && !inPhotoModal && !e.target.closest('.photo-card') && !e.target.closest('.photo-switch')){
+  if(photoModal?.classList.contains('open') && !inPhotoModal && !pressStartedInCard && !e.target.closest('.photo-card') && !e.target.closest('.photo-switch')){
     closePhoto(true);
   }
 });
@@ -5273,7 +5277,7 @@ html body .page-context-actions button:hover{color:#a8692f!important}
   hyphens:auto;
   -webkit-hyphens:auto;
   word-break:normal;
-  overflow-wrap:normal;
+  overflow-wrap:break-word;
 }
 </style>
 

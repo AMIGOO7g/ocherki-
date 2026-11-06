@@ -91,6 +91,29 @@
   .bc-book.is-leaving{transition:transform .5s ease,opacity .5s ease!important;transform:translateY(-30px) scale(.9)!important;opacity:0!important}
   .bc-tip b{display:block;font:400 19px/1.2 'CormorantCy',Georgia,serif;letter-spacing:.01em}
   .bc-tip i{display:block;margin-top:4px;font:italic 400 13px/1.3 Georgia,serif;color:#cfb68e}
+  /* Stage 4: no brass frame round the case — only the dark cabinet; the
+     close key hangs on a thread in the middle of the top, like the keys of
+     the constructor; the shelves have depth: a lit top surface the books
+     stand on, a dark back wall and shaded sides. */
+  .bc-case{padding:0!important;border-radius:0!important;background:radial-gradient(130% 60% at 50% 0%,#2b2622 0%,#1b1816 55%,#131110 100%)!important;box-shadow:-30px 0 70px rgba(0,0,0,.55)!important}
+  .bc-case::before{display:none}
+  .bc-inner{border-radius:0!important;background:none!important;box-shadow:none!important}
+  .bc-head{height:128px!important;flex-direction:column;justify-content:flex-end!important;padding-bottom:16px;box-sizing:border-box}
+  .bc-title{font-size:30px!important}
+  .bc-close{left:50%!important;right:auto!important;top:44px!important;width:44px!important;height:44px!important;margin-left:-22px;font:22px/44px Georgia,serif!important;
+    background:linear-gradient(180deg,#efe3cb,#e6d5b5 43%,#d9bf98 72%,#cba777)!important;color:#4a3324!important;
+    box-shadow:0 0 0 2px #c59664,0 0 0 3px #4a3324,0 8px 14px rgba(0,0,0,.5)!important;transition:transform .5s cubic-bezier(.2,.8,.3,1)}
+  .bc-close::before{content:'';position:absolute;left:50%;bottom:100%;width:1.2px;height:46px;margin-bottom:3px;background:linear-gradient(to bottom,rgba(245,225,198,.15),rgba(245,225,198,.5))}
+  .bc-close:hover{transform:rotate(4deg);color:#b56e27!important}
+  .bc-head{position:relative}
+  .bc-title{margin-top:auto}
+  .bc-niche{height:${NICHE + 14}px!important;padding-bottom:12px!important;box-sizing:border-box;
+    background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 40%),
+      linear-gradient(0deg,#5b4330 0,#3b2b1f 12px,rgba(0,0,0,0) 13px),
+      radial-gradient(90% 70% at 50% 10%,rgba(255,196,120,.14),rgba(255,196,120,0) 65%),
+      linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,0) 9%,rgba(0,0,0,0) 91%,rgba(0,0,0,.45))!important}
+  .bc-niche .bc-book{margin-bottom:-2px;filter:drop-shadow(5px 6px 5px rgba(0,0,0,.45))}
+  .bc-niche .bc-book:hover{filter:brightness(1.1) drop-shadow(5px 10px 8px rgba(0,0,0,.5))}
   @media (prefers-reduced-motion: reduce){.bc-case,.bc-veil,.bc-book{transition:none!important}.bc-dust{display:none}}`;
 
   const hash = text => { let h = 7; for (const ch of String(text)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return h; };
@@ -106,9 +129,9 @@
     let raf = 0, w = 0, h = 0;
     w = canvas.width = canvas.clientWidth * devicePixelRatio; h = canvas.height = canvas.clientHeight * devicePixelRatio;
     const bands = niches.map(niche => [niche.offsetTop / canvas.clientHeight, (niche.offsetTop + niche.offsetHeight * .75) / canvas.clientHeight]);
-    for (let i = 0; i < 12 * bands.length; i++) {
+    for (let i = 0; i < 26 * bands.length; i++) {
       const band = bands[i % bands.length];
-      motes.push({ x: .08 + Math.random() * .84, y: band[0] + Math.random() * (band[1] - band[0]), r: .5 + Math.random() * 1.2, vx: (Math.random() - .5) * .00006, vy: -.00002 - Math.random() * .00004, a: .12 + Math.random() * .3, p: Math.random() * 6.28, band });
+      motes.push({ x: .08 + Math.random() * .84, y: band[0] + Math.random() * (band[1] - band[0]), r: .7 + Math.random() * 1.9, vx: (Math.random() - .5) * .00008, vy: -.00002 - Math.random() * .00005, a: .28 + Math.random() * .42, p: Math.random() * 6.28, band });
     }
     const step = () => {
       ctx.clearRect(0, 0, w, h);
@@ -191,7 +214,7 @@
       used += width + 3; order++;
     }
     // Empty niches down to the bottom of the screen: the case is always full height.
-    const nicheStep = NICHE + BOARD;
+    const nicheStep = NICHE + 14 + BOARD;
     while ((scroll.querySelectorAll('.bc-niche').length + 1) * nicheStep <= scroll.clientHeight - 20) makeNiche();
 
     const showTip = button => {
