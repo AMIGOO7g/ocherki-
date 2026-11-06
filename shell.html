@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v88">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v89">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v88" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v89" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v88"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v88"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v88"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v88"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v88"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v88"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v89"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v89"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v89"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261106-v89"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v89"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v89"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v88"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v88"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v89"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v89"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7310,7 +7310,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
       // A click beside the open list only closes the list (it used to close the book).
       document.addEventListener('click',event=>{if(!menu.hidden&&!menu.contains(event.target)&&!event.target.closest('#bookPreviewLayout')){menu.hidden=true;event.stopPropagation();event.preventDefault();}},true);}
     const own=String(ref.photo.layoutPreference||'auto').toLowerCase(),current=own!=='auto'?own:'auto',shown=sp.beat||'';
-    menu.innerHTML=`<div class="composition-menu-head">Композиция разворота</div>`+compositionChoices(sp).map(item=>`<button type="button" data-composition="${item.id}"${item.ok?'':' disabled'} class="${item.id===current?'is-current':''}${item.id===shown&&current==='auto'?' is-shown':''}"><span>${esc(item.label)}</span>${item.ok?'':`<i>${esc(item.why)}</i>`}</button>`).join('');
+    const allChoices=compositionChoices(sp),okChoices=allChoices.filter(item=>item.ok),hiddenCount=allChoices.length-okChoices.length;
+    // Only what fits this photo; the rest is not listed (it made some lists very long).
+    menu.innerHTML=`<div class="composition-menu-head">Композиция разворота</div>`+okChoices.map(item=>`<button type="button" data-composition="${item.id}"${item.ok?'':' disabled'} class="${item.id===current?'is-current':''}${item.id===shown&&current==='auto'?' is-shown':''}"><span>${esc(item.label)}</span>${item.ok?'':`<i>${esc(item.why)}</i>`}</button>`).join('');if(hiddenCount)menu.insertAdjacentHTML('beforeend',`<div class="composition-menu-foot">ещё ${hiddenCount} не подходят этому фото</div>`);
     const r=(previewLayout||document.body).getBoundingClientRect();
     menu.style.left=Math.round(Math.max(16,Math.min(innerWidth-376,r.left+r.width/2-180)))+'px';menu.style.top=Math.round(r.bottom+14)+'px';
     menu.hidden=false;
@@ -7507,7 +7509,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v88"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v89"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -7708,7 +7710,9 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const next=e.target.closest?.('#bookPreviewNext');
     if(next){e.preventDefault();previewGo(1);return;}
     initPreviewDom();
-    if(previewModal && e.target===previewModal)closePreview();
+    // The book closes only with ✕, Esc or the switch: an empty place
+    // never closes it.
+    if(previewModal && e.target===previewModal && !previewModal.classList.contains('has-arc'))closePreview();
   });
   window.addEventListener('keydown',e=>{
     if(e.key==='Escape'&&document.getElementById('pdfExportModal')?.classList.contains('open')){e.preventDefault();closePdfExport();return;}
@@ -7894,6 +7898,7 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .preview-strip .ps-item.is-current b{color:#e2b779}
 .composition-menu{position:fixed;z-index:2147483100;width:360px;max-height:70vh;overflow:auto;padding:12px 8px;border-radius:16px;background:rgba(40,31,24,.96);color:#f3e7d6;box-shadow:0 20px 50px rgba(0,0,0,.4);font:15px/1.3 Georgia,serif}
 .composition-menu[hidden]{display:none}
+.composition-menu-foot{padding:8px 12px 2px;font:italic 12.5px Georgia,serif;opacity:.55}
 .composition-menu-head{padding:4px 12px 10px;font:600 11px/1.2 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c9a46c}
 .composition-menu button{display:block;width:100%;text-align:left;border:0;border-radius:10px;background:none;color:inherit;font:inherit;padding:8px 12px;cursor:pointer}
 .composition-menu button:hover:not([disabled]){background:rgba(226,183,121,.16)}
@@ -9907,7 +9912,9 @@ window.__ocherkiWheel=()=>{let last=-1e9,sign=0,acc=0,stepped=false,lastStep=-1e
     // window continue the arc, smallest and invisible. So on a jump of
     // several spreads the newcomers glide in from the end of the arc and
     // the leaving ones glide out — the whole arc moves together.
-    const place=(el,i,t)=>{const n=Math.abs(i-t),m=Math.min(n,WINDOW-1),th=((i-t)*step)*Math.PI/180,w=Math.round(SIZE[m]*k),h=w/g.ratio;
+    // Beyond the window a spread waits at the last place of the arc (unseen),
+    // so nothing ever travels past the ends of the arc.
+    const place=(el,i,t)=>{const n=Math.abs(i-t),m=Math.min(n,WINDOW-1),th=(Math.sign(i-t)*m*step)*Math.PI/180,w=Math.round(SIZE[m]*k),h=w/g.ratio;
       el.style.width=w+'px';el.style.transform=`translate(${Math.round(cx+rx*Math.sin(th)-w/2)}px,${Math.round(cy+ry*Math.cos(th)-h/2)}px)`;
       el.style.opacity=n<WINDOW?FADE[n]:0;el.style.zIndex=String(100-m);el.style.pointerEvents=n<WINDOW-1?'auto':'none';};
     const from=prevTurn==null?turn:prevTurn;prevTurn=turn;
@@ -10032,6 +10039,11 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 })();
 </script>
 <style id="switch-v87">
+/* Title plate and switch: centred on the row of keys; bigger with the big interface. */
+html body .shell .project-top{top:40px!important}
+html body .shell.is-large-ui .project-top{scale:1.26;transform-origin:0 0!important;top:33px!important}
+.mode-switch.is-large{scale:1.26}
+
 /* Day and night as on the title plate: the brass face stays, a graphite
    layer fades over it and the words change colour — slowly, in 2.45s. */
 html body .mode-switch.project-key::after{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 28%,transparent 55%),linear-gradient(180deg,var(--face1),var(--face2) 43%,var(--face3) 72%,var(--face4))!important}
@@ -10068,8 +10080,9 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   sw.innerHTML='<i class="sw-dim"></i><i class="str" style="left:18%"></i><i class="str" style="left:82%"></i><button type="button" data-mode="write">Писать</button><button type="button" data-mode="manuscript">Рукопись</button><button type="button" data-mode="book">Книга</button>';
   shell.after(sw);
   const mode=()=>shell.classList.contains('is-manuscript')?'manuscript':modal?.classList.contains('open')?'book':'write';
-  let wasOpen=false;
+  let wasOpen=false,wasLarge=null;
   const sync=()=>{const m=mode();
+    {const lg=shell.classList.contains('is-large-ui');if(lg!==wasLarge){wasLarge=lg;setTimeout(()=>{measureRow();placed='';placeTop();},60);}}
     // Switching off from «Рукопись» or «Книга» leaves nothing of them behind.
     const open=shell.classList.contains('is-open');if(wasOpen&&!open){window.OCHERKI_MANUSCRIPT?.close?.();closeBook();}wasOpen=open;
     sw.dataset.mode=m;sw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
@@ -10085,7 +10098,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
         document.getElementById('buildBookBtn')?.click();const t0=Date.now();
         const iv=setInterval(()=>{if(modal?.classList.contains('open')||Date.now()-t0>20000){clearInterval(iv);setTimeout(()=>{window.OCHERKI_MANUSCRIPT.close();setTimeout(sync,60);},1300);}},80);
       }else document.getElementById('buildBookBtn')?.click();}
-    else if(target==='write'){closeBook();window.OCHERKI_MANUSCRIPT?.close();}
+    else if(target==='write'){if(now==='manuscript'){const pick=window.OCHERKI_MANUSCRIPT?.frontPick?.();if(pick)send({action:'select',...pick});}closeBook();window.OCHERKI_MANUSCRIPT?.close();}
     else if(target==='manuscript'){
       // From the book the manuscript comes over it; the book closes beneath,
       // so the editor never shows in between.
@@ -10116,7 +10129,8 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     const a=aa.getBoundingClientRect();if(!a.width)return;
     if(musicBase==null){const m=mk.getBoundingClientRect();musicBase=m.left-parseFloat(getComputedStyle(mk).marginLeft||0)-a.right;}
     rowX=Math.round(a.right+34);
-    mk.style.setProperty('margin-left',Math.round(rowX+(swW||285)+34-a.right-musicBase)+'px','important');
+    const K=shell.classList.contains('is-large-ui')?1.26:1;
+    mk.style.setProperty('margin-left',Math.round(rowX+(swW||285)*K+34-a.right-musicBase)+'px','important');
   }
   function placeTop(){
     if(shell.classList.contains('is-book-preview')||shell.classList.contains('is-manuscript')){if(!lastPaper)return;}
@@ -10124,12 +10138,15 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     if(!lastPaper)lastPaper={left:innerWidth/2-300,right:innerWidth/2+300,top:112,cx:innerWidth/2};
     const w=swW||285,acts=document.querySelector('.project-actions')?.getBoundingClientRect();
     const rightLimit=(acts&&acts.width?acts.left:innerWidth)-28;
-    const x=rowX!=null?rowX:Math.max(24,lastPaper.left-44-w),y=44;
+    // Big interface: the switch and the title grow with the keys (×1.26).
+    const K=shell.classList.contains('is-large-ui')?1.26:1;sw.classList.toggle('is-large',K>1);
+    // Centred on the row of keys (their middle is 67px down, 73px when big).
+    const x=Math.round((rowX!=null?rowX:Math.max(24,lastPaper.left-44-w))+(K-1)*w/2),y=K>1?33:40;
     // The title plate and its count of sheets (64px more) end clear of
     // «Мои книги». Its width is fixed (320, or 262 when tight), so narrowing
     // it can never make room for itself and flip back and forth.
-    const tight=rightLimit-64-(lastPaper.right+26)<320,tw=(tight?262:320)+64;
-    const key=[x,y,Math.round(rightLimit-tw),tight].join();if(key===placed)return;placed=key;
+    const tight=rightLimit-64*K-(lastPaper.right+26)<320*K,tw=((tight?262:320)+64)*K;
+    const key=[x,y,Math.round(rightLimit-tw),tight,K].join();if(key===placed)return;placed=key;
     sw.style.left=x+'px';sw.style.top=y+'px';sw.style.setProperty('--sw-thread',y+'px');
     document.documentElement.style.setProperty('--title-left',Math.round(rightLimit-tw)+'px');
     if(shell.classList.contains('is-title-tight')!==tight)shell.classList.toggle('is-title-tight',tight);
@@ -10145,9 +10162,9 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   // A gentle swing when the pointer reaches it, like the other hanging keys.
   // Same pendulum as the title plate (v17_swing): gravity, damping, limit and pushes.
   let ang=0,vel=0,raf=0,lastX=0,hov=false;
-  const step=()=>{vel+=-.0105*ang;vel*=.992;ang+=vel;if(ang>1.12){ang=1.12;vel*=-.14;}if(ang<-1.12){ang=-1.12;vel*=-.14;}
+  const step=()=>{vel+=-.0105*ang;vel*=.992;ang+=vel;if(ang>.9){ang=.9;vel*=-.14;}if(ang<-.9){ang=-.9;vel*=-.14;}
     sw.style.setProperty('--sw-rot',ang.toFixed(2)+'deg');if(!hov&&Math.abs(ang)<.02&&Math.abs(vel)<.002){ang=0;vel=0;sw.style.setProperty('--sw-rot','0deg');raf=0;return;}raf=requestAnimationFrame(step);};
-  const push=(x,amp)=>{let dir=1;if(lastX)dir=x>lastX?1:-1;lastX=x;vel=vel*.35+amp*dir*.72;if(!raf)raf=requestAnimationFrame(step);};
+  const push=(x,amp)=>{let dir=1;if(lastX)dir=x>lastX?1:-1;lastX=x;vel=vel*.35+amp*dir*.56;if(!raf)raf=requestAnimationFrame(step);};
   sw.addEventListener('pointerenter',e=>{hov=true;push(e.clientX||1,.15);});
   sw.addEventListener('click',e=>{hov=true;push(e.clientX||1,.18);});
   sw.addEventListener('pointermove',e=>{hov=true;if(Math.abs(e.clientX-lastX)>16)push(e.clientX,.11);});
@@ -10496,7 +10513,13 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     world.querySelectorAll('.ms-sheet,.ms-label').forEach((el,k)=>{el.style.transition='';el.style.transitionDelay=el===active?'0ms':(120+Math.min(k,14)*45)+'ms';});
     shell.classList.add('is-manuscript');landing?.();requestAnimationFrame(()=>{scr.classList.add('on');layout();if(active&&!quiet)active.style.opacity='0';setTimeout(()=>world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>el.style.transitionDelay=''),1700);});}
   function close(){if(!isOpen)return;isOpen=false;bookUid='';scr.classList.remove('on','is-sections');secPanel.hidden=true;shell.classList.remove('is-manuscript');bin.querySelector('.ms-bin-list').hidden=true;closeTimer=setTimeout(()=>{scr.classList.remove('is-opening');world.querySelectorAll('.ms-sheet').forEach(el=>{el.classList.remove('is-picked');el.style.transition='';});},800);}
-  window.OCHERKI_MANUSCRIPT={open,close,isOpen:()=>isOpen,
+  // «Писать» from the manuscript opens the chapter that is in front: the
+  // open sheet if it belongs to it, otherwise the first sheet of the front row.
+  const frontPick=()=>{const cg=currentGroup(),g=groups[cg];if(!g||!g.sheets.length)return null;
+    if(g.sheets.some(x=>x.p.uid===activeUid))return null;
+    const el=world.querySelector(`.ms-sheet[data-c="${cg}"][data-k="${Math.round(focus)}"]:not(.is-new)`);const sh=el?g.sheets[+el.dataset.i]:g.sheets[0];
+    return sh?{sectionId:sh.s.id,pageUid:sh.p.uid}:null;};
+  window.OCHERKI_MANUSCRIPT={open,close,frontPick,isOpen:()=>isOpen,
     sheetOf:el=>{const g=groups[+el?.dataset.c],sh=g?.sheets?.[+el?.dataset.i];if(!sh)return null;
       const title=String(sh.p.episode&&sh.s.type==='chapter'?String(sh.p.episode).replace(/^Эпизод\s+\d+[.:]?\s*/i,''):(sh.p.title||sh.s.title||'')).trim();return {s:sh.s,p:sh.p,title};}};
   addEventListener('resize',()=>{if(isOpen)layout();});
@@ -10528,6 +10551,20 @@ html body .ms-sec.is-on,html body .ms-sec.is-on:hover{border:0!important;backgro
 html body .ms-sec-note{margin:16px 0 0!important;text-align:center;font:italic 14px Georgia,serif!important;color:rgba(255,240,220,.75)!important}
 html body .ms-sections .ms-sec-close{position:absolute!important;top:12px;right:14px;z-index:2;border:0;background:none;font:26px/1 Georgia,serif;color:#7a5632;cursor:pointer}
 </style>
+<style id="dark-page-host">
+.page-canvas-host:has(.dpk-x-vignette,.dpk-x-fade-dark){background:#0b0b0a!important}
+</style>
+<style id="ms-same-backdrop">
+/* «Рукопись» on the very same backdrop as «Писать» and «Книга» (by night
+   the toile pattern): the manuscript screen itself is transparent and the
+   editor's things fade away under it. */
+html body .ms-screen,html body .ms-screen.is-night{background:transparent!important}
+.shell>:is(.power-dock,.mode-controls,.sound-panel,.project-actions,.project-top,.book-map-shell,.writing-prompt,.writing-prompt-restore,.book-design-shell,.editor-stage,.bottom-left,.write-nav,.tool-top){transition:opacity .6s ease}
+html body .shell.is-manuscript>:is(.power-dock,.mode-controls,.sound-panel,.project-actions,.project-top,.book-map-shell,.writing-prompt,.writing-prompt-restore,.book-design-shell,.editor-stage,.bottom-left,.write-nav,.tool-top){opacity:0!important;pointer-events:none!important}
+/* By day the open sheet needs a darker frame to stand out on the light paper-coloured backdrop. */
+html body .ms-screen:not(.is-night) .ms-sheet.is-active .ms-paper{box-shadow:0 0 0 2.5px #a8662a,0 0 0 8px rgba(168,102,42,.22),0 0 40px 6px rgba(120,60,10,.25),0 48px 70px rgba(60,30,10,.45)!important}
+html body .ms-screen:not(.is-night) .ms-sheet.is-active .ms-float::after{color:#6b431f;text-shadow:0 1px 0 rgba(255,245,225,.8)}
+</style>
 <style id="ms-v87">
 /* Prints in the tray: they came in on «translate», so the hover (on
    «transform») glides instead of jumping; the neighbours rise a little too,
@@ -10535,7 +10572,7 @@ html body .ms-sections .ms-sec-close{position:absolute!important;top:12px;right:
 @keyframes msPrintIn87{from{opacity:0;translate:0 40px}to{opacity:1;translate:0 0}}
 html body .ms-print{animation:msPrintIn87 .6s cubic-bezier(.2,.8,.3,1) both;--ly:0px;--ls:1;--rk:1;
   transform:translateY(var(--ly)) rotate(calc(var(--r,0deg) * var(--rk))) scale(var(--ls))!important;
-  transition:transform .32s cubic-bezier(.22,.8,.3,1),box-shadow .5s ease!important}
+  transition:transform .55s cubic-bezier(.2,.75,.25,1),box-shadow .6s ease!important}
 html body .ms-print:hover{z-index:3;box-shadow:0 20px 32px rgba(40,22,8,.42)}
 html body .ms-print.is-dragging{transform:none!important;transition:none!important;animation:none!important}
 /* The sheet that is open in «Писать» or in the book stands out: larger, warm light. */
@@ -10631,6 +10668,10 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
 #bookPreviewModal.open.has-arc .composition-menu,
 #bookPreviewModal.open.has-arc .recompose-undo.is-on,
 #bookPreviewModal.open.has-arc .book-rhythm-warning{pointer-events:auto}
+/* Every tool that lives in the book (photo +/−, composition list, the
+   hanging composition keys) answers the pointer; only the full-screen arc
+   layer lets it through. */
+#bookPreviewModal.open.has-arc>*:not(.preview-arc):not(.preview-catcher),#bookPreviewModal.open.has-arc .photo-frame-tools{pointer-events:auto!important}
 </style>
 <style id="book-screen-panel-arc">
 .shell:has(.bd-section.is-rail-open) ~ #bookPreviewModal :is(.book-preview-stage,.preview-arc,.book-preview-info){filter:blur(9px)!important;opacity:.55!important;transition:filter .5s ease,opacity .5s ease!important}
@@ -10693,7 +10734,7 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
   idb().then(db=>{const rq=db.transaction('t').objectStore('t').get('stack');rq.onsuccess=()=>{stack=Array.isArray(rq.result)?rq.result:[];draw();};}).catch(()=>{});
   // Like the Dock: the print under the pointer rises most, its neighbours
   // less and less — the wave follows the pointer.
-  prints.addEventListener('pointermove',e=>{if(carrying)return;const list=[...prints.querySelectorAll('.ms-print')];list.forEach(el=>{const r=el.getBoundingClientRect(),d=Math.abs(e.clientX-(r.left+r.width/2)),f=Math.max(0,1-d/150),q=f*f*(3-2*f);
+  prints.addEventListener('pointermove',e=>{if(carrying)return;const list=[...prints.querySelectorAll('.ms-print')];list.forEach(el=>{const r=el.getBoundingClientRect(),d=Math.abs(e.clientX-(r.left+r.width/2)),f=Math.max(0,1-d/190),q=f*f*(3-2*f);
     el.style.setProperty('--ly',(-18*q).toFixed(1)+'px');el.style.setProperty('--ls',(1+.1*q).toFixed(3));el.style.setProperty('--rk',(1-q).toFixed(2));});});
   prints.addEventListener('pointerleave',()=>prints.querySelectorAll('.ms-print').forEach(el=>{el.style.setProperty('--ly','0px');el.style.setProperty('--ls','1');el.style.setProperty('--rk','1');}));
   function draw(){prints.innerHTML='';stack.forEach((p,i)=>{const el=document.createElement('div');el.className='ms-print';el.dataset.id=p.id;el.style.setProperty('--r',(((i*37)%9)-4)+'deg');el.innerHTML=`<img src="${p.src}" alt="">`;el.addEventListener('pointerdown',e=>carry(e,el,p));prints.appendChild(el);});
@@ -10784,9 +10825,11 @@ html body .shell .writing-prompt,html body .shell .writing-prompt.is-visible,htm
 html body .mode-switch.project-key,html body .mode-switch.project-key:hover{color:#3a2a1c!important}
 html body .mode-switch.project-key.is-night,html body .mode-switch.project-key.is-night:hover{color:#f3e7d6!important}
 html body .mode-switch.is-fading,html body .mode-switch.is-fading button{transition:color 2.45s cubic-bezier(.37,0,.63,1),opacity .9s,filter .9s,translate 1.46s cubic-bezier(.22,.72,.18,1)!important}
-html body .mode-switch button{transition:color .3s,text-shadow .3s!important;background:none!important;box-shadow:none!important;border-radius:12px}
-html body .mode-switch button:hover{color:#a8692f!important;opacity:1}
-html body .mode-switch.is-night button:hover{color:#f0c68a!important}
+html body .mode-switch button{transition:color .9s cubic-bezier(.3,.6,.3,1),text-shadow .9s cubic-bezier(.3,.6,.3,1)!important;background:none!important;box-shadow:none!important;border-radius:12px}
+/* A word under the pointer lights up slowly, like the lamp key: warm
+   colour and a glow that grows around the letters. */
+html body .mode-switch button:hover{color:#b8732e!important;opacity:1;text-shadow:0 0 6px rgba(255,196,120,.85),0 0 16px rgba(255,170,80,.55),0 0 30px rgba(255,150,60,.3)}
+html body .mode-switch.is-night button:hover{color:#ffd99a!important;text-shadow:0 0 6px rgba(255,210,140,.9),0 0 18px rgba(255,180,90,.6),0 0 34px rgba(255,160,70,.35)}
 html body .mode-switch button.on{opacity:1;box-shadow:inset 0 2px 4px rgba(40,24,10,.32),inset 0 0 0 1px rgba(73,52,35,.28),0 1px 0 rgba(255,246,228,.35)!important;background:rgba(120,85,50,.08)!important}
 html body .mode-switch.is-night button.on{box-shadow:inset 0 2px 5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(0,0,0,.5),0 1px 0 rgba(255,235,205,.08)!important;background:rgba(0,0,0,.18)!important}
 </style>

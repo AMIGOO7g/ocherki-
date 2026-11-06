@@ -91,29 +91,21 @@
   .bc-book.is-leaving{transition:transform .5s ease,opacity .5s ease!important;transform:translateY(-30px) scale(.9)!important;opacity:0!important}
   .bc-tip b{display:block;font:400 19px/1.2 'CormorantCy',Georgia,serif;letter-spacing:.01em}
   .bc-tip i{display:block;margin-top:4px;font:italic 400 13px/1.3 Georgia,serif;color:#cfb68e}
-  /* Stage 4: no brass frame round the case — only the dark cabinet; the
-     close key hangs on a thread in the middle of the top, like the keys of
-     the constructor; the shelves have depth: a lit top surface the books
-     stand on, a dark back wall and shaded sides. */
-  .bc-case{padding:0!important;border-radius:0!important;background:radial-gradient(130% 60% at 50% 0%,#2b2622 0%,#1b1816 55%,#131110 100%)!important;box-shadow:-30px 0 70px rgba(0,0,0,.55)!important}
-  .bc-case::before{display:none}
-  .bc-inner{border-radius:0!important;background:none!important;box-shadow:none!important}
-  .bc-head{height:128px!important;flex-direction:column;justify-content:flex-end!important;padding-bottom:16px;box-sizing:border-box}
-  .bc-title{font-size:30px!important}
-  .bc-close{left:50%!important;right:auto!important;top:44px!important;width:44px!important;height:44px!important;margin-left:-22px;font:22px/44px Georgia,serif!important;
-    background:linear-gradient(180deg,#efe3cb,#e6d5b5 43%,#d9bf98 72%,#cba777)!important;color:#4a3324!important;
-    box-shadow:0 0 0 2px #c59664,0 0 0 3px #4a3324,0 8px 14px rgba(0,0,0,.5)!important;transition:transform .5s cubic-bezier(.2,.8,.3,1)}
-  .bc-close::before{content:'';position:absolute;left:50%;bottom:100%;width:1.2px;height:46px;margin-bottom:3px;background:linear-gradient(to bottom,rgba(245,225,198,.15),rgba(245,225,198,.5))}
-  .bc-close:hover{transform:rotate(4deg);color:#b56e27!important}
-  .bc-head{position:relative}
+  /* The brass case stays. The close key hangs on a thread in the middle of
+     the top, a round brass key like the constructor's (brass rim, cream
+     face, soft shadow) and swings when the pointer touches it; the title
+     sits lower, clear of it. Shelves are only their bright copper edge. */
+  .bc-head{height:118px!important;align-items:flex-end!important;padding-bottom:14px;box-sizing:border-box}
+  .bc-close{left:50%!important;right:auto!important;top:10px!important;width:46px!important;height:46px!important;margin-left:-23px;padding:0;
+    background:none!important;box-shadow:none!important;transform-origin:50% -10px;transition:none!important}
+  .bc-close::before{content:'';position:absolute;left:50%;bottom:100%;width:1.2px;height:12px;background:linear-gradient(to bottom,rgba(255,236,200,.25),rgba(255,236,200,.6))}
+  .bc-close i{position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,#ead4b1 0%,#c59664 24%,#8e6242 62%,#4a3324 100%);
+    box-shadow:inset 0 1px 0 rgba(255,246,228,.4),inset 0 -1px 0 rgba(63,43,29,.45),0 2px 0 rgba(62,42,29,.56),0 6px 10px rgba(0,0,0,.45)}
+  .bc-close i::after{content:'';position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 50% 53%,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 24%,transparent 47%),radial-gradient(circle at 50% 50%,#efe3cb 0%,#e6d5b5 43%,#d9bf98 72%,#cba777 100%);
+    box-shadow:inset 0 4px 5px rgba(0,0,0,.26),inset 0 1px 1px rgba(0,0,0,.3),inset 0 0 0 1px rgba(73,52,35,.3)}
+  .bc-close b{position:relative;z-index:1;display:block;font:400 22px/46px Georgia,serif;color:#4a3324;transition:color .4s}
+  .bc-close:hover b{color:#b56e27}
   .bc-title{margin-top:auto}
-  .bc-niche{height:${NICHE + 14}px!important;padding-bottom:12px!important;box-sizing:border-box;
-    background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 40%),
-      linear-gradient(0deg,#5b4330 0,#3b2b1f 12px,rgba(0,0,0,0) 13px),
-      radial-gradient(90% 70% at 50% 10%,rgba(255,196,120,.14),rgba(255,196,120,0) 65%),
-      linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,0) 9%,rgba(0,0,0,0) 91%,rgba(0,0,0,.45))!important}
-  .bc-niche .bc-book{margin-bottom:-2px;filter:drop-shadow(5px 6px 5px rgba(0,0,0,.45))}
-  .bc-niche .bc-book:hover{filter:brightness(1.1) drop-shadow(5px 10px 8px rgba(0,0,0,.5))}
   @media (prefers-reduced-motion: reduce){.bc-case,.bc-veil,.bc-book{transition:none!important}.bc-dust{display:none}}`;
 
   const hash = text => { let h = 7; for (const ch of String(text)) h = (h * 31 + ch.codePointAt(0)) >>> 0; return h; };
@@ -163,7 +155,7 @@
     if (!document.getElementById('bc-style')) { const style = document.createElement('style'); style.id = 'bc-style'; style.textContent = STYLE; document.head.appendChild(style); }
     const veil = document.createElement('div'); veil.className = 'bc-veil';
     const shelf = document.createElement('aside'); shelf.className = 'bc-case'; shelf.setAttribute('aria-label', 'Мои книги');
-    shelf.innerHTML = `<div class="bc-inner"><div class="bc-head"><div class="bc-title">Мои книги</div><button type="button" class="bc-close" aria-label="Закрыть">×</button></div><div class="bc-scroll"><canvas class="bc-dust"></canvas></div></div>`;
+    shelf.innerHTML = `<div class="bc-inner"><div class="bc-head"><div class="bc-title">Мои книги</div><button type="button" class="bc-close" aria-label="Закрыть"><i></i><b>×</b></button></div><div class="bc-scroll"><canvas class="bc-dust"></canvas></div></div>`;
     const scroll = shelf.querySelector('.bc-scroll');
     const tip = document.createElement('div'); tip.className = 'bc-tip';
     document.body.append(veil, shelf, tip);
@@ -214,7 +206,7 @@
       used += width + 3; order++;
     }
     // Empty niches down to the bottom of the screen: the case is always full height.
-    const nicheStep = NICHE + 14 + BOARD;
+    const nicheStep = NICHE + BOARD;
     while ((scroll.querySelectorAll('.bc-niche').length + 1) * nicheStep <= scroll.clientHeight - 20) makeNiche();
 
     const showTip = button => {
@@ -255,6 +247,14 @@
     };
     shelf.addEventListener('click', event => { if (!event.target.closest('.bc-book')) card.hidden = true; });
     shelf.querySelector('.bc-close').addEventListener('click', () => { card.remove(); close(); });
+    // The close key swings like the constructor's hanging keys.
+    { const key = shelf.querySelector('.bc-close'); let ang = 0, vel = 0, raf = 0, lastX = 0;
+      const step = () => { vel += -.0105 * ang; vel *= .992; ang += vel; if (Math.abs(ang) > 9) { ang = Math.sign(ang) * 9; vel *= -.14; }
+        key.style.transform = `rotate(${ang.toFixed(2)}deg)`; if (Math.abs(ang) < .02 && Math.abs(vel) < .002) { key.style.transform = ''; raf = 0; return; } raf = requestAnimationFrame(step); };
+      const push = (x, amp) => { const dir = lastX ? (x > lastX ? 1 : -1) : 1; lastX = x; vel = vel * .35 + amp * dir; if (!raf) raf = requestAnimationFrame(step); };
+      key.addEventListener('pointerenter', e => push(e.clientX, 1.1));
+      key.addEventListener('pointermove', e => { if (Math.abs(e.clientX - lastX) > 8) push(e.clientX, .5); });
+      key.addEventListener('pointerleave', () => { lastX = 0; }); }
     veil.addEventListener('click', () => card.remove());
     veil.addEventListener('click', close);
     const onKey = event => { if (event.key === 'Escape') close(); };

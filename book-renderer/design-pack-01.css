@@ -2974,3 +2974,10 @@ body .dpk-page.dpk-endpaper-mono .dpk-monogram-name{margin-top:40px!important;fo
 body .dpk-page.dpk-dom-paginated .dpk-end-mark{position:absolute!important;left:70px!important;right:91px!important;top:calc(var(--dpk-flow-origin) + var(--dpk-flow-height) + 34px)!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:14px!important;color:var(--dpk-accent)!important}
 body .dpk-page.dpk-dom-paginated .dpk-end-mark i{display:block!important;width:46px!important;height:1px!important;background:var(--dpk-accent)!important;opacity:.6!important}
 body .dpk-page.dpk-dom-paginated .dpk-end-mark span{font:400 15px/1 'CormorantCy',Georgia,serif!important}
+
+/* Dark compositions: no light hairline at the photo's edges (the page or
+   its host showed through at the rounded edge of a scaled picture). The
+   photo's rim sinks into the black sheet. */
+body .dpk-page.dpk-x-vignette .dpk-x-vignette-photo::after,
+body .dpk-page.dpk-x-fade-dark .dpk-x-fade-photo::after{content:""!important;position:absolute!important;inset:-1px!important;z-index:1!important;pointer-events:none!important;box-shadow:inset 0 0 0 3px #0b0b0a,inset 0 0 22px 8px rgba(11,11,10,.85)!important}
+body .dpk-page.dpk-x-fade-dark{background:#11110f!important}
