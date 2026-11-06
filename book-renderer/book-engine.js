@@ -1495,8 +1495,12 @@
           const flow=lastText.measuredFlow;
           // A margin note the book chose itself gives way on an ending page
           // (the author's own note stays and the page is left as it is).
-          const saved={rhythm:lastText.rhythm,master:lastText.master,marginNote:lastText.marginNote};
+          const saved={rhythm:lastText.rhythm,master:lastText.master,marginNote:lastText.marginNote,importantLine:lastText.importantLine,innerImportantLines:lastText.innerImportantLines,inlineQuote:lastText.inlineQuote};
           if(['margin','important-margin'].includes(flow.mode)&&lastText.autoMarginNote){lastText.rhythm=flow.mode==='margin'?'plain':'important';lastText.master=masters[lastText.rhythm]||lastText.master;lastText.marginNote='';}
+          // A handwritten line or a quote the book chose itself also gives way:
+          // the last page of a chapter is two equal columns and the end mark.
+          if(['important','important-margin'].includes(lastText.rhythm||flow.mode)&&lastText.autoImportant){lastText.rhythm='plain';lastText.master=masters.plain||lastText.master;lastText.importantLine='';delete lastText.innerImportantLines;}
+          if((lastText.rhythm||flow.mode)==='inline-quote'&&lastText.autoInlineQuote){lastText.rhythm='plain';lastText.master=masters.plain||lastText.master;lastText.inlineQuote='';}
           const restoreNote=()=>Object.assign(lastText,saved);
           // The chapter opening page is balanced too when the whole chapter fits on it.
           if(!['plain','important'].includes(lastText.rhythm||flow.mode)&&!(lastText.layout==='chapter-intro'&&flow.mode==='chapter')){restoreNote();continue;}

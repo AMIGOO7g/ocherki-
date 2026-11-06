@@ -5321,7 +5321,12 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 <script>
 (()=>{const lab=document.querySelector('.photo-modal .photo-hero-toggle');if(!lab)return;const box=lab.querySelector('input');
   lab.textContent='';lab.append(box,document.createTextNode('Это портрет героя книги'));
-  const hint=document.querySelector('.photo-modal .photo-hero-hint');if(hint)hint.textContent='Книга откроет главу этим портретом на целый разворот. Имя — из поля «Кто на фото».';})();
+  const hint=document.querySelector('.photo-modal .photo-hero-hint');const BASE='Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот; имя — из поля «Кто на фото».';
+  if(hint)hint.textContent=BASE;
+  // A wide picture (a landscape, a group) cannot open the chapter as the hero's portrait: say so at once.
+  const check=()=>{try{const p=currentPhotos()[activePhoto];const w=+p?.width||0,h=+p?.height||0;const wide=w&&h&&w/h>1.15;
+    if(hint){hint.textContent=box.checked&&wide?'Этот снимок горизонтальный — для портрета героя нужен вертикальный снимок одного человека. Книга поставит его как обычное фото.':BASE;hint.style.color=box.checked&&wide?'#a4472f':'';}}catch(_){}};
+  box.addEventListener('change',check);document.getElementById('photoModal')?.addEventListener('transitionend',check);setInterval(()=>{if(document.getElementById('photoModal')?.classList.contains('open'))check();},800);})();
 </script>
 </body>
 </html>
