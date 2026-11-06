@@ -1065,6 +1065,11 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
 .footer .next-step .ns-text{border-bottom:1px solid rgba(74,54,40,.3)!important}
 .footer .next-step:hover .ns-text,.footer #nsBook:hover{color:#8a4b2a!important}
 .footer #nsBook{border-bottom:1px solid rgba(74,54,40,.3)!important}
+/* One line: every item on the same baseline, the same strength of ink. */
+html body .sheet .footer{align-items:center!important}
+html body .footer :is(#saveState,#nsBook,#nextStep,.next-step .ns-label,.next-step .ns-text){display:inline-flex!important;align-items:center;height:18px!important;line-height:18px!important;padding-top:0!important;padding-bottom:0!important;margin-top:0!important;margin-bottom:0!important;opacity:1!important;filter:none!important;color:#4a3628!important}
+html body .footer #nextStep{gap:6px}
+html body .footer #saveState{position:relative;top:3px}
 </style>
 </head>
 <body>
@@ -4947,6 +4952,8 @@ window.addEventListener('message',e=>{
         if(section.type === 'chapter' && section.pages.length > 1){
           section.pages.splice(index, 1);
           bin.push({id, kind:'page', sectionId:section.id, index, page, name, from:section.title});
+          // The sheet being written stays open when a sheet before it goes.
+          if(index < (section.active || 0)) section.active = (section.active || 0) - 1;
           section.active = Math.min(section.active || 0, section.pages.length - 1);
         } else if(section.type === 'chapter' && sections.filter(item => item.type === 'chapter').length > 1){
           sections.splice(si, 1);
@@ -5269,6 +5276,32 @@ html body .page-context-actions button:hover{color:#a8692f!important}
       setTimeout(()=>{const el=document.getElementById('editor');if(!el)return;el.focus();const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);},180);},60);
   },true);
 })();
+</script>
+<script id="empty-sheet-left">
+// A written sheet that has become empty (no words, no photos) goes to the bin
+// as soon as the author leaves it — no empty sheets stay in the book.
+(()=>{let prev=null;
+  const isEmpty=p=>p&&!String(p.text||'').replace(/[\s\u200b]/g,'')&&!(p.photos||[]).some(x=>x&&x.src);
+  setInterval(()=>{try{const sec=currentSection(),page=currentPage();if(!sec||!page)return;
+    const key=(page.uid||page.id);
+    if(prev&&prev.uid!==key){const s2=sections.find(x=>x.id===prev.sid);const pg=s2?.pages?.find(x=>(x.uid||x.id)===prev.uid);
+      if(s2&&s2.type==='chapter'&&s2.pages.length>1&&pg&&pg.userEdited&&!pg.sample&&isEmpty(pg))window.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'deletePage',sectionId:s2.id,pageUid:prev.uid},'*');}
+    prev={uid:key,sid:sec.id};}catch(_){}} ,700);
+})();
+</script>
+<script id="delete-section-cmd">
+// A whole chapter goes to the bin at once (it comes back with «Вернуть»).
+window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_STRUCTURE_COMMAND'||d.action!=='deleteSection')return;
+  try{saveEditor();}catch(_){}
+  const si=sections.findIndex(x=>x.id===d.sectionId),section=sections[si];if(!section||section.type!=='chapter')return;
+  if(sections.filter(x=>x.type==='chapter').length<2){window.parent.postMessage({type:'OCHERKI_MANUSCRIPT_NOTE',text:'Это единственная глава — в книге должна остаться хотя бы одна'},'*');return;}
+  const current=sections[activeSection],bin=window.__ocherkiBin=window.__ocherkiBin||[];
+  sections.splice(si,1);bin.push({id:'bin_'+Date.now().toString(36),kind:'section',index:si,section,name:section.title,from:'целая глава'});while(bin.length>40)bin.shift();
+  try{renumberChapters();}catch(_){}
+  activeSection=sections.indexOf(current);if(activeSection<0)activeSection=Math.max(0,sections.findIndex(x=>x.type==='chapter'));
+  try{render();}catch(_){}try{persistSoon();}catch(_){}try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
+  window.parent.postMessage({type:'OCHERKI_MANUSCRIPT_BIN',items:bin.map(x=>({id:x.id,name:x.name,from:x.from,kind:x.kind}))},'*');
+});
 </script>
 <style id="photo-card-all-open">
 /* The photo card opens with every field at once (no «Рассказать историю…»

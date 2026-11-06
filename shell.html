@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v92">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v93">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v92" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v93" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v92"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v92"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v92"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v92"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v92"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v92"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v93"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v93"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v93"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261106-v93"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v93"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v93"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v92"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v92"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v93"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v93"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7351,7 +7351,11 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(!link){link=document.createElement('button');link.type='button';link.id='recomposeUndo';link.className='recompose-undo';link.textContent='Вернуть как было';
       link.addEventListener('click',event=>{event.stopPropagation();undoComposition();});(previewModal||document.body).appendChild(link);}
     const keys=(document.getElementById('bookPreviewLayoutHanger')||previewLayout)?.getBoundingClientRect();
-    if(keys){link.style.top=Math.round(keys.bottom+6)+'px';link.style.left=Math.round(keys.left+keys.width/2)+'px';}
+    // Beside the composition keys (to their right), never over the page —
+    // in a tall format the book reaches up to the keys.
+    if(keys&&keys.width){const book=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();const below=keys.bottom+6+24;
+      if(book&&book.width&&below>book.top-4){link.style.top=Math.round(keys.top+keys.height/2-12)+'px';link.style.left=Math.round(keys.right+18)+'px';link.style.transform='none';}
+      else{link.style.top=Math.round(keys.bottom+6)+'px';link.style.left=Math.round(keys.left+keys.width/2)+'px';link.style.transform='';}}
     const on=compositionUndo.length>0&&previewModal?.classList.contains('open')&&!previewSpread?.classList.contains('is-recomposing');
     link.classList.toggle('is-on',!!on);
   }
@@ -7525,7 +7529,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v92"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v93"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -7934,9 +7938,9 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .book-notice-close:hover{opacity:1}
 </style>
 <style id="v30-hanging-tooltips">
-.hanging-tip{position:fixed;z-index:12020;pointer-events:none;white-space:nowrap;color:#f3e4cf;font:italic 400 14px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em;opacity:0;filter:blur(5px);transform:translate(-50%,6px);transition:opacity .42s ease,filter .42s ease,transform .42s cubic-bezier(.2,.8,.3,1);text-shadow:none}
+.hanging-tip{position:fixed;z-index:2147483250;pointer-events:none;white-space:nowrap;color:#f3e4cf;font:italic 400 14px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em;opacity:0;filter:blur(5px);transform:translate(-50%,6px);transition:opacity .42s ease,filter .42s ease,transform .42s cubic-bezier(.2,.8,.3,1);text-shadow:none}
 .hanging-tip.show{opacity:.92;filter:blur(0);transform:translate(-50%,0)}
-.shell:not(.is-night) .hanging-tip{color:#6b4d37}
+.shell:not(.is-night) ~ .hanging-tip,.shell:not(.is-night) .hanging-tip,body:has(.shell:not(.is-night)) .hanging-tip{color:#6b4d37}
 </style>
 <script id="v30-hanging-tooltip-controller">
 (()=>{
@@ -7966,7 +7970,12 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
     });
   }
 
-  document.querySelectorAll('.hanging .key[aria-label]').forEach(btn=>{
+  // Every hanging key, including the ones that appear later (composition
+  // keys in the book, «Написать нам»), gets the same quiet caption.
+  let hoverKey=null;
+  document.addEventListener('mouseover',e=>{const btn=e.target.closest?.('.hanging .key[aria-label]');if(!btn||btn===hoverKey||btn.dataset.tipBound==='1')return;hoverKey=btn;place(btn,true);setTimeout(()=>place(btn,true),120);});
+  document.addEventListener('mouseout',e=>{const btn=e.target.closest?.('.hanging .key[aria-label]');if(!btn||btn.dataset.tipBound==='1'||btn.contains(e.relatedTarget))return;hoverKey=null;tip.classList.remove('show');timer=setTimeout(()=>{tip.textContent=''},430);});
+  document.querySelectorAll('.hanging .key[aria-label]').forEach(btn=>{btn.dataset.tipBound='1';
     btn.addEventListener('mouseenter',()=>{place(btn,true);setTimeout(()=>place(btn,true),120);});
     btn.addEventListener('mouseleave',()=>{
       tip.classList.remove('show');
@@ -8056,7 +8065,7 @@ function waitPreviewReady(cb){
     <div class="book-preview-info" id="bookPreviewInfo"></div>
     <div class="book-preview-layout-hanger" id="bookPreviewLayoutHanger" aria-label="Ручной выбор композиции">
       <div class="hanging book-preview-control book-preview-control-prev"><button class="key book-preview-layout-step book-preview-layout-prev" id="bookPreviewLayoutPrev" type="button" aria-label="Предыдущая композиция" disabled><span class="cap"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M34 24H14"></path><path d="M21 16l-8 8 8 8"></path></svg></span></button></div>
-      <div class="hanging book-preview-control book-preview-control-main"><button class="key book-preview-layout" id="bookPreviewLayout" type="button" aria-label="Следующая композиция" disabled><span class="cap"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M34 17a14 14 0 1 0 1 14"></path><path d="M34 8v9h-9"></path></svg></span></button></div>
+      <div class="hanging book-preview-control book-preview-control-main"><button class="key book-preview-layout" id="bookPreviewLayout" type="button" aria-label="Все композиции" disabled><span class="cap"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M34 17a14 14 0 1 0 1 14"></path><path d="M34 8v9h-9"></path></svg></span></button></div>
       <div class="hanging book-preview-control book-preview-control-next"><button class="key book-preview-layout-step book-preview-layout-next" id="bookPreviewLayoutNext" type="button" aria-label="Следующая композиция" disabled><span class="cap"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 24h20"></path><path d="M27 16l8 8-8 8"></path></svg></span></button></div>
     </div>
     <div class="book-rhythm-warning" id="bookRhythmWarning" hidden role="status" aria-live="polite">
@@ -10008,51 +10017,71 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 .write-nav button:disabled{opacity:.25;cursor:default}
 </style>
 <style id="contact-letter-style">
-/* «Написать нам»: a letter on warm paper over a soft veil. */
-.ct-veil{position:fixed;inset:0;z-index:2147483300;background:rgba(18,12,8,.0);backdrop-filter:blur(0);transition:background .5s,backdrop-filter .5s;pointer-events:none}
-.ct-veil.on{background:rgba(18,12,8,.45);backdrop-filter:blur(4px);pointer-events:auto}
-.ct-letter{position:fixed;left:50%;top:50%;z-index:2147483301;width:min(520px,calc(100vw - 40px));box-sizing:border-box;padding:34px 40px 28px;color:#3a2a1c;
-  background:linear-gradient(170deg,#fffaf0,#f5e9d3);border-radius:4px;box-shadow:0 30px 70px rgba(20,10,4,.45);
-  transform:translate(-50%,-46%) rotate(-1deg);opacity:0;pointer-events:none;transition:opacity .45s ease,transform .6s cubic-bezier(.2,.8,.3,1)}
-.ct-letter.on{opacity:1;transform:translate(-50%,-50%) rotate(-.4deg);pointer-events:auto}
-.ct-letter h3{margin:0 0 4px;font:400 38px/1.1 'SignThatS','CormorantCy',Georgia,serif;color:#5a3d26}
-.ct-letter p{margin:0 0 18px;font:italic 15px/1.45 Georgia,serif;color:#7a5a3a}
-.ct-letter label{display:block;margin:12px 0 2px;font:600 10px Georgia,serif;letter-spacing:.18em;text-transform:uppercase;color:rgba(90,61,38,.6)}
-.ct-letter input,.ct-letter textarea{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid rgba(90,61,38,.3);background:transparent;padding:6px 0;font:16px/1.5 Georgia,serif;color:#2c1f14;outline:none;resize:none}
-.ct-letter textarea{height:120px;background:repeating-linear-gradient(transparent 0 23px,rgba(90,61,38,.14) 23px 24px);border-bottom:0;line-height:24px}
-.ct-letter input:focus,.ct-letter textarea:focus{border-color:#b07a3a}
-.ct-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:12px}
-.ct-row small{font:italic 13px Georgia,serif;color:#8a6a3e}
-.ct-row small a{color:#8a6a3e}
-.ct-send{border:0;border-radius:22px;padding:10px 22px;background:#5a3d26;color:#fbf4e8;font:italic 16px Georgia,serif;cursor:pointer;transition:background .3s}
-.ct-send:hover{background:#7a5632}
-.ct-x{position:absolute;top:12px;right:16px;border:0;background:none;font:24px/1 Georgia,serif;color:#7a5632;cursor:pointer}
-.ct-done{display:none;text-align:center}
-.ct-letter.is-sent .ct-form{display:none}.ct-letter.is-sent .ct-done{display:block}
-.ct-done .ct-seal{width:58px;height:58px;margin:6px auto 14px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#c4573f,#8c2a1d 70%);box-shadow:0 4px 10px rgba(80,20,10,.4);display:grid;place-items:center;color:#f6d9c4;font:400 26px 'SignThatS',Georgia,serif}
+/* «Написать нам»: an old postcard — «Письмо» on the left, «Адрес» on the
+   right, a stamp in the corner; after sending a postmark lands on it. */
+.ct-veil{position:fixed;inset:0;z-index:2147483300;background:rgba(18,12,8,0);backdrop-filter:blur(0);transition:background .5s,backdrop-filter .5s;pointer-events:none}
+.ct-veil.on{background:rgba(18,12,8,.5);backdrop-filter:blur(5px);pointer-events:auto}
+.ct-card{position:fixed;left:50%;top:50%;z-index:2147483301;width:min(920px,calc(100vw - 40px));aspect-ratio:1.55;box-sizing:border-box;padding:3.4% 4.4% 3%;color:#2e2116;
+  background:radial-gradient(circle at 18% 22%,rgba(150,110,60,.13) 0 2%,transparent 3%),radial-gradient(circle at 72% 64%,rgba(150,110,60,.10) 0 1.5%,transparent 2.5%),radial-gradient(circle at 40% 80%,rgba(150,110,60,.09) 0 1%,transparent 2%),
+    radial-gradient(ellipse at center,#f4ead2 0%,#ecdfc0 62%,#dcc9a0 100%);
+  border-radius:6px;box-shadow:0 2px 0 rgba(255,255,255,.4) inset,0 0 40px rgba(120,80,30,.25) inset,0 30px 80px rgba(10,5,0,.55);
+  transform:translate(-50%,-46%) rotate(-1.2deg);opacity:0;pointer-events:none;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.8,.3,1);display:grid;grid-template-rows:auto auto 1fr auto}
+.ct-card.on{opacity:1;transform:translate(-50%,-50%) rotate(-.6deg);pointer-events:auto}
+.ct-head{text-align:center;font:400 clamp(26px,3.6vw,40px)/1 Georgia,'Times New Roman',serif;letter-spacing:.16em;color:#2a1e14}
+.ct-sub{margin:10px 0 16px;text-align:center;font:italic clamp(12px,1.3vw,15px) Georgia,serif;color:#4a3828}
+.ct-body{display:grid;grid-template-columns:1fr 1px 1fr;gap:0 4%;min-height:0}
+.ct-rule{background:linear-gradient(#5a4632,#5a4632) center/1px 100% no-repeat}
+.ct-col h4{margin:0 0 10px;text-align:center;font:italic 400 clamp(15px,1.6vw,19px) Georgia,serif;color:#3a2a1c}
+.ct-letter-text{width:100%;height:calc(100% - 34px);box-sizing:border-box;border:0;outline:none;resize:none;background:repeating-linear-gradient(transparent 0 29px,rgba(70,50,30,.32) 29px 30px);line-height:30px;font:italic 17px/30px Georgia,serif;color:#2a1e14;padding:0 4px}
+.ct-addr label{display:block;position:relative;margin:0 0 14px;padding-top:4px}
+.ct-addr label span{display:block;font:11px Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(58,42,28,.55)}
+.ct-addr input{width:100%;box-sizing:border-box;border:0;border-bottom:1px dotted rgba(70,50,30,.6);background:transparent;outline:none;padding:6px 2px;font:italic 18px Georgia,serif;color:#2a1e14}
+.ct-card ::placeholder{color:rgba(90,61,38,.38);transition:color .3s}
+.ct-card :focus::placeholder{color:transparent}
+.ct-stamp{position:absolute;right:4.4%;top:5%;width:74px;height:90px;padding:6px;box-sizing:border-box;background:#f7efdc;
+  border:4px dotted #f7efdc;outline:1px solid rgba(90,61,38,.12);box-shadow:0 2px 4px rgba(0,0,0,.2);transform:rotate(3deg)}
+.ct-stamp i{display:grid;place-items:center;height:100%;border:1px solid rgba(120,60,40,.6);background:linear-gradient(160deg,#c9b48a,#a8895a);color:#fff8ea;font:italic 10px/1.15 Georgia,serif;text-align:center;letter-spacing:.02em}
+.ct-foot{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:12px}
+.ct-foot small{font:italic 13px Georgia,serif;color:#5a4632}.ct-foot small a{color:#5a4632}
+.ct-send{border:0;border-radius:999px;padding:11px 26px;background:linear-gradient(180deg,#6b4a2c,#4a3322);color:#f7ecd8;font:italic 17px Georgia,serif;cursor:pointer;box-shadow:0 0 0 1px #c59664,0 6px 14px rgba(40,20,5,.35);transition:transform .3s,box-shadow .3s}
+.ct-send:hover{transform:translateY(-1px);box-shadow:0 0 0 1px #e2b779,0 10px 18px rgba(40,20,5,.4)}
+.ct-x{position:absolute;top:10px;right:14px;z-index:3;border:0;background:none;font:26px/1 Georgia,serif;color:#5a4632;cursor:pointer}
+.ct-postmark{position:absolute;left:8%;bottom:9%;width:170px;height:170px;border-radius:50%;border:3px double rgba(40,28,20,.78);display:grid;place-items:center;text-align:center;color:rgba(40,28,20,.82);
+  font:600 11px/1.35 Georgia,serif;letter-spacing:.12em;transform:rotate(-14deg) scale(1.8);opacity:0;transition:transform .45s cubic-bezier(.3,1.6,.5,1),opacity .2s;pointer-events:none;mix-blend-mode:multiply}
+.ct-postmark b{display:block;font-size:22px;letter-spacing:.06em;margin:4px 0}
+.ct-card.is-sent .ct-postmark{opacity:1;transform:rotate(-14deg) scale(1)}
+.ct-sent-note{display:none;margin-left:auto;font:italic 16px Georgia,serif;color:#3a2a1c}
+.ct-card.is-sent .ct-sent-note{display:block}.ct-card.is-sent .ct-foot .ct-send,.ct-card.is-sent .ct-foot small{display:none}
+@media (max-width:700px){.ct-card{aspect-ratio:auto;height:calc(100vh - 60px)}.ct-body{grid-template-columns:1fr;gap:16px}.ct-rule{display:none}.ct-stamp{display:none}}
 </style>
 <script id="contact-letter-script">
 (()=>{const btn=document.getElementById('contactBtn');if(!btn)return;
   const ADDRESS='I@evstafiadin.ru';
   const veil=document.createElement('div');veil.className='ct-veil';
-  const card=document.createElement('div');card.className='ct-letter';card.setAttribute('role','dialog');card.setAttribute('aria-label','Написать нам');
+  const card=document.createElement('div');card.className='ct-card';card.setAttribute('role','dialog');card.setAttribute('aria-label','Написать нам');
+  const today=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit'});
   card.innerHTML=`<button type="button" class="ct-x" aria-label="Закрыть">×</button>
-    <div class="ct-form"><h3>Написать нам</h3><p>Вопрос, мысль о книге или просьба о помощи — мы читаем каждое письмо и отвечаем лично.</p>
-    <label>Как вас зовут</label><input class="ct-name" autocomplete="name">
-    <label>Почта для ответа</label><input class="ct-mail" type="email" autocomplete="email">
-    <label>Письмо</label><textarea class="ct-text"></textarea>
-    <div class="ct-row"><small>или напрямую: <a href="mailto:${ADDRESS}">${ADDRESS}</a></small><button type="button" class="ct-send">Отправить письмо</button></div></div>
-    <div class="ct-done"><div class="ct-seal">E</div><h3>Спасибо!</h3><p>Письмо открылось в вашей почте — осталось нажать «Отправить». Мы ответим в течение дня, письмом.</p><button type="button" class="ct-send ct-close2">Вернуться к книге</button></div>`;
+    <div class="ct-stamp"><i>Мастерская<br>дизайна<br>Евстафиади</i></div>
+    <div class="ct-head">ПОЧТОВАЯ КАРТОЧКА</div>
+    <div class="ct-sub">Напишите нам — мы читаем каждое письмо и отвечаем лично</div>
+    <div class="ct-body"><div class="ct-col"><h4>Письмо</h4><textarea class="ct-letter-text" placeholder="Здравствуйте! Хочу спросить…"></textarea></div><i class="ct-rule"></i>
+      <div class="ct-col ct-addr"><h4>Адрес для ответа</h4>
+        <label><span>От кого</span><input class="ct-name" autocomplete="name" placeholder="Имя"></label>
+        <label><span>Почта</span><input class="ct-mail" type="email" autocomplete="email" placeholder="name@mail.ru"></label>
+        <label><span>Телефон</span><input class="ct-phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"></label></div></div>
+    <div class="ct-foot"><small>или напрямую: <a href="mailto:${ADDRESS}">${ADDRESS}</a></small><button type="button" class="ct-send">Отправить письмо</button><span class="ct-sent-note">Письмо в пути. Ответим в течение дня — письмом.</span></div>
+    <div class="ct-postmark"><span>МАСТЕРСКАЯ ДИЗАЙНА<b>${today}</b>ЕВСТАФИАДИ</span></div>`;
   document.body.append(veil,card);
-  const show=on=>{veil.classList.toggle('on',on);card.classList.toggle('on',on);if(on){card.classList.remove('is-sent');setTimeout(()=>card.querySelector('.ct-name')?.focus(),300);}};
+  const show=on=>{veil.classList.toggle('on',on);card.classList.toggle('on',on);if(on){card.classList.remove('is-sent');setTimeout(()=>card.querySelector('.ct-letter-text')?.focus(),400);}};
   btn.addEventListener('click',e=>{e.stopPropagation();show(true);});
   veil.addEventListener('click',()=>show(false));
-  card.querySelector('.ct-x').onclick=()=>show(false);card.querySelector('.ct-close2').onclick=()=>show(false);
+  card.querySelector('.ct-x').onclick=()=>show(false);
   addEventListener('keydown',e=>{if(e.key==='Escape'&&card.classList.contains('on'))show(false);});
-  card.querySelector('.ct-form .ct-send').onclick=()=>{const name=card.querySelector('.ct-name').value.trim(),mail=card.querySelector('.ct-mail').value.trim(),text=card.querySelector('.ct-text').value.trim();
-    if(!text){card.querySelector('.ct-text').focus();return;}
-    const body=`${text}\n\n— ${name||'Автор книги'}${mail?` (${mail})`:''}`;
-    location.href=`mailto:${ADDRESS}?subject=${encodeURIComponent('Очерки жизни — письмо')}&body=${encodeURIComponent(body)}`;card.classList.add('is-sent');};
+  card.querySelector('.ct-send').onclick=()=>{const text=card.querySelector('.ct-letter-text').value.trim();if(!text){card.querySelector('.ct-letter-text').focus();return;}
+    const name=card.querySelector('.ct-name').value.trim(),mail=card.querySelector('.ct-mail').value.trim(),phone=card.querySelector('.ct-phone').value.trim();
+    const body=`${text}\n\n— ${name||'Автор книги'}${mail?`\n${mail}`:''}${phone?`\n${phone}`:''}`;
+    card.classList.add('is-sent');
+    setTimeout(()=>{location.href=`mailto:${ADDRESS}?subject=${encodeURIComponent('Очерки жизни — письмо')}&body=${encodeURIComponent(body)}`;},700);};
 })();
 </script>
 <style id="switch-v87">
@@ -10124,6 +10153,12 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
         window.__msFlying=true;
         if(M?.flyToEditor?.(uid))return;}
       else if(now==='manuscript')setTimeout(()=>{window.__msFlying=false;},900);
+      // From the book: the open page flies into the editor's sheet.
+      if(now==='book'&&lastPaper){const sp=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();
+        if(sp&&sp.width){const half=sp.width/2,f=document.createElement('div');f.className='ms-flyer';f.style.cssText=`left:${sp.left+half}px;top:${sp.top}px;width:${half}px;height:${sp.height}px;transition:left .9s cubic-bezier(.3,.7,.2,1),top .9s cubic-bezier(.3,.7,.2,1),width .9s cubic-bezier(.3,.7,.2,1),height .9s cubic-bezier(.3,.7,.2,1),opacity .45s ease`;
+          document.body.appendChild(f);void f.offsetWidth;const ed=document.querySelector('.editor-paper')?.getBoundingClientRect();const to=ed&&ed.width>100&&ed.left>=0&&ed.right<=innerWidth?ed:{left:lastPaper.left,top:lastPaper.top,width:lastPaper.right-lastPaper.left,height:Math.min(innerHeight-lastPaper.top-20,(lastPaper.right-lastPaper.left)*1.41)};
+          requestAnimationFrame(()=>{f.style.left=to.left+'px';f.style.top=to.top+'px';f.style.width=to.width+'px';f.style.height=to.height+'px';});
+          setTimeout(()=>{f.style.opacity=0;setTimeout(()=>f.remove(),500);},1000);}}
       closeBook();window.OCHERKI_MANUSCRIPT?.close();}
     else if(target==='manuscript'){
       // From the book the manuscript comes over it; the book closes beneath,
@@ -10358,12 +10393,15 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     world.innerHTML='';els=[];toc.innerHTML='';groupRow0=[];groupRows=[];
     const cols=colsFor(innerWidth);let k=0;
     groups.forEach((g,c)=>{
-      const list=g.chapter?[...g.sheets,null,'episode']:g.sheets,rows=Math.max(1,Math.ceil(list.length/cols));
+      const list=g.chapter?[...g.sheets,null,'episode']:g.sheets,slots=list.length-(g.chapter?1:0),rows=Math.max(1,Math.ceil(slots/cols));
       groupRow0[c]=k;groupRows[c]=rows;
-      const lab=document.createElement('div');lab.className='ms-label';lab.dataset.c=c;lab.innerHTML=`<b>${esc(g.title)}</b><small>${esc(g.sub)}${g.sub?' · ':''}${g.sheets.length} ${plural(g.sheets.length)}</small>`;
+      const lab=document.createElement('div');lab.className='ms-label';lab.dataset.c=c;lab.innerHTML=g.chapter&&g.sub?`<b>${esc(g.sub)}</b><small>${g.sheets.length} ${plural(g.sheets.length)}</small><em>${esc(g.title)}</em>`:`<b>${esc(g.title)}</b><small>${esc(g.sub)}${g.sub?' · ':''}${g.sheets.length} ${plural(g.sheets.length)}</small>`;
       lab.addEventListener('click',()=>{if(c!==currentGroup())go(c);});world.appendChild(lab);els.push(lab);
-      list.forEach((sh,i)=>{const el=document.createElement('div');el.className='ms-sheet';el.dataset.c=c;el.dataset.i=i;el.dataset.k=k+Math.floor(i/cols);el.dataset.col=i%cols;
-        el.dataset.inrow=Math.floor(i/cols)<rows-1?cols:list.length-cols*(rows-1);
+      list.forEach((sh,i)=>{const el=document.createElement('div');el.className='ms-sheet';el.dataset.c=c;el.dataset.i=i;
+        // «＋ Эпизод» stands beside «＋ Лист» in the same row (one row may hold one extra).
+        const ep=sh==='episode',slot=ep?i-1:i,row=Math.floor(slot/cols),last=row===rows-1;
+        el.dataset.k=k+row;el.dataset.col=(slot%cols)+(ep?1:0);
+        el.dataset.inrow=(last?slots-cols*(rows-1):cols)+(last&&g.chapter?1:0);
         // Tilt and float belong to the sheet itself (its uid), not to its place:
         // a sheet moved to another place keeps its angle and its rhythm.
         const real=sh&&sh.p?sh:null;const hs=[...String(real?real.p.uid:'new'+c+String(sh))].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7),ha=hs%997,hb=(hs>>>10)%991;
@@ -10378,7 +10416,11 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
           el.dataset.uid=sh.p.uid;el.innerHTML=`<div class="ms-float">${card(sh,i+1)}</div>`;el.addEventListener('pointerdown',e=>startDrag(e,el,sh,g,c));}
         world.appendChild(el);els.push(el);});
       k+=rows;
-      const b=document.createElement('button');b.type='button';b.dataset.c=c;b.innerHTML=`${esc(g.chapter?(g.sub+'. '+g.title):g.title)}<i></i>`;b.onclick=()=>go(c);toc.appendChild(b);});
+      const b=document.createElement('button');b.type='button';b.dataset.c=c;b.innerHTML=`${esc(g.chapter?(g.sub+'. '+g.title):g.title)}<i></i>`;b.onclick=()=>go(c);toc.appendChild(b);
+      // A chapter is deleted from the contents: × then «удалить?» — it goes to the bin with all its sheets.
+      if(g.chapter){const x=document.createElement('span');x.className='ms-toc-del';x.title='Удалить главу';x.textContent='×';b.prepend(x);
+        x.addEventListener('click',e=>{e.stopPropagation();if(!x.classList.contains('is-ask')){x.classList.add('is-ask');x.textContent='удалить главу?';clearTimeout(x._t);x._t=setTimeout(()=>{x.classList.remove('is-ask');x.textContent='×';},3500);return;}
+          send({action:'deleteSection',sectionId:g.chapter.id});window.postMessage({type:'OCHERKI_MANUSCRIPT_NOTE',text:`Глава «${g.title}» в корзине — её можно вернуть`},'*');});}});
     rowsTotal=k;
     const add=document.createElement('button');add.type='button';add.className='add';add.textContent='＋ Новая глава';add.onclick=()=>{send({action:'addChapter'});pendingNewChapter=true;};toc.appendChild(add);
     drawSections();
@@ -10427,12 +10469,22 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     const exc0=e.target.closest('[data-exclude]');const tile=e.target.closest('.ms-sec');
     if(tile&&!exc0){const id=tile.dataset.sec;
       if(id==='__chapters'){if(secPick===id){setSections(false);const c=groups.findIndex(g=>g.chapter);if(c>=0)go(c);return;}secPick=id;drawSections();return;}
-      if(secPick!==id){secPick=id;if(tile.dataset.include)send({action:'includeSection',sectionId:id});drawSections();return;}}
+      if(secPick!==id){secPick=id;
+        // A pick moves only the light and the line below — the window is not redrawn, so nothing jumps.
+        secPanel.querySelectorAll('.ms-sec').forEach(t=>t.classList.toggle('is-picked',t.dataset.sec===id));
+        const line=secPanel.querySelector('.ms-sec-line'),sec=(state?.sections||[]).find(x=>x.id===id);
+        const text=id==='__chapters'?'Ваши главы — их пишете вы':sec?(ABOUT[id]||'')+(tile.dataset.include?' · добавлено в книгу':' · нажмите ещё раз, чтобы найти в рукописи'):'';
+        if(line){line.style.opacity=0;setTimeout(()=>{line.textContent=text;line.style.opacity=1;},220);}
+        if(tile.dataset.include)send({action:'includeSection',sectionId:id});return;}}
     const inc=e.target.closest('[data-include]'),exc=e.target.closest('[data-exclude]');
     if(inc){send({action:'includeSection',sectionId:inc.dataset.include});return;}
     if(exc){send({action:'excludeSection',sectionId:exc.dataset.exclude});return;}
     const sec=e.target.closest('.ms-sec.is-on');if(sec&&e.target.closest('button'))return;if(sec){const c=groups.findIndex(g=>g.sheets.some(x=>x.s.id===sec.dataset.sec));if(c>=0){const i=groups[c].sheets.findIndex(x=>x.s.id===sec.dataset.sec);setSections(false);goRow(groupRow0[c]+Math.floor(i/colsFor(innerWidth)));
-      const uid=groups[c].sheets[i].p.uid;world.querySelectorAll('.is-target').forEach(x=>x.classList.remove('is-target'));world.querySelector(`.ms-sheet[data-uid="${uid}"]`)?.classList.add('is-target');}}});
+      const uid=groups[c].sheets[i].p.uid;world.querySelectorAll('.is-target').forEach(x=>x.classList.remove('is-target'));world.querySelector(`.ms-sheet[data-uid="${uid}"]`)?.classList.add('is-target');
+      // The little sheet flies from the strip down to its place in the manuscript.
+      const from=sec.querySelector('.ms-sec-leaf')?.getBoundingClientRect();
+      if(from)setTimeout(()=>{const t=world.querySelector(`.ms-sheet[data-uid="${uid}"] .ms-paper`);if(!t)return;const html=t.outerHTML,to=t.getBoundingClientRect();t.style.opacity='0';
+        const f=flyer(from,to,html,fl=>{t.style.opacity='';fl.style.opacity=0;setTimeout(()=>fl.remove(),400);});},120);}}});
   scr.addEventListener('pointerdown',e=>{if(!e.target.closest('.ms-sections,.ms-sec-veil'))setTimeout(()=>world.querySelectorAll('.is-target').forEach(x=>x.classList.remove('is-target')),1200);});
 
   // ——— Layout: the corridor. The row at the wheel's position is in front,
@@ -10453,10 +10505,10 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     let order=0;
     els.forEach(el=>{if(!el.classList.contains('ms-label'))return;const c=+el.dataset.c;
       if(c===cg){el.classList.remove('is-far-title');el.style.transform='translate3d(-50%,-372px,0px)';el.style.opacity=1;el.style.filter='none';el.style.pointerEvents='none';return;}
-      if(c<cg){el.classList.remove('is-far-title');el.style.transform='translate3d(-50%,500px,400px)';el.style.opacity=0;el.style.pointerEvents='none';return;}
+      if(c<cg){el.classList.remove('is-far-title');el.style.transform=`translate3d(calc(-50% + ${Math.round(400*110/1400)}px),500px,400px)`;el.style.opacity=0;el.style.pointerEvents='none';return;}
       order++;el.classList.add('is-far-title');
       const behind=groupRow0[cg]+groupRows[cg]-1-Math.round(focus),quiet=behind>0?.4:1;
-      el.style.transform=`translate3d(-50%,${-380-order*30}px,${-1500-(order-1)*900}px)`;el.style.opacity=(order===1?.66:order===2?.34:0)*quiet;el.style.filter=`blur(${order===1?.6:1.6}px)`;el.style.pointerEvents=order<=2?'auto':'none';});
+      {const z=-1500-(order-1)*900;/* far names stand exactly under the near one: the depth would pull them towards the centre */el.style.transform=`translate3d(calc(-50% + ${Math.round(z*110/1400)}px),${-380-order*30}px,${z}px)`;}el.style.opacity=(order===1?.66:order===2?.34:0)*quiet;el.style.filter=`blur(${order===1?.6:1.6}px)`;el.style.pointerEvents=order<=2?'auto':'none';});
     [...toc.querySelectorAll('button[data-c]')].forEach(b=>b.classList.toggle('on',+b.dataset.c===cg));}
   function goRow(k){focus=Math.max(0,Math.min(rowsTotal-1,k));layout();}
   function go(c){if(groupRow0[c]==null)return;goRow(groupRow0[c]);}
@@ -10535,8 +10587,11 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     el.classList.add('is-picked');scr.classList.add('is-opening');el.style.opacity=0;
     // The sheet grows into the editor; half way the manuscript starts to
     // fade, so the editor comes up under it as it lands.
-    setTimeout(()=>window.OCHERKI_SET_MODE?.('write'),430);
-    flyer(from,editorRect(),el.querySelector('.ms-paper').outerHTML,f=>{f.style.opacity=0;setTimeout(()=>f.remove(),480);});}
+    // The sheet grows as clean paper (its small words fade at once, so no
+    // giant letters), lands on the editor's sheet, and only then the
+    // manuscript gives way — one sheet, not two.
+    const fl=flyer(from,editorRect(),el.querySelector('.ms-paper').outerHTML,f=>{window.__msFlying=true;window.OCHERKI_SET_MODE?.('write');setTimeout(()=>{f.style.opacity=0;setTimeout(()=>f.remove(),480);},260);});
+    requestAnimationFrame(()=>fl.querySelectorAll('.ms-paper > *').forEach(n=>{n.style.transition='opacity .28s ease';n.style.opacity='0';}));}
   // ——— Arriving: the sheet that was open in «Писать» starts large in front
   // and flies back to its place; the others come out of the depth.
   // The short hint is shown on the first three visits only, then fades.
@@ -10655,7 +10710,25 @@ html body .ms-sections .ms-sec:hover .ms-sec-x{opacity:1}
 html body .ms-sections .ms-sec-close{position:absolute!important;top:20px;right:24px;border:0;background:none;font:30px/1 Georgia,serif;color:#5a3d26;cursor:pointer}
 .ms-sec-book,.ms-sec-note{display:none!important}
 </style>
+<style id="ms-sec-smooth">
+html body .ms-sections .ms-sec b{padding-bottom:6px;box-shadow:inset 0 -2px 0 transparent;transition:box-shadow .5s ease}
+html body .ms-sections .ms-sec .ms-sec-leaf{transition:transform .6s cubic-bezier(.2,.8,.3,1),box-shadow .6s ease!important}
+.ms-sec-line{transition:opacity .22s ease;min-height:24px}
+</style>
 <style id="ms-v87">
+.ms-toc button{position:relative}
+.ms-toc-del{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);font:14px Georgia,serif;opacity:0;transition:opacity .3s;white-space:nowrap;cursor:pointer;color:inherit}
+.ms-toc button:hover .ms-toc-del,.ms-toc-del.is-ask{opacity:.9}
+.ms-toc-del.is-ask{font-style:italic;color:#e8a88f}
+
+html body .ms-print.is-recent{--ly:-12px;box-shadow:0 0 0 2px #c08a45,0 0 18px 4px rgba(255,200,120,.45),0 14px 26px rgba(40,22,8,.42)}
+
+/* Chapter names: «Глава 1» large, the count of sheets, then the name. */
+.ms-label em{display:block;margin-top:6px;font:italic 22px/1.2 'CormorantCy',Georgia,serif;color:inherit;opacity:.9}
+.ms-label b{color:inherit}
+html body .ms-screen:not(.is-night) .ms-label em{color:#3a2a1c}
+html body .ms-screen.is-night .ms-label em{color:#f6ead8}
+
 /* «＋ Лист» and «＋ Эпизод»: two separate empty sheets at the end of a chapter. */
 .ms-sheet.is-new .ms-paper span{text-align:center}
 .ms-sheet.is-new .ms-paper small{display:block;margin-top:8px;font:italic 12px Georgia,serif;opacity:.75}
@@ -10684,7 +10757,7 @@ html body .ms-sheet{will-change:transform}
 @keyframes msPrintIn87{from{opacity:0;translate:0 40px}to{opacity:1;translate:0 0}}
 html body .ms-print{animation:msPrintIn87 .6s cubic-bezier(.2,.8,.3,1) both;--ly:0px;--ls:1;--rk:1;
   transform:translateY(var(--ly)) rotate(calc(var(--r,0deg) * var(--rk))) scale(var(--ls))!important;
-  transition:transform .55s cubic-bezier(.2,.75,.25,1),box-shadow .6s ease!important}
+  transition:box-shadow .6s ease!important}
 html body .ms-print:hover{z-index:3;box-shadow:0 20px 32px rgba(40,22,8,.42)}
 html body .ms-print.is-dragging{transform:none!important;transition:none!important;animation:none!important}
 /* The sheet that is open in «Писать» or in the book stands out: larger, warm light. */
@@ -10840,7 +10913,10 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
   pcard.addEventListener('click',e=>{const b=e.target.closest('[data-pc]');if(!b)return;e.stopPropagation();const act=b.dataset.pc;
     if(act==='replace'){replaceInput.click();return;}
     if(act==='remove'&&pcItem){stack=stack.filter(x=>x!==pcItem);save();draw();}
-    closeCard();});
+    // The photo just described goes to the top of the stack and stays marked, so it is easy to find.
+    const edited=act==='done'?pcItem:null;
+    closeCard();
+    if(edited&&stack.includes(edited)){recentPrint=edited.id;stack=stack.filter(x=>x!==edited);stack.push(edited);save();draw();}});
   scr.addEventListener('pointerdown',e=>{if(!pcard.hidden&&!pcard.contains(e.target))closeCard();});
   scr.appendChild(tray);
   const toast=document.createElement('div');toast.className='ms-toast';scr.appendChild(toast);
@@ -10853,18 +10929,31 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
   idb().then(db=>{const rq=db.transaction('t').objectStore('t').get('stack');rq.onsuccess=()=>{stack=Array.isArray(rq.result)?rq.result:[];draw();};}).catch(()=>{});
   // Like the Dock: the print under the pointer rises most, its neighbours
   // less and less — the wave follows the pointer.
-  prints.addEventListener('pointermove',e=>{if(carrying)return;const list=[...prints.querySelectorAll('.ms-print')];list.forEach(el=>{const r=el.getBoundingClientRect(),d=Math.abs(e.clientX-(r.left+r.width/2)),f=Math.max(0,1-d/190),q=f*f*(3-2*f);
-    el.style.setProperty('--ly',(-18*q).toFixed(1)+'px');el.style.setProperty('--ls',(1+.1*q).toFixed(3));el.style.setProperty('--rk',(1-q).toFixed(2));});});
-  prints.addEventListener('pointerleave',()=>prints.querySelectorAll('.ms-print').forEach(el=>{el.style.setProperty('--ly','0px');el.style.setProperty('--ls','1');el.style.setProperty('--rk','1');}));
-  function draw(){prints.innerHTML='';stack.forEach((p,i)=>{const el=document.createElement('div');el.className='ms-print';el.dataset.id=p.id;el.style.setProperty('--r',(((i*37)%9)-4)+'deg');el.innerHTML=`<img src="${p.src}" alt="">${p.portraitHero?'<span class="ms-hero" title="Портрет героя книги">★</span>':''}`;el.addEventListener('pointerdown',e=>carry(e,el,p));prints.appendChild(el);});
+  // Like the Dock: the print under the pointer rises most, its neighbours
+  // less — and every print eases towards its height frame by frame, so the
+  // wave flows instead of jumping.
+  let dockX=null,dockRaf=0;
+  const dockStep=()=>{let moving=false;
+    prints.querySelectorAll('.ms-print').forEach(el=>{let q=0;if(dockX!=null&&!carrying){const r=el.getBoundingClientRect(),d=Math.abs(dockX-(r.left+r.width/2)),f=Math.max(0,1-d/200);q=f*f*(3-2*f);}
+      const cur=+(el.dataset.q||0),next=cur+(q-cur)*.14;el.dataset.q=next.toFixed(4);if(Math.abs(q-next)>.002)moving=true;
+      const base=el.classList.contains('is-recent')?-12:0;
+      el.style.setProperty('--ly',(Math.min(base,-18*next)).toFixed(2)+'px');el.style.setProperty('--ls',(1+.1*next).toFixed(4));el.style.setProperty('--rk',(1-next).toFixed(3));});
+    dockRaf=moving||dockX!=null?requestAnimationFrame(dockStep):0;};
+  prints.addEventListener('pointermove',e=>{dockX=e.clientX;if(!dockRaf)dockRaf=requestAnimationFrame(dockStep);});
+  prints.addEventListener('pointerleave',()=>{dockX=null;if(!dockRaf)dockRaf=requestAnimationFrame(dockStep);});
+  let recentPrint='';
+  function draw(){prints.innerHTML='';stack.forEach((p,i)=>{const el=document.createElement('div');el.className='ms-print';el.dataset.id=p.id;el.style.setProperty('--r',(((i*37)%9)-4)+'deg');el.innerHTML=`<img src="${p.src}" alt="">${p.portraitHero?'<span class="ms-hero" title="Портрет героя книги">★</span>':''}`;if(p.id===recentPrint)el.classList.add('is-recent');el.addEventListener('pointerdown',e=>carry(e,el,p));prints.appendChild(el);});
     // Many prints overlap more, so the stack never grows over «＋ Фото» and «Разделы книги».
     {const list=[...prints.querySelectorAll('.ms-print')],W=Math.min(620,innerWidth*.36),stepX=Math.min(78,(W-92)/Math.max(1,list.length-1));list.forEach((el,i)=>{el.style.setProperty('margin-left',i?Math.round(stepX-92)+'px':'0px','important');el.style.setProperty('margin-right','0px','important');});}
     note.hidden=!stack.length;note.textContent=stack.length?`${stack.length} ${stack.length%10===1&&stack.length%100!==11?'фото ждёт':'фото ждут'} своего листа — перетащите на нужный лист`:'';}
   const readFiles=files=>Promise.all([...files].filter(f=>/^image\//.test(f.type)).map(f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>ok({id:'tray_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),src:r.result,width:im.naturalWidth,height:im.naturalHeight});im.onerror=()=>ok(null);im.src=r.result;};r.onerror=()=>ok(null);r.readAsDataURL(f);}))).then(list=>list.filter(Boolean));
-  const sheetAt=(x,y)=>document.elementsFromPoint(x,y).map(n=>n.closest&&n.closest('.ms-sheet')).find(el=>el&&!el.classList.contains('is-new')&&el.style.pointerEvents!=='none');
+  // Only a sheet of the front row takes a photo: a sheet of the row behind
+  // (or «＋ Эпизод») could win the 3D hit test and steal it.
+  const sheetAt=(x,y)=>document.elementsFromPoint(x,y).map(n=>n.closest&&n.closest('.ms-sheet')).find(el=>el&&!el.classList.contains('is-new')&&!el.classList.contains('is-far')&&el.style.pointerEvents!=='none');
   const sheetRef=el=>window.OCHERKI_MANUSCRIPT?.sheetOf?.(el);
   function place(el,photos){const ref=sheetRef(el);if(!ref)return false;
-    if(!['chapter','recipes'].includes(ref.s.type)&&ref.p.type!=='document'){say('На этот лист фото не кладутся — выберите лист главы');return false;}
+    const photoPages=new Set(['cover','back-cover','title','dedication','epigraph','intro','author','afterword','thanks','final']);
+    if(!['chapter','recipes'].includes(ref.s.type)&&ref.p.type!=='document'&&!photoPages.has(ref.s.id)){say('На этот лист фото не кладутся — выберите лист главы или обложку');return false;}
     send({action:'addPhotos',sectionId:ref.s.id,pageUid:ref.p.uid,photos:photos.map(p=>({src:p.src,width:p.width,height:p.height,people:p.people||'',caption:p.caption||'',year:p.year||'',place:p.place||'',story:p.story||'',portraitHero:!!p.portraitHero}))});
     el.classList.remove('is-photo-landed');void el.offsetWidth;el.classList.add('is-photo-landed');
     say(photos.length>1?`Фото легли на лист «${ref.title}»`:`Фото легло на лист «${ref.title}»`);return true;}

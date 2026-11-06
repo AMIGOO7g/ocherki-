@@ -1490,7 +1490,7 @@
       // column beside an empty one.
       {
         const endings=new Set([chapter.text.length,...episodes.map(item=>item.offset)]);
-        const pages=spreads.filter(spread=>spread.sectionId===chapter.sectionId).flatMap(spread=>[[spread.left,'left'],[spread.right,'right']]).filter(([page])=>page?.measuredFlow&&page.sourceRange&&page.layout==='prose-dense'&&endings.has(page.sourceRange.end));
+        const pages=spreads.filter(spread=>spread.sectionId===chapter.sectionId).flatMap(spread=>[[spread.left,'left'],[spread.right,'right']]).filter(([page])=>page?.measuredFlow&&page.sourceRange&&['prose-dense','chapter-intro'].includes(page.layout)&&endings.has(page.sourceRange.end));
         for(const [lastText,side] of pages){
           const flow=lastText.measuredFlow;
           // A margin note the book chose itself gives way on an ending page
@@ -1498,7 +1498,8 @@
           const saved={rhythm:lastText.rhythm,master:lastText.master,marginNote:lastText.marginNote};
           if(['margin','important-margin'].includes(flow.mode)&&lastText.autoMarginNote){lastText.rhythm=flow.mode==='margin'?'plain':'important';lastText.master=masters[lastText.rhythm]||lastText.master;lastText.marginNote='';}
           const restoreNote=()=>Object.assign(lastText,saved);
-          if(!['plain','important'].includes(lastText.rhythm||flow.mode)){restoreNote();continue;}
+          // The chapter opening page is balanced too when the whole chapter fits on it.
+          if(!['plain','important'].includes(lastText.rhythm||flow.mode)&&!(lastText.layout==='chapter-intro'&&flow.mode==='chapter')){restoreNote();continue;}
           if(lastText.topPhoto||lastText.spinePhoto||lastText.railPhoto||lastText.bgPhoto||lastText.sidePhoto||lastText.bottomPhotos||lastText.t10||lastText.topPair){restoreNote();continue;}
           const text=lastText.text,full=Number(flow.fullLines)||0,original={limit:lastText.flowLineLimit,flow};
           const fits=limit=>{try{lastText.flowLineLimit=limit;const split=meta.paginateText(lastText,text,side);return split.head===text&&!split.tail?split:null;}catch(error){return null;}};
@@ -1521,6 +1522,10 @@
         // A page the text left empty takes the next photo instead of staying blank.
         const lastSpread=spreads[spreads.length-1];
         if(left.length&&lastSpread&&lastSpread.sectionId===chapter.sectionId&&lastSpread.left&&!lastSpread.right)lastSpread.right=large(left.shift());
+        // No photo left for it: the empty right page carries a quiet pause
+        // with a line from the chapter instead of staying blank.
+        else if(!left.length&&lastSpread&&lastSpread.sectionId===chapter.sectionId&&lastSpread.left&&!lastSpread.right&&String(chapter.text||'').length>400&&!lastSpread.fixedRhythm)
+          lastSpread.right=P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()});
         // The closing photo spreads can be changed by the author too: the
         // first photo of each spread carries the choice (layoutPreference).
         const pause=()=>P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()});
