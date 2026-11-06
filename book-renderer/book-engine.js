@@ -1620,7 +1620,10 @@
         const closingPhoto=nextVisualPhoto();
         spread.right=closingPhoto>=0
           ?P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:closingPhoto,title:chapter.title})
-          :P('blank',{meta:bookMeta,sectionId:chapter.sectionId});
+          :(spread.left.text||spread.left.measuredFlow)
+            // v96: beside a page of words a quiet pause, never an empty page.
+            ?P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:spread.left.text||chapter.text||'',avoidAccents:usedAccents.slice()})
+            :P('blank',{meta:bookMeta,sectionId:chapter.sectionId});
         spread.chapterClosing=true;
       }
     });

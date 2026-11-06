@@ -5286,8 +5286,15 @@ html body .page-context-actions button:hover{color:#a8692f!important}
   setInterval(()=>{try{const sec=currentSection(),page=currentPage();if(!sec||!page)return;
     const key=(page.uid||page.id);
     if(prev&&prev.uid!==key){const s2=sections.find(x=>x.id===prev.sid);const pg=s2?.pages?.find(x=>(x.uid||x.id)===prev.uid);
-      if(s2&&s2.type==='chapter'&&s2.pages.length>1&&pg&&pg.userEdited&&!pg.sample&&isEmpty(pg))window.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'deletePage',sectionId:s2.id,pageUid:prev.uid},'*');}
+      if(gone(s2,pg))window.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'deletePage',sectionId:s2.id,pageUid:prev.uid},'*');}
     prev={uid:key,sid:sec.id};}catch(_){}} ,700);
+  // v96: any sheet of a chapter (a new «＋ Лист» or «＋ Эпизод» too, not only
+  // a written one) that holds no words and no photos goes when it is left —
+  // also when the author leaves the editor for «Рукопись» (it asks for the
+  // state as it opens). The only sheet of a chapter stays.
+  function gone(s2,pg){return !!(s2&&s2.type==='chapter'&&!s2.sample&&s2.pages.length>1&&pg&&!pg.sample&&isEmpty(pg));}
+  window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_STRUCTURE_COMMAND'||d.action!=='requestState')return;
+    try{try{saveEditor();}catch(_){}const sec=currentSection(),page=currentPage();if(gone(sec,page)){prev=null;window.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'deletePage',sectionId:sec.id,pageUid:page.uid||page.id},'*');}}catch(_){}});
 })();
 </script>
 <script id="delete-section-cmd">
