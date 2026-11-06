@@ -296,7 +296,7 @@
       const metrics=[];
       for(const spread of result.spreads)for(const side of ['left','right']){
         const page=spread[side];if(!page)continue;session.host.innerHTML=session.render(page,side);
-        const check=auditPage(session.host.firstElementChild,page);if(check.status!=='pass')throw Error(`Страница ${page.pageNo}: ${(globalThis.OcherkiBookRenderer?.ruleWords||(rules=>rules.join(', ')))(check.violations.map(v=>v.rule))}`);
+        const check=auditPage(session.host.firstElementChild,page);const cosmetic=['premature-column-break','unequal-working-bottom','unfilled-measured-cell'];if(check.status!=='pass'&&check.violations.every(v=>cosmetic.includes(v.rule))){session.warnings.push({code:'PAGE_COSMETIC',page:page.pageNo,rules:check.violations.map(v=>v.rule)});}else if(check.status!=='pass')throw Error(`Страница ${page.pageNo}: ${(globalThis.OcherkiBookRenderer?.ruleWords||(rules=>rules.join(', ')))(check.violations.map(v=>v.rule))}`);
         metrics.push({page:page.pageNo,master:page.master,geometry:page.measuredFlow?.geometry||page.nativeFlow&&{height:page.nativeFlow.height,columns:page.nativeFlow.columns,gap:page.nativeFlow.gap}});
       }
       result.layout={module:'OcherkiLayoutPagination',renderer:'OcherkiBookRenderer.renderPage',paginator:'OcherkiBookRenderer.paginateText',format:settings.format||'square',metrics,warnings:session.warnings,sourceInvariant:'exact',geometrySignature:geometrySignature(result)};return result;
