@@ -10613,21 +10613,22 @@ html body .ms-sections{width:min(1560px,calc(100vw - 60px))!important;padding:34
 .ms-sec-title span{font:italic 500 46px/1.1 'CormorantCy',Georgia,serif;color:#3a2a1c;position:relative;padding-bottom:16px}
 .ms-sec-title span::after{content:"";position:absolute;left:20%;right:20%;bottom:0;height:8px;background:radial-gradient(ellipse at center,#b8873e 0 30%,transparent 70%);opacity:.6;border-radius:50%}
 .ms-sec-sub{margin:14px 0 30px;text-align:center;font:italic 22px Georgia,serif;color:#4a3324}
-.ms-sec-strip{display:flex;justify-content:center;align-items:flex-start;gap:clamp(10px,1.6vw,26px);flex-wrap:nowrap}
-html body .ms-sections .ms-sec{all:unset;position:relative;display:flex!important;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex:0 1 112px;text-align:center}
-html body .ms-sections .ms-sec .ms-sec-leaf{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:100%;max-width:104px;aspect-ratio:3/4;box-sizing:border-box;padding:14px;border-radius:3px;
+.ms-sec-strip{display:flex;justify-content:safe center;align-items:flex-start;gap:clamp(4px,.7vw,14px);flex-wrap:nowrap}
+html body .ms-sections .ms-sec{all:unset;position:relative;display:flex!important;flex-direction:column;align-items:center;gap:10px;cursor:pointer;flex:0 1 92px;min-width:70px;text-align:center}
+html body .ms-sections .ms-sec .ms-sec-leaf{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:76px;height:100px;box-sizing:border-box;padding:12px;border-radius:3px;
   background:linear-gradient(160deg,#fbf6ec,#efe4cf);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 4px 10px rgba(60,35,15,.18);color:#8a6a46;transition:transform .5s cubic-bezier(.2,.8,.3,1),box-shadow .5s}
 .ms-sections .ms-sec-leaf .l{display:block;width:72%;height:1.5px;background:currentColor;opacity:.55}
 .ms-sections .ms-sec-leaf .l.s{width:46%}
-.ms-sections .ms-sec-leaf b{font:15px Georgia,serif;letter-spacing:.1em}
+.ms-sections .ms-sec-leaf b{font:13px Georgia,serif;letter-spacing:.06em;white-space:nowrap}
 .ms-sections .ms-sec-leaf em{font:italic 15px/1.15 'CormorantCy',Georgia,serif;color:#3a2a1c;text-align:center}
-.ms-sections .ms-sec-leaf svg{width:70%;fill:none;stroke:currentColor;stroke-width:1.2}
+.ms-sections .ms-sec-leaf svg{width:54px!important;height:40px!important;fill:none;stroke:currentColor;stroke-width:1.2}
 .ms-sections .ms-sec-leaf .tl{position:relative;display:flex;flex-direction:column;gap:14px;padding-left:4px;border-left:1.5px solid currentColor;align-self:flex-start;margin-left:18%}
-.ms-sections .ms-sec-leaf .tl i{display:block;width:44px;height:1.5px;background:currentColor;opacity:.55;position:relative}
+.ms-sections .ms-sec-leaf .tl i{display:block;width:32px;height:1.5px;background:currentColor;opacity:.55;position:relative}
 .ms-sections .ms-sec-leaf .tl i::before{content:"";position:absolute;left:-9px;top:-3px;width:7px;height:7px;border-radius:50%;background:currentColor}
 html body .ms-sections .ms-sec.is-off .ms-sec-leaf{background:transparent;box-shadow:none;border:1.5px dashed rgba(122,86,50,.5);font:300 30px Georgia,serif;color:rgba(122,86,50,.75)}
 html body .ms-sections .ms-sec.is-chapters .ms-sec-leaf{box-shadow:4px -4px 0 -1px #f3eadb,4px -4px 0 0 rgba(122,86,50,.25),8px -8px 0 -1px #f3eadb,8px -8px 0 0 rgba(122,86,50,.2),0 4px 10px rgba(60,35,15,.18)}
-html body .ms-sections .ms-sec b{font:16px/1.2 Georgia,serif;color:#3a2a1c;max-width:120px}
+html body .ms-sections .ms-sec b{font:14px/1.2 Georgia,serif;color:#3a2a1c;max-width:92px}
+html body .ms-sections .ms-sec.is-chapters b{white-space:nowrap}
 html body .ms-sections .ms-sec:hover .ms-sec-leaf{transform:translateY(-4px)}
 html body .ms-sections .ms-sec.is-picked .ms-sec-leaf{transform:translateY(-6px);box-shadow:0 0 0 1.5px #c9a46c,0 0 26px 6px rgba(255,200,120,.55),0 10px 20px rgba(60,35,15,.25)}
 html body .ms-sections .ms-sec.is-picked b{padding-bottom:6px;box-shadow:inset 0 -2px 0 #b8873e}
