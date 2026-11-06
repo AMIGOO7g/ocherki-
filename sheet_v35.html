@@ -1058,6 +1058,14 @@ setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')]
 .ns-book:hover{color:#6b3f1a}
 .host-night .footer .next-step .ns-text{color:#ead8bd!important}
 </style>
+<style id="footer-one-voice">
+/* The footer of the sheet speaks in one voice: «Дальше · Подпишите фото»,
+   «в книге ›» and «Черновик сохранён» share the same type and colour. */
+.footer #saveState,.footer .next-step .ns-label,.footer .next-step .ns-text,.footer #nsBook{font:400 11px/1.3 Arial,sans-serif!important;font-style:normal!important;letter-spacing:.02em!important;text-transform:none!important;color:#4a3628!important;opacity:1!important}
+.footer .next-step .ns-text{border-bottom:1px solid rgba(74,54,40,.3)!important}
+.footer .next-step:hover .ns-text,.footer #nsBook:hover{color:#8a4b2a!important}
+.footer #nsBook{border-bottom:1px solid rgba(74,54,40,.3)!important}
+</style>
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
