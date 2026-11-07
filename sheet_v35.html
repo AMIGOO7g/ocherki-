@@ -3140,6 +3140,8 @@ try{if(localStorage.getItem('ocherkiLargeUI')==='1')applyLargeUi(true,false);}ca
     e.stopPropagation();
     if(!Recognition){say('Голосовой ввод работает в браузерах Chrome, Edge и Яндекс Браузер.',6000);return;}
     if(listening){stop();say('Готово.',1500);return;}
+    // v97: say plainly why the voice cannot start, before the browser's own refusal.
+    if(window.isSecureContext===false){say('Голос работает только на защищённом адресе — <b>https://</b>. Сейчас сайт открыт по http: браузер запрещает микрофон. Включите SSL-сертификат на хостинге (обычно бесплатно, Let’s Encrypt).',12000);return;}
     if(!savedRange){const range=document.createRange();range.selectNodeContents(editor);range.collapse(false);savedRange=range;}
     if(editorShowsSample())clearSampleTextIfNeeded();
     const before=savedRange.startContainer.textContent.slice(0,savedRange.startOffset);
@@ -3150,7 +3152,7 @@ try{if(localStorage.getItem('ocherkiLargeUI')==='1')applyLargeUi(true,false);}ca
       for(let i=event.resultIndex;i<event.results.length;i++){const r=event.results[i];if(r.isFinal)insert(tidy(r[0].transcript));else interim+=r[0].transcript;}
       say(`<b>●</b>${interim?esc(interim):'Слушаю… говорите спокойно. Нажмите микрофон ещё раз, чтобы закончить.'}`);
     };
-    rec.onerror=event=>{stop();say(event.error==='not-allowed'||event.error==='service-not-allowed'?'Браузер не дал доступ к микрофону. Разрешите микрофон для этой страницы (значок слева от адреса) и нажмите ещё раз.':event.error==='no-speech'?'Не слышно голоса. Нажмите микрофон и говорите.':'Голосовой ввод сейчас недоступен. Проверьте интернет и микрофон.',7000);};
+    rec.onerror=event=>{stop();if(['audio-capture','not-allowed'].includes(event.error)&&navigator.mediaDevices?.enumerateDevices){navigator.mediaDevices.enumerateDevices().then(list=>{if(!list.some(d=>d.kind==='audioinput'))say('К этому компьютеру не подключён микрофон. Подключите наушники с микрофоном или веб-камеру — или диктуйте с телефона: откройте книгу там.',12000);}).catch(()=>{});}if(event.error==='audio-capture'){say('Микрофон не найден или занят другой программой. Проверьте, что он подключён.',9000);return;}say(event.error==='not-allowed'||event.error==='service-not-allowed'?'Браузер не дал доступ к микрофону. Разрешите микрофон для этой страницы (значок слева от адреса) и нажмите ещё раз.':event.error==='no-speech'?'Не слышно голоса. Нажмите микрофон и говорите.':'Голосовой ввод сейчас недоступен. Проверьте интернет и микрофон.',7000);};
     rec.onend=()=>{if(listening){try{rec.start();}catch(e){stop();}}};
     try{rec.start();listening=true;btn.classList.add('is-listening');say('<b>●</b>Слушаю… говорите спокойно. Нажмите микрофон ещё раз, чтобы закончить.');}catch(err){say('Не удалось включить микрофон.',5000);}
   });
