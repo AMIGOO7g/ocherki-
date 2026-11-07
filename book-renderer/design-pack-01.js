@@ -509,6 +509,8 @@
       return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async"${frameAttrs(0)}>` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>Семейная хроника</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
     }
     if (role === 'endpaper') {
+      // v107: the author's own picture lies across the whole endpaper spread.
+      if(page.endpaperPhoto)return article('D01-ENDPAPER',`<div class="dpk-endpaper-photo ${pageSide==='left'?'is-left':'is-right'}" style="background-image:url('${esc(page.endpaperPhoto)}')" aria-hidden="true"></div>`,'dpk-endpaper-photo-page');
       // F-END / B-END — the family monogram on a fine grid: the letter of the
       // family name in a double gold ring, the name below in spaced capitals,
       // centred on the right-hand page; the left page carries the grid only.

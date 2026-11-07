@@ -1898,7 +1898,7 @@ function canHavePhotos(page){
   const sid=currentSection()?.id;
   const autoPhotoIds=new Set(['cover','title','dedication','epigraph','intro','author','afterword','thanks','back-cover','final','recipes']);
   if(autoPhotoIds.has(sid))return true;
-  return ['chapter','intro','text','photo','document','map','recipes'].includes(page.type);
+  return ['chapter','intro','text','photo','document','map','recipes','endpaper'].includes(page.type);
 }
 
 function normalizeCurrentSection(){

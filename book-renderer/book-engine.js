@@ -4,6 +4,7 @@
   const wordList = text => String(text || '').trim().split(/\s+/).filter(Boolean);
   const wordCount = text => wordList(text).length;
   const normalizeProse = value => String(value || '').replace(/\s+/g, ' ').replace(/([.!?…»”])(?=[А-ЯЁа-яё])/g, '$1 ').trim();
+  const endpaperPhotoOf = section => { const photo=(section?.pages||[]).flatMap(page=>page?.photos||[]).find(item=>String(item?.src||item?.dataUrl||item?.url||'').trim()); return photo?String(photo.src||photo.dataUrl||photo.url).trim():''; };
   const imageSource = photo => String(photo?.src || photo?.dataUrl || photo?.dataURL || photo?.url || photo?.preview || photo?.objectUrl || '').trim();
   const cleanTitle = (value, fallback = '') => String(value || '').replace(/^Глава\s+\d+[.:]?\s*/i, '').trim() || fallback;
   const norm = value => String(value || '').replace(/\s+/g, ' ').trim().toLocaleLowerCase('ru');
@@ -698,7 +699,7 @@
     const bookMeta = { ...meta, title: coverTitle || meta.title || 'Семейная хроника', subtitle: coverSubtitle || meta.subtitle || '', author: coverAuthor || meta.author || '', coverFooter };
     const titleMeta = { ...bookMeta, title: titleTitle || bookMeta.title, subtitle: titleSubtitle || bookMeta.subtitle, author: titleAuthor || bookMeta.author };
     if (byId('cover')) spreads.push({ id:'d01_cover', master:'D01-SPREAD-COVER', left:null, right:P('cover',{meta:bookMeta,source:coverSource}), single:'right' });
-    if (byId('endpaper')) spreads.push({id:'d01_endpaper_front',master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta}),right:P('endpaper',{meta:bookMeta})});
+    if (byId('endpaper')) spreads.push({id:'d01_endpaper_front',master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperPhoto:endpaperPhotoOf(byId('endpaper'))}),right:P('endpaper',{meta:bookMeta,endpaperPhoto:endpaperPhotoOf(byId('endpaper'))})});
     if (byId('title')) spreads.push({id:'d01_titles',master:'D01-SPREAD-TITLES',left:P('half-title',{layout:'half-title',meta:bookMeta}),right:P('title',{layout:'title-page',meta:titleMeta})});
     const contentsPage = P('contents-right',{meta:bookMeta,items:chapters.map(chapter=>({sectionId:chapter.sectionId,title:chapter.title,page:''}))});
     const epigraphPage = P('epigraph',{epigraphText:epigraphText || 'Память соединяет поколения.',epigraphSource,meta:bookMeta});
@@ -1785,7 +1786,7 @@
     // where children and grandchildren write their own lines by hand. On by
     // default; meta.continuationPages === false leaves it out.
     if(meta.continuationPages!==false)spreads.push({master:'D01-SPREAD-CONTINUATION',left:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta,notesHeading:'Для тех, кто продолжит эту историю'}),right:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta})});
-    if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperBack:true}),right:P('endpaper',{meta:bookMeta,endpaperBack:true})});
+    if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperBack:true,endpaperPhoto:endpaperPhotoOf(byId('back-endpaper'))}),right:P('endpaper',{meta:bookMeta,endpaperBack:true,endpaperPhoto:endpaperPhotoOf(byId('back-endpaper'))})});
     if(byId('inside-back-cover')&&!/ENDPAPER/.test(String(spreads[spreads.length-1]?.master||'')))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     const [backCoverText,backCoverMark]=fieldValues(byId('back-cover'),2);
     if(byId('back-cover'))spreads.push({master:'D01-SPREAD-BACK-COVER',left:P('back-cover',{layout:'back-cover',source:backCoverSource,meta:{...bookMeta,backCoverText,backCoverMark},photoIndex:0}),right:null,single:'left'});
@@ -1877,7 +1878,7 @@
     });
 
     if(byId('cover')) spreads.push({ id: 'd01_cover', master: 'D01-SPREAD-COVER', left: null, right: P('cover', { meta: bookMeta, source: coverSource }), single: 'right' });
-    if(byId('endpaper')) spreads.push({ id: 'd01_endpaper_front', master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta }), right: P('endpaper', { meta: bookMeta }) });
+    if(byId('endpaper')) spreads.push({ id: 'd01_endpaper_front', master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta, endpaperPhoto: endpaperPhotoOf(byId('endpaper')) }), right: P('endpaper', { meta: bookMeta, endpaperPhoto: endpaperPhotoOf(byId('endpaper')) }) });
     if(byId('title')) spreads.push({ id: 'd01_titles', master: 'D01-SPREAD-TITLES', left: P('half-title', { layout: 'half-title', meta: bookMeta }), right: P('title', { layout: 'title-page', meta: titleMeta }) });
 
     const contentsPage = P('contents-right', {
@@ -2900,7 +2901,7 @@
     ] });
     if(byId('afterword')||byId('thanks')) spreads.push({ master: 'D01-SPREAD-AFTERWORD-THANKS', left: byId('afterword')?epilogue:P('blank',{meta:bookMeta}), right: byId('thanks')?thanks:P('blank',{meta:bookMeta}) });
     if(byId('sources')||byId('colophon')) spreads.push({ master: 'D01-SPREAD-SOURCES-COLOPHON', left: byId('sources')?sources:P('blank',{meta:bookMeta}), right: byId('colophon')?colophon:P('blank',{meta:bookMeta}) });
-    if(byId('back-endpaper')) spreads.push({ master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta, endpaperBack: true }), right: P('endpaper', { meta: bookMeta, endpaperBack: true }) });
+    if(byId('back-endpaper')) spreads.push({ master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta, endpaperBack: true, endpaperPhoto: endpaperPhotoOf(byId('back-endpaper')) }), right: P('endpaper', { meta: bookMeta, endpaperBack: true, endpaperPhoto: endpaperPhotoOf(byId('back-endpaper')) }) });
     if(byId('inside-back-cover')&&!/ENDPAPER/.test(String(spreads[spreads.length-1]?.master||''))) spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     if(byId('back-cover')) spreads.push({ master: 'D01-SPREAD-BACK-COVER', left: P('back-cover', { layout: 'back-cover', meta:Object.assign({},bookMeta,{backCoverText,backCoverMark}), source: backCoverSource, photoIndex: 0 }), right: null, single: 'left' });
 

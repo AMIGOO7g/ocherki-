@@ -2986,3 +2986,15 @@ body .dpk-page.dpk-x-fade-dark{background:#11110f!important}
    text — a small heading, so the place can be found in the book. */
 body .dpk-page .dpk-episode-inline{font-size:.84em;letter-spacing:.14em;text-transform:uppercase;font-style:normal;font-weight:600;color:#8a6a3a}
 body .dpk-page .dpk-paragraph-indent:has(+ .dpk-episode-inline){display:none!important}
+
+/* v107: the chapter's closing mark stands in the middle of the text it closes,
+   also on pages where the text has one column beside photographs. */
+body .dpk-page.dpk-dom-paginated.right .dpk-end-mark{left:91px!important;right:70px!important}
+body .dpk-page.dpk-dom-paginated.dpk-t08-text .dpk-end-mark{left:70px!important;right:520px!important}
+body .dpk-page.dpk-dom-paginated.dpk-t10-text .dpk-end-mark{left:70px!important;right:470px!important}
+body .dpk-page.dpk-dom-paginated.dpk-x-rail-text .dpk-end-mark{left:520px!important;right:70px!important}
+/* v107: a picture on the endpapers, one image across both pages */
+body .dpk-page.dpk-endpaper-photo-page{overflow:hidden!important}
+body .dpk-page .dpk-endpaper-photo{position:absolute!important;top:0!important;bottom:0!important;width:200%!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+body .dpk-page .dpk-endpaper-photo.is-left{left:0!important}
+body .dpk-page .dpk-endpaper-photo.is-right{left:-100%!important}
