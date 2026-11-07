@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v102">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v103">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v102" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v103" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v102"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v102"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v102"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v102"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v102"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v102"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v103"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v103"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v103"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261106-v103"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v103"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v103"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v102"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v102"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v103"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v103"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7596,7 +7596,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v102"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v103"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -8582,26 +8582,26 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 .key .cap svg{transition:filter .4s ease}
 </style>
 <style id="tour-v99">
-/* v101: the tour as a soft light — everything around is blurred and dimmed,
-   only the thing explained stays sharp; the words lie on the blur itself. */
+/* v103: the tour — dark soft veil, a small clear window on the thing
+   explained, the words on a quiet dark halo (readable by day and night). */
 .tr-dim{position:fixed;inset:0;z-index:2147483640;pointer-events:none;opacity:0;transition:opacity .6s ease;
-  backdrop-filter:blur(7px) brightness(.55);-webkit-backdrop-filter:blur(7px) brightness(.55);background:rgba(16,9,4,.28);
-  -webkit-mask:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 62%,#000 100%);
-  mask:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 62%,#000 100%)}
-.tr-dim.on{opacity:1;pointer-events:auto}
+  backdrop-filter:blur(6px) brightness(.5);-webkit-backdrop-filter:blur(6px) brightness(.5);background:rgba(16,9,4,.42);
+  -webkit-mask:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 70%,#000 100%);
+  mask:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 70%,#000 100%)}
+.tr-dim.on{opacity:1;pointer-events:auto;cursor:pointer}
 .tr-ring{display:none}
-.tr-card{position:fixed;z-index:2147483642;width:380px;color:#f6e4c4;font-family:'CormorantCy',Georgia,serif;opacity:0;transform:translateY(8px);pointer-events:none;
-  transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1),left .6s cubic-bezier(.2,.8,.3,1),top .6s cubic-bezier(.2,.8,.3,1);text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.tr-card{position:fixed;z-index:2147483642;width:380px;padding:26px 30px;color:#f6e4c4;font-family:'CormorantCy',Georgia,serif;opacity:0;transform:translateY(8px);pointer-events:none;
+  background:radial-gradient(ellipse 75% 70% at 50% 50%,rgba(20,12,6,.78),rgba(20,12,6,.5) 60%,transparent 100%);
+  transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1),left .6s cubic-bezier(.2,.8,.3,1),top .6s cubic-bezier(.2,.8,.3,1)}
 .tr-card.on{opacity:1;transform:none;pointer-events:auto}
-.tr-card small{display:block;font:600 11px 'CormorantCy';letter-spacing:.24em;color:#d9b47a;margin-bottom:6px;text-transform:uppercase}
-.tr-card h3{margin:14px 0 12px;font:32px/1.2 'SignThatS',cursive;font-weight:400;color:#ffe6bd}
-.tr-card p{margin:0 0 16px;font:italic 19px/1.45 'CormorantCy';color:#efdcbc}
+.tr-card small{display:block;font:600 11px 'CormorantCy';letter-spacing:.24em;color:#e2b06a;margin-bottom:8px;text-transform:uppercase}
+.tr-card h3{margin:0 0 10px;font:italic 500 28px/1.2 'CormorantCy';color:#ffe6bd}
+.tr-card p{margin:0 0 18px;font:italic 19px/1.45 'CormorantCy';color:#f1e0c2}
 .tr-card p b{font-style:normal;font-weight:600;color:#ffe6bd}
 .tr-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.tr-dots{flex:1 0 100%;margin-bottom:8px}.tr-dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(255,230,190,.35);margin-right:6px;transition:width .3s,background .3s}.tr-dots i.on{background:#ffd99a;width:16px;border-radius:3px}
-.tr-btn{all:unset;cursor:pointer;font:30px 'SignThatS',cursive;color:#ffd99a}
-.tr-btn:hover{text-shadow:0 0 14px rgba(255,200,120,.6)}
-.tr-skip{all:unset;cursor:pointer;font:italic 16px 'CormorantCy';color:rgba(239,220,188,.75);border-bottom:1px solid rgba(239,220,188,.4);margin-right:26px}
+.tr-dots{flex:1 0 100%;margin-bottom:10px}.tr-dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(255,230,190,.35);margin-right:6px}.tr-dots i.on{background:#ffd99a;width:16px;border-radius:3px}
+.tr-btn{all:unset;cursor:pointer;font:italic 600 19px 'CormorantCy';color:#ffd99a;border-bottom:1px solid rgba(255,217,154,.6)}
+.tr-skip{all:unset;cursor:pointer;font:italic 16px 'CormorantCy';color:rgba(241,224,194,.8);border-bottom:1px solid rgba(241,224,194,.4);margin-right:26px}
 </style>
 <script id="tour-v99-js">
 // v99: a short first look — the lamp lights one thing at a time. Each room
@@ -8619,6 +8619,7 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
       ['#writingPrompt','Вопросы к главе','Если не знаете, с чего начать, — ответьте на вопрос. «Дальше» покажет следующий.'],
       ['#bookMapShell','Карта книги','Главы и листы. Нажмите на главу, чтобы перейти к ней.'],
       ['.mode-controls','Свет, крупный шрифт, музыка','Ночь и день, крупный интерфейс и тихая музыка для работы.'],
+      ['.rd-line','Сколько осталось до книги','Нажмите золотую линию под названием — увидите, что ещё нужно сделать, и перейдёте прямо к этому месту.'],
       ['#booksBtn','Мои книги','Здесь хранятся все ваши книги — можно вести несколько.'],
       ['#pdfBtn','Сохранить','Черновик книги в PDF — посмотреть или показать родным.'],
       ['#contactBtn','Написать нам','Вопрос, идея или помощь — открытка придёт в мастерскую.']],
@@ -8637,10 +8638,11 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
   const mark=n=>{try{localStorage.setItem(key(n),'1');}catch(_){}};
   let dim,ring,card,cur=null,idx=0,steps=[];
   function ensure(){if(dim)return;dim=document.createElement('div');dim.className='tr-dim';ring=document.createElement('div');ring.className='tr-ring';card=document.createElement('div');card.className='tr-card';document.body.append(dim,ring,card);
-    dim.addEventListener('click',e=>e.stopPropagation());}
+    // A press anywhere outside closes the tour — nothing stays blocked.
+    dim.addEventListener('click',e=>{e.stopPropagation();end();});}
   function place(){const st=steps[idx];if(!st)return end();const r=box(st[0]);if(!r){idx++;return place();}
     const pad=10,cx=r.left+r.width/2,cy=r.top+r.height/2;
-    dim.style.setProperty('--x',cx+'px');dim.style.setProperty('--y',cy+'px');dim.style.setProperty('--rw',Math.max(90,r.width*.75)+'px');dim.style.setProperty('--rh',Math.max(60,r.height*.9)+'px');
+    dim.style.setProperty('--x',cx+'px');dim.style.setProperty('--y',cy+'px');dim.style.setProperty('--rw',Math.max(70,r.width*.62)+'px');dim.style.setProperty('--rh',Math.max(46,r.height*.75)+'px');
     ring.style.cssText=`left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+2*pad}px;height:${r.height+2*pad}px;border-radius:${Math.min(40,(r.height+2*pad)/2)}px`;ring.classList.add('on');
     const total=steps.length;card.innerHTML=`<small>Знакомство · ${idx+1} из ${total}</small><h3>${st[1]}</h3><p>${st[2]}</p><div class="tr-row"><span class="tr-dots">${steps.map((_,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</span><span><button class="tr-skip" type="button">пропустить</button><button class="tr-btn" type="button">${idx===total-1?'Понятно':'Далее →'}</button></span></div>`;
     card.querySelector('.tr-btn').onclick=e=>{e.stopPropagation();idx++;place();};card.querySelector('.tr-skip').onclick=e=>{e.stopPropagation();end();};
@@ -8666,9 +8668,9 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 /* v101: the start screen and the fourth room «Семья» (family, question of the week, archive). */
 .st-screen,.fm-room{position:fixed;inset:0;z-index:2147483100;opacity:0;pointer-events:none;transition:opacity .7s ease;font-family:'CormorantCy',Georgia,serif;color:#f3e3c8;overflow:hidden;
   background:radial-gradient(ellipse 50% 46% at 50% 42%,rgba(255,196,120,.26),transparent 72%),radial-gradient(ellipse 85% 78% at 50% 45%,#4a2f18 0,#24160a 58%,#0b0603 100%)}
-.st-screen::before,.fm-room::before{content:"";position:absolute;inset:-3%;pointer-events:none;background:url("assets/toile/family-toile.webp") center/cover no-repeat;
-  opacity:.36;filter:sepia(.35) brightness(2.1) contrast(.85);
-  -webkit-mask:radial-gradient(ellipse 70% 65% at 50% 45%,#000 30%,transparent 85%)}
+.st-screen::before,.fm-room::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("assets/toile/family-toile.webp") center/1100px auto repeat;
+  opacity:.2;filter:sepia(.35) brightness(1.9) contrast(.8);
+  -webkit-mask:radial-gradient(ellipse 52% 50% at 50% 46%,#000 20%,transparent 72%);mask:radial-gradient(ellipse 52% 50% at 50% 46%,#000 20%,transparent 72%)}
 .st-screen.on,.fm-room.on{opacity:1;pointer-events:auto}
 .st-screen>*,.fm-room>*{position:relative}
 /* the book */
@@ -8706,37 +8708,58 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 .fm-people{display:flex;justify-content:center;gap:46px}
 .fm-p{width:100px;position:relative}.fm-p .a{width:66px;height:66px;margin:0 auto 12px;border-radius:50%;background:center/cover;box-shadow:0 0 0 1.5px rgba(226,176,106,.55),0 12px 22px rgba(0,0,0,.5);filter:sepia(.35)}
 .fm-p b{display:block;font:500 20px 'CormorantCy';color:#f3e3c8}.fm-p small{font:italic 15px 'CormorantCy';color:#bfa070}
-.fm-p .nw{position:absolute;right:20px;top:0;width:9px;height:9px;border-radius:50%;background:#e2b06a;box-shadow:0 0 9px #e2b06a}
+.fm-p .nw{display:none}
+.fm-p.is-new .a{animation:fmPulse 2.6s ease-in-out infinite}
+@keyframes fmPulse{0%,100%{box-shadow:0 0 0 1.5px rgba(226,176,106,.55),0 12px 22px rgba(0,0,0,.5)}50%{box-shadow:0 0 0 2px rgba(255,217,154,.95),0 0 26px 6px rgba(255,200,120,.45),0 12px 22px rgba(0,0,0,.5)}}
+.fm-why{margin-top:46px;max-width:620px;font:italic 19px/1.5 'CormorantCy';color:#cdb08a}
 .fm-p.add{cursor:pointer}.fm-p.add .a{background:none;border:1.2px dashed rgba(226,176,106,.6);box-shadow:none;display:grid;place-items:center;font:30px 'CormorantCy';color:#e2b06a;filter:none}
-.fm-topics{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px;max-width:820px;margin:22px 0 40px;font:italic 19px 'CormorantCy';color:#bfa070}
+.fm-qh{font:italic 500 30px 'CormorantCy';color:#f3e3c8;letter-spacing:.02em}.fm-qh span{color:#d9b47a}
+.fm-next{margin-top:-6px;margin-bottom:6px;font:italic 16px 'CormorantCy';color:rgba(205,176,138,.7)}
+.fm-topics{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 20px;max-width:820px;margin:18px 0 34px;font:italic 17px 'CormorantCy';color:#a8916c}
 .fm-topics span{cursor:pointer;transition:color .3s}.fm-topics span:hover{color:#f3e3c8}.fm-topics span.on{color:#ffd99a;border-bottom:1px solid #ffd99a}
-.fm-q{font:46px/1.15 'SignThatS',cursive;color:#f6e4c4;max-width:880px;min-height:110px;display:flex;align-items:center;justify-content:center}
+.fm-qrow{display:flex;align-items:center;justify-content:center;gap:34px}
+.fm-q{font:46px/1.15 'SignThatS',cursive;color:#f6e4c4;max-width:820px;min-height:110px;display:flex;align-items:center;justify-content:center}
+.fm-env{width:58px;height:42px;flex:none;overflow:visible;transition:transform 1.3s cubic-bezier(.55,0,.7,1),opacity 1.3s ease}
+.fm-env rect,.fm-env path{fill:none;stroke:#e2b06a;stroke-width:1.3;stroke-linejoin:round}
+.fm-env .flap{transform-origin:30px 4px;transition:transform .5s ease}
+.fm-env.closed .flap{transform:scaleY(-1)}
+.fm-env.go{transform:translateX(70vw) rotate(8deg);opacity:0}
+.fm-env.back{transition:none;transform:translateX(-40px);opacity:0}
 .fm-q span{display:inline-block;white-space:pre}
 .fm-q.out span{animation:stMistOut .5s ease both;animation-delay:calc(var(--i) * 10ms)}
 .fm-q.in span{animation:stMist .9s ease both;animation-delay:calc(var(--i) * 18ms)}
 @keyframes stMistOut{to{opacity:0;filter:blur(7px);transform:translateY(-3px)}}
 .fm-sched{margin:26px 0 30px;font:italic 21px/1.6 'CormorantCy';color:#cdb08a}
-.fm-sched select{appearance:none;-webkit-appearance:none;font:italic 21px 'CormorantCy';color:#ffd99a;background:transparent;border:0;border-bottom:1px dashed rgba(255,217,154,.6);padding:0 2px;margin:0 2px;cursor:pointer}
-.fm-sched select option{color:#2a1a0c;font-style:normal}
+.fm-pick{color:#ffd99a;border-bottom:1px dashed rgba(255,217,154,.6);cursor:pointer;padding:0 2px;transition:color .3s}.fm-pick:hover{color:#fff0d0}
+.fm-menu{position:fixed;z-index:12;min-width:180px;padding:16px 26px;border-radius:14px;background:radial-gradient(ellipse at 50% 50%,rgba(26,16,8,.92),rgba(26,16,8,.8));backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.5);opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .35s ease}
+.fm-menu.on{opacity:1;transform:none}
+.fm-menu div{font:italic 20px/1.2 'CormorantCy';color:#e6cfa8;padding:7px 0;cursor:pointer;text-align:left;transition:color .25s}
+.fm-menu div:hover{color:#ffd99a}.fm-menu div.on{color:#ffd99a}.fm-menu div.on::before{content:"— ";}
 .fm-acts{display:flex;gap:34px;font:italic 20px 'CormorantCy';color:#e6cfa8}
 .fm-acts span{cursor:pointer;border-bottom:1px solid rgba(230,207,168,.45);transition:color .3s}.fm-acts span:hover{color:#ffd99a}
 .fm-note{margin-top:22px;font:italic 15px 'CormorantCy';color:rgba(205,176,138,.6);min-height:20px;transition:opacity .5s}
 /* archive */
+.fm-cols{display:flex;justify-content:center;align-items:flex-start;gap:70px}
+.fm-col{text-align:center}.fm-col.narrow{width:200px}
+.fm-ch{font:600 12px 'CormorantCy';letter-spacing:.26em;text-transform:uppercase;color:#c9a06a;margin-bottom:22px}
+.fm-cap{display:block;margin-top:14px;font:italic 16px/1.4 'CormorantCy';color:#bfa070}
 .fm-stack{display:flex;justify-content:center;align-items:center;margin:0 0 44px}.fm-stack i{width:30px;height:30px;border-radius:50%;background:center/cover;margin-left:-9px;box-shadow:0 0 0 2px #24160a,0 0 0 3px rgba(226,176,106,.45);filter:sepia(.35)}
 .fm-stack span{font:italic 17px 'CormorantCy';color:#cdb08a;margin-left:14px}
-.fm-vinyls{display:flex;justify-content:center;gap:46px;margin-bottom:40px}
-.fm-v{width:150px;cursor:pointer}
-.vinyl{position:relative;border-radius:50%;background:repeating-radial-gradient(circle,#15100c 0 2px,#221a14 2px 4px);box-shadow:0 0 0 1px rgba(255,220,170,.08),0 22px 34px rgba(0,0,0,.55)}
+.fm-vinyls{display:flex;justify-content:center;gap:34px}
+.fm-v{width:132px;cursor:pointer}
+.vwrap{border-radius:50%;margin:0 auto;box-shadow:0 0 0 1px rgba(255,220,170,.08),0 14px 30px rgba(0,0,0,.55),0 0 0 rgba(0,0,0,0)}
+.vinyl{position:relative;width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle,#15100c 0 2px,#221a14 2px 4px)}
 .vinyl::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0 40deg,rgba(255,240,210,.10) 55deg,transparent 70deg,transparent 220deg,rgba(255,240,210,.07) 235deg,transparent 250deg)}
 .vinyl .lb{position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#15100c 0 4%,#c9974f 5% 92%,#a77a3c 93%)}
-.fm-v .vinyl{width:120px;height:120px;margin:0 auto 14px;transition:transform 1.6s cubic-bezier(.2,.7,.2,1)}
+.fm-v .vwrap{width:108px;height:108px;margin:0 auto 14px}.fm-v .vinyl{transition:transform 1.6s cubic-bezier(.2,.7,.2,1)}
 .fm-v:hover .vinyl{transform:rotate(200deg)}
-.fm-v.is-new .vinyl{box-shadow:0 0 0 1px rgba(255,220,170,.12),0 0 34px rgba(255,190,110,.32),0 22px 34px rgba(0,0,0,.55)}
+.fm-v.is-new .vwrap{animation:fmPulseV 2.6s ease-in-out infinite}
+@keyframes fmPulseV{0%,100%{box-shadow:0 0 0 1px rgba(255,220,170,.1),0 14px 30px rgba(0,0,0,.55)}50%{box-shadow:0 0 0 1px rgba(255,220,170,.2),0 0 30px 6px rgba(255,190,110,.35),0 14px 30px rgba(0,0,0,.55)}}
 .fm-v b{display:block;font:500 18px 'CormorantCy';color:#f3e3c8}.fm-v small{display:block;font:italic 16px/1.3 'CormorantCy';color:#bfa070;margin-top:3px}
 .fm-v .in{display:block;font:italic 14px 'CormorantCy';color:#9fbf80;margin-top:5px}
-.fm-photos{display:flex;justify-content:center;gap:22px;margin-bottom:26px}.fm-photos div{width:110px;height:132px;background:#f7efe0;padding:7px 7px 22px;box-sizing:border-box;box-shadow:0 14px 24px rgba(0,0,0,.5);transform:rotate(var(--r))}
+.fm-photos{display:flex;justify-content:center;gap:14px;margin-top:14px}.fm-photos div{width:110px;height:132px;background:#f7efe0;padding:7px 7px 22px;box-sizing:border-box;box-shadow:0 14px 24px rgba(0,0,0,.5);transform:rotate(var(--r))}
 .fm-photos img{width:100%;height:100%;object-fit:cover;filter:sepia(.35);display:block}
-.fm-notes{font:26px/1.3 'SignThatS',cursive;color:#e6cfa8}.fm-notes small{display:block;font:italic 16px 'CormorantCy';color:#bfa070;margin-top:4px}
+.fm-notes{margin-top:34px;font:40px/1.1 'SignThatS',cursive;color:#e6cfa8}.fm-notes small{display:block;font:italic 16px 'CormorantCy';color:#bfa070;margin-top:4px}
 .fm-sample{position:absolute!important;left:0;right:0;bottom:36px;text-align:center;font:italic 15px 'CormorantCy';color:rgba(205,176,138,.55)}
 /* the arrows and dots of the room */
 .fm-arrow{position:absolute!important;top:50%;margin-top:-30px;width:60px;height:60px;display:grid;place-items:center;font:44px/1 'CormorantCy';color:#cdb08a;cursor:pointer;z-index:5;transition:color .3s,transform .3s}
@@ -8759,13 +8782,13 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 .fm-open.on{opacity:1;pointer-events:auto}
 .fm-o{text-align:center;max-width:820px;padding:0 30px}
 .fm-o .q{font:46px/1.1 'SignThatS',cursive;color:#f6e4c4;margin:12px 0 30px}
-.fm-o .vinyl{width:220px;height:220px;margin:0 auto}
+.fm-o .vwrap{width:200px;height:200px}
 .fm-o .vinyl.spin{animation:fmSpin 3.2s linear infinite}
 @keyframes fmSpin{to{transform:rotate(360deg)}}
 .fm-player{display:flex;align-items:center;justify-content:center;gap:16px;margin:24px 0 22px}
 .fm-play{width:46px;height:46px;border-radius:50%;cursor:pointer;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#f5dcaa,#b88a50 60%,#6a4a28);box-shadow:0 8px 16px rgba(0,0,0,.45);color:#2a1a0c;font-size:16px}
 .fm-time{font:500 17px 'CormorantCy';letter-spacing:.1em;color:#cdb08a}
-.fm-o p{font:italic 23px/1.5 'CormorantCy';color:#ead6b4;margin:0 0 28px}
+.fm-o p{font:italic 23px/1.5 'CormorantCy';color:rgba(234,214,180,.38);margin:0 0 28px}.fm-o p span{transition:color .6s}.fm-o p span.said{color:#f3e3c8}
 .fm-to{font:italic 20px 'CormorantCy';color:#cdb08a}.fm-to b{font:36px 'SignThatS',cursive;font-weight:400;color:#ffd99a;cursor:pointer;margin-right:12px}
 .fm-to select{appearance:none;font:italic 20px 'CormorantCy';color:#ffd99a;background:transparent;border:0;border-bottom:1px dashed rgba(255,217,154,.6);cursor:pointer}
 .fm-to select option{color:#2a1a0c}
@@ -8819,23 +8842,29 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
   new MutationObserver(tryShow).observe(shell,{attributes:true,attributeFilter:['class']});tryShow();
   // ——— room «Семья» ———
   const room=document.createElement('div');room.className='fm-room';document.body.appendChild(room);
-  const vinyl=(cls='')=>`<div class="vinyl ${cls}"><div class="lb"></div></div>`;
+  const vinyl=(cls='')=>`<div class="vwrap"><div class="vinyl ${cls}"><div class="lb"></div></div></div>`;
   const PARTS=['Семья','Вопрос недели','Архив'];let part=0,roomOpen=false;
   const qOf=()=>{const l=TOPICS[week.topic]||TOPICS['Детство'];return l[(week.i||0)%l.length];};
-  const sel=(k,opts)=>`<select data-k="${k}">${opts.map(o=>`<option${o===week[k]?' selected':''}>${o}</option>`).join('')}</select>`;
+  const nextQs=()=>{const l=TOPICS[week.topic]||TOPICS['Детство'];return [l[((week.i||0)+1)%l.length],l[((week.i||0)+2)%l.length]];};
+  // Our own small choice (not the browser's list): the word, and on a press a quiet list on the blur.
+  const sel=(k,opts)=>`<span class="fm-pick" data-k="${k}" data-opts="${opts.join('|')}">${week[k]}</span>`;
   function drawRoom(){room.innerHTML=`<div class="fm-track">
     <section class="fm-part" data-p="0"><div class="fm-k">Ваша семья</div><div class="fm-h">Семья</div>
-      <div class="fm-people">${people.map(p=>`<div class="fm-p">${p.nw?'<span class="nw"></span>':''}<div class="a" style="background-image:url(${PH+p.img})"></div><b>${p.n}</b><small>${p.r}</small></div>`).join('')}<div class="fm-p add" data-soon="Приглашение по ссылке заработает после подключения сервера"><div class="a">＋</div><b>Позвать</b><small>ссылкой</small></div></div></section>
-    <section class="fm-part" data-p="1"><div class="fm-k">Вопрос недели · Нине Петровне</div>
+      <div class="fm-people">${people.map(p=>`<div class="fm-p ${p.nw?'is-new':''}"><div class="a" style="background-image:url(${PH+p.img})"></div><b>${p.n}</b><small>${p.r}</small></div>`).join('')}<div class="fm-p add" data-soon="Приглашение по ссылке заработает после подключения сервера"><div class="a">＋</div><b>Позвать</b><small>ссылкой</small></div></div>
+      <div class="fm-why">Позовите родных — они смогут рассказать свою историю голосом, прислать фото и ответить на вопрос недели. Всё придёт в архив, и вы решите, что взять в книгу.</div></section>
+    <section class="fm-part" data-p="1"><div class="fm-qh">Вопрос недели <span>для Нины Петровны</span></div>
       <div class="fm-topics">${Object.keys(TOPICS).map(t=>`<span data-topic="${t}" class="${t===week.topic?'on':''}">${t}</span>`).join('')}</div>
-      <div class="fm-q">${letters(qOf())}</div>
+      <div class="fm-qrow"><div class="fm-q">${letters(qOf())}</div><svg class="fm-env" viewBox="0 0 60 42"><rect x="1" y="4" width="58" height="37" rx="2"/><path d="M1,41 L24,22 M59,41 L36,22"/><path class="flap" d="M1,4 L30,26 L59,4"/></svg></div>
+      <div class="fm-next">потом: «${nextQs()[0]}», «${nextQs()[1]}»</div>
       <div class="fm-sched">Письмо уйдёт в ${sel('day',['понедельник','среду','пятницу','субботу','воскресенье'])} ${sel('time',['утром','днём','вечером'])}, ${sel('every',['каждую неделю','раз в две недели','раз в месяц'])} — ${sel('via',['в Telegram','на почту','в WhatsApp'])}</div>
       <div class="fm-acts"><span data-act="next">другой вопрос</span><span data-act="send">отправить сейчас</span></div><div class="fm-note"></div></section>
-    <section class="fm-part" data-p="2"><div class="fm-k">Всё, что прислала семья</div><div class="fm-h" style="margin-bottom:18px">Архив семьи</div>
-      <div class="fm-stack">${people.map(p=>`<i style="background-image:url(${PH+p.img})"></i>`).join('')}<span>${records.length} голоса · 2 фото · 1 вычитка</span></div>
-      <div class="fm-vinyls">${records.map(r=>`<div class="fm-v ${r.nw&&!added[r.id]?'is-new':''}" data-rec="${r.id}">${vinyl()}<b>${r.who}</b><small>${r.q}</small>${added[r.id]?`<span class="in">в главе «${added[r.id]}»</span>`:''}</div>`).join('')}</div>
-      <div class="fm-photos"><div style="--r:-4deg"><img src="${PH}city_tiflis.jpg"></div><div style="--r:3deg"><img src="${PH}girl_dog.jpg"></div></div>
-      <div class="fm-notes">14 правок в главе «Тифлис»<small>вычитка мастерской — правки стоят на листе</small></div></section></div>
+    <section class="fm-part" data-p="2"><div class="fm-k">Всё, что прислала семья</div><div class="fm-h" style="margin-bottom:10px">Архив семьи</div>
+      <div class="fm-why" style="margin:0 0 44px">Здесь хранится всё, что прислали родные. Послушайте рассказ и одним нажатием сделайте из него лист книги.</div>
+      <div class="fm-cols">
+        <div class="fm-col"><div class="fm-ch">Голоса</div><div class="fm-vinyls">${records.map(r=>`<div class="fm-v ${r.nw&&!added[r.id]?'is-new':''}" data-rec="${r.id}">${vinyl()}<b>${r.who}</b><small>${r.q}</small>${added[r.id]?`<span class="in">в главе «${added[r.id]}»</span>`:''}</div>`).join('')}</div></div>
+        <div class="fm-col narrow"><div class="fm-ch">Фото</div><div class="fm-photos"><div style="--r:-4deg"><img src="${PH}city_tiflis.jpg"></div><div style="--r:3deg"><img src="${PH}girl_dog.jpg"></div></div><small class="fm-cap">Анна · 2 фото<br>лягут в «Рукопись» стопкой</small></div>
+        <div class="fm-col narrow"><div class="fm-ch">Вычитка</div><div class="fm-notes">14 правок</div><small class="fm-cap">в главе «Тифлис»<br>правки стоят прямо на листе</small></div>
+      </div></section></div>
     <div class="fm-arrow l">‹</div><div class="fm-arrow r">›</div>
     <div class="fm-dots">${PARTS.map((p,i)=>`<span data-go="${i}">${p}</span>`).join('<span style="cursor:default">·</span>')}</div>
     <div class="fm-sample">Сейчас здесь примеры — так будут выглядеть ваша семья и её ответы</div><div class="fm-open"></div>`;show(part,true);}
@@ -8845,37 +8874,52 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
     if(!store('hinted')){store('hinted',1);setTimeout(()=>room.querySelectorAll('.fm-arrow').forEach(a=>a.classList.add('hint')),900);}}
   function closeRoom(){if(!roomOpen)return;roomOpen=false;room.classList.remove('on');shell.classList.remove('is-family-room');syncSwitch();}
   // A new question rises out of the mist.
-  function swapQuestion(){const q=room.querySelector('.fm-q');if(!q)return;q.classList.remove('in');q.classList.add('out');setTimeout(()=>{q.innerHTML=letters(qOf());q.classList.remove('out');q.classList.add('in');},560);}
+  function swapQuestion(){const q=room.querySelector('.fm-q');if(!q)return;q.classList.remove('in');q.classList.add('out');setTimeout(()=>{q.innerHTML=letters(qOf());q.classList.remove('out');q.classList.add('in');const n=room.querySelector('.fm-next');if(n){const [a,b]=nextQs();n.textContent=`потом: «${a}», «${b}»`;}},560);}
   // «Отправить сейчас»: the words fly into an outline envelope, it closes and flies away.
-  function send(){const q=room.querySelector('.fm-q'),note=room.querySelector('.fm-note');if(!q||room.querySelector('.fm-send'))return;
-    const r=q.getBoundingClientRect(),fly=document.createElement('div');fly.className='fm-fly';fly.textContent=qOf();fly.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px`;room.appendChild(fly);q.style.opacity='0';
-    const env=document.createElement('div');env.className='fm-send';env.innerHTML='<svg viewBox="0 0 240 160"><rect x="1" y="10" width="238" height="148" rx="4"/><path d="M1,158 L100,80 M239,158 L140,80"/><path class="flap" d="M1,10 L120,96 L239,10"/></svg>';room.appendChild(env);
-    env.animate([{opacity:0,transform:'scale(.8)'},{opacity:1,transform:'scale(1)'}],{duration:400,fill:'forwards'});
-    requestAnimationFrame(()=>{const e=env.getBoundingClientRect();fly.style.transform=`translate(${e.left+e.width/2-(r.left+r.width/2)}px,${e.top+e.height/2-(r.top+r.height/2)}px) scale(.12)`;fly.style.opacity='0';});
-    setTimeout(()=>env.classList.add('closed'),900);setTimeout(()=>env.classList.add('go'),1500);
-    setTimeout(()=>{fly.remove();env.remove();week.i=(week.i||0)+1;store('week',week);q.innerHTML=letters(qOf());q.style.opacity='';q.classList.remove('out');q.classList.add('in');
-      if(note)note.textContent='Письмо готово — уйдёт само, когда конструктор подключим к серверу';},3000);}
+  function send(){const q=room.querySelector('.fm-q'),env=room.querySelector('.fm-env'),note=room.querySelector('.fm-note');if(!q||!env||env.classList.contains('busy'))return;env.classList.add('busy');
+    // The words of the question gather into the envelope beside it…
+    const e=env.getBoundingClientRect(),cx=e.left+e.width/2,cy=e.top+e.height/2;
+    q.querySelectorAll('span').forEach((sp,k)=>{const r=sp.getBoundingClientRect();sp.animate([{transform:'none',opacity:1,filter:'blur(0)'},{transform:`translate(${cx-(r.left+r.width/2)}px,${cy-(r.top+r.height/2)}px) scale(.2)`,opacity:0,filter:'blur(2px)'}],{duration:700,delay:k*12,easing:'cubic-bezier(.5,0,.3,1)',fill:'forwards'});});
+    // …it closes and flies off to the right, out of the room; a new one comes back.
+    const t=700+q.querySelectorAll('span').length*12;
+    setTimeout(()=>env.classList.add('closed'),t);setTimeout(()=>env.classList.add('go'),t+500);
+    setTimeout(()=>{week.i=(week.i||0)+1;store('week',week);q.innerHTML=letters(qOf());q.classList.remove('out');q.classList.add('in');
+      const n=room.querySelector('.fm-next');if(n){const [a,b]=nextQs();n.textContent=`потом: «${a}», «${b}»`;}
+      env.classList.remove('go','closed');env.classList.add('back');void env.getBoundingClientRect();env.classList.remove('back');env.classList.remove('busy');
+      if(note)note.textContent='Письмо готово — уйдёт само, когда конструктор подключим к серверу';},t+1900);}
+  // A small list of our own for a choice (day, time, chapter…).
+  let menu=null;function pick(el,list,cur,done){menu?.remove();menu=document.createElement('div');menu.className='fm-menu';menu.innerHTML=list.map(o=>`<div class="${o.v===cur?'on':''}" data-v="${o.v}">${o.t}</div>`).join('');room.appendChild(menu);
+    const r=el.getBoundingClientRect();menu.style.left=Math.max(16,Math.min(innerWidth-240,r.left-20))+'px';menu.style.top=Math.min(innerHeight-menu.offsetHeight-16,r.bottom+8)+'px';requestAnimationFrame(()=>menu.classList.add('on'));
+    menu.addEventListener('click',e=>{e.stopPropagation();const d=e.target.closest('[data-v]');if(!d)return;done(d.dataset.v,d.textContent);menu.remove();menu=null;});}
   // One record, open: it turns while it plays.
   let timer=0,pos=0,playing=false;
   function openRecord(id){const r=records.find(x=>x.id===id);if(!r)return;const box=room.querySelector('.fm-open');pos=0;playing=false;clearInterval(timer);
     const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
-    box.innerHTML=`<div class="fm-x">×</div><div class="fm-o"><div class="fm-k">${r.who} · голосом</div><div class="q">${r.q}</div>${vinyl()}<div class="fm-player"><div class="fm-play">▶</div><div class="fm-time">0:00 / ${fmt(r.len)}</div></div><p>${r.t}</p>
-      <div class="fm-to">${added[r.id]?`уже в главе «${added[r.id]}»`:`<b>В книгу →</b> новым листом в главу <select>${(chapters.length?chapters:[{id:'',title:'Детство'}]).map(c=>`<option value="${c.id}">${c.title||'без названия'}</option>`).join('')}</select>`}</div></div>`;
-    const v=box.querySelector('.vinyl'),btn=box.querySelector('.fm-play'),tm=box.querySelector('.fm-time');
-    btn.onclick=()=>{playing=!playing;btn.textContent=playing?'❚❚':'▶';v.classList.toggle('spin',playing);clearInterval(timer);if(playing)timer=setInterval(()=>{pos=Math.min(r.len,pos+1);tm.textContent=fmt(pos)+' / '+fmt(r.len);if(pos>=r.len){playing=false;btn.textContent='▶';v.classList.remove('spin');clearInterval(timer);}},1000);};
-    box.querySelector('.fm-to b')?.addEventListener('click',()=>{const s=box.querySelector('select');const c=chapters.find(x=>x.id===s.value)||{id:s.value,title:s.options[s.selectedIndex]?.text};
+    const list=chapters.length?chapters:[{id:'',title:'Детство'}];let target=list[0];
+    const words=r.t.split(/(\s+)/).map(w=>/\S/.test(w)?`<span>${w}</span>`:w).join('');
+    box.innerHTML=`<div class="fm-x">×</div><div class="fm-o"><div class="fm-k">${r.who} · голосом</div><div class="q">${r.q}</div>${vinyl()}<div class="fm-player"><div class="fm-play">▶</div><div class="fm-time">0:00 / ${fmt(r.len)}</div></div><p>${words}</p>
+      <div class="fm-to">${added[r.id]?`уже в главе «${added[r.id]}» · <span class="fm-pick" data-open="1">открыть лист →</span>`:`<b>В книгу →</b> новым листом в главу <span class="fm-pick" data-ch="1">${target.title||'без названия'}</span>`}</div></div>`;
+    const v=box.querySelector('.vinyl'),btn=box.querySelector('.fm-play'),tm=box.querySelector('.fm-time'),spans=[...box.querySelectorAll('.fm-o p span')];
+    // The words light up as the voice goes on.
+    const paint=()=>{const n=Math.round(spans.length*pos/r.len);spans.forEach((sp,k)=>sp.classList.toggle('said',k<n));};
+    btn.onclick=()=>{playing=!playing;btn.textContent=playing?'❚❚':'▶';v.classList.toggle('spin',playing);clearInterval(timer);if(playing)timer=setInterval(()=>{pos=Math.min(r.len,pos+1);tm.textContent=fmt(pos)+' / '+fmt(r.len);paint();if(pos>=r.len){playing=false;btn.textContent='▶';v.classList.remove('spin');clearInterval(timer);}},1000);};
+    box.querySelector('[data-ch]')?.addEventListener('click',e=>{e.stopPropagation();pick(e.currentTarget,list.map(c=>({v:c.id,t:c.title||'без названия'})),target.id,(id,t)=>{target={id,title:t};e.target.textContent=t;});});
+    const openSheet=()=>{closeRecord();closeRoom();window.OCHERKI_SET_MODE?.('write');};
+    box.querySelector('[data-open]')?.addEventListener('click',openSheet);
+    box.querySelector('.fm-to b')?.addEventListener('click',()=>{const c=target;
       if(c.id)try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'addStoryPage',sectionId:c.id,text:r.t.replace(/^«|»$/g,''),episode:r.q},'*');}catch(_){}
-      added[r.id]=c.title;store('added',added);box.querySelector('.fm-to').innerHTML=`добавлено в главу «${c.title}» новым листом`;});
+      added[r.id]=c.title;store('added',added);box.querySelector('.fm-to').innerHTML=`добавлено в главу «${c.title}» новым листом · <span class="fm-pick" data-open="1">открыть лист →</span>`;box.querySelector('[data-open]').addEventListener('click',openSheet);});
     box.querySelector('.fm-x').onclick=closeRecord;requestAnimationFrame(()=>box.classList.add('on'));}
   function closeRecord(){const box=room.querySelector('.fm-open');clearInterval(timer);box?.classList.remove('on');setTimeout(()=>{if(roomOpen){drawRoom();show(2);}},450);}
   room.addEventListener('click',e=>{const t=e.target;
+    if(menu&&!t.closest('.fm-menu')){menu.remove();menu=null;}
+    const pk=t.closest('.fm-pick[data-k]');if(pk){const k=pk.dataset.k;pick(pk,pk.dataset.opts.split('|').map(o=>({v:o,t:o})),week[k],v=>{week[k]=v;store('week',week);pk.textContent=v;});return;}
     const rec=t.closest('[data-rec]');if(rec){openRecord(rec.dataset.rec);return;}
     if(t.closest('.fm-arrow.l')){show(part-1);return;}if(t.closest('.fm-arrow.r')){show(part+1);return;}
     const d=t.closest('.fm-dots [data-go]');if(d){show(+d.dataset.go);return;}
     const tp=t.closest('[data-topic]');if(tp){week.topic=tp.dataset.topic;week.i=0;store('week',week);room.querySelectorAll('[data-topic]').forEach(x=>x.classList.toggle('on',x===tp));swapQuestion();return;}
     const a=t.closest('[data-act]')?.dataset.act;if(a==='next'){week.i=(week.i||0)+1;store('week',week);swapQuestion();return;}if(a==='send'){send();return;}
     const soon=t.closest('[data-soon]');if(soon){const n=room.querySelector('.fm-part.on .fm-note')||null;try{window.OCHERKI_SHOW_TOAST?.(soon.dataset.soon);}catch(_){}}});
-  room.addEventListener('change',e=>{const s=e.target.closest('select[data-k]');if(s){week[s.dataset.k]=s.value;store('week',week);}});
   let wheelT=0;room.addEventListener('wheel',e=>{if(room.querySelector('.fm-open.on'))return;const now=Date.now();if(now-wheelT<700||Math.abs(e.deltaY)<8)return;wheelT=now;show(part+(e.deltaY>0?1:-1));},{passive:true});
   addEventListener('keydown',e=>{if(room.querySelector('.fm-open.on')){if(e.key==='Escape')closeRecord();return;}
     if(roomOpen&&e.key==='ArrowRight')show(part+1);if(roomOpen&&e.key==='ArrowLeft')show(part-1);if(e.key==='Escape'&&st.classList.contains('on'))hideStart();});
@@ -8896,7 +8940,13 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 /* v102: how far the book is — a thin gold line under the title; pressed, the
    room blurs and the steps lie on it, done ones crossed out. */
 .rd-line{position:fixed;z-index:30;height:3px;border-radius:2px;background:rgba(226,176,106,.18);cursor:pointer;opacity:0;transition:opacity .8s ease}
-.shell.is-open:not(.is-manuscript):not(.is-start-screen):not(.is-family-room) ~ .rd-line{opacity:1}
+.rd-line{transition:opacity .35s ease}
+.shell.is-open:not(.is-manuscript):not(.is-start-screen):not(.is-family-room):not(.is-book-preview):not(.is-ms-to-book) ~ .rd-line{opacity:1}
+.rd-line .rd-tip{position:absolute;left:50%;top:12px;transform:translateX(-50%);white-space:nowrap;font:italic 15px 'CormorantCy',Georgia,serif;color:var(--ink,#5a4030);opacity:0;transition:opacity .3s;pointer-events:none}
+.shell.is-night ~ .rd-line .rd-tip{color:#e6cfa8}
+.rd-line:hover .rd-tip,.rd-line.hint .rd-tip{opacity:.9}
+.rd-line.hint b{animation:rdPulse 1.8s ease-in-out 3}
+@keyframes rdPulse{50%{box-shadow:0 0 16px 3px rgba(255,217,154,.95)}}
 .rd-line b{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:linear-gradient(90deg,#9c6a30,#f0cf8e);box-shadow:0 0 8px rgba(240,207,142,.7);transition:width 1s cubic-bezier(.2,.8,.3,1)}
 .rd-line::after{content:"";position:absolute;inset:-10px 0}
 .rd-line:hover b{box-shadow:0 0 14px rgba(255,217,154,.95)}
@@ -8935,7 +8985,7 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
     wc.filter(x=>x.n>0&&x.n<300).slice(0,2).forEach(x=>out.push({t:`глава «${String(x.s.title||'').replace(/^Глава\s+\d+\.\s*/,'')}» — расскажите ещё`,e:`пока ${x.n} слов`,ok:false,go:{sectionId:x.s.id}}));
     out.push({t:'вычитать текст',e:'нажмите, когда перечитали всю книгу',ok:store('proof')==='1',proof:1});
     return out;}
-  const line=document.createElement('div');line.className='rd-line';line.innerHTML='<b></b>';line.title='Что осталось до книги';
+  const line=document.createElement('div');line.className='rd-line';line.innerHTML='<b></b><span class="rd-tip">что осталось до книги</span>';
   const veil=document.createElement('div');veil.className='rd-veil';const box=document.createElement('div');box.className='rd-box';
   document.querySelector('.mode-switch')?document.body.append(line,veil,box):document.body.append(line,veil,box);
   const place=()=>{const t=(document.querySelector('.project-top .project-key')||document.querySelector('#projectTitle')?.closest('.project-key'))?.getBoundingClientRect();if(!t||!t.width)return;line.style.left=(t.left+30)+'px';line.style.width=(t.width-60)+'px';line.style.top=(t.bottom+9)+'px';
@@ -8952,7 +9002,10 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
       close();if(window.OCHERKI_MANUSCRIPT?.isOpen?.())window.OCHERKI_SET_MODE?.('write');
       try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',...x.go},'*');}catch(_){}return;}
     if(e.target.closest('.go.ready'))try{window.OCHERKI_SHOW_TOAST?.('Заказ печати откроется после подключения сервера');}catch(_){}});
-  addEventListener('resize',place);setInterval(place,1500);place();
+  // The line follows the title smoothly frame by frame (no late jumps when the keys move).
+  const follow=()=>{place();requestAnimationFrame(follow);};requestAnimationFrame(follow);
+  // Once, the first time it appears: it glows and says what it is.
+  try{if(!localStorage.getItem('ocherki_ready_hinted')){setTimeout(()=>{line.classList.add('hint');localStorage.setItem('ocherki_ready_hinted','1');setTimeout(()=>line.classList.remove('hint'),6000);},4000);}}catch(_){}
   window.OCHERKI_READY={open,close};
 })();
 </script>
