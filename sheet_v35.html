@@ -5247,7 +5247,8 @@ html body .page-context-actions button:hover{color:#a8692f!important}
     if(!photos.length&&canHavePhotos(p))return {text:'Добавьте фото к главе',run:()=>click('addPhotoBtn')};
     const shown=typeof currentPhotos==='function'?currentPhotos():(p.photos||[]);const idx=(shown||[]).findIndex(ph=>ph&&!ph.isDocument&&!String(ph.caption||ph.people||'').trim());
     if(idx>=0)return {text:'Подпишите фото',why:'Подпишите фото: кто на нём?',run:()=>{try{openPhoto(idx);}catch(e){}}};
-    return {text:'Посмотрите главу в книге',run:view};
+    // v98: «в книге ›» is already beside it — no second key for the same thing.
+    return null;
   }
   function sync(){
     let step=null;try{step=pick();}catch(e){step=null;}
