@@ -264,6 +264,10 @@
   }
   function build(structure,meta={}){
     const input=clone(structure),settings={...meta},session=createSession(settings);
+    // A run of letters longer than a line (a link, keys pressed without
+    // spaces) gets invisible break points, so no text can stop the book.
+    const breakLong=t=>typeof t==='string'&&/[^\s\u200b]{24,}/u.test(t)?t.replace(/[^\s\u200b]{24,}/gu,w=>w.replace(/([^\s]{7})(?=[^\s])/gu,'$1\u200b')):t;
+    (input?.sections||[]).forEach(sec=>(sec?.pages||[]).forEach(pg=>{if(!pg)return;pg.text=breakLong(pg.text);if(pg.semanticHtml&&/[^\s<>\u200b]{24,}/u.test(pg.semanticHtml))delete pg.semanticHtml;}));
     try{
       const result=settings.composition?compose(input,settings,session):global.OcherkiBookEngine.assemble(input,{...settings,textRhythmOnly:true,layoutDefinition:pack,paginateText:session.textPage});
       if(!result.ready)return result;

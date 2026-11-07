@@ -1157,6 +1157,9 @@
     // purposes. Keeping only its end as a legal boundary could evict the last
     // complete line even when that line physically fitted above the separator.
     for(const match of value.matchAll(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/gu))boundaries.push(match.index,match.index+match[0].length);
+    // An overlong token (a link, a run of letters without spaces) arrives
+    // with zero-width spaces; each one is a legal place to end a line.
+    for(const match of value.matchAll(/\u200b/gu))boundaries.push(match.index+1);
     for(const point of breaks)if(point>0&&point<value.length)boundaries.push(point);
     for(const item of inlineRanges)boundaries.push(item.start,item.end);
     boundaries.push(value.length);

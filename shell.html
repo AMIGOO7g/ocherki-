@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v104">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v105">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v104" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v105" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v104"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v104"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v104"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v104"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v104"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v104"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v105"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v105"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v105"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v105"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v105"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v105"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v104"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v104"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v105"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v105"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -5932,7 +5932,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     if(activeDesign==='editorial'&&window.OcherkiBookEngine){
       // A word longer than a line (a link, or letters typed without spaces)
       // gets invisible break points, so the page can still be set.
-      const longWord=/[^\s\u200b]{24,}/g,breakLong=t=>typeof t==='string'&&/[^\s\u200b]{24,}/.test(t)?t.replace(longWord,w=>w.replace(/([^\s]{18})(?=[^\s])/g,'$1\u200b')):t;
+      const longWord=/[^\s\u200b]{24,}/gu,breakLong=t=>typeof t==='string'&&/[^\s\u200b]{24,}/u.test(t)?t.replace(longWord,w=>w.replace(/([^\s]{7})(?=[^\s])/gu,'$1\u200b')):t;
       const structureForBook=JSON.parse(JSON.stringify(structure||{}));(structureForBook.sections||[]).forEach(sec=>(sec.pages||[]).forEach(pg=>{pg.text=breakLong(pg.text);if(pg.semanticHtml&&/[^\s<>\u200b]{24,}/.test(pg.semanticHtml))delete pg.semanticHtml;}));
       const external=window.OcherkiLayoutPagination.build(structureForBook,Object.assign({},window.OCHERKI_BOOK_META||{},{format:activeFormat}));
       window.__ocherkiLastWarnings=(external.layout?.warnings||external.warnings||[]);
@@ -7093,6 +7093,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   // A visible note beside the right-hand keys: why the book did not open
   // (the old spreads panel that used to show it is folded away).
   function showBookNotice(html,withReport){
+    if(window.__ocherkiQuietBuild)return;
     let box=document.getElementById('bookNotice');
     if(!box){box=document.createElement('div');box.id='bookNotice';box.className='book-notice';document.body.appendChild(box);
       box.addEventListener('click',event=>{if(event.target.closest('[data-notice-close]'))box.hidden=true;});}
@@ -7110,6 +7111,24 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   }
   function hideBuilding(){document.getElementById('bookBuilding')?.classList.remove('is-on');}
   function hideBookNotice(){const box=document.getElementById('bookNotice');if(box)box.hidden=true;}
+  // v105: the book is laid out quietly in the background a few seconds
+  // after the last change, so «Книга» opens at once.
+  function bookKey(){return directorContentFingerprint+'|'+activeFormat+'|'+activeDesign;}
+  const bookFresh=()=>built&&bookSpreads.length&&!bookOutdated&&window.__ocherkiBuiltKey===bookKey();
+  let prebuildT=0;
+  function schedulePrebuild(delay=2600){clearTimeout(prebuildT);prebuildT=setTimeout(prebuild,delay);}
+  function prebuild(){
+    if(!structure||buildBtn?.disabled||bookFresh()||document.hidden)return;
+    const sh=document.querySelector('.shell');
+    if(previewModal?.classList.contains('open')||sh?.classList.contains('is-manuscript')||sh?.classList.contains('is-ms-to-book')||sh?.classList.contains('is-book-preview')){schedulePrebuild(4000);return;}
+    const run=()=>{if(buildBtn?.disabled||previewModal?.classList.contains('open')||bookFresh())return;
+      window.__ocherkiQuietBuild=true;
+      try{let ok=false;try{ok=assemble();}catch(_){ok=false;}
+        if(ok&&built){bookOutdated=false;buildBtn?.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();window.__ocherkiBuiltKey=bookKey();}}
+      finally{window.__ocherkiQuietBuild=false;}};
+    (window.requestIdleCallback||(f=>setTimeout(f,0)))(()=>{const fr=activeDesign==='editorial'&&window.OcherkiBookRenderer?.readyFonts;fr?fr().then(run,()=>{}):run();},{timeout:1500});
+  }
+  window.__ocherkiPrebuild=prebuild;
   function performBuild(after){
     if(!structure) return false;
     hideBookNotice();
@@ -7142,7 +7161,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
         }
         requestAnimationFrame(scaleAllPageCanvases);
         buildBtn.textContent=bookSpreads.length?'Посмотреть книгу':'Нет данных';
-        bookOutdated=false;buildBtn.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();
+        bookOutdated=false;buildBtn.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();if(built)window.__ocherkiBuiltKey=bookKey();
         if(previewModal?.classList.contains('open'))previewRender();
         // The preview opens once the freshly built pages have settled, so its
         // gliding entrance plays smoothly instead of jumping in.
@@ -7502,7 +7521,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }
     // A book built a moment ago (the button builds, then opens) is not
     // built a second time.
-    const justBuilt=!bookOutdated&&Date.now()-(window.__ocherkiBuiltAt||0)<4000;
+    const justBuilt=!bookOutdated&&(Date.now()-(window.__ocherkiBuiltAt||0)<4000||bookFresh());
     if(!justBuilt&&!window.__ocherkiPreviewFresh&&!buildBtn.disabled){window.__ocherkiPreviewFresh=true;performBuild(()=>{openPreview();window.__ocherkiPreviewFresh=false;});return;}
     if(!built || !bookSpreads.length){
       hideBuilding();
@@ -7596,7 +7615,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v104"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v105"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -7917,8 +7936,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     }
     if(pendingBuildRequest){
       pendingBuildRequest=false;
-      performBuild(openPreview);
-    }
+      // Laid out in the background already, and nothing changed since: open at once.
+      if(bookFresh()){hideBuilding();openPreview();}
+      else performBuild(openPreview);
+    }else if(!hadStructure||contentChanged||!bookFresh())schedulePrebuild();
   });
 
   window.addEventListener('message',event=>{
@@ -8704,6 +8725,7 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 .fm-part{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 160px 110px;box-sizing:border-box;
   opacity:0;filter:blur(8px);transform:translateX(40px);pointer-events:none;transition:opacity .7s ease,filter .7s ease,transform .8s cubic-bezier(.2,.8,.3,1)}
 .fm-part.on{opacity:1;filter:none;transform:none;pointer-events:auto}
+.fm-room:not(.on),.fm-room:not(.on) *,.st-screen:not(.on),.st-screen:not(.on) *{pointer-events:none!important}
 .fm-part.left{transform:translateX(-40px)}
 .fm-k{font:600 12px 'CormorantCy';letter-spacing:.26em;text-transform:uppercase;color:#c9a06a}
 .fm-h{font:56px/1.2 'SignThatS',cursive;color:#f6e4c4;margin:22px 0 56px}
@@ -8825,15 +8847,22 @@ html body .shell.is-family-room ~ .mode-switch{filter:brightness(.5) sepia(.25)!
     'Переезды':['Почему семья переехала?','Каким был новый город?','Что вы взяли с собой?'],
     'Праздники':['Как встречали Новый год?','Какой подарок вы помните?','Какие песни пели за столом?'],
     'Советы':['Что бы вы сказали себе в двадцать лет?','Что важно передать внукам?','Чему вас научила жизнь?']};
-  const records=[
-    {id:'r1',who:'Нина Петровна',q:'Каким был ваш первый дом?',t:'«Дом был деревянный, на два хозяина. Во дворе росла старая груша, и отец каждую осень обещал её спилить — и так и не спилил…»',len:192,nw:1},
-    {id:'r2',who:'Нина Петровна',q:'Какой запах вы помните из детства?',t:'«Мама пекла по субботам хачапури, весь двор пах сыром и дымом, а груша у колодца цвела так, что мы спали с открытыми окнами.»',len:167},
-    {id:'r3',who:'Сергей',q:'Как дедушка вспоминал армию?',t:'«Он рассказывал, как в сорок четвёртом они шли пешком до Кутаиси и пели всю дорогу, чтобы не уснуть.»',len:121}];
-  const added=store('added')||{};
+  // v105: the archive keeps everything for good — a timeline, newest first.
+  const ITEMS=[
+    {id:'r1',kind:'voice',who:'Нина',full:'Нина Петровна',date:'3 ноября',q:'Каким был ваш первый дом?',t:'«Дом был деревянный, на два хозяина. Во дворе росла старая груша, и отец каждую осень обещал её спилить — и так и не спилил…»',len:192,nw:1},
+    {id:'ph1',kind:'photo',who:'Анна',full:'Анна',date:'1 ноября',q:'Тифлис, 1956 · Бабушка с Дружком',imgs:['city_tiflis.jpg','girl_dog.jpg'],nw:1},
+    {id:'n1',kind:'note',who:'Мастерская',full:'Мастерская',date:'30 октября',q:'Вычитка главы «Тифлис»',place:'Тифлис',edits:[{was:'в сорок четвёртом',now:'в 1944 году'},{was:'шли пешком до Кутаиси и пели всю дорогу чтобы не уснуть',now:'шли пешком до Кутаиси и пели всю дорогу, чтобы не уснуть'},{was:'хачапури по суботам',now:'хачапури по субботам'},{was:'Дружок был умный пёс, умный и добрый',now:'Дружок был умный и добрый пёс'}]},
+    {id:'r2',kind:'voice',who:'Нина',full:'Нина Петровна',date:'27 октября',q:'Какой запах вы помните из детства?',t:'«Мама пекла по субботам хачапури, весь двор пах сыром и дымом, а груша у колодца цвела так, что мы спали с открытыми окнами.»',len:167},
+    {id:'r3',kind:'voice',who:'Сергей',full:'Сергей',date:'20 октября',q:'Как дедушка вспоминал армию?',t:'«Он рассказывал, как в сорок четвёртом они шли пешком до Кутаиси и пели всю дорогу, чтобы не уснуть.»',len:121}];
+  const records=ITEMS.filter(x=>x.kind==='voice');
+  const added=store('added')||{};const arch=store('arch')||{};
+  const stateOf=it=>arch[it.id]?.state||(added[it.id]?'book':(it.nw?'new':(it.kind==='note'?'book':'')));
+  const placeOf=it=>arch[it.id]?.chapter||added[it.id]||it.place||'';
+  const setState=(id,state,chapter)=>{arch[id]=Object.assign({},arch[id],{state,chapter:chapter??arch[id]?.chapter});store('arch',arch);};
   const st0=store('week')||{topic:'Детство',i:0,day:'пятницу',time:'утром',every:'каждую неделю',via:'в Telegram'};const week=st0;
   let chapters=[];addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_STRUCTURE_STATE')chapters=(d.payload?.sections||[]).filter(s=>s.type==='chapter').map(s=>({id:s.id,title:String(s.title||'').replace(/^Глава\s+\d+\.\s*/,'')}));});
   const sw=()=>document.querySelector('.mode-switch');
-  const newCount=()=>records.filter(r=>r.nw&&!added[r.id]).length+people.filter(p=>p.nw).length;
+  const newCount=()=>ITEMS.filter(it=>stateOf(it)==='new').length+people.filter(p=>p.nw).length;
   // ——— start screen ———
   const st=document.createElement('div');st.className='st-screen';document.body.appendChild(st);
   const title=()=>String(document.getElementById('projectTitle')?.textContent||'Очерки жизни').trim();
@@ -8867,6 +8896,18 @@ html body .shell.is-family-room ~ .mode-switch{filter:brightness(.5) sepia(.25)!
   const nextQs=()=>{const l=TOPICS[week.topic]||TOPICS['Детство'];return [l[((week.i||0)+1)%l.length],l[((week.i||0)+2)%l.length]];};
   // Our own small choice (not the browser's list): the word, and on a press a quiet list on the blur.
   const sel=(k,opts)=>`<span class="fm-pick" data-k="${k}" data-opts="${opts.join('|')}">${week[k]}</span>`;
+  const KIND={voice:'голос',photo:'фото',note:'вычитка'};
+  let fWho='',fSt='';
+  const faceOf=who=>people.find(p=>p.n===who)?.img||'';
+  function arWho(){const list=[...new Set(ITEMS.map(x=>x.who))];
+    return `<span class="ar-f ${!fWho?'on':''}" data-fwho=""><i class="all">все</i></span>`+list.map(w=>`<span class="ar-f ${fWho===w?'on':''}" data-fwho="${w}"><i style="background-image:url(${PH+faceOf(w)})"></i><b>${w}</b></span>`).join('');}
+  function arStates(){return [['','всё'],['new','новое'],['book','в книге'],['later','отложено']].map(([k,t])=>`<span class="${fSt===k?'on':''}" data-fst="${k}">${t}${k?` <em>${ITEMS.filter(it=>stateOf(it)===k).length}</em>`:''}</span>`).join('');}
+  const objOf=it=>it.kind==='voice'?`<div class="ar-vin">${vinyl()}</div>`:it.kind==='photo'?`<div class="ar-ph">${it.imgs.slice(0,2).map((m,k)=>`<img src="${PH+m}" style="--r:${k?5:-6}deg">`).join('')}</div>`:`<div class="ar-note"><svg viewBox="0 0 40 46"><path d="M4 2h24l8 8v34H4Z"/><path d="M28 2v8h8"/><path d="M10 18h18M10 25h20M10 32h14"/></svg></div>`;
+  const chipOf=it=>{const st=stateOf(it),pl=placeOf(it);return st==='new'?'<em class="nw">новое</em>':st==='book'?(it.kind==='photo'?'в «Рукописи»':`в книге${pl?` · «${pl}»`:''}`):st==='later'?'отложено':'';};
+  function arRows(){const list=ITEMS.filter(it=>(!fWho||it.who===fWho)&&(!fSt||stateOf(it)===fSt));
+    if(!list.length)return '<div class="ar-empty">Здесь пока ничего нет</div>';
+    return list.map(it=>`<div class="ar-it as-${stateOf(it)||'seen'}" data-it="${it.id}"><div class="ar-d">${it.date}</div><i class="ar-dot"></i>${objOf(it)}<div class="ar-tx"><small>${it.full} · ${KIND[it.kind]}${it.kind==='note'?` · ${it.edits.length} правки`:''}</small><span>${it.q}</span></div><div class="ar-chip">${chipOf(it)}</div></div>`).join('');}
+  function arRefresh(){const tl=room.querySelector('.ar-tl');if(!tl)return;room.querySelector('.ar-who').innerHTML=arWho();room.querySelector('.ar-st-f').innerHTML=arStates();tl.classList.add('swap');setTimeout(()=>{tl.innerHTML=arRows();tl.classList.remove('swap');},220);syncSwitch();}
   function drawRoom(){room.innerHTML=`<div class="fm-track">
     <section class="fm-part" data-p="0"><div class="fm-k">Ваша семья</div><div class="fm-h">Семья</div>
       <div class="fm-people">${people.map(p=>`<div class="fm-p ${p.nw?'is-new':''}"><div class="a" style="background-image:url(${PH+p.img})"></div><b>${p.n}</b><small>${p.r}</small></div>`).join('')}<div class="fm-p add" data-soon="Приглашение по ссылке заработает после подключения сервера"><div class="a">＋</div><b>Позвать</b><small>ссылкой</small></div></div>
@@ -8877,13 +8918,10 @@ html body .shell.is-family-room ~ .mode-switch{filter:brightness(.5) sepia(.25)!
       <div class="fm-q">${letters(qOf())}</div>
       <div class="fm-sched">Письмо уйдёт в ${sel('day',['понедельник','среду','пятницу','субботу','воскресенье'])} ${sel('time',['утром','днём','вечером'])}, ${sel('every',['каждую неделю','раз в две недели','раз в месяц'])} — ${sel('via',['в Telegram','на почту','в WhatsApp'])}</div>
       <div class="fm-acts"><span data-act="next">другой вопрос</span><span data-act="send">отправить сейчас</span></div><div class="fm-note"></div></section>
-    <section class="fm-part" data-p="2"><div class="fm-k">Всё, что прислала семья</div><div class="fm-h" style="margin-bottom:10px">Архив семьи</div>
-      <div class="fm-why" style="margin:0 0 44px">Здесь хранится всё, что прислали родные. Послушайте рассказ и одним нажатием сделайте из него лист книги.</div>
-      <div class="fm-cols">
-        <div class="fm-col"><div class="fm-ch">Голоса</div><div class="fm-vinyls">${records.map(r=>`<div class="fm-v ${r.nw&&!added[r.id]?'is-new':''}" data-rec="${r.id}">${vinyl()}<b>${r.who}</b><small>${r.q}</small>${added[r.id]?`<span class="in">в главе «${added[r.id]}»</span>`:''}</div>`).join('')}</div></div>
-        <div class="fm-col narrow"><div class="fm-ch">Фото</div><div class="fm-photos"><div style="--r:-4deg"><img src="${PH}city_tiflis.jpg"></div><div style="--r:3deg"><img src="${PH}girl_dog.jpg"></div></div><small class="fm-cap">Анна · 2 фото<br>лягут в «Рукопись» стопкой</small></div>
-        <div class="fm-col narrow"><div class="fm-ch">Вычитка</div><div class="fm-notes">14 правок</div><small class="fm-cap">в главе «Тифлис»<br>правки стоят прямо на листе</small></div>
-      </div></section></div>
+    <section class="fm-part fm-arch" data-p="2"><div class="fm-h" style="margin:0 0 6px">Архив семьи</div>
+      <div class="ar-why">Всё, что присылают родные, хранится здесь всегда — и после того, как попало в книгу.</div>
+      <div class="ar-filter"><div class="ar-who">${arWho()}</div><div class="ar-st-f">${arStates()}</div></div>
+      <div class="ar-tl">${arRows()}</div></section></div>
     <div class="fm-arrow l">‹</div><div class="fm-arrow r">›</div>
     <div class="fm-dots">${PARTS.map((p,i)=>`<span data-go="${i}">${p}</span>`).join('<span style="cursor:default">·</span>')}</div>
     <div class="fm-sample">Сейчас здесь примеры — так будут выглядеть ваша семья и её ответы</div><div class="fm-open"></div>`;show(part,true);}
@@ -8916,7 +8954,7 @@ html body .shell.is-family-room ~ .mode-switch{filter:brightness(.5) sepia(.25)!
     const list=chapters.length?chapters:[{id:'',title:'Детство'}];let target=list[0];
 
     box.innerHTML=`<div class="fm-x">×</div><div class="fm-o"><div class="fm-k">${r.who} · голосом</div><div class="q">${r.q}</div><div class="fm-row"><div class="fm-side">${vinyl()}<div class="fm-player"><div class="fm-play">▶</div><div class="fm-time">0:00 / ${fmt(r.len)}</div></div></div><p>${r.t}</p></div>
-      <div class="fm-to">${added[r.id]?`уже в главе «${added[r.id]}» · <span class="fm-pick" data-open="1">открыть лист →</span>`:`<b>В книгу →</b> новым листом в главу <span class="fm-pick" data-ch="1">${target.title||'без названия'}</span>`}</div></div>`;
+      <div class="fm-to">${stateOf(r)==='book'?`уже в книге, в главе «${placeOf(r)}» · <span class="fm-pick" data-open="1">открыть лист →</span>`:`<b>В книгу →</b> новым листом в главу <span class="fm-pick" data-ch="1">${target.title||'без названия'}</span><span class="fm-later" data-later="1">${stateOf(r)==='later'?'вернуть в новые':'отложить'}</span>`}</div></div>`;
     const v=box.querySelector('.vinyl'),btn=box.querySelector('.fm-play'),tm=box.querySelector('.fm-time');
     // The words light up as the voice goes on.
     // The record turns while it plays and slows down to rest on pause.
@@ -8928,19 +8966,42 @@ html body .shell.is-family-room ~ .mode-switch{filter:brightness(.5) sepia(.25)!
     box.querySelector('[data-open]')?.addEventListener('click',openSheet);
     box.querySelector('.fm-to b')?.addEventListener('click',()=>{const c=target;
       if(c.id)try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'addStoryPage',sectionId:c.id,text:r.t.replace(/^«|»$/g,''),episode:r.q},'*');}catch(_){}
-      added[r.id]=c.title;store('added',added);box.querySelector('.fm-to').innerHTML=`добавлено в главу «${c.title}» новым листом · <span class="fm-pick" data-open="1">открыть лист →</span>`;box.querySelector('[data-open]').addEventListener('click',openSheet);});
+      added[r.id]=c.title;store('added',added);setState(r.id,'book',c.title);box.querySelector('.fm-to').innerHTML=`лист добавлен в главу «${c.title}» · <span class="fm-pick" data-open="1">открыть лист →</span>`;box.querySelector('[data-open]').addEventListener('click',openSheet);
+      window.OCHERKI_SAY?.(`Лист добавлен в главу «${c.title}»`,'открыть',openSheet);});
+    box.querySelector('[data-later]')?.addEventListener('click',()=>laterToggle(r));
     box.querySelector('.fm-x').onclick=closeRecord;requestAnimationFrame(()=>box.classList.add('on'));}
-  function closeRecord(){const box=room.querySelector('.fm-open');clearInterval(timer);box?.classList.remove('on');setTimeout(()=>{if(roomOpen){drawRoom();show(2);}},450);}
+  function closeRecord(){const box=room.querySelector('.fm-open');clearInterval(timer);box?.classList.remove('on');setTimeout(()=>{if(roomOpen)arRefresh();},450);}
+  function laterToggle(it){const was=stateOf(it)==='later';setState(it.id,was?'new':'later');closeRecord();
+    window.OCHERKI_SAY?.(was?'Вернули в новые':'Отложено — найдёте в архиве в «отложено»',was?'':'отменить',was?null:()=>{setState(it.id,it.nw?'new':'');arRefresh();});}
+  function openPhoto(it){const box=room.querySelector('.fm-open');const st=stateOf(it);
+    const toMs=()=>{closeRecord();closeRoom();window.OCHERKI_SET_MODE?.('manuscript');};
+    box.innerHTML=`<div class="fm-x">×</div><div class="fm-o"><div class="fm-k">${it.full} · ${it.imgs.length} фото · ${it.date}</div><div class="q">${it.q}</div>
+      <div class="ar-prints">${it.imgs.map((m,k)=>`<div style="--r:${k%2?4:-5}deg"><img src="${PH+m}" alt=""></div>`).join('')}</div>
+      <div class="fm-to">${st==='book'?`уже в «Рукописи», в стопке фото · <span class="fm-pick" data-ms="1">открыть «Рукопись» →</span>`:`<b>В «Рукопись» →</b> стопкой, потом каждое — на свой лист<span class="fm-later" data-later="1">${st==='later'?'вернуть в новые':'отложить'}</span>`}</div></div>`;
+    box.querySelector('[data-ms]')?.addEventListener('click',toMs);
+    box.querySelector('[data-later]')?.addEventListener('click',()=>laterToggle(it));
+    box.querySelector('.fm-to b')?.addEventListener('click',()=>{const add=window.OCHERKI_TRAY_ADD;const done=n=>{setState(it.id,'book','Рукопись');box.querySelector('.fm-to').innerHTML=`${n} фото легли в стопку «Рукописи» · <span class="fm-pick" data-ms="1">открыть →</span>`;box.querySelector('[data-ms]').addEventListener('click',toMs);window.OCHERKI_SAY?.(`${n} фото в стопке «Рукописи»`,'открыть',toMs);};
+      if(add)add(it.imgs.map(m=>PH+m)).then(done);else done(it.imgs.length);});
+    box.querySelector('.fm-x').onclick=closeRecord;requestAnimationFrame(()=>box.classList.add('on'));}
+  function openNote(it){const box=room.querySelector('.fm-open');const rev=(arch[it.id]?.rev)||{};
+    box.innerHTML=`<div class="fm-x">×</div><div class="fm-o"><div class="fm-k">${it.full} · вычитка · ${it.date}</div><div class="q">${it.q}</div>
+      <div class="ar-why" style="margin:0 auto 30px">Правки уже стоят на листах. Не согласны — верните, и на листе останется ваш вариант.</div>
+      <div class="ar-edits">${it.edits.map((e,k)=>`<div class="ar-ed ${rev[k]?'is-rev':''}" data-ed="${k}"><span class="was">${e.was}</span><span class="arr">→</span><span class="now">${e.now}</span><span class="ar-act">${rev[k]?'принять снова':'вернуть'}</span></div>`).join('')}</div></div>`;
+    box.querySelectorAll('.ar-act').forEach(a=>a.addEventListener('click',()=>{const row=a.closest('[data-ed]'),k=+row.dataset.ed;rev[k]=!rev[k];arch[it.id]=Object.assign({},arch[it.id],{rev});store('arch',arch);
+      row.classList.toggle('is-rev',rev[k]);a.textContent=rev[k]?'принять снова':'вернуть';window.OCHERKI_SAY?.(rev[k]?'Вернули, как было у вас':'Правка снова на листе');}));
+    box.querySelector('.fm-x').onclick=closeRecord;requestAnimationFrame(()=>box.classList.add('on'));}
   room.addEventListener('click',e=>{const t=e.target;
     if(menu&&!t.closest('.fm-menu')){menu.remove();menu=null;}
     const pk=t.closest('.fm-pick[data-k]');if(pk){const k=pk.dataset.k;pick(pk,pk.dataset.opts.split('|').map(o=>({v:o,t:o})),week[k],v=>{week[k]=v;store('week',week);pk.textContent=v;});return;}
-    const rec=t.closest('[data-rec]');if(rec){openRecord(rec.dataset.rec);return;}
+    const it=t.closest('[data-it]');if(it){const x=ITEMS.find(y=>y.id===it.dataset.it);if(x){if(x.kind==='voice')openRecord(x.id);else if(x.kind==='photo')openPhoto(x);else openNote(x);}return;}
+    const fw=t.closest('[data-fwho]');if(fw){fWho=fw.dataset.fwho;arRefresh();return;}
+    const fs=t.closest('[data-fst]');if(fs){fSt=fs.dataset.fst;arRefresh();return;}
     if(t.closest('.fm-arrow.l')){show(part-1);return;}if(t.closest('.fm-arrow.r')){show(part+1);return;}
     const d=t.closest('.fm-dots [data-go]');if(d){show(+d.dataset.go);return;}
     const tp=t.closest('[data-topic]');if(tp){week.topic=tp.dataset.topic;week.i=0;store('week',week);room.querySelectorAll('[data-topic]').forEach(x=>x.classList.toggle('on',x===tp));swapQuestion();return;}
     const a=t.closest('[data-act]')?.dataset.act;if(a==='next'){week.i=(week.i||0)+1;store('week',week);swapQuestion();return;}if(a==='send'){send();return;}
     const soon=t.closest('[data-soon]');if(soon){const n=room.querySelector('.fm-part.on .fm-note')||null;try{window.OCHERKI_SHOW_TOAST?.(soon.dataset.soon);}catch(_){}}});
-  let wheelT=0;room.addEventListener('wheel',e=>{if(room.querySelector('.fm-open.on'))return;const now=Date.now();if(now-wheelT<700||Math.abs(e.deltaY)<8)return;wheelT=now;show(part+(e.deltaY>0?1:-1));},{passive:true});
+  let wheelT=0;room.addEventListener('wheel',e=>{if(room.querySelector('.fm-open.on'))return;{const tl=e.target.closest?.('.ar-tl');if(tl&&tl.scrollHeight>tl.clientHeight+4)return;}const now=Date.now();if(now-wheelT<700||Math.abs(e.deltaY)<8)return;wheelT=now;show(part+(e.deltaY>0?1:-1));},{passive:true});
   addEventListener('keydown',e=>{if(room.querySelector('.fm-open.on')){if(e.key==='Escape')closeRecord();return;}
     if(roomOpen&&e.key==='ArrowRight')show(part+1);if(roomOpen&&e.key==='ArrowLeft')show(part-1);if(e.key==='Escape'&&st.classList.contains('on'))hideStart();});
   // The switch gets a fourth key: «Семья».
@@ -8954,6 +9015,85 @@ html body .shell.is-family-room ~ .mode-switch{filter:brightness(.5) sepia(.25)!
       if(roomOpen){closeRoom();if(b.dataset.mode==='write')e.stopPropagation();}},true);
     new MutationObserver(()=>{if(roomOpen)syncSwitch();}).observe(s,{attributes:true,subtree:true,attributeFilter:['class']});},200);
   window.OCHERKI_FAMILY={openRoom,closeRoom,showStart,hideStart,show:i=>show(i)};
+})();
+</script>
+<style id="archive-v105">
+/* v105: the family archive as a timeline */
+.fm-arch{justify-content:flex-start!important;padding-top:118px!important}
+.ar-why{max-width:640px;font:italic 19px/1.5 'CormorantCy';color:#dcc39b}
+.ar-filter{display:flex;align-items:center;justify-content:center;gap:46px;margin:26px 0 18px;flex-wrap:wrap}
+.ar-who{display:flex;gap:16px;align-items:center}
+.ar-f{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 12px 4px 4px;border-radius:30px;transition:background .3s}
+.ar-f i{width:30px;height:30px;border-radius:50%;background:center/cover;filter:sepia(.35);box-shadow:0 0 0 1px rgba(226,176,106,.45);display:grid;place-items:center;font:italic 14px 'CormorantCy';color:#e6cfa8;font-style:italic}
+.ar-f i.all{width:auto;padding:0 12px;border-radius:16px;box-shadow:none}
+.ar-f b{font:500 17px 'CormorantCy';color:#dcc39b}
+.ar-f:hover b{color:#f3e3c8}.ar-f.on{background:rgba(255,217,154,.1)}.ar-f.on b,.ar-f.on i.all{color:#ffd99a}.ar-f.on i{box-shadow:0 0 0 2px #ffd99a}
+.ar-st-f{display:flex;gap:22px;font:italic 19px 'CormorantCy';color:#dcc39b}
+.ar-st-f span{cursor:pointer;transition:color .3s;border-bottom:1px solid transparent}.ar-st-f span:hover{color:#f3e3c8}.ar-st-f span.on{color:#ffd99a;border-bottom-color:rgba(255,217,154,.55)}
+.ar-st-f em{font:600 12px 'CormorantCy';font-style:normal;color:#c9a06a;margin-left:2px}
+.ar-tl{position:relative;width:min(900px,100%);max-height:calc(100vh - 470px);min-height:200px;overflow:auto;scrollbar-width:none;padding:8px 0 30px;text-align:left;transition:opacity .22s ease,filter .22s ease;
+  -webkit-mask-image:linear-gradient(180deg,#000 85%,transparent);mask-image:linear-gradient(180deg,#000 85%,transparent)}
+.ar-tl::-webkit-scrollbar{display:none}
+.ar-tl.swap{opacity:0;filter:blur(4px)}
+.ar-tl::before{content:"";position:absolute;left:131px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(226,176,106,.45) 6%,rgba(226,176,106,.45) 90%,transparent)}
+.ar-it{position:relative;display:grid;grid-template-columns:112px 40px 86px 1fr auto;align-items:center;min-height:92px;padding:6px 16px 6px 0;border-radius:16px;cursor:pointer;transition:background .35s ease}
+.ar-it:hover{background:rgba(255,220,170,.06)}
+.ar-d{text-align:right;font:italic 17px 'CormorantCy';color:#dcc39b;padding-right:4px}
+.ar-dot{justify-self:center;width:9px;height:9px;border-radius:50%;background:#24160a;box-shadow:0 0 0 1.5px rgba(226,176,106,.8)}
+.ar-it.as-new .ar-dot{background:#ffd99a;box-shadow:0 0 0 1.5px #ffd99a,0 0 12px rgba(255,200,120,.8)}
+.ar-vin .vwrap{width:66px;height:66px}.ar-vin .vinyl{transition:transform 1.6s cubic-bezier(.2,.7,.2,1)}.ar-it:hover .ar-vin .vinyl{transform:rotate(200deg)}
+.ar-ph{position:relative;width:70px;height:70px}.ar-ph img{position:absolute;left:10px;top:4px;width:50px;height:60px;object-fit:cover;background:#f7efe0;padding:4px 4px 10px;box-sizing:border-box;box-shadow:0 8px 14px rgba(0,0,0,.5);transform:rotate(var(--r));filter:sepia(.3)}
+.ar-ph img+img{left:20px;top:8px}
+.ar-note svg{width:46px;height:54px;margin-left:10px;overflow:visible}.ar-note path{fill:rgba(247,239,224,.06);stroke:#e2b06a;stroke-width:1.2;stroke-linejoin:round}
+.ar-tx{padding-left:22px}
+.ar-tx small{display:block;font:600 12px 'CormorantCy';letter-spacing:.2em;text-transform:uppercase;color:#d6ae76}
+.ar-tx span{display:block;margin-top:5px;font:italic 23px/1.25 'CormorantCy';color:#f3e3c8}
+.ar-chip{font:italic 17px 'CormorantCy';color:#dcc39b;white-space:nowrap;padding-left:18px}
+.ar-chip .nw{font-style:normal;font:600 12px 'CormorantCy';letter-spacing:.2em;text-transform:uppercase;color:#ffd99a}
+.ar-it.as-book .ar-chip{color:#b9d39a}.ar-it.as-later .ar-chip{color:#a99474}.ar-it.as-later{opacity:.75}
+.ar-empty{padding:50px 0;text-align:center;font:italic 20px 'CormorantCy';color:#bfa070}
+.ar-prints{display:flex;justify-content:center;gap:34px;margin:0 0 34px}
+.ar-prints div{width:230px;height:280px;background:#f7efe0;padding:12px 12px 40px;box-sizing:border-box;box-shadow:0 24px 40px rgba(0,0,0,.55);transform:rotate(var(--r))}
+.ar-prints img{width:100%;height:100%;object-fit:cover;filter:sepia(.3);display:block}
+.ar-edits{display:flex;flex-direction:column;gap:12px;max-width:860px;margin:0 auto;text-align:left}
+.ar-ed{display:grid;grid-template-columns:1fr 26px 1fr auto;gap:12px;align-items:baseline;padding:12px 18px;border-radius:14px;background:rgba(255,220,170,.04);font:italic 20px/1.4 'CormorantCy'}
+.ar-ed .was{color:#bfa58a;text-decoration:line-through;text-decoration-color:rgba(220,120,90,.7)}
+.ar-ed .arr{color:#c9a06a;text-align:center;font-style:normal}
+.ar-ed .now{color:#f3e3c8}
+.ar-ed.is-rev .was{color:#f3e3c8;text-decoration:none}.ar-ed.is-rev .now{color:#a08c72;text-decoration:line-through;text-decoration-color:rgba(220,120,90,.6)}
+.ar-act{font:italic 17px 'CormorantCy';color:#ffd99a;cursor:pointer;border-bottom:1px dashed rgba(255,217,154,.5);white-space:nowrap}
+.fm-later{margin-left:26px;font:italic 18px 'CormorantCy';color:#bfa58a;cursor:pointer;border-bottom:1px solid rgba(191,165,138,.4)}.fm-later:hover{color:#f3e3c8}
+/* v105: handwriting only for screen titles and questions; small text easier to read */
+.fm-to b{font:italic 600 25px 'CormorantCy'!important;color:#ffd99a;letter-spacing:.01em}
+.fm-topics span.on{font-family:'CormorantCy'!important;font-style:italic!important;font-size:21px!important;color:#ffd99a;border-bottom:1px solid rgba(255,217,154,.6)!important}
+.rd-box .go{font:italic 22px 'CormorantCy'!important}
+.ms-sheet.is-ghost .gh-t{font:italic 500 26px/1.15 'CormorantCy'!important}
+.fm-k{color:#d6ae76!important}.fm-p small,.fm-v small,.fm-cap{color:#d3b588!important}
+.fm-dots{color:#bfa070!important}.fm-sample{color:rgba(220,195,155,.78)!important}.fm-note{color:rgba(220,195,155,.85)!important}
+.st-it small{color:#d3b588!important}
+/* a short answer after an action */
+.oc-say{position:fixed;left:50%;bottom:40px;z-index:2147483600;display:flex;align-items:baseline;gap:18px;padding:13px 26px;border-radius:30px;
+  background:rgba(22,14,7,.88);backdrop-filter:blur(10px);box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 0 1px rgba(226,176,106,.25);
+  font:italic 19px 'CormorantCy',Georgia,serif;color:#f3e3c8;opacity:0;transform:translate(-50%,12px);pointer-events:none;transition:opacity .4s ease,transform .5s cubic-bezier(.2,.8,.3,1)}
+.oc-say.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.oc-say b{font:italic 600 19px 'CormorantCy';color:#ffd99a;cursor:pointer;border-bottom:1px solid rgba(255,217,154,.5)}
+/* the book's title and the signature lead back to the start */
+html body .shell:not(.is-start-screen) #projectBtn,html body .shell:not(.is-start-screen) .brand-line{cursor:pointer}
+</style>
+<script id="archive-v105-js">
+(()=>{
+  window.OCHERKI_SAY=(text,action,fn)=>{let el=document.getElementById('ocSay');
+    if(!el){el=document.createElement('div');el.id='ocSay';el.className='oc-say';document.body.appendChild(el);}
+    el.innerHTML='';const t=document.createElement('span');t.textContent=text;el.appendChild(t);
+    if(action){const b=document.createElement('b');b.textContent=action;b.addEventListener('click',()=>{el.classList.remove('on');try{fn?.();}catch(_){}});el.appendChild(b);}
+    el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),action?5200:3200);};
+  // Back to the start screen: a press on the book's title or on the signature.
+  const home=e=>{const sh=document.querySelector('.shell');if(!sh||sh.classList.contains('is-start-screen'))return;e.preventDefault();e.stopPropagation();
+    const F=window.OCHERKI_FAMILY;if(!F)return;F.closeRoom?.();
+    const go=()=>F.showStart?.();
+    if(sh.classList.contains('is-book-preview')||sh.classList.contains('is-manuscript')){window.OCHERKI_SET_MODE?.('write');setTimeout(go,700);}else go();};
+  document.getElementById('projectBtn')?.addEventListener('click',home);
+  document.querySelector('.brand-line')?.addEventListener('click',home);
 })();
 </script>
 <style id="ready-v102">
@@ -10984,7 +11124,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     pack('Приложения','древо, хронология, рецепты, голоса',all.slice(lastCh+1),null,true);
     return out;}
   const plural=n=>n%10===1&&n%100!==11?'лист':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?'листа':'листов';
-  function excerpt(t,n){t=String(t||'').replace(/\s+/g,' ').trim();return t.length>n?t.slice(0,n).replace(/\s\S*$/,'')+'…':t;}
+  function excerpt(t,n){t=String(t||'').replace(/\s+/g,' ').trim().replace(/[^\s\u200b]{22,}/gu,w=>w.replace(/([^\s]{8})(?=[^\s])/gu,'$1\u200b'));if(t.length<=n)return t;const cut=t.slice(0,n),soft=cut.replace(/\s\S*$/,'');return (cut.length-soft.length<24?soft:cut)+'…';}
   function card(sh,n){const {s,p}=sh;const ph=(p.photos||[]).find(x=>x.src);const own=(p.userEdited||!(p.sample||s.sample))&&String(p.text||'').trim();
     const head=esc(String(s.title||'').match(/^Глава\s+\d+/i)?.[0]||s.title||'');
     const title=esc(p.episode&&s.type==='chapter'?String(p.episode).replace(/^Эпизод\s+\d+[.:]?\s*/i,''):(p.title||s.title||''));
@@ -11027,13 +11167,13 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
             setTimeout(()=>{window.__msFlying=true;window.OCHERKI_SET_MODE?.('write');},320);});}
         else if(sh.ghost){el.classList.add('is-ghost');el.dataset.sec=sh.s.id;
           el.innerHTML=`<div class="ms-float"><div class="ms-paper"><span class="gh-t">＋<br>${esc(String(sh.s.title||'').toLowerCase())}<small>добавить в книгу</small></span></div></div>`;
-          el.addEventListener('click',e=>{if(+el.dataset.k!==Math.round(focus)){goRow(+el.dataset.k);return;}e.stopPropagation();el.classList.add('is-adding');send({action:'includeSection',sectionId:sh.s.id});});}
+          el.addEventListener('click',e=>{if(+el.dataset.k!==Math.round(focus)){goRow(+el.dataset.k);return;}e.stopPropagation();el.classList.add('is-adding');send({action:'includeSection',sectionId:sh.s.id});window.OCHERKI_SAY?.(`Раздел «${String(sh.s.title||'').trim()||'без названия'}» теперь в книге`);});}
         else{const own=(sh.p.userEdited||!(sh.p.sample||sh.s.sample))&&String(sh.p.text||'').trim();if(!own&&!(sh.p.photos||[]).length&&sh.s.type==='chapter')el.classList.add('is-empty');if(sh.s.auto)el.classList.add('is-auto');if(bookUid?sh.p.uid===bookUid:(sh.p.active||sh.p.uid===activeUid))el.classList.add('is-active');
           el.dataset.uid=sh.p.uid;el.innerHTML=`<div class="ms-float">${card(sh,i+1)}</div>`;el.addEventListener('pointerdown',e=>startDrag(e,el,sh,g,c));
           // A section of the beginning or the end leaves the book with ×; it stays here as a clear sheet.
           if(!g.chapter&&sh.i===0&&!['cover','title','chapter'].includes(sh.s.type)){const x=document.createElement('span');x.className='ms-sec-x';x.title='Убрать из книги';x.textContent='×';el.querySelector('.ms-float').appendChild(x);
             x.addEventListener('pointerdown',e=>e.stopPropagation());
-            x.addEventListener('click',e=>{e.stopPropagation();if(!x.classList.contains('is-ask')){x.classList.add('is-ask');x.textContent='убрать?';clearTimeout(x._t);x._t=setTimeout(()=>{x.classList.remove('is-ask');x.textContent='×';},3200);return;}send({action:'excludeSection',sectionId:sh.s.id});});}}
+            x.addEventListener('click',e=>{e.stopPropagation();if(!x.classList.contains('is-ask')){x.classList.add('is-ask');x.textContent='убрать?';clearTimeout(x._t);x._t=setTimeout(()=>{x.classList.remove('is-ask');x.textContent='×';},3200);return;}send({action:'excludeSection',sectionId:sh.s.id});const sid=sh.s.id;window.OCHERKI_SAY?.(`Раздел «${String(sh.s.title||'').trim()||'без названия'}» убран из книги`,'вернуть',()=>send({action:'includeSection',sectionId:sid}));});}}
         world.appendChild(el);els.push(el);});
       k+=rows;
       const b=document.createElement('button');b.type='button';b.dataset.c=c;b.innerHTML=`${esc(g.chapter?(g.sub+'. '+g.title):g.title)}<i></i>`;b.onclick=()=>go(c);toc.appendChild(b);
@@ -11644,6 +11784,8 @@ html body .master-clock{transform:scale(1.35);transform-origin:0 100%;margin-rig
     say(photos.length>1?`Фото легли на лист «${ref.title}»`:`Фото легло на лист «${ref.title}»`);return true;}
   input.addEventListener('change',()=>{readFiles(input.files).then(list=>{stack.push(...list);save();draw();if(list.length)say('Фото в стопке — перетащите каждое на свой лист');});input.value='';});
   tray.querySelector('.ms-add-photos').addEventListener('click',()=>input.click());
+  // v105: photos sent by the family go onto the same stack.
+  window.OCHERKI_TRAY_ADD=srcs=>Promise.all((srcs||[]).map(src=>new Promise(ok=>{const im=new Image();im.onload=()=>ok({id:'tray_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),src,width:im.naturalWidth,height:im.naturalHeight});im.onerror=()=>ok(null);im.src=src;}))).then(list=>{list=list.filter(Boolean);stack.push(...list);save();draw();return list.length;});
   // Files dragged from the computer.
   let depth=0;
   scr.addEventListener('dragenter',e=>{if(![...(e.dataTransfer?.types||[])].includes('Files'))return;e.preventDefault();depth++;scr.classList.add('is-file-over');});
