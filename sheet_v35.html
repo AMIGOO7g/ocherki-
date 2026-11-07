@@ -4906,6 +4906,16 @@ window.addEventListener('message',e=>{
     else if(a === 'reorderPages') reorderPages(d.sectionId, d.ids);
     // «Рукопись»: a new sheet at the end of a chapter, and a sheet carried
     // to another chapter (the chapter it leaves keeps at least one sheet).
+    // v100: a story from the family archive becomes a new sheet of a chapter.
+    else if(a === 'addStoryPage') {
+      const si = sections.findIndex(item => item.id === d.sectionId);
+      if(si >= 0){ saveEditor(); activeSection = si; sections[si].active = Math.max(0, (sections[si].pages || []).length - 1); render(); addPageFromHost();
+        const list = sections[si].pages || [], pg = list[list.length-1];
+        // The new sheet's page-turn finishes first (it saves the editor), then the words are laid in.
+        const fill = () => { if(!pg) return; pg.text = String(d.text||''); if(d.episode) pg.episode = String(d.episode); pg.userEdited = true; pg._userEdited = true; pg.sample = false;
+          if(currentPage() === pg){ try{ editor.innerText = pg.text; }catch(_){} } render(); persistSoon(); try{ window.__OCHERKI_EMIT_STRUCTURE?.(); }catch(_){} };
+        setTimeout(fill, 900); }
+    }
     else if(a === 'addPageAt') {
       const si = sections.findIndex(item => item.id === d.sectionId);
       if(si >= 0){ saveEditor(); activeSection = si; sections[si].active = Math.max(0, (sections[si].pages || []).length - 1); render(); addPageFromHost(); }

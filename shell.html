@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v99">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v100">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v99" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v100" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v99"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v99"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v99"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v99"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v99"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v100"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v100"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v100"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261106-v100"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v100"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v100"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v99"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v100"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v100"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7596,7 +7596,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v99"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v100"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -8649,7 +8649,7 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
   function end(){if(!cur)return;cur=null;dim.classList.remove('on');ring.classList.remove('on');card.classList.remove('on');}
   addEventListener('keydown',e=>{if(!cur)return;if(e.key==='Escape')end();if(e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();idx++;place();}},true);
   addEventListener('resize',()=>{if(cur)place();});
-  const room=()=>shell.classList.contains('is-manuscript')?'manuscript':modal?.classList.contains('open')?'book':shell.classList.contains('is-open')?'write':'';
+  const room=()=>shell.classList.contains('is-start-screen')||shell.classList.contains('is-family-room')?'':shell.classList.contains('is-manuscript')?'manuscript':modal?.classList.contains('open')?'book':shell.classList.contains('is-open')?'write':'';
   // Automated checks (tests) are not greeted.
   const quiet=navigator.webdriver&&!/[?&]tour=1/.test(location.search+(parent!==window?parent.location.search:''));
   let t=0;const check=()=>{if(quiet)return;clearTimeout(t);t=setTimeout(()=>{const r=room();if(r&&!cur)start(r);},r0()==='book'?2600:1500);};const r0=room;
@@ -8657,6 +8657,164 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
   if(modal)new MutationObserver(check).observe(modal,{attributes:true,attributeFilter:['class']});
   addEventListener('message',e=>{if(e.data?.type==='OCHERKI_TOUR_AGAIN'){const r=room()||'write';end();setTimeout(()=>start(r,true),300);}});
   window.OCHERKI_TOUR={start:(n,f)=>start(n||room(),f),end};
+})();
+</script>
+<style id="family-v100">
+/* v100: the start screen and the fourth room «Семья» (with the family archive). */
+.st-screen,.fm-room{position:fixed;inset:0;z-index:2147483100;opacity:0;pointer-events:none;transition:opacity .7s ease;font-family:'CormorantCy',Georgia,serif;color:#f3e3c8;
+  background:radial-gradient(ellipse 48% 44% at 50% 40%,rgba(255,196,120,.30),transparent 70%),radial-gradient(ellipse 80% 75% at 50% 45%,#5a3a1e 0,#2c1a0c 55%,#0e0804 100%)}
+.st-screen.on,.fm-room.on{opacity:1;pointer-events:auto}
+.st-book{position:absolute;left:17%;top:23%;width:min(24vw,460px);aspect-ratio:460/560;border-radius:4px 10px 10px 4px;background:linear-gradient(100deg,#141210 0,#24201b 8%,#1a1714 60%,#121010 100%);
+  box-shadow:0 50px 90px rgba(0,0,0,.65),inset 6px 0 10px rgba(255,255,255,.04);transform:rotate(-3deg) translateY(14px);opacity:0;transition:transform 1.2s cubic-bezier(.2,.8,.3,1),opacity 1s ease}
+.st-screen.on .st-book{transform:rotate(-3deg);opacity:1}
+.st-book::before{content:"";position:absolute;left:5%;top:0;bottom:0;width:2px;background:rgba(255,230,180,.08)}
+.st-book b{position:absolute;left:0;right:0;top:36%;text-align:center;font:400 clamp(22px,2.1vw,40px) 'CormorantCy';letter-spacing:.18em;color:#d9bb84}
+.st-book i{position:absolute;left:0;right:0;top:47%;text-align:center;font:italic clamp(14px,1.15vw,22px) 'CormorantCy';color:#bfa070}
+.st-menu{position:absolute;left:50%;top:27%}
+.st-menu .k{font:600 13px 'CormorantCy';letter-spacing:.26em;text-transform:uppercase;color:#c9a06a;margin-bottom:30px}
+.st-it{display:block;margin:0 0 30px;position:relative;cursor:pointer;opacity:0;transform:translateX(16px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.3,1)}
+.st-screen.on .st-it{opacity:1;transform:none}.st-screen.on .st-it:nth-child(3){transition-delay:.12s}.st-screen.on .st-it:nth-child(4){transition-delay:.24s}
+.st-it .w{font:clamp(36px,3vw,58px)/1 'SignThatS',cursive;color:#f6e4c4;transition:color .35s,text-shadow .35s}
+.st-it small{display:block;font:italic 20px 'CormorantCy';color:#cdb08a;margin:10px 0 0 6px}
+.st-it:hover .w{color:#ffd99a;text-shadow:0 0 24px rgba(255,200,120,.35)}
+.st-it::before{content:"";position:absolute;left:-46px;top:22px;width:0;height:1px;background:#e2b06a;transition:width .4s}
+.st-it:hover::before{width:28px}
+.st-new{display:inline-block;margin-left:14px;font:600 13px 'CormorantCy';letter-spacing:.12em;color:#2a1a0c;background:#e2b06a;border-radius:12px;padding:3px 10px;vertical-align:middle}
+.st-open{position:absolute;left:50%;bottom:13%;font:italic 22px 'CormorantCy';color:#e6cfa8;border-bottom:1px solid rgba(230,207,168,.5);cursor:pointer}
+.st-open:hover{color:#ffd99a}
+/* Room «Семья» */
+.fm-room{overflow-y:auto;overflow-x:hidden;z-index:2147483050}
+.fm-in{position:relative;min-height:100%;padding:118px 0 120px;box-sizing:border-box;text-align:center}
+.fm-h{font:64px/1 'SignThatS',cursive;color:#f6e4c4;margin:0 0 34px}
+.fm-people{display:flex;justify-content:center;gap:52px;margin-bottom:62px}
+.fm-p{width:120px;cursor:pointer;position:relative}.fm-p .a{width:88px;height:88px;margin:0 auto 12px;border-radius:50%;background:center/cover;box-shadow:0 0 0 2px rgba(226,176,106,.55),0 14px 26px rgba(0,0,0,.5);filter:sepia(.35);transition:transform .4s,box-shadow .4s}
+.fm-p:hover .a{transform:translateY(-4px);box-shadow:0 0 0 2px rgba(255,217,154,.9),0 18px 30px rgba(0,0,0,.55)}
+.fm-p b{display:block;font:500 22px 'CormorantCy';color:#f3e3c8}.fm-p small{font:italic 16px 'CormorantCy';color:#bfa070}
+.fm-p .nw{position:absolute;right:14px;top:2px;width:11px;height:11px;border-radius:50%;background:#e2b06a;box-shadow:0 0 10px #e2b06a}
+.fm-p.add .a{background:none;border:1.5px dashed rgba(226,176,106,.6);box-shadow:none;display:grid;place-items:center;font:38px 'CormorantCy';color:#e2b06a;filter:none}
+.fm-q .k,.fm-ar .k{font:600 13px 'CormorantCy';letter-spacing:.24em;text-transform:uppercase;color:#c9a06a}
+.fm-q .q{font:50px/1.15 'SignThatS',cursive;color:#f6e4c4;margin:14px auto 14px;max-width:900px}
+.fm-q .l{font:italic 20px 'CormorantCy';color:#cdb08a}.fm-q .l u,.fm-link{text-decoration:none;border-bottom:1px solid rgba(205,176,138,.5);cursor:pointer;margin:0 10px}
+.fm-q .l u:hover,.fm-link:hover{color:#ffd99a}
+.fm-orn{margin:70px auto 40px;width:220px;height:1px;background:linear-gradient(90deg,transparent,rgba(226,176,106,.6),transparent)}
+.fm-ar .h2{font:52px/1 'SignThatS',cursive;color:#f6e4c4;margin:8px 0 14px}
+.fm-stack{display:flex;justify-content:center;margin-bottom:46px}.fm-stack i{width:38px;height:38px;border-radius:50%;background:center/cover;margin-left:-12px;box-shadow:0 0 0 2px #2c1a0c,0 0 0 3px rgba(226,176,106,.5);filter:sepia(.35)}
+.fm-stack span{font:italic 18px 'CormorantCy';color:#cdb08a;margin-left:16px;align-self:center}
+.fm-vinyls{display:flex;justify-content:center;gap:56px;flex-wrap:wrap;margin-bottom:56px}
+.fm-v{width:190px;cursor:pointer}
+.vinyl{position:relative;border-radius:50%;background:repeating-radial-gradient(circle,#15100c 0 2px,#221a14 2px 4px);box-shadow:0 0 0 1px rgba(255,220,170,.08),0 26px 40px rgba(0,0,0,.55)}
+.vinyl::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0 40deg,rgba(255,240,210,.10) 55deg,transparent 70deg,transparent 220deg,rgba(255,240,210,.07) 235deg,transparent 250deg)}
+.vinyl .lb{position:absolute;left:50%;top:50%;width:36%;height:36%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#15100c 0 3%,#c9974f 4% 92%,#a77a3c 93%);display:grid;place-items:center;font:clamp(16px,2vw,30px) 'SignThatS',cursive;color:#3a2410}
+.fm-v .vinyl{width:170px;height:170px;margin:0 auto 16px;transition:transform .5s cubic-bezier(.2,.8,.3,1)}
+.fm-v:hover .vinyl{transform:translateY(-6px) rotate(18deg)}
+.fm-v.is-new .vinyl{box-shadow:0 0 0 1px rgba(255,220,170,.12),0 0 40px rgba(255,190,110,.35),0 26px 40px rgba(0,0,0,.55)}
+.fm-v b{display:block;font:500 20px 'CormorantCy';color:#f3e3c8}.fm-v small{display:block;font:italic 17px/1.3 'CormorantCy';color:#bfa070;margin-top:4px}
+.fm-v .in{display:block;font:italic 14px 'CormorantCy';color:#8fb070;margin-top:6px}
+.fm-photos{display:flex;justify-content:center;gap:26px;margin-bottom:50px}.fm-photos div{width:150px;height:180px;background:#f7efe0;padding:9px 9px 30px;box-sizing:border-box;box-shadow:0 18px 30px rgba(0,0,0,.5);transform:rotate(var(--r));font:italic 14px 'CormorantCy';color:#5a4030}
+.fm-photos img{width:100%;height:100%;object-fit:cover;filter:sepia(.35);display:block}
+.fm-notes{font:30px/1.4 'SignThatS',cursive;color:#e6cfa8}.fm-notes small{display:block;font:italic 17px 'CormorantCy';color:#bfa070}
+.fm-sample{margin-top:60px;font:italic 16px 'CormorantCy';color:rgba(205,176,138,.6)}
+.fm-close{position:fixed;right:40px;top:120px;font:34px 'CormorantCy';color:#cdb08a;cursor:pointer;z-index:3}
+/* one record, open */
+.fm-open{position:fixed;inset:0;z-index:5;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .5s ease;backdrop-filter:blur(10px);background:rgba(14,8,4,.6)}
+.fm-open.on{opacity:1;pointer-events:auto}
+.fm-o{text-align:center;max-width:860px;padding:0 30px}
+.fm-o .k{font:600 13px 'CormorantCy';letter-spacing:.24em;text-transform:uppercase;color:#c9a06a}
+.fm-o .q{font:54px/1.1 'SignThatS',cursive;color:#f6e4c4;margin:12px 0 30px}
+.fm-o .vinyl{width:300px;height:300px;margin:0 auto}
+.fm-o .vinyl.spin{animation:fmSpin 3.2s linear infinite}
+@keyframes fmSpin{to{transform:rotate(360deg)}}
+.fm-play{width:64px;height:64px;margin:-32px auto 0;position:relative;z-index:2;border-radius:50%;cursor:pointer;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#f5dcaa,#b88a50 60%,#6a4a28);box-shadow:0 10px 20px rgba(0,0,0,.5);color:#2a1a0c;font-size:22px}
+.fm-time{margin:16px 0 22px;font:500 18px 'CormorantCy';letter-spacing:.1em;color:#cdb08a}
+.fm-o p{font:italic 25px/1.5 'CormorantCy';color:#ead6b4;margin:0 0 30px}
+.fm-to{font:italic 21px 'CormorantCy';color:#cdb08a}.fm-to b{font:42px 'SignThatS',cursive;font-weight:400;color:#ffd99a;cursor:pointer;margin-right:14px}
+.fm-to select{font:italic 20px 'CormorantCy';color:#f3e3c8;background:transparent;border:0;border-bottom:1px solid rgba(205,176,138,.6);padding:2px 6px}
+.fm-to select option{color:#2a1a0c}
+.fm-x{position:fixed;right:44px;top:44px;font:38px 'CormorantCy';color:#cdb08a;cursor:pointer}
+.shell.is-start-screen ~ .mode-switch{opacity:0!important;pointer-events:none!important;transition:opacity .6s ease}
+.mode-switch button[data-mode="family"].has-new::after{content:"";position:absolute;right:6px;top:6px;width:7px;height:7px;border-radius:50%;background:#e2b06a;box-shadow:0 0 8px #e2b06a}
+</style>
+<script id="family-v100-js">
+(()=>{const shell=document.querySelector('.shell');if(!shell)return;
+  const PH='qa/demo-book/photos/';
+  const quiet=navigator.webdriver&&!/[?&](start|family)=1/.test(location.search+(parent!==window?parent.location.search:''));
+  const toast=t=>{try{window.OCHERKI_SHOW_TOAST?window.OCHERKI_SHOW_TOAST(t):null;}catch(_){}};
+  // Sample family (until the server connects): what the room will look like.
+  const people=[{n:'Нина',r:'рассказывает',img:'grandma_porch.jpg',nw:1},{n:'Анна',r:'прислала фото',img:'girl_dog.jpg',nw:1},{n:'Сергей',r:'пишет главу',img:'boy_dog.jpg'},{n:'Мастерская',r:'вычитка',img:'family_sunset.jpg'}];
+  const records=[
+    {id:'r1',who:'Нина Петровна',l:'Н',q:'Каким был ваш первый дом?',t:'«Дом был деревянный, на два хозяина. Во дворе росла старая груша, и отец каждую осень обещал её спилить — и так и не спилил…»',len:192,nw:1},
+    {id:'r2',who:'Нина Петровна',l:'Н',q:'Какой запах вы помните из детства?',t:'«Мама пекла по субботам хачапури, весь двор пах сыром и дымом, а груша у колодца цвела так, что мы спали с открытыми окнами.»',len:167},
+    {id:'r3',who:'Сергей',l:'С',q:'Как дедушка вспоминал армию?',t:'«Он рассказывал, как в сорок четвёртом они шли пешком до Кутаиси и пели всю дорогу, чтобы не уснуть.»',len:121}];
+  const added={};try{Object.assign(added,JSON.parse(localStorage.getItem('ocherki_family_added')||'{}'));}catch(_){}
+  let chapters=[];addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_STRUCTURE_STATE')chapters=(d.payload?.sections||[]).filter(s=>s.type==='chapter').map(s=>({id:s.id,title:String(s.title||'').replace(/^Глава\s+\d+\.\s*/,'')}));});
+  const sw=()=>document.querySelector('.mode-switch');
+  // ——— start screen ———
+  const st=document.createElement('div');st.className='st-screen';
+  const title=()=>String(document.getElementById('projectTitle')?.textContent||'Очерки жизни').trim();
+  const newCount=()=>records.filter(r=>r.nw&&!added[r.id]).length+people.filter(p=>p.nw).length;
+  const drawStart=()=>{const n=newCount();st.innerHTML=`<div class="st-book"><b>${title().toUpperCase()}</b><i>книга вашей семьи</i></div>
+    <div class="st-menu"><div class="k">С чего начнём</div>
+     <span class="st-it" data-go="write"><span class="w">Писать самому</span><small>продолжить с того же листа</small></span>
+     <span class="st-it" data-go="family"><span class="w">Позвать семью</span><small>вопрос недели, приглашения</small></span>
+     <span class="st-it" data-go="archive"><span class="w">Архив семьи${n?`<span class="st-new">${n} НОВЫХ</span>`:''}</span><small>голоса, фото и пометки</small></span></div>
+    <div class="st-open" data-go="book">Открыть книгу →</div>`;};
+  document.body.appendChild(st);
+  const hideStart=()=>{st.classList.remove('on');shell.classList.remove('is-start-screen');};
+  const showStart=()=>{drawStart();shell.classList.add('is-start-screen');requestAnimationFrame(()=>st.classList.add('on'));};
+  st.addEventListener('click',e=>{const go=e.target.closest('[data-go]')?.dataset.go;if(!go)return;hideStart();
+    if(go==='book')setTimeout(()=>window.OCHERKI_SET_MODE?.('book'),250);
+    if(go==='family')openRoom(false);if(go==='archive')openRoom(true);});
+  // After the light comes on, once per visit.
+  let shown=false;new MutationObserver(()=>{if(!shown&&!quiet&&shell.classList.contains('is-open')){shown=true;setTimeout(showStart,900);}}).observe(shell,{attributes:true,attributeFilter:['class']});
+  // ——— room «Семья» ———
+  const room=document.createElement('div');room.className='fm-room';document.body.appendChild(room);
+  const vinyl=(l,cls='')=>`<div class="vinyl ${cls}"><div class="lb">${l}</div></div>`;
+  const drawRoom=()=>{room.innerHTML=`<div class="fm-in">
+    <div class="fm-h">Семья</div>
+    <div class="fm-people">${people.map(p=>`<div class="fm-p">${p.nw?'<span class="nw"></span>':''}<div class="a" style="background-image:url(${PH+p.img})"></div><b>${p.n}</b><small>${p.r}</small></div>`).join('')}<div class="fm-p add" data-soon="1"><div class="a">＋</div><b>Позвать</b><small>ссылкой</small></div></div>
+    <div class="fm-q"><div class="k">Следующий вопрос · Нине Петровне · в пятницу</div><div class="q">Каким был ваш первый дом?</div>
+      <div class="l"><u data-soon="1">другой вопрос</u><u data-soon="1">отправить сейчас</u></div></div>
+    <div class="fm-orn" id="fmArchive"></div>
+    <div class="fm-ar"><div class="h2">Архив семьи</div>
+      <div class="fm-stack">${people.map(p=>`<i style="background-image:url(${PH+p.img})"></i>`).join('')}<span>${records.length} голоса · 2 фото · 1 вычитка</span></div>
+      <div class="fm-vinyls">${records.map(r=>`<div class="fm-v ${r.nw&&!added[r.id]?'is-new':''}" data-rec="${r.id}">${vinyl(r.l)}<b>${r.who}</b><small>${r.q}</small>${added[r.id]?`<span class="in">в главе «${added[r.id]}»</span>`:''}</div>`).join('')}</div>
+      <div class="fm-photos"><div style="--r:-4deg"><img src="${PH}city_tiflis.jpg"></div><div style="--r:3deg"><img src="${PH}girl_dog.jpg"></div></div>
+      <div class="fm-notes">14 правок в главе «Тифлис»<small>вычитка мастерской · откройте главу, правки стоят на листе</small></div>
+      <div class="fm-sample">Сейчас здесь примеры — так будут выглядеть ответы вашей семьи</div></div>
+    </div><div class="fm-open"></div>`;};
+  let roomOpen=false;
+  function openRoom(toArchive){drawRoom();roomOpen=true;document.body.classList.add('is-family');shell.classList.add('is-family-room');syncSwitch();
+    requestAnimationFrame(()=>{room.classList.add('on');if(toArchive)setTimeout(()=>room.querySelector('#fmArchive')?.scrollIntoView({behavior:'smooth',block:'start'}),350);else room.scrollTop=0;});}
+  function closeRoom(){if(!roomOpen)return;roomOpen=false;room.classList.remove('on');document.body.classList.remove('is-family');shell.classList.remove('is-family-room');syncSwitch();}
+  // One record, open: a single record that turns while it plays.
+  let timer=0,pos=0,playing=false;
+  function openRecord(id){const r=records.find(x=>x.id===id);if(!r)return;const box=room.querySelector('.fm-open');pos=0;playing=false;clearInterval(timer);
+    const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+    box.innerHTML=`<div class="fm-x">×</div><div class="fm-o"><div class="k">${r.who} · голосом</div><div class="q">${r.q}</div>${vinyl(r.l)}<div class="fm-play">▶</div><div class="fm-time">0:00 / ${fmt(r.len)}</div><p>${r.t}</p>
+      <div class="fm-to">${added[r.id]?`уже в главе «${added[r.id]}»`:`<b>В книгу →</b> новым листом в главу <select>${(chapters.length?chapters:[{id:'',title:'Детство'}]).map(c=>`<option value="${c.id}">${c.title||'без названия'}</option>`).join('')}</select>`}</div></div>`;
+    const v=box.querySelector('.vinyl'),btn=box.querySelector('.fm-play'),tm=box.querySelector('.fm-time');
+    btn.onclick=()=>{playing=!playing;btn.textContent=playing?'❚❚':'▶';v.classList.toggle('spin',playing);clearInterval(timer);if(playing)timer=setInterval(()=>{pos=Math.min(r.len,pos+1);tm.textContent=fmt(pos)+' / '+fmt(r.len);if(pos>=r.len){playing=false;btn.textContent='▶';v.classList.remove('spin');clearInterval(timer);}},1000);};
+    box.querySelector('.fm-to b')?.addEventListener('click',()=>{const sel=box.querySelector('select');const c=chapters.find(x=>x.id===sel.value)||{id:sel.value,title:sel.options[sel.selectedIndex]?.text};
+      if(c.id)try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'addStoryPage',sectionId:c.id,text:r.t.replace(/^«|»$/g,''),episode:r.q},'*');}catch(_){}
+      added[r.id]=c.title;try{localStorage.setItem('ocherki_family_added',JSON.stringify(added));}catch(_){}
+      box.querySelector('.fm-to').innerHTML=`добавлено в главу «${c.title}» новым листом`;});
+    box.querySelector('.fm-x').onclick=closeRecord;requestAnimationFrame(()=>box.classList.add('on'));}
+  function closeRecord(){const box=room.querySelector('.fm-open');clearInterval(timer);box?.classList.remove('on');setTimeout(()=>{if(roomOpen){const y=room.scrollTop;drawRoom();room.scrollTop=y;}},450);}
+  room.addEventListener('click',e=>{const rec=e.target.closest('[data-rec]');if(rec){openRecord(rec.dataset.rec);return;}
+    if(e.target.closest('[data-soon]')){toast('Заработает после подключения сервера');}});
+  addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(room.querySelector('.fm-open.on'))closeRecord();else if(st.classList.contains('on'))hideStart();});
+  // The switch gets a fourth key: «Семья».
+  function syncSwitch(){const s=sw();if(!s)return;let b=s.querySelector('button[data-mode="family"]');
+    if(!b){b=document.createElement('button');b.type='button';b.dataset.mode='family';b.textContent='Семья';s.appendChild(b);setTimeout(()=>dispatchEvent(new Event('resize')),50);}
+    b.classList.toggle('has-new',newCount()>0&&!roomOpen);
+    if(roomOpen)s.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    else b.classList.remove('on');}
+  const wait=setInterval(()=>{const s=sw();if(!s)return;clearInterval(wait);syncSwitch();
+    s.addEventListener('click',e=>{const b=e.target.closest('button[data-mode]');if(!b)return;
+      if(b.dataset.mode==='family'){e.stopPropagation();e.preventDefault();if(window.OCHERKI_MANUSCRIPT?.isOpen?.())window.OCHERKI_SET_MODE?.('write');openRoom(false);return;}
+      if(roomOpen){closeRoom();if(b.dataset.mode==='write'){e.stopPropagation();}}},true);
+    new MutationObserver(()=>{if(roomOpen)syncSwitch();}).observe(s,{attributes:true,subtree:true,attributeFilter:['class']});},200);
+  window.OCHERKI_FAMILY={openRoom,closeRoom,showStart,hideStart};
 })();
 </script>
 </body>
