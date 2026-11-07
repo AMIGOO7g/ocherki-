@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v110">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v111">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v110" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v111" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4680,10 +4680,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v110"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v110"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v110"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v110"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v110"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v110"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v111"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v111"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v111"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v111"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v111"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v111"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4718,8 +4718,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v110"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v110"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v111"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v111"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7620,7 +7620,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v110"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v111"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -9697,6 +9697,58 @@ html body .nt-o .ar-act{display:flex;align-items:center;gap:10px;justify-content
 .nt-o .vo-ctl{margin-top:34px}
 .rm-day .nt-why{color:#5b4330}.rm-day .nt-o .ar-act{color:#6b4a2a}
 </style>
+<style id="topbar-v111">
+/* v111 — «Писать»: five keys with words; everything rare lives in «Ещё» */
+html body .shell .mode-controls .hanging:has(#nightBtn),html body .shell .mode-controls .hanging:has(#dayBtn),
+html body .shell .mode-controls .large-ui-key,html body .shell .mode-controls .music-key,html body .shell .mode-controls .music-item,
+html body .shell .project-actions .hanging:has(#pdfBtn),html body .shell .project-actions .contact-hanging,html body .shell #pagesHanger{display:none!important}
+html body .shell .project-actions .hanging:has(#undoBtn),html body .shell .project-actions .hanging:has(#redoBtn),html body .shell .project-actions .hanging:has(#moreKey){margin-left:26px!important}
+.oc-klab{position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);font:italic 15px 'CormorantCy',Georgia,serif;white-space:nowrap;pointer-events:none;color:#f3e3c8;text-shadow:0 1px 3px rgba(0,0,0,.55);opacity:.92;transition:opacity .4s}
+.shell:not(.is-open) .oc-klab{opacity:0}
+.bd-rail-item:has(.bd-rail-key[data-rail="tips"]){position:relative}
+.bd-rail-item .oc-klab{top:calc(100% + 9px)}
+.oc-more{position:fixed;z-index:2147483250;width:310px;padding:16px 0;border-radius:18px;background:linear-gradient(170deg,rgba(48,30,16,.97),rgba(22,13,7,.98));box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 0 0 1px rgba(226,179,108,.35);
+  opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.3,1)}
+.oc-more.on{opacity:1;transform:none;pointer-events:auto}
+.oc-more .it{display:flex;align-items:center;gap:16px;padding:11px 26px;font:italic 20px 'CormorantCy',Georgia,serif;color:#f3e3c8;cursor:pointer;transition:background .15s,color .15s}
+.oc-more .it:hover{background:rgba(255,220,170,.08);color:#ffd99a}
+.oc-more .it.on{color:#ffd99a}.oc-more .it.on::after{content:"";margin-left:auto;width:7px;height:7px;border-radius:50%;background:#f0c47c;box-shadow:0 0 8px #ffb24f}
+.oc-more svg{width:24px;height:24px;flex:none;fill:none;stroke:#e2b36c;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.oc-more hr{border:0;height:1px;margin:8px 22px;background:rgba(226,179,108,.25)}
+.oc-more .k{display:block;padding:4px 26px 8px;font:600 11px 'CormorantCy',Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:#d9b47e}
+</style>
+<script id="topbar-v111-js">
+(()=>{const shell=document.querySelector('.shell');if(!shell)return;
+  const lab=(el,t)=>{if(!el||el.querySelector(':scope > .oc-klab'))return;const s=document.createElement('span');s.className='oc-klab';s.textContent=t;el.appendChild(s);};
+  // «Ещё»: the same hanging key as «Отменить», with three dots.
+  const undoH=document.getElementById('undoBtn')?.closest('.hanging'),redoH=document.getElementById('redoBtn')?.closest('.hanging');
+  if(!undoH||!redoH)return;
+  const moreH=undoH.cloneNode(true);moreH.querySelectorAll('.oc-klab').forEach(x=>x.remove());const mk=moreH.querySelector('button');mk.id='moreKey';mk.setAttribute('aria-label','Ещё');mk.removeAttribute('data-tip-bound');
+  mk.querySelector('.cap').innerHTML='<svg viewBox="0 0 48 48"><circle cx="15" cy="24" r="2.4"/><circle cx="24" cy="24" r="2.4"/><circle cx="33" cy="24" r="2.4"/></svg>';
+  redoH.after(moreH);
+  lab(document.getElementById('powerBtn')?.closest('.hanging')||document.getElementById('powerBtn')?.parentElement,'Свет');
+  lab(document.getElementById('booksBtn')?.closest('.hanging'),'Мои книги');lab(undoH,'Отменить');lab(redoH,'Вернуть');lab(moreH,'Ещё');
+  const lampLab=()=>{const k=document.querySelector('.bd-rail-key[data-rail="tips"]');if(k)lab(k.closest('.bd-rail-item'),'До книги');else setTimeout(lampLab,800);};lampLab();
+  const I={sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',moon:'<path d="M20 14A8 8 0 1110 4a6 6 0 0010 10z"/>',note:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',big:'<path d="M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16 16h4"/>',pdf:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 13h6M9 17h6"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',tour:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',hash:'<path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/>'};
+  const menu=document.createElement('div');menu.className='oc-more';document.body.appendChild(menu);
+  const click=id=>{const b=document.getElementById(id);if(b)b.click();};
+  const musicOn=()=>/pause|❚|stop/i.test(document.getElementById('transportPlayBtn')?.getAttribute('aria-label')||'')||document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true';
+  const draw=()=>{const night=shell.classList.contains('is-night'),big=shell.classList.contains('is-large-ui'),n=(document.getElementById('pageCount')?.textContent||'').trim();
+    const it=(a,i,t,on)=>`<div class="it ${on?'on':''}" data-a="${a}"><svg viewBox="0 0 24 24">${I[i]}</svg>${t}</div>`;
+    menu.innerHTML=`<span class="k">Вид</span>${it('day','sun','Дневной свет',!night)}${it('night','moon','Ночной свет',night)}${it('big','big','Крупный интерфейс',big)}<hr>${it('music','note',musicOn()?'Музыка — выключить':'Музыка — включить',musicOn())}<hr>${it('pdf','pdf','Сохранить в PDF')}${n?it('pages','hash','Листов в книге: '+n):''}${it('tour','tour','Показать знакомство')}${it('mail','mail','Написать нам')}`;};
+  const place=()=>{const r=mk.getBoundingClientRect();menu.style.right=Math.max(16,innerWidth-r.right-10)+'px';menu.style.top=(r.bottom+44)+'px';};
+  const open=()=>{draw();place();menu.classList.add('on');};const close=()=>menu.classList.remove('on');
+  mk.addEventListener('click',e=>{e.stopPropagation();menu.classList.contains('on')?close():open();});
+  menu.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;e.stopPropagation();close();
+    if(a==='day')click('dayBtn');else if(a==='night')click('nightBtn');else if(a==='big')click('largeUiKey');
+    else if(a==='music'){click('musicBtn');setTimeout(()=>{if(document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true')click('transportPlayBtn');},120);}
+    else if(a==='pdf')click('pdfBtn');else if(a==='pages')click('pagesBtn');else if(a==='mail')click('contactBtn');
+    else if(a==='tour'){const room=shell.classList.contains('is-manuscript')?'manuscript':shell.classList.contains('is-book-preview')?'book':'write';window.OCHERKI_TOUR?.start?.(room,true);}});
+  addEventListener('click',e=>{if(menu.classList.contains('on')&&!menu.contains(e.target))close();});
+  addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+  setTimeout(()=>dispatchEvent(new Event('resize')),300);
+})();
+</script>
 <script id="archive-v105-js">
 (()=>{
   window.OCHERKI_SAY=(text,action,fn)=>{let el=document.getElementById('ocSay');
@@ -11583,6 +11635,8 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   // from the switch. Measured only in measure(), never on a class change.
   function measureRow(){
     const aa=document.getElementById('largeUiKey'),mk=document.querySelector('.mode-controls .music-key');if(!aa||!mk)return;
+    // v111: the view keys moved into «Ещё» — the switch stands right after «Свет».
+    if(!aa.getBoundingClientRect().width){const pw=document.getElementById('powerBtn')?.getBoundingClientRect();if(pw&&pw.width){rowX=Math.round(pw.right+44);}return;}
     const a=aa.getBoundingClientRect();if(!a.width)return;
     if(musicBase==null){const m=mk.getBoundingClientRect();musicBase=m.left-parseFloat(getComputedStyle(mk).marginLeft||0)-a.right;}
     rowX=Math.round(a.right+34);
