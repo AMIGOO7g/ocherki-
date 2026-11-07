@@ -644,7 +644,8 @@
     const chapters = rawChapters.map((section, chapterIndex) => {
       const pages = (section.pages || []).filter(page => page && page.included !== false);
       const first = pages[0] || {};
-      let end = 0, previousText='';
+      let end = 0, previousText='', previousLabel=cleanTitle(first.episode||'',''), runIndex=0;
+      const chapterName = cleanTitle(section.title || first.title, '');
       const runs = pages.filter(page => page.type !== 'document' && page.bookRole !== 'document').map(page => {
         // Text copied from a website often carries non-breaking and other
         // special spaces everywhere: a whole paragraph then has no place to
@@ -652,7 +653,16 @@
         // run they become ordinary spaces of the same length (offsets stay
         // valid); a deliberate non-breaking space in ordinary text is kept.
         const rawText = String(page.text ?? '').replace(/[^ \t\r\n]{40,}/gu, run => /[\u00A0\u2000-\u200A\u202F\u205F\u3000]/u.test(run) ? run.replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/gu, ' ') : run);
-        const prefix=continuationJoin(previousText,rawText,page);
+        let prefix=continuationJoin(previousText,rawText,page);
+        // v106: a sheet that opens a new episode without a photograph of its
+        // own shows the episode's name in the text, as a small heading
+        // between two invisible marks (U+2063), so it can be found in the book.
+        const label=String(page.episode||'').replace(/^\s*Эпизод\s+\d+[.:]?\s*/iu,'').trim();
+        const photoOpening=page.isEpisodeStart===true&&(page.photos||[]).some(photo=>imageSource(photo)&&photo.portraitHero!==true&&!String(photo.heroName||'').trim());
+        if(runIndex>0&&label&&!page.sample&&page.isEpisodeStart!==false&&!isContinuation(previousText,rawText,page)&&rawText.trim()&&!photoOpening
+          &&norm(label)!==norm(previousLabel)&&norm(label)!==norm(chapterName)&&!/^новый эпизод$/iu.test(label)&&label.length<=90)
+          prefix=(previousText?'\n\n':'')+'\u2063'+label.replace(/\s+/gu,' ')+'\u2063\n\n';
+        if(label)previousLabel=label;runIndex++;
         const text=prefix+rawText;
         const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page, continuation: isContinuation(previousText, rawText, page) };
         end = run.end;

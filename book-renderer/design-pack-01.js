@@ -1075,7 +1075,7 @@
   }
   function sourceMarkup(value, breaks = [], inlineRanges = [], suppressTerminalWhitespace = false, startsParagraph = false) {
     const decorations=Array.isArray(inlineRanges)?inlineRanges.filter(item=>item&&item.end>item.start):[];
-    if(!breaks.length&&!decorations.length&&!suppressTerminalWhitespace&&!startsParagraph)return escapeSource(value);
+    if(!breaks.length&&!decorations.length&&!suppressTerminalWhitespace&&!startsParagraph&&!String(value).includes('\u2063'))return escapeSource(value);
     const boundaries=new Set(breaks),opens=new Map(),closes=new Map(),paragraphStarts=new Set(),paragraphEnds=new Set(),pieces=[];let offset=0,terminal=value.length;
     if(suppressTerminalWhitespace)while(terminal>0&&/[ \t\r\n]/u.test(value.charAt(terminal-1)))terminal--;
     for(const match of value.matchAll(/\r?\n[ \t]*\r?\n(?:[ \t]*\r?\n)*/gu)){
@@ -1090,6 +1090,7 @@
     }
     // A column or page that opens with a new paragraph is indented too.
     if(startsParagraph&&value&&!/^[ \t]*\r?\n/u.test(value))pieces.push('<span class="dpk-paragraph-indent" aria-hidden="true"></span>');
+    let inHead=false;
     for(const character of value){
       // A new paragraph opens with the classic book indent; the empty span
       // keeps the serialized text identical to the manuscript.
@@ -1099,8 +1100,9 @@
       if(opens.has(offset))for(const item of opens.get(offset))pieces.push(`<span class="dpk-inline-handwritten${item.editable?' dpk-inline-handwritten-editable':''}"${item.zone?` data-accent-zone="${escapeSource(item.zone)}"`:''}${item.editable?item.attrs||'':''}>`);
       if(paragraphStarts.has(offset))pieces.push('<span class="dpk-paragraph-separator">');
       if(suppressTerminalWhitespace&&terminal<value.length&&offset===terminal)pieces.push('<span class="dpk-flow-separator">');
-      pieces.push(escapeSource(character));offset+=character.length;
+      if(character==='\u2063'){pieces.push(inHead?'\u2063</span>':'<span class="dpk-episode-inline">\u2063');inHead=!inHead;}else pieces.push(escapeSource(character));offset+=character.length;
     }
+    if(inHead)pieces.push('</span>');
     if(paragraphEnds.has(offset))pieces.push('</span>');
     if(suppressTerminalWhitespace&&terminal<value.length)pieces.push('</span>');
     if(closes.has(offset))for(const _ of closes.get(offset))pieces.push('</span>');
@@ -1163,7 +1165,11 @@
     for(const point of breaks)if(point>0&&point<value.length)boundaries.push(point);
     for(const item of inlineRanges)boundaries.push(item.start,item.end);
     boundaries.push(value.length);
-    const ends=[...new Set(boundaries)].filter(end=>!inlineRanges.some(item=>end>item.start&&end<item.end)).sort((a,b)=>a-b);
+    // An episode heading (between two U+2063 marks) is never split, and a
+    // column never ends right after it: its first line of text comes along.
+    const heads=[];{let open=-1;for(const match of value.matchAll(/\u2063/gu)){if(open<0)open=match.index;else{heads.push([open,match.index+1]);open=-1;}}if(open>=0)heads.push([open,value.length]);}
+    const afterHead=end=>heads.some(([a,b])=>end>a&&end<=b+3&&/^[\s]*$/u.test(value.slice(b,end)))&&end<value.length;
+    const ends=[...new Set(boundaries)].filter(end=>!inlineRanges.some(item=>end>item.start&&end<item.end)&&!heads.some(([a,b])=>end>a&&end<b)&&!afterHead(end)).sort((a,b)=>a-b);
     // Measure every candidate against ONE full render. Prefixes used to be
     // re-rendered independently during a binary search. With justification,
     // automatic hyphenation and preserved separators that predicate can
@@ -1479,6 +1485,9 @@
           found:for(const sentence of sentences)for(const n of [4,3]){const words=sentence.split(/\s+/).slice(0,n);if(words.length<3)continue;
             const text=words.join(' ').replace(/[,;:—–-]+$/u,'')+'…';copy.textContent=text;
             if(renderedLineCount(copy)<=noteMaxLines&&copy.scrollWidth<=noteLength+2){selected={...selected,text,fits:true};break found;}}}
+        // v106: a note of one or two words says nothing to the reader — the
+        // page then goes without a note (the engine tries another phrase first).
+        if(automatic&&String(selected.text||'').trim().split(/\s+/).filter(w=>/\p{L}{2,}/u.test(w)).length<3)throw accentFailure('margin',selected.text||'',true,'Для заметки на полях нет осмысленной фразы.');
         page.marginNote=selected.text;
         copy.textContent=page.marginNote;
         flow.noteLines=renderedLineCount(copy);
