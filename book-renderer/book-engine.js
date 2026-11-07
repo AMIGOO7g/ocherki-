@@ -1776,7 +1776,7 @@
     // default; meta.continuationPages === false leaves it out.
     if(meta.continuationPages!==false)spreads.push({master:'D01-SPREAD-CONTINUATION',left:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta,notesHeading:'Для тех, кто продолжит эту историю'}),right:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta})});
     if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperBack:true}),right:P('endpaper',{meta:bookMeta,endpaperBack:true})});
-    if(byId('inside-back-cover'))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
+    if(byId('inside-back-cover')&&!/ENDPAPER/.test(String(spreads[spreads.length-1]?.master||'')))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     const [backCoverText,backCoverMark]=fieldValues(byId('back-cover'),2);
     if(byId('back-cover'))spreads.push({master:'D01-SPREAD-BACK-COVER',left:P('back-cover',{layout:'back-cover',source:backCoverSource,meta:{...bookMeta,backCoverText,backCoverMark},photoIndex:0}),right:null,single:'left'});
     spreads.forEach((spread,index)=>{if(!spread.id)spread.id=`d01_spread_${index+1}`;});
@@ -2891,7 +2891,7 @@
     if(byId('afterword')||byId('thanks')) spreads.push({ master: 'D01-SPREAD-AFTERWORD-THANKS', left: byId('afterword')?epilogue:P('blank',{meta:bookMeta}), right: byId('thanks')?thanks:P('blank',{meta:bookMeta}) });
     if(byId('sources')||byId('colophon')) spreads.push({ master: 'D01-SPREAD-SOURCES-COLOPHON', left: byId('sources')?sources:P('blank',{meta:bookMeta}), right: byId('colophon')?colophon:P('blank',{meta:bookMeta}) });
     if(byId('back-endpaper')) spreads.push({ master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta, endpaperBack: true }), right: P('endpaper', { meta: bookMeta, endpaperBack: true }) });
-    if(byId('inside-back-cover')) spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
+    if(byId('inside-back-cover')&&!/ENDPAPER/.test(String(spreads[spreads.length-1]?.master||''))) spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     if(byId('back-cover')) spreads.push({ master: 'D01-SPREAD-BACK-COVER', left: P('back-cover', { layout: 'back-cover', meta:Object.assign({},bookMeta,{backCoverText,backCoverMark}), source: backCoverSource, photoIndex: 0 }), right: null, single: 'left' });
 
     const pages = spreads.flatMap(spread => [spread.left, spread.right].filter(Boolean));

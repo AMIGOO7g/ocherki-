@@ -2140,6 +2140,7 @@
 @keyframes wizardFieldIn{to{opacity:1;transform:none;filter:none}}
 @media (prefers-reduced-motion: reduce){.step-container .wizard-field{opacity:1;transform:none;filter:none;animation:none!important}}
 </style>
+<style id="v99-overscroll">html,body{overscroll-behavior:none}</style>
 </head>
 <body class="" id="pageBody">
 
@@ -3341,7 +3342,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261106-v98";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261106-v99";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3845,7 +3846,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v98"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v98"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v99"></script>
 </body>
 </html>

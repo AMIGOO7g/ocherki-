@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v98">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v99">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v98" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261106-v99" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4678,10 +4678,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v98"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v98"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v98"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261106-v98"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261106-v98"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261106-v98"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261106-v99"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261106-v99"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261106-v99"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4716,8 +4716,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v98"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v98"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261106-v99"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261106-v99"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7596,7 +7596,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v98"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261106-v99"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -7694,6 +7694,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   // rendered underneath; copies of the old pages lie on top and are cut away
   // as the fold moves, so nothing blinks.
   function previewFlip(forward,target){
+    // v99: a book that is closing (or lies under the manuscript) never turns a page.
+    if(!previewModal?.classList.contains('open')||previewModal.classList.contains('is-closing')||previewModal.classList.contains('is-to-ms')||document.querySelector('.shell')?.classList.contains('is-manuscript'))return false;
     const hosts=[...previewSpread.querySelectorAll(':scope > .book-preview-half')];
     if(hosts.length!==2)return false;
     const L=hosts[0].getBoundingClientRect(),R=hosts[1].getBoundingClientRect();
@@ -7845,9 +7847,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   function reshapeBook(apply){
     if(!built||!previewModal?.classList.contains('open')){apply();if(built)performBuild();return;}
     window.__ocherkiKeepSheet=window.__ocherkiSheetForSpread?.(activeSpread)?.pageUid||'';
+    let note=document.getElementById('reshapeNote');if(!note){note=document.createElement('div');note.id='reshapeNote';note.className='reshape-note';note.innerHTML='<i></i><span>Перекладываю книгу…</span>';previewModal.appendChild(note);}
     previewModal.classList.add('is-reshaping');
     const back=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>previewModal.classList.remove('is-reshaping')));
-    setTimeout(()=>{apply();if(!performBuild(back))back();setTimeout(back,8000);},320);
+    // The fade finishes before the heavy layout starts (the screen is calm
+    // while the pages are counted), then the new book comes forward.
+    setTimeout(()=>requestAnimationFrame(()=>setTimeout(()=>{apply();if(!performBuild(back))back();setTimeout(back,8000);},30)),420);
   }
   const formats=[['square','Квадратный','280×280','bd-fmt-square'],['portrait','Вертикальный','280×335','bd-fmt-portrait']];
   formats.forEach(([key,name,dims,cls])=>{
@@ -8576,6 +8581,84 @@ html body .shell.is-night .writing-prompt .writing-prompt-why{color:#f3e7d6!impo
 .key:hover .cap svg,.key.is-active .cap svg{filter:drop-shadow(0 0 3px rgba(226,160,80,.75)) drop-shadow(0 0 7px rgba(226,160,80,.35));transition:filter .4s ease}
 .key .cap svg{transition:filter .4s ease}
 </style>
+<style id="tour-v99">
+.tr-dim{position:fixed;inset:0;z-index:2147483640;pointer-events:none;opacity:0;transition:opacity .45s ease;
+  background:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),rgba(255,214,150,.06) 0,rgba(255,214,150,.02) 55%,rgba(8,5,2,.78) 100%);transition:opacity .45s ease,background-position .5s}
+.tr-dim.on{opacity:1;pointer-events:auto}
+.tr-card{pointer-events:none}.tr-card.on{pointer-events:auto}
+.tr-ring{position:fixed;z-index:2147483641;border-radius:40px;pointer-events:none;box-shadow:0 0 0 2px rgba(226,176,106,.95),0 0 40px 8px rgba(226,176,106,.35);opacity:0;
+  transition:left .55s cubic-bezier(.2,.8,.3,1),top .55s cubic-bezier(.2,.8,.3,1),width .55s cubic-bezier(.2,.8,.3,1),height .55s cubic-bezier(.2,.8,.3,1),opacity .4s}
+.tr-ring.on{opacity:1}
+.tr-card{position:fixed;z-index:2147483642;width:360px;padding:24px 26px 18px;border-radius:6px;background:linear-gradient(160deg,#fffaf0,#f3e6cf);color:#3a2a1c;
+  box-shadow:0 30px 70px rgba(0,0,0,.55);font-family:Georgia,serif;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .5s cubic-bezier(.2,.8,.3,1),left .55s cubic-bezier(.2,.8,.3,1),top .55s cubic-bezier(.2,.8,.3,1)}
+.tr-card.on{opacity:1;transform:none}
+.tr-card small{display:block;font:600 11px Georgia,serif;letter-spacing:.2em;color:#a87b45;margin-bottom:8px;text-transform:uppercase}
+.tr-card h3{margin:0 0 8px;font:italic 25px/1.2 Georgia,serif;color:#3a2a1c}
+.tr-card p{margin:0 0 16px;font:15.5px/1.5 Georgia,serif;color:#4a3826}
+.tr-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.tr-dots{flex:1 0 100%;margin-bottom:12px}.tr-row>span:last-child{margin-left:auto}
+.tr-dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d8c3a0;margin-right:5px;transition:width .3s,background .3s}.tr-dots i.on{background:#b07a3a;width:18px;border-radius:4px}
+.tr-btn{all:unset;cursor:pointer;font:italic 16px Georgia,serif;padding:8px 18px;border-radius:20px;border:1px solid #b88a50;background:linear-gradient(180deg,#e8c890,#b88a50);color:#2a1a0c}
+.tr-skip{all:unset;cursor:pointer;font:italic 14px Georgia,serif;color:#8a6a48;margin-right:12px;border-bottom:1px solid rgba(138,106,72,.5)}
+</style>
+<script id="tour-v99-js">
+// v99: a short first look — the lamp lights one thing at a time. Each room
+// (write, manuscript, book) shows its own part only on the first visit;
+// «Аа → Показать знакомство» brings it back.
+(()=>{const shell=document.querySelector('.shell'),modal=document.getElementById('bookPreviewModal');if(!shell)return;
+  const frameDoc=()=>{try{return document.getElementById('v35SheetFrame')?.contentDocument;}catch(_){return null;}};
+  const inFrame=sel=>{const f=document.getElementById('v35SheetFrame'),d=frameDoc();const el=d?.querySelector(sel);if(!el||!f)return null;const a=f.getBoundingClientRect(),r=el.getBoundingClientRect();return {left:a.left+r.left,top:a.top+r.top,width:r.width,height:r.height};};
+  const box=sel=>{if(typeof sel==='function')return sel();const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();return r.width&&r.height?r:null;};
+  const TOURS={
+    write:[
+      ['.mode-switch','Три комнаты мастерской','<b>Писать</b> — лист, на котором вы рассказываете.<br><b>Рукопись</b> — все листы книги на одном столе.<br><b>Книга</b> — как это будет напечатано.'],
+      ['.editor-paper','Ваш лист','Пишите как в обычном письме. Всё сохраняется само, каждую секунду.'],
+      [()=>inFrame('#voiceBtn'),'Можно говорить','Нажмите микрофон и рассказывайте — слова сами лягут на лист.'],
+      ['#writingPrompt','Вопросы к главе','Если не знаете, с чего начать, — ответьте на вопрос. «Дальше» покажет следующий.'],
+      ['#bookMapShell','Карта книги','Главы и листы. Нажмите на главу, чтобы перейти к ней.'],
+      ['.mode-controls','Свет, крупный шрифт, музыка','Ночь и день, крупный интерфейс и тихая музыка для работы.'],
+      ['#booksBtn','Мои книги','Здесь хранятся все ваши книги — можно вести несколько.'],
+      ['#pdfBtn','Сохранить','Черновик книги в PDF — посмотреть или показать родным.'],
+      ['#contactBtn','Написать нам','Вопрос, идея или помощь — открытка придёт в мастерскую.']],
+    manuscript:[
+      ['.ms-space','Все листы на одном столе','Колесо — листать главы. Нажмите лист — откроется для письма. Потяните — переставите.'],
+      ['.ms-toc','Содержание','Переход к любой главе; «×» убирает главу в корзину.'],
+      ['.ms-tray','Фото','«＋ Фото» — загрузите снимки, потом перетащите каждый на свой лист.'],
+      ['.ms-bin','Корзина','Удалённое лежит здесь — его всегда можно вернуть.']],
+    book:[
+      ['#bookPreviewSpread','Ваша книга','Так она будет напечатана. Листайте стрелками или колесом.'],
+      ['#bookPreviewLayoutHanger','Композиция разворота','Стрелки меняют расположение фото и текста на этом развороте.'],
+      ['.bd-rail','Дизайн, формат, фото','Внешний вид всей книги: оформление, размер и цвет фотографий.'],
+      ['.preview-arc','Лента разворотов','Нажмите на любой разворот, чтобы перейти к нему.']]};
+  const key=n=>'ocherki_tour_'+n;
+  const seen=n=>{try{return localStorage.getItem(key(n))==='1';}catch(_){return true;}};
+  const mark=n=>{try{localStorage.setItem(key(n),'1');}catch(_){}};
+  let dim,ring,card,cur=null,idx=0,steps=[];
+  function ensure(){if(dim)return;dim=document.createElement('div');dim.className='tr-dim';ring=document.createElement('div');ring.className='tr-ring';card=document.createElement('div');card.className='tr-card';document.body.append(dim,ring,card);
+    dim.addEventListener('click',e=>e.stopPropagation());}
+  function place(){const st=steps[idx];if(!st)return end();const r=box(st[0]);if(!r){idx++;return place();}
+    const pad=10,cx=r.left+r.width/2,cy=r.top+r.height/2;
+    dim.style.setProperty('--x',cx+'px');dim.style.setProperty('--y',cy+'px');dim.style.setProperty('--rw',Math.max(90,r.width*.75)+'px');dim.style.setProperty('--rh',Math.max(60,r.height*.9)+'px');
+    ring.style.cssText=`left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+2*pad}px;height:${r.height+2*pad}px;border-radius:${Math.min(40,(r.height+2*pad)/2)}px`;ring.classList.add('on');
+    const total=steps.length;card.innerHTML=`<small>Знакомство · ${idx+1} из ${total}</small><h3>${st[1]}</h3><p>${st[2]}</p><div class="tr-row"><span class="tr-dots">${steps.map((_,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</span><span><button class="tr-skip" type="button">пропустить</button><button class="tr-btn" type="button">${idx===total-1?'Понятно':'Далее →'}</button></span></div>`;
+    card.querySelector('.tr-btn').onclick=e=>{e.stopPropagation();idx++;place();};card.querySelector('.tr-skip').onclick=e=>{e.stopPropagation();end();};
+    const W=360,H=card.offsetHeight||220;let left=cx-W/2,top=r.bottom+22;
+    if(top+H>innerHeight-16){top=r.top-H-22;}if(top<16){top=Math.min(innerHeight-H-16,cy-H/2);left=r.right+26;if(left+W>innerWidth-16)left=r.left-W-26;}
+    left=Math.max(16,Math.min(innerWidth-W-16,left));top=Math.max(16,Math.min(innerHeight-H-16,top));
+    card.style.left=left+'px';card.style.top=top+'px';requestAnimationFrame(()=>{dim.classList.add('on');card.classList.add('on');});}
+  function start(name,force){if(cur||(!force&&seen(name)))return;const list=TOURS[name];if(!list)return;ensure();cur=name;idx=0;steps=list;mark(name);place();}
+  function end(){if(!cur)return;cur=null;dim.classList.remove('on');ring.classList.remove('on');card.classList.remove('on');}
+  addEventListener('keydown',e=>{if(!cur)return;if(e.key==='Escape')end();if(e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();idx++;place();}},true);
+  addEventListener('resize',()=>{if(cur)place();});
+  const room=()=>shell.classList.contains('is-manuscript')?'manuscript':modal?.classList.contains('open')?'book':shell.classList.contains('is-open')?'write':'';
+  // Automated checks (tests) are not greeted.
+  const quiet=navigator.webdriver&&!/[?&]tour=1/.test(location.search+(parent!==window?parent.location.search:''));
+  let t=0;const check=()=>{if(quiet)return;clearTimeout(t);t=setTimeout(()=>{const r=room();if(r&&!cur)start(r);},r0()==='book'?2600:1500);};const r0=room;
+  new MutationObserver(check).observe(shell,{attributes:true,attributeFilter:['class']});
+  if(modal)new MutationObserver(check).observe(modal,{attributes:true,attributeFilter:['class']});
+  addEventListener('message',e=>{if(e.data?.type==='OCHERKI_TOUR_AGAIN'){const r=room()||'write';end();setTimeout(()=>start(r,true),300);}});
+  window.OCHERKI_TOUR={start:(n,f)=>start(n||room(),f),end};
+})();
+</script>
 </body>
 
 <style id="v121-preview-motion-format">
@@ -10048,7 +10131,7 @@ window.__ocherkiWheel=()=>{let last=-1e9,sign=0,acc=0,stepped=false,lastStep=-1e
   // The book follows the arc once the wheel has rested a moment.
   setInterval(()=>{if(!pendingFlip||Date.now()-lastStep<420)return;const a=api();if(!a||a.paging())return;pendingFlip=false;if(turn!==a.active())a.go(turn);},140);
   const arcWheel=window.__ocherkiWheel();
-  addEventListener('wheel',e=>{if(!modal.classList.contains('has-arc')||!modal.classList.contains('open'))return;if(e.target.closest?.('#bookPreviewSpread,.composition-menu,.book-design-shell'))return;
+  addEventListener('wheel',e=>{if(!modal.classList.contains('has-arc')||!modal.classList.contains('open')||modal.classList.contains('is-closing')||modal.classList.contains('is-to-ms')||document.querySelector('.shell')?.classList.contains('is-manuscript'))return;if(e.target.closest?.('#bookPreviewSpread,.composition-menu,.book-design-shell'))return;
     const dir=arcWheel(e);if(!dir)return;const n=api().spreads().length;const t=Math.max(0,Math.min(n-1,turn+dir));
     lastStep=Date.now();if(t===turn)return;turn=t;layout();pendingFlip=true;},{passive:true});
   let sx=null,st=0,moved=false;
@@ -10461,6 +10544,8 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     </svg></span></span>
     <b class="ms-bin-count" hidden>0</b><span class="ms-bin-label">Корзина</span>
     <div class="ms-bin-list" hidden></div>`;
+  {const key=bin.querySelector('.ms-bin-key');let ang=0,vel=0,raf=0;const step=()=>{vel+=-.010*ang;vel*=.991;ang+=vel;ang=Math.max(-1.6,Math.min(1.6,ang));if(key)key.style.transform=`rotate(${ang.toFixed(2)}deg)`;if(Math.abs(ang)<.01&&Math.abs(vel)<.002){ang=0;vel=0;if(key)key.style.transform='';raf=0;return;}raf=requestAnimationFrame(step);};
+    bin.addEventListener('pointerenter',e=>{vel=Math.max(-.22,Math.min(.22,vel+.12*(e.movementX<0?-1:1)));if(!raf)raf=requestAnimationFrame(step);});}
   scr.appendChild(bin);
   const binCount=bin.querySelector('.ms-bin-count'),binList=bin.querySelector('.ms-bin-list');
   let binItems=[];
@@ -10655,7 +10740,8 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   const msWheel=window.__ocherkiWheel();
   scr.addEventListener('wheel',e=>{if(e.target.closest('.ms-toc,.ms-bin-list,.ms-sections,.ms-photo-card'))return;
     const dir=msWheel(e);if(!dir)return;const k=Math.round(focus)+dir;
-    if(k<0||k>rowsTotal-1){bump(dir);return;}goRow(k);},{passive:true});
+    // v99: at the first or the last row nothing moves at all.
+    if(k<0||k>rowsTotal-1)return;goRow(k);},{passive:true});
   // At the first or the last row the sheets lean a little and come back: the end.
   function bump(dir){world.animate([{translate:'0 0'},{translate:`0 ${-dir*26}px`},{translate:'0 0'}],{duration:520,easing:'cubic-bezier(.3,.7,.3,1)'});}
   addEventListener('keydown',e=>{if(!isOpen||secPanel.contains(document.activeElement))return;if(e.key==='ArrowDown'||e.key==='PageDown')goRow(focus+1);if(e.key==='ArrowUp'||e.key==='PageUp')goRow(focus-1);});
@@ -11025,10 +11111,26 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
    layer lets it through. */
 #bookPreviewModal.open.has-arc>*:not(.preview-arc):not(.preview-catcher),#bookPreviewModal.open.has-arc .photo-frame-tools{pointer-events:auto!important}
 </style>
+<style id="v99-small">
+/* The waiting prints rise on hover — the line above them stays clear. */
+html body .ms-tray-note{pointer-events:auto!important}
+.ms-tray-clear{all:unset;margin-left:10px;font:italic 13px Georgia,serif;color:inherit;opacity:.75;border-bottom:1px solid currentColor;cursor:pointer}
+.ms-tray-clear:hover{opacity:1}.ms-tray-clear.is-ask{color:#e7a07a;opacity:1}
+/* The bin hangs like the other keys and sways a little when passed. */
+.ms-bin-key{transform-origin:50% -40px;transition:none}
+/* No rubber-band scrolling of the whole page at the start or end. */
+html,body{overscroll-behavior:none}
+/* The clock is a third larger — as one piece, so hands, pivot and pendulum stay together. */
+html body .master-clock{transform:scale(1.35);transform-origin:0 100%;margin-right:36px}
+</style>
 <style id="book-reshape-v97">
 #bookPreviewModal :is(.book-preview-stage,.book-preview-info){transition:opacity .45s ease,transform .55s cubic-bezier(.2,.75,.25,1),filter .45s ease}
-#bookPreviewModal.is-reshaping :is(.book-preview-stage,.book-preview-info){opacity:.32!important;transform:scale(.975)!important;filter:blur(2px)!important;transition:opacity .3s ease,transform .3s ease,filter .3s ease!important}
-#bookPreviewModal.is-reshaping .preview-arc{opacity:.25!important;transition:opacity .3s ease!important}
+#bookPreviewModal.is-reshaping :is(.book-preview-stage,.book-preview-info){opacity:.18!important;transform:scale(.97)!important;filter:blur(4px)!important;transition:opacity .3s ease,transform .3s ease,filter .3s ease!important}
+#bookPreviewModal.is-reshaping :is(.preview-arc,.book-preview-layout-hanger,.book-preview-nav,#bookPreviewClose){opacity:0!important;transition:opacity .35s ease!important}
+#bookPreviewModal .reshape-note{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;display:flex;align-items:center;gap:12px;font:italic 20px Georgia,serif;color:#f3e3c8;opacity:0;pointer-events:none;transition:opacity .35s ease;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+#bookPreviewModal .reshape-note i{width:18px;height:18px;border-radius:50%;border:2px solid rgba(243,227,200,.35);border-top-color:#f0cf8e;animation:rsSpin 1s linear infinite}
+@keyframes rsSpin{to{transform:rotate(360deg)}}
+#bookPreviewModal.is-reshaping .reshape-note{opacity:1}
 </style>
 <style id="book-screen-panel-arc">
 /* v96: the open book itself never turns hazy or see-through (over the warm room it read as a sepia veil): only the strip below steps back. */
@@ -11048,7 +11150,7 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
 @keyframes msPrintIn{from{opacity:0;transform:translateY(40px) rotate(var(--r,0deg))}to{opacity:1;transform:rotate(var(--r,0deg))}}
 .ms-add-photos{flex:0 0 auto;appearance:none;border:1.5px dashed rgba(255,244,226,.75);background:rgba(255,248,235,.12);color:#f6ead8;border-radius:10px;padding:14px 16px;cursor:pointer;font:italic 16px Georgia,serif;white-space:nowrap;transition:background .3s}
 .ms-add-photos:hover{background:rgba(255,248,235,.24)}
-.ms-tray-note{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);white-space:nowrap;font:italic 14px Georgia,serif;color:rgba(255,246,232,.85);text-shadow:0 1px 6px rgba(60,35,15,.4);pointer-events:none}
+.ms-tray-note{position:absolute;left:50%;bottom:calc(100% + 34px);transform:translateX(-50%);white-space:nowrap;font:italic 14px Georgia,serif;color:rgba(255,246,232,.85);text-shadow:0 1px 6px rgba(60,35,15,.4);pointer-events:none}
 .ms-sheet.is-photo-target .ms-paper{box-shadow:0 0 0 3px #e2b06a,0 0 30px rgba(226,176,106,.7),0 30px 50px rgba(40,22,8,.32)!important;transform:translateZ(40px) scale(1.04)}
 .ms-screen.is-file-over::after{content:"Отпустите — фото лягут в стопку внизу, а если над листом — прямо на лист";position:absolute;inset:18px;border:2px dashed rgba(255,244,226,.8);border-radius:22px;display:flex;align-items:center;justify-content:center;font:italic 22px Georgia,serif;color:#fff6e8;background:rgba(40,25,12,.25);pointer-events:none;z-index:30;text-shadow:0 2px 10px rgba(0,0,0,.4)}
 .ms-toast{position:absolute;left:50%;top:120px;transform:translate(-50%,-8px);font:italic 18px Georgia,serif;color:#fff6e8;text-shadow:0 2px 10px rgba(40,25,12,.5);opacity:0;transition:opacity .4s,transform .5s;pointer-events:none;z-index:31}
@@ -11115,7 +11217,12 @@ html body .ms-sheet.is-new:hover .ms-paper{border-color:rgba(255,222,170,.95)!im
   function draw(){prints.innerHTML='';stack.forEach((p,i)=>{const el=document.createElement('div');el.className='ms-print';el.dataset.id=p.id;el.style.setProperty('--r',(((i*37)%9)-4)+'deg');el.innerHTML=`<img src="${p.src}" alt="">${p.portraitHero?'<span class="ms-hero" title="Портрет героя книги">★</span>':''}`;if(p.id===recentPrint)el.classList.add('is-recent');el.addEventListener('pointerdown',e=>carry(e,el,p));prints.appendChild(el);});
     // Many prints overlap more, so the stack never grows over «＋ Фото» and «Разделы книги».
     {const list=[...prints.querySelectorAll('.ms-print')],W=Math.min(620,innerWidth*.36),stepX=Math.min(78,(W-92)/Math.max(1,list.length-1));list.forEach((el,i)=>{el.style.setProperty('margin-left',i?Math.round(stepX-92)+'px':'0px','important');el.style.setProperty('margin-right','0px','important');});}
-    note.hidden=!stack.length;note.textContent=stack.length?`${stack.length} ${stack.length%10===1&&stack.length%100!==11?'фото ждёт':'фото ждут'} своего листа — перетащите на нужный лист`:'';}
+    note.hidden=!stack.length;note.innerHTML=stack.length?`${stack.length} ${stack.length%10===1&&stack.length%100!==11?'фото ждёт':'фото ждут'} своего листа — перетащите на нужный лист <button type="button" class="ms-tray-clear">убрать все</button>`:'';
+    // v99: all the waiting prints go at once (asked twice, so nothing goes by chance).
+    note.querySelector('.ms-tray-clear')?.addEventListener('click',e=>{e.stopPropagation();const b=e.currentTarget;
+      if(!b.classList.contains('is-ask')){b.classList.add('is-ask');b.textContent=`убрать все ${stack.length}?`;clearTimeout(b._t);b._t=setTimeout(()=>{b.classList.remove('is-ask');b.textContent='убрать все';},3500);return;}
+      prints.querySelectorAll('.ms-print').forEach((el,i)=>{el.style.transition='transform .45s ease, opacity .4s ease';el.style.transitionDelay=(i*25)+'ms';el.style.opacity='0';el.style.transform='translateY(40px) scale(.8)';});
+      setTimeout(()=>{stack=[];save();draw();},520);});}
   const readFiles=files=>Promise.all([...files].filter(f=>/^image\//.test(f.type)).map(f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>ok({id:'tray_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),src:r.result,width:im.naturalWidth,height:im.naturalHeight});im.onerror=()=>ok(null);im.src=r.result;};r.onerror=()=>ok(null);r.readAsDataURL(f);}))).then(list=>list.filter(Boolean));
   // Only a sheet of the front row takes a photo: a sheet of the row behind
   // (or «＋ Эпизод») could win the 3D hit test and steal it.

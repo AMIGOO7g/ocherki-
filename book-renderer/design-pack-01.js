@@ -1469,6 +1469,13 @@
           copy.textContent=selected.text;
           if(selected.fits&&renderedLineCount(copy)<=noteMaxLines)break;
         }
+        // v99: an automatic note never shows a stub of two or three letters —
+        // it takes the first words of a sentence of this page (whole words).
+        if(automatic&&String(selected.text||'').trim().split(/\s+/).filter(w=>/\p{L}{2,}/u.test(w)).length<3){
+          const sentences=String(flowSourceText(flow)||'').split(/(?<=[.!?…])\s+/u).map(t=>t.trim()).filter(t=>t.split(/\s+/).length>=3);
+          found:for(const sentence of sentences)for(const n of [4,3]){const words=sentence.split(/\s+/).slice(0,n);if(words.length<3)continue;
+            const text=words.join(' ').replace(/[,;:—–-]+$/u,'')+'…';copy.textContent=text;
+            if(renderedLineCount(copy)<=noteMaxLines&&copy.scrollWidth<=noteLength+2){selected={...selected,text,fits:true};break found;}}}
         page.marginNote=selected.text;
         copy.textContent=page.marginNote;
         flow.noteLines=renderedLineCount(copy);

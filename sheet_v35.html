@@ -1071,6 +1071,7 @@ html body .footer :is(#saveState,#nsBook,#nextStep,.next-step .ns-label,.next-st
 html body .footer #nextStep{gap:6px}
 html body .footer #saveState{position:relative;top:3px}
 </style>
+<style id="v99-overscroll">html,body{overscroll-behavior:none}</style>
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
@@ -1133,7 +1134,7 @@ html body .footer #saveState{position:relative;top:3px}
 <button type="button" class="skey" data-act="document" data-tip="Архивный документ: письмо, справка, грамота" aria-label="Архивный документ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6Z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></button>
 </div></div><div class="status" id="saveState">Черновик сохранён</div><div class="cloud" title="Синхронизировано"><svg viewBox="0 0 24 24"><path d="M7.5 18.2h9.1a4.1 4.1 0 0 0 .8-8.1A6 6 0 0 0 6 8.1a4.2 4.2 0 0 0 1.5 10.1Z"/></svg></div></div>
         <div class="popover" id="sheetMenu"><button id="addPageBtn">Добавить страницу</button><button id="deletePageBtn">Удалить лист</button><button id="duplicateBtn">Дублировать лист</button><button id="prevBtn">Предыдущий лист</button><button id="nextBtn">Следующий лист</button></div>
-        <div class="popover" id="textMenu"><button data-size="14">Мельче</button><button data-size="15">По умолчанию</button><button data-size="16">Крупнее</button><button id="tightBtn">Плотнее</button><button id="looseBtn">Свободнее</button><button id="largeUiBtn" class="large-ui-toggle">Крупный интерфейс</button></div>
+        <div class="popover" id="textMenu"><button data-size="14">Мельче</button><button data-size="15">По умолчанию</button><button data-size="16">Крупнее</button><button id="tightBtn">Плотнее</button><button id="looseBtn">Свободнее</button><button id="largeUiBtn" class="large-ui-toggle">Крупный интерфейс</button><button id="tourAgainBtn">Показать знакомство</button></div>
         <div class="voice-status" id="voiceStatus" hidden></div>
         <div class="popover" id="moreMenu"><button id="addPhotoBtn">Добавить фото</button><button id="addQuoteBtn">Добавить цитату</button><button id="addDateBtn">Добавить дату</button><button id="deleteDateBtn" hidden>Удалить дату</button><button id="addDocumentBtn">Новый документ</button><button id="newEpisodeBtn">Новый эпизод</button><button id="newPageBtn">Новый лист</button></div>
       </div>
@@ -5345,6 +5346,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
     if(hint){hint.textContent=box.checked&&wide?'Снимок горизонтальный: книга обрежет его по высоте страницы. Если на нём один человек — в книге сдвиньте фото, чтобы он оказался в центре.':BASE;hint.style.color=box.checked&&wide?'#a4472f':'';}}catch(_){}};
   box.addEventListener('change',check);document.getElementById('photoModal')?.addEventListener('transitionend',check);setInterval(()=>{if(document.getElementById('photoModal')?.classList.contains('open'))check();},800);})();
 </script>
+<script id="tour-again">document.getElementById('tourAgainBtn')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('textMenu')?.classList.remove('open');window.parent.postMessage({type:'OCHERKI_TOUR_AGAIN'},'*');});</script>
 </body>
 </html>
 
