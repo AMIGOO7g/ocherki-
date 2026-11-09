@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v115">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v116">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v115" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v116" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4681,10 +4681,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v115"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v115"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v115"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v115"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v115"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v115"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v116"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v116"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v116"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v116"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v116"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v116"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4719,8 +4719,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v115"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v115"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v116"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v116"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7151,6 +7151,13 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     let k=0;
     if(list.length){if(Number.isInteger(pick))k=Math.max(0,Math.min(list.length-1,pick));
       else{const o=run.start+Math.max(0,Math.min(1,ratio>=0?ratio:0))*(run.end-run.start);const at=list.findIndex(x=>x.rg.start<=o&&o<x.rg.end);k=at>=0?at:(o>=run.end?list.length-1:0);}}
+    if(!list.length&&sec)bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){if(pg&&(pg.sourcePageUid===uid||pg.source?.uid===uid))list.push({pg,side,i});}});
+    if(!list.length&&sec)bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){if(pg&&pg.sectionId===sec.id)list.push({pg,side,i});}});
+    // the book's own pages (endpaper, title, contents…) carry their kind, not the section
+    if(!list.length&&sec){const MAP={endpaper:['endpaper'],'back-endpaper':['endpaper'],title:['half-title','title'],dedication:['dedication'],epigraph:['epigraph'],contents:['contents','contents-left','contents-right'],final:['epilogue','final'],colophon:['colophon'],'inside-back-cover':['notes-page'],cover:['cover'],'back-cover':['back-cover']};
+      const want=MAP[sec.id]||MAP[sec.type];if(want){const hits=[];bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){if(pg&&want.includes(pg.type||pg.kind))hits.push({pg,side,i});}});
+        if(hits.length){const si=(sec.id==='back-endpaper')?hits[hits.length-1].i:hits[0].i;hits.filter(h=>sec.id==='endpaper'||sec.id==='back-endpaper'?h.i===si:true).forEach(h=>list.push(h));}}}
+    if(list.length){if(Number.isInteger(pick))k=Math.max(0,Math.min(list.length-1,pick));}
     else{const i=uid?spreadIndexForUid(uid):-1;if(i<0)return null;const sp=bookSpreads[i],side=window.__ocherkiSpreadSide||(sp.right?'right':'left');const pg=(side==='left'?sp.left:sp.right)||sp.right||sp.left;if(!pg)return null;list.push({pg,side,i});}
     const it=list[k],[w,h]=currentPageSize();
     return {html:pageCanvasHost(it.pg,it.side==='left'?'left':'right','preview',true),w,h,pageNo:it.pg.pageNo||'',spread:it.i,n:list.length,k};};
@@ -7640,7 +7647,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v115"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v116"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -9824,7 +9831,7 @@ html body .nt-o .ar-act{display:flex;align-items:center;gap:10px;justify-content
 /* v111 — «Писать»: five keys with words; everything rare lives in «Ещё» */
 html body .shell .mode-controls .hanging:has(#nightBtn),html body .shell .mode-controls .hanging:has(#dayBtn),
 html body .shell .mode-controls .large-ui-key,html body .shell .mode-controls .music-key,html body .shell .mode-controls .music-item,
-html body .shell .project-actions .hanging:has(#pdfBtn),html body .shell .project-actions .contact-hanging,html body .shell #pagesHanger{display:none!important}
+html body .shell .project-actions .hanging:has(#pdfBtn),html body .shell .project-actions .contact-hanging{display:none!important}
 html body .shell .project-actions .hanging:has(#undoBtn),html body .shell .project-actions .hanging:has(#redoBtn),html body .shell .project-actions .hanging:has(#moreKey){margin-left:26px!important}
 .oc-klab{position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);font:italic 15px 'CormorantCy',Georgia,serif;white-space:nowrap;pointer-events:none;color:#f3e3c8;text-shadow:0 1px 3px rgba(0,0,0,.55);opacity:.92;transition:opacity .4s}
 .shell:not(.is-open) .oc-klab{opacity:0}
@@ -9858,7 +9865,7 @@ html body .shell .project-actions .hanging:has(#undoBtn),html body .shell .proje
   const musicOn=()=>/pause|❚|stop/i.test(document.getElementById('transportPlayBtn')?.getAttribute('aria-label')||'')||document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true';
   const draw=()=>{const night=shell.classList.contains('is-night'),big=shell.classList.contains('is-large-ui'),n=(document.getElementById('pageCount')?.textContent||'').trim();
     const it=(a,i,t,on)=>`<div class="it ${on?'on':''}" data-a="${a}"><svg viewBox="0 0 24 24">${I[i]}</svg>${t}</div>`;
-    menu.innerHTML=`<span class="k">Вид</span>${it('day','sun','Дневной свет',!night)}${it('night','moon','Ночной свет',night)}${it('big','big','Крупный интерфейс',big)}<hr>${it('music','note',musicOn()?'Музыка — выключить':'Музыка — включить',musicOn())}<hr>${it('pdf','pdf','Сохранить в PDF')}${n?it('pages','hash','Листов в книге: '+n):''}${it('tour','tour','Показать знакомство')}${it('mail','mail','Написать нам')}`;};
+    menu.innerHTML=`<span class="k">Вид</span>${it('day','sun','Дневной свет',!night)}${it('night','moon','Ночной свет',night)}${it('big','big','Крупный интерфейс',big)}<hr>${it('music','note',musicOn()?'Музыка — выключить':'Музыка — включить',musicOn())}<hr>${it('pdf','pdf','Сохранить в PDF')}${it('tour','tour','Показать знакомство')}${it('mail','mail','Написать нам')}`;};
   const place=()=>{const r=mk.getBoundingClientRect();menu.style.right=Math.max(16,innerWidth-r.right-10)+'px';menu.style.top=(r.bottom+44)+'px';};
   const open=()=>{draw();place();menu.classList.add('on');};const close=()=>menu.classList.remove('on');
   mk.addEventListener('click',e=>{e.stopPropagation();menu.classList.contains('on')?close():open();});
@@ -10131,6 +10138,7 @@ html body .fm-room.on-tl .fm-sample{opacity:0!important}html body .fm-room.on-tl
 .shell:not(.is-night) .wp-page{box-shadow:0 26px 50px rgba(70,40,15,.28),0 5px 12px rgba(70,40,15,.14)}
 .wp-host,.wp-wait{position:absolute;inset:0;transition:opacity .55s ease}
 .wp-host .page-canvas-host{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+.wp-none{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:italic 20px/1.5 'CormorantCy',Georgia,serif;color:#a07a4c;background:#fbf8f2}
 .wp-wait{display:grid;place-items:center;font:italic 19px 'CormorantCy',Georgia,serif;color:#a07a4c;opacity:0;pointer-events:none;background:#fff}
 .wp-pane.is-busy .wp-wait{opacity:1}.wp-pane.is-busy .wp-host{opacity:.15}
 .wp-wait span{animation:wpBreath 1.6s ease-in-out infinite}
@@ -10213,7 +10221,7 @@ html body .shell.wp-on .write-nav,html body .shell.wp-on #writingPrompt,html bod
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
     if(res){host.innerHTML=res.html;shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
-    else{host.innerHTML='';pane.querySelector('.wp-cap').textContent='этот лист в книге пока пустой';}
+    else{host.innerHTML='<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>';pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
     place();window.__ocherkiScalePages?.();ref.classList.remove('is-stale');stale=false;}
   function refresh(first){if(!on||busy)return;busy=true;pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
     ref.classList.remove('is-spin');void ref.offsetWidth;ref.classList.add('is-spin');clearTimeout(refresh.s);refresh.s=setTimeout(()=>ref.classList.remove('is-spin'),950);
@@ -10227,7 +10235,10 @@ html body .shell.wp-on .write-nav,html body .shell.wp-on #writingPrompt,html bod
     else if(d.type==='OCHERKI_STRUCTURE_STATE'){let a='';(d.payload?.sections||[]).forEach(s=>(s.pages||[]).forEach(p=>{if(p.active)a=p.uid||p.id||'';}));
       if(a&&a!==uid){uid=a;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(()=>refresh(false),450);}}
       else if(on&&!busy){stale=true;ref.classList.add('is-stale');}}});
-  const sync=()=>{const ok=usable();shell.classList.toggle('wp-ready',ok);if(!ok&&on){on=false;const w=wrap();if(w)w.style.translate='';shell.classList.remove('wp-on');}if(ok)place();};
+  const sync=()=>{const ok=usable();shell.classList.toggle('wp-ready',ok);
+    if(!ok&&on){on=false;const w=wrap();if(w){w.style.setProperty('transition','none','important');w.style.translate='';void w.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>w.style.removeProperty('transition')));}
+      shell.classList.remove('wp-on','wp-up','wp-closing');}
+    if(ok)place();};
   new MutationObserver(sync).observe(shell,{attributes:true,attributeFilter:['class']});
   const modal=document.getElementById('bookPreviewModal');if(modal)new MutationObserver(sync).observe(modal,{attributes:true,attributeFilter:['class']});
   addEventListener('resize',()=>{if(on){const w=wrap(),g=geo();if(w&&g)w.style.translate=`${-g.d}px 0`;}place();requestAnimationFrame(()=>window.__ocherkiScalePages?.());});
@@ -11907,7 +11918,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     if(track)[220,440,660].forEach(t=>setTimeout(()=>{const r=track();if(r&&r.width){f.style.left=r.left+'px';f.style.top=r.top+'px';f.style.width=r.width+'px';f.style.height=r.height+'px';}},t));
     setTimeout(()=>{f.style.opacity=0;setTimeout(()=>f.remove(),500);},ms+120);return f;}
   const pageRectOfBook=()=>{const sp=document.getElementById('bookPreviewSpread')?.getBoundingClientRect();if(!sp||!sp.width)return null;const half=sp.width/2;return {left:sp.left+half,top:sp.top,width:half,height:sp.height};};
-  const editorTarget=()=>{const ed=document.querySelector('.editor-paper')?.getBoundingClientRect();if(ed&&ed.width>100&&ed.left>=0&&ed.right<=innerWidth)return ed;if(!lastPaper)return null;const w=lastPaper.right-lastPaper.left;return {left:lastPaper.left,top:lastPaper.top,width:w,height:Math.min(innerHeight-lastPaper.top-20,w*1.41)};};
+  const editorTarget=()=>{const ed0=document.querySelector('.editor-paper')?.getBoundingClientRect(),sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;const ed=ed0&&{left:ed0.left-sh,top:ed0.top,width:ed0.width,height:ed0.height,right:ed0.right-sh,bottom:ed0.bottom};if(ed&&ed.width>100&&ed.left>=0&&ed.right<=innerWidth)return ed;if(!lastPaper)return null;const w=lastPaper.right-lastPaper.left;return {left:lastPaper.left,top:lastPaper.top,width:w,height:Math.min(innerHeight-lastPaper.top-20,w*1.41)};};
   function flyBookToEditor(){flyPaper(pageRectOfBook(),editorTarget(),{ms:850});}
   // The ✕ of the book: the same flight into the editor.
   document.addEventListener('click',e=>{if(e.target.closest?.('#bookPreviewClose')&&modal?.classList.contains('open')&&!modal.classList.contains('is-to-ms'))flyBookToEditor();},true);
@@ -11989,7 +12000,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
   }
   function placeTop(){
     if(shell.classList.contains('is-book-preview')||shell.classList.contains('is-manuscript')){if(!lastPaper)return;}
-    else{const r=document.querySelector('.editor-paper')?.getBoundingClientRect();if(r&&r.width>100&&r.left>=0&&r.right<=innerWidth&&r.top>-40&&r.top<innerHeight*.5)lastPaper={left:r.left,right:r.right,top:r.top,cx:r.left+r.width/2};}
+    else{const r=document.querySelector('.editor-paper')?.getBoundingClientRect();if(r&&r.width>100&&r.left>=0&&r.right<=innerWidth&&r.top>-40&&r.top<innerHeight*.5){/* v116: the sheet's own place, not where «в книге» moved it */const sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;lastPaper={left:r.left-sh,right:r.right-sh,top:r.top,cx:r.left-sh+r.width/2};}}
     if(!lastPaper)lastPaper={left:innerWidth/2-300,right:innerWidth/2+300,top:112,cx:innerWidth/2};
     const w=swW||285,acts=document.querySelector('.project-actions')?.getBoundingClientRect();
     const rightLimit=(acts&&acts.width?acts.left:innerWidth)-28;
