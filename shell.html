@@ -14482,3 +14482,14 @@ html body .wk2 .wk2-when{top:calc(58% + 232px)}
 html body .wk2 .wk2-nav{top:calc(58% + 266px)}
 html body .wk2 .fm-acts{top:calc(58% + 312px)}
 </style>
+<style id="rooms-v142">
+/* v142 — into a family room nothing flies over it: the sheet that would travel back to the editor is not shown */
+html.oc-to-room .ms-flyer,body:has(.shell.is-family-room) .ms-flyer{display:none!important}
+/* leaving the archive for another room, its cards go out quickly instead of showing through the next room */
+.oc-hub:not(.on){transition:opacity .28s ease!important}
+</style>
+<script id="rooms-v142-js">
+(()=>{let t=0;document.addEventListener('pointerdown',e=>{if(!e.target.closest?.('.oct .k[data-k="voice"],.oct .k[data-k="photo"],.oct .k[data-k="note"],.oct .k[data-k="letter"],.oct .k[data-k="record"],.oct .k[data-k="week"],.oct .k[data-k="archive"],.oct .pl[data-w="arch"]'))return;
+  document.documentElement.classList.add('oc-to-room');clearTimeout(t);t=setTimeout(()=>document.documentElement.classList.remove('oc-to-room'),1800);},true);
+  document.addEventListener('click',e=>{if(e.target.closest?.('.oct .k[data-k="voice"],.oct .k[data-k="photo"],.oct .k[data-k="note"],.oct .k[data-k="letter"],.oct .k[data-k="record"],.oct .k[data-k="week"]')){document.documentElement.classList.add('oc-to-room');clearTimeout(t);t=setTimeout(()=>document.documentElement.classList.remove('oc-to-room'),1800);}},true);})();
+</script>
