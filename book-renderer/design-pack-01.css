@@ -2509,6 +2509,14 @@ body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-note{
   transform:none!important;white-space:normal!important;overflow:visible!important;
 }
 body .dpk-page.dpk-ctx-detail-sq .dpk-folio{z-index:4!important}
+/* v117: the tall (portrait) page keeps the square page's margins — the photographs
+   grow with the page height instead of leaving an empty band at the bottom. */
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-tall][data-ctx-state="H"] .dpk-ctx-main{top:calc(49px*var(--ctx-k))!important;height:calc(635px*var(--ctx-k))!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-tall][data-ctx-state="H"] :is(.dpk-ctx-card,.dpk-ctx-handwritten-card){top:calc(775px*var(--ctx-k) - 153px)!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-tall][data-ctx-state="S"] .dpk-ctx-main{top:calc(58px*var(--ctx-k))!important;height:calc(884px*var(--ctx-k))!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-tall][data-ctx-state="S"] :is(.dpk-ctx-card,.dpk-ctx-handwritten-card){top:calc(540px*var(--ctx-k) - 175px)!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-tall][data-ctx-state="V"] .dpk-ctx-main{top:calc(23px*var(--ctx-k))!important;height:calc(952px*var(--ctx-k))!important}
+body .dpk-page.dpk-ctx-detail-sq [data-ctx-tall][data-ctx-state="V"] :is(.dpk-ctx-card,.dpk-ctx-handwritten-card){top:calc(481px*var(--ctx-k) - 352px)!important}
 
 /* DARK FADE 2.2. One unchanged source image spans the spread. The fade is a
    non-destructive alpha mask over an independent graphite-black field. */

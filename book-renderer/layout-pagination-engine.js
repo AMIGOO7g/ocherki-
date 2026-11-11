@@ -79,22 +79,22 @@
             const tried=triedAccents[error.kind]||(triedAccents[error.kind]=new Set());tried.add(String(error.text||''));
             const phrases=['quote','margin'].includes(error.kind)&&typeof renderer().editorialPhrases==='function'?renderer().editorialPhrases(String(source).slice(0,2400)):[];
             const whole=phrases.map(item=>item.text).find(text=>!tried.has(text)&&text.length<String(error.text||'').length&&text.length>=12);
-            const shortened=whole||compactAccent(error.text,source,attempt,error.kind==='important'?3:1);
+            const shortened=whole||compactAccent(error.text,source,attempt,error.kind==='margin'?3:error.kind==='important'?3:1);
             if(shortened){
-              candidate={...candidate,[field]:shortened,[autoField]:false,measuredFlow:undefined};
+              candidate={...candidate,[field]:shortened,[autoField]:false,accentAutoKinds:{...(candidate.accentAutoKinds||{}),[error.kind]:true},measuredFlow:undefined};
               warnings.push({code:'ACCENT_AUTO_RETRY',template:original.master,kind:error.kind,text:shortened,automatic:true,reason:error.message,fallback:'shorter-measured-accent'});
               continue;
             }
           }
           if(isAutomatic&&error.kind==='margin'&&!automaticMarginForced){
             automaticMarginForced=true;
-            const forced=compactAccent(original.marginNote||source,source,4)||'Память';
+            const forced=compactAccent(original.marginNote||source,source,4,3)||'Семейная память';
             warnings.push({code:'ACCENT_AUTO_MARGIN_FORCED',template:original.master,kind:'margin',text:forced,automatic:true,reason:error.message,fallback:'safe-two-line-margin'});
-            candidate={...candidate,marginNote:forced,autoMarginNote:false,allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:undefined};
+            candidate={...candidate,marginNote:forced,autoMarginNote:false,accentAutoKinds:{...(candidate.accentAutoKinds||{}),margin:true},allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:undefined};
             continue;
           }
           if(isAutomatic&&error.kind==='margin'&&automaticMarginForced){
-            const safeNote=compactAccent(candidate.marginNote||original.marginNote||source,source,4)||'Память';
+            const safeNote=compactAccent(candidate.marginNote||original.marginNote||source,source,4,3)||'Семейная память';
             const plain={...candidate,master:pack.textMasters.plain,rhythm:'plain',marginNote:'',autoMarginNote:false,allowSafeMarginAudit:false,forceMarginPlacement:false,measuredFlow:undefined};
             const result=renderer().paginateText(plain,source,host,render,side);
             const geometry=plain.measuredFlow.geometry||{},height=Number(geometry.height)||810;
@@ -103,7 +103,7 @@
             plain.measuredFlow.accentOverflow={...(plain.measuredFlow.accentOverflow||{}),margin:false};
             const noteLength=Math.max(1,Math.round((height-86)*.8));
             Object.assign(plain.measuredFlow.geometry,{'note-length':noteLength,'note-depth':64,'note-footer-gap':30,'note-inset':side==='left'?Math.max(28,height-58-noteLength):28});
-            candidate={...candidate,master:original.master,rhythm:original.rhythm,marginNote:safeNote,autoMarginNote:false,allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:plain.measuredFlow};
+            candidate={...candidate,master:original.master,rhythm:original.rhythm,marginNote:safeNote,autoMarginNote:false,accentAutoKinds:{...(candidate.accentAutoKinds||{}),margin:true},allowSafeMarginAudit:true,forceMarginPlacement:true,measuredFlow:plain.measuredFlow};
             result.measuredFlow=plain.measuredFlow;
             Object.assign(page,candidate);
             warnings.push({code:'ACCENT_AUTO_MARGIN_RECOVERED',template:original.master,kind:'margin',text:safeNote,automatic:true,reason:error.message,fallback:'plain-measurement-with-safe-margin-overlay'});

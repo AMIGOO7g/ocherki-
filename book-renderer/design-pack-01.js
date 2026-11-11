@@ -620,7 +620,8 @@
       const accent=secondarySrc
         ?`<figure class="dpk-ctx-card" data-ctx-accent="secondary-photo" data-source-photo-index="${secondaryIndex}" data-photo-asset-id="${esc(page.secondaryPhotoAssetId||secondaryPhoto.id||secondarySrc)}">${secondaryImg}</figure>`
         :`<div class="dpk-ctx-handwritten-card" data-ctx-accent="handwritten-note"${editorialAttrs('ctx-handwritten')}><span>${esc(handwritten)}</span></div>`;
-      return article('D01-CTX-DETAIL-SQ',`<div class="dpk-ctx-stage" data-ctx-state="${safeState}" data-source-photo-index="${index}" data-photo-asset-id="${esc(page.mainPhotoAssetId||photo.id||src)}" data-ctx-accent-type="${secondarySrc?'secondary-photo':'handwritten-note'}"><figure class="dpk-ctx-main">${img('dpk-ctx-main-image')}</figure>${accent}</div>${folio}`,'dpk-ctx-detail-sq');
+      const ctxK=(page.pageFormat||meta.format)==='portrait'?1.196:1;
+      return article('D01-CTX-DETAIL-SQ',`<div class="dpk-ctx-stage"${ctxK!==1?` data-ctx-tall style="--ctx-k:${ctxK}"`:''} data-ctx-state="${safeState}" data-source-photo-index="${index}" data-photo-asset-id="${esc(page.mainPhotoAssetId||photo.id||src)}" data-ctx-accent-type="${secondarySrc?'secondary-photo':'handwritten-note'}"><figure class="dpk-ctx-main">${img('dpk-ctx-main-image')}</figure>${accent}</div>${folio}`,'dpk-ctx-detail-sq');
     }
     if (role === 'dark-fade') {
       const index=Number(page.photoIndex)||0;
@@ -1215,6 +1216,22 @@
     return (used||[]).some(other=>{const set=accentWordSet(other);if(!set.size)return false;let shared=0;for(const word of words)if(set.has(word))shared++;return shared/Math.min(words.size,set.size)>=.6;});
   }
   const freshPhrases=(value,used)=>{const all=editorialPhrases(value),fresh=all.filter(item=>!repeatsAccent(item.text,used));return fresh.length?fresh:all;};
+  // v117: a margin note reads like a word in the margin — a short phrase of
+  // three to five words taken from the page (a clause, a name with its verb),
+  // never a whole long sentence and never a single word.
+  function shortNotePhrases(value,used=[]) {
+    const out=[],seen=new Set(),dangling=/(?<!\p{L})(то|что|как|и|а|но|или|это|так|же|ли|бы|не|на|в|с|к|о|по|за|из|у|его|её|ее|их|он|она|они|мы|вы|я)$/iu;
+    const startWeak=/^(и|а|но|что|как|который|которая|которые|когда|если|чтобы|то|же)\s/iu;
+    for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(String(value??''))){
+      for(const raw of String(sentence.segment).split(/[,;:—–()«»"]+/u)){
+        const text=clean(raw).replace(/[\s.!?…]+$/u,'');const n=(text.match(/\p{L}+/gu)||[]).length;
+        if(n<3||n>5||!/\p{L}{3,}/u.test(text)||dangling.test(text)||startWeak.test(text)||/[a-z]{3,}/i.test(text))continue;
+        const key=text.toLowerCase();if(seen.has(key)||(typeof repeatsAccent==='function'&&repeatsAccent(text,used)))continue;seen.add(key);
+        out.push({text:text.charAt(0).toUpperCase()+text.slice(1),score:phraseScore(text)+(n<=4?1:0)});
+      }
+    }
+    return out.sort((a,b)=>b.score-a.score);
+  }
   function editorialPhrases(value) {
     const words=text=>(text.match(/\p{L}+/gu)||[]).length;
     const candidates=[];let order=0;
@@ -1476,16 +1493,17 @@
         let noteLength=noteLengths[0],selected=null;
         for(noteLength of noteLengths){
           box.style.cssText=`position:absolute;left:0;top:0;width:${noteLength}px;height:${noteDepth}px;overflow:visible`;
-          selected=chooseAccent(copy,requested?flowSourceText(flow):freshPhrases(flowSourceText(flow),[...(page.avoidAccents||[]),...(page.innerImportantLines||[]),page.importantLine||'',page.inlineQuote||'']),requested,noteMaxLines);
+          {const avoid=[...(page.avoidAccents||[]),...(page.innerImportantLines||[]),page.importantLine||'',page.inlineQuote||''],pool=requested?null:freshPhrases(flowSourceText(flow),avoid);
+          selected=chooseAccent(copy,requested?flowSourceText(flow):[...shortNotePhrases(flowSourceText(flow),avoid),...pool],requested,noteMaxLines);}
           copy.textContent=selected.text;
           if(selected.fits&&renderedLineCount(copy)<=noteMaxLines)break;
         }
         // v99: an automatic note never shows a stub of two or three letters —
         // it takes the first words of a sentence of this page (whole words).
         if(automatic&&String(selected.text||'').trim().split(/\s+/).filter(w=>/\p{L}{2,}/u.test(w)).length<3){
-          const sentences=String(flowSourceText(flow)||'').split(/(?<=[.!?…])\s+/u).map(t=>t.trim()).filter(t=>t.split(/\s+/).length>=3);
+          const sentences=String(flowSourceText(flow)||'').split(/(?<=[.!?…])\s+/u).map(t=>t.trim()).filter(t=>t.split(/\s+/).length>=3&&/^[\p{Lu}«"]/u.test(t));
           found:for(const sentence of sentences)for(const n of [4,3]){const words=sentence.split(/\s+/).slice(0,n);if(words.length<3)continue;
-            const text=words.join(' ').replace(/[,;:—–-]+$/u,'')+'…';copy.textContent=text;
+            const text=words.join(' ').replace(/[,;:—–-]+$/u,'')+'…';if((page.avoidAccents||[]).includes(text))continue;copy.textContent=text;
             if(renderedLineCount(copy)<=noteMaxLines&&copy.scrollWidth<=noteLength+2){selected={...selected,text,fits:true};break found;}}}
         // v106: a note of one or two words says nothing to the reader — the
         // page then goes without a note (the engine tries another phrase first).
