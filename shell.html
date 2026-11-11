@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v118">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v119">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v118" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v119" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4406,6 +4406,14 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     // written to the right of the sheet when there is room for it.
     const railLeft=document.querySelector('.book-design-shell.is-rail')?.getBoundingClientRect().left||window.innerWidth-100;
     const side=sane?railLeft-r.right-100:0;// (the question sits mid-way in this space)
+    // v119: the question lives on the left of the sheet, in the middle of the free space there.
+    if(sane&&document.querySelector('.shell')?.classList.contains('oc-w')&&r.left-110>=300){
+      const room=r.left-60,sw=Math.min(560,room-50);
+      promptEl.classList.remove('is-on-paper');promptEl.classList.add('is-beside');promptEl.style.width=Math.round(sw)+'px';
+      promptEl.style.left=Math.round(30+(room-sw)/2)+'px';
+      promptEl.style.top=Math.round(Math.max(170,r.top+r.height*.24))+'px';
+      return;
+    }
     if(side>=280){
       const sw=Math.min(380,side);
       promptEl.classList.remove('is-on-paper');promptEl.classList.add('is-beside');
@@ -4681,10 +4689,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v118"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v118"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v118"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v118"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v118"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v118"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v119"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v119"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v119"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v119"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v119"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v119"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4719,8 +4727,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v118"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v118"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v119"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v119"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7647,7 +7655,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v118"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v119"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -10201,7 +10209,10 @@ html body .shell.wp-on .write-nav,html body .shell.wp-on #writingPrompt,html bod
     const extra=Math.max(0,Math.min(160,(stackRight()-sh)-(base.left+base.width)));
     const [pw,ph]=window.__ocherkiPageSize?.()||[1,1];const G=64+extra,room=innerWidth-2*180;
     let H=base.height*.8,W=H*pw/ph;if(base.width+G+W>room){W=Math.max(0,room-base.width-G);H=W*ph/pw;}
-    const d=(W+G)/2;return {base,W,H,G,d,extra,ok:W>=260};}
+    let d=(W+G)/2;
+    // v119: the sheet stays where it is — the book's page comes out on its right.
+    if(shell.classList.contains('oc-w')){const r2=innerWidth-(base.left+base.width)-G-40;H=base.height*.8;W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;}
+    return {base,W,H,G,d,extra,ok:W>=260};}
   function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G;
     if(on)pane.style.cssText=`left:${L}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
     else if(!shell.classList.contains('wp-closing'))pane.style.cssText=`left:${b.left+b.width+g.extra-g.W*.7}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
@@ -13213,5 +13224,93 @@ body:not(.oct-book) .bd-rail-item:has(.bd-rail-key[data-rail="pdf"]){display:non
     key.addEventListener('click',e=>{e.stopPropagation();document.getElementById('pdfBtn')?.click();});rail.appendChild(wrap);};
   addPdf();
   window.OCHERKI_TOPBAR={sync,place};
+})();
+</script>
+<style id="write-v119">
+/* v119 — «Писать» as drawn: the questions on the left, the family and the
+   chapter on the right, the clock beneath them; «в книге» and «До книги»
+   hang over the sheet. The old title plate, the count and undo/redo leave the top. */
+html body .shell.oct-on .project-top,html body .shell.oct-on .project-actions,html body .shell.oct-on #pagesHanger{visibility:hidden!important;opacity:0!important;pointer-events:none!important;transition:none!important}
+.oc-ttl{position:fixed;z-index:29;transform:translateX(-50%);text-align:center;color:#f2e0c2;opacity:0;pointer-events:none;transition:opacity .7s ease,color 2.4s ease;font-family:'CormorantCy',Georgia,serif;white-space:nowrap}
+.shell:not(.is-night)~.oc-ttl{color:#3b2a1c}
+.oc-ttl.on{opacity:.62;pointer-events:auto}
+.oc-ttl .k{font:500 13px/1 'CormorantCy',Georgia,serif;letter-spacing:.34em;text-transform:uppercase}
+.oc-ttl .n{font:400 var(--n,62px)/1.15 'SignThatS','CormorantCy',Georgia,serif;margin-top:14px;cursor:pointer}
+.oc-ttl .s{font:italic 18px/1 'CormorantCy',Georgia,serif;margin-top:4px}
+.oc-ttl .c{font:italic 15px/1 'CormorantCy',Georgia,serif;margin-top:10px;opacity:.8}
+html body .shell.oc-w .write-nav{left:var(--oc-cx)!important;right:auto!important;top:var(--oc-ny)!important;transform:translateX(-50%);text-align:center!important}
+html body .shell.oc-w .write-nav .wn-title{margin:0 auto!important;max-width:340px}
+html body .shell.oc-w .write-nav .wn-row{justify-content:center!important}
+html body .shell.oc-w .write-nav .wn-kicker{font:500 13px/1 'CormorantCy',Georgia,serif!important;letter-spacing:.3em;text-transform:uppercase;opacity:.7;margin-bottom:8px}
+html body .shell.oc-w .write-nav.is-placed{opacity:.62}
+/* the clock under them, the signature at the right edge */
+html body .shell.oc-w .bottom-left{left:auto!important;right:28px!important;flex-direction:row-reverse;gap:var(--oc-clk-gap,120px)}
+html body .shell.oc-w.is-open .bottom-left{opacity:.4}
+/* «в книге» and «До книги» over the sheet, their words beside them */
+html body .shell.oc-w:not(.wp-on):not(.wp-closing) .wp-keys.k-closed{left:var(--oc-k1x)!important;top:var(--oc-ky)!important}
+html body .shell.oc-w .wp-keys.k-closed .lab{position:absolute;left:calc(100% + 10px)!important;top:50%!important;transform:translateY(-50%)!important;margin:0!important;white-space:nowrap}
+html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail{left:var(--oc-k2x)!important;right:auto!important;top:var(--oc-ky)!important;transform:none!important}
+html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item:has([data-rail="tips"]) .oc-klab{left:calc(100% + 10px)!important;top:50%!important;transform:translateY(-50%)!important}
+html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item .bd-rail-tip{display:none!important}
+html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail>.bd-section.is-rail-open{right:auto!important;left:-200px!important;top:84px!important;transform:none!important}
+html body .shell.oc-w .wp-keys.k-closed::before,html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item:has([data-rail="tips"])::before{content:"";position:absolute;left:50%;bottom:100%;width:1px;height:var(--oc-ky);background:linear-gradient(rgba(245,225,198,0),rgba(245,225,198,.3));pointer-events:none}
+html body .shell.oc-w:not(.is-night) .wp-keys.k-closed::before,html body .shell.oc-w:not(.is-night):not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item::before{background:linear-gradient(rgba(87,65,47,0),rgba(87,65,47,.38))}
+/* the questions on the left: the row of steps on top, the question beneath */
+html body .shell.oc-w .writing-prompt.is-beside{display:flex!important;flex-direction:column;align-items:center;text-align:center}
+html body .shell.oc-w .writing-prompt.is-beside .writing-prompt-actions{order:-1;display:grid!important;grid-template-columns:1fr auto 60px auto 1fr;align-items:center;gap:14px;width:100%;margin:0 0 26px!important;justify-content:center}
+html body .shell.oc-w .writing-prompt.is-beside .writing-prompt-count{order:1;text-align:right}
+html body .shell.oc-w .writing-prompt.is-beside #writingPromptAgree{order:2}
+html body .shell.oc-w .writing-prompt.is-beside .oc-qk{order:3}
+html body .shell.oc-w .writing-prompt.is-beside #writingPromptNext{order:4}
+html body .shell.oc-w .writing-prompt.is-beside #writingPromptHide{order:5;justify-self:start}
+.oc-qk{display:none;position:relative;width:56px;height:56px;border-radius:50%;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 7px 10px rgba(0,0,0,.3))}
+html body .shell.oc-w .writing-prompt.is-beside .oc-qk{display:block}
+.oc-qk::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324);transition:box-shadow .4s}
+.oc-qk::after{content:"";position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle,#25221e,#211f1c 43%,#1d1b18 72%,#191714);box-shadow:inset 0 4px 5px rgba(0,0,0,.46)}
+.shell:not(.is-night) .oc-qk::after{background:radial-gradient(circle,#efe3cb,#e6d5b5 43%,#d9bf98 72%,#cba777);box-shadow:inset 0 3px 5px rgba(0,0,0,.2)}
+.oc-qk span{position:absolute;inset:0;z-index:2;display:grid;place-items:center;font:500 28px/1 'CormorantCy',Georgia,serif;color:#f2e0c2}
+.shell:not(.is-night) .oc-qk span{color:#3b2a1c}
+.oc-qk:hover::before{box-shadow:0 0 0 1.5px rgba(255,200,140,.95),0 0 14px 3px rgba(255,150,60,.7),0 0 34px 8px rgba(255,120,40,.3)}
+/* two sheets: the questions and the right-hand words step back */
+html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,html body .shell.oc-w.wp-on .write-nav,html body .shell.oc-w.wp-on .bottom-left{opacity:0!important;pointer-events:none!important}
+</style>
+<script id="write-v119-js">
+(()=>{const shell=document.querySelector('.shell');if(!shell)return;
+  const modal=document.getElementById('bookPreviewModal');
+  const ttl=document.createElement('div');ttl.className='oc-ttl';ttl.innerHTML='<div class="k">Очерки жизни</div><div class="n"></div><div class="s">история семьи</div><div class="c"></div>';
+  shell.after(ttl);
+  ttl.querySelector('.n').addEventListener('click',()=>document.getElementById('projectBtn')?.click());
+  const qk=document.createElement('button');qk.type='button';qk.className='oc-qk';qk.setAttribute('aria-label','Другой вопрос');qk.innerHTML='<span>?</span>';
+  const acts=document.querySelector('#writingPrompt .writing-prompt-actions');if(acts)acts.appendChild(qk);
+  qk.addEventListener('click',e=>{e.stopPropagation();document.getElementById('writingPromptNext')?.click();});
+  const isWrite=()=>shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen')&&!shell.classList.contains('is-manuscript')&&!modal?.classList.contains('open')&&!shell.classList.contains('is-family-room');
+  const root=document.documentElement.style;
+  function words(){const t=(document.getElementById('projectTitle')?.textContent||'').trim();
+    const n=ttl.querySelector('.n');if(n.textContent!==t){const v=(!t||/^очерки жизни$/i.test(t))?'Наша семья':t;n.textContent=v;n.style.setProperty('--n',(v.length>22?36:v.length>14?44:v.length>10?52:60)+'px');}
+    const c=(document.getElementById('pageCount')?.textContent||'').trim();const k=+c;
+    const w=k%10===1&&k%100!==11?'лист':[2,3,4].includes(k%10)&&![12,13,14].includes(k%100)?'листа':'листов';
+    ttl.querySelector('.c').textContent=c?`${c} ${w} в книге`:'';}
+  let last='';
+  function layout(){const on=isWrite();shell.classList.toggle('oc-w',on);ttl.classList.toggle('on',on&&!shell.classList.contains('wp-on'));if(!on)return;
+    words();
+    const ed=document.querySelector('.editor-paper')?.getBoundingClientRect();if(!ed||ed.width<200)return;
+    const sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;
+    const L=ed.left-sh,R=ed.right-sh,T=Math.max(ed.top,60),H=Math.min(ed.height,innerHeight-T);
+    const cx=Math.round((R+innerWidth-70)/2);
+    const ty=Math.round(T+H*.27);
+    const key=[L,R,T,H,innerWidth].map(Math.round).join();
+    ttl.style.left=cx+'px';ttl.style.top=ty+'px';
+    root.setProperty('--oc-cx',cx+'px');root.setProperty('--oc-ny',Math.round(ty+ttl.offsetHeight+44)+'px');
+    // the clock stands under the chapter, the signature at the edge
+    const clockW=240;root.setProperty('--oc-clk-gap',Math.max(12,Math.round(innerWidth-28-40-cx-clockW/2))+'px');
+    // the two keys over the sheet
+    const mid=(L+R)/2;root.setProperty('--oc-ky','30px');root.setProperty('--oc-k1x',Math.round(mid-150)+'px');root.setProperty('--oc-k2x',Math.round(mid+40)+'px');
+    if(key!==last){last=key;}}
+  const kick=()=>requestAnimationFrame(layout);
+  new MutationObserver(kick).observe(shell,{attributes:true,attributeFilter:['class']});
+  if(modal)new MutationObserver(kick).observe(modal,{attributes:true,attributeFilter:['class']});
+  const pt=document.getElementById('projectTitle');if(pt)new MutationObserver(kick).observe(pt,{childList:true,characterData:true,subtree:true});
+  const pc=document.getElementById('pageCount');if(pc)new MutationObserver(kick).observe(pc,{childList:true,characterData:true,subtree:true});
+  addEventListener('resize',kick);setInterval(layout,1500);[400,1500,3500,7000].forEach(t=>setTimeout(layout,t));
 })();
 </script>
