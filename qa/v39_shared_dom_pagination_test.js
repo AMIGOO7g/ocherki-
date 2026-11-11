@@ -12,7 +12,7 @@ assert(!/substring|maxChars|maxWords|wordCount/.test(split),'pagination reintrod
 assert(/white-space:pre-wrap!important/.test(css),'terminal separators can still create non-monotonic fit probes');
 assert(!/dpk-source-terminal-separator/.test(renderer+css),'hidden terminal separators still alter visible whitespace');
 assert.deepEqual([...pack.matchAll(/const rhythm=Object\.freeze\(\[([^\]]+)\]\)/g)].length,[1].length);
-assert(/'inline-quote','important','margin','important-margin'/.test(pack),'approved four-role rhythm changed');
+assert(/'important','inline-quote','important-margin','margin'/.test(pack),'approved four-role rhythm changed (v140: handwriting every other spread)');
 assert(/chooseAccent\([^)]*2\)/.test(renderer)&&/renderedLineCount/.test(renderer),'two rendered-line accent limit is missing');
 assert(/dpk-accent-overflow/.test(renderer)&&/dpk-accent-overflow/.test(css),'overflow highlight is missing');
 assert(/var\(--dpk-accent\)/.test(css),'quote does not use chapter accent colour');

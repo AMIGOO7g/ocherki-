@@ -866,8 +866,10 @@
     // After every full cycle a quiet page without accents lets the eye rest
     // (meta.quietPageAfterCycle === false switches it off). Photo beats pause
     // the cycle; they never restart it.
-    const accentCycle = meta.layoutDefinition?.rhythm || ['inline-quote','important','margin','important-margin'];
-    const quietPageAfterCycle = meta.quietPageAfterCycle !== false;
+    // v140: handwritten lines every other spread — the cycle alternates a handwritten spread with a quote or a note spread,
+    // and the rest page after each cycle is now asked for, not given by default.
+    const accentCycle = meta.layoutDefinition?.rhythm || ['important','inline-quote','important-margin','margin'];
+    const quietPageAfterCycle = meta.quietPageAfterCycle === true;
     const textSeed = value => { let hash=2166136261; for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);} return hash>>>0; };
     // Photo beats are chosen like an art director would: by how many unused
     // photographs the chapter still holds and their shape, never the same
@@ -1008,7 +1010,7 @@
         consume(fixedText,'left');
       }
       occurrences['inline-quote']=1;
-      let cycleStep=fixedText.rhythm==='inline-quote'?1:0,quietGiven=false;
+      let cycleStep=fixedText.rhythm===accentCycle[0]?1:0,quietGiven=false;
       const nextRhythm=()=>{
         // Safe layout: the second attempt after a failed build sets plain pages only.
         if(globalThis.OCHERKI_SAFE_LAYOUT)return 'plain';

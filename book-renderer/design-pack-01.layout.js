@@ -2,7 +2,7 @@
   'use strict';
   // Physical dimensions and existing master bindings; no word capacities.
   const formats=Object.freeze({square:[1000,1000],portrait:[1000,1196]});
-  const rhythm=Object.freeze(['inline-quote','important','margin','important-margin']);
+  const rhythm=Object.freeze(['important','inline-quote','important-margin','margin']);
   const textMasters=Object.freeze({'inline-quote':'D01-TEXT-INLINE-QUOTE',margin:'D01-TEXT-MARGIN',important:'D01-TEXT-IMPORTANT','important-margin':'D01-TEXT-IMPORTANT-MARGIN',plain:'D01-TEXT'});
   const compositions=Object.freeze([
     {id:'cycle',label:'Четыре текстовые роли',photos:0},

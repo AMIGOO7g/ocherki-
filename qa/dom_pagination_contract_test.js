@@ -28,12 +28,13 @@ assert(result.pages.filter(p=>p.measuredFlow).length>160);checks++;
 assert.equal(result.expectedManuscripts[0].text,raw+source.sections[0].pages[1].text);checks++;
 assert.equal(result.pages.filter(p=>p.measuredFlow).map(p=>p.text).join(''),raw+source.sections[0].pages[1].text);checks++;
 assert.equal(engine.audit(result).status,'pass');checks++;
-const body=result.pages.filter(p=>p.rhythm),cycle=['inline-quote','important','margin','important-margin','plain'];
+const body=result.pages.filter(p=>p.rhythm),cycle=['important','inline-quote','important-margin','margin'];
 // The author's cycle: quote, handwritten lines, margin note, both, then a
 // quiet page, and again from the quote.
 // v126: the two pages of a text spread share their kind of accent; the cycle goes spread by spread
 // (the opening's own page and the page after it stay single).
-const expectedRhythm=i=>i<2?cycle[i]:cycle[(2+Math.floor((i-2)/2))%5];
+// v140: the opening page keeps its quote; then handwriting every other spread, no rest page by default.
+const expectedRhythm=i=>i===0?'inline-quote':i===1?cycle[0]:cycle[(1+Math.floor((i-2)/2))%4];
 body.forEach((p,i)=>assert.equal(p.rhythm,expectedRhythm(i)));checks++;
 const combined=body.find(p=>p.rhythm==='important-margin');assert.equal(combined.importantLine,'Исправленная  строка.');assert.equal(combined.marginNote,'Исправленная\tзаметка.');checks++;
 const markup=renderer.renderPage(combined,'right',{});

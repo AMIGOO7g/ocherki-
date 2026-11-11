@@ -165,7 +165,7 @@ const aspectK=()=>Math.min(1,camera.aspect/0.75);
 // where he stands for each thing he does
 const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHeight;
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
-let freeP={x:0,y:0,sc:1};
+let freeP={x:0,y:0,sc:1},awayTo=null;
 function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
   if(m==='free')return freeP;
@@ -207,7 +207,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
     if(!grownAt&&Math.hypot(S.ex.v-S.ex.t,S.ey.v-S.ey.t)<.15&&Math.hypot(S.ex.vel,S.ey.vel)<.5){grownAt=clock;S.form.t=1;S.emb.t=0;}
     if(grownAt&&clock-grownAt>2.4){const m=pending||'idle';pending=null;mode='_';setMode(m);}}
   // away: once he is gathered into the spark, it lifts off and drifts to its corner
-  if(mode==='away'&&mt>1.3){S.ex.t=3.2*aspectK();S.ey.t=3.8;}
+  if(mode==='away'&&mt>1.3){if(awayTo){S.ex.t=awayTo.x;S.ey.t=awayTo.y;}else{S.ex.t=3.2*aspectK();S.ey.t=3.8;}}
   if(mode==='hint'&&mt>1.1&&!tip.classList.contains('on'))tip.classList.add('on');
   for(const k in S)step(S[k],dt);
   const f=Math.max(0,Math.min(1,S.form.v));
@@ -262,6 +262,11 @@ return{
   // jump straight to a state without animation (e.g. start as a spark in a corner)
   placeSpark(x,y){mode='away';modeAt=clock-9;NIBL=SPARK;S.form.v=S.form.t=0;S.emb.v=S.emb.t=1;S.ex.v=S.ex.t=x;S.ey.v=S.ey.t=y;S.sc.v=S.sc.t=1;},
   halfW,
+  // screen point (nx, ny in −1…1, y up) → world
+  toWorld(nx,ny){return{x:nx*halfW(),y:camera.position.y+ny*halfH()};},
+  placeSparkAt(nx,ny){const w=this.toWorld(nx,ny);this.placeSpark(w.x,w.y);},
+  // where the spark goes when he leaves (null: the corner)
+  awayTo(nx,ny){awayTo=nx==null?null:this.toWorld(nx,ny);},
   // fly to a point of the screen (nx, ny in −1…1, y up) at a size; fold:true — gather into the spark, fly, unfold there
   moveTo(nx,ny,sc=1,o={}){freeP={x:nx*halfW(),y:camera.position.y+ny*halfH(),sc};
     if(o.fold&&mode!=='away'&&mode!=='come'){setMode('away');setTimeout(()=>setMode('free'),1150);}else setMode('free');},
