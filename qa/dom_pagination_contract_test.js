@@ -31,7 +31,10 @@ assert.equal(engine.audit(result).status,'pass');checks++;
 const body=result.pages.filter(p=>p.rhythm),cycle=['inline-quote','important','margin','important-margin','plain'];
 // The author's cycle: quote, handwritten lines, margin note, both, then a
 // quiet page, and again from the quote.
-body.forEach((p,i)=>assert.equal(p.rhythm,cycle[i%5]));checks++;
+// v126: the two pages of a text spread share their kind of accent; the cycle goes spread by spread
+// (the opening's own page and the page after it stay single).
+const expectedRhythm=i=>i<2?cycle[i]:cycle[(2+Math.floor((i-2)/2))%5];
+body.forEach((p,i)=>assert.equal(p.rhythm,expectedRhythm(i)));checks++;
 const combined=body.find(p=>p.rhythm==='important-margin');assert.equal(combined.importantLine,'Исправленная  строка.');assert.equal(combined.marginNote,'Исправленная\tзаметка.');checks++;
 const markup=renderer.renderPage(combined,'right',{});
 assert(markup.includes('data-editorial-key="important-margin:0"'));assert(markup.includes('data-editorial-key="important-margin:0:margin"'));checks++;

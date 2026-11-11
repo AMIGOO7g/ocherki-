@@ -1023,6 +1023,7 @@
         // A page inside a photo composition may ask for a quiet page; the
         // editorial cycle then waits for the next ordinary text page.
         const rhythm=extra.forceRhythm||nextRhythm(), occurrence=occurrences[rhythm]||0, key=`${rhythm}:${occurrence}`;
+        const rhythmKind=rhythm;
         // An author's correction keeps at most one line break and no empty lines.
         const overrides=Object.fromEntries(Object.entries(input.editorialOverrides||{}).map(([name,value])=>[name,String(value??'').replace(/[ \t]*\n\s*/g,'\n').trim()]).filter(([,value])=>value));
         const noteKey=rhythm==='important-margin'?`${key}:margin`:key;
@@ -1046,7 +1047,7 @@
           accentBeat++;
         }
         page.autoImportant=!page.importantLine;page.autoInlineQuote=!page.inlineQuote;page.autoMarginNote=!page.marginNote;
-        Object.assign(page,extra);delete page.forceRhythm;
+        Object.assign(page,extra);delete page.forceRhythm;page.rhythmKind=rhythmKind;
         occurrences[rhythm]=occurrence+1;
         return consume(page,side);
       };
@@ -1493,7 +1494,11 @@
         for(const side of ['left','right']){
           // An episode boundary ends the spread's text: the pause below
           // fills the free right page instead of an empty text page.
-          if(!rest||(side==='right'&&pendingEpisode()))break;spread[side]=nextTextPage(side);
+          if(!rest||(side==='right'&&pendingEpisode()))break;
+          // v126: a spread reads as one: the right page takes the left page's kind of accent
+          // (quote, handwriting, margin note), and the handwriting is three phrases, not four.
+          const pair=side==='right'&&spread.left&&spread.left.rhythmKind?{forceRhythm:spread.left.rhythmKind,singleImportant:true}:{};
+          spread[side]=nextTextPage(side,pair);
         }
         // The previous episode ended on a left page: a quiet quote pause closes
         // the spread so the next episode can open on a full spread.

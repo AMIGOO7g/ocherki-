@@ -1406,7 +1406,7 @@
       const targetZone=['top','middle','bottom'].includes(page.accentZone)?page.accentZone:'middle';
       const preferred=page.accentColumn==='right'?1:0;
       const selectRanges=cells=>{
-        const selected=[],offsets=[0,cells[0]?.length||0],columns=manual?[0,1]:[preferred,1-preferred];
+        const selected=[],offsets=[0,cells[0]?.length||0],columns=manual?[0,1]:page.singleImportant?[preferred]:[preferred,1-preferred];
         // One handwritten phrase per column, at a height taken from the text
         // itself, so the two columns (and neighbouring pages) never carry
         // their phrases on the same lines.
