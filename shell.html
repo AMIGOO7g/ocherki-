@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v127">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v128">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v127" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v128" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4694,10 +4694,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v127"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v127"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v127"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v127"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v127"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v127"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v128"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v128"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v128"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v128"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v128"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v128"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4732,8 +4732,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v127"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v127"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v128"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v128"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7662,7 +7662,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v127"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v128"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -9983,12 +9983,13 @@ html body .shell .project-actions .hanging:has(#undoBtn),html body .shell .proje
     const li=(x,i)=>`<li class="${x.ok?'ok':''} ${x.tip?'is-tip':''}" ${x.go||x.proof||x.tip?`data-i="${i}" data-go="1"`:''}><i class="mk"></i><div><span>${x.t}</span>${hint(x)?`<em>${hint(x)}</em>`:''}</div></li>`;
     const todo=st.map((x,i)=>[x,i]).filter(([x])=>!x.ok),have=st.map((x,i)=>[x,i]).filter(([x])=>x.ok);
     const frac=Math.round(100*done/Math.max(1,st.length));
-    box.innerHTML=`<span class="rd2-x" data-close="1">×</span>
-      <div class="rd2-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="bg"/><circle cx="60" cy="60" r="54" class="fg" pathLength="100" style="stroke-dasharray:${frac} 100"/></svg><svg class="bulb" viewBox="0 0 34 34"><path d="M17 4a9 9 0 00-5 16c1 1 2 2 2 4h6c0-2 1-3 2-4a9 9 0 00-5-16zM14 28h6M15 31h4"/></svg></div>
-      <h4>${left?`Осталось ${left} ${ru(left)}`:'Книга готова'}</h4><div class="s">${done} из ${st.length} уже готово</div>
-      <div class="rd2-cols"><div class="rd2-col"><div class="rd-k">Осталось</div><ul class="rd-todo">${todo.map(([x,i])=>li(x,i)).join('')||'<li class="rd2-none"><div><span>Всё сделано</span></div></li>'}</ul></div>
-        <div class="rd2-col is-done"><div class="rd-k">Готово</div><ul class="rd-have">${have.map(([x,i])=>li(x,i)).join('')||'<li class="rd2-none"><div><span>Пока пусто</span></div></li>'}</ul></div></div>
-      <div class="rd2-foot"><span class="oc-btn is-main go ${left?'':'ready'}">Заказать печать</span></div>`;
+    // v127: no panel — the room darkens and blurs, and the steps lie on it as one list with dots.
+    const next=st.findIndex(x=>!x.ok);
+    const li2=(x,i)=>`<li class="${x.ok?'ok':''} ${i===next?'is-next':''} ${x.tip?'is-tip':''}" ${x.go||x.proof||x.tip?`data-i="${i}" data-go="1"`:''}><i class="dot"></i><div><span>${x.t}</span>${hint(x)?`<em>${hint(x)}</em>`:''}</div></li>`;
+    box.innerHTML=`<span class="rd3-x" data-close="1" aria-label="Закрыть">×</span>
+      <div class="rd3-k">до книги</div><h4>${left?`Осталось ${left} ${ru(left)}`:'Книга готова'}</h4><div class="rd3-s">${done} из ${st.length} уже готово</div>
+      <ul class="rd3-list">${st.map((x,i)=>li2(x,i)).join('')}</ul>
+      <div class="rd3-foot"><span class="oc-btn go ${left?'':'ready is-main'}">Заказать печать</span></div>`;
     box._st=st;}
   const open=()=>{box.classList.add('on');veil.classList.add('on');paint();place();};
   setInterval(()=>{if(!document.hidden)paint();},4000);
@@ -12488,7 +12489,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>{if(el===active&&(!quiet||opts?.fromRect))return;el.dataset.op=el.style.opacity;el.style.opacity='0';});
     void world.offsetWidth;
     world.querySelectorAll('.ms-sheet,.ms-label').forEach((el,k)=>{if(el===active&&(!quiet||opts?.fromRect))return;el.style.transition='opacity .6s ease';el.style.transitionDelay=(180+Math.min(k,12)*25)+'ms';el.style.opacity=el.dataset.op||'';delete el.dataset.op;});
-    setTimeout(()=>world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>{if(el.style.transition==='opacity 0.6s ease')el.style.transition='';}),1400);
+    setTimeout(()=>world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>{/* v127: the browser writes it as «opacity 0.6s» */if(/^opacity 0\.6s/.test(el.style.transition)){el.style.transition='';el.style.transitionDelay='';}}),1400);
     if(landing){scr.style.transition='opacity .12s ease';setTimeout(()=>{scr.style.transition='';},900);}
     shell.classList.add('is-manuscript');landing?.();requestAnimationFrame(()=>{scr.classList.add('on');setTimeout(()=>world.querySelectorAll('.ms-sheet,.ms-label').forEach(el=>el.style.transitionDelay=''),1700);});}
   function close(o){if(!isOpen)return;isOpen=false;frozen=false;
@@ -13546,3 +13547,31 @@ html body .shell.oc-card .writing-prompt,html body .shell.oc-card .writing-promp
   new MutationObserver(years).observe(shell,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+<style id="ready-v127">
+/* v127 — «До книги»: the room darkens and blurs; the steps lie on it, done ones crossed out, the next one glowing */
+html body .rd-veil{position:fixed;inset:0;z-index:2147483400;background:rgba(12,7,4,.66);backdrop-filter:blur(10px) saturate(.8);-webkit-backdrop-filter:blur(10px) saturate(.8);opacity:0;pointer-events:none;transition:opacity .7s ease!important}
+html body .rd-veil.on{opacity:1;pointer-events:auto}
+html body .rd-box{position:fixed!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-46%)!important;z-index:2147483401!important;width:min(620px,86vw)!important;max-height:84vh;overflow:auto;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;color:#f3e3c8;text-align:center;opacity:0;pointer-events:none;transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.3,1)!important;font-family:'CormorantCy',Georgia,serif}
+html body .rd-box.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)!important}
+.rd-box .rd3-k{font:500 13px 'CormorantCy',Georgia,serif;letter-spacing:.34em;text-transform:uppercase;opacity:.75}
+.rd-box h4{font:400 58px/1.1 'SignThatS','CormorantCy',Georgia,serif!important;margin:10px 0 4px!important;color:#f6e6c8!important}
+.rd-box .rd3-s{font:italic 18px 'CormorantCy',Georgia,serif;opacity:.8;margin-bottom:28px}
+.rd-box .rd3-list{list-style:none;margin:0 auto;padding:0;display:inline-flex;flex-direction:column;gap:12px;text-align:left;max-width:560px}
+.rd-box .rd3-list li{display:flex;align-items:flex-start;gap:16px;cursor:default;opacity:0;transform:translateY(8px);animation:rd3In .6s cubic-bezier(.2,.8,.3,1) forwards}
+.rd-box .rd3-list li:nth-child(1){animation-delay:.08s}.rd-box .rd3-list li:nth-child(2){animation-delay:.14s}.rd-box .rd3-list li:nth-child(3){animation-delay:.2s}.rd-box .rd3-list li:nth-child(4){animation-delay:.26s}.rd-box .rd3-list li:nth-child(5){animation-delay:.32s}.rd-box .rd3-list li:nth-child(6){animation-delay:.38s}.rd-box .rd3-list li:nth-child(n+7){animation-delay:.44s}
+@keyframes rd3In{to{opacity:1;transform:none}}
+.rd-box .rd3-list li[data-go]{cursor:pointer}
+.rd-box .rd3-list .dot{flex:none;width:10px;height:10px;margin-top:8px;border-radius:50%;border:1px solid rgba(243,227,200,.7);transition:box-shadow .6s ease,background .6s ease}
+.rd-box .rd3-list li span{font:21px/1.35 'CormorantCy',Georgia,serif}
+.rd-box .rd3-list li em{display:block;font:italic 15px/1.35 'CormorantCy',Georgia,serif;opacity:.7}
+.rd-box .rd3-list li.ok span{text-decoration:line-through;text-decoration-thickness:1px;opacity:.5}
+.rd-box .rd3-list li.ok em{display:none}
+.rd-box .rd3-list li.ok .dot{background:rgba(243,227,200,.55);border-color:transparent}
+.rd-box .rd3-list li.is-next .dot{background:#ffd9a8;border-color:#ffe3bf;box-shadow:0 0 0 2px rgba(255,200,140,.35),0 0 12px 3px rgba(255,150,60,.75)}
+.rd-box .rd3-list li.is-next span{color:#ffe7c6}
+.rd-box .rd3-list li[data-go]:hover span{color:#ffd9a8}
+.rd-box .rd3-x{position:absolute;right:0;top:0;font:300 34px/1 'CormorantCy',Georgia,serif;opacity:.7;cursor:pointer}
+.rd-box .rd3-foot{margin-top:32px}
+html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;height:48px;padding:0 30px;border-radius:24px;border:1px solid rgba(214,150,96,.55)!important;background:none!important;font:italic 20px 'CormorantCy',Georgia,serif!important;color:#f3e3c8!important;opacity:.6;box-shadow:none!important}
+.rd-box .rd3-foot .oc-btn.ready.ready{opacity:1;border-color:rgba(255,206,150,.95);box-shadow:0 0 14px 3px rgba(255,150,60,.55);cursor:pointer}
+</style>
