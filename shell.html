@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v136">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v137">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v136" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v137" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4694,10 +4694,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v136"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v136"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v136"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v136"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v136"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v136"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v137"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v137"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v137"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v137"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v137"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v137"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4732,8 +4732,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v136"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v136"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v137"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v137"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7662,7 +7662,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v136"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v137"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -13392,7 +13392,9 @@ html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,
     const sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;
     const L=ed.left-sh,R=ed.right-sh,T=Math.max(ed.top,60),H=Math.min(ed.height,innerHeight-T);
     const cx=Math.round((R+innerWidth-70)/2);
-    const ty=Math.round(T+H*.34);
+    // the title, the chapter and the clock with its pendulum make one column; on a low screen it starts higher so the hands never cross the chapter
+    const stack=(ttl.offsetHeight||118)+44+(document.querySelector('.write-nav')?.offsetHeight||70)+125+250;
+    const ty=Math.round(Math.max(118,Math.min(T+H*.34,innerHeight-stack)));
     const key=[L,R,T,H,innerWidth].map(Math.round).join();
     ttl.style.left=cx+'px';ttl.style.top=ty+'px';
     root.setProperty('--oc-cx',cx+'px');root.setProperty('--oc-ny',Math.round(ty+ttl.offsetHeight+44)+'px');
@@ -13404,7 +13406,7 @@ html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,
       let ny=Math.min(innerHeight-300,nb+70);
       // the hands reach about 110px from the centre: the centre stands that far below the chapter's last line
       const nv=document.querySelector('.write-nav');if(pv&&nv&&shell.classList.contains('oc-w')){const pr=pv.getBoundingClientRect(),nr=nv.getBoundingClientRect(),cy=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-cly'))||ny;
-        if(pr.height&&nr.height)ny=Math.min(innerHeight-260,cy+(nr.bottom+125-(pr.top+pr.height/2)));}
+        if(pr.height&&nr.height)ny=Math.min(innerHeight-200,cy+(nr.bottom+125-(pr.top+pr.height/2)));}
       root.setProperty('--oc-clx',Math.round(nx)+'px');root.setProperty('--oc-cly',Math.round(ny)+'px');}
     root.setProperty('--oc-qx',Math.round(L/2)+'px');root.setProperty('--oc-qy',Math.round(T+H/2)+'px');
     // the two keys over the sheet
@@ -13697,6 +13699,10 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
 .oc-sample{position:absolute;left:0;right:0;bottom:4%;text-align:center;font:italic 15px 'CormorantCy',Georgia,serif;color:rgba(214,180,138,.6)}
 
 /* v134 — details live in the showcase itself */
+.oc-hub .oc-eq{display:flex;align-items:center;justify-content:center;gap:4px;height:0;margin:0 auto;opacity:0;transition:opacity .8s ease,height .8s ease,margin .8s ease}
+.oc-hub .oc-eq i{display:block;width:3px;height:2px;border-radius:2px;background:linear-gradient(#ffe0b4,#d88a48);box-shadow:0 0 6px rgba(255,150,60,.5)}
+.oc-hub .scr.playing .oc-eq{opacity:1;height:44px;margin-top:12px}
+
 .oc-vin .sp{position:absolute;inset:0;border-radius:50%}
 .oc-vin.play .sp{animation:ocVinSpin 3.6s linear infinite}
 @keyframes ocVinSpin{to{transform:rotate(360deg)}}
@@ -13757,7 +13763,7 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
       return `<div class="c oc-vin ${a?'':'is-c'}" data-i="${i}" style="width:${s}px;height:${s}px;transform:translate(calc(-50% + ${x}px),-50%);opacity:${a>2?.35:1};z-index:${10-a}"><div class="sp"><div class="lb" style="background-image:url('${photoOf(r.who)}')"></div></div><div class="who">${esc(r.full)}<br><small>${esc(r.date)}</small></div></div>`;})).join('');
     const r=L[idx],sn=String(r.t||'').match(/[^.!?…]+[.!?…»]*\s*/gu)||[String(r.t||'')],inb=r.state==='book';
     return frame('voice')+`<div class="oc-stage">${discs}</div>${arrows}<div class="oc-cp"><div class="t">${esc(r.q)}</div><div class="s">${esc(r.full)} · ${esc(r.date)}${r.y?' · '+r.y:''}</div>
-      <div class="oc-tx">${sn.map((x,k)=>`<span data-s="${k}">${esc(x)}</span>`).join('')}</div><div class="oc-pg"><i></i></div></div>
+      <div class="oc-tx">${sn.map((x,k)=>`<span data-s="${k}">${esc(x)}</span>`).join('')}</div><div class="oc-pg"><i></i></div><div class="oc-eq">${'<i></i>'.repeat(48)}</div></div>
       <div class="acts">${inb?`<span class="oc-btn2 done" data-a="where">${sv('book')}<span>В книге · «${esc(F()?.placeOf?.(r.id)||'')}»</span></span>`:btn('tobook','book','В книгу')}${btn('play','play','Слушать',1)}</div>`;}
   function photos(){const L=items('photo').flatMap(it=>(it.imgs||[]).map(m=>({it,m})));if(!L.length)return frame('photo')+'<div class="oc-empty">Здесь будут снимки семьи.</div>';idx=Math.max(0,Math.min(L.length-1,idx));
     const pr=L.map((x,i)=>place(i,L.length,(d,a)=>{if(a>6)return'';const w=a?Math.max(150,270-a*22):430,h=a?w*1.18:330,sg=Math.sign(d),xx=a?sg*(280+(a-1)*88):0,rot=a?[0,-3,2,-2,3,-1,2][a]*sg:0;
@@ -13808,7 +13814,13 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
     const end=()=>{stopVoice();spans.forEach(s=>s.classList.remove('on','was'));if(bar)bar.style.width='0';};
     if(r.mine)Promise.resolve(F()?.voice?.(r.id)).then(blob=>{if(!blob||!sc.classList.contains('playing'))return;clearInterval(vt);vaudio=new Audio(URL.createObjectURL(blob));
       vaudio.addEventListener('loadedmetadata',()=>{if(isFinite(vaudio.duration))len=vaudio.duration;});vaudio.addEventListener('timeupdate',()=>{pos=vaudio.currentTime;paint();});vaudio.addEventListener('ended',end);vaudio.play().catch(()=>{});});
-    vt=setInterval(()=>{pos+=.25;paint();if(pos>=len)end();},250);paint();}
+    vt=setInterval(()=>{pos+=.25;paint();if(pos>=len)end();},250);paint();
+    // the equalizer: a soft moving voice line while the record turns
+    const bars=[...sc.querySelectorAll('.oc-eq i')],hv=bars.map(()=>2);let ph=Math.random()*9;
+    const eq=()=>{if(!sc.classList.contains('playing')){bars.forEach(b=>b.style.height='2px');return;}ph+=.09;
+      const env=.55+.45*Math.sin(ph*.7)*Math.sin(ph*.23+1);
+      bars.forEach((b,k)=>{const c=1-Math.abs(k-23.5)/26,tg=2+Math.max(0,(Math.sin(ph*2.1+k*.55)*.5+.5)*(Math.sin(ph*1.3-k*.31)*.5+.5)*34*c*env+Math.random()*5*c);
+        hv[k]+=(tg-hv[k])*.35;b.style.height=hv[k].toFixed(1)+'px';});requestAnimationFrame(eq);};requestAnimationFrame(eq);}
   function go(v){stopVoice();view=v;idx=0;flipped=false;fWho='';fDec='';render(true);}
   function picker(el,opts,cur,cb){hub.querySelector('.oc-pick')?.remove();const r=el.getBoundingClientRect(),m=document.createElement('div');m.className='oc-pick';
     m.innerHTML=opts.map(([v,t])=>`<div data-v="${esc(v)}" class="${v===cur?'on':''}">${esc(t)}</div>`).join('');m.style.left=r.left+'px';m.style.top=(r.bottom+8)+'px';hub.appendChild(m);
@@ -13973,6 +13985,34 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
   addEventListener('pointerdown',hide,true);addEventListener('wheel',hide,{passive:true,capture:true});
 })();
 </script>
+
+<style id="keeper-v137">
+/* v137 — the Keeper: a flame of copper ribbons with a pen for a foot. He rises out of an ink line, sways like a flame,
+   blinks and looks at you, tells his piece in handwriting, steps aside for the cards and sinks back into the line at the end. */
+.kp2{position:absolute;left:50%;top:42%;height:min(56vh,560px);aspect-ratio:840/950;translate:-50% -50%;transition:left 1.6s cubic-bezier(.45,.05,.25,1),top 1.6s cubic-bezier(.45,.05,.25,1),height 1.6s cubic-bezier(.45,.05,.25,1);pointer-events:none;z-index:2}
+.okp.aside .kp2{left:12%;top:58%;height:min(40vh,380px)}
+.kp2 .sway{position:absolute;inset:0;transform-origin:39% 93%;animation:kpSway 7.5s ease-in-out infinite alternate}
+.kp2 svg.kpv{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.kp2 .look .eye{filter:drop-shadow(0 0 6px rgba(255,190,110,.95)) drop-shadow(0 0 14px rgba(255,140,50,.6))}
+@keyframes kpSway{0%{rotate:-1.6deg;scale:1 .99}50%{rotate:.6deg;scale:1 1.012}100%{rotate:1.8deg;scale:1 .995}}
+.kp2 .halo{position:absolute;left:12%;top:8%;width:70%;height:62%;opacity:0;transition:opacity 2s;border-radius:50%;background:radial-gradient(circle,rgba(255,150,60,.32),transparent 68%);animation:kpHalo 3.3s ease-in-out infinite alternate}
+.kp2.up .halo{opacity:1}
+@keyframes kpHalo{0%{scale:.96}50%{scale:1.05}100%{scale:1}}
+.kp2 .eye{transform-box:fill-box;transform-origin:50% 50%;transition:scale .09s ease}
+.kp2 .eye.shut{scale:1 .08}
+.kp2 .look{transition:transform .5s cubic-bezier(.2,.8,.3,1)}
+.kp2-say{position:absolute;left:50%;top:calc(42% + min(28vh,280px) + 14px);translate:-50% 0;width:min(900px,86vw);text-align:center;font:400 40px/1.25 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc;text-shadow:0 0 18px rgba(255,150,60,.35);z-index:2}
+.kp2-say span{display:block;clip-path:inset(-20% 100% -20% 0);transition:clip-path 2.4s cubic-bezier(.45,.1,.4,1)}
+.kp2-say span+span{font:italic 22px/1.5 'CormorantCy',Georgia,serif;color:#ead6b4;margin-top:10px;transition-delay:1.9s}
+.kp2-say.on span{clip-path:inset(-20% -2% -20% 0)}
+.okp.aside .kp2-say{opacity:0;transition:opacity .6s}
+.okp:not(.aside) .hd,.okp:not(.aside) .deck,.okp:not(.aside) .dots{opacity:0;pointer-events:none}
+.okp .hd,.okp .deck,.okp .dots{transition:opacity .9s ease .5s}
+.okp .hd h2{clip-path:inset(-30% 100% -30% 0)}
+.okp .hd h2.w{clip-path:inset(-30% -2% -30% 0);transition:clip-path 1.6s cubic-bezier(.45,.1,.4,1),opacity .5s,filter .6s}
+.okp.aside .deck{left:56%}
+.okp.leaving .kp2-say,.okp.leaving .hd,.okp.leaving .deck,.okp.leaving .nav,.okp.leaving .skip{opacity:0;transition:opacity .6s}
+</style>
 <style id="intro-v133">
 /* v133 — «Знакомство»: what the constructor can do, told by drawn cards that glide in one after another (the Keeper will open it later) */
 .okp{position:fixed;inset:0;z-index:2147483500;opacity:0;pointer-events:none;transition:opacity 1s ease;font-family:'CormorantCy',Georgia,serif;color:#f6ead8;
@@ -14034,7 +14074,20 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
     {k:'книга',h:'Ваша книга',p:'Смотрите развороты, меняйте композиции — и, когда всё готово, заказывайте печать. История останется в семье.',
      c:`<div class="cd bk"><img src="assets/keeper/book-open.webp" alt=""></div>`}];
   const ov=document.createElement('div');ov.className='okp';
-  ov.innerHTML=`<div class="hd"><div class="k"></div><h2></h2><p></p></div><div class="deck">${S.map(s=>s.c).join('')}</div>
+  const eye=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})"><path class="eye" d="M-24 2 C-14 -16 12 -18 24 -6 C14 12 -10 16 -24 2Z" fill="#ffe7b8"/></g>`;
+  ov.innerHTML=`<div class="kp2"><div class="sway"><div class="halo"></div><svg class="kpv" viewBox="0 0 840 950" aria-hidden="true">
+      <defs><linearGradient id="kpRib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9a0"/><stop offset=".55" stop-color="#f09a4c"/><stop offset="1" stop-color="#a9521c"/></linearGradient>
+        <radialGradient id="kpHead" cx=".45" cy=".42" r=".7"><stop offset="0" stop-color="#3e1909"/><stop offset=".75" stop-color="#1e0a04"/><stop offset="1" stop-color="#2c1006"/></radialGradient>
+        <linearGradient id="kpInk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb36a" stop-opacity=".2"/><stop offset=".25" stop-color="#ffd9a8"/><stop offset=".8" stop-color="#f0a060"/><stop offset="1" stop-color="#c06a2a" stop-opacity="0"/></linearGradient>
+        <filter id="kpGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="kpSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>
+      <path class="ink" d="M300 884 C 380 870, 520 836, 640 812 C 700 800, 690 846, 726 846 C 760 846, 800 826, 834 808" fill="none" stroke="url(#kpInk)" stroke-width="3.2" stroke-linecap="round" pathLength="1" filter="url(#kpGlow)"/>
+      <g class="headg"><path class="head" fill="url(#kpHead)" stroke="rgba(255,180,100,.85)" stroke-width="3" filter="url(#kpGlow)"/></g>
+      <g class="ribs" filter="url(#kpGlow)"></g>
+      <g class="nib" filter="url(#kpGlow)"><path d="M0 -62 L16 -22 L0 0 L-16 -22 Z" fill="#e89a58" stroke="#ffd8a6" stroke-width="2"/><path d="M0 -36 L0 -4" stroke="#3a1608" stroke-width="2"/><circle cx="0" cy="-36" r="4.5" fill="#3a1608"/></g>
+      <g class="look">${eye(407,412,8)}${eye(505,404,-12)}</g></svg></div></div>
+    <div class="kp2-say"><span>Здравствуйте! Я — Хранитель историй</span><span>Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
+    <div class="hd"><div class="k"></div><h2></h2><p></p></div><div class="deck">${S.map(s=>s.c).join('')}</div>
     <div class="nav"><span class="dots">${S.map(()=>'<i></i>').join('')}</span><span class="oc-btn2 main" data-a="next"><span>Далее</span></span></div><span class="skip" data-a="skip">Пропустить</span>`;
   document.body.appendChild(ov);
   const cards=[...ov.querySelectorAll('.deck .cd')];let i=-1;
@@ -14042,12 +14095,70 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
     c.style.transform=d===0?'translate3d(0,0,0) rotateY(0deg) rotate(0deg)':d<0?'translate3d(-640px,40px,-300px) rotateY(38deg) rotate(-6deg)':'translate3d(680px,40px,-200px) rotateY(-42deg) rotate(8deg)';};
   cards.forEach(c=>pose(c,1));
   const show=k=>{const prev=i;i=Math.max(0,Math.min(S.length-1,k));const hd=ov.querySelector('.hd');hd.classList.add('swap');
-    setTimeout(()=>{hd.querySelector('.k').textContent=S[i].k;hd.querySelector('h2').textContent=S[i].h;hd.querySelector('p').textContent=S[i].p;hd.classList.remove('swap');},prev<0?0:420);
+    setTimeout(()=>{const h=hd.querySelector('h2');h.classList.remove('w');hd.querySelector('.k').textContent=S[i].k;h.textContent=S[i].h;hd.querySelector('p').textContent=S[i].p;hd.classList.remove('swap');void h.offsetWidth;h.classList.add('w');},prev<0?0:420);
     cards.forEach((c,j)=>pose(c,j-i));ov.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));
     ov.querySelector('[data-a="next"] span').textContent=i===S.length-1?'Начать':'Далее';};
-  const open=()=>{i=-1;cards.forEach(c=>pose(c,1));ov.classList.add('on');setTimeout(()=>show(0),350);};
-  const close=()=>{ov.classList.remove('on');try{localStorage.setItem('ocherki_keeper_seen','1');}catch(_){}};
-  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='next'){if(i>=S.length-1)close();else show(i+1);}});
+  const kp=ov.querySelector('.kp2'),say=ov.querySelector('.kp2-say'),look=ov.querySelector('.look');
+  let blinkT=0;const blink=()=>{ov.querySelectorAll('.eye').forEach(e=>e.classList.add('shut'));setTimeout(()=>ov.querySelectorAll('.eye').forEach(e=>e.classList.remove('shut')),140);
+    clearTimeout(blinkT);if(ov.classList.contains('on'))blinkT=setTimeout(blink,2600+Math.random()*3800);};
+  ov.addEventListener('pointermove',e=>{const r=kp.getBoundingClientRect(),cx=r.left+r.width*.54,cy=r.top+r.height*.43;
+    const dx=Math.max(-1,Math.min(1,(e.clientX-cx)/500)),dy=Math.max(-1,Math.min(1,(e.clientY-cy)/400));look.setAttribute('transform',`translate(${(dx*9).toFixed(1)} ${(dy*7).toFixed(1)})`);});
+  let ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
+  // —— the drawn keeper: ribbons are tapered bands along curves; every frame they breathe like a flame.
+  // f=0: all of him lies in the ink line; f=1: he stands. He rises and sinks by easing f.
+  const svgNS='http://www.w3.org/2000/svg',ribG=ov.querySelector('.ribs'),headP=ov.querySelector('.head'),nibG=ov.querySelector('.nib'),inkP=ov.querySelector('.ink'),eyesG=ov.querySelector('.kpv .look');
+  // the body: one dark drop with a burning rim, from the crest down the waist to the pen
+  const BODY=[[322,226],[380,140],[462,112],[540,150],[586,236],[598,330],[558,420],[494,478],[468,522],[522,592],[508,670],[432,732],[352,792],[346,770],[392,700],[432,628],[426,560],[384,520],[338,470],[318,400],[312,330],[314,276]];
+  const RIB=[ // centre curve P0..P3, widest width, sway amplitude, phase, opacity
+    {p:[[300,320],[280,110],[530,50],[612,250]],w:64,a:12,ph:0,o:.72},
+    {p:[[612,250],[650,400],[566,480],[476,506]],w:40,a:10,ph:.9,o:.62},
+    {p:[[470,512],[318,520],[118,560],[46,706]],w:70,a:18,ph:2.1,o:.7},
+    {p:[[352,330],[296,480],[478,566],[364,770]],w:46,a:10,ph:1.4,o:.45},
+    {p:[[520,560],[600,640],[520,720],[440,744]],w:30,a:12,ph:2.7,o:.5},
+    {p:[[322,228],[250,170],[290,100],[356,128]],w:22,a:8,ph:3.4,o:.8}];
+  const lineAt=k=>{const x=300+k*360;return[x,884-(x-300)*.2];};
+  const ribEls=RIB.map(r=>{const g=document.createElementNS(svgNS,'g');const band=document.createElementNS(svgNS,'path'),edge=document.createElementNS(svgNS,'path');
+    band.setAttribute('fill','url(#kpRib)');band.setAttribute('fill-opacity',String(r.o));edge.setAttribute('fill','none');edge.setAttribute('stroke','#ffe3bd');edge.setAttribute('stroke-width','1.8');
+    g.append(band,edge);ribG.appendChild(g);return{band,edge};});
+  const bez=(P,t)=>{const u=1-t;return[u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0],u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1]];};
+  const lerp=(a,b,k)=>a+(b-a)*k;
+  const smooth=P=>{const n=P.length;let d=`M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];
+    d+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)},${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)},${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;}return d+'Z';};
+  // a flame sways more the higher it is; the pen stays put
+  const swayX=(x,y,T,ph)=>x+Math.sin(T*.85+ph+y*.006)*Math.max(0,(800-y)/800)*14;
+  let f=0,fT=0,draw=0,raf=0,t0=performance.now();
+  const ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+  function frame(now){const T=(now-t0)/1000;
+    fT=kp.classList.contains('up')?1:0;f+=(fT-f)*.02;if(Math.abs(fT-f)<.002)f=fT;const e=ease(Math.max(0,Math.min(1,f)));
+    draw=Math.min(1,draw+.02);inkP.style.strokeDasharray='1';inkP.style.strokeDashoffset=String(1-draw);
+    // body
+    const bp=BODY.map((pt,i)=>{const L=lineAt(i/BODY.length),br=1+Math.sin(T*1.6)*.012;const x=470+(swayX(pt[0],pt[1],T,0)-470)*br,y=pt[1]+Math.sin(T*1.1+i*.4)*2.5*Math.max(0,(800-pt[1])/800);
+      return[lerp(L[0],x,e),lerp(L[1],y,e)];});
+    headP.setAttribute('d',smooth(bp));headP.style.opacity=Math.min(1,e*1.3);
+    RIB.forEach((r,k)=>{
+      const P=r.p.map((pt,j)=>{const x=swayX(pt[0],pt[1],T,r.ph)+Math.sin(T*1.3+r.ph+j)*r.a*(j/3),y=pt[1]+Math.cos(T*.9+r.ph*1.3+j)*r.a*.5*(j/3);
+        const L=lineAt(((k*.17)+j*.08)%1);return[lerp(L[0],x,e),lerp(L[1],y,e)];});
+      const N=36,W=r.w*(.9+.1*Math.sin(T*2.1+r.ph))*Math.max(.05,e),L1=[],L2=[];
+      for(let i=0;i<=N;i++){const t=i/N,a=bez(P,Math.max(0,t-.01)),b=bez(P,Math.min(1,t+.01)),c=bez(P,t),dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,
+        w=W*Math.pow(Math.sin(Math.PI*t),.7)*.8,nx=-dy/l,ny=dx/l;L1.push([c[0]+nx*w,c[1]+ny*w]);L2.push([c[0]-nx*w*.4,c[1]-ny*w*.4]);}
+      const pts=L1.concat(L2.slice().reverse());ribEls[k].band.setAttribute('d','M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+'Z');
+      ribEls[k].edge.setAttribute('d','M'+L1.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L'));ribEls[k].edge.setAttribute('stroke-opacity',(.85*e).toFixed(2));});
+    eyesG.style.opacity=Math.max(0,(e-.8)*5);
+    eyesG.parentNode.querySelector('.look').setAttribute('data-x','');
+    const ex=swayX(456,408,T,0)-456;eyesG.style.translate=`${ex.toFixed(1)}px 0`;
+    const tip=[lerp(300,330,e),lerp(884,880,e)];nibG.setAttribute('transform',`translate(${tip[0].toFixed(1)} ${tip[1].toFixed(1)}) rotate(${lerp(-70,22,e).toFixed(1)}) scale(${lerp(.8,1.45,e).toFixed(2)})`);
+    raf=ov.classList.contains('on')?requestAnimationFrame(frame):0;}
+  const run=()=>{if(!raf){t0=performance.now();raf=requestAnimationFrame(frame);}};
+  const open=()=>{ts.forEach(clearTimeout);ts=[];i=-1;cards.forEach(c=>pose(c,1));ov.classList.remove('aside','leaving');kp.classList.remove('up','awake');kp.classList.add('line');say.classList.remove('on');
+    ov.querySelector('[data-a="next"] span').textContent='Показать';ov.querySelector('.dots').style.visibility='hidden';
+    draw=0;f=0;ov.classList.add('on');run();
+    // out of the ink line: first the stroke, then the flame rises, the eyes open, and he speaks
+    later(()=>{kp.classList.remove('line');kp.classList.add('up');},700);
+    later(()=>{kp.classList.add('awake');blink();},2700);
+    later(()=>say.classList.add('on'),3000);};
+  const close=()=>{ts.forEach(clearTimeout);ts=[];ov.classList.add('leaving');ov.classList.remove('aside');kp.classList.remove('up');kp.classList.add('line');kp.classList.remove('awake');
+    later(()=>{ov.classList.remove('on');clearTimeout(blinkT);try{localStorage.setItem('ocherki_keeper_seen','1');}catch(_){}},2300);};
+  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='next'){if(i<0){ov.classList.add('aside');ov.querySelector('.dots').style.visibility='';later(()=>show(0),500);return;}if(i>=S.length-1)close();else show(i+1);}});
   addEventListener('keydown',e=>{if(!ov.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight'||e.key==='Enter')ov.querySelector('[data-a="next"]').click();if(e.key==='ArrowLeft'&&i>0)show(i-1);});
   window.OCHERKI_KEEPER={open,close};
   document.addEventListener('click',e=>{const m=e.target.closest?.('.oct .more [data-m="tour"]');if(m){e.stopImmediatePropagation();e.preventDefault();document.querySelector('.oct .more')?.classList.remove('on');open();}},true);
