@@ -2831,6 +2831,8 @@
         next.currentTime=0;
         next.volume=0;
         musicIntroStarted=true;
+        // v124: from silence (paused, stopped or a finished song) the chosen track simply starts.
+        if(audioState!=='playing'&&!allMuted){ musicPreference=true; saveAudioPrefs(); if(audioState==='stopped') musicIntroStarted=false; updateAudioUi(); startAmbientMusic('manual'); return musicTrackIndex; }
         if(audioState==='playing'&&!allMuted){
           try{
             await playVinylGap();
@@ -2937,6 +2939,8 @@
           updateAudioUi();
           return startAmbientMusic('unmute');
         }
+        // v124: «playing» but silent (the song ended and nothing followed) — play the next one.
+        if (audioState === 'playing' && currentMusic().paused && audioTracks.vinyl.paused) { switchMusicTrack(1); return; }
         if (audioState === 'playing') pauseAmbientMusic();
         else startAmbientMusic();
       };
@@ -3350,7 +3354,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v123";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v124";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3855,7 +3859,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v123"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v123"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v124"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v124"></script>
 </body>
 </html>
