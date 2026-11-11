@@ -1042,6 +1042,8 @@
           dateWatermark:input.dateWatermark||input.eraDate||''
         });
         if(['important','important-margin'].includes(rhythm)){
+          // v128: three handwritten lines a page at least; the director gives each chapter its own measure (3, 4 or 5).
+          page.handwrittenCount=rhythm==='important-margin'?3:[3,4,5,3,4][index%5];
           page.accentZone=accentZones[accentBeat%accentZones.length];
           page.accentColumn=accentBeat%2===0?'right':'left';
           accentBeat++;
@@ -1497,7 +1499,7 @@
           if(!rest||(side==='right'&&pendingEpisode()))break;
           // v126: a spread reads as one: the right page takes the left page's kind of accent
           // (quote, handwriting, margin note), and the handwriting is three phrases, not four.
-          const pair=side==='right'&&spread.left&&spread.left.rhythmKind?{forceRhythm:spread.left.rhythmKind,singleImportant:true}:{};
+          const pair=side==='right'&&spread.left&&spread.left.rhythmKind?{forceRhythm:spread.left.rhythmKind}:{};
           spread[side]=nextTextPage(side,pair);
         }
         // The previous episode ended on a left page: a quiet quote pause closes

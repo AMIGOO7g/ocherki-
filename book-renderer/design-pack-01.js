@@ -1283,9 +1283,9 @@
     }
     const unique=candidates.filter((item,index,list)=>list.findIndex(other=>other.start===item.start&&other.end===item.end)===index);
     const fresh=unique.filter(item=>!repeatsAccent(item.text,used));
-    const chosen=(fresh.length?fresh:unique)
-      .sort((a,b)=>a.distance-b.distance||b.score-a.score||(a.end-a.start)-(b.end-b.start))[0];
-    return chosen?[{start:chosen.start,end:chosen.end,editable:true,zone:targetZone}]:[];
+    const ordered=(fresh.length?fresh:unique)
+      .sort((a,b)=>a.distance-b.distance||b.score-a.score||(a.end-a.start)-(b.end-b.start));
+    return ordered.map(chosen=>({start:chosen.start,end:chosen.end,editable:true,zone:targetZone,text:chosen.text}));
   }
   function renderedLineCount(target) {
     if(!target.textContent)return 0;
@@ -1406,7 +1406,7 @@
       const targetZone=['top','middle','bottom'].includes(page.accentZone)?page.accentZone:'middle';
       const preferred=page.accentColumn==='right'?1:0;
       const selectRanges=cells=>{
-        const selected=[],offsets=[0,cells[0]?.length||0],columns=manual?[0,1]:page.singleImportant?[preferred]:[preferred,1-preferred];
+        const selected=[],offsets=[0,cells[0]?.length||0],columns=manual?[0,1]:[preferred,1-preferred];
         // One handwritten phrase per column, at a height taken from the text
         // itself, so the two columns (and neighbouring pages) never carry
         // their phrases on the same lines.
@@ -1417,14 +1417,18 @@
         const bands=[.2,.5,.8],firstBand=Math.max(0,['top','middle','bottom'].indexOf(targetZone)),secondBand=(firstBand+1+((seed>>4)&1))%3;
         const jitter=shift=>((seed>>shift)%1000)/1000*.16-.08;
         const ratios=[bands[firstBand]+jitter(6),bands[secondBand]+jitter(16)];
+        // v128: a page carries at least three handwritten lines (the director gives some chapters more):
+        // the phrases share the two columns and stand at different heights.
+        const total=Math.max(2,Math.min(6,Number(page.handwrittenCount)||2)),perColumn=[Math.ceil(total/2),Math.floor(total/2)];
+        const spread=(count,offset)=>count<=1?[ratios[offset]]:Array.from({length:count},(_,k)=>Math.min(.9,Math.max(.1,(k+(offset?.75:.35))/count+jitter(6+k*5+offset*3)*.5)));
         for(const index of columns){
-          const text=cells[index]||'',zones=manual?[targetZone]:[ratios[columns.indexOf(index)]];
+          const text=cells[index]||'',zones=manual?[targetZone]:spread(perColumn[columns.indexOf(index)],columns.indexOf(index));
           for(const zone of zones){
             const range=inlineAccentRanges(text,manual,zone,page.avoidAccents).find(item=>{
               const start=item.start+offsets[index],end=item.end+offsets[index];
               return !selected.some(other=>start<other.end&&end>other.start);
             });
-            if(range)selected.push({...range,start:range.start+offsets[index],end:range.end+offsets[index],zone:typeof zone==='number'?(zone<.34?'top':zone>.66?'bottom':'middle'):zone});
+            if(range){delete range.text;selected.push({...range,start:range.start+offsets[index],end:range.end+offsets[index],zone:typeof zone==='number'?(zone<.34?'top':zone>.66?'bottom':'middle'):zone});}
             if(manual&&selected.length)break;
           }
           if(manual&&selected.length)break;
