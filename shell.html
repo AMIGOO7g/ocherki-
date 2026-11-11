@@ -13342,7 +13342,11 @@ html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,
     {const bl=document.querySelector('.bottom-left'),pv=document.querySelector('.bottom-left .clock-pivot');
       const cur=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-clx'))||cx-120;
       let nx=cx-120;if(pv&&shell.classList.contains('oc-w')){const pr=pv.getBoundingClientRect();if(pr.width)nx=cur+(cx-(pr.left+pr.width/2));}
-      root.setProperty('--oc-clx',Math.round(nx)+'px');root.setProperty('--oc-cly',Math.round(Math.min(innerHeight-300,nb+70))+'px');}
+      let ny=Math.min(innerHeight-300,nb+70);
+      // the hands reach about 110px from the centre: the centre stands that far below the chapter's last line
+      const nv=document.querySelector('.write-nav');if(pv&&nv&&shell.classList.contains('oc-w')){const pr=pv.getBoundingClientRect(),nr=nv.getBoundingClientRect(),cy=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-cly'))||ny;
+        if(pr.height&&nr.height)ny=Math.min(innerHeight-260,cy+(nr.bottom+125-(pr.top+pr.height/2)));}
+      root.setProperty('--oc-clx',Math.round(nx)+'px');root.setProperty('--oc-cly',Math.round(ny)+'px');}
     root.setProperty('--oc-qx',Math.round(L/2)+'px');root.setProperty('--oc-qy',Math.round(T+H/2)+'px');
     // the two keys over the sheet
     const mid=(L+R)/2;root.setProperty('--oc-ky','30px');root.setProperty('--oc-k1x',Math.round(mid-150)+'px');root.setProperty('--oc-k2x',Math.round(mid+40)+'px');
