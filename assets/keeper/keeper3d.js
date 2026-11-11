@@ -61,8 +61,8 @@ const ink=makeStrip(0);ink.material.uniforms.uS.value=0;
 
 function shapeOf(pts){const s=new THREE.Shape();const crv=new THREE.CatmullRomCurve3(pts.map(q=>{const v=W(q[0],q[1]);return new THREE.Vector3(v.x,v.y,0);}),true,'centripetal');const sp=crv.getPoints(160);
   s.moveTo(sp[0].x,sp[0].y);for(let i=1;i<sp.length;i++)s.lineTo(sp[i].x,sp[i].y);return s;}
-const rimMat=(base,rim,op=1)=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,uniforms:{uOp:{value:op}},
-  vertexShader:'varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+const rimMat=(base,rim,op=1)=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,uniforms:{uOp:{value:op},uT:{value:0},uFl:{value:0}},
+  vertexShader:'uniform float uT;uniform float uFl;varying vec3 vN;varying vec3 vV;void main(){vec3 P=position;float k=smoothstep(1.3,3.1,P.y)*uFl;P.x+=(sin(uT*1.4+P.y*2.3)*.09+sin(uT*2.3+P.y*4.)*.03)*k;P.y+=sin(uT*1.1+P.x*3.)*.03*k;vec4 mv=modelViewMatrix*vec4(P,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
   fragmentShader:`varying vec3 vN;varying vec3 vV;uniform float uOp;void main(){float f=pow(1.-abs(dot(vN,vV)),3.);
     vec3 c=mix(vec3(${'${base}'}),vec3(${'${rim}'}),f);gl_FragColor=vec4(c,uOp);}`.replace("${base}",'BASE').replace("${rim}",'RIM')});
 const rimMat2=(base,rim,op=1)=>{const m=rimMat(base,rim,op);m.fragmentShader=m.fragmentShader.replace('BASE',base).replace('RIM',rim);return m;};
@@ -107,16 +107,16 @@ const ec=document.createElement('canvas');ec.width=ec.height=128;{const g=ec.get
 const ember=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(ec),blending:THREE.AdditiveBlending,depthTest:false,depthWrite:false,transparent:true}));ember.scale.setScalar(.001);scene.add(ember);
 
 // glowing dust around him
-const DN=90,dg=new THREE.BufferGeometry(),dp=new Float32Array(DN*3),dph=new Float32Array(DN),dsp=new Float32Array(DN),dsz=new Float32Array(DN);
+const DN=Math.round(opts.dust??34),dg=new THREE.BufferGeometry(),dp=new Float32Array(DN*3),dph=new Float32Array(DN),dsp=new Float32Array(DN),dsz=new Float32Array(DN);
 for(let i=0;i<DN;i++){const a=Math.random()*Math.PI*2,r=Math.sqrt(Math.random());dp[i*3]=Math.cos(a)*r*3.6-.2;dp[i*3+1]=Math.random()*9-4.8;dp[i*3+2]=(Math.random()-.5)*2.4;dph[i]=Math.random()*100;dsp[i]=.12+Math.random()*.25;dsz[i]=.5+Math.random()*1.1;}
 dg.setAttribute('position',new THREE.BufferAttribute(dp,3));dg.setAttribute('aP',new THREE.BufferAttribute(dph,1));dg.setAttribute('aS',new THREE.BufferAttribute(dsp,1));dg.setAttribute('aZ',new THREE.BufferAttribute(dsz,1));
-const dust=new THREE.Points(dg,new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uT:{value:0},uA:{value:1},uPR:{value:renderer.getPixelRatio()}},
-  vertexShader:`attribute float aP;attribute float aS;attribute float aZ;uniform float uT;uniform float uPR;varying float vA;
+const dust=new THREE.Points(dg,new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uT:{value:0},uA:{value:1},uPR:{value:renderer.getPixelRatio()},uDS:{value:opts.dustSize??1}},
+  vertexShader:`attribute float aP;attribute float aS;attribute float aZ;uniform float uT;uniform float uPR;uniform float uDS;varying float vA;
     void main(){vec3 p=position;float y=mod(p.y+4.8+uT*aS,9.)-4.8;p.y=y;p.x+=sin(uT*.35+aP)*.22+sin(uT*.9+aP*2.)*.06;p.z+=cos(uT*.3+aP)*.15;
       float tw=.5+.5*sin(uT*(1.3+aS*3.)+aP*7.);vA=tw*tw*smoothstep(-4.8,-3.6,y)*smoothstep(4.2,2.4,y);
-      vec4 mv=modelViewMatrix*vec4(p,1.);gl_PointSize=aZ*uPR*(5.+3.*tw)*(16./-mv.z);gl_Position=projectionMatrix*mv;}`,
+      vec4 mv=modelViewMatrix*vec4(p,1.);gl_PointSize=aZ*uPR*(3.2+2.*tw)*(16./-mv.z)*uDS;gl_Position=projectionMatrix*mv;}`,
   fragmentShader:`varying float vA;uniform float uA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,0.,d);a*=a;
-    gl_FragColor=vec4(vec3(1.,.72,.38)*a*vA*uA*.9,1.);}`}));
+    gl_FragColor=vec4(vec3(1.,.74,.42)*a*vA*uA*.42,1.);}`}));
 dust.renderOrder=4;world.add(dust);
 
 // ——— soft springs: every move eases in, overshoots a little, settles ———
@@ -153,7 +153,7 @@ function updateRibbon(mesh,def,ri,T,f,isInk){
   mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.attributes.aB.needsUpdate=true;
   // draw order instead of depth: ribbons behind the head first, the head, then those in front — no hard cuts where they cross
 }
-const BEHIND=[0,6];ribbons.forEach((m,i)=>m.renderOrder=BEHIND.includes(i)?1:5);head.renderOrder=3;lowb.renderOrder=2;eyes.forEach(e=>e.renderOrder=6);ink.renderOrder=0;words.renderOrder=7;
+const BEHIND=[0,6];ribbons.forEach((m,i)=>m.renderOrder=BEHIND.includes(i)?1:5);head.renderOrder=3;head.material.uniforms.uFl.value=1;lowb.renderOrder=2;eyes.forEach(e=>e.renderOrder=6);ink.renderOrder=0;words.renderOrder=7;
 const soul=new THREE.Sprite(new THREE.SpriteMaterial({map:ember.material.map,blending:THREE.AdditiveBlending,depthTest:false,depthWrite:false,transparent:true}));soul.renderOrder=11;world.add(soul);nib.renderOrder=8;ember.renderOrder=10;
 
 // ——— what he does ———
@@ -165,7 +165,10 @@ const aspectK=()=>Math.min(1,camera.aspect/0.75);
 // where he stands for each thing he does
 const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHeight;
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
+let freeP={x:0,y:0,sc:1};
+function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
+  if(m==='free')return freeP;
   if(m==='aside')return narrow?{x:0,y:2.6,sc:.42}:{x:-halfW()*.66,y:-.6,sc:.5};
   if(m==='hint')return{x:narrow?0:-2.3*aspectK(),y:narrow?2.2:1.2,sc:narrow?.55:.6};
   return{x:0,y:0,sc:1};}
@@ -178,6 +181,7 @@ function setMode(m){
   mode=m;modeAt=clock;tip.classList.remove('on');
   const P=placeOf(m);
   if(m==='idle'){S.x.t=P.x;S.y.t=P.y;S.sc.t=1;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
+  if(m==='free'){S.x.t=P.x;S.y.t=P.y;S.sc.t=P.sc;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
   if(m==='aside'){S.x.t=P.x;S.y.t=P.y;S.sc.t=P.sc;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
   if(m==='hint'){S.x.t=P.x;S.y.t=P.y;S.sc.t=P.sc;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
   if(m==='away'){NIBL=SPARK;S.form.t=0;S.emb.t=1;const sp=sparkWorld();S.ex.v=S.ex.t=sp.x;S.ey.v=S.ey.t=sp.y;S.ex.vel=0;S.ey.vel=0;}
@@ -215,6 +219,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   keeper.rotation.y=S.yaw.v;keeper.rotation.x=S.pitch.v;keeper.rotation.z=Math.sin(T*.5)*.025;
   const sc=Math.max(.001,S.sc.v)*(1+Math.sin(T*1.1)*.012);keeper.scale.setScalar(sc);dust.scale.setScalar(sc);
   keeper.updateMatrix();
+  head.material.uniforms.uT.value=T;
   RIB.forEach((d,i)=>updateRibbon(ribbons[i],d,i,T,f,false));
   const inSpark=NIBL===SPARK;
   updateRibbon(ink,inkDef,0,T,1,true);ink.material.uniforms.uA.value=Math.min(1,Math.max(0,S.sc.v)*1.2)*(inSpark?f:(.15+.85*f));
@@ -257,6 +262,9 @@ return{
   // jump straight to a state without animation (e.g. start as a spark in a corner)
   placeSpark(x,y){mode='away';modeAt=clock-9;NIBL=SPARK;S.form.v=S.form.t=0;S.emb.v=S.emb.t=1;S.ex.v=S.ex.t=x;S.ey.v=S.ey.t=y;S.sc.v=S.sc.t=1;},
   halfW,
+  // fly to a point of the screen (nx, ny in −1…1, y up) at a size; fold:true — gather into the spark, fly, unfold there
+  moveTo(nx,ny,sc=1,o={}){freeP={x:nx*halfW(),y:camera.position.y+ny*halfH(),sc};
+    if(o.fold&&mode!=='away'&&mode!=='come'){setMode('away');setTimeout(()=>setMode('free'),1150);}else setMode('free');},
   get state(){return{mode,pending,grownAt,form:S.form.v,formT:S.form.t,ex:S.ex.v,ey:S.ey.v,ext:S.ex.t,eyt:S.ey.t,vx:S.ex.vel,vy:S.ey.vel,emb:S.emb.v};},
   lookAt(nx,ny){lookAt=nx==null?null:[nx,ny];},
   talk(ms){talkUntil=clock+ms/1000;},

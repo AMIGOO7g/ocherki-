@@ -14075,20 +14075,85 @@ html body .shell.oc-w .write-nav{scale:var(--oc-k,1);transform-origin:0 0}
 .okp .bk{width:560px;margin:-200px 0 0 -280px}
 .okp .bk img{width:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
 </style>
+
+<style id="intro-v140">
+/* v140 — «Знакомство»: room for the descenders, a centred card, honest QR, a sealed envelope, a book made of light */
+.okp .hd h2{line-height:1.32!important;padding-bottom:4px}
+.okp .hd p{margin-top:22px!important}
+.okp .deck,.okp.aside .deck{left:50%!important;top:61%}
+.okp .kp2-say{top:57%!important}
+.okp .sheet{width:440px!important;height:560px!important;margin:-280px 0 0 -220px!important;padding:56px 50px!important}
+.okp .sheet .hw{font-size:34px!important}
+.okp .voice{width:0;height:0}
+.okp .vwrap{position:absolute;left:-330px;top:-170px;width:340px;height:340px}
+.okp .vwrap .vin{position:absolute!important;inset:0;width:auto!important;height:auto!important;margin:0!important}
+.okp .vin .hole{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#0b0705;box-shadow:inset 0 1px 2px rgba(0,0,0,.8),0 0 0 2px rgba(255,220,180,.25)}
+.okp .qrb{position:absolute;left:50px;top:-110px;width:270px;display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.okp .qrb img{width:150px;height:150px;box-shadow:0 14px 28px rgba(0,0,0,.5);border-radius:4px}
+.okp .qrb span{font:italic 19px/1.4 'CormorantCy',Georgia,serif;color:#ead6b4}
+.okp .letter{width:0;height:0}
+.okp .letter .envl{position:absolute;left:-210px;top:-60px;width:420px;height:280px;filter:drop-shadow(0 26px 34px rgba(0,0,0,.55));z-index:2}
+.okp .letter .envl>svg:first-child{position:absolute;inset:0;width:100%;height:100%}
+.okp .letter .wax{position:absolute;left:50%;top:150px;width:74px;height:74px;margin:-40px 0 0 -37px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.okp .letter .lt{position:absolute;left:-180px;top:-40px;width:360px;height:250px;background:#fbf6ec;box-shadow:0 6px 14px rgba(0,0,0,.3);padding:26px 28px;box-sizing:border-box;font:400 25px/1.25 'SignThatS',Georgia,serif;color:#4b3424;z-index:1;transition:transform 1.4s cubic-bezier(.2,.8,.3,1) .3s}
+.okp .cd.play .letter .lt,.okp .letter.play .lt{transform:translateY(-190px)}
+.okp .letter .pol{position:absolute;width:150px;height:170px;background:#f6efe2;padding:10px 10px 30px;box-shadow:0 18px 30px rgba(0,0,0,.5)}
+.okp .letter .pol img{width:100%;height:100%;object-fit:cover;filter:sepia(.3)}
+.okp .letter .pol.under{left:120px;top:-20px;transform:rotate(9deg);z-index:0}
+.okp .letter .pol.side{left:-370px;top:-40px;transform:rotate(-8deg);z-index:3}
+.okp .bk2{width:600px;margin:-200px 0 0 -300px}
+.okp .bk2 .fbook{width:100%;overflow:visible}
+.okp .bk2 .pg1{transform-origin:300px 215px;animation:okLeaf 5.5s ease-in-out infinite}
+.okp .bk2 .pg2{transform-origin:300px 215px;animation:okLeaf 5.5s ease-in-out infinite 1.2s;opacity:.7}
+@keyframes okLeaf{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(-.92);opacity:.55}}
+.okp .bk2 .sig{stroke-dasharray:160;stroke-dashoffset:160;transition:stroke-dashoffset 2.4s ease .6s}
+.okp .cd.play .sig{stroke-dashoffset:0}
+.okp .bk2 .fbook g{animation:okGlow 3.6s ease-in-out infinite alternate}
+@keyframes okGlow{from{opacity:.86}to{opacity:1}}
+</style>
 <script id="intro-v133-js">
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const PH='qa/demo-book/photos/';
+  // a QR code drawn for the card: finder squares, timing line and a fixed scatter of modules (looks and reads like the real thing)
+  const qrURL=(()=>{const n=25,c=document.createElement('canvas'),z=6;c.width=c.height=(n+4)*z;const g=c.getContext('2d');g.fillStyle='#f7efe1';g.fillRect(0,0,c.width,c.height);g.fillStyle='#2a1a10';
+    const on=(x,y)=>g.fillRect((x+2)*z,(y+2)*z,z,z);let r=7;const rnd=()=>(r=(r*1103515245+12345)%2147483648)/2147483648;
+    const finder=(x,y)=>{for(let i=0;i<7;i++)for(let j=0;j<7;j++){const e=i===0||i===6||j===0||j===6,c2=i>=2&&i<=4&&j>=2&&j<=4;if(e||c2)on(x+i,y+j);}};
+    const res=(x,y)=>(x<8&&y<8)||(x>=n-8&&y<8)||(x<8&&y>=n-8);
+    for(let y=0;y<n;y++)for(let x=0;x<n;x++){if(res(x,y))continue;if(y===6||x===6){if((x+y)%2===0)on(x,y);continue;}if(rnd()<.47)on(x,y);}
+    finder(0,0);finder(n-7,0);finder(0,n-7);for(let i=0;i<5;i++)for(let j=0;j<5;j++){const e=i===0||i===4||j===0||j===4;if(e||(i===2&&j===2))on(n-9+i,n-9+j);}
+    return c.toDataURL();})();
+  const SEAL=`<svg class="wax" viewBox="0 0 100 100"><defs><radialGradient id="okWax" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#d9634a"/><stop offset=".55" stop-color="#a8301f"/><stop offset="1" stop-color="#6e1a10"/></radialGradient></defs>
+    <path d="M50 4c7 0 9 6 15 7s12-2 15 4 0 10 4 15 10 6 10 13-6 9-6 15 5 11 1 16-11 3-15 7-4 11-11 12-10-5-16-5-12 6-17 2-3-11-8-15-12-4-13-11 5-10 4-16-6-11-2-16 11-2 15-7 3-12 9-14 9 1 15-1z" fill="url(#okWax)"/>
+    <circle cx="50" cy="51" r="27" fill="none" stroke="#5e150c" stroke-width="2.4" opacity=".7"/><circle cx="50" cy="51" r="27" fill="none" stroke="#f08a6c" stroke-width="1" opacity=".35" transform="translate(-1 -1)"/>
+    <text x="50" y="63" text-anchor="middle" font-family="SignThatS, Georgia, serif" font-size="36" fill="#5e150c" opacity=".85">О</text><text x="49" y="62" text-anchor="middle" font-family="SignThatS, Georgia, serif" font-size="36" fill="#f3a183" opacity=".35">О</text>
+    <ellipse cx="36" cy="28" rx="12" ry="6" fill="#fff" opacity=".16" transform="rotate(-24 36 28)"/></svg>`;
+  const BOOK=`<svg class="fbook" viewBox="0 0 600 380"><defs><linearGradient id="okPg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf8e"/><stop offset="1" stop-color="#d8742c"/></linearGradient>
+      <filter id="okGl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <g filter="url(#okGl)" fill="none" stroke="url(#okPg)" stroke-linecap="round">
+      <path d="M300 330 C 230 300 120 300 40 320 L 40 90 C 120 70 230 70 300 100 Z" stroke-width="2.6" fill="rgba(255,140,60,.06)"/>
+      <path d="M300 330 C 370 300 480 300 560 320 L 560 90 C 480 70 370 70 300 100 Z" stroke-width="2.6" fill="rgba(255,140,60,.06)"/>
+      <path d="M300 100 L 300 330" stroke-width="2"/>
+      <g class="ln" stroke-width="1.3" opacity=".7"><path d="M80 140 C 150 128 220 130 270 146"/><path d="M80 170 C 150 158 220 160 270 176"/><path d="M80 200 C 150 188 200 190 250 204"/><path d="M330 146 C 380 130 450 128 520 140"/><path d="M330 176 C 380 160 450 158 520 170"/><path d="M350 204 C 400 190 450 188 520 200"/></g>
+      <path class="pg1" d="M300 100 C 340 60 420 40 470 60 L 470 286 C 420 270 340 290 300 330" stroke-width="2" fill="rgba(255,150,70,.08)"/>
+      <path class="pg2" d="M300 100 C 330 50 390 22 430 34 L 430 262 C 390 252 330 280 300 330" stroke-width="1.6" fill="rgba(255,150,70,.06)"/>
+    </g>
+    <path class="sig" d="M330 250 c 20 -18 40 6 60 -8 s 30 -10 44 4" fill="none" stroke="#ffe0b0" stroke-width="2" stroke-linecap="round" filter="url(#okGl)"/></svg>`;
   const S=[
     {k:'писать самим',h:'Пишите — книга сложится сама',p:'К каждой главе свои вопросы. Пишите как говорите — заголовки, пропись и заметки на полях появятся сами.',
-     c:`<div class="cd sheet"><div class="ttl">глава 1 · начало</div><div class="ln" style="width:92%"></div><div class="ln" style="width:86%;transition-delay:.15s"></div><div class="ln" style="width:94%;transition-delay:.3s"></div><div class="hw">«Мама впервые увидела трамвай…»</div><div class="ln" style="width:90%;transition-delay:.45s"></div><div class="ln" style="width:70%;transition-delay:.6s"></div><div class="ln" style="width:88%;transition-delay:.75s"></div><div class="note">Тифлис, весна 1956</div></div>`},
-    {k:'голоса',h:'Голоса родных',p:'Запишите ответ голосом — он станет пластинкой в архиве, а в книге появится QR-код: наведите телефон и услышите голос.',
-     c:`<div class="cd"><div class="vin" style="position:relative"><div class="spin"></div><div class="lb" style="background-image:url('${PH}grandma_porch.jpg')"></div></div><div class="qr"><i></i></div></div>`},
+     c:`<div class="cd sheet"><div class="ttl">глава 1 · начало</div><div class="ln" style="width:92%"></div><div class="ln" style="width:86%;transition-delay:.15s"></div><div class="ln" style="width:94%;transition-delay:.3s"></div><div class="hw">«Мама впервые увидела трамвай…»</div><div class="ln" style="width:90%;transition-delay:.45s"></div><div class="ln" style="width:70%;transition-delay:.6s"></div><div class="ln" style="width:88%;transition-delay:.75s"></div><div class="ln" style="width:80%;transition-delay:.9s"></div></div>`},
+    {k:'голоса',h:'Голоса родных',p:'Запишите ответ голосом — он станет пластинкой в архиве.',
+     c:`<div class="cd voice"><div class="vwrap"><div class="vin"><div class="spin"></div><div class="lb" style="background-image:url('${PH}grandma_porch.jpg')"></div><i class="hole"></i></div></div>
+       <div class="qrb"><img src="${qrURL}" alt=""><span>А в книге рядом с рассказом — такой код. Наведите на него камеру телефона, и зазвучит голос.</span></div></div>`},
     {k:'вопрос недели',h:'Вся семья — вместе',p:'Каждую неделю родные получают на телефон вопрос и отвечают — голосом, словами или фото.',
      c:`<div class="cd"><div class="qcard" style="position:relative"><b>вопрос недели</b><span>Как вы познакомились с дедушкой?</span></div><div class="phone"><i>Ответить голосом</i></div></div>`},
     {k:'письма и фото',h:'Архив семьи',p:'Письма, фотографии и правки родных собираются в архиве — и одним касанием ложатся в книгу.',
-     c:`<div class="cd"><div class="env" style="position:relative"><div class="lt">Дорогие мои, пишу вам из Тифлиса…</div><div class="seal"></div></div><div class="pol" style="left:-330px;top:-60px;transform:rotate(-8deg)"><img src="${PH}mother_child_bw.jpg"></div><div class="pol" style="left:200px;top:-150px;transform:rotate(7deg)"><img src="${PH}lake_two.jpg"></div></div>`},
+     c:`<div class="cd letter"><div class="pol under"><img src="${PH}lake_two.jpg" alt=""></div><div class="lt">Дорогие мои, пишу вам из Тифлиса… Здесь уже весна, в садах цветут абрикосы.</div>
+       <div class="envl"><svg viewBox="0 0 420 280" preserveAspectRatio="none"><defs><linearGradient id="okEnv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1e5ce"/><stop offset="1" stop-color="#dcc6a2"/></linearGradient><linearGradient id="okEnvS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3d2b2"/><stop offset="1" stop-color="#cdb48c"/></linearGradient></defs>
+         <rect width="420" height="280" rx="5" fill="url(#okEnv)"/><path d="M0 280 L210 150 L420 280Z" fill="url(#okEnvS)"/><path d="M0 0 L190 160 Q210 176 230 160 L420 0 L420 6 L232 166 Q210 184 188 166 L0 6Z" fill="rgba(120,84,50,.18)"/>
+         <path d="M0 280 L210 150 L420 280" fill="none" stroke="rgba(120,84,50,.28)" stroke-width="1.2"/></svg>${SEAL}</div>
+       <div class="pol side"><img src="${PH}mother_child_bw.jpg" alt=""></div></div>`},
     {k:'книга',h:'Ваша книга',p:'Смотрите развороты, меняйте композиции — и, когда всё готово, заказывайте печать. История останется в семье.',
-     c:`<div class="cd bk"><img src="assets/keeper/book-open.webp" alt=""></div>`}];
+     c:`<div class="cd bk2">${BOOK}</div>`}];
   const ov=document.createElement('div');ov.className='okp';
   const eye=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})"><path class="eye" d="M-24 2 C-14 -16 12 -18 24 -6 C14 12 -10 16 -24 2Z" fill="#ffe7b8"/></g>`;
   ov.innerHTML=`<div class="kp2"><canvas class="kpc"></canvas></div>
@@ -14110,23 +14175,24 @@ html body .shell.oc-w .write-nav{scale:var(--oc-k,1);transform-origin:0 0}
   const V='assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js','assets/keeper/keeper3d.js?v=20261107-v139'];
   let libs=null;const load=()=>libs||(libs=LIBS.reduce((p,src)=>p.then(()=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);})),Promise.resolve()));
   let K=null;
-  const keeper=()=>load().then(()=>{if(!K&&window.OcherkiKeeper3D){K=window.OcherkiKeeper3D.create(cv,{size:.84,lift:1.15});}return K;}).catch(()=>null);
+  const keeper=()=>load().then(()=>{if(!K&&window.OcherkiKeeper3D){K=window.OcherkiKeeper3D.create(cv,{size:.26,dust:26});}return K;}).catch(()=>null);
   // the greeting stands under him, wherever he is
-  let sayRaf=0;const follow=()=>{if(K&&!ov.classList.contains('aside')){const p=K.screenOf(0,-4.6),nb=ov.querySelector('.nav')?.getBoundingClientRect();say.style.top=Math.round(Math.min(p.y,(nb?nb.top:innerHeight)-say.offsetHeight-14))+'px';}sayRaf=ov.classList.contains('on')?requestAnimationFrame(follow):0;};
+  // where he stands on each step: he wanders around the card, never over it
+  const SPOTS=[[-.7,-.32],[.7,-.36],[-.68,.22],[.7,.18],[-.66,-.38]];
   const open=()=>{ts.forEach(clearTimeout);ts=[];i=-1;cards.forEach(c=>pose(c,1));ov.classList.remove('aside','leaving');say.classList.remove('on');
     ov.querySelector('[data-a="next"] span').textContent='Показать';ov.querySelector('.dots').style.visibility='hidden';
     ov.classList.add('on');
     keeper().then(k=>{if(!k){say.classList.add('on');return;}k.start();k.resize();
       // a spark comes in from the corner, glides to the middle and he unfolds out of it
-      k.placeSpark(k.halfW()*.42,3.4);later(()=>k.setMode('idle'),300);
+      k.placeSpark(k.halfW()*.55,k.halfW()*.25);later(()=>k.moveTo(0,.2,1),300);
       // he speaks once he has fully gathered
       const waitFormed=()=>{if(!ov.classList.contains('on'))return;if(k.state.form>.88&&k.state.mode==='idle'){say.classList.add('on');k.talk(4200);}else later(waitFormed,200);};later(waitFormed,1500);
-      if(!sayRaf)follow();});};
+      });};
   const close=()=>{ts.forEach(clearTimeout);ts=[];ov.classList.add('leaving');
     if(K){K.setMode('away');}
     later(()=>{ov.classList.remove('on','aside');K&&K.stop();try{localStorage.setItem('ocherki_keeper_seen','1');}catch(_){}},K?2600:900);};
-  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='next'){if(i<0){ov.classList.add('aside');K&&K.setMode('aside');ov.querySelector('.dots').style.visibility='';later(()=>show(0),500);return;}if(i>=S.length-1)close();else show(i+1);}});
-  addEventListener('keydown',e=>{if(!ov.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight'||e.key==='Enter')ov.querySelector('[data-a="next"]').click();if(e.key==='ArrowLeft'&&i>0)show(i-1);});
+  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='next'){if(i<0){ov.classList.add('aside');K&&K.moveTo(SPOTS[0][0],SPOTS[0][1],.72,{fold:true});ov.querySelector('.dots').style.visibility='';later(()=>show(0),500);return;}if(i>=S.length-1)close();else{show(i+1);const sp=SPOTS[(i)%SPOTS.length];K&&K.moveTo(sp[0],sp[1],.72);}}});
+  addEventListener('keydown',e=>{if(!ov.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight'||e.key==='Enter')ov.querySelector('[data-a="next"]').click();if(e.key==='ArrowLeft'&&i>0){show(i-1);const sp=SPOTS[i%SPOTS.length];K&&K.moveTo(sp[0],sp[1],.72);}});
   window.OCHERKI_KEEPER={open,close};
   document.addEventListener('click',e=>{const m=e.target.closest?.('.oct .more [data-m="tour"]');if(m){e.stopImmediatePropagation();e.preventDefault();document.querySelector('.oct .more')?.classList.remove('on');open();}},true);
   // the first visit: shown once, after the constructor has settled (the new Keeper will open it)
