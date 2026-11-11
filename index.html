@@ -2822,9 +2822,12 @@
       };
       musicPlaylist.forEach(track => track.addEventListener('ended', scheduleNextTrack));
 
+      let switchPending=false;
       const switchMusicTrack = async delta => {
         clearTimeout(musicIntroTimer);
-        clearTimeout(musicTransitionTimer);
+        // v125: a second press while the vinyl plays only changes the track; the wait does not start again.
+        const keepWaiting=switchPending&&audioState==='playing'&&!allMuted;
+        if(!keepWaiting) clearTimeout(musicTransitionTimer);
         pauseAllMusic();
         const next=setMusicTrack(musicTrackIndex+delta);
         musicPlaylist.forEach(track=>{ if(track!==next){track.currentTime=0;track.volume=0;} });
@@ -2833,20 +2836,24 @@
         musicIntroStarted=true;
         // v124: from silence (paused, stopped or a finished song) the chosen track simply starts.
         if(audioState!=='playing'&&!allMuted){ musicPreference=true; saveAudioPrefs(); if(audioState==='stopped') musicIntroStarted=false; updateAudioUi(); startAmbientMusic('manual'); return musicTrackIndex; }
+        if(keepWaiting){ updateAudioUi(); return musicTrackIndex; }
         if(audioState==='playing'&&!allMuted){
           try{
+            switchPending=true;
             await playVinylGap();
             musicTransitionTimer=setTimeout(async()=>{
-              musicTransitionTimer=null;
+              musicTransitionTimer=null;switchPending=false;
+              const next=currentMusic();
               if(document.hidden){pendingHiddenTrackAdvance=true;stopVinyl();return;}
-              if(audioState!=='playing'||allMuted||!audioLayers.music||next!==currentMusic()){stopVinyl();return;}
+              if(audioState!=='playing'||allMuted||!audioLayers.music){stopVinyl();return;}
               try{
                 stopVinyl();
+                next.currentTime=0;
                 await next.play();
                 await fadeAudio(next,AUDIO_TARGET.music,900);
               }catch(e){console.log('Track switch waiting for interaction',e);}
             },VINYL_BETWEEN_TRACKS_MS);
-          }catch(e){console.log('Track switch waiting for interaction',e);}
+          }catch(e){switchPending=false;console.log('Track switch waiting for interaction',e);}
         }
         updateAudioUi();
         return musicTrackIndex;
@@ -3354,7 +3361,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v124";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v125";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3859,7 +3866,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v124"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v124"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v125"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v125"></script>
 </body>
 </html>
