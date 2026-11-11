@@ -2684,7 +2684,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v142">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v143">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2904,7 +2904,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v142" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v143" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4704,10 +4704,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v142"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v142"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v142"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v142"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v142"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v142"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v143"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v143"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v143"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v143"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v143"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v143"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4745,8 +4745,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v142"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v142"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v143"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v143"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7675,7 +7675,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v142"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v143"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -8042,11 +8042,12 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     });
   };
   clean();
-  let queued=false;
-  new MutationObserver(()=>{
-    if(queued)return;
-    queued=true;
-    requestAnimationFrame(()=>{queued=false;clean();});
+  /* v143: only the nodes that were added or relabelled are checked — scanning the whole page after every change cost a lot */
+  const fix=el=>{if(!el||el.nodeType!==1||/^(SCRIPT|STYLE|NOSCRIPT)$/.test(el.tagName))return;
+    ['alt','title','aria-label'].forEach(name=>{const v=el.getAttribute(name);if(v&&bad.test(v)){el.removeAttribute(name);if(el.tagName==='IMG'&&!el.getAttribute('src'))el.remove();}});
+    if(el.children.length===0&&bad.test(el.textContent||''))el.remove();};
+  new MutationObserver(L=>{for(const m of L){if(m.type==='attributes'){fix(m.target);continue;}
+      m.addedNodes.forEach(n=>{if(n.nodeType!==1)return;fix(n);if(!n.firstElementChild)return;n.querySelectorAll('[alt*="значка" i],[title*="значка" i],[aria-label*="значка" i]').forEach(fix);if(/значка/i.test(n.textContent||''))n.querySelectorAll('*').forEach(fix);});}
   }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['alt','title','aria-label']});
 })();
 </script>
@@ -8107,7 +8108,7 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 <style id="v30-hanging-tooltips">
 .hanging-tip{position:fixed;z-index:2147483250;pointer-events:none;white-space:nowrap;color:#f3e4cf;font:italic 400 14px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em;opacity:0;filter:blur(5px);transform:translate(-50%,6px);transition:opacity .42s ease,filter .42s ease,transform .42s cubic-bezier(.2,.8,.3,1);text-shadow:none}
 .hanging-tip.show{opacity:.92;filter:blur(0);transform:translate(-50%,0)}
-.shell:not(.is-night) ~ .hanging-tip,.shell:not(.is-night) .hanging-tip,body:has(.shell:not(.is-night)) .hanging-tip{color:#6b4d37}
+.shell:not(.is-night) ~ .hanging-tip,.shell:not(.is-night) .hanging-tip{color:#6b4d37}
 </style>
 <script id="v30-hanging-tooltip-controller">
 (()=>{
@@ -8488,7 +8489,7 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
 .bd-rail-key.is-active .bd-rail-tip{display:none}
 #bookDesignShell.is-rail .bd-section.is-rail-open .bd-spreads-viewport{height:auto!important;min-height:0!important;max-height:none!important}
 .book-design-shell.is-rail .bd-section.is-rail-open .bd-spreads-body,.book-design-shell.is-rail .bd-section.is-rail-open #bdSpreadRows{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;transform:none!important}
-.shell:has(.bd-section.is-rail-open) .writing-prompt{opacity:0!important;pointer-events:none!important}
+.shell.oc-rail-open .writing-prompt{opacity:0!important;pointer-events:none!important}
 </style>
 <script id="right-rail-script">
 (()=>{
@@ -8531,11 +8532,11 @@ html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:transl
       if(item.run){close();item.run();return;}
       const open=item.section?.classList.contains('is-rail-open');
       close();
-      if(!open&&item.section){item.section.classList.add('is-rail-open');key.classList.add('is-active');}
+      if(!open&&item.section){item.section.classList.add('is-rail-open');key.classList.add('is-active');document.querySelector('.shell')?.classList.add('oc-rail-open');}
     });
     item.key=key;rail.appendChild(wrap);
   }
-  const close=()=>{sections.forEach(section=>section.classList.remove('is-rail-open'));rail.querySelectorAll('.bd-rail-key').forEach(key=>key.classList.remove('is-active'));};
+  const close=()=>{sections.forEach(section=>section.classList.remove('is-rail-open'));document.querySelector('.shell')?.classList.remove('oc-rail-open');rail.querySelectorAll('.bd-rail-key').forEach(key=>key.classList.remove('is-active'));};
   panel.prepend(rail);panel.classList.add('is-rail');
   // Design, format and photo choices open without a panel: their cards slide
   // in from the right one after another.
@@ -12849,7 +12850,7 @@ html body .master-clock{transform:scale(1.35);transform-origin:0 100%;margin-rig
 </style>
 <style id="book-screen-panel-arc">
 /* v96: the open book itself never turns hazy or see-through (over the warm room it read as a sepia veil): only the strip below steps back. */
-.shell:has(.bd-section.is-rail-open) ~ #bookPreviewModal :is(.preview-arc,.book-preview-info){filter:blur(6px)!important;opacity:.55!important;transition:filter .5s ease,opacity .5s ease!important}
+.shell.oc-rail-open ~ #bookPreviewModal :is(.preview-arc,.book-preview-info){filter:blur(6px)!important;opacity:.55!important;transition:filter .5s ease,opacity .5s ease!important}
 #bookPreviewModal :is(.book-preview-stage,.preview-arc,.book-preview-info){transition:filter .6s ease,opacity .6s ease}
 </style>
 <style id="manuscript-photos-style">
@@ -13107,7 +13108,7 @@ html body .shell .project-top .project-hanger::before{display:none!important}
 .preview-catcher{position:fixed;left:0;top:0;bottom:0;right:130px;z-index:-1;pointer-events:auto}
 #bookPreviewModal:not(.open) .preview-catcher{display:none}
 /* While a panel of the right rail (design, format, photo) is open, its cards lie over this catcher's area: the catcher steps aside. */
-.shell:has(.bd-section.is-rail-open) ~ #bookPreviewModal .preview-catcher{pointer-events:none!important}
+.shell.oc-rail-open ~ #bookPreviewModal .preview-catcher{pointer-events:none!important}
 </style>
 <script>(()=>{const m=document.getElementById('bookPreviewModal');if(!m)return;const c=document.createElement('div');c.className='preview-catcher';m.prepend(c);})();</script>
 <style id="v86-misc">
@@ -13597,7 +13598,7 @@ html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before{box-shadow:0 0 0 1.5p
     if(a==='add'){open(!box.classList.contains('open'));return;}
     open(false);try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}});
   document.addEventListener('click',e=>{if(!box.contains(e.target))open(false);});
-  addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_SHEET_TOOLS'&&d.hidden){hidden=d.hidden;if(!box.classList.contains('open'))draw();}});
+  addEventListener('message',e=>{const d=e.data||{};if(d.type==='OCHERKI_SHEET_TOOLS'&&d.hidden){const k=JSON.stringify(d.hidden);if(k===box._hk)return;box._hk=k;hidden=d.hidden;if(!box.classList.contains('open'))draw();}});/* v143: the editor sends this on every key; redraw only on a real change */
 })();
 </script>
 <style id="write-add-v141">
@@ -13648,7 +13649,8 @@ html body .shell.oc-w.oc-ready:not(.wp-on):not(.wp-closing) .oc-add2{opacity:1;p
 </script>
 <style id="more-corner-v141">
 html body .oc-more2{right:116px!important;left:auto!important}
-body:has(.shell:not(.is-night):not(.is-family-room)) .oc-more2 .ml{color:#5c3f28;text-shadow:0 0 8px rgba(255,248,236,.95)}
+/* v143: no body:has — it made the browser recheck the whole page on every change */
+.shell:not(.is-night):not(.is-family-room) ~ .oc-more2 .ml{color:#5c3f28;text-shadow:0 0 8px rgba(255,248,236,.95)}
 </style>
 <style id="manuscript-v124">
 /* v124 — «Рукопись»: the fan in the middle of the screen, «Глава» in script and lower, no hint about the wheel */
@@ -13738,7 +13740,8 @@ html body .shell.oc-card .writing-prompt,html body .shell.oc-card .writing-promp
     if(!pr||!pr.width||!vis){clearTimeout(wait);wait=setTimeout(years,400);return;}done=true;
     const KS=+(mc.dataset.k||1),R=142*KS,N=12,Y0=new Date().getFullYear(),STEP=Math.max(1,Math.round((Y0-1950)/N));
     const box=document.createElement('div');box.className='oc-years';shell.after(box);
-    const place=()=>{const r=pv.getBoundingClientRect();box.style.left=(r.left+r.width/2)+'px';box.style.top=(r.top+r.height/2)+'px';};place();
+    /* v143: the pivot is measured once (and on resize), never in every frame: a measurement per frame forced a full layout of the page 60 times a second */
+    let placed=0;const place=(force)=>{const now=performance.now();if(!force&&now-placed<1000)return;placed=now;const r=pv.getBoundingClientRect();box.style.left=(r.left+r.width/2)+'px';box.style.top=(r.top+r.height/2)+'px';};place(true);addEventListener('resize',()=>place(true));
     const handDeg=()=>{const d=new Date();const sec=d.getSeconds()+d.getMilliseconds()/1000;return -90-sec*6;};   // the real second hand, counter-clockwise
     const start=handDeg();
     // twelve places on the dial, from where the hand is now, in the direction it moves
@@ -13747,7 +13750,7 @@ html body .shell.oc-card .writing-prompt,html body .shell.oc-card .writing-promp
     const step=now=>{place();const gone=Math.min(360,Math.max(0,start-handDeg()+(start-handDeg()<-1?360:0)));   // degrees the hand has travelled
       marks.forEach(m=>{const d=gone+m.at;   // >0: the hand has passed this place by d degrees
         const o=d<=0?0:d<8?d/8:Math.max(0,1-(d-8)/40);/* v142: a year lives ~48°, never more than two at once */const a=(start+m.at)*Math.PI/180;
-        m.el.style.left=Math.round(Math.cos(a)*R)+'px';m.el.style.top=Math.round(Math.sin(a)*R)+'px';m.el.style.opacity=o.toFixed(3);
+        const op=o.toFixed(2);if(op==='0.00'&&m.o==='0.00')return;m.o=op;m.el.style.left=Math.round(Math.cos(a)*R)+'px';m.el.style.top=Math.round(Math.sin(a)*R)+'px';m.el.style.opacity=op;
         m.el.style.textShadow=o>.6?`0 0 ${Math.round(8*o)}px rgba(255,190,110,${(o*.8).toFixed(2)})`:'none';});
       if(now-t0<64000&&shell.classList.contains('oc-w'))requestAnimationFrame(step);else box.remove();};
     requestAnimationFrame(step);};
@@ -13783,7 +13786,7 @@ html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before,html body .shell.oc-w
 .okh-dot.wake span{opacity:1}
 .okh-dot:hover i{box-shadow:0 0 14px 5px rgba(255,160,70,.85),0 0 34px 10px rgba(255,110,30,.35)}
 .okh-dot span{position:absolute;left:44px;top:50%;translate:0 -50%;white-space:nowrap;font:italic 16px 'CormorantCy',Georgia,serif;color:#e9d3b2;text-shadow:0 0 8px rgba(20,10,5,.85);opacity:0;transition:opacity .4s;pointer-events:none}
-body:has(.shell:not(.is-night)) .okh-dot span{color:#5c3f28;text-shadow:0 0 10px rgba(255,248,236,.95)}
+.shell:not(.is-night) ~ .okh-dot span{color:#5c3f28;text-shadow:0 0 10px rgba(255,248,236,.95)}
 .okh-dot:hover span{opacity:1}
 .okh{position:fixed;inset:0;z-index:2147483450;opacity:0;pointer-events:none;transition:opacity 1.4s ease;
   background:radial-gradient(ellipse 62vmax 54vmax at var(--hx,18%) var(--hy,78%),rgba(14,7,3,.94),rgba(14,7,3,.82) 40%,rgba(14,7,3,.35) 70%,rgba(14,7,3,0) 100%)}
@@ -14306,7 +14309,7 @@ html body .shell.oc-w .write-nav{scale:var(--oc-k,1);transform-origin:0 0}
 .okp .okt .deck{transform:scale(var(--ui-s,1))}
 .okp .okt .hd{transform-origin:50% 0;scale:var(--ui-s,1)}
 </style>
-<script src="assets/keeper/tour.js?v=20261107-v142"></script>
+<script src="assets/keeper/tour.js?v=20261107-v143"></script>
 <script id="intro-v142-js">
 (()=>{const shell=document.querySelector('.shell');if(!shell||!window.OcherkiTour)return;
   const ov=document.createElement('div');ov.className='okp';ov.innerHTML='<div class="kp2"><canvas class="kpc"></canvas></div>';document.body.appendChild(ov);
@@ -14494,7 +14497,7 @@ html body .wk2 .fm-acts{top:calc(58% + 312px)}
 </style>
 <style id="rooms-v142">
 /* v142 — into a family room nothing flies over it: the sheet that would travel back to the editor is not shown */
-html.oc-to-room .ms-flyer,body:has(.shell.is-family-room) .ms-flyer{display:none!important}
+html.oc-to-room .ms-flyer,.shell.is-family-room ~ .ms-flyer{display:none!important}
 /* leaving the archive for another room, its cards go out quickly instead of showing through the next room */
 .oc-hub:not(.on){transition:opacity .28s ease!important}
 </style>
