@@ -1292,6 +1292,7 @@
       overflow: hidden;
     }
 
+    .constructor-entry.is-auto .constructor-entry__content{display:none!important}
     .constructor-entry.is-visible {
       visibility: visible;
       opacity: 1;
@@ -3333,6 +3334,13 @@
       const constructorEntry = document.getElementById("constructorEntry");
       const constructorPower = document.getElementById("constructorPower");
       let constructorStarted = false;
+      // v120: no power screen — once the book is ready the constructor opens by itself.
+      const autoEnter = true;
+      if (autoEnter && constructorEntry && constructorPower) {
+        new MutationObserver(() => {
+          if (!constructorStarted && constructorEntry.classList.contains("is-visible")) { constructorEntry.classList.add("is-auto"); constructorPower.click(); }
+        }).observe(constructorEntry, { attributes:true, attributeFilter:["class"] });
+      }
       // The constructor loads in the background while the power screen is
       // shown, so pressing the key lights it up at once instead of waiting
       // for the page to load.
@@ -3342,13 +3350,14 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v119";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v120";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
       // The key itself flies to its working place in the top-left corner of
       // the constructor (a copy above the black stage), then hands over.
       const flyPowerKey = () => {
+        if (constructorEntry?.classList.contains("is-auto")) return;
         const rect = constructorPower.getBoundingClientRect();
         const ghost = constructorPower.cloneNode(true);
         ghost.removeAttribute("id");
@@ -3846,7 +3855,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v119"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v119"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v120"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v120"></script>
 </body>
 </html>
