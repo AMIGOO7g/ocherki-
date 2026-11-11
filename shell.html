@@ -13463,9 +13463,19 @@ html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,
     // the two keys over the sheet
     const mid=(L+R)/2;root.setProperty('--oc-ky','30px');// the three keys over the sheet share its free width evenly, clear of the top bar on a small screen
     {let r0=0;document.querySelectorAll('.oct[role="navigation"] .row .k,.oct[role="navigation"] .lbx').forEach(k=>{const r=k.getBoundingClientRect();if(r.width&&r.top<140)r0=Math.max(r0,r.right);});
+     // v142: equal margins at both edges of the sheet and equal gaps between the three keys, measured with their labels
      const left=Math.max(L+46,r0+28),right=R-150,span=Math.max(240,right-left);
      {const l=document.querySelector('.wp-keys.k-closed .lab');if(l)l.textContent=span<560?'в книге':'показать в книге';}
-     root.setProperty('--oc-k1x',Math.round(left)+'px');root.setProperty('--oc-k2x',Math.round(left+span*.46)+'px');root.setProperty('--oc-k3x',Math.round(left+span*.86)+'px');}
+     // each key with its label: beside it when the sheet is wide enough, under it when it is narrow
+     const G=[['.wp-keys.k-closed','.wp-keys.k-closed .key','.wp-keys.k-closed .lab'],['.book-design-shell.is-rail','.bd-rail-key[data-rail="tips"]','.book-design-shell.is-rail .oc-klab'],['.oc-add2','.oc-add2 [data-a="add"]','.oc-add2 .it.main .lab']]
+       .map(([g,k,l])=>{const ge=document.querySelector(g),ke=document.querySelector(k),le=document.querySelector(l);if(!ge||!ke||!le)return null;const kr=ke.getBoundingClientRect();
+         return{off:kr.left-ge.getBoundingClientRect().left,kw:kr.width,lw:le.scrollWidth||le.getBoundingClientRect().width};});
+     const fit=tight=>{const W=G.map(g=>tight?Math.max(g.kw,g.lw):g.kw+10+g.lw);const free=(R-L)-W.reduce((x,y)=>x+y,0);let side=free/4,gap=free/4;const need=r0+28-L;if(side<need){side=need;gap=(free-2*side)/2;}return{W,side,gap};};
+     if(G.every(Boolean)){let tight=false,f=fit(false);if(f.gap<18){tight=true;f=fit(true);}
+       shell.classList.toggle('oc-ktight',tight);
+       if(f.gap>=10){let x=L+f.side;['--oc-k1x','--oc-k2x','--oc-k3x'].forEach((v,i)=>{const g=G[i],lead=tight?(f.W[i]-g.kw)/2:0;root.setProperty(v,Math.round(x+lead-g.off)+'px');x+=f.W[i]+f.gap;});}
+       else{root.setProperty('--oc-k1x',Math.round(left)+'px');root.setProperty('--oc-k2x',Math.round(left+span*.46)+'px');root.setProperty('--oc-k3x',Math.round(left+span*.86)+'px');}}
+     else{root.setProperty('--oc-k1x',Math.round(left)+'px');root.setProperty('--oc-k2x',Math.round(left+span*.46)+'px');root.setProperty('--oc-k3x',Math.round(left+span*.86)+'px');}}
     if(key!==last){last=key;}}
   const kick=()=>requestAnimationFrame(layout);
   new MutationObserver(kick).observe(shell,{attributes:true,attributeFilter:['class']});
@@ -13532,11 +13542,13 @@ html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before{box-shadow:0 0 0 1.5p
     mus.innerHTML=`<div class="sw hg" style="left:0;top:0;width:44px;height:84px">${th(22,0,40)}${kb('music','note',44)}</div><span class="lbx" style="left:22px;top:91px">Музыка</span>`
       +L.map((m,i)=>`<div class="mm" style="transition-delay:${i*60}ms"><div class="sw hg" style="left:0;top:${110+i*58-14}px;width:44px;height:58px">${th(22,0,14)}${kb(m[0],m[1],44)}</div><span class="ml" style="top:${110+i*58+22}px">${m[2]}</span></div>`).join('');
     mus.querySelectorAll('.sw').forEach(x=>T()?.attach?.(x));
+    mus.querySelector('[data-a="music"]')?.classList.toggle('glow',playing);
 };
   document.body.appendChild(mus);
   const send=a=>{try{window.parent?.postMessage({type:'OCHERKI_AUDIO_COMMAND',action:a},'*');}catch(_){}};
   let closeT=0;
-  mus.addEventListener('pointerenter',()=>{clearTimeout(closeT);if(!mus.classList.contains('open')){draw();void mus.offsetWidth;mus.classList.add('open');}});
+  mus.addEventListener('pointerenter',()=>{clearTimeout(closeT);if(!mus.classList.contains('open')){draw();void mus.offsetWidth;document.dispatchEvent(new CustomEvent('oc-cascade',{detail:mus}));mus.classList.add('open');}});
+  document.addEventListener('oc-cascade',e=>{if(e.detail!==mus&&mus.classList.contains('open')){clearTimeout(closeT);mus.classList.remove('open');}});
   mus.addEventListener('pointerleave',()=>{clearTimeout(closeT);closeT=setTimeout(()=>mus.classList.remove('open'),700);});
   mus.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.stopPropagation();const a=b.dataset.a;
     if(a==='music'||a==='toggle'){send('toggle');}else if(a==='next'){send('nextTrack');}else if(a==='prev'){send('prevTrack');}else if(a==='mute')send('muteAll');});
@@ -13564,7 +13576,8 @@ html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before{box-shadow:0 0 0 1.5p
   const draw=()=>{row.innerHTML=L.filter(m=>!hidden[m[0]]).map((m,i)=>`<div class="it sm" style="--i:${i}"><button type="button" class="key" data-a="${m[0]}" aria-label="${m[1]}"><span class="cap">${S}${IC[m[0]]}${E}</span></button><span class="lab">${m[1]}</span></div>`).join('');};
   draw();
   const key=box.querySelector('[data-a="add"]');const hang=()=>{const a=T()?.attach;if(!a){setTimeout(hang,500);return;}key.style.transformOrigin='50% calc(-1 * var(--oc-ky,30px))';a(key);};hang();
-  let closeT=0;const open=on=>{clearTimeout(closeT);if(on&&!box.classList.contains('open'))draw();box.classList.toggle('open',on);};
+  let closeT=0;const open=on=>{clearTimeout(closeT);if(on&&!box.classList.contains('open')){draw();void row.offsetWidth;document.dispatchEvent(new CustomEvent('oc-cascade',{detail:box}));}box.classList.toggle('open',on);};
+  document.addEventListener('oc-cascade',e=>{if(e.detail!==box&&box.classList.contains('open')){clearTimeout(closeT);box.classList.remove('open');}});
   box.addEventListener('pointerenter',()=>open(true));
   box.addEventListener('pointerleave',()=>{clearTimeout(closeT);closeT=setTimeout(()=>open(false),700);});
   box.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.stopPropagation();const a=b.dataset.a;
@@ -13583,9 +13596,10 @@ html body .shell.oc-w.oc-ready:not(.wp-on):not(.wp-closing) .oc-add2{opacity:1;p
 .shell.is-night .oc-add2 .lab{color:#d9b47e}
 .oc-add2 .cap svg{width:22px;height:22px}
 .oc-add2 .row{display:flex;gap:14px;align-items:flex-start;margin-top:4px}
-.oc-add2 .it.sm{flex-direction:column;gap:5px;opacity:0;translate:-14px 0;pointer-events:none;transition:opacity .4s ease calc(var(--i)*55ms),translate .5s cubic-bezier(.2,.8,.3,1) calc(var(--i)*55ms)}
+.oc-add2 .it.sm{flex-direction:column;gap:5px;opacity:0;translate:-22px 0;pointer-events:none;transition:opacity .4s ease,translate .55s cubic-bezier(.2,.8,.3,1)}
+.oc-add2.open .it.sm{transition:opacity .5s ease calc(var(--i)*70ms),translate .65s cubic-bezier(.2,.8,.3,1) calc(var(--i)*70ms)}
 .oc-add2.open .it.sm{opacity:1;translate:0 0;pointer-events:auto}
-.oc-add2 .it.sm .key{--size:40px}
+.oc-add2 .it.sm .key{--size:44px}
 .oc-add2 .it.sm .cap svg{width:18px;height:18px}
 .oc-add2 .it.sm .lab{font-size:14px}
 .oc-add2 .it.main .key:active,.oc-add2 .it.sm .key:active{translate:0 3px}
@@ -13606,7 +13620,8 @@ html body .shell.oc-w.oc-ready:not(.wp-on):not(.wp-closing) .oc-add2{opacity:1;p
       +L.map((m,i)=>`<div class="mm" style="transition-delay:${i*60}ms"><div class="sw hg" style="left:0;top:${110+i*58-14}px;width:44px;height:58px">${th(22,0,14)}${kb(m[0],m[1])}</div><span class="ml" style="top:${110+i*58+22}px">${m[2]}</span></div>`).join('');
     box.querySelectorAll('.sw').forEach(x=>T()?.attach?.(x));};
   document.body.appendChild(box);draw();
-  let closeT=0;const open=on=>{clearTimeout(closeT);if(on&&!box.classList.contains('open')){draw();void box.offsetWidth;}box.classList.toggle('open',on);};
+  let closeT=0;const open=on=>{clearTimeout(closeT);if(on&&!box.classList.contains('open')){draw();void box.offsetWidth;document.dispatchEvent(new CustomEvent('oc-cascade',{detail:box}));}box.classList.toggle('open',on);};
+  document.addEventListener('oc-cascade',e=>{if(e.detail!==box&&box.classList.contains('open')){clearTimeout(closeT);box.classList.remove('open');}});
   box.addEventListener('pointerenter',()=>open(true));
   box.addEventListener('pointerleave',()=>{clearTimeout(closeT);closeT=setTimeout(()=>open(false),700);});
   box.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.stopPropagation();const a=b.dataset.a;
@@ -13708,7 +13723,7 @@ html body .shell.oc-card .writing-prompt,html body .shell.oc-card .writing-promp
     const pv=document.querySelector('.bottom-left .clock-pivot');const pr=pv?.getBoundingClientRect();
     const mc=document.querySelector('.bottom-left .master-clock');const vis=mc&&+getComputedStyle(mc).opacity>.9;
     if(!pr||!pr.width||!vis){clearTimeout(wait);wait=setTimeout(years,400);return;}done=true;
-    const KS=+(mc.dataset.k||1),R=100*KS,N=12,Y0=new Date().getFullYear(),STEP=Math.max(1,Math.round((Y0-1950)/N));
+    const KS=+(mc.dataset.k||1),R=142*KS,N=12,Y0=new Date().getFullYear(),STEP=Math.max(1,Math.round((Y0-1950)/N));
     const box=document.createElement('div');box.className='oc-years';shell.after(box);
     const place=()=>{const r=pv.getBoundingClientRect();box.style.left=(r.left+r.width/2)+'px';box.style.top=(r.top+r.height/2)+'px';};place();
     const handDeg=()=>{const d=new Date();const sec=d.getSeconds()+d.getMilliseconds()/1000;return -90-sec*6;};   // the real second hand, counter-clockwise
@@ -13718,7 +13733,7 @@ html body .shell.oc-card .writing-prompt,html body .shell.oc-card .writing-promp
     const t0=performance.now();
     const step=now=>{place();const gone=Math.min(360,Math.max(0,start-handDeg()+(start-handDeg()<-1?360:0)));   // degrees the hand has travelled
       marks.forEach(m=>{const d=gone+m.at;   // >0: the hand has passed this place by d degrees
-        const o=d<=0?0:d<10?d/10:Math.max(0,1-(d-10)/95);const a=(start+m.at)*Math.PI/180;
+        const o=d<=0?0:d<8?d/8:Math.max(0,1-(d-8)/40);/* v142: a year lives ~48°, never more than two at once */const a=(start+m.at)*Math.PI/180;
         m.el.style.left=Math.round(Math.cos(a)*R)+'px';m.el.style.top=Math.round(Math.sin(a)*R)+'px';m.el.style.opacity=o.toFixed(3);
         m.el.style.textShadow=o>.6?`0 0 ${Math.round(8*o)}px rgba(255,190,110,${(o*.8).toFixed(2)})`:'none';});
       if(now-t0<64000&&shell.classList.contains('oc-w'))requestAnimationFrame(step);else box.remove();};
@@ -14355,4 +14370,17 @@ html body .rc2 .rc2-th{right:auto;left:calc(50% + 420px);top:calc(41% - 100px)}
 @keyframes rcUnder{0%{transform:translate(-50%,-50%)}45%{transform:translate(calc(-50% - 520px),-46%) rotate(-11deg) scale(.94);z-index:3}55%{z-index:0}100%{transform:translate(calc(-50% - 8px),calc(-50% + 12px)) rotate(-3deg) scale(.98);opacity:0;z-index:0}}
 .rc2-card.rc-up{animation:rcUp .9s cubic-bezier(.2,.8,.3,1)}
 @keyframes rcUp{from{transform:translate(calc(-50% - 8px),calc(-50% + 12px)) rotate(-3deg) scale(.97)}to{transform:translate(-50%,-50%)}}
+</style>
+<style id="ui-v142">
+/* v142 — on a narrow sheet the three keys carry their labels underneath, so they sit evenly with equal margins */
+html body .shell.oc-ktight .wp-keys.k-closed .wp-item,html body .shell.oc-ktight .book-design-shell.is-rail .bd-rail-item,html body .shell.oc-ktight .oc-add2 .it.main{position:relative}
+html body .shell.oc-ktight .wp-keys.k-closed .lab,html body .shell.oc-ktight.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item:has([data-rail="tips"]) .oc-klab,html body .shell.oc-ktight .oc-add2 .it.main .lab{position:absolute!important;left:50%!important;top:100%!important;transform:none!important;translate:-50% 5px!important;margin:0!important;text-align:center;white-space:nowrap}
+html body .oc-add2 .it.main .key{--size:46px}
+/* v142 — a smaller weight on the pendulum */
+html body .master-clock .logo-bob .oc-bob{width:28px;height:28px}
+/* the lamp: its copper ring breathes with the bulb */
+@keyframes rdRim{0%,100%{box-shadow:0 0 0 1px rgba(214,150,96,.35),0 0 0 0 rgba(255,150,60,0)}50%{box-shadow:0 0 0 1.5px rgba(255,206,150,.95),0 0 14px 3px rgba(255,150,60,.65)}}
+html body .bd-rail-key[data-rail="tips"].rd-glow{border-radius:50%;animation:rdRim 1.5s ease-in-out infinite}
+/* hanging cascades: one at a time, the closing one leaves quickly so the labels never cross */
+.oc-mus:not(.open) .mm{transition-duration:.22s,.3s!important;transition-delay:0s!important}
 </style>

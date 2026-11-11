@@ -2797,7 +2797,7 @@
       const VINYL_BETWEEN_TRACKS_MS = 3000;
       const scheduleNextTrack = event => {
         if (event?.target && event.target !== currentMusic()) return;
-        clearTimeout(musicTransitionTimer);
+        clearTimeout(musicTransitionTimer);musicTransitionTimer=null;
         if (audioState !== 'playing' || allMuted || !audioLayers.music) return;
         if(document.hidden){
           pendingHiddenTrackAdvance=true;
@@ -2827,10 +2827,10 @@
 
       let switchPending=false;
       const switchMusicTrack = async delta => {
-        clearTimeout(musicIntroTimer);
+        clearTimeout(musicIntroTimer);musicIntroTimer=null;
         // v125: a second press while the vinyl plays only changes the track; the wait does not start again.
         const keepWaiting=switchPending&&audioState==='playing'&&!allMuted;
-        if(!keepWaiting) clearTimeout(musicTransitionTimer);
+        if(!keepWaiting){clearTimeout(musicTransitionTimer);musicTransitionTimer=null;}
         pauseAllMusic();
         const next=setMusicTrack(musicTrackIndex+delta);
         musicPlaylist.forEach(track=>{ if(track!==next){track.currentTime=0;track.volume=0;} });
@@ -2863,7 +2863,7 @@
       };
 
       const beginMusicAfterVinyl = () => {
-        clearTimeout(musicIntroTimer);
+        clearTimeout(musicIntroTimer);musicIntroTimer=null;
         musicIntroTimer = setTimeout(async () => {
           musicIntroTimer=null;
           if(document.hidden){stopVinyl();return;}
@@ -2892,6 +2892,8 @@
             audioState = 'playing';
             if (musicIntroStarted) {
               stopVinyl();
+              // paused right after a song ended: go on with the next one, not the same song again
+              if(currentMusic().ended){const n=setMusicTrack(musicTrackIndex+1);n.currentTime=0;}
               const m=currentMusic();
               m.volume = 0;
               if(audioLayers.music){ await m.play(); fadeAudio(m, AUDIO_TARGET.music, 1400); }
@@ -2907,7 +2909,7 @@
 
           audioState = 'playing';
           musicIntroStarted = false;
-          clearTimeout(musicIntroTimer);
+          clearTimeout(musicIntroTimer);musicIntroTimer=null;
           const v = audioTracks.vinyl;
           const m = currentMusic();
           v.currentTime = 0;
@@ -2930,8 +2932,8 @@
       const pauseAmbientMusic = async () => {
         if (audioState !== 'playing') return;
         audioState = 'paused';
-        clearTimeout(musicIntroTimer);
-        clearTimeout(musicTransitionTimer);
+        clearTimeout(musicIntroTimer);musicIntroTimer=null;
+        clearTimeout(musicTransitionTimer);musicTransitionTimer=null;
         await Promise.all([
           fadeAudio(audioTracks.vinyl,0,950),
           fadeAudio(currentMusic(),0,950)
@@ -2949,8 +2951,12 @@
           updateAudioUi();
           return startAmbientMusic('unmute');
         }
-        // v124: «playing» but silent (the song ended and nothing followed) — play the next one.
-        if (audioState === 'playing' && currentMusic().paused && audioTracks.vinyl.paused) { switchMusicTrack(1); return; }
+        // v142: «playing» but silent — the song ended and nothing is on its way (no crackle, no timer):
+        // the next song starts right now, on this very press
+        if (audioState === 'playing' && currentMusic().paused && !musicTransitionTimer && !musicIntroTimer) {
+          stopVinyl();const n=currentMusic().ended||!currentMusic().currentTime?setMusicTrack(musicTrackIndex+(currentMusic().ended?1:0)):currentMusic();
+          if(n.ended)n.currentTime=0;n.volume=0;musicIntroStarted=true;
+          n.play().then(()=>fadeAudio(n,AUDIO_TARGET.music,900)).catch(e=>console.log('Music waiting for interaction',e));updateAudioUi();return;}
         if (audioState === 'playing') pauseAmbientMusic();
         else startAmbientMusic();
       };
@@ -2960,8 +2966,8 @@
         pendingAutoplay=false;
         saveAudioPrefs();
         if (audioState === 'stopped' && !allMuted) { updateAudioUi(); return; }
-        clearTimeout(musicIntroTimer);
-        clearTimeout(musicTransitionTimer);
+        clearTimeout(musicIntroTimer);musicIntroTimer=null;
+        clearTimeout(musicTransitionTimer);musicTransitionTimer=null;
         audioState = 'stopped';
         const m=currentMusic(), v=audioTracks.vinyl;
         const m0=m.volume, v0=v.volume;
@@ -3003,8 +3009,8 @@
         if (nextMuted) {
           preMuteState = audioState;
           allMuted = true;
-          clearTimeout(musicIntroTimer);
-          clearTimeout(musicTransitionTimer);
+          clearTimeout(musicIntroTimer);musicIntroTimer=null;
+          clearTimeout(musicTransitionTimer);musicTransitionTimer=null;
           await Promise.all([
             fadeAudio(audioTracks.vinyl,0,550),
             fadeAudio(currentMusic(),0,550),
@@ -3028,12 +3034,12 @@
       document.addEventListener('visibilitychange',()=>{
         if(document.hidden){
           if(musicTransitionTimer){
-            clearTimeout(musicTransitionTimer);
+            clearTimeout(musicTransitionTimer);musicTransitionTimer=null;
             musicTransitionTimer=null;
             pendingHiddenTrackAdvance=true;
           }
           if(musicIntroTimer){
-            clearTimeout(musicIntroTimer);
+            clearTimeout(musicIntroTimer);musicIntroTimer=null;
             musicIntroTimer=null;
           }
           stopVinyl();
