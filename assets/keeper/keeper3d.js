@@ -4,8 +4,8 @@
 window.OcherkiKeeper3D={create(canvas,opts={}){
 
 let renderer;try{if(!window.THREE)throw 0;renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}catch(e){return null;}
-const MODE=null;const WORDS=opts.words||'Очерки жизни';
-renderer.setPixelRatio(Math.min(2,devicePixelRatio||1));
+const MODE=null;const WORDS=opts.words||'Очерки жизни';let WORDS_NOW=WORDS;
+renderer.setPixelRatio(Math.min(2.5,Math.max(opts.minRatio||2,devicePixelRatio||1)));
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x000000);   // black: the canvas is laid over the page with «screen», so black is see-through
 const camera=new THREE.PerspectiveCamera(30,1,.1,200);
 // multisampled target: no stair-steps on the thin edges of the ribbons
@@ -62,7 +62,7 @@ const ink=makeStrip(0);ink.material.uniforms.uS.value=0;
 function shapeOf(pts){const s=new THREE.Shape();const crv=new THREE.CatmullRomCurve3(pts.map(q=>{const v=W(q[0],q[1]);return new THREE.Vector3(v.x,v.y,0);}),true,'centripetal');const sp=crv.getPoints(160);
   s.moveTo(sp[0].x,sp[0].y);for(let i=1;i<sp.length;i++)s.lineTo(sp[i].x,sp[i].y);return s;}
 const rimMat=(base,rim,op=1)=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,uniforms:{uOp:{value:op},uT:{value:0},uFl:{value:0}},
-  vertexShader:'uniform float uT;uniform float uFl;varying vec3 vN;varying vec3 vV;void main(){vec3 P=position;float k=smoothstep(1.3,3.1,P.y)*uFl;P.x+=(sin(uT*1.4+P.y*2.3)*.09+sin(uT*2.3+P.y*4.)*.03)*k;P.y+=sin(uT*1.1+P.x*3.)*.03*k;vec4 mv=modelViewMatrix*vec4(P,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+  vertexShader:'uniform float uT;uniform float uFl;varying vec3 vN;varying vec3 vV;void main(){vec3 P=position;float k=smoothstep(1.3,3.1,P.y)*uFl;P.x+=(sin(uT*1.4+P.y*2.3)*.15+sin(uT*2.3+P.y*4.)*.05)*k;P.y+=sin(uT*1.1+P.x*3.)*.03*k;vec4 mv=modelViewMatrix*vec4(P,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
   fragmentShader:`varying vec3 vN;varying vec3 vV;uniform float uOp;void main(){float f=pow(1.-abs(dot(vN,vV)),3.);
     vec3 c=mix(vec3(${'${base}'}),vec3(${'${rim}'}),f);gl_FragColor=vec4(c,uOp);}`.replace("${base}",'BASE').replace("${rim}",'RIM')});
 const rimMat2=(base,rim,op=1)=>{const m=rimMat(base,rim,op);m.fragmentShader=m.fragmentShader.replace('BASE',base).replace('RIM',rim);return m;};
@@ -93,7 +93,7 @@ const tTex=new THREE.CanvasTexture(tc);
 function paintWords(w){tx2.clearRect(0,0,2048,360);tx2.font='210px '+(opts.font||'"SignThatS", "Marck Script", cursive');tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,250);tTex.needsUpdate=true;
   return Math.min(2008,tx2.measureText(w).width+80)/2048;}
 let wordsW=paintWords(WORDS);
-if(document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"')).then(()=>{wordsW=paintWords(WORDS);}).catch(()=>{});
+if(document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"')).then(()=>{wordsW=paintWords(WORDS_NOW);}).catch(()=>{});
 const words=new THREE.Mesh(new THREE.PlaneGeometry(6.2,6.2*360/2048),new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,
   uniforms:{uT:{value:tTex},uR:{value:0},uA:{value:0},uW:{value:wordsW}},
   vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
@@ -110,7 +110,7 @@ const ember=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTextu
 const DN=Math.round(opts.dust??34),dg=new THREE.BufferGeometry(),dp=new Float32Array(DN*3),dph=new Float32Array(DN),dsp=new Float32Array(DN),dsz=new Float32Array(DN);
 for(let i=0;i<DN;i++){const a=Math.random()*Math.PI*2,r=Math.sqrt(Math.random());dp[i*3]=Math.cos(a)*r*3.6-.2;dp[i*3+1]=Math.random()*9-4.8;dp[i*3+2]=(Math.random()-.5)*2.4;dph[i]=Math.random()*100;dsp[i]=.12+Math.random()*.25;dsz[i]=.5+Math.random()*1.1;}
 dg.setAttribute('position',new THREE.BufferAttribute(dp,3));dg.setAttribute('aP',new THREE.BufferAttribute(dph,1));dg.setAttribute('aS',new THREE.BufferAttribute(dsp,1));dg.setAttribute('aZ',new THREE.BufferAttribute(dsz,1));
-const dust=new THREE.Points(dg,new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uT:{value:0},uA:{value:1},uPR:{value:renderer.getPixelRatio()},uDS:{value:opts.dustSize??1}},
+const dust=new THREE.Points(dg,new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uT:{value:0},uA:{value:1},uPR:{value:renderer.getPixelRatio()},uDS:{value:opts.dustSize??Math.pow(1/(opts.size||1),.85)}},
   vertexShader:`attribute float aP;attribute float aS;attribute float aZ;uniform float uT;uniform float uPR;uniform float uDS;varying float vA;
     void main(){vec3 p=position;float y=mod(p.y+4.8+uT*aS,9.)-4.8;p.y=y;p.x+=sin(uT*.35+aP)*.22+sin(uT*.9+aP*2.)*.06;p.z+=cos(uT*.3+aP)*.15;
       float tw=.5+.5*sin(uT*(1.3+aS*3.)+aP*7.);vA=tw*tw*smoothstep(-4.8,-3.6,y)*smoothstep(4.2,2.4,y);
@@ -122,7 +122,7 @@ dust.renderOrder=4;world.add(dust);
 // ——— soft springs: every move eases in, overshoots a little, settles ———
 const spring=(v,k=10,z=.82)=>({v,t:v,vel:0,k,z});
 function step(s,dt){const a=s.k*(s.t-s.v)-2*s.z*Math.sqrt(s.k)*s.vel;s.vel+=a*dt;s.v+=s.vel*dt;}
-const S={x:spring(0,5,.8),y:spring(0,5,.8),sc:spring(1,6,.72),yaw:spring(0,4,.9),pitch:spring(0,4,.9),form:spring(1,3,1),emb:spring(0,6,.85),ex:spring(0,3,.85),ey:spring(.3,3,.85)};
+const QK=opts.quick||1;const S={x:spring(0,5*QK,.8),y:spring(0,5*QK,.8),sc:spring(1,6*QK,.72),yaw:spring(0,4,.9),pitch:spring(0,4,.9),form:spring(1,3*QK,1),emb:spring(0,6*QK,.85),ex:spring(0,3*QK,.85),ey:spring(.3,3*QK,.85)};
 const tmpV=new THREE.Vector3(),T_=new THREE.Vector3(),B0=new THREE.Vector3(),N0=new THREE.Vector3(),OFF=new THREE.Vector3(),RN=new THREE.Vector3(),Z=new THREE.Vector3(0,0,1);
 const inkCurve=new THREE.CatmullRomCurve3(INK.map(q=>W(q[0],q[1],20)),false,'centripetal');const inkPts=inkCurve.getSpacedPoints(80);
 const inkDef={p:INK.map(q=>[q[0],q[1],20,8]),tw:[0,0],l:1,side:0};
@@ -165,7 +165,7 @@ const aspectK=()=>Math.min(1,camera.aspect/0.75);
 // where he stands for each thing he does
 const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHeight;
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
-let freeP={x:0,y:0,sc:1},awayTo=null;
+let freeP={x:0,y:0,sc:1},awayTo=null,afterWrite='idle';const WS=opts.writeSpeed||1;
 function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
   if(m==='free')return freeP;
@@ -178,6 +178,7 @@ function setMode(m){
   // from the ember he never jumps: the spark first glides to where he is needed, kindles there, and he grows out of it
   if((mode==='away'||mode==='come')&&m!=='away'){pending=m;if(mode!=='come'){mode='come';modeAt=clock;grownAt=0;}
     const P=placeOf(m);S.ex.t=P.x;S.ey.t=P.y+.3;tip.classList.remove('on');return;}
+  const prevMode=mode==='write'?afterWrite:mode;if(m==='write')afterWrite=prevMode;
   mode=m;modeAt=clock;tip.classList.remove('on');
   const P=placeOf(m);
   if(m==='idle'){S.x.t=P.x;S.y.t=P.y;S.sc.t=1;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
@@ -185,7 +186,7 @@ function setMode(m){
   if(m==='aside'){S.x.t=P.x;S.y.t=P.y;S.sc.t=P.sc;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
   if(m==='hint'){S.x.t=P.x;S.y.t=P.y;S.sc.t=P.sc;S.form.t=1;S.emb.t=0;if(S.form.v>.98)NIBL=PEN;}
   if(m==='away'){NIBL=SPARK;S.form.t=0;S.emb.t=1;const sp=sparkWorld();S.ex.v=S.ex.t=sp.x;S.ey.v=S.ey.t=sp.y;S.ex.vel=0;S.ey.vel=0;}
-  if(m==='write'){NIBL=PEN;S.form.t=0;S.x.t=P.x;S.y.t=P.y;S.sc.t=1;S.emb.t=0;}}
+  if(m==='write'){NIBL=PEN;S.form.t=0;S.emb.t=0;if(prevMode==='free'){S.x.t=freeP.x;S.y.t=freeP.y;S.sc.t=freeP.sc;}else{S.x.t=P.x;S.y.t=P.y;S.sc.t=1;}}}
 
 
 function fit(){const w=VW(),h=VH();renderer.setSize(w,h,false);composer.setSize(w,h);camera.aspect=w/h;
@@ -199,15 +200,15 @@ const lerp=(a,b,k)=>a+(b-a)*k;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;const T=clock;
   const mt=clock-modeAt;
   // the write cycle: he lies down into the line, the pen writes the words, they glow and fade, he rises
-  if(mode==='write'){writeP=mt<1.9?0:Math.min(1,(mt-1.9)/3.3);if(mt>6.9)S.form.t=1;if(mt>9.4)setMode('idle');}
+  if(mode==='write'){const wt=mt*WS;writeP=wt<1.9?0:Math.min(1,(wt-1.9)/3.3);if(wt>6.9)S.form.t=1;if(wt>9.4)setMode(afterWrite==='free'?'free':'idle');}
   if(mode==='come'){const P=placeOf(pending||'idle');
     // the body rides with the spark, so nothing jumps when he appears
     S.sc.v=S.sc.t=P.sc;S.x.v=S.ex.v-SPARK.x*P.sc;S.y.v=S.ey.v-SPARK.y*P.sc;S.x.vel=S.y.vel=0;S.x.t=P.x;S.y.t=P.y;
     S.ex.t=P.x+SPARK.x*P.sc;S.ey.t=P.y+SPARK.y*P.sc;
     if(!grownAt&&Math.hypot(S.ex.v-S.ex.t,S.ey.v-S.ey.t)<.15&&Math.hypot(S.ex.vel,S.ey.vel)<.5){grownAt=clock;S.form.t=1;S.emb.t=0;}
-    if(grownAt&&clock-grownAt>2.4){const m=pending||'idle';pending=null;mode='_';setMode(m);}}
+    if(grownAt&&clock-grownAt>2.4/QK){const m=pending||'idle';pending=null;mode='_';setMode(m);}}
   // away: once he is gathered into the spark, it lifts off and drifts to its corner
-  if(mode==='away'&&mt>1.3){if(awayTo){S.ex.t=awayTo.x;S.ey.t=awayTo.y;}else{S.ex.t=3.2*aspectK();S.ey.t=3.8;}}
+  if(mode==='away'&&mt>1.3/QK){if(awayTo){S.ex.t=awayTo.x;S.ey.t=awayTo.y;}else{S.ex.t=3.2*aspectK();S.ey.t=3.8;}}
   if(mode==='hint'&&mt>1.1&&!tip.classList.contains('on'))tip.classList.add('on');
   for(const k in S)step(S[k],dt);
   const f=Math.max(0,Math.min(1,S.form.v));
@@ -215,7 +216,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   // floating: a slow breath up and down, a little drift; he turns toward you, softly
   const fx=Math.sin(T*.43)*.08,fy=Math.sin(T*.7)*.12;
   world.position.set(S.x.v+fx*f,S.y.v+fy*f,0);
-  S.yaw.t=Math.sin(T*.38)*.28+Math.sin(T*.15)*.1+px*.3;S.pitch.t=Math.sin(T*.27)*.05+py*.1;
+  S.yaw.t=Math.sin(T*.38)*.2+Math.sin(T*.15)*.08+px*(lookAt?.7:.3);S.pitch.t=Math.sin(T*.27)*.05+py*.1;
   keeper.rotation.y=S.yaw.v;keeper.rotation.x=S.pitch.v;keeper.rotation.z=Math.sin(T*.5)*.025;
   const sc=Math.max(.001,S.sc.v)*(1+Math.sin(T*1.1)*.012);keeper.scale.setScalar(sc);dust.scale.setScalar(sc);
   keeper.updateMatrix();
@@ -234,20 +235,23 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   if(c){c.getPointAt(1,tmpV);c.getTangentAt(.99,T_);const end=tmpV.clone().applyMatrix4(keeper.matrix);const dir=T_.clone().applyQuaternion(keeper.quaternion).normalize();
     // the nib continues the ribbon: its body sits on the ribbon's end, its tip points on along the same direction
     const L=1.12*1.05*sc;let nx=end.x+dir.x*L,ny=end.y+dir.y*L,rot=Math.atan2(-dir.y,-dir.x)-Math.PI/2;
-    if(mode==='write'&&mt>1.6&&mt<7.4){const wx=-3.25+writeP*wordsW*6.2,wy=-4.12+Math.sin(writeP*90)*.07*(writeP<1?1:0)+Math.sin(writeP*17)*.04;
-      const k=Math.min(1,(mt-1.6)/.9)*(mt>6.4?Math.max(0,1-(mt-6.4)):1);const kk=k*k*(3-2*k);nx=lerp(nx,wx,kk);ny=lerp(ny,wy,kk);rot=lerp(rot,.62,kk);}
+    const wt=mt*WS,WW=wordsW*6.2*Math.max(.001,S.sc.v),wx0=0;
+    if(mode==='write'&&wt>1.6&&wt<7.4){const wx=wx0-WW/2+writeP*WW,wy=-4.12*Math.max(.001,S.sc.v)+Math.sin(writeP*90)*.07*(writeP<1?1:0)+Math.sin(writeP*17)*.04;
+      const k=Math.min(1,(wt-1.6)/.9)*(wt>6.4?Math.max(0,1-(wt-6.4)):1);const kk=k*k*(3-2*k);nx=lerp(nx,wx,kk);ny=lerp(ny,wy,kk);rot=lerp(rot,.62,kk);}
     const u=nib.userData;u.x=u.x==null?nx:lerp(u.x,nx,Math.min(1,dt*10));u.y=u.y==null?ny:lerp(u.y,ny,Math.min(1,dt*10));u.r=u.r==null?rot:lerp(u.r,rot,Math.min(1,dt*6));
     nib.position.set(u.x,u.y,.4);nib.rotation.z=u.r;nib.scale.setScalar(1.05*Math.max(.001,S.sc.v)*(inSpark?Math.max(.001,(f-.4)/.6):(1+(1-f)*.25)));
     // the Keeper inside the pen: a spark on the nib while he writes
     soul.position.set(u.x,u.y+.35,.5);soul.scale.setScalar(Math.max(.001,inSpark?0:(1-f)*.9)*(.9+.15*Math.sin(clock*7)));}
-  words.position.set(-.15,-4.0,.3);
+  {const sw=Math.max(.001,S.sc.v);words.scale.setScalar(sw);words.position.set(3.1*sw-wordsW*6.2*sw/2,-4.0*sw,.3);}
   words.material.uniforms.uW.value=wordsW;words.material.uniforms.uR.value=writeP;
-  const wa=words.material.uniforms.uA;wa.value=mode==='write'?Math.min(1,Math.max(0,mt-1.7)/.4)*(mt>6.2?Math.max(0,1-(mt-6.2)/1.6):1):Math.max(0,wa.value-dt);
+  const wa=words.material.uniforms.uA;{const wt=mt*WS;wa.value=mode==='write'?Math.min(1,Math.max(0,wt-1.7)/.4)*(wt>6.2?Math.max(0,1-(wt-6.2)/1.6):1):Math.max(0,wa.value-dt);}
   // the ember: where he was, it lifts off and drifts; on «come» it glides back and he grows out of it
-  {const drift=(mode==='away'&&mt>1.3)?1:0;const sw=sparkWorld();
+  {const drift=(mode==='away'&&mt>1.3/QK)?1:0;const sw=sparkWorld();
    if(mode==='away'||mode==='come')ember.position.set(S.ex.v+Math.sin(clock*1.7)*.08*drift,S.ey.v+Math.sin(clock*1.3)*.15*drift,1);else ember.position.set(sw.x,sw.y,1);}
   ember.scale.setScalar(Math.max(.001,S.emb.v)*(.9+.12*Math.sin(clock*5.3)));
   halo.material.uniforms.uA.value=(inSpark?f:(.55+.45*f))*Math.min(1,Math.max(0,S.sc.v)*1.3);
+  // the warm light stands behind him, wherever he is
+  halo.position.x=world.position.x;halo.position.y=world.position.y+.4*Math.max(.001,S.sc.v);halo.scale.setScalar(Math.max(.05,S.sc.v));
   dust.material.uniforms.uT.value=clock;dust.material.uniforms.uA.value=inSpark?f:1;
 
   composer.render();raf=running?requestAnimationFrame(loop):0;}
@@ -269,10 +273,12 @@ return{
   awayTo(nx,ny){awayTo=nx==null?null:this.toWorld(nx,ny);},
   // fly to a point of the screen (nx, ny in −1…1, y up) at a size; fold:true — gather into the spark, fly, unfold there
   moveTo(nx,ny,sc=1,o={}){freeP={x:nx*halfW(),y:camera.position.y+ny*halfH(),sc};
-    if(o.fold&&mode!=='away'&&mode!=='come'){setMode('away');setTimeout(()=>setMode('free'),1150);}else setMode('free');},
-  get state(){return{mode,pending,grownAt,form:S.form.v,formT:S.form.t,ex:S.ex.v,ey:S.ey.v,ext:S.ex.t,eyt:S.ey.t,vx:S.ex.vel,vy:S.ey.vel,emb:S.emb.v};},
+    if(o.fold&&mode!=='away'&&mode!=='come'){setMode('away');setTimeout(()=>setMode('free'),1150/QK);}else setMode('free');},
+  get state(){const sw=sparkWorld();return{sx:sw.x,sy:sw.y,mode,pending,grownAt,form:S.form.v,formT:S.form.t,ex:S.ex.v,ey:S.ey.v,ext:S.ex.t,eyt:S.ey.t,vx:S.ex.vel,vy:S.ey.vel,emb:S.emb.v};},
   lookAt(nx,ny){lookAt=nx==null?null:[nx,ny];},
   talk(ms){talkUntil=clock+ms/1000;},
+  // he lies down into his pen and writes the words, then rises again where he was
+  write(text){if(text&&text!==WORDS_NOW){WORDS_NOW=text;wordsW=paintWords(text);}setMode('write');},
   screenOf,
   resize:fit,
   destroy(){this.stop();removeEventListener('pointermove',onMove);removeEventListener('resize',fit);renderer.dispose();}
