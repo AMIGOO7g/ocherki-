@@ -9263,7 +9263,7 @@ html body .shell.is-start-leaving>.editor-stage{transition-delay:.15s!important}
     const qt=box.querySelector('.rc-qt');
     // the question cards are a deck too: the top one goes round under it, the next one comes up
     const setQ=(t,dir=1)=>{if(rec||t===q)return;q=t;const card=box.querySelector('.rc2-card');const g=card.cloneNode(true);g.classList.add('rc-ghost',dir<0?'back':'fwd');g.querySelectorAll('[data-qs]').forEach(x=>x.removeAttribute('data-qs'));card.after(g);
-      qt.textContent=t;card.classList.remove('rc-up');void card.offsetWidth;card.classList.add('rc-up');setTimeout(()=>g.remove(),1250);};
+      qt.textContent=t;card.classList.remove('rc-up','rc-down');void card.offsetWidth;card.classList.add(dir<0?'rc-down':'rc-up');setTimeout(()=>g.remove(),1300);};
     const stepQ=d=>{const L=TOPICS[topic];setQ(L[(L.indexOf(q)+d+L.length)%L.length],d);};
     box.querySelectorAll('[data-qs]').forEach(a=>a.addEventListener('click',()=>stepQ(+a.dataset.qs)));
     box.querySelector('[data-rc="other"]').addEventListener('click',()=>stepQ(1));
@@ -9353,7 +9353,10 @@ html body .shell.is-start-leaving>.editor-stage{transition-delay:.15s!important}
     seen:id=>{const it=allItems().find(x=>x.id===id);if(it)seen(it);},
     voice:id=>getVoice(id),
     noteRev:(id,on)=>{const it=allItems().find(x=>x.id===id);if(!it)return;const rev={};(it.edits||[]).forEach((_,k)=>rev[k]=!!on);arch[id]=Object.assign({},arch[id],{rev});store('arch',arch);seen(it);},
-    revOf:id=>{const r=arch[id]?.rev||{};return Object.values(r).some(Boolean);}};
+    revOf:id=>{const r=arch[id]?.rev||{};return Object.values(r).some(Boolean);},
+    // v142: from an item to its place in the book: the room closes, «Писать» opens on that chapter
+    goPlace:id=>{const it=allItems().find(x=>x.id===id);const name=String(it?.place||'').toLowerCase();const c=chapters.find(x=>String(x.title||'').toLowerCase()===name)||chapters.find(x=>name&&String(x.title||'').toLowerCase().includes(name));
+      closeRoom();window.OCHERKI_SET_MODE?.('write');if(c?.id)setTimeout(()=>{try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:c.id},'*');}catch(_){}},700);}};
 })();
 </script>
 <style id="archive-v105">
@@ -14000,11 +14003,11 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
       <div class="foot">${last?`Последнее: <b>${esc(last.full||last.who)}</b> ${verb[last.kind]||'прислал(а)'} «${esc(String(last.q||'').replace(/[«»]/g,''))}» · ${esc(last.date||'')}`:''}</div>`;}
   const place=(i,n,spec)=>{const d=i-idx;const a=Math.abs(d);return spec(d,a);};
   function voices(){const L=items('voice');if(!L.length)return frame('voice')+'<div class="oc-empty">Здесь будут голоса родных.<br>Отправьте «Вопрос недели» — ответы придут сюда.</div>';idx=Math.max(0,Math.min(L.length-1,idx));
-    const discs=L.map((r,i)=>place(i,L.length,(d,a)=>{if(a>3)return'';const s=a?150:250,x=d*(a===1?250:200)+(d>0?60:d<0?-60:0)*(a>1?1:0);
-      return `<div class="c oc-vin ${a?'':'is-c'}" data-i="${i}" style="width:${s}px;height:${s}px;transform:translate(calc(-50% + ${x}px),-50%);opacity:${a>2?.35:1};z-index:${10-a}"><div class="sp"><div class="lb" style="background-image:url('${photoOf(r.who)}')"></div></div><div class="who">${esc(r.full)}<br><small>${esc(r.date)}</small></div></div>`;})).join('');
+    const discs=L.map((r,i)=>place(i,L.length,(d,a)=>{if(a>3)return'';const k=a?.6:1,x=d*(a===1?250:200)+(d>0?60:d<0?-60:0)*(a>1?1:0);
+      return `<div class="c oc-vin ${a?'':'is-c'}" data-i="${i}" style="--k:${k};width:250px;height:250px;transform:translate(calc(-50% + ${x}px),-50%) scale(${k});opacity:${a>2?.35:1};z-index:${10-a}"><div class="sp"><div class="lb" style="background-image:url('${photoOf(r.who)}')"></div></div><div class="who">${esc(r.full)}<br><small>${esc(r.date)}</small></div></div>`;})).join('');
     const r=L[idx],sn=String(r.t||'').match(/[^.!?…]+[.!?…»]*\s*/gu)||[String(r.t||'')],inb=r.state==='book';
-    return frame('voice')+`<div class="oc-stage">${discs}</div>${arrows}<div class="oc-cp"><div class="t">${esc(r.q)}</div><div class="s">${esc(r.full)} · ${esc(r.date)}${r.y?' · '+r.y:''}</div>
-      <div class="oc-tx">${sn.map((x,k)=>`<span data-s="${k}">${esc(x)}</span>`).join('')}</div><div class="oc-pg"><i></i></div><div class="oc-eq">${'<i></i>'.repeat(48)}</div></div>
+    return frame('voice')+`<div class="oc-stage"><div class="oc-eq top">${'<i></i>'.repeat(48)}</div>${discs}</div>${arrows}<div class="oc-cp"><div class="t">${esc(r.q)}</div><div class="s">${esc(r.full)} · ${esc(r.date)}${r.y?' · '+r.y:''}</div>
+      <div class="oc-tx">${sn.map((x,k)=>`<span data-s="${k}">${esc(x)}</span>`).join('')}</div><div class="oc-pg"><i></i></div></div>
       <div class="acts">${inb?`<span class="oc-btn2 done" data-a="where">${sv('book')}<span>В книге · «${esc(F()?.placeOf?.(r.id)||'')}»</span></span>`:btn('tobook','book','В книгу')}${btn('play','play','Слушать',1)}</div>`;}
   function photos(){const L=items('photo').flatMap(it=>(it.imgs||[]).map(m=>({it,m})));if(!L.length)return frame('photo')+'<div class="oc-empty">Здесь будут снимки семьи.</div>';idx=Math.max(0,Math.min(L.length-1,idx));
     const pr=L.map((x,i)=>place(i,L.length,(d,a)=>{if(a>6)return'';const w=a?Math.max(150,270-a*22):430,h=a?w*1.18:330,sg=Math.sign(d),xx=a?sg*(280+(a-1)*88):0,rot=a?[0,-3,2,-2,3,-1,2][a]*sg:0;
@@ -14019,19 +14022,27 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
     const rv=F()?.revOf?.(n.id);return frame('note')+`<div class="oc-was ${rv?'is-rev':''}"><div class="col was"><div class="k">было</div>${was}</div><i class="sep"></i><div class="col"><div class="k">стало</div>${now}</div></div>${L.length>1?arrows:''}
       <div class="oc-cp" style="bottom:18%"><div class="t">${esc(n.q)}</div><div class="s">${esc(n.full)} · ${esc(n.date)}</div></div>
       <div class="acts">${(()=>{const rv=F()?.revOf?.(n.id);return `<span class="oc-btn2 ${rv?'main':''}" data-a="keep">${sv('x')}<span>${rv?'Оставлено как было':'Оставить как было'}</span></span><span class="oc-btn2 ${rv?'':'main'}" data-a="accept">${sv('book')}<span>${rv?'Принять исправление':'Исправление принято'}</span></span>`;})()}</div>`;}
+  // the back of an envelope: two side flaps, the bottom one over them, the top flap closed over all with the seal on its tip
+  const ENVB='<svg class="eb" viewBox="0 0 300 200" preserveAspectRatio="none"><path d="M0 0L0 200L142 104Q150 98 158 104L300 200L300 0Z" fill="#e2cfaa"/><path d="M0 0L134 100Q150 112 166 100L300 0" fill="none" stroke="rgba(120,84,50,.22)"/>'
+    +'<path d="M0 200L140 96Q150 89 160 96L300 200Z" fill="#d9c39c"/><path d="M0 200L140 96Q150 89 160 96L300 200" fill="none" stroke="rgba(120,84,50,.3)"/><path d="M0 2L0 198M300 2L300 198" stroke="rgba(255,255,255,.35)"/></svg>';
   function letters(){const L=items('letter');idx=Math.max(0,Math.min(L.length-1,idx));
     const env=L.map((l,i)=>place(i,L.length,(d,a)=>{if(a>3)return'';const x=d*230,sc=a?.82:1;
-      return `<div class="c oc-env ${a?'':'is-c'}" data-i="${i}" style="transform:translate(calc(-50% + ${x}px),-50%) scale(${sc}) rotate(${a?d*2:0}deg);z-index:${10-a};opacity:${a>2?.4:1}"><div class="fr"><i class="stp"></i><span class="to">кому</span><b>${esc(l.to||l.q)}</b><span class="frm">от ${esc(l.full||'')}</span></div><div class="bk2f"><img class="wx" src="assets/postcard/wax-seal.webp" alt=""><em>О</em></div>${a?'':`<div class="ppr"><div class="pk">${esc(l.full)} · ${esc(l.date)}${l.y?' · '+l.y:''}</div>${esc(l.t||'').replace(/\n/g,'<br>')}</div>`}</div>`;})).join('');
+      return `<div class="c oc-env ${a?'':'is-c'}" data-i="${i}" style="transform:translate(calc(-50% + ${x}px),-50%) scale(${sc}) rotate(${a?d*2:0}deg);z-index:${10-a};opacity:${a>2?.4:1}"><div class="fr"><span class="k">от</span><b>${esc(l.full||l.who||'')}</b>${l.y?`<span class="y">${l.y}</span>`:''}</div><div class="bk2f">${ENVB}<i class="tf"></i><img class="wx" src="assets/postcard/wax-seal.webp" alt=""><em>О</em></div></div>`;})).join('');
     const l=L[idx];return frame('letter')+`<div class="oc-stage">${env}</div>${L.length>1?arrows:''}<div class="oc-cp"><div class="t">${esc(l.q)}</div><div class="s">${esc(l.full)} · ${esc(l.date)}${l.y?' · '+l.y:''}</div></div>
       <div class="acts">${btn('reply','mail','Ответить')}${l.sample||l.state!=='book'?'':`<span class="oc-btn2 done">${sv('book')}<span>В книге</span></span>`}${!l.sample&&l.state!=='book'?btn('tobook','book','В книгу'):''}${btn('read','open','Прочитать',1)}</div>${l.sample?'<div class="oc-sample">Сейчас здесь примеры — так будут выглядеть письма вашей семьи</div>':''}`;}
   const R={home,voice:voices,photo:photos,note:texts,letter:letters};
+  // v142: what the room is showing, the newest unseen first; whatever is in front of you counts as seen (the badge goes out)
+  const listOf=v=>v==='photo'?items('photo').flatMap(it=>(it.imgs||[]).map(m=>({it,m}))).map(x=>x.it):v==='note'?items('note').filter(x=>x.edits?.length):(v==='home'||v==='rec')?[]:items(v);
+  const firstNew=v=>Math.max(0,listOf(v).findIndex(x=>x&&x.state==='new'));
+  const markSeen=()=>{const x=listOf(view)[idx];if(x&&!x.sample&&x.state==='new')setTimeout(()=>F()?.seen?.(x.id),900);};
   function render(fade){const html=R[view]();
     if(!fade){hub.innerHTML=`<div class="scr on" data-view="${view}">${html}</div>`;return;}
     const old=hub.querySelector('.scr');const n=document.createElement('div');n.className='scr';n.dataset.view=view;n.innerHTML=html;hub.appendChild(n);
     requestAnimationFrame(()=>requestAnimationFrame(()=>{n.classList.add('on');old?.classList.remove('on');setTimeout(()=>old?.remove(),800);}));}
   // the carousel glides: only the cards move, the frame stays
   function step(dir,to){const L=view==='photo'?items('photo').flatMap(it=>(it.imgs||[]).map(m=>({it,m}))):items(view==='note'?'note':view);const n=L.length;if(!n)return;
-    const ni=to!=null?to:Math.max(0,Math.min(n-1,idx+dir));if(ni===idx)return;idx=ni;flipped=false;stopVoice();hub.querySelector('.scr.on')?.classList.remove('reading');
+    const ni=to!=null?to:Math.max(0,Math.min(n-1,idx+dir));if(ni===idx)return;idx=ni;flipped=false;markSeen();stopVoice();spV=0;
+    hub.querySelectorAll('.scr.on .oc-lt,.scr.on .oc-flp').forEach(x=>x.remove());hub.querySelector('.scr.on')?.classList.remove('reading');
     const cur=hub.querySelector('.scr.on');if(!cur){render(false);return;}
     const tmp=document.createElement('div');tmp.innerHTML=R[view]();
     const stage=cur.querySelector('.oc-stage'),nst=tmp.querySelector('.oc-stage');
@@ -14047,12 +14058,18 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
     ['.acts','.oc-was'].forEach(sel=>{const a=cur.querySelector(sel),b=tmp.querySelector(sel);if(a&&b){a.className=b.className;a.innerHTML=b.innerHTML;}});}
   // a voice plays right on its record: the disc turns, the words light up one by one
   let vt=0,vaudio=null;
-  function stopVoice(){clearInterval(vt);vt=0;if(vaudio){try{vaudio.pause();URL.revokeObjectURL(vaudio.src);}catch(_){}vaudio=null;}
+  // the record turns by hand: it gathers speed when it plays and slows down to a stop when paused
+  let spA=0,spV=0,spOn=false,spRaf=0,spT=0;
+  const spinLoop=now=>{const dt=Math.min(.05,(now-(spT||now))/1000);spT=now;const el=hub.querySelector('.scr.on .oc-vin.is-c .sp');
+    spV+=((spOn?100:0)-spV)*Math.min(1,dt*(spOn?2.2:1.6));spA=(spA+spV*dt)%360;if(el)el.style.transform=`rotate(${spA.toFixed(2)}deg)`;
+    if(spOn||spV>.6)spRaf=requestAnimationFrame(spinLoop);else{spRaf=0;spV=0;spT=0;}};
+  const spin=on=>{spOn=on;if(!spRaf){spT=0;spRaf=requestAnimationFrame(spinLoop);}};
+  function stopVoice(){clearInterval(vt);vt=0;spin(false);if(vaudio){try{vaudio.pause();URL.revokeObjectURL(vaudio.src);}catch(_){}vaudio=null;}
     const sc=hub.querySelector('.scr.on');if(!sc)return;sc.classList.remove('playing');sc.querySelector('.oc-vin.is-c')?.classList.remove('play');
     const b=sc.querySelector('[data-a="play"]');if(b){b.innerHTML=sv('play')+'<span>Слушать</span>';}}
   function playVoice(b){const sc=hub.querySelector('.scr.on');const r=items('voice')[idx];if(!sc||!r)return;
     if(sc.classList.contains('playing')){stopVoice();return;}
-    F()?.seen?.(r.id);sc.classList.add('playing');sc.querySelector('.oc-vin.is-c')?.classList.add('play');b.innerHTML=sv('pause')+'<span>Пауза</span>';
+    F()?.seen?.(r.id);sc.classList.add('playing');sc.querySelector('.oc-vin.is-c')?.classList.add('play');spin(true);b.innerHTML=sv('pause')+'<span>Пауза</span>';
     const spans=[...sc.querySelectorAll('.oc-tx [data-s]')],bar=sc.querySelector('.oc-pg i');let len=r.len||30,pos=0;
     const paint=()=>{const f=Math.min(1,pos/len);if(bar)bar.style.width=(f*100)+'%';const k=Math.min(spans.length-1,Math.floor(f*spans.length));spans.forEach((s,j)=>{s.classList.toggle('on',j===k);s.classList.toggle('was',j<k);});};
     const end=()=>{stopVoice();spans.forEach(s=>s.classList.remove('on','was'));if(bar)bar.style.width='0';};
@@ -14061,11 +14078,39 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
     vt=setInterval(()=>{pos+=.25;paint();if(pos>=len)end();},250);paint();
     // the equalizer: a soft moving voice line while the record turns
     const bars=[...sc.querySelectorAll('.oc-eq i')],hv=bars.map(()=>2);let ph=Math.random()*9;
-    const eq=()=>{if(!sc.classList.contains('playing')){bars.forEach(b=>b.style.height='2px');return;}ph+=.09;
+    const eq=()=>{if(!sc.classList.contains('playing')){bars.forEach((b,k)=>{hv[k]+=(2-hv[k])*.2;b.style.height=hv[k].toFixed(1)+'px';});if(hv.some(v=>v>2.3))requestAnimationFrame(eq);return;}ph+=.09;
       const env=.55+.45*Math.sin(ph*.7)*Math.sin(ph*.23+1);
       bars.forEach((b,k)=>{const c=1-Math.abs(k-23.5)/26,tg=2+Math.max(0,(Math.sin(ph*2.1+k*.55)*.5+.5)*(Math.sin(ph*1.3-k*.31)*.5+.5)*34*c*env+Math.random()*5*c);
         hv[k]+=(tg-hv[k])*.35;b.style.height=hv[k].toFixed(1)+'px';});requestAnimationFrame(eq);};requestAnimationFrame(eq);}
-  function go(v){stopVoice();view=v;idx=0;flipped=false;fWho='';fDec='';render(true);}
+  function readLetter(env,on){const sc=hub.querySelector('.scr.on'),stage=sc?.querySelector('.oc-stage');if(!stage)return;
+    (env._ts||[]).forEach(clearTimeout);env._ts=[];const T=(f,ms)=>env._ts.push(setTimeout(f,ms));
+    let fl=stage.querySelector('.oc-flp'),lt=stage.querySelector('.oc-lt');
+    if(on){const er=env.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=(sr.width/stage.offsetWidth)||1;
+      const x=(er.left-sr.left)/k,y=(er.top-sr.top)/k,w=er.width/k,h=er.height/k,l=items('letter')[idx]||{};
+      if(!fl){fl=document.createElement('div');fl.className='oc-flp';stage.appendChild(fl);}
+      Object.assign(fl.style,{left:x+'px',top:y+'px',width:w+'px',height:Math.round(h*.6)+'px',zIndex:11});
+      if(!lt){lt=document.createElement('div');lt.className='oc-lt';stage.appendChild(lt);}
+      lt.innerHTML=`<div class="pk">${esc(l.full||'')} · ${esc(l.date||'')}${l.y?' · '+l.y:''}</div>${esc(l.t||'').replace(/\n/g,'<br>')}`;
+      const pw=lt.offsetWidth,ph=lt.offsetHeight,s0=Math.min(w*.84/pw,h*.8/ph),cx=x+w/2,cy=y+h/2,fs=Math.min(1,innerHeight*.56/ph/k,innerWidth*.7/pw/k);
+      let cX=0,cY=0;const at=(dy,s)=>`translate(${(cx-pw/2+cX).toFixed(1)}px,${(cy-ph/2+dy+cY).toFixed(1)}px) scale(${s.toFixed(3)})`;
+      env._at=at;env._s0=s0;env._up=-(h*.5+ph*s0*.42);
+      lt.style.transition='none';lt.style.zIndex=9;lt.style.transform=at(0,s0);
+      // whatever else moves the sheet (inherited offsets), measure once and correct so it sits exactly in the envelope
+      {const q=lt.getBoundingClientRect();cX=(er.left+er.width/2-(q.left+q.width/2))/k;cY=(er.top+er.height/2-(q.top+q.height/2))/k;lt.style.transform=at(0,s0);}
+      env.classList.add('turned');
+      T(()=>{env.classList.add('open');fl.classList.add('on');
+        fl.animate([{transform:'scaleY(1)'},{transform:'scaleY(0)'}],{duration:320,easing:'cubic-bezier(.5,0,.9,.6)',fill:'forwards'}).onfinish=()=>{fl.style.zIndex=8;
+          fl.animate([{transform:'scaleY(0)'},{transform:'scaleY(-1)'}],{duration:380,easing:'cubic-bezier(.1,.4,.5,1)',fill:'forwards'});};},880);
+      T(()=>{lt.style.transition='transform .8s cubic-bezier(.35,.1,.3,1)';lt.style.transform=at(env._up,s0);},1560);
+      T(()=>{lt.style.zIndex=40;lt.style.transition='transform 1s cubic-bezier(.2,.8,.25,1)';lt.style.transform=at(h*.12,fs);sc.classList.add('reading');},2400);}
+    else{if(!lt||!fl||!env._at){env.classList.remove('open','turned');lt?.remove();fl?.remove();sc.classList.remove('reading');return;}
+      sc.classList.remove('reading');lt.style.transition='transform .8s cubic-bezier(.4,0,.3,1)';lt.style.transform=env._at(env._up,env._s0);
+      T(()=>{lt.style.zIndex=9;lt.style.transition='transform .7s cubic-bezier(.4,0,.3,1)';lt.style.transform=env._at(0,env._s0);},820);
+      T(()=>{fl.animate([{transform:'scaleY(-1)'},{transform:'scaleY(0)'}],{duration:340,easing:'cubic-bezier(.5,0,.9,.6)',fill:'forwards'}).onfinish=()=>{fl.style.zIndex=11;
+          fl.animate([{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:340,easing:'cubic-bezier(.1,.4,.5,1)',fill:'forwards'}).onfinish=()=>{env.classList.remove('open');fl.classList.remove('on');};};},1560);
+      T(()=>{env.classList.remove('turned');},2350);
+      T(()=>{lt.remove();fl.remove();},3300);}}
+  function go(v){stopVoice();view=v;fWho='';fDec='';idx=firstNew(v);flipped=false;render(true);markSeen();}
   function picker(el,opts,cur,cb){hub.querySelector('.oc-pick')?.remove();const r=el.getBoundingClientRect(),m=document.createElement('div');m.className='oc-pick';
     m.innerHTML=opts.map(([v,t])=>`<div data-v="${esc(v)}" class="${v===cur?'on':''}">${esc(t)}</div>`).join('');m.style.left=r.left+'px';m.style.top=(r.bottom+8)+'px';hub.appendChild(m);
     m.addEventListener('click',e=>{const d=e.target.closest('[data-v]');if(!d)return;e.stopPropagation();m.remove();cb(d.dataset.v);});}
@@ -14084,18 +14129,17 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
     if(a==='tray'){const L=items('photo').flatMap(it=>(it.imgs||[]).map(m=>({it,m})));const x=L[idx];if(!x||x.it.state==='book')return;
       Promise.resolve(F().traySrc(x.m)).then(src=>window.OCHERKI_TRAY_ADD?.([src].filter(Boolean))).then(()=>{F().setState?.(x.it.id,'book','Рукопись');window.OCHERKI_SAY?.('Фото легло в «Рукопись», в стопку «Из архива»');step(0,idx);render(false);});return;}
     if(a==='play'){playVoice(t.closest('[data-a]'));return;}
-    if(a==='read'){const env=hub.querySelector('.scr.on .oc-env.is-c');if(!env)return;const on=!env.classList.contains('open');
-      // turn it over first, then open: the letter rises out of the back of the envelope
-      if(on){env.classList.add('turned');clearTimeout(env._t);env._t=setTimeout(()=>{env.classList.add('open');hub.querySelector('.scr.on')?.classList.add('reading');},850);}
-      else{env.classList.remove('open');hub.querySelector('.scr.on')?.classList.remove('reading');clearTimeout(env._t);env._t=setTimeout(()=>env.classList.remove('turned'),700);}
+    if(a==='read'){const env=hub.querySelector('.scr.on .oc-env.is-c');if(!env)return;const on=!env.classList.contains('turned');readLetter(env,on);
       const b=t.closest('[data-a]');b.querySelector('span').textContent=on?'Сложить письмо':'Прочитать';const x=items('letter')[idx];if(x&&!x.sample)F()?.seen?.(x.id);return;}
     if(a==='tobook'){const x=items(view)[idx];if(!x)return;stopVoice();const ch=F()?.toBook?.(x.id);window.OCHERKI_SAY?.(`Лист добавлен в главу «${ch}»`,'открыть',()=>{F()?.closeRoom?.();window.OCHERKI_SET_MODE?.('write');});refresh();return;}
     if(a==='where'){F()?.closeRoom?.();window.OCHERKI_SET_MODE?.('write');return;}
-    if(a==='keep'||a==='accept'){const x=items('note').filter(n=>n.edits?.length)[idx];if(!x)return;F()?.noteRev?.(x.id,a==='keep');window.OCHERKI_SAY?.(a==='keep'?'Вернули, как было у вас':'Правка снова на листе');refresh();return;}
+    if(a==='keep'||a==='accept'){const x=items('note').filter(n=>n.edits?.length)[idx];if(!x)return;F()?.noteRev?.(x.id,a==='keep');window.OCHERKI_SAY?.(a==='keep'?'Вернули, как было у вас':'Правка снова на листе',x.place?`открыть «${x.place}»`:'открыть лист',()=>F()?.goPlace?.(x.id));refresh();return;}
     if(a==='open'||a==='reply'){const L=view==='photo'?[]:items(view);const x=L[idx];if(!x)return;
       if(x.sample){window.OCHERKI_SAY?.(a==='reply'?'Ответ на письмо появится, когда письма начнут приходить':'Это пример письма — настоящие письма родных появятся здесь');return;}
       detail=true;sync();F()?.openItem?.(x.id);return;}});
-  addEventListener('wheel',e=>{if(!hub.classList.contains('on')||view==='home')return;if(Math.abs(e.deltaY)<8&&Math.abs(e.deltaX)<8)return;const now=Date.now();if(now-(hub._w||0)<380)return;hub._w=now;step((e.deltaY||e.deltaX)>0?1:-1);},{passive:true});
+  addEventListener('wheel',e=>{if(!hub.classList.contains('on')||view==='home')return;const now=Date.now(),quiet=now-(hub._wl||0)>240;hub._wl=now;if(Math.abs(e.deltaY)<6&&Math.abs(e.deltaX)<6)return;
+    // one card per turn of the wheel: the tail of a trackpad swipe does not count as a second turn
+    if(!quiet&&now-(hub._w||0)<1100)return;if(quiet&&now-(hub._w||0)<450)return;hub._w=now;step((Math.abs(e.deltaY)>=Math.abs(e.deltaX)?e.deltaY:e.deltaX)>0?1:-1);},{passive:true});
   addEventListener('keydown',e=>{if(!hub.classList.contains('on')||view==='home')return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1);if(e.key==='Escape')go('home');});
   // a detail card (the existing one) opens over the archive; when it closes, the room comes back
   let detail=false;
@@ -14107,7 +14151,7 @@ html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;heigh
     const show=want&&onArch&&!detail&&!openCard()&&shell.classList.contains('is-family-room');
     if(show&&!hub.classList.contains('on')){if(!hub.querySelector('.scr'))render(false);else if(view==='home')render(false);}
     if(!show&&hub.classList.contains('on'))stopVoice();hub.classList.toggle('on',show);}
-  let ask=null;const open=v=>{stopVoice();want=true;detail=false;view=(typeof v==='string'&&v)||ask||'home';ask=null;idx=0;render(false);sync();};
+  let ask=null;const open=v=>{stopVoice();want=true;detail=false;view=(typeof v==='string'&&v)||ask||'home';ask=null;idx=firstNew(view);render(false);sync();markSeen();};
   document.addEventListener('click',e=>{if(e.target.closest?.('.oct .k[data-k="archive"],.oct .pl[data-w="arch"]'))setTimeout(open,180);},true);
   let lastPart=-1;setInterval(()=>{const p=part();if(p===2&&lastPart!==2){want=true;view=ask||'home';ask=null;render(false);}lastPart=p;sync();},250);
   window.OCHERKI_HUB={open,go,ask(v){ask=v;},get view(){return hub.classList.contains('on')?view:null;}};
@@ -14383,4 +14427,58 @@ html body .master-clock .logo-bob .oc-bob{width:28px;height:28px}
 html body .bd-rail-key[data-rail="tips"].rd-glow{border-radius:50%;animation:rdRim 1.5s ease-in-out infinite}
 /* hanging cascades: one at a time, the closing one leaves quickly so the labels never cross */
 .oc-mus:not(.open) .mm{transition-duration:.22s,.3s!important;transition-delay:0s!important}
+</style>
+<style id="hub-v142">
+/* v142 — the archive rooms */
+/* voices: every record is one size and only scales, so it grows smoothly; it turns by hand (no snapping stop) */
+.oc-hub .oc-vin{transition:transform 1.1s cubic-bezier(.22,.7,.2,1),opacity .9s ease,box-shadow .9s ease!important}
+.oc-hub .oc-vin.play .sp{animation:none!important}
+.oc-hub .oc-vin .who{scale:calc(1 / var(--k,1));transform-origin:50% 0}
+/* the equalizer glows above the record, under «Голоса» — a quiet copper line while it waits */
+.oc-hub .scr[data-view="voice"] .oc-eq.top{display:flex!important;position:absolute;left:50%;top:calc(50% - 125px - 54px);translate:-50% 0;width:300px;height:44px;margin:0;align-items:center;justify-content:center;gap:4px;opacity:.45;transition:opacity .9s ease;pointer-events:none}
+.oc-hub .scr[data-view="voice"].playing .oc-eq.top{opacity:1;height:44px;margin:0}
+.oc-hub .oc-eq.top i{width:3px;height:2px;border-radius:2px;background:linear-gradient(#fff0d4,#e8964e);box-shadow:0 0 6px rgba(255,160,70,.75),0 0 14px rgba(255,120,40,.35)}
+.oc-hub .scr[data-view="voice"] .oc-cp .s{margin-top:8px}
+.oc-hub .scr[data-view="voice"] .oc-tx{margin-top:24px!important;line-height:1.55}
+/* photos and letters turn in real depth */
+.oc-hub .scr[data-view="photo"] .oc-stage,.oc-hub .scr[data-view="letter"] .oc-stage{perspective:1600px}
+.oc-hub .oc-pr{transition:transform 1.25s cubic-bezier(.22,.7,.2,1),width 1.25s cubic-bezier(.22,.7,.2,1),height 1.25s cubic-bezier(.22,.7,.2,1),rotate .95s cubic-bezier(.45,.05,.35,1),opacity 1s ease,filter 1s ease!important}
+.oc-hub .oc-pr .bk{inset:0!important;background:linear-gradient(170deg,#f3ead8,#e6d6b8)!important}
+/* letters: the front carries only who sent it; the back is a real envelope back */
+.oc-hub .oc-env>.fr{align-items:center!important;justify-content:center!important;padding:0 24px!important;text-align:center!important}
+.oc-hub .oc-env>.fr .k{font:500 11px 'CormorantCy',Georgia,serif;letter-spacing:.34em;text-transform:uppercase;color:#8a6a48}
+.oc-hub .oc-env>.fr b{margin-top:8px!important;border:0!important;padding:0!important;min-width:0!important;font-size:34px!important}
+.oc-hub .oc-env>.fr .y{margin-top:10px;font:italic 15px 'CormorantCy',Georgia,serif;color:#7a5a3c}
+.oc-hub .oc-env>.fr .stp,.oc-hub .oc-env>.fr .to,.oc-hub .oc-env>.fr .frm{display:none!important}
+.oc-hub .oc-env>.bk2f::before{display:none!important}
+/* the turn happens before the centring shift: turning about the left edge keeps the envelope in its place */
+.oc-hub .oc-env.is-c,.oc-hub .oc-pr.is-c{transform-origin:0 50%}
+.oc-hub .oc-env>.bk2f{background:#ead9b8!important}
+.oc-hub .oc-env>.bk2f .eb{position:absolute;inset:0;width:100%;height:100%;border-radius:4px}
+.oc-hub .oc-env>.bk2f .tf,.oc-flp{position:absolute;left:0;top:0;width:100%;height:60%;clip-path:polygon(0 0,100% 0,52% 97%,50% 100%,48% 97%);background:linear-gradient(180deg,#efe0c2,#e0caa2);filter:drop-shadow(0 2px 2px rgba(80,50,25,.35))}
+.oc-hub .oc-env>.bk2f .wx,.oc-hub .oc-env>.bk2f em{top:56%!important;z-index:2}
+.oc-hub .oc-env.open>.bk2f .tf{opacity:0}
+.oc-flp{transform-origin:50% 0;display:none;pointer-events:none;border-radius:4px 4px 0 0}
+.oc-flp.on{display:block}
+.oc-lt{position:absolute;left:0;top:0;width:540px;max-height:62vh;overflow:auto;box-sizing:border-box;padding:34px 42px;background:linear-gradient(170deg,#fbf6ec,#efe3cd);box-shadow:0 24px 50px rgba(0,0,0,.5);color:#4b3424;font:24px/1.38 'SignThatS','CormorantCy',Georgia,serif;transform-origin:50% 50%;pointer-events:auto;scrollbar-width:thin}
+.oc-lt .pk{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#8a6a4c;margin-bottom:16px}
+.oc-hub .oc-env .ppr{display:none!important}
+.oc-hub .scr.reading .oc-stage{translate:none!important}
+/* «Запись»: the card goes aside and under the deck and stays there (no fading); backwards, the bottom card comes out and lies on top */
+@keyframes rcUnder{0%{transform:translate(-50%,-50%)}45%{transform:translate(calc(-50% - 520px),-46%) rotate(-11deg) scale(.95);z-index:3}55%{z-index:0}100%{transform:translate(calc(-50% - 9px),calc(-50% + 11px)) scale(.99);z-index:0}}
+.rc2-card.rc-ghost.back{animation:none!important;z-index:0}
+.rc2-card.rc-down{animation:rcDown 1.25s cubic-bezier(.45,.05,.3,1);z-index:3}
+@keyframes rcDown{0%{transform:translate(calc(-50% - 9px),calc(-50% + 11px)) scale(.99);z-index:0}45%{transform:translate(calc(-50% - 520px),-46%) rotate(-11deg) scale(.95);z-index:3}100%{transform:translate(-50%,-50%);z-index:3}}
+.rc2-card.rc-up{animation:rcUp 1.1s cubic-bezier(.2,.8,.3,1) .1s both}
+@keyframes rcUp{from{transform:translate(calc(-50% - 9px),calc(-50% + 11px)) scale(.99)}to{transform:translate(-50%,-50%)}}
+/* «Вопрос недели»: the same deck, and room to breathe between the card, the schedule and the keys */
+@keyframes wkUnder{0%{transform:none;z-index:3}45%{transform:translate(-520px,30px) rotate(-12deg) scale(.95);z-index:3}55%{z-index:0}100%{transform:translate(-9px,11px) scale(.99);z-index:0}}
+.wk2-card.ghost.stay{animation:none!important;z-index:0}
+@keyframes wkUp{from{transform:translate(-9px,11px) scale(.99)}to{transform:none}}
+@keyframes wkDown{0%{transform:translate(-9px,11px) scale(.99);z-index:0}45%{transform:translate(-520px,30px) rotate(-12deg) scale(.95);z-index:3}100%{transform:none;z-index:3}}
+html body .wk2 .wk2-who{top:37%}
+html body .wk2 .wk2-deck{top:58%}
+html body .wk2 .wk2-when{top:calc(58% + 232px)}
+html body .wk2 .wk2-nav{top:calc(58% + 266px)}
+html body .wk2 .fm-acts{top:calc(58% + 312px)}
 </style>
