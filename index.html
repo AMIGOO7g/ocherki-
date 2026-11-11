@@ -3350,7 +3350,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v122";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v123";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3392,7 +3392,7 @@
           const frame = document.getElementById("constructorShellFrame");
           const config = window.OCHERKI_PROJECT_CONFIG || getProjectConfig();
 
-          playFx('light', .58);
+          if (!constructorEntry?.classList.contains("is-auto")) playFx('light', .58);
           constructorEntry?.classList.add("is-on");
           flyPowerKey();
           // The start steps never show through while the constructor lights up.
@@ -3855,7 +3855,7 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v122"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v122"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v123"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v123"></script>
 </body>
 </html>
