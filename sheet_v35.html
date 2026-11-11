@@ -3649,11 +3649,13 @@ function addDocumentPage(){
   closeMoreMenu(); render(); animatePageChange(at);
   window.__OCHERKI_EMIT_STRUCTURE?.();
 }
-function addEpisode(){
+function addEpisode(opts){
   if(currentPage()) currentPage().text=textFromEditor();
+  // v126: «＋ Эпизод» from the manuscript names its chapter and always goes to its end.
+  if(opts&&opts.sectionId){const i=sections.findIndex(s=>s.id===opts.sectionId);if(i>=0&&i!==activeSection){activeSection=i;}}
   const sec=currentSection();
   if(!sec || sec.type!=='chapter') return;
-  const at=(sec.active||0)+1;
+  const at=opts&&opts.atEnd?(sec.pages||[]).length:(sec.active||0)+1;
   const existing=new Set((sec.pages||[]).map(p=>String(p.episode||'').trim()).filter(Boolean));
   const next=existing.size+1;
   const uid='page_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
@@ -4840,10 +4842,12 @@ window.addEventListener('message',e=>{
     if(d.type !== 'OCHERKI_STRUCTURE_COMMAND') return;
     const a = d.action;
     if(a === 'requestState') emitStructure();
+    // v126: the words just typed go to the constructor at once (before «показать в книге» lays the page).
+    else if(a === 'flush'){ try{ if(currentPage()) currentPage().text=textFromEditor(); }catch(_){ } emitStructure(); }
     else if(a === 'select') selectNode(d.sectionId, d.pageUid);
     else if(a === 'addPage') addPageFromHost();
     else if(a === 'addChapter') createChapter();
-    else if(a === 'addEpisode') addEpisode();
+    else if(a === 'addEpisode') addEpisode({atEnd:!!d.atEnd,sectionId:d.sectionId||''});
     else if(a === 'addDocument') addDocumentPage();
     else if(a === 'setPhotoLayout') {
       saveEditor();

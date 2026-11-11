@@ -660,12 +660,14 @@
         // between two invisible marks (U+2063), so it can be found in the book.
         const label=String(page.episode||'').replace(/^\s*Эпизод\s+\d+[.:]?\s*/iu,'').trim();
         const photoOpening=page.isEpisodeStart===true&&(page.photos||[]).some(photo=>imageSource(photo)&&photo.portraitHero!==true&&!String(photo.heroName||'').trim());
-        if(runIndex>0&&label&&!page.sample&&page.isEpisodeStart!==false&&!isContinuation(previousText,rawText,page)&&rawText.trim()&&!photoOpening
+        // v126: a sheet that starts a new episode (a new name) opens it in the book even without a photograph.
+        const opensEpisode=runIndex>0&&!page.sample&&page.isEpisodeStart===true&&rawText.trim()&&!photoOpening&&norm(label||'')!==norm(previousLabel||'')&&!isContinuation(previousText,rawText,page);
+        if(!opensEpisode&&runIndex>0&&label&&!page.sample&&page.isEpisodeStart!==false&&!isContinuation(previousText,rawText,page)&&rawText.trim()&&!photoOpening
           &&norm(label)!==norm(previousLabel)&&norm(label)!==norm(chapterName)&&!/^новый эпизод$/iu.test(label)&&label.length<=90)
           prefix=(previousText?'\n\n':'')+'\u2063'+label.replace(/\s+/gu,' ')+'\u2063\n\n';
         if(label)previousLabel=label;runIndex++;
         const text=prefix+rawText;
-        const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page, continuation: isContinuation(previousText, rawText, page) };
+        const run = { sourcePageUid: page.uid || page.id || section.id, text, start: end, end: end + text.length, page, continuation: isContinuation(previousText, rawText, page), opensEpisode };
         end = run.end;
         previousText=rawText;
         return run;
@@ -908,12 +910,13 @@
         // A photo marked as the hero's portrait keeps its own spread: it never
         // opens an episode.
         const photoPosition=chapter.photos.findIndex(photo=>photo._sourcePageUid===run.sourcePageUid&&imageSource(photo)&&photo.portraitHero!==true&&!String(photo.heroName||'').trim());
-        if(photoPosition<0)return null;
-        const photo=chapter.photos[photoPosition],story=String(photo.story||'').trim().match(/^[^.!?…]+[.!?…]?/u)?.[0]||'';
-        photo._episodeOpening=true;
+        if(photoPosition<0&&!run.opensEpisode)return null;
+        const photo=photoPosition>=0?chapter.photos[photoPosition]:null,story=String(photo?.story||'').trim().match(/^[^.!?…]+[.!?…]?/u)?.[0]||'';
+        if(photo)photo._episodeOpening=true;
         return {offset:run.start+(run.text.length-String(run.page.text).length),photoPosition,opened:false,
           title:String(run.page.episode||run.page.title||'').replace(/^\u042d\u043f\u0438\u0437\u043e\u0434\s+\d+[.:]?\s*/iu,'').trim()||String(run.page.title||'').trim(),
-          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:'')||episodeLineFrom(run.page.text),caption:[String(photo.caption||'').trim()||String(photo.people||'').trim(),String(photo.year||'').trim()].filter(Boolean).join(', ')};
+          line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:'')||episodeLineFrom(run.page.text),caption:photo?[String(photo.caption||'').trim()||String(photo.people||'').trim(),String(photo.year||'').trim()].filter(Boolean).join(', '):'',
+          quote:photo?'':(sentenceQuote(run.page.text,new Set())||'')};
       }).filter(Boolean);
       const pendingEpisode=()=>episodes.find(item=>!item.opened&&item.offset===sourceOffset);
       const consume = (page,side) => {
@@ -1169,8 +1172,12 @@
           // Episode opening: a small archive photo with a handwritten caption,
           // facing the episode title, a long handwritten line and the text.
           episode.opened=true;
-          const photoIndex=episode.photoPosition;usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));
-          const photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,handCaption:episode.caption,title:chapter.title,pageFormat:meta.format||'square'});
+          const photoIndex=episode.photoPosition;
+          let photoPage;
+          if(photoIndex>=0){usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));
+            photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,handCaption:episode.caption,title:chapter.title,pageFormat:meta.format||'square'});}
+          // v126: an episode without its own photograph faces its title with a quote of its own words.
+          else photoPage=P('quote',{layout:'quote',master:'D01-QUOTE',sectionId:chapter.sectionId,source:chapter,quote:episode.quote||episode.line||episode.title,quoteTone:'light'});
           const opening=nextTextPage('right',{episodeOpening:{title:episode.title,line:episode.line},forceRhythm:'plain'});
           segmentSpreadStart=spreads.length;
           spreads.push({master:'D01-SPREAD-EPISODE-OPENING',sectionId:chapter.sectionId,left:photoPage,right:opening,fixedRhythm:true});
