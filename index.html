@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<script id="kob-boot">(()=>{try{if(!/[?&]classic=1/.test(location.search)&&!(navigator.webdriver&&!/[?&]kob=1/.test(location.search)))document.documentElement.classList.add('kob-wait');}catch(_){}})();</script>
+<style id="kob-boot-css">html.kob-wait{background:#0b0604}html.kob-wait #lbStart{visibility:hidden!important}</style>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Очерки жизни</title>
@@ -3869,16 +3872,20 @@
 <script src="book-renderer/project-store.js?v=demo-book-20261107-v141"></script>
 <script src="book-renderer/bookcase.js?v=demo-book-20261107-v141"></script>
 
-<style id="kob-v141">
-/* v141 — the way in, led by the Keeper: one dark stage, the same as the constructor's «Знакомство».
+<style id="kob-v142">
+/* v142 — the way in, led by the Keeper: first he shows what the constructor can do (assets/keeper/tour.js),
+   then the e-mail, then «Создать книгу» or «Мои книги». One dark stage; every heading comes out of the mist.
    The old start steps still work underneath; these steps only hand them the answers. */
-.kob{position:fixed;inset:0;z-index:11000;color:#f3dcc0;font-family:"Iowan Old Style",Palatino,Georgia,serif;opacity:1;transition:opacity 1.2s ease;
+.kob{position:fixed;inset:0;z-index:11000;color:#f3dcc0;font-family:"Iowan Old Style",Palatino,Georgia,serif;opacity:0;transition:opacity 1.4s ease;
   background:radial-gradient(ellipse 55% 60% at 50% 46%,rgba(150,80,30,.42),transparent 72%),radial-gradient(ellipse 110% 100% at 50% 50%,#2a160a,#0b0604 72%)}
+.kob.in{opacity:1}
 .kob.gone{opacity:0;pointer-events:none}
-.kob.hide{opacity:0;pointer-events:none;transition:opacity .5s ease}
-.kob canvas{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none}
-.kob .st{position:absolute;left:50%;top:50%;width:min(760px,86vw);transform:translate(-36%,-50%);opacity:0;pointer-events:none;transition:opacity .7s ease,translate .9s cubic-bezier(.2,.8,.3,1);translate:0 14px}
-.kob .st.on{opacity:1;pointer-events:auto;translate:0 0;transition-delay:.25s}
+.kob>canvas{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none}
+.kob .st{position:absolute;left:50%;top:50%;width:min(760px,86vw);transform:translate(-36%,-50%);pointer-events:none}
+.kob .st.on{pointer-events:auto}
+.kob .st>*{opacity:0;filter:blur(10px);transition:opacity .8s ease,filter .9s ease}
+.kob .st.on>*{opacity:1;filter:blur(0);transition:opacity 1.2s ease,filter 1.4s ease}
+.kob .st.on>:nth-child(2){transition-delay:.15s}.kob .st.on>:nth-child(3){transition-delay:.35s}.kob .st.on>:nth-child(4){transition-delay:.5s}.kob .st.on>:nth-child(5){transition-delay:.6s}.kob .st.on>:nth-child(n+6){transition-delay:.7s}
 .kob .k{font:500 12px "Iowan Old Style",Georgia,serif;letter-spacing:.42em;text-transform:uppercase;color:#c99a6a;margin-bottom:14px}
 .kob h2{margin:0;font:400 54px/1.3 "Sign That S","Iowan Old Style",Georgia,serif;color:#fff2dc;padding-bottom:4px}
 .kob p.d{margin:16px 0 0;font:italic 20px/1.5 "Iowan Old Style",Georgia,serif;color:#e7cfaa;max-width:600px}
@@ -3889,6 +3896,12 @@
 .kob .cd b{display:block;font:500 11px "Iowan Old Style",Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:#c99a6a}
 .kob .cd strong{display:block;margin-top:8px;font:400 30px/1.2 "Sign That S",Georgia,serif;color:#fff2dc;font-weight:400}
 .kob .cd span{display:block;margin-top:8px;font:italic 15px/1.45 "Iowan Old Style",Georgia,serif;color:#d9bf98}
+/* «Мои книги»: the books as copper-edged spines-turned-cards, newest first */
+.kob .shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:26px;max-height:46vh;overflow:auto;padding:4px 6px 4px 2px;scrollbar-width:thin;scrollbar-color:#6b4a2c transparent}
+.kob .shelf .cd{flex:none}
+.kob .shelf .cd strong{font-size:27px;overflow-wrap:anywhere}
+.kob .shelf .cd.new{border-style:dashed}
+.kob .shelf .empty{grid-column:1/-1;font:italic 18px "Iowan Old Style",Georgia,serif;color:#d9bf98}
 .kob .fields{display:flex;gap:18px;margin-top:24px;flex-wrap:wrap}
 .kob label{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:6px;font:500 11px "Iowan Old Style",Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#c99a6a}
 .kob input[type=text],.kob input[type=email],.kob input[inputmode]{background:none;border:0;border-bottom:1px solid rgba(214,150,96,.55);color:#fff2dc;font:italic 21px "Iowan Old Style",Georgia,serif;padding:6px 2px;outline:none;letter-spacing:0;text-transform:none;transition:border-color .5s}
@@ -3900,27 +3913,31 @@
 .kob .btn:hover{border-color:rgba(255,206,150,.95);box-shadow:0 0 14px 2px rgba(255,150,60,.4)}
 .kob .btn.main{border-color:rgba(255,206,150,.95);color:#ffe9c9;box-shadow:0 0 14px 3px rgba(255,150,60,.55),0 0 34px 8px rgba(255,120,40,.22)}
 .kob .btn:active{translate:0 2px}
-.kob .btn:disabled{opacity:.35;pointer-events:none}
 .kob .btn.ghost{border-color:transparent;box-shadow:none;color:#c99a6a}
+.kob .btn.ghost:hover{color:#ffd9a8}
 .kob .status{margin-top:14px;min-height:22px;font:italic 16px "Iowan Old Style",Georgia,serif;color:#ffd9a8}
-.kob .dots{position:absolute;left:50%;bottom:5%;translate:-50% 0;display:flex;gap:10px}
+.kob .dots{position:absolute;left:50%;bottom:5%;translate:-50% 0;display:flex;gap:10px;opacity:0;transition:opacity 1s}
+.kob.steps .dots{opacity:1}
 .kob .dots i{width:7px;height:7px;border-radius:50%;background:rgba(214,150,96,.3);transition:background .6s,box-shadow .6s}.kob .dots i.on{background:#ffd9a8;box-shadow:0 0 8px 2px rgba(255,150,60,.7)}
+.kob .okt .deck,.kob .okt .hd{scale:min(1,calc(100vh / 1000px),calc(100vw / 1500px))}
+.kob .okt .hd{transform-origin:50% 0}
 @media (max-width:760px){.kob .st{transform:translate(-50%,-30%)}.kob h2{font-size:40px}}
 </style>
 <div class="kob" id="kob" aria-label="Вход в «Очерки жизни»"><canvas></canvas>
-  <section class="st" data-s="hello"><div class="k">очерки жизни</div><h2>Здравствуйте! Я — Хранитель историй</h2>
-    <p class="d">Помогу собрать воспоминания вашей семьи в книгу, которую будут хранить поколения. Сначала — войдите, чтобы книга была с вами на любом компьютере.</p>
-    <div class="acts"><button class="btn ghost" data-go="guest">Продолжить без входа</button><button class="btn main" data-go="auth">Войти по почте</button></div></section>
   <section class="st" data-s="auth"><div class="k">вход</div><h2>Ваша почта</h2>
-    <p class="d">Пришлю код — пароль не нужен.</p>
+    <p class="d">Чтобы книга была с вами на любом компьютере, пришлю код — пароль не нужен.</p>
     <div class="fields"><label>почта<input type="email" id="kobEmail" autocomplete="email" placeholder="name@example.com"></label><label id="kobCodeL" hidden>код из письма<input id="kobCode" inputmode="numeric" maxlength="7" placeholder="123 456"></label></div>
     <label class="consent"><input type="checkbox" id="kobConsent"> <span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике конфиденциальности</a></span></label>
     <div class="status" id="kobStatus"></div>
-    <div class="acts"><button class="btn ghost" data-go="hello">Назад</button><button class="btn main" id="kobSend">Получить код</button></div></section>
+    <div class="acts"><button class="btn ghost" data-go="guest">Продолжить без входа</button><button class="btn main" id="kobSend">Получить код</button></div></section>
   <section class="st" data-s="books"><div class="k">ваши книги</div><h2>С чего начнём?</h2>
-    <p class="d">Начните новую книгу или откройте одну из своих — они стоят на полке.</p>
+    <p class="d">Начните новую книгу или откройте одну из своих.</p>
     <div class="cards"><div class="cd" data-go="who"><b>новая</b><strong>Создать книгу</strong><span>Отвечу на три вопроса — и книга получит главы, обложку и подсказки.</span></div>
-      <div class="cd" data-go="shelf"><b>полка</b><strong>Мои книги</strong><span>Продолжить книгу, которую вы уже начали.</span></div></div></section>
+      <div class="cd" data-go="shelf"><b>полка</b><strong>Мои книги</strong><span>Продолжить книгу, которую вы уже начали.</span></div></div>
+    <div class="acts"><button class="btn ghost" data-go="tour">Что умеет конструктор</button></div></section>
+  <section class="st" data-s="shelf"><div class="k">полка</div><h2>Мои книги</h2>
+    <div class="shelf" id="kobShelf"></div>
+    <div class="acts"><button class="btn ghost" data-go="books">Назад</button></div></section>
   <section class="st" data-s="who"><div class="k">шаг 1 из 3 · герой</div><h2>О ком эта книга?</h2>
     <div class="cards" data-step="2"><div class="cd" data-v="Моя жизнь"><b>от первого лица</b><strong>О себе</strong></div><div class="cd" data-v="История человека"><b>близкий человек</b><strong>О близком</strong></div><div class="cd" data-v="История семьи"><b>род и поколения</b><strong>О всей семье</strong></div></div>
     <div class="fields"><label><span id="kobHeroL">имя и фамилия героя</span><input type="text" data-into="heroNameInput" placeholder="Например: Нина Петровна Евстафиади"></label><label style="flex:0 1 160px">годы жизни<input type="text" data-into="heroYearsInput" placeholder="1928–2011"></label></div>
@@ -3934,21 +3951,30 @@
     <div class="cards" data-step="4"><div class="cd" data-v="Преимущественно текст"><b>рассказ</b><strong>Текста</strong></div><div class="cd" data-v="Текст и фотографии"><b>поровну</b><strong>Поровну</strong></div><div class="cd" data-v="Преимущественно фото"><b>альбом</b><strong>Фото</strong></div></div>
     <div class="fields"><label>название книги<input type="text" data-into="bookTitleInput" placeholder="Например: Очерки жизни"></label><label>подзаголовок<input type="text" data-into="bookSubtitleInput" placeholder="Например: История нашей семьи"></label></div>
     <div class="acts"><button class="btn ghost" data-go="how">Назад</button><button class="btn main" data-go="finish" data-need="book">Создать книгу</button></div></section>
-  <div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="dots"><i></i><i></i><i></i></div>
 </div>
-<script id="kob-v141-js">
-(()=>{const ov=document.getElementById('kob');if(!ov)return;
-  if(/[?&]classic=1/.test(location.search)||navigator.webdriver&&!/[?&]kob=1/.test(location.search)){ov.remove();return;}
+<script src="assets/keeper/tour.js?v=20261107-v141"></script>
+<script id="kob-v142-js">
+(()=>{const ov=document.getElementById('kob');const html=document.documentElement;
+  const off=()=>html.classList.remove('kob-wait');
+  if(!ov)return off();
+  if(/[?&]classic=1/.test(location.search)||navigator.webdriver&&!/[?&]kob=1/.test(location.search)){ov.remove();off();return;}
   const $=id=>document.getElementById(id),cv=ov.querySelector('canvas');
-  const ORDER=['hello','auth','books','who','how','book'];
-  const V='assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js','assets/keeper/keeper3d.js?v=20261107-v141'];
-  const load=()=>LIBS.reduce((p,src)=>p.then(()=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);})),Promise.resolve());
-  let K=null,cur='',ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
-  // the Keeper stands to the left of the words and turns to them
-  const SPOT={hello:[-.55,.05],auth:[-.6,.0],books:[-.6,.05],who:[-.66,.1],how:[-.64,.05],book:[-.66,.1]};
-  function go(s){if(s===cur)return;const first=!cur;cur=s;ov.querySelectorAll('.st').forEach(x=>x.classList.toggle('on',x.dataset.s===s));
-    ov.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=ORDER.indexOf(s)));
-    if(K&&!first){const sp=SPOT[s]||[-.6,0];K.moveTo(sp[0],sp[1],1);K.lookAt(.95,-sp[1]*.5);}}
+  const STEPS=['who','how','book'];
+  let K=null,T=null,cur='',ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
+  // he stands to the left of the words and turns to them
+  const SPOT={auth:[-.6,.0],books:[-.6,.05],shelf:[-.66,.1],who:[-.66,.1],how:[-.64,.05],book:[-.66,.1]};
+  const place=s=>{if(!K)return;const sp=SPOT[s]||[-.6,0];K.moveTo(sp[0],sp[1],1);K.face(1);K.lookAt(.95,-sp[1]*.5);};
+  function go(s){if(s===cur)return;cur=s;
+    if(s==='tour'){ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));ov.classList.remove('steps');tour(true);return;}
+    ov.querySelectorAll('.st').forEach(x=>x.classList.toggle('on',x.dataset.s===s));
+    ov.classList.toggle('steps',STEPS.includes(s));ov.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=STEPS.indexOf(s)));
+    if(s==='shelf')fillShelf();place(s);}
+  const known=()=>{try{return!!(localStorage.getItem('ocherki_auth_email')||sessionStorage.getItem('ocherki_auth_guest'));}catch(_){return false;}};
+  // the tour: he greets, shows the five things the constructor does, and only then the e-mail and the books
+  function tour(again){T?.destroy();
+    T=OcherkiTour.create(ov,{K,greeting:!again,last:'Начать',skipLabel:again?'Назад':'Пропустить',onDone:()=>{const t=T;setTimeout(()=>t?.destroy(),1200);T=null;cur='';go(known()?'books':'auth');}});
+    if(K){K.moveTo(0,.2,1);K.lookAt(null);}T.start();}
   // answers go into the old steps underneath
   const sel=(stepEl,card)=>{const step=+stepEl.dataset.step;stepEl.querySelectorAll('.cd').forEach(c=>c.classList.toggle('on',c===card));
     const real=[...document.querySelectorAll(`#cardsGrid${step} .format-card`)].find(c=>c.getAttribute('onclick')?.includes(`'${card.dataset.v}'`));
@@ -3959,11 +3985,11 @@
   const ok=need=>{const sec=ov.querySelector(`.st[data-s="${need}"]`);if(!sec.querySelector('.cd.on'))return'Выберите один из вариантов';
     if(need==='who'&&!sec.querySelector('[data-into="heroNameInput"]').value.trim())return'Впишите имя героя — его можно изменить потом';
     if(need==='book'&&!sec.querySelector('[data-into="bookTitleInput"]').value.trim())return'Как назовём книгу?';return'';};
-  ov.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;
+  ov.addEventListener('click',e=>{const b=e.target.closest('.st [data-go]');if(!b)return;const g=b.dataset.go;
     if(b.dataset.need){const m=ok(b.dataset.need);if(m){b.animate([{translate:'-4px 0'},{translate:'4px 0'},{translate:'0 0'}],{duration:260});K&&K.talk(900);const sec=b.closest('.st');let st=sec.querySelector('.status');if(!st){st=document.createElement('div');st.className='status';sec.querySelector('.acts').before(st);}st.textContent=m;return;}}
     if(g==='guest'){try{$('startAuthGuest')?.click();sessionStorage.setItem('ocherki_auth_guest','1');}catch(_){}go('books');return;}
-    if(g==='shelf'){shelf();return;}
-    if(g==='who'){window.__ocherkiCreatingBook=true;try{localStorage.removeItem('ocherkiLifeProjectDraft');}catch(_){}}
+    if(g==='who'||g==='new'){window.__ocherkiCreatingBook=true;try{localStorage.removeItem('ocherkiLifeProjectDraft');}catch(_){}if(g==='new'){go('who');return;}}
+    if(g==='open'){openBook(b.dataset.id);return;}
     if(g==='finish'){finish();return;}
     go(g);});
   // the e-mail: the old form does the work, its answer shows here
@@ -3973,22 +3999,32 @@
     try{$('startAuthForm')?.requestSubmit?$('startAuthForm').requestSubmit():$('startAuthSubmit')?.click();}catch(_){}
     const watch=n=>{const st=$('startAuthStatus')?.textContent||'';if(st)$('kobStatus').textContent=st;const cf=$('startAuthCodeField');if(cf&&!cf.hidden){$('kobCodeL').hidden=false;$('kobSend').textContent='Войти';}
       let inn=false;try{inn=!!localStorage.getItem('ocherki_auth_email');}catch(_){}if(inn){go('books');return;}if(n>0)later(()=>watch(n-1),400);};watch(20);});
-  // «Мои книги»: the shelf from the start screen; choosing a book goes straight on
-  function shelf(){ov.classList.add('hide');$('lbOpenProjects')?.click();
-    const back=()=>{if(window.OcherkiBookcase?.isOpen?.()){later(back,400);return;}
-      if(document.getElementById('constructorEntry')?.classList.contains('is-visible')){leave();return;}ov.classList.remove('hide');};later(back,900);}
+  // «Мои книги» right here, on the same dark stage
+  const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const when=t=>{if(!t)return'';try{return new Date(t).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});}catch(_){return'';}};
+  async function fillShelf(){const box=$('kobShelf');box.innerHTML='<div class="empty">Ищу ваши книги…</div>';let books=[];try{books=await window.OcherkiStore.list();}catch(_){}
+    if(cur!=='shelf')return;
+    box.innerHTML=books.map(b=>`<div class="cd" data-go="open" data-id="${esc(b.id)}"><b>${esc(when(b.savedAt)||'книга')}</b><strong>${esc(b.title||'Книга без названия')}</strong><span>${esc([b.author,b.pages?b.pages+' стр.':''].filter(Boolean).join(' · '))}</span></div>`).join('')
+      +`<div class="cd new" data-go="new"><b>новая</b><strong>+ Создать книгу</strong></div>`+(books.length?'':'<div class="empty">Пока на полке пусто — начните первую книгу.</div>');}
+  function openBook(id){try{localStorage.setItem('ocherkiActiveBook',id);}catch(_){}window.OCHERKI_PRELOAD_SHELL?.();
+    const st=$('lbStart'),entry=$('constructorEntry');st?.classList.add('is-leaving-for-entry');
+    leave(()=>{entry?.classList.add('is-visible');entry?.setAttribute('aria-hidden','false');if(st)st.style.visibility='hidden';});}
   // the end: he writes the book's title with his pen, gathers into a spark, and the constructor comes up
   function finish(){const title=ov.querySelector('[data-into="bookTitleInput"]').value.trim()||'Очерки жизни';
-    ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));
-    if(K){K.moveTo(0,.12,1.3);K.lookAt(null);later(()=>K.write(title),1300);later(leave,1300+5200);}else leave();
-    later(()=>{const b=$('startConstructorBtn');if(b){b.disabled=false;b.click();}},K?1300+5600:300);}
-  function leave(){if(K){K.awayTo(.92,-.9);K.setMode('away');}later(()=>{ov.classList.add('gone');later(()=>{K&&K.stop();ov.remove();},1300);},K?900:0);}
-  // returning: straight to the books
-  let known=false;try{known=!!(localStorage.getItem('ocherki_auth_email')||sessionStorage.getItem('ocherki_auth_guest'));}catch(_){}
-  go(known?'books':'hello');
-  if(known){const h=ov.querySelector('.st[data-s="books"] h2');if(h)h.textContent='С возвращением!';}
-  load().then(()=>{if(!window.OcherkiKeeper3D)return;K=window.OcherkiKeeper3D.create(cv,{size:.3,dust:24,quick:1.8,writeSpeed:1.7});if(!K)return;K.start();K.resize();
-    K.placeSpark(K.halfW()*.6,K.halfW()*.3);const sp=SPOT[cur]||[-.6,0];setTimeout(()=>{K.moveTo(sp[0],sp[1],1);K.lookAt(.95,0);},300);}).catch(()=>{});
+    ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));ov.classList.remove('steps');
+    if(K){K.moveTo(0,.12,1.3);K.face(1);K.lookAt(null);later(()=>K.write(title),1300);later(()=>leave(start),1300+5200);}else leave(start);}
+  const start=()=>{const b=$('startConstructorBtn');if(b){b.disabled=false;b.click();}};
+  function leave(then){if(K){K.awayTo(.92,-.9);K.setMode('away');}
+    later(()=>{then&&then();ov.classList.add('gone');later(()=>{K&&K.stop();T?.destroy();ov.remove();off();},1500);},K?900:0);}
+  // the stage comes up softly; returning people go straight to their books
+  requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('in')));
+  const back=known();
+  if(back){const h=ov.querySelector('.st[data-s="books"] h2');if(h)h.textContent='С возвращением!';}
+  const boot=k=>{K=k;if(K){K.start();K.resize();K.placeSpark(K.halfW()*.6,K.halfW()*.3);}
+    if(back){later(()=>go('books'),K?500:200);}else{later(()=>K&&K.moveTo(0,.2,1),300);cur='tour';tour(false);}};
+  window.OCHERKI_KOB={get K(){return K;},go};
+  if(!window.OcherkiTour){off();ov.remove();return;}
+  OcherkiTour.loadKeeper().then(()=>boot(window.OcherkiKeeper3D?OcherkiKeeper3D.create(cv,{size:.3,dust:24,quick:1.8,writeSpeed:1.7,wordsScale:1.6}):null)).catch(()=>boot(null));
 })();
 </script>
 </body>

@@ -2657,6 +2657,16 @@ body.is-framing-photo,body.is-framing-photo .book-preview-spread img[data-frame-
 <style id="v166-prompt-stable-size">
 .writing-prompt,.writing-prompt.is-visible,.writing-prompt.is-leaving{transform:translate3d(0,0,0) scale(1)!important;}
 </style>
+<script id="calm-dom-v142">
+// v142 — no-op writes no longer reach the page: removing a class that is not there, adding one that is, setting an attribute
+// to the value it already has. Each such write used to count as a change, woke every observer, and they woke each other —
+// a loop running every frame. Now a write happens only when something really changes.
+(()=>{const T=DOMTokenList.prototype,add=T.add,rem=T.remove,tog=T.toggle,sa=Element.prototype.setAttribute;
+  T.remove=function(...t){if(t.some(x=>this.contains(x)))return rem.apply(this,t);};
+  T.add=function(...t){if(t.some(x=>!this.contains(x)))return add.apply(this,t);};
+  T.toggle=function(t,f){if(f===undefined)return tog.call(this,t);const has=this.contains(t);if(!!f===has)return has;return tog.call(this,t,f);};
+  Element.prototype.setAttribute=function(n,v){if(this.getAttribute(n)===String(v))return;return sa.call(this,n,v);};})();
+</script>
 <script id="v35-auth-gate-state">
 /* Authentication is owned by index.html before the start steps. The editor
    shell must never open an entry modal or show a second auth control. */
@@ -10030,12 +10040,14 @@ html body .shell .project-actions .hanging:has(#undoBtn),html body .shell .proje
     // v127: no panel — the room darkens and blurs, and the steps lie on it as one list with dots.
     const next=st.findIndex(x=>!x.ok);
     const li2=(x,i)=>`<li class="${x.ok?'ok':''} ${i===next?'is-next':''} ${x.tip?'is-tip':''}" ${x.go||x.proof||x.tip?`data-i="${i}" data-go="1"`:''}><i class="dot"></i><div><span>${x.t}</span>${hint(x)?`<em>${hint(x)}</em>`:''}</div></li>`;
-    box.innerHTML=`<span class="rd3-x" data-close="1" aria-label="Закрыть">×</span>
+    const html=`<span class="rd3-x" data-close="1" aria-label="Закрыть">×</span>
       <div class="rd3-k">до книги</div><h4>${left?`Осталось ${left} ${ru(left)}`:'Книга готова'}</h4><div class="rd3-s">${done} из ${st.length} уже готово</div>
       <ul class="rd3-list">${st.map((x,i)=>li2(x,i)).join('')}</ul>
       <div class="rd3-foot"><span class="oc-btn go ${left?'':'ready is-main'}">Заказать печать</span></div>`;
+    // v142: rebuilt only when something changed — the list no longer re-cascades every few seconds
+    if(box._html!==html){box._html=html;box.innerHTML=html;}
     box._st=st;}
-  const open=()=>{box.classList.add('on');veil.classList.add('on');paint();place();};
+  const open=()=>{box._html='';box.classList.add('on');veil.classList.add('on');paint();place();};
   setInterval(()=>{if(!document.hidden)paint();},4000);
   const close=()=>{box.classList.remove('on');veil.classList.remove('on');};
   line.addEventListener('click',open);veil.addEventListener('click',close);addEventListener('keydown',e=>{if(e.key==='Escape'&&box.classList.contains('on'))close();});
@@ -10047,7 +10059,7 @@ html body .shell .project-actions .hanging:has(#undoBtn),html body .shell .proje
       if(x.how)setTimeout(()=>window.OCHERKI_SAY?.(x.how),500);return;}
     if(e.target.closest('.go.ready'))try{window.OCHERKI_SHOW_TOAST?.('Заказ печати откроется после подключения сервера');}catch(_){}});
   // The line follows the title smoothly frame by frame (no late jumps when the keys move).
-  const follow=()=>{place();requestAnimationFrame(follow);};requestAnimationFrame(follow);
+
   // Once, the first time it appears: it glows and says what it is.
   try{if(!localStorage.getItem('ocherki_ready_hinted')){setTimeout(()=>{line.classList.add('hint');localStorage.setItem('ocherki_ready_hinted','1');setTimeout(()=>line.classList.remove('hint'),6000);},4000);}}catch(_){}
   window.OCHERKI_READY={open,close};
@@ -10279,8 +10291,8 @@ html body .wp-item.tog.is-busy .cap svg{animation:none!important}
     if(shell.classList.contains('oc-w')){const r2=innerWidth-(base.left+base.width)-G-40;H=base.height*.8;W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;}
     return {base,W,H,G,d,extra,ok:W>=260};}
   function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G;
-    if(on)pane.style.cssText=`left:${L}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
-    else if(!shell.classList.contains('wp-closing'))pane.style.cssText=`left:${b.left+b.width+g.extra-g.W*.7}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
+    const css=on?`left:${L}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`:`left:${b.left+b.width+g.extra-g.W*.7}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
+    if((on||!shell.classList.contains('wp-closing'))&&pane._css!==css){pane._css=css;pane.style.cssText=css;}
     keys2.style.left=(L+g.W/2-keys2.offsetWidth/2)+'px';keys2.style.top=(b.top+(b.height+g.H)/2+12)+'px';
     keys.style.left=(b.left+b.width+g.extra+30)+'px';keys.style.top=(b.top+b.height-96)+'px';}
   function setOpen(v){const w=wrap();if(!w)return;
@@ -11978,7 +11990,7 @@ html body .mode-switch button,html body .mode-switch:not(.is-night) button{color
     {const lg=shell.classList.contains('is-large-ui');if(lg!==wasLarge){wasLarge=lg;setTimeout(()=>{measureRow();placed='';placeTop();},60);}}
     // Switching off from «Рукопись» or «Книга» leaves nothing of them behind.
     const open=shell.classList.contains('is-open');if(wasOpen&&!open){window.OCHERKI_MANUSCRIPT?.close?.();closeBook();}wasOpen=open;
-    sw.dataset.mode=m;sw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+    if(sw.dataset.mode!==m)sw.dataset.mode=m;sw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
     {const night=shell.classList.contains('is-night')||darkRoom();if(sw.classList.contains('is-night')!==night){sw.classList.add('is-fading');clearTimeout(sw._fade);sw._fade=setTimeout(()=>sw.classList.remove('is-fading'),2600);}sw.classList.toggle('is-night',night);}sw.classList.toggle('is-ready',shell.classList.contains('is-open'));requestAnimationFrame(placeTop);};
   const closeBook=()=>{if(modal?.classList.contains('open'))document.getElementById('bookPreviewClose')?.click();};
   // One flight for every screen change: a clean sheet of paper travels
@@ -13745,25 +13757,23 @@ html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before,html body .shell.oc-w
 .okh-dot span{position:absolute;left:44px;top:50%;translate:0 -50%;white-space:nowrap;font:italic 16px 'CormorantCy',Georgia,serif;color:#e9d3b2;text-shadow:0 0 8px rgba(20,10,5,.85);opacity:0;transition:opacity .4s;pointer-events:none}
 body:has(.shell:not(.is-night)) .okh-dot span{color:#5c3f28;text-shadow:0 0 10px rgba(255,248,236,.95)}
 .okh-dot:hover span{opacity:1}
-.okh{position:fixed;inset:0;z-index:2147483450;opacity:0;pointer-events:none;transition:opacity .9s ease;
+.okh{position:fixed;inset:0;z-index:2147483450;opacity:0;pointer-events:none;transition:opacity 1.4s ease;
   background:radial-gradient(ellipse 62vmax 54vmax at var(--hx,18%) var(--hy,78%),rgba(14,7,3,.94),rgba(14,7,3,.82) 40%,rgba(14,7,3,.35) 70%,rgba(14,7,3,0) 100%)}
 .okh.on{opacity:1;pointer-events:auto}
 .okh canvas{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none}
-.okh .txt{position:absolute;max-width:min(440px,70vw);color:#f3dcc0;opacity:0;translate:0 8px;transition:opacity .8s ease,translate .9s cubic-bezier(.2,.8,.3,1)}
-.okh.say .txt{opacity:1;translate:0 0}
+.okh .txt{position:absolute;max-width:min(440px,70vw);color:#f3dcc0;opacity:0;filter:blur(10px);transition:opacity 1.1s ease,filter 1.2s ease}
+.okh.say .txt{opacity:1;filter:blur(0)}
 .okh .txt b{display:block;font:500 11px 'CormorantCy',Georgia,serif;letter-spacing:.38em;text-transform:uppercase;color:#c99a6a;margin-bottom:10px}
-.okh .txt p{margin:0;font:400 27px/1.32 'SignThatS','CormorantCy',Georgia,serif;text-shadow:0 0 14px rgba(255,150,60,.4);clip-path:inset(-10% 100% -10% 0);transition:clip-path 2.8s cubic-bezier(.45,.1,.4,1) .3s}
-.okh.say .txt p{clip-path:inset(-10% -2% -10% 0)}
-.okh .acts{display:flex;gap:22px;margin-top:22px;opacity:0;transition:opacity .8s ease 2.6s}
+.okh .txt p{margin:0;font:400 27px/1.32 'SignThatS','CormorantCy',Georgia,serif;text-shadow:0 0 14px rgba(255,150,60,.4)}
+.okh .acts{display:flex;gap:22px;margin-top:22px;opacity:0;transition:opacity .8s ease}
+.okh.say .acts{transition-delay:1.2s}
 .okh.say .acts{opacity:1}
 .okh .acts span{font:italic 18px 'CormorantCy',Georgia,serif;color:#e9c79a;cursor:pointer;border-bottom:1px solid rgba(233,199,154,.35);transition:color .4s,border-color .4s}
 .okh .acts span:hover{color:#ffe2bd;border-color:rgba(255,206,150,.9)}
 </style>
 <script id="keeper-help-v140-js">
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
-  const V='assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js','assets/keeper/keeper3d.js?v=20261107-v141'];
-  const have=src=>[...document.scripts].some(sc=>sc.src&&sc.src.includes(src.split('?')[0]));
-  let libs=null;const load=()=>libs||(libs=window.OcherkiKeeper3D?Promise.resolve():LIBS.reduce((p,src)=>p.then(()=>have(src)&&(src.includes('keeper3d')?window.OcherkiKeeper3D:true)?null:new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);})),Promise.resolve()));
+  const load=()=>window.OcherkiTour?OcherkiTour.loadKeeper():Promise.reject(new Error('no tour'));
   // what he says depends on where you are
   const TIPS={
     write:'Пишите, как говорите. Вопросы к главе — слева. «Добавить» — фото, новый эпизод или документ. «Показать в книге» — как этот лист ляжет в книгу.',
@@ -14209,32 +14219,9 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
 </script>
 
 <style id="keeper-v137">
-/* v137 — the Keeper: a flame of copper ribbons with a pen for a foot. He rises out of an ink line, sways like a flame,
-   blinks and looks at you, tells his piece in handwriting, steps aside for the cards and sinks back into the line at the end. */
+/* the Keeper's canvas lies over the page and only adds light (no z-index here: it would cut the blend off from the page) */
 .kp2{position:absolute;inset:0;pointer-events:none}
 .kp2 .kpc{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen}
-.kp2 .kpc{position:absolute;inset:0;width:100%;height:100%}
-.kp2:not(:has(canvas)) {}
-.kp2 svg.kpv{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.kp2 .look .eye{filter:drop-shadow(0 0 6px rgba(255,190,110,.95)) drop-shadow(0 0 14px rgba(255,140,50,.6))}
-@keyframes kpSway{0%{rotate:-1.6deg;scale:1 .99}50%{rotate:.6deg;scale:1 1.012}100%{rotate:1.8deg;scale:1 .995}}
-.kp2 .halo{position:absolute;left:12%;top:8%;width:70%;height:62%;opacity:0;transition:opacity 2s;border-radius:50%;background:radial-gradient(circle,rgba(255,150,60,.32),transparent 68%);animation:kpHalo 3.3s ease-in-out infinite alternate}
-.kp2.up .halo{opacity:1}
-@keyframes kpHalo{0%{scale:.96}50%{scale:1.05}100%{scale:1}}
-.kp2 .eye{transform-box:fill-box;transform-origin:50% 50%;transition:scale .09s ease}
-.kp2 .eye.shut{scale:1 .08}
-.kp2 .look{transition:transform .5s cubic-bezier(.2,.8,.3,1)}
-.kp2-say{position:absolute;left:50%;top:76%;pointer-events:none;translate:-50% 0;width:min(900px,86vw);text-align:center;font:400 40px/1.25 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc;text-shadow:0 0 18px rgba(255,150,60,.35);z-index:2}
-.kp2-say span{display:block;clip-path:inset(-20% 100% -20% 0);transition:clip-path 2.4s cubic-bezier(.45,.1,.4,1)}
-.kp2-say span+span{font:italic 22px/1.5 'CormorantCy',Georgia,serif;color:#ead6b4;margin-top:10px;transition-delay:1.9s}
-.kp2-say.on span{clip-path:inset(-20% -2% -20% 0)}
-.okp.aside .kp2-say{opacity:0;transition:opacity .6s}
-.okp:not(.aside) .hd,.okp:not(.aside) .deck,.okp:not(.aside) .dots{opacity:0;pointer-events:none}
-.okp .hd,.okp .deck,.okp .dots{transition:opacity .9s ease .5s}
-.okp .hd h2{clip-path:inset(-30% 100% -30% 0)}
-.okp .hd h2.w{clip-path:inset(-30% -2% -30% 0);transition:clip-path 1.6s cubic-bezier(.45,.1,.4,1),opacity .5s,filter .6s}
-.okp.aside .deck{left:56%}
-.okp.leaving .kp2-say,.okp.leaving .hd,.okp.leaving .deck,.okp.leaving .nav,.okp.leaving .skip{opacity:0;transition:opacity .6s}
 </style>
 
 <style id="column-v138">
@@ -14242,199 +14229,33 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
 html body .oc-ttl{scale:var(--oc-k,1);transform-origin:0 0}
 html body .shell.oc-w .write-nav{scale:var(--oc-k,1);transform-origin:0 0}
 </style>
-<style id="intro-v133">
-/* v133 — «Знакомство»: what the constructor can do, told by drawn cards that glide in one after another (the Keeper will open it later) */
-.okp{position:fixed;inset:0;z-index:2147483500;opacity:0;pointer-events:none;transition:opacity 1s ease;font-family:'CormorantCy',Georgia,serif;color:#f6ead8;
+<style id="intro-v142">
+/* v142 — «Знакомство»: the Keeper's tour (assets/keeper/tour.js) on a dark stage */
+.okp{position:fixed;inset:0;z-index:2147483500;opacity:0;pointer-events:none;transition:opacity 1.1s ease;
   background:radial-gradient(ellipse 55% 60% at 50% 46%,rgba(150,80,30,.45),transparent 72%),radial-gradient(ellipse 110% 100% at 50% 50%,#2a160a,#0b0604 72%)}
 .okp.on{opacity:1;pointer-events:auto}
-.okp .hd{position:absolute;left:0;right:0;top:9%;text-align:center}
-.okp .hd .k{font:500 13px 'CormorantCy',Georgia,serif;letter-spacing:.42em;text-transform:uppercase;color:#d6b48a;margin-bottom:22px;transition:opacity .5s}
-.okp .hd h2{margin:0;font:400 64px/1.1 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc;transition:opacity .5s,filter .6s}
-.okp .hd p{margin:16px auto 0;max-width:720px;font:italic 23px/1.5 'CormorantCy',Georgia,serif;color:#ead6b4;transition:opacity .5s}
-.okp .hd.swap>*{opacity:0;filter:blur(6px)}
-.okp .deck{position:absolute;left:50%;top:60%;width:0;height:0;perspective:1600px}
-.okp .cd{position:absolute;left:0;top:0;transform-style:preserve-3d;transition:transform 1.25s cubic-bezier(.2,.8,.25,1),opacity 1s ease,filter 1s ease;opacity:0;pointer-events:none}
-.okp .cd.in{opacity:1}
-.okp .cd.past{opacity:0;filter:blur(4px)}
-.okp .nav{position:absolute;left:0;right:0;bottom:7%;display:flex;justify-content:center;align-items:center;gap:28px}
-.okp .dots{display:flex;gap:10px}.okp .dots i{width:7px;height:7px;border-radius:50%;background:rgba(214,150,96,.35);transition:background .6s,box-shadow .6s}.okp .dots i.on{background:#ffd9a8;box-shadow:0 0 8px 2px rgba(255,150,60,.7)}
-.okp .skip{position:absolute;right:3%;top:4%;font:italic 18px 'CormorantCy',Georgia,serif;color:#d6b48a;cursor:pointer;transition:color .5s}.okp .skip:hover{color:#ffd9a8}
-/* the cards */
-.okp .sheet{width:380px;height:480px;margin:-240px 0 0 -190px;background:linear-gradient(170deg,#fbf6ec,#efe3cd);box-shadow:0 30px 60px rgba(0,0,0,.55);padding:48px 42px;box-sizing:border-box;color:#3b2a1c}
-.okp .sheet .ttl{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.3em;text-transform:uppercase;text-align:center;opacity:.7}
-.okp .sheet .ln{height:9px;margin:13px 0;background:linear-gradient(90deg,rgba(59,42,28,.32),rgba(59,42,28,.22));border-radius:3px;transform-origin:0 50%;transform:scaleX(0);transition:transform .9s ease}
-.okp .sheet .hw{font:400 30px/1.2 'SignThatS',Georgia,serif;color:#8a5a36;margin:18px 0;opacity:0;transition:opacity 1s ease}
-.okp .sheet .note{position:absolute;right:-118px;top:150px;width:110px;font:400 20px/1.15 'SignThatS',Georgia,serif;color:#e8c99c;transform:rotate(-6deg);opacity:0;transition:opacity 1s ease}
-.okp .cd.play .ln{transform:scaleX(1)}.okp .cd.play .hw,.okp .cd.play .note{opacity:1}
-.okp .vin{width:380px;height:380px;margin:-190px 0 0 -190px;border-radius:50%;background:repeating-radial-gradient(circle,#141010 0 1.4px,#211a16 1.4px 3px);box-shadow:0 0 0 2px rgba(255,200,140,.9),0 0 30px 6px rgba(255,150,60,.5),0 30px 60px rgba(0,0,0,.6)}
-.okp .vin .lb{position:absolute;left:50%;top:50%;width:36%;height:36%;transform:translate(-50%,-50%);border-radius:50%;background:#3a2a1c center/cover;filter:sepia(.35);box-shadow:0 0 0 3px #2a201a}
-.okp .vin .spin{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0 10%,rgba(255,235,210,.14) 14%,transparent 20% 60%,rgba(255,235,210,.09) 66%,transparent 72%)}
-.okp .cd.play .vin{animation:okSpin 6s linear infinite}
-@keyframes okSpin{to{rotate:360deg}}
-.okp .qr{position:absolute;left:250px;top:120px;width:120px;height:120px;background:#f6efe2;padding:10px;box-shadow:0 14px 28px rgba(0,0,0,.5);transform:rotate(6deg)}
-.okp .qr i{display:block;width:100%;height:100%;background:conic-gradient(#2a1a10 25%,transparent 0 50%,#2a1a10 0 75%,transparent 0) 0 0/20px 20px,linear-gradient(#2a1a10,#2a1a10) 0 0/34px 34px no-repeat,linear-gradient(#2a1a10,#2a1a10) 100% 0/34px 34px no-repeat,linear-gradient(#2a1a10,#2a1a10) 0 100%/34px 34px no-repeat;opacity:.85}
-.okp .qcard{width:320px;height:440px;margin:-220px 0 0 -160px;border-radius:16px;background:linear-gradient(170deg,#f7eedd,#e9d8b8);box-shadow:inset 0 0 0 10px rgba(255,255,255,.35),inset 0 0 0 11px rgba(120,84,50,.35),0 30px 60px rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;box-sizing:border-box;text-align:center;color:#3b2a1c}
-.okp .qcard b{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.3em;text-transform:uppercase;opacity:.7;margin-bottom:22px}
-.okp .qcard span{font:400 36px/1.15 'SignThatS',Georgia,serif;color:#5a3a22}
-.okp .phone{position:absolute;left:190px;top:-30px;width:170px;height:330px;border-radius:30px;background:#1b130d;box-shadow:0 0 0 2px rgba(214,150,96,.6),0 24px 50px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;transform:rotate(8deg)}
-.okp .phone i{font:400 22px/1.15 'SignThatS',Georgia,serif;color:#ffe2bd;text-align:center;padding:18px;text-shadow:0 0 10px rgba(255,150,60,.6)}
-.okp .env{width:420px;height:280px;margin:-140px 0 0 -210px;background:linear-gradient(160deg,#efe3cb,#dcc7a3);border-radius:4px;box-shadow:0 30px 60px rgba(0,0,0,.55)}
-.okp .env::before{content:"";position:absolute;left:0;right:0;top:0;height:55%;background:linear-gradient(to bottom right,transparent 49.5%,rgba(120,84,50,.3) 50%,transparent 51%),linear-gradient(to bottom left,transparent 49.5%,rgba(120,84,50,.3) 50%,transparent 51%)}
-.okp .env .lt{position:absolute;left:30px;right:30px;bottom:40px;height:240px;background:#fbf6ec;box-shadow:0 6px 14px rgba(0,0,0,.25);padding:26px;box-sizing:border-box;font:400 24px/1.2 'SignThatS',Georgia,serif;color:#4b3424;transform:translateY(0);transition:transform 1.4s cubic-bezier(.2,.8,.3,1) .3s;z-index:-1}
-.okp .cd.play .env .lt{transform:translateY(-170px)}
-.okp .env .seal{position:absolute;left:50%;top:44%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#c4523a,#7c2214 70%);box-shadow:0 4px 10px rgba(0,0,0,.4)}
-.okp .pol{position:absolute;width:150px;height:170px;background:#f6efe2;padding:10px 10px 30px;box-shadow:0 18px 30px rgba(0,0,0,.5)}
-.okp .pol img{width:100%;height:100%;object-fit:cover;filter:sepia(.3)}
-.okp .bk{width:560px;margin:-200px 0 0 -280px}
-.okp .bk img{width:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
+.okp .okt .deck{transform:scale(var(--ui-s,1))}
+.okp .okt .hd{transform-origin:50% 0;scale:var(--ui-s,1)}
 </style>
-
-<style id="intro-v140">
-/* v140 — «Знакомство»: room for the descenders, a centred card, honest QR, a sealed envelope, a book made of light */
-.okp .hd h2{line-height:1.32!important;padding-bottom:4px}
-.okp .hd p{margin-top:22px!important}
-.okp .deck,.okp.aside .deck{left:50%!important;top:61%}
-.okp .kp2-say{top:57%!important}
-.okp .sheet{width:440px!important;height:560px!important;margin:-280px 0 0 -220px!important;padding:56px 50px!important}
-.okp .sheet .hw{font-size:34px!important}
-.okp .voice{width:0;height:0}
-.okp .vwrap{position:absolute;left:-330px;top:-170px;width:340px;height:340px}
-.okp .vwrap .vin{position:absolute!important;inset:0;width:auto!important;height:auto!important;margin:0!important}
-.okp .vin .hole{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#0b0705;box-shadow:inset 0 1px 2px rgba(0,0,0,.8),0 0 0 2px rgba(255,220,180,.25)}
-.okp .qrb{position:absolute;left:50px;top:-110px;width:270px;display:flex;flex-direction:column;align-items:flex-start;gap:16px}
-.okp .qrb img{width:150px;height:150px;box-shadow:0 14px 28px rgba(0,0,0,.5);border-radius:4px}
-.okp .qrb span{font:italic 19px/1.4 'CormorantCy',Georgia,serif;color:#ead6b4}
-.okp .letter{width:0;height:0}
-.okp .letter .envl{position:absolute;left:-210px;top:-60px;width:420px;height:280px;filter:drop-shadow(0 26px 34px rgba(0,0,0,.55));z-index:2}
-.okp .letter .envl>svg:first-child{position:absolute;inset:0;width:100%;height:100%}
-.okp .letter .wax{position:absolute;left:50%;top:150px;width:74px;height:74px;margin:-40px 0 0 -37px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
-.okp .letter .lt{position:absolute;left:-180px;top:-40px;width:360px;height:250px;background:#fbf6ec;box-shadow:0 6px 14px rgba(0,0,0,.3);padding:26px 28px;box-sizing:border-box;font:400 25px/1.25 'SignThatS',Georgia,serif;color:#4b3424;z-index:1;transition:transform 1.4s cubic-bezier(.2,.8,.3,1) .3s}
-.okp .cd.play .letter .lt,.okp .letter.play .lt{transform:translateY(-190px)}
-.okp .letter .pol{position:absolute;width:150px;height:170px;background:#f6efe2;padding:10px 10px 30px;box-shadow:0 18px 30px rgba(0,0,0,.5)}
-.okp .letter .pol img{width:100%;height:100%;object-fit:cover;filter:sepia(.3)}
-.okp .letter .pol.under{left:120px;top:-20px;transform:rotate(9deg);z-index:0}
-.okp .letter .pol.side{left:-370px;top:-40px;transform:rotate(-8deg);z-index:3}
-.okp .bk2{width:600px;margin:-200px 0 0 -300px}
-.okp .bk2 .fbook{width:100%;overflow:visible}
-.okp .bk2 .pg1{transform-origin:300px 215px;animation:okLeaf 5.5s ease-in-out infinite}
-.okp .bk2 .pg2{transform-origin:300px 215px;animation:okLeaf 5.5s ease-in-out infinite 1.2s;opacity:.7}
-@keyframes okLeaf{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(-.92);opacity:.55}}
-.okp .bk2 .sig{stroke-dasharray:160;stroke-dashoffset:160;transition:stroke-dashoffset 2.4s ease .6s}
-.okp .cd.play .sig{stroke-dashoffset:0}
-.okp .bk2 .fbook g{animation:okGlow 3.6s ease-in-out infinite alternate}
-@keyframes okGlow{from{opacity:.86}to{opacity:1}}
-</style>
-
-<style id="intro-v141">
-/* v141 — the back key, the wax seal from the photo, a book that opens once and rests, week and letter lifted */
-.okp .nav .back.off{opacity:0;pointer-events:none}
-.okp .nav .back{transition:opacity .5s}
-.okp .letter .wax{position:absolute;left:50%;top:150px;width:86px;height:86px;margin:-44px 0 0 -43px;filter:drop-shadow(0 5px 7px rgba(0,0,0,.5))}
-.okp .letter .wax img{width:100%;height:100%;display:block}
-.okp .letter .wax b{position:absolute;inset:0;display:grid;place-items:center;font:400 40px/1 'SignThatS',Georgia,serif;color:#5a0f0a;text-shadow:0 1px 0 rgba(255,160,140,.35),0 -1px 0 rgba(0,0,0,.5);opacity:.85;padding-bottom:4px}
-/* the book opens once and stays open; its pages settle */
-.okp .bk2 .pg1,.okp .bk2 .pg2{animation:none!important;transform:scaleX(1);transition:transform 1.8s cubic-bezier(.3,.7,.2,1),opacity 1.4s ease}
-.okp .cd:not(.play) .bk2 .pg1,.okp .cd:not(.play) .bk2 .pg2,.okp .bk2:not(.play) .pg1,.okp .bk2:not(.play) .pg2{transform:scaleX(-1);opacity:.4}
-.okp .bk2.play .pg1{transform:scaleX(.18);opacity:.75;transition-delay:.4s}
-.okp .bk2.play .pg2{transform:scaleX(.08);opacity:.5;transition-delay:.7s}
-.okp .bk2 .fbook g{animation:none!important}
-/* «Вся семья — вместе» and the letter sit higher, nearer the words above them */
-.okp .qcard{margin-top:-270px!important}
-.okp .phone{top:-80px!important}
-.okp .letter{translate:0 -60px}
-</style>
-<script id="intro-v133-js">
-(()=>{const shell=document.querySelector('.shell');if(!shell)return;
-  const PH='qa/demo-book/photos/';
-  // a QR code drawn for the card: finder squares, timing line and a fixed scatter of modules (looks and reads like the real thing)
-  const qrURL=(()=>{const n=25,c=document.createElement('canvas'),z=6;c.width=c.height=(n+4)*z;const g=c.getContext('2d');g.fillStyle='#f7efe1';g.fillRect(0,0,c.width,c.height);g.fillStyle='#2a1a10';
-    const on=(x,y)=>g.fillRect((x+2)*z,(y+2)*z,z,z);let r=7;const rnd=()=>(r=(r*1103515245+12345)%2147483648)/2147483648;
-    const finder=(x,y)=>{for(let i=0;i<7;i++)for(let j=0;j<7;j++){const e=i===0||i===6||j===0||j===6,c2=i>=2&&i<=4&&j>=2&&j<=4;if(e||c2)on(x+i,y+j);}};
-    const res=(x,y)=>(x<8&&y<8)||(x>=n-8&&y<8)||(x<8&&y>=n-8);
-    for(let y=0;y<n;y++)for(let x=0;x<n;x++){if(res(x,y))continue;if(y===6||x===6){if((x+y)%2===0)on(x,y);continue;}if(rnd()<.47)on(x,y);}
-    finder(0,0);finder(n-7,0);finder(0,n-7);for(let i=0;i<5;i++)for(let j=0;j<5;j++){const e=i===0||i===4||j===0||j===4;if(e||(i===2&&j===2))on(n-9+i,n-9+j);}
-    return c.toDataURL();})();
-  const SEAL0=`<svg class="wax" viewBox="0 0 100 100"><defs><radialGradient id="okWax" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#d9634a"/><stop offset=".55" stop-color="#a8301f"/><stop offset="1" stop-color="#6e1a10"/></radialGradient></defs>
-    <path d="M50 4c7 0 9 6 15 7s12-2 15 4 0 10 4 15 10 6 10 13-6 9-6 15 5 11 1 16-11 3-15 7-4 11-11 12-10-5-16-5-12 6-17 2-3-11-8-15-12-4-13-11 5-10 4-16-6-11-2-16 11-2 15-7 3-12 9-14 9 1 15-1z" fill="url(#okWax)"/>
-    <circle cx="50" cy="51" r="27" fill="none" stroke="#5e150c" stroke-width="2.4" opacity=".7"/><circle cx="50" cy="51" r="27" fill="none" stroke="#f08a6c" stroke-width="1" opacity=".35" transform="translate(-1 -1)"/>
-    <text x="50" y="63" text-anchor="middle" font-family="SignThatS, Georgia, serif" font-size="36" fill="#5e150c" opacity=".85">О</text><text x="49" y="62" text-anchor="middle" font-family="SignThatS, Georgia, serif" font-size="36" fill="#f3a183" opacity=".35">О</text>
-    <ellipse cx="36" cy="28" rx="12" ry="6" fill="#fff" opacity=".16" transform="rotate(-24 36 28)"/></svg>`;
-  const SEAL=`<div class="wax"><img src="assets/postcard/wax-seal.webp" alt=""><b>О</b></div>`;
-  const BOOK=`<svg class="fbook" viewBox="0 0 600 380"><defs><linearGradient id="okPg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcf8e"/><stop offset="1" stop-color="#d8742c"/></linearGradient>
-      <filter id="okGl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-    <g filter="url(#okGl)" fill="none" stroke="url(#okPg)" stroke-linecap="round">
-      <path d="M300 330 C 230 300 120 300 40 320 L 40 90 C 120 70 230 70 300 100 Z" stroke-width="2.6" fill="rgba(255,140,60,.06)"/>
-      <path d="M300 330 C 370 300 480 300 560 320 L 560 90 C 480 70 370 70 300 100 Z" stroke-width="2.6" fill="rgba(255,140,60,.06)"/>
-      <path d="M300 100 L 300 330" stroke-width="2"/>
-      <g class="ln" stroke-width="1.3" opacity=".7"><path d="M80 140 C 150 128 220 130 270 146"/><path d="M80 170 C 150 158 220 160 270 176"/><path d="M80 200 C 150 188 200 190 250 204"/><path d="M330 146 C 380 130 450 128 520 140"/><path d="M330 176 C 380 160 450 158 520 170"/><path d="M350 204 C 400 190 450 188 520 200"/></g>
-      <path class="pg1" d="M300 100 C 340 60 420 40 470 60 L 470 286 C 420 270 340 290 300 330" stroke-width="2" fill="rgba(255,150,70,.08)"/>
-      <path class="pg2" d="M300 100 C 330 50 390 22 430 34 L 430 262 C 390 252 330 280 300 330" stroke-width="1.6" fill="rgba(255,150,70,.06)"/>
-    </g>
-</svg>`;
-  const S=[
-    {k:'писать самим',h:'Пишите — книга сложится сама',p:'К каждой главе свои вопросы. Пишите как говорите — заголовки, пропись и заметки на полях появятся сами.',
-     c:`<div class="cd sheet"><div class="ttl">глава 1 · начало</div><div class="ln" style="width:92%"></div><div class="ln" style="width:86%;transition-delay:.15s"></div><div class="ln" style="width:94%;transition-delay:.3s"></div><div class="hw">«Мама впервые увидела трамвай…»</div><div class="ln" style="width:90%;transition-delay:.45s"></div><div class="ln" style="width:70%;transition-delay:.6s"></div><div class="ln" style="width:88%;transition-delay:.75s"></div><div class="ln" style="width:80%;transition-delay:.9s"></div></div>`},
-    {k:'голоса',h:'Голоса родных',p:'Запишите ответ голосом — он станет пластинкой в архиве.',
-     c:`<div class="cd voice"><div class="vwrap"><div class="vin"><div class="spin"></div><div class="lb" style="background-image:url('${PH}grandma_porch.jpg')"></div><i class="hole"></i></div></div>
-       <div class="qrb"><img src="${qrURL}" alt=""><span>А в книге рядом с рассказом — такой код. Наведите на него камеру телефона, и зазвучит голос.</span></div></div>`},
-    {k:'вопрос недели',h:'Вся семья — вместе',p:'Каждую неделю родные получают на телефон вопрос и отвечают — голосом, словами или фото.',
-     c:`<div class="cd"><div class="qcard" style="position:relative"><b>вопрос недели</b><span>Как вы познакомились с дедушкой?</span></div><div class="phone"><i>Ответить голосом</i></div></div>`},
-    {k:'письма и фото',h:'Архив семьи',p:'Письма, фотографии и правки родных собираются в архиве — и одним касанием ложатся в книгу.',
-     c:`<div class="cd letter"><div class="pol under"><img src="${PH}lake_two.jpg" alt=""></div><div class="lt">Дорогие мои, пишу вам из Тифлиса… Здесь уже весна, в садах цветут абрикосы.</div>
-       <div class="envl"><svg viewBox="0 0 420 280" preserveAspectRatio="none"><defs><linearGradient id="okEnv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1e5ce"/><stop offset="1" stop-color="#dcc6a2"/></linearGradient><linearGradient id="okEnvS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3d2b2"/><stop offset="1" stop-color="#cdb48c"/></linearGradient></defs>
-         <rect width="420" height="280" rx="5" fill="url(#okEnv)"/><path d="M0 280 L210 150 L420 280Z" fill="url(#okEnvS)"/><path d="M0 0 L190 160 Q210 176 230 160 L420 0 L420 6 L232 166 Q210 184 188 166 L0 6Z" fill="rgba(120,84,50,.18)"/>
-         <path d="M0 280 L210 150 L420 280" fill="none" stroke="rgba(120,84,50,.28)" stroke-width="1.2"/></svg>${SEAL}</div>
-       <div class="pol side"><img src="${PH}mother_child_bw.jpg" alt=""></div></div>`},
-    {k:'книга',h:'Ваша книга',p:'Смотрите развороты, меняйте композиции — и, когда всё готово, заказывайте печать. История останется в семье.',
-     c:`<div class="cd bk2">${BOOK}</div>`}];
-  const ov=document.createElement('div');ov.className='okp';
-  const eye=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})"><path class="eye" d="M-24 2 C-14 -16 12 -18 24 -6 C14 12 -10 16 -24 2Z" fill="#ffe7b8"/></g>`;
-  ov.innerHTML=`<div class="kp2"><canvas class="kpc"></canvas></div>
-    <div class="kp2-say"><span>Здравствуйте! Я — Хранитель историй</span><span>Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
-    <div class="hd"><div class="k"></div><h2></h2><p></p></div><div class="deck">${S.map(s=>s.c).join('')}</div>
-    <div class="nav"><span class="oc-btn2 back off" data-a="prev"><span>Назад</span></span><span class="dots">${S.map(()=>'<i></i>').join('')}</span><span class="oc-btn2 main" data-a="next"><span>Далее</span></span></div><span class="skip" data-a="skip">Пропустить</span>`;
-  document.body.appendChild(ov);
-  const cards=[...ov.querySelectorAll('.deck .cd')];let i=-1;
-  const pose=(c,d)=>{c.classList.toggle('in',d===0);c.classList.toggle('past',d<0);c.classList.toggle('play',d===0);
-    c.style.transform=d===0?'translate3d(0,0,0) rotateY(0deg) rotate(0deg)':d<0?'translate3d(-640px,40px,-300px) rotateY(38deg) rotate(-6deg)':'translate3d(680px,40px,-200px) rotateY(-42deg) rotate(8deg)';};
-  cards.forEach(c=>pose(c,1));
-  const show=k=>{const prev=i;i=Math.max(0,Math.min(S.length-1,k));const hd=ov.querySelector('.hd');hd.classList.add('swap');
-    setTimeout(()=>{const h=hd.querySelector('h2');h.classList.remove('w');hd.querySelector('.k').textContent=S[i].k;h.textContent=S[i].h;hd.querySelector('p').textContent=S[i].p;hd.classList.remove('swap');void h.offsetWidth;h.classList.add('w');},prev<0?0:420);
-    cards.forEach((c,j)=>pose(c,j-i));ov.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));
-    ov.querySelector('[data-a="next"] span').textContent=i===S.length-1?'Начать':'Далее';ov.querySelector('[data-a="prev"]').classList.toggle('off',i<1);};
-  const kp=ov.querySelector('.kp2'),say=ov.querySelector('.kp2-say'),cv=ov.querySelector('.kpc');
-  let ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
-  // —— the Keeper (assets/keeper/keeper3d.js on three.js): loaded the first time he is needed
-  const V='assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js','assets/keeper/keeper3d.js?v=20261107-v141'];
-  let libs=null;const load=()=>libs||(libs=window.OcherkiKeeper3D?Promise.resolve():LIBS.reduce((p,src)=>p.then(()=>new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);})),Promise.resolve()));
-  let K=null;
-  const keeper=()=>load().then(()=>{if(!K&&window.OcherkiKeeper3D){K=window.OcherkiKeeper3D.create(cv,{size:.26,dust:26,quick:1.8,writeSpeed:1.7});}return K;}).catch(()=>null);
-  // the greeting stands under him, wherever he is
-  // where he stands on each step: he wanders around the card, never over it
-  const SPOTS=[[-.5,-.3],[.52,-.32],[-.52,.14],[.52,.12],[-.5,-.34]];
-  // he stands beside the card, turns to it, and writes the step's word with his pen
-  const goSpot=(k,fold)=>{if(!K)return;const sp=SPOTS[k%SPOTS.length];K.moveTo(sp[0],sp[1],.72,{fold});K.lookAt(sp[0]<0?.95:-.95,-sp[1]*.5);
-    const tryWrite=()=>{if(i!==k||!ov.classList.contains('on'))return;const st=K.state;if(st.mode==='free'&&st.form>.92)K.write(S[k].k);else later(tryWrite,180);};later(tryWrite,fold?1400:700);};
-  const open=()=>{ts.forEach(clearTimeout);ts=[];i=-1;cards.forEach(c=>pose(c,1));ov.classList.remove('aside','leaving');say.classList.remove('on');
-    ov.querySelector('[data-a="next"] span').textContent='Показать';ov.querySelector('.dots').style.visibility='hidden';
-    ov.classList.add('on');
-    keeper().then(k=>{if(!k){say.classList.add('on');return;}k.start();k.resize();
-      // a spark comes in from the corner, glides to the middle and he unfolds out of it
-      k.placeSpark(k.halfW()*.55,k.halfW()*.25);later(()=>k.moveTo(0,.2,1),300);
-      // he speaks once he has fully gathered
-      const waitFormed=()=>{if(!ov.classList.contains('on'))return;if(k.state.form>.88&&k.state.mode==='idle'){say.classList.add('on');k.talk(4200);}else later(waitFormed,200);};later(waitFormed,1500);
-      });};
-  const close=()=>{ts.forEach(clearTimeout);ts=[];ov.classList.add('leaving');
-    if(K){const d=document.querySelector('.okh-dot');const r=d?.getBoundingClientRect();if(r&&r.width){const cr=cv.getBoundingClientRect();K.awayTo((r.left+r.width/2-cr.left)/cr.width*2-1,1-(r.top+r.height/2-cr.top)/cr.height*2);}K.lookAt(null);K.setMode('away');}
-    later(()=>{ov.classList.remove('on','aside');K&&K.stop();document.querySelector('.okh-dot')?.classList.add('wake');setTimeout(()=>document.querySelector('.okh-dot')?.classList.remove('wake'),6000);try{localStorage.setItem('ocherki_keeper_seen','1');}catch(_){}},K?2100:900);};
-  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='prev'){if(i>0){show(i-1);goSpot(i,false);}return;}if(a==='next'){if(i<0){ov.classList.add('aside');later(()=>goSpot(0,true),0);ov.querySelector('.dots').style.visibility='';later(()=>show(0),500);return;}if(i>=S.length-1)close();else{show(i+1);goSpot(i,false);}}});
-  addEventListener('keydown',e=>{if(!ov.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight'||e.key==='Enter')ov.querySelector('[data-a="next"]').click();if(e.key==='ArrowLeft'&&i>0){show(i-1);goSpot(i,false);}});
+<script src="assets/keeper/tour.js?v=20261107-v141"></script>
+<script id="intro-v142-js">
+(()=>{const shell=document.querySelector('.shell');if(!shell||!window.OcherkiTour)return;
+  const ov=document.createElement('div');ov.className='okp';ov.innerHTML='<div class="kp2"><canvas class="kpc"></canvas></div>';document.body.appendChild(ov);
+  const cv=ov.querySelector('.kpc');let K=null,T=null,ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
+  const keeper=()=>OcherkiTour.loadKeeper().then(()=>{if(!K&&window.OcherkiKeeper3D)K=OcherkiKeeper3D.create(cv,{size:.26,dust:26,quick:1.8,writeSpeed:1.7,wordsScale:1.6});return K;}).catch(()=>null);
+  function open(){ts.forEach(clearTimeout);ts=[];ov.classList.add('on');
+    keeper().then(k=>{if(!ov.classList.contains('on'))return;
+      T?.destroy();T=OcherkiTour.create(ov,{K:k,last:'Начать',onDone:close});
+      if(k){k.start();k.resize();k.placeSpark(k.halfW()*.55,k.halfW()*.25);later(()=>k.moveTo(0,.2,1),300);}
+      T.start();});}
+  // he flies back into the ember in the corner and the dark lifts after him
+  function close(){ts.forEach(clearTimeout);ts=[];T?.stop();
+    if(K){const d=document.querySelector('.okh-dot'),r=d?.getBoundingClientRect();if(r&&r.width){const cr=cv.getBoundingClientRect();K.awayTo((r.left+r.width/2-cr.left)/cr.width*2-1,1-(r.top+r.height/2-cr.top)/cr.height*2);}K.lookAt(null);K.setMode('away');}
+    later(()=>{ov.classList.remove('on');later(()=>{K&&K.stop();T?.destroy();T=null;},1200);const d=document.querySelector('.okh-dot');d?.classList.add('wake');setTimeout(()=>d?.classList.remove('wake'),6000);try{localStorage.setItem('ocherki_keeper_seen','1');}catch(_){}},K?1900:300);}
   window.OCHERKI_KEEPER={open,close};
   document.addEventListener('click',e=>{const m=e.target.closest?.('.oct .more [data-m="tour"]');if(m){e.stopImmediatePropagation();e.preventDefault();document.querySelector('.oct .more')?.classList.remove('on');open();}},true);
-  // the first visit: shown once, after the constructor has settled (the new Keeper will open it)
-  const quiet=navigator.webdriver&&!/[?&]keeper=1/.test(location.search+(parent!==window?parent.location.search:''));
-  let seen=true;try{seen=localStorage.getItem('ocherki_keeper_seen')==='1';}catch(_){}
-  if(!seen&&!quiet){const wait=setInterval(()=>{if(shell.classList.contains('oc-ready')){clearInterval(wait);setTimeout(open,1600);}},500);}
+  // once the constructor has settled, the Keeper is fetched quietly so he never arrives to an empty dark screen
+  const settle=setInterval(()=>{if(shell.classList.contains('oc-ready')){clearInterval(settle);setTimeout(()=>OcherkiTour.warm(),2500);}},700);
 })();
 </script>
 <style id="hub-v141">
