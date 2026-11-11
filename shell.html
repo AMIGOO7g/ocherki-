@@ -2674,7 +2674,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v137">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v138">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2894,7 +2894,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v137" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v138" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4694,10 +4694,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v137"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v137"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v137"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v137"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v137"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v137"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v138"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v138"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v138"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v138"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v138"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v138"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4732,8 +4732,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v137"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v137"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v138"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v138"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7662,7 +7662,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v137"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v138"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -13392,21 +13392,30 @@ html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,
     const sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;
     const L=ed.left-sh,R=ed.right-sh,T=Math.max(ed.top,60),H=Math.min(ed.height,innerHeight-T);
     const cx=Math.round((R+innerWidth-70)/2);
-    // the title, the chapter and the clock with its pendulum make one column; on a low screen it starts higher so the hands never cross the chapter
-    const stack=(ttl.offsetHeight||118)+44+(document.querySelector('.write-nav')?.offsetHeight||70)+125+250;
-    const ty=Math.round(Math.max(118,Math.min(T+H*.34,innerHeight-stack)));
+    const ty=Math.round(T+H*.34);
+    // one proportion for the whole right column (title, chapter, clock): a laptop sees the same picture, only smaller
+    const K=Math.max(.6,Math.min(1,innerHeight/1080,innerWidth/1920));root.setProperty('--oc-k',K.toFixed(3));
     const key=[L,R,T,H,innerWidth].map(Math.round).join();
     ttl.style.left=cx+'px';ttl.style.top=ty+'px';
-    root.setProperty('--oc-cx',cx+'px');root.setProperty('--oc-ny',Math.round(ty+ttl.offsetHeight+44)+'px');
+    root.setProperty('--oc-cx',cx+'px');root.setProperty('--oc-ny',Math.round(ty+(ttl.offsetHeight+44)*K)+'px');
     // the clock stands under the chapter, the signature at the edge
     const nb=ty+ttl.offsetHeight+44+(document.querySelector('.write-nav')?.offsetHeight||70);
     {const bl=document.querySelector('.bottom-left'),pv=document.querySelector('.bottom-left .clock-pivot');
       const cur=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-clx'))||cx-120;
       let nx=cx-120;if(pv&&shell.classList.contains('oc-w')){const pr=pv.getBoundingClientRect();if(pr.width)nx=cur+(cx-(pr.left+pr.width/2));}
       let ny=Math.min(innerHeight-300,nb+70);
-      // the hands reach about 110px from the centre: the centre stands that far below the chapter's last line
-      const nv=document.querySelector('.write-nav');if(pv&&nv&&shell.classList.contains('oc-w')){const pr=pv.getBoundingClientRect(),nr=nv.getBoundingClientRect(),cy=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-cly'))||ny;
-        if(pr.height&&nr.height)ny=Math.min(innerHeight-200,cy+(nr.bottom+125-(pr.top+pr.height/2)));}
+      // the hands reach about 110px from the centre: the centre stands that far below the chapter's last line.
+      // On a low screen everything keeps its place and the clock itself gets smaller, so it fits under the chapter whole.
+      const mc=document.querySelector('.bottom-left .master-clock');
+      const nv=document.querySelector('.write-nav');if(pv&&nv&&mc&&shell.classList.contains('oc-w')){const nr=nv.getBoundingClientRect();
+        const k=Math.max(.5,Math.min(K,(innerHeight-14-nr.bottom)/375));
+        const ok=+(mc.dataset.k||1),mr=mc.getBoundingClientRect(),pr=pv.getBoundingClientRect();
+        if(pr.height&&nr.height&&mr.width){
+          // the pivot's place inside the clock, unscaled — the clock shrinks around its own centre
+          const ox=(pr.left+pr.width/2-mr.left)/ok,oy=(pr.top+pr.height/2-mr.top)/ok;
+          if(Math.abs(k-ok)>.004){mc.style.transformOrigin=`${ox.toFixed(1)}px ${oy.toFixed(1)}px`;mc.style.scale=k.toFixed(3);mc.dataset.k=k.toFixed(3);}
+          const cy=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-cly'))||ny;
+          ny=cy+(nr.bottom+125*k-(pr.top+pr.height/2));}}
       root.setProperty('--oc-clx',Math.round(nx)+'px');root.setProperty('--oc-cly',Math.round(ny)+'px');}
     root.setProperty('--oc-qx',Math.round(L/2)+'px');root.setProperty('--oc-qy',Math.round(T+H/2)+'px');
     // the two keys over the sheet
@@ -13989,9 +13998,10 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
 <style id="keeper-v137">
 /* v137 — the Keeper: a flame of copper ribbons with a pen for a foot. He rises out of an ink line, sways like a flame,
    blinks and looks at you, tells his piece in handwriting, steps aside for the cards and sinks back into the line at the end. */
-.kp2{position:absolute;left:50%;top:42%;height:min(56vh,560px);aspect-ratio:840/950;translate:-50% -50%;transition:left 1.6s cubic-bezier(.45,.05,.25,1),top 1.6s cubic-bezier(.45,.05,.25,1),height 1.6s cubic-bezier(.45,.05,.25,1);pointer-events:none;z-index:2}
+.kp2{position:absolute;left:50%;top:44%;height:min(60vh,600px);aspect-ratio:1/1.05;translate:-50% -50%;transition:left 1.6s cubic-bezier(.45,.05,.25,1),top 1.6s cubic-bezier(.45,.05,.25,1),height 1.6s cubic-bezier(.45,.05,.25,1);pointer-events:none;z-index:2}
 .okp.aside .kp2{left:12%;top:58%;height:min(40vh,380px)}
-.kp2 .sway{position:absolute;inset:0;transform-origin:39% 93%;animation:kpSway 7.5s ease-in-out infinite alternate}
+.kp2 .kpc{position:absolute;inset:0;width:100%;height:100%}
+.kp2:not(:has(canvas)) {}
 .kp2 svg.kpv{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .kp2 .look .eye{filter:drop-shadow(0 0 6px rgba(255,190,110,.95)) drop-shadow(0 0 14px rgba(255,140,50,.6))}
 @keyframes kpSway{0%{rotate:-1.6deg;scale:1 .99}50%{rotate:.6deg;scale:1 1.012}100%{rotate:1.8deg;scale:1 .995}}
@@ -14001,7 +14011,7 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
 .kp2 .eye{transform-box:fill-box;transform-origin:50% 50%;transition:scale .09s ease}
 .kp2 .eye.shut{scale:1 .08}
 .kp2 .look{transition:transform .5s cubic-bezier(.2,.8,.3,1)}
-.kp2-say{position:absolute;left:50%;top:calc(42% + min(28vh,280px) + 14px);translate:-50% 0;width:min(900px,86vw);text-align:center;font:400 40px/1.25 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc;text-shadow:0 0 18px rgba(255,150,60,.35);z-index:2}
+.kp2-say{position:absolute;left:50%;top:calc(44% + min(27vh,270px));translate:-50% 0;width:min(900px,86vw);text-align:center;font:400 40px/1.25 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc;text-shadow:0 0 18px rgba(255,150,60,.35);z-index:2}
 .kp2-say span{display:block;clip-path:inset(-20% 100% -20% 0);transition:clip-path 2.4s cubic-bezier(.45,.1,.4,1)}
 .kp2-say span+span{font:italic 22px/1.5 'CormorantCy',Georgia,serif;color:#ead6b4;margin-top:10px;transition-delay:1.9s}
 .kp2-say.on span{clip-path:inset(-20% -2% -20% 0)}
@@ -14012,6 +14022,12 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
 .okp .hd h2.w{clip-path:inset(-30% -2% -30% 0);transition:clip-path 1.6s cubic-bezier(.45,.1,.4,1),opacity .5s,filter .6s}
 .okp.aside .deck{left:56%}
 .okp.leaving .kp2-say,.okp.leaving .hd,.okp.leaving .deck,.okp.leaving .nav,.okp.leaving .skip{opacity:0;transition:opacity .6s}
+</style>
+
+<style id="column-v138">
+/* v138 — the right column of «Писать» scales as one piece */
+html body .oc-ttl{scale:var(--oc-k,1);transform-origin:0 0}
+html body .shell.oc-w .write-nav{scale:var(--oc-k,1);transform-origin:0 0}
 </style>
 <style id="intro-v133">
 /* v133 — «Знакомство»: what the constructor can do, told by drawn cards that glide in one after another (the Keeper will open it later) */
@@ -14075,17 +14091,7 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
      c:`<div class="cd bk"><img src="assets/keeper/book-open.webp" alt=""></div>`}];
   const ov=document.createElement('div');ov.className='okp';
   const eye=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})"><path class="eye" d="M-24 2 C-14 -16 12 -18 24 -6 C14 12 -10 16 -24 2Z" fill="#ffe7b8"/></g>`;
-  ov.innerHTML=`<div class="kp2"><div class="sway"><div class="halo"></div><svg class="kpv" viewBox="0 0 840 950" aria-hidden="true">
-      <defs><linearGradient id="kpRib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9a0"/><stop offset=".55" stop-color="#f09a4c"/><stop offset="1" stop-color="#a9521c"/></linearGradient>
-        <radialGradient id="kpHead" cx=".45" cy=".42" r=".7"><stop offset="0" stop-color="#3e1909"/><stop offset=".75" stop-color="#1e0a04"/><stop offset="1" stop-color="#2c1006"/></radialGradient>
-        <linearGradient id="kpInk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb36a" stop-opacity=".2"/><stop offset=".25" stop-color="#ffd9a8"/><stop offset=".8" stop-color="#f0a060"/><stop offset="1" stop-color="#c06a2a" stop-opacity="0"/></linearGradient>
-        <filter id="kpGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="kpSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>
-      <path class="ink" d="M300 884 C 380 870, 520 836, 640 812 C 700 800, 690 846, 726 846 C 760 846, 800 826, 834 808" fill="none" stroke="url(#kpInk)" stroke-width="3.2" stroke-linecap="round" pathLength="1" filter="url(#kpGlow)"/>
-      <g class="headg"><path class="head" fill="url(#kpHead)" stroke="rgba(255,180,100,.85)" stroke-width="3" filter="url(#kpGlow)"/></g>
-      <g class="ribs" filter="url(#kpGlow)"></g>
-      <g class="nib" filter="url(#kpGlow)"><path d="M0 -62 L16 -22 L0 0 L-16 -22 Z" fill="#e89a58" stroke="#ffd8a6" stroke-width="2"/><path d="M0 -36 L0 -4" stroke="#3a1608" stroke-width="2"/><circle cx="0" cy="-36" r="4.5" fill="#3a1608"/></g>
-      <g class="look">${eye(407,412,8)}${eye(505,404,-12)}</g></svg></div></div>
+  ov.innerHTML=`<div class="kp2"><canvas class="kpc"></canvas></div>
     <div class="kp2-say"><span>Здравствуйте! Я — Хранитель историй</span><span>Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
     <div class="hd"><div class="k"></div><h2></h2><p></p></div><div class="deck">${S.map(s=>s.c).join('')}</div>
     <div class="nav"><span class="dots">${S.map(()=>'<i></i>').join('')}</span><span class="oc-btn2 main" data-a="next"><span>Далее</span></span></div><span class="skip" data-a="skip">Пропустить</span>`;
@@ -14098,67 +14104,116 @@ html body :is(.hanging-tip,.tool-tip,.bd-rail-tip){background:rgba(22,13,7,.94)!
     setTimeout(()=>{const h=hd.querySelector('h2');h.classList.remove('w');hd.querySelector('.k').textContent=S[i].k;h.textContent=S[i].h;hd.querySelector('p').textContent=S[i].p;hd.classList.remove('swap');void h.offsetWidth;h.classList.add('w');},prev<0?0:420);
     cards.forEach((c,j)=>pose(c,j-i));ov.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));
     ov.querySelector('[data-a="next"] span').textContent=i===S.length-1?'Начать':'Далее';};
-  const kp=ov.querySelector('.kp2'),say=ov.querySelector('.kp2-say'),look=ov.querySelector('.look');
-  let blinkT=0;const blink=()=>{ov.querySelectorAll('.eye').forEach(e=>e.classList.add('shut'));setTimeout(()=>ov.querySelectorAll('.eye').forEach(e=>e.classList.remove('shut')),140);
+  const kp=ov.querySelector('.kp2'),say=ov.querySelector('.kp2-say');
+  let blinkT=0;const blink=()=>{blinkUntil=performance.now()+120;
     clearTimeout(blinkT);if(ov.classList.contains('on'))blinkT=setTimeout(blink,2600+Math.random()*3800);};
-  ov.addEventListener('pointermove',e=>{const r=kp.getBoundingClientRect(),cx=r.left+r.width*.54,cy=r.top+r.height*.43;
-    const dx=Math.max(-1,Math.min(1,(e.clientX-cx)/500)),dy=Math.max(-1,Math.min(1,(e.clientY-cy)/400));look.setAttribute('transform',`translate(${(dx*9).toFixed(1)} ${(dy*7).toFixed(1)})`);});
   let ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
-  // —— the drawn keeper: ribbons are tapered bands along curves; every frame they breathe like a flame.
-  // f=0: all of him lies in the ink line; f=1: he stands. He rises and sinks by easing f.
-  const svgNS='http://www.w3.org/2000/svg',ribG=ov.querySelector('.ribs'),headP=ov.querySelector('.head'),nibG=ov.querySelector('.nib'),inkP=ov.querySelector('.ink'),eyesG=ov.querySelector('.kpv .look');
-  // the body: one dark drop with a burning rim, from the crest down the waist to the pen
-  const BODY=[[322,226],[380,140],[462,112],[540,150],[586,236],[598,330],[558,420],[494,478],[468,522],[522,592],[508,670],[432,732],[352,792],[346,770],[392,700],[432,628],[426,560],[384,520],[338,470],[318,400],[312,330],[314,276]];
-  const RIB=[ // centre curve P0..P3, widest width, sway amplitude, phase, opacity
-    {p:[[300,320],[280,110],[530,50],[612,250]],w:64,a:12,ph:0,o:.72},
-    {p:[[612,250],[650,400],[566,480],[476,506]],w:40,a:10,ph:.9,o:.62},
-    {p:[[470,512],[318,520],[118,560],[46,706]],w:70,a:18,ph:2.1,o:.7},
-    {p:[[352,330],[296,480],[478,566],[364,770]],w:46,a:10,ph:1.4,o:.45},
-    {p:[[520,560],[600,640],[520,720],[440,744]],w:30,a:12,ph:2.7,o:.5},
-    {p:[[322,228],[250,170],[290,100],[356,128]],w:22,a:8,ph:3.4,o:.8}];
-  const lineAt=k=>{const x=300+k*360;return[x,884-(x-300)*.2];};
-  const ribEls=RIB.map(r=>{const g=document.createElementNS(svgNS,'g');const band=document.createElementNS(svgNS,'path'),edge=document.createElementNS(svgNS,'path');
-    band.setAttribute('fill','url(#kpRib)');band.setAttribute('fill-opacity',String(r.o));edge.setAttribute('fill','none');edge.setAttribute('stroke','#ffe3bd');edge.setAttribute('stroke-width','1.8');
-    g.append(band,edge);ribG.appendChild(g);return{band,edge};});
-  const bez=(P,t)=>{const u=1-t;return[u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0],u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1]];};
-  const lerp=(a,b,k)=>a+(b-a)*k;
-  const smooth=P=>{const n=P.length;let d=`M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;for(let i=0;i<n;i++){const p0=P[(i-1+n)%n],p1=P[i],p2=P[(i+1)%n],p3=P[(i+2)%n];
-    d+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)},${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)},${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;}return d+'Z';};
-  // a flame sways more the higher it is; the pen stays put
-  const swayX=(x,y,T,ph)=>x+Math.sin(T*.85+ph+y*.006)*Math.max(0,(800-y)/800)*14;
-  let f=0,fT=0,draw=0,raf=0,t0=performance.now();
-  const ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
-  function frame(now){const T=(now-t0)/1000;
-    fT=kp.classList.contains('up')?1:0;f+=(fT-f)*.02;if(Math.abs(fT-f)<.002)f=fT;const e=ease(Math.max(0,Math.min(1,f)));
-    draw=Math.min(1,draw+.02);inkP.style.strokeDasharray='1';inkP.style.strokeDashoffset=String(1-draw);
-    // body
-    const bp=BODY.map((pt,i)=>{const L=lineAt(i/BODY.length),br=1+Math.sin(T*1.6)*.012;const x=470+(swayX(pt[0],pt[1],T,0)-470)*br,y=pt[1]+Math.sin(T*1.1+i*.4)*2.5*Math.max(0,(800-pt[1])/800);
-      return[lerp(L[0],x,e),lerp(L[1],y,e)];});
-    headP.setAttribute('d',smooth(bp));headP.style.opacity=Math.min(1,e*1.3);
-    RIB.forEach((r,k)=>{
-      const P=r.p.map((pt,j)=>{const x=swayX(pt[0],pt[1],T,r.ph)+Math.sin(T*1.3+r.ph+j)*r.a*(j/3),y=pt[1]+Math.cos(T*.9+r.ph*1.3+j)*r.a*.5*(j/3);
-        const L=lineAt(((k*.17)+j*.08)%1);return[lerp(L[0],x,e),lerp(L[1],y,e)];});
-      const N=36,W=r.w*(.9+.1*Math.sin(T*2.1+r.ph))*Math.max(.05,e),L1=[],L2=[];
-      for(let i=0;i<=N;i++){const t=i/N,a=bez(P,Math.max(0,t-.01)),b=bez(P,Math.min(1,t+.01)),c=bez(P,t),dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,
-        w=W*Math.pow(Math.sin(Math.PI*t),.7)*.8,nx=-dy/l,ny=dx/l;L1.push([c[0]+nx*w,c[1]+ny*w]);L2.push([c[0]-nx*w*.4,c[1]-ny*w*.4]);}
-      const pts=L1.concat(L2.slice().reverse());ribEls[k].band.setAttribute('d','M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+'Z');
-      ribEls[k].edge.setAttribute('d','M'+L1.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L'));ribEls[k].edge.setAttribute('stroke-opacity',(.85*e).toFixed(2));});
-    eyesG.style.opacity=Math.max(0,(e-.8)*5);
-    eyesG.parentNode.querySelector('.look').setAttribute('data-x','');
-    const ex=swayX(456,408,T,0)-456;eyesG.style.translate=`${ex.toFixed(1)}px 0`;
-    const tip=[lerp(300,330,e),lerp(884,880,e)];nibG.setAttribute('transform',`translate(${tip[0].toFixed(1)} ${tip[1].toFixed(1)}) rotate(${lerp(-70,22,e).toFixed(1)}) scale(${lerp(.8,1.45,e).toFixed(2)})`);
+  // —— the Keeper: a little living flame, drawn on the graphics card every frame.
+  // F: 0 = only the ink line, 1 = the flame stands; B: blink; L: where he looks; S: talking; Q: a little hop.
+  const cv=ov.querySelector('.kpc');let gl=null,prog=null,U={};
+  const FS=`precision highp float;
+uniform vec2 R;uniform float T,F,B,S,Q,W;uniform vec2 L;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+float drop(vec2 q,float r0,float H){float up=clamp(q.y/max(H,.001),0.,1.);float rad=r0*pow(max(0.,1.-up),.72);
+  float d=q.y<0.?length(q)-r0:abs(q.x)-rad;if(q.y>H)d=length(q-vec2(0.,H));return d;}
+void main(){
+  vec2 uv=(gl_FragCoord.xy-.5*R)/R.y*2.;
+  float f=smoothstep(0.,1.,F);
+  vec2 base=vec2(0.,-.40);float r0=.36*(.2+.8*f);float H=.98*f;
+  vec2 q=uv-base;q.y*=1.+.16*Q;q.x*=1.-.09*Q;
+  float up=clamp(q.y/max(H,.001),0.,1.);
+  // the flame bends and licks: a slow sway plus a rising wave of noise, stronger towards the tip
+  float wav=(fbm(vec2(q.y*2.6-T*2.1,T*.35))-.5)*.48+(sin(T*1.15)*.06+sin(T*2.7+1.3)*.025+W*.1);
+  q.x-=wav*up*up*f;
+  float d=drop(q,r0,H);
+  // two little tongues that come and go at the shoulders
+  float t1=drop((q-vec2(-.17,.14+.05*sin(T*2.)))*vec2(1.,1.)+vec2(0.,0.),.07,.32*(.5+.5*sin(T*1.7))*f);
+  float t2=drop((q-vec2(.16,.18+.05*sin(T*2.4+2.))),.06,.28*(.5+.5*sin(T*2.1+1.))*f);
+  d=min(d,min(t1,t2)+.02);
+  d+=(fbm(vec2(uv.x*3.4,uv.y*2.8-T*1.9))-.5)*.09*smoothstep(-.1,.9,q.y)*f;
+  // the ink line under him
+  float lx=smoothstep(.95,.2,abs(uv.x));
+  float dl=abs(uv.y+.77-.02*sin(uv.x*5.+T*1.3))-.005;
+  float line=exp(-max(dl,0.)*90.)*lx*(1.-.6*f);
+  float inside=smoothstep(.02,-.02,d);
+  inside*=mix(1.,smoothstep(1.08,.6,up),.55);                        // the tip thins into light
+  float glow=exp(-max(d,0.)*6.)*.65*f;
+  // look: a dark, smoky body with a burning rim and thin flowing filaments of light inside — no cartoon, a spirit of flame
+  float rimShift=.5+.5*sin(T*.6+uv.y*3.2);
+  vec3 copper=vec3(1.,.55,.20),rose=vec3(1.,.42,.40),gold=vec3(1.,.80,.45);
+  vec3 rimC=mix(mix(copper,rose,rimShift*.55),gold,.35+.3*sin(T*.4+uv.x*3.));
+  float ad=abs(d);
+  // the edge burns unevenly: brighter on the leading side, broken into ribbons that peel away and come back
+  float ang=atan(q.x,q.y-.1);
+  vec2 cs=vec2(cos(ang),sin(ang));
+  float rv=.45+.75*smoothstep(.25,.75,fbm(cs*1.6+vec2(T*.25,T*.3)))*(.6+.4*smoothstep(-.3,.6,q.y));
+  float rim=(exp(-ad*60.)*1.2+exp(-ad*16.)*.3)*rv;
+  // outer ribbons: thin arcs a little outside the body, each living its own life
+  for(int j=0;j<3;j++){float fj=float(j);
+    float off=.045+.04*fj+.03*sin(T*.8+fj*2.+q.y*3.);
+    float dd=abs(d-off-(fbm(cs*2.+vec2(fj*5.,T*.35+fj))-.5)*.06);
+    float show=smoothstep(.38,.68,fbm(cs*1.4+vec2(fj*3.1-T*.2,fj+T*.15)))*smoothstep(-.35,.5,q.y);
+    rim+=exp(-dd*60.)*.9*show*(1.-.22*fj);}
+  // filaments: fine lines flowing up along the body, bent by the same wind
+  float fl=fbm(vec2(q.x*2.2,q.y*1.6-T*.7));
+  float strand=pow(abs(sin(q.x*7.+fl*5.+q.y*1.5)),7.)*.55+pow(abs(sin(q.x*4.5-fl*4.+1.7)),10.)*.35;
+  strand*=smoothstep(.0,-.06,d)*smoothstep(-.35,.1,q.y)*(.55+.45*sin(T*.9+q.y*4.));
+  vec3 body=vec3(.11,.035,.015)+vec3(.35,.12,.04)*exp(-ad*9.)*inside;   // smoky dark inside, warmer near the edge
+  vec3 col=body+rimC*strand*.6;
+  // the eyes: two narrow almonds of light; they blink, follow you, and brighten when he speaks
+  float face=smoothstep(.7,1.,F);vec2 fc=uv-base-vec2(0.,.10)-L*.035;
+  float bl=1.-.95*B;
+  vec2 e1=fc-vec2(-.095,0.),e2=fc-vec2(.095,0.);
+  e1=vec2(e1.x*.94+e1.y*.34,-e1.x*.34+e1.y*.94);e2=vec2(e2.x*.94-e2.y*.34,e2.x*.34+e2.y*.94);   // tilted, a little wise
+  float a1=length(e1/vec2(.068,.03*bl)),a2=length(e2/vec2(.068,.03*bl));
+  float eye=max(smoothstep(1.,.55,a1),smoothstep(1.,.55,a2))*face;
+  float eg=max(exp(-a1*1.2),exp(-a2*1.2))*face*(1.-B*.8)*1.3;
+  col=mix(col,vec3(1.,.93,.75),eye);col+=vec3(1.,.62,.28)*eg*(.35+.35*S);
+  // embers drifting up
+  float sp=0.;for(int i=0;i<10;i++){float fi=float(i);float life=fract(T*.2+h(vec2(fi,3.1)));
+    vec2 pp=vec2((h(vec2(fi,1.))-.5)*.6+sin(T*1.3+fi)*.08*life,base.y+.62+life*.9);
+    sp+=exp(-length(uv-pp)*95.)*(1.-life)*1.5+exp(-length(uv-pp)*26.)*(1.-life)*.16;}
+  sp*=f*(1.-inside);
+  float a=clamp(inside*.94+rim+glow*.55*(1.-inside)+line+sp+eg*.4,0.,1.);
+  vec3 c=col*inside+rimC*rim+rimC*glow*.55*(1.-inside)+vec3(1.,.8,.55)*line+vec3(1.,.76,.46)*sp;
+  gl_FragColor=vec4(c/max(a,.001),a);
+}`;
+  function initGL(){if(gl)return!!prog;gl=cv.getContext('webgl',{premultipliedAlpha:false,alpha:true,antialias:true});if(!gl)return false;
+    const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);return o;};
+    prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);
+    if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){prog=null;return false;}
+    gl.useProgram(prog);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    const loc=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    ['R','T','F','B','S','Q','W','L'].forEach(k=>U[k]=gl.getUniformLocation(prog,k));gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);return true;}
+  let f=0,raf=0,t0=performance.now(),blinkV=0,blinkUntil=0,lookX=0,lookY=0,lookTX=0,lookTY=0,hop=0,hopT=-9,wind=0,talkUntil=0;
+  ov.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();lookTX=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/400));lookTY=Math.max(-1,Math.min(1,-(e.clientY-(r.top+r.height*.62))/300));});
+  const doHop=()=>{hopT=performance.now();};
+  let last=0;function frame(now){const T=(now-t0)/1000,dt=Math.min(.1,last?(now-last)/1000:.016);last=now;
+    const want=kp.classList.contains('up')?1:0;f+=(want-f)*(1-Math.exp(-dt*1.25));if(Math.abs(want-f)<.002)f=want;
+    if(now<blinkUntil)blinkV=Math.min(1,blinkV+.35);else blinkV=Math.max(0,blinkV-.25);
+    lookX+=(lookTX-lookX)*.06;lookY+=(lookTY-lookY)*.06;
+    const ht=(now-hopT)/1000;hop=ht<1.2?Math.sin(ht*9)*Math.exp(-ht*3.2):0;
+    wind+=((ov.classList.contains('aside')&&ht<1.4?.6:0)-wind)*.03;
+    const talk=now<talkUntil?(.5+.5*Math.sin(T*13))*(.6+.4*Math.sin(T*3.1)):0;
+    if(initGL()){const dpr=Math.min(2,devicePixelRatio||1),w=Math.round(cv.clientWidth*dpr),h=Math.round(cv.clientHeight*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
+      gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(U.R,w,h);gl.uniform1f(U.T,T);gl.uniform1f(U.F,f);gl.uniform1f(U.B,blinkV);gl.uniform1f(U.S,talk);gl.uniform1f(U.Q,hop);gl.uniform1f(U.W,wind);gl.uniform2f(U.L,lookX,lookY);
+      gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}
+    else kp.style.setProperty('--kf',f.toFixed(3));
     raf=ov.classList.contains('on')?requestAnimationFrame(frame):0;}
   const run=()=>{if(!raf){t0=performance.now();raf=requestAnimationFrame(frame);}};
   const open=()=>{ts.forEach(clearTimeout);ts=[];i=-1;cards.forEach(c=>pose(c,1));ov.classList.remove('aside','leaving');kp.classList.remove('up','awake');kp.classList.add('line');say.classList.remove('on');
     ov.querySelector('[data-a="next"] span').textContent='Показать';ov.querySelector('.dots').style.visibility='hidden';
-    draw=0;f=0;ov.classList.add('on');run();
+    f=0;ov.classList.add('on');run();
     // out of the ink line: first the stroke, then the flame rises, the eyes open, and he speaks
     later(()=>{kp.classList.remove('line');kp.classList.add('up');},700);
     later(()=>{kp.classList.add('awake');blink();},2700);
-    later(()=>say.classList.add('on'),3000);};
+    later(()=>{say.classList.add('on');talkUntil=performance.now()+3800;},3000);};
   const close=()=>{ts.forEach(clearTimeout);ts=[];ov.classList.add('leaving');ov.classList.remove('aside');kp.classList.remove('up');kp.classList.add('line');kp.classList.remove('awake');
     later(()=>{ov.classList.remove('on');clearTimeout(blinkT);try{localStorage.setItem('ocherki_keeper_seen','1');}catch(_){}},2300);};
-  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='next'){if(i<0){ov.classList.add('aside');ov.querySelector('.dots').style.visibility='';later(()=>show(0),500);return;}if(i>=S.length-1)close();else show(i+1);}});
+  ov.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(a==='skip')close();if(a==='next'){doHop();if(i<0){ov.classList.add('aside');ov.querySelector('.dots').style.visibility='';later(()=>show(0),500);return;}if(i>=S.length-1)close();else show(i+1);}});
   addEventListener('keydown',e=>{if(!ov.classList.contains('on'))return;if(e.key==='Escape')close();if(e.key==='ArrowRight'||e.key==='Enter')ov.querySelector('[data-a="next"]').click();if(e.key==='ArrowLeft'&&i>0)show(i-1);});
   window.OCHERKI_KEEPER={open,close};
   document.addEventListener('click',e=>{const m=e.target.closest?.('.oct .more [data-m="tour"]');if(m){e.stopImmediatePropagation();e.preventDefault();document.querySelector('.oct .more')?.classList.remove('on');open();}},true);
