@@ -15,7 +15,7 @@ const CSS=`
 /* words come out of the mist and go back into it */
 .okt .mist{transition:opacity 1.1s ease,filter 1.2s ease}
 .okt .mist.out{opacity:0;filter:blur(12px);transition:opacity .6s ease,filter .6s ease}
-.okt .say{position:absolute;left:50%;top:60%;translate:-50% 0;width:min(900px,86vw);text-align:center;pointer-events:none}
+.okt .say{position:absolute;left:50%;top:49%;translate:-50% 0;width:min(900px,86vw);text-align:center;pointer-events:none}
 .okt .say .l1{display:block;font:400 30px/1.3 var(--okt-serif);color:#f6e3c4;letter-spacing:.01em}
 .okt .say .l2{display:block;margin-top:2px;font:400 64px/1.25 var(--okt-script);color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.45)}
 .okt .say .l3{display:block;margin-top:16px;font:italic 22px/1.5 var(--okt-serif);color:#e2cba6}
@@ -73,8 +73,8 @@ const CSS=`
 .okt .voice .far.l1{opacity:.8;left:-430px;transform:scale(.82);filter:brightness(.55);z-index:4}.okt .voice .far.l2{opacity:.5;left:-600px;transform:scale(.66);filter:brightness(.32);z-index:3}.okt .voice .far.l3{opacity:.25;left:-730px;transform:scale(.52);filter:brightness(.16);z-index:2}
 .okt .voice .far.r1{opacity:.8;left:90px;transform:scale(.82);filter:brightness(.55);z-index:4}.okt .voice .far.r2{opacity:.5;left:260px;transform:scale(.66);filter:brightness(.32);z-index:3}.okt .voice .far.r3{opacity:.25;left:390px;transform:scale(.52);filter:brightness(.16);z-index:2}
 /* a soft equalizer under the record while it plays */
-.okt .voice .eq{position:absolute;left:-190px;top:226px;width:380px;height:46px;display:flex;align-items:center;justify-content:center;gap:4px;z-index:5}
-.okt .voice .eq i{width:4px;height:100%;border-radius:2px;background:linear-gradient(#ffe2b8,#e08a3c);box-shadow:0 0 6px rgba(255,150,60,.55);transform:scaleY(.08);opacity:.9}
+.okt .voice .eq{position:absolute;left:-190px;top:250px;width:380px;height:46px;display:flex;align-items:center;justify-content:center;gap:4px;z-index:5}
+.okt .voice .eq i{width:4px;height:100%;border-radius:2px;background:linear-gradient(#ffe2b8,#e08a3c);box-shadow:0 0 4px rgba(255,150,60,.3);transform:scaleY(.08);opacity:.5}
 .okt .voice.play .eq i{animation:oktEq var(--d) ease-in-out var(--dl) infinite alternate}
 @keyframes oktEq{0%{transform:scaleY(.08)}100%{transform:scaleY(var(--h))}}
 /* 3 — the question card (the same deck as in «Вопрос недели»), the phone, and the two ways between them */
@@ -95,7 +95,7 @@ const CSS=`
 .okt .week svg path{fill:none;stroke:#ffcf8e;stroke-width:2.2;stroke-linecap:round;stroke-dasharray:7 10;filter:drop-shadow(0 0 4px rgba(255,150,60,.8))}
 .okt .week svg path.hd2{stroke-dasharray:none;fill:#ffcf8e;stroke:none}
 .okt .week.play svg path.go{animation:oktDash 1.4s linear infinite}
-.okt .week.play svg path.ret{animation:oktDashR 1.4s linear infinite}
+.okt .week.play svg path.ret{animation:oktDash 1.4s linear infinite}
 @keyframes oktDash{to{stroke-dashoffset:-34}}@keyframes oktDashR{to{stroke-dashoffset:34}}
 /* 4 — the envelope: old paper, foxing and soft edges */
 .okt .letter{width:0;height:0;translate:0 -6px;scale:1.12}
@@ -176,15 +176,21 @@ function create(host,o={}){
   const headAt=()=>{const H=el.clientHeight||innerHeight;return[0,1-2*((H*.05+38)/H)];};
   // one movement per step: the old word fades, he flows into his pen, the pen writes the new word at the top,
   // and he gathers again, small, beside the card — no flying off into a corner and growing back first
+  // his mood on each step: attentive to the page, listening to the record, curious about the question, tender over the letters, glad of the book
+  const MOODS=['focus','listen','curious','tender','joy'];
+  // the order of a step: the old picture and words go and he flows into his pen; then the new picture comes;
+  // the pen writes the word at the top; he gathers beside the picture with the step's mood; the line under it last
   const show=k=>{const prev=i;i=Math.max(0,Math.min(S.length-1,k));const t=++tok;
     ['h2','.sub','p'].forEach(q=>mist('.hd '+q,false));if(K)K.clearWords();
-    cards.forEach((c,j)=>pose(c,j-i));el.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));
+    cards.forEach((c,j)=>{if(j!==i)pose(c,j-i);});el.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));
     $('[data-a="next"]').textContent=i===S.length-1?(o.last||'Начать'):'Далее';$('[data-a="prev"]').hidden=i<1;
     later(()=>{if(t!==tok)return;$('.hd h2').textContent=S[i].w;$('.hd .sub').textContent=S[i].sub;$('.hd p').textContent=S[i].p;
-      if(K){K.write(S[i].w,{at:headAt(),px:66,hold:true});later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.78);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);},1400);
+      if(K){K.write(S[i].w,{at:headAt(),px:66,hold:true});
+        later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.78);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);},1400);
         later(()=>{if(t===tok)mist('.hd .sub',true);},3000);later(()=>{if(t===tok)mist('.hd p',true);},3500);}
-      else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?200:650);};
-  let begun=false;const first=()=>{begun=true;['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));$('.dots').hidden=false;later(()=>show(0),900);};
+      else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?60:450);
+    later(()=>{if(t===tok)pose(cards[i],0);},prev<0?500:950);};
+  let begun=false;const first=()=>{begun=true;['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));$('.dots').hidden=false;later(()=>show(0),250);};
   const finish=r=>{alive=false;ts.forEach(clearTimeout);ts=[];tok++;['h2','.sub','p'].forEach(q=>mist('.hd '+q,false));['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));if(K)K.clearWords();cards.forEach(c=>pose(c,1));o.onDone?.(r);};
   el.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
     if(a==='skip'){finish('skip');return;}
@@ -198,7 +204,7 @@ function create(host,o={}){
     start(){alive=true;i=-1;tok++;begun=false;cards.forEach(c=>pose(c,1));$('[data-a="prev"]').hidden=true;
       if(o.greeting!==false){el.classList.add('wait');$('.dots').hidden=true;$('[data-a="next"]').textContent='Показать';
         const wait=()=>{if(!alive||i>=0||begun)return;if(!K||(K.state.form>.88&&['idle','free'].includes(K.state.mode))){
-            mist('.say .l1',true);later(()=>mist('.say .l2',true),500);K&&K.talk(4200);later(()=>mist('.say .l3',true),1600);later(()=>el.classList.remove('wait'),2800);}
+            mist('.say .l1',true);later(()=>mist('.say .l2',true),500);K&&K.talk(4200);K&&K.mood?.('joy',5200);later(()=>mist('.say .l3',true),1600);later(()=>el.classList.remove('wait'),2800);}
           else later(wait,160);};later(wait,500);}
       else{el.classList.remove('wait');first();}},
     stop(){alive=false;ts.forEach(clearTimeout);ts=[];},

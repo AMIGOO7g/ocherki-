@@ -70,14 +70,14 @@ const extr=(pts,d,b)=>{const g=new THREE.ExtrudeGeometry(shapeOf(pts),{depth:d,b
 const head=new THREE.Mesh(extr(HEAD,.2,.32),rimMat2('.04,.011,.005','.7,.26,.07'));keeper.add(head);
 const lowb=new THREE.Mesh(extr(LOWB,.16,.2),rimMat2('.04,.012,.005','.42,.15,.05',.3));lowb.position.z=.05;keeper.add(lowb);
 
-const eyeMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uB:{value:1},uK:{value:1}},
+const eyeMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uB:{value:1},uK:{value:1},uH:{value:0},uW:{value:0}},
   vertexShader:'varying vec2 v;void main(){v=uv*2.-1.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec2 v;uniform float uB;uniform float uK;void main(){vec2 p=v*vec2(1.,1./max(uB,.06));
-    float up=.55-.55*p.x*p.x,lo=-.42+.42*p.x*p.x;float d=max(p.y-up,lo-p.y);
+  fragmentShader:`varying vec2 v;uniform float uB;uniform float uK;uniform float uH;uniform float uW;void main(){vec2 p=v*vec2(1.,1./max(uB,.06))/(1.+.28*uW);
+    float up=.55-.55*p.x*p.x,lo=mix(-.42+.42*p.x*p.x,up-.3+.12*p.x*p.x,uH);float d=max(p.y-up,lo-p.y);
     float core=smoothstep(.07,-.05,d)*smoothstep(1.,.9,abs(p.x));
     float glow=exp(-max(d,0.)*9.)*smoothstep(1.2,.6,abs(p.x));
     vec3 c=vec3(1.,.88,.6)*core*1.15+vec3(1.,.55,.2)*glow*.55;gl_FragColor=vec4(c*uK,1.);}`});
-const eyes=[[418,412,-.28],[512,404,.28]].map(([x,y,r])=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(.62,.5),eyeMat);m.rotation.z=r;keeper.add(m);m.userData.base=W(x,y,0);return m;});
+const eyes=[[418,412,-.28],[512,404,.28]].map(([x,y,r],j)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(.62,.5),j?eyeMat.clone():eyeMat);m.rotation.z=r;keeper.add(m);m.userData.base=W(x,y,0);return m;});
 
 // the pen: belongs to him — it sits at the end of the lower ribbon and writes when he lies down
 const nibS=new THREE.Shape();nibS.moveTo(-.1,.6);nibS.lineTo(.1,.6);nibS.bezierCurveTo(.12,.44,.24,.28,.31,.13);nibS.bezierCurveTo(.2,-.04,.07,-.28,.012,-.5);nibS.lineTo(0,-.56);nibS.lineTo(-.012,-.5);nibS.bezierCurveTo(-.07,-.28,-.2,-.04,-.31,.13);nibS.bezierCurveTo(-.24,.28,-.12,.44,-.1,.6);
@@ -205,8 +205,14 @@ function fit(){const w=VW(),h=VH();renderer.setSize(w,h,false);composer.setSize(
 addEventListener('resize',fit);fit();
 
 let last=performance.now(),blinkAt=1.5;
+// moods: h — the eyes curve up (glad), w — open wide (surprised, curious), l — how open the lids are
+const MOODS={calm:[{h:0,w:0,l:1},{h:0,w:0,l:1}],joy:[{h:1,w:0,l:1},{h:1,w:0,l:1}],focus:[{h:0,w:0,l:.55},{h:0,w:0,l:.55}],listen:[{h:.35,w:0,l:.4},{h:.35,w:0,l:.4}],
+  curious:[{h:0,w:.15,l:1},{h:0,w:.6,l:1}],wonder:[{h:0,w:.6,l:1},{h:0,w:.6,l:1}],tender:[{h:.65,w:0,l:.75},{h:.65,w:0,l:.75}],wink:[{h:.8,w:0,l:1},{h:0,w:0,l:.08}]};
+const MOOD={t:MOODS.calm.map(o=>({...o})),c:MOODS.calm.map(o=>({...o})),until:0,after:'calm'};
+function setMood(n,ms,after){const m=MOODS[n]||MOODS.calm;MOOD.t=m.map(o=>({...o}));MOOD.until=ms?clock+ms/1000:0;MOOD.after=after||'calm';}
 if(MODE)setTimeout(()=>setMode(MODE),10);
 const lerp=(a,b,k)=>a+(b-a)*k;
+const alerp=(a,b,k)=>{let d=(b-a)%(Math.PI*2);if(d>Math.PI)d-=Math.PI*2;if(d<-Math.PI)d+=Math.PI*2;return a+d*k;};
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;const T=clock;
   const mt=clock-modeAt;
   // the write cycle: he lies down into the line, the pen writes the words, they glow and fade, he rises
@@ -238,7 +244,11 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   {const hf=Math.max(0,Math.min(1,(f-.25)/.75)),he=hf*hf*(3-2*hf);head.scale.setScalar(Math.max(.001,he));head.position.set(NIBL.x*(1-he),NIBL.y*(1-he),0);head.rotation.z=(1-he)*2.2;
    const lf=Math.max(0,Math.min(1,(f-.15)/.85));lowb.scale.setScalar(Math.max(.001,lf));lowb.position.set(NIBL.x*(1-lf),NIBL.y*(1-lf),.05);lowb.rotation.z=(1-lf)*2;}
   let bl=1;const ph=(T-blinkAt);if(ph>0&&ph<.24)bl=1-Math.sin(ph/.24*Math.PI)*.94;if(ph>=.24){blinkAt=T+2.6+((Math.sin(T*12.9)*.5+.5)*3.6);}
-  const talking=clock<talkUntil;eyeMat.uniforms.uB.value=talking?Math.max(bl,.8+.2*Math.sin(clock*9)):bl;eyeMat.uniforms.uK.value=(talking?1.3:1)*Math.max(0,(f-.75)/.25)*Math.min(1,Math.max(0,S.sc.v)*1.5);
+  const talking=clock<talkUntil;const eb=talking?Math.max(bl,.8+.2*Math.sin(clock*9)):bl,ek=(talking?1.3:1)*Math.max(0,(f-.75)/.25)*Math.min(1,Math.max(0,S.sc.v)*1.5);
+  // the mood moves in softly; a wink closes one eye for a moment
+  if(MOOD.until&&clock>MOOD.until){MOOD.until=0;setMood(MOOD.after||'calm');}
+  eyes.forEach((e,j)=>{const t=MOOD.t[j],c=MOOD.c[j],k=Math.min(1,dt*5);c.h+=(t.h-c.h)*k;c.w+=(t.w-c.w)*k;c.l+=(t.l-c.l)*k;
+    const u=e.material.uniforms;u.uB.value=eb*c.l;u.uK.value=ek;u.uH.value=c.h;u.uW.value=c.w;});
   eyes.forEach(e=>{const b=e.userData.base;e.position.set(b.x+px*.09,b.y-py*.06,.62);});
   // the pen: at the end of the lower ribbon, along its direction; while he lies in the line it walks along the words, writing
   const c=curves[LOWER];
@@ -249,8 +259,8 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
     if(mode==='write'&&wt>1.6&&wt<7.9){const swc=WP?WP.s:Math.max(.001,S.sc.v)*WSC,cy=WP?WP.y-world.position.y:-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1);
       // the nib walks the ink itself: at each point of the line it stands where the letters are
       const iy=inkAt(writeP*wordsW),wx=wx0-WW/2+writeP*WW,wy=iy>=0&&writeP>0&&writeP<1?cy+(.5-iy/TH)*(6.2*TH/2048)*swc:cy-.12*swc;
-      const k=Math.min(1,(wt-1.6)/.9)*(wt>6.9?Math.max(0,1-(wt-6.9)):1);const kk=k*k*(3-2*k);nx=lerp(nx,wx,kk);ny=lerp(ny,wy,kk);rot=lerp(rot,.62,kk);}
-    const u=nib.userData,fol=mode==='write'&&writeP>0&&writeP<1?24:10;u.x=u.x==null?nx:lerp(u.x,nx,Math.min(1,dt*fol));u.y=u.y==null?ny:lerp(u.y,ny,Math.min(1,dt*fol));u.r=u.r==null?rot:lerp(u.r,rot,Math.min(1,dt*6));
+      const k=Math.min(1,(wt-1.6)/.9)*(wt>6.9?Math.max(0,1-(wt-6.9)):1);const kk=k*k*(3-2*k);nx=lerp(nx,wx,kk);ny=lerp(ny,wy,kk);rot=alerp(rot,.62,kk);}
+    const u=nib.userData,fol=mode==='write'&&writeP>0&&writeP<1?24:10;u.x=u.x==null?nx:lerp(u.x,nx,Math.min(1,dt*fol));u.y=u.y==null?ny:lerp(u.y,ny,Math.min(1,dt*fol));u.r=u.r==null?rot:alerp(u.r,rot,Math.min(1,dt*6));
     nib.position.set(u.x,u.y,.4);nib.rotation.z=u.r;nib.scale.setScalar(1.05*Math.max(.001,S.sc.v)*(inSpark?Math.max(.001,(f-.4)/.6):(1+(1-f)*.25)));
     // the Keeper inside the pen: a spark on the nib while he writes
     soul.position.set(u.x,u.y+.35,.5);soul.scale.setScalar(Math.max(.001,inSpark?0:(1-f)*.9)*(.9+.15*Math.sin(clock*7)));}
@@ -292,6 +302,8 @@ return{
   talk(ms){talkUntil=clock+ms/1000;},
   // he lies down into his pen and writes the words, then rises again where he was
   face(d){S.fx.t=d<0?-1:1;},
+  // a mood in the eyes: calm, joy, focus, listen, curious, wonder, tender, wink (ms — for a while, then `after`)
+  mood(n,ms,after){setMood(n,ms,after);},
   // o.at:[nx,ny] — write right there (screen −1…1, y up), o.px — the height of the letters in screen pixels,
   // o.hold — the words stay until clearWords(); without o — as before, under him, and they fade
   write(text,o={}){if(text&&text!==WORDS_NOW){WORDS_NOW=text;wordsW=paintWords(text);}
