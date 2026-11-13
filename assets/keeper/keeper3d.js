@@ -165,7 +165,9 @@ const aspectK=()=>Math.min(1,camera.aspect/0.75);
 // where he stands for each thing he does
 const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHeight;
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
-let freeP={x:0,y:0,sc:1},awayTo=null,afterWrite='idle';const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
+let freeP={x:0,y:0,sc:1},awayTo=null,afterWrite='idle';
+// where the words are written when the host asks for a place (a heading at the top), and whether they stay there
+let WP=null,HOLD=false;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
 function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
   if(m==='free')return freeP;
@@ -235,16 +237,17 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   if(c){c.getPointAt(1,tmpV);c.getTangentAt(.99,T_);const end=tmpV.clone().applyMatrix4(keeper.matrix);const dir=T_.clone().transformDirection(keeper.matrix);
     // the nib continues the ribbon: its body sits on the ribbon's end, its tip points on along the same direction
     const L=1.12*1.05*sc;let nx=end.x+dir.x*L,ny=end.y+dir.y*L,rot=Math.atan2(-dir.y,-dir.x)-Math.PI/2;
-    const wt=mt*WS,WW=wordsW*6.2*Math.max(.001,S.sc.v)*WSC,wx0=0;
-    if(mode==='write'&&wt>1.6&&wt<7.4){const wx=wx0-WW/2+writeP*WW,wy=-4.12*Math.max(.001,S.sc.v)-.3*(WSC-1)+Math.sin(writeP*90)*.07*(writeP<1?1:0)+Math.sin(writeP*17)*.04;
+    const wt=mt*WS,WW=WP?wordsW*6.2*WP.s:wordsW*6.2*Math.max(.001,S.sc.v)*WSC,wx0=WP?WP.x-world.position.x:0;
+    if(mode==='write'&&wt>1.6&&wt<7.4){const wx=wx0-WW/2+writeP*WW,wy=(WP?WP.y-world.position.y-.16*WP.s:-4.12*Math.max(.001,S.sc.v)-.3*(WSC-1))+Math.sin(writeP*90)*.07*(writeP<1?1:0)+Math.sin(writeP*17)*.04;
       const k=Math.min(1,(wt-1.6)/.9)*(wt>6.4?Math.max(0,1-(wt-6.4)):1);const kk=k*k*(3-2*k);nx=lerp(nx,wx,kk);ny=lerp(ny,wy,kk);rot=lerp(rot,.62,kk);}
     const u=nib.userData;u.x=u.x==null?nx:lerp(u.x,nx,Math.min(1,dt*10));u.y=u.y==null?ny:lerp(u.y,ny,Math.min(1,dt*10));u.r=u.r==null?rot:lerp(u.r,rot,Math.min(1,dt*6));
     nib.position.set(u.x,u.y,.4);nib.rotation.z=u.r;nib.scale.setScalar(1.05*Math.max(.001,S.sc.v)*(inSpark?Math.max(.001,(f-.4)/.6):(1+(1-f)*.25)));
     // the Keeper inside the pen: a spark on the nib while he writes
     soul.position.set(u.x,u.y+.35,.5);soul.scale.setScalar(Math.max(.001,inSpark?0:(1-f)*.9)*(.9+.15*Math.sin(clock*7)));}
-  {const sw=Math.max(.001,S.sc.v)*WSC;words.scale.setScalar(sw);words.position.set(3.1*sw-wordsW*6.2*sw/2,-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1),.3);}
+  if(WP){const sw=WP.s;words.scale.setScalar(sw);words.position.set(WP.x-world.position.x+3.1*sw-wordsW*6.2*sw/2,WP.y-world.position.y,.3);}
+  else{const sw=Math.max(.001,S.sc.v)*WSC;words.scale.setScalar(sw);words.position.set(3.1*sw-wordsW*6.2*sw/2,-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1),.3);}
   words.material.uniforms.uW.value=wordsW;words.material.uniforms.uR.value=writeP;
-  const wa=words.material.uniforms.uA;{const wt=mt*WS;wa.value=mode==='write'?Math.min(1,Math.max(0,wt-1.7)/.4)*(wt>6.2?Math.max(0,1-(wt-6.2)/1.6):1):Math.max(0,wa.value-dt);}
+  const wa=words.material.uniforms.uA;{const wt=mt*WS;wa.value=mode==='write'?Math.min(1,Math.max(0,wt-1.7)/.4)*(wt>6.2&&!HOLD?Math.max(0,1-(wt-6.2)/1.6):1):(HOLD?wa.value:Math.max(0,wa.value-dt*1.6));}
   // the ember: where he was, it lifts off and drifts; on «come» it glides back and he grows out of it
   {const drift=(mode==='away'&&mt>1.3/QK)?1:0;const sw=sparkWorld();
    if(mode==='away'||mode==='come')ember.position.set(S.ex.v+Math.sin(clock*1.7)*.08*drift,S.ey.v+Math.sin(clock*1.3)*.15*drift,1);else ember.position.set(sw.x,sw.y,1);}
@@ -279,7 +282,15 @@ return{
   talk(ms){talkUntil=clock+ms/1000;},
   // he lies down into his pen and writes the words, then rises again where he was
   face(d){S.fx.t=d<0?-1:1;},
-  write(text){if(text&&text!==WORDS_NOW){WORDS_NOW=text;wordsW=paintWords(text);}setMode('write');},
+  // o.at:[nx,ny] — write right there (screen −1…1, y up), o.px — the height of the letters in screen pixels,
+  // o.hold — the words stay until clearWords(); without o — as before, under him, and they fade
+  write(text,o={}){if(text&&text!==WORDS_NOW){WORDS_NOW=text;wordsW=paintWords(text);}
+    // the canvas measures with whatever font is ready: once the handwriting font is in, measure again so the pen writes the whole word
+    if(text&&document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"'),text).then(()=>{if(WORDS_NOW===text){wordsW=paintWords(text);words.material.uniforms.uW.value=wordsW;}}).catch(()=>{});
+    if(o.at){const w=this.toWorld(o.at[0],o.at[1]);const unit=2*halfH()/VH();WP={x:w.x,y:w.y,s:Math.max(.2,(o.px||60)*unit/.62)};}else WP=null;
+    HOLD=!!o.hold;setMode('write');},
+  clearWords(){HOLD=false;},
+  get wordsShown(){return words.material.uniforms.uA.value;},
   screenOf,
   resize:fit,
   destroy(){this.stop();removeEventListener('pointermove',onMove);removeEventListener('resize',fit);renderer.dispose();}
