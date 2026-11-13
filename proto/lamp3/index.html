@@ -13,11 +13,11 @@
 html,body{margin:0;height:100%;overflow:hidden;background:#0b0604;color:#f2e0c2;font-family:Georgia,serif}
 canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
 .sheet{position:fixed;pointer-events:none}
-.ed{position:absolute;overflow:auto;outline:none;pointer-events:auto;color:#2a1c12;font:400 21px/1.62 "Cormorant Garamond","Iowan Old Style",Georgia,serif;caret-color:#7a3e10;scrollbar-width:none;mix-blend-mode:multiply}
+.ed{position:absolute;overflow:auto;outline:none;pointer-events:auto;color:#2a1c12;font:400 14px/1.42 Georgia,"Times New Roman",serif;caret-color:#7a3e10;scrollbar-width:none;mix-blend-mode:multiply}
 .ed::-webkit-scrollbar{display:none}
 .ed p{margin:0 0 .7em}
 .ed::before,.ed::after{content:"";display:block}
-body.mono .ed{font:400 19px/1.75 "Courier New",Courier,monospace;letter-spacing:.02em}
+body.mono .ed{font:400 14px/1.5 "Courier New",Courier,monospace;letter-spacing:.02em}
 .car{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;transition:opacity .6s}
 .car i{position:absolute;left:-34px;top:8px;width:68px;height:22px;border-radius:11px;background:linear-gradient(180deg,#2e2219,#140d08);box-shadow:0 0 0 1px rgba(214,150,96,.35),0 8px 14px rgba(0,0,0,.6)}
 .car i::before,.car i::after{content:"";position:absolute;top:8px;width:6px;height:6px;border-radius:50%;background:#ffb35c;box-shadow:0 0 7px #ff9a30}
@@ -83,9 +83,9 @@ tCol.encoding=THREE.sRGBEncoding;[tCol,tHei].forEach(t=>{t.anisotropy=4;t.needsU
 
 // ---- the desk: the toile, a lamp from the upper left, the sheet's shadow falling right and down
 const toile=new THREE.TextureLoader().load('family-toile.webp',t=>{deskMat.uniforms.uAsp.value=t.image.width/t.image.height;});toile.encoding=THREE.sRGBEncoding;toile.anisotropy=4;
-const deskMat=new THREE.ShaderMaterial({uniforms:{uT:{value:toile},uRes:{value:new THREE.Vector2()},uS:{value:new THREE.Vector4()},uLamp:{value:1},uAsp:{value:1.5}},
+const deskMat=new THREE.ShaderMaterial({uniforms:{uT:{value:toile},uRes:{value:new THREE.Vector2()},uS:{value:new THREE.Vector4()},uLamp:{value:1},uAsp:{value:1.5},uSrc:{value:new THREE.Vector2()},uCarOn:{value:1},uReach:{value:600}},
   vertexShader:'varying vec2 vP;void main(){vP=(modelMatrix*vec4(position,1.)).xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec2 vP;uniform sampler2D uT;uniform vec2 uRes;uniform vec4 uS;uniform float uLamp;uniform float uAsp;
+  fragmentShader:`varying vec2 vP;uniform sampler2D uT;uniform vec2 uRes;uniform vec4 uS;uniform float uLamp;uniform float uAsp;uniform vec2 uSrc;uniform float uCarOn;uniform float uReach;
     float sdBox(vec2 p,vec2 c,vec2 h){vec2 d=abs(p-c)-h;return length(max(d,0.))+min(max(d.x,d.y),0.);}
     void main(){vec2 uv=vP/uRes;float ra=uRes.x/uRes.y;if(ra>uAsp){uv.y=.5+(uv.y-.5)*uAsp/ra;}else{uv.x=.5+(uv.x-.5)*ra/uAsp;}vec3 t=texture2D(uT,uv).rgb;t=mix(vec3(dot(t,vec3(.33))),t,.7)*vec3(1.,.86,.66);
       vec2 lamp=vec2(uRes.x*.12,uRes.y*1.05);float dl=length(vP-lamp)/length(uRes);
@@ -93,46 +93,48 @@ const deskMat=new THREE.ShaderMaterial({uniforms:{uT:{value:toile},uRes:{value:n
       // the sheet's shadow: offset right and down, soft
       vec2 c=uS.xy,h=uS.zw;float sd=sdBox(vP,c+vec2(16.,-22.),h);float sh=1.-.75*(1.-smoothstep(-30.,40.,sd));
       // a little of the carriage light spills onto the desk under the sheet's bottom edge
-      vec3 col=t*light*sh*vec3(1.,.82,.6);
+      vec2 dd=vP-uSrc;float ang=acos(clamp(normalize(dd+vec2(0.,.001)).y,-1.,1.));float cone=1.-smoothstep(1.1,1.56,ang);cone=cone*cone*(3.-2.*cone);
+      float spill=uCarOn*cone*smoothstep(-3.,6.,dd.y)*(.2+.8/(1.+pow(length(dd)/uReach,1.6)))*2.6;
+      vec3 col=t*(light*sh*vec3(1.,.82,.6)+spill*vec3(1.,.86,.7));
       gl_FragColor=vec4(col,1.);}`});
 const desk=new THREE.Mesh(new THREE.PlaneGeometry(1,1),deskMat);desk.position.z=-1;scene.add(desk);
 
 // ---- the sheet: lit by the desk lamp from the side (top-left brighter) and by the carriage light grazing along it
 const sheetMat=new THREE.ShaderMaterial({uniforms:{uC:{value:tCol},uH:{value:tHei},uTex:{value:new THREE.Vector2(1/PW,1/PH)},uSize:{value:new THREE.Vector2(1,1)},
-    uCar:{value:new THREE.Vector3(.5,.6,0)},uCarOn:{value:1},uLamp:{value:1},uFib:{value:1},uJit:{value:0}},
+    uCar:{value:new THREE.Vector3(.5,.6,0)},uCarOn:{value:1},uLamp:{value:1},uFib:{value:1},uJit:{value:0},uRep:{value:new THREE.Vector2(1,1)},uAmp:{value:.55},uLine:{value:new THREE.Vector4()}},
   vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform vec2 uTex;uniform vec2 uSize;uniform vec3 uCar;uniform float uCarOn;uniform float uLamp;uniform float uFib;uniform float uJit;
-    void main(){vec2 uv=vU;vec3 base=texture2D(uC,uv).rgb;
+  fragmentShader:`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform vec2 uTex;uniform vec2 uSize;uniform vec3 uCar;uniform float uCarOn;uniform float uLamp;uniform float uFib;uniform float uJit;uniform vec2 uRep;uniform float uAmp;uniform vec4 uLine;
+    void main(){vec2 uv=vU;vec2 tu=uv*uRep;vec3 base=texture2D(uC,tu).rgb;
       // relief from the fibres
-      float hL=texture2D(uH,uv-vec2(uTex.x,0.)).r,hR=texture2D(uH,uv+vec2(uTex.x,0.)).r,hD=texture2D(uH,uv-vec2(0.,uTex.y)).r,hU=texture2D(uH,uv+vec2(0.,uTex.y)).r;
-      vec3 N=normalize(vec3((hL-hR)*.55*uFib,(hD-hU)*.55*uFib,1.));
+      float hL=texture2D(uH,tu-vec2(uTex.x,0.)).r,hR=texture2D(uH,tu+vec2(uTex.x,0.)).r,hD=texture2D(uH,tu-vec2(0.,uTex.y)).r,hU=texture2D(uH,tu+vec2(0.,uTex.y)).r;
+      vec3 N=normalize(vec3((hL-hR)*uAmp*uFib,(hD-hU)*uAmp*uFib,1.));
       vec2 p=uv*uSize;                      // pixels on the sheet, y up
       // the desk lamp: from the upper left, falling off toward the lower right
       vec3 Ld=normalize(vec3(-.55,.65,.55));float lamp=uLamp*(.38+.62*max(dot(N,Ld),0.))*(1.05-.55*clamp(length(vec2(uv.x*.6,(1.-uv.y)))*.9,0.,1.));
       // the carriage light: a source just above the paper at the working line, shining up along it
       vec3 Ls=vec3(uCar.xy,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
       vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));float ang=acos(clamp(dir.y,-1.,1.));   // 0 = straight up
-      float cone=1.-smoothstep(1.0,1.53,ang);cone=cone*cone*(3.-2.*cone);
+      float cone=1.-smoothstep(1.1,1.56,ang);cone=cone*cone*(3.-2.*cone);
       float above=smoothstep(-3.,5.,p.y-Ls.y);
-      float fall=.25+.75/(1.+pow(dist/(uSize.y*.42),1.6));
+      float fall=.42+.58/(1.+pow(dist/(uSize.y*.5),1.5));fall*=smoothstep(0.,46.,dist)*.35+.65;
       float graze=max(dot(N,L),0.);float car=uCarOn*cone*above*fall*(.95+.5*graze)*(1.+uJit);
-      // right at the device: a small hot strip
-      car+=uCarOn*exp(-pow((p.y-Ls.y-4.)/9.,2.))*exp(-pow((p.x-Ls.x)/60.,2.))*.5*above;
+      // the working line is lit along its whole length, so what is typed can be read
+      float band=exp(-pow((p.y-uLine.x)/uLine.y,2.))*smoothstep(uLine.z-70.,uLine.z+10.,p.x)*(1.-smoothstep(uLine.w-10.,uLine.w+70.,p.x))*above;band*=.6+.4*exp(-abs(p.x-Ls.x)/260.);car=max(car,uCarOn*band*.8*(1.+uJit));
       vec3 c=base*(vec3(.05,.035,.025)+lamp*vec3(1.,.9,.74)*.95+car*vec3(1.0,.93,.86));
       gl_FragColor=vec4(c,1.);}`});
-new THREE.TextureLoader().load('paper.jpg',t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=4;sheetMat.uniforms.uC.value=t;const h=t.clone();h.encoding=THREE.LinearEncoding;h.needsUpdate=true;sheetMat.uniforms.uH.value=h;sheetMat.uniforms.uTex.value.set(1/t.image.width,1/t.image.height);},undefined,()=>{});
+new THREE.TextureLoader().load('paper.jpg',t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=4;sheetMat.uniforms.uC.value=t;const h=t.clone();h.encoding=THREE.LinearEncoding;h.needsUpdate=true;sheetMat.uniforms.uH.value=h;t.wrapS=t.wrapT=h.wrapS=h.wrapT=THREE.RepeatWrapping;sheetMat.uniforms.uTex.value.set(1.5/t.image.width,1.5/t.image.height);sheetMat.uniforms.uAmp.value=7.;sheetMat.uniforms.uRep.value.set(1,1.414);},undefined,()=>{});
 const sheet=new THREE.Mesh(new THREE.PlaneGeometry(1,1),sheetMat);scene.add(sheet);
 
 // ---- layout: the sheet as large as the window allows, A4 upright
-let SW=0,SH=0,SX=0,SY=0;
+let SW=0,SH=0,SX=0,SY=0,EM=58;
 const layout=()=>{const W=innerWidth,H=innerHeight;R.setSize(W,H,false);cam.left=0;cam.right=W;cam.top=H;cam.bottom=0;cam.updateProjectionMatrix();
   desk.scale.set(W,H,1);desk.position.set(W/2,H/2,-1);deskMat.uniforms.uRes.value.set(W,H);
   SH=Math.min(H-110,(W-40)*1.414);SW=SH/1.414;SX=(W-SW)/2;SY=(H-SH)/2-20;
   sheet.scale.set(SW,SH,1);sheet.position.set(SX+SW/2,H-(SY+SH/2),0);sheetMat.uniforms.uSize.value.set(SW,SH);
   deskMat.uniforms.uS.value.set(SX+SW/2,H-(SY+SH/2),SW/2,SH/2);
   Object.assign(sheetEl.style,{left:SX+'px',top:SY+'px',width:SW+'px',height:SH+'px'});
-  const m=Math.round(SW*.11);Object.assign(ed.style,{left:m+'px',right:m+'px',top:'0',bottom:'0'});
-  ed.style.setProperty('font-size',Math.max(15,Math.round(SW*.036))+'px');
+  const m=Math.min(58,Math.round(SW*.085));Object.assign(ed.style,{left:m+'px',right:m+'px',top:'0',bottom:'0'});
+  EM=m;deskMat.uniforms.uReach.value=SH*.5;
   setSpacer();follow();};
 const setSpacer=()=>{const sp=SH*.62;let st=document.getElementById('sp');if(!st){st=document.createElement('style');st.id='sp';document.head.appendChild(st);}st.textContent=`.ed::before,.ed::after{height:${Math.round(sp)}px}`;};
 
@@ -151,13 +153,14 @@ const frame=now=>{const dt=Math.min(.05,(now-last)/1000);last=now;
   if(mode==='type'&&Math.abs(ed.scrollTop-cur.sc)>=1)ed.scrollTop=Math.round(cur.sc);
   // a key strike: only the light and the carriage tremble, for a moment
   const k=Math.max(0,1-(now-jitT)/110);jit=k*(Math.sin(now*.09)*.06-.04);const dy=k*Math.sin(now*.12)*1.2;
-  const lx=cur.x-SX,ly=SH-(workY()-SY)-34;
+  const lx=cur.x-SX,ly=SH-(workY()-SY)-40;
+  sheetMat.uniforms.uLine.value.set(SH-(workY()-SY)+2,22,EM,SW-EM);deskMat.uniforms.uSrc.value.set(cur.x,innerHeight-workY()-40);
   sheetMat.uniforms.uCar.value.set(lx,ly,0);sheetMat.uniforms.uJit.value=jit;
-  car.style.transform=`translate(${cur.x}px,${workY()+36-dy}px)`;
+  car.style.transform=`translate(${cur.x}px,${workY()+42-dy}px)`;
   R.render(scene,cam);requestAnimationFrame(frame);};
 document.querySelector('.bar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.m){mode=b.dataset.m;document.body.className=document.body.className.replace(/m-\w+/,'m-'+mode);document.querySelectorAll('.bar [data-m]').forEach(x=>x.classList.toggle('on',x===b));
-    sheetMat.uniforms.uCarOn.value=mode==='type'?1:0;sheetMat.uniforms.uLamp.value=mode==='type'?.32:1;deskMat.uniforms.uLamp.value=mode==='type'?.75:1;
+    sheetMat.uniforms.uCarOn.value=deskMat.uniforms.uCarOn.value=mode==='type'?1:0;sheetMat.uniforms.uLamp.value=mode==='type'?.32:1;deskMat.uniforms.uLamp.value=mode==='type'?.75:1;
     if(mode!=='type'){ed.scrollTop=0;cur.sc=tgt.sc=0;}setTimeout(follow,30);ed.focus();}
   if(b.dataset.t==='mono'){b.classList.toggle('on',document.body.classList.toggle('mono'));setTimeout(follow,30);ed.focus();}
   if(b.dataset.t==='fibers'){const on=!b.classList.contains('on');b.classList.toggle('on',on);sheetMat.uniforms.uFib.value=on?1:0;ed.focus();}});
