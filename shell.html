@@ -14692,3 +14692,18 @@ html.oc-arc-on body>.shell,html.oc-arc-on body>.fm-room,html.oc-arc-on body>.rm-
   .oc-hub .ax-pacts{right:auto;left:16px}.oc-hub .ax-close{right:16px}
 }
 </style>
+
+<style id="keys-glow-v145">
+/* v145 — every hanging key kindles the same slow way. The light's shadows are listed in the same order and kind
+   (two inset, four outer) at rest and on hover, so the browser can blend them instead of switching at once. */
+html body .shell.oc-w .wp-keys.k-closed .key::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"]::before,html body .oc-add2 .key::before{
+  box-shadow:inset 0 1px 0 rgba(255,246,228,.35),inset 0 -1px 0 rgba(63,43,29,.42),0 2px 0 rgba(62,42,29,.56),0 4px 6px rgba(0,0,0,.15),0 0 0 0 rgba(255,150,60,0),0 0 0 0 rgba(255,120,40,0)!important;
+  transition:box-shadow .9s cubic-bezier(.4,0,.2,1)!important}
+html body .shell.oc-w .wp-keys.k-closed .key:hover::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"]:hover::before,html body .oc-add2 .key:hover::before{
+  box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),inset 0 -1px 0 rgba(63,43,29,.2),0 0 0 1px rgba(255,200,140,.85),0 4px 6px rgba(0,0,0,.15),0 0 14px 3px rgba(255,150,60,.5),0 0 34px 9px rgba(255,120,40,.2)!important}
+html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"].is-active::before,html body .oc-add2.open .it.main .key::before{
+  box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),inset 0 -1px 0 rgba(63,43,29,.2),0 0 0 1px rgba(255,200,140,.85),0 4px 6px rgba(0,0,0,.15),0 0 14px 3px rgba(255,150,60,.72),0 0 34px 9px rgba(255,120,40,.3)!important}
+html body .oc-add2 .key:hover{color:var(--gold)}
+/* the Keeper's word in the corner: plain white, nothing over it */
+html body .okh-dot span,html body .shell:not(.is-night) ~ .okh-dot span{color:#fff!important;text-shadow:none!important;filter:none!important}
+</style>
