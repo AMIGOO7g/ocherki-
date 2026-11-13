@@ -108,7 +108,7 @@ body.mono .ed{font:400 17px/1.6 "Courier New",Courier,monospace;letter-spacing:.
 .car i::before{left:20px}.car i::after{left:31px;background:#ff7a2a}
 .car b{position:absolute;left:-1.5px;top:-6px;width:3px;height:15px;background:#20140c;border-radius:2px;box-shadow:0 -2px 0 #b5651d}
 body:not(.m-type) .car{opacity:0}
-.knight{transition:opacity .6s}body.m-type .knight{opacity:0}
+.knight{transition:opacity 1.2s ease}body.m-type .knight{opacity:.6}
 .bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:4px;padding:8px 10px;border-radius:22px;background:rgba(20,12,7,.86);box-shadow:0 0 0 1px rgba(214,150,96,.3),0 12px 30px rgba(0,0,0,.5);backdrop-filter:blur(6px);max-width:96vw;overflow-x:auto;z-index:5}
 .bar button{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:72px;padding:8px 6px 6px;border:0;border-radius:14px;background:none;color:#d9bf98;font:italic 13px Georgia,serif;cursor:pointer;transition:background .4s,color .4s,box-shadow .6s}
 .bar button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -180,12 +180,12 @@ const deskMat=new THREE.ShaderMaterial({transparent:true,uniforms:{uT:{value:toi
       vec2 c=uS.xy,h=uS.zw;float sd=sdBox(vP,c+uShOff,h);float sh=1.-.75*(1.-smoothstep(-30.,40.,sd));
       // a little of the carriage light spills onto the desk under the sheet's bottom edge
       vec2 dd=vP-uSrc;float ang=acos(clamp(normalize(dd+vec2(0.,.001)).y,-1.,1.));float cone=mix(.85*(1.-smoothstep(1.3,1.62,ang)),1.,1.-smoothstep(.85,1.28,ang));
-      float spill=uCarOn*cone*smoothstep(-40.,6.,dd.y)*(.08+.92/(1.+pow(length(vec2(dd.x*.5,dd.y))/uReach,1.6)));
-      float sa=.7*(1.-smoothstep(-30.,40.,sd));float la=clamp(spill*.12,0.,.25);
-      float a=la+sa*(1.-la);
-      if(uCarOn>.5){vec2 q=vP/uRes-.5;float vig=1.-smoothstep(.35,.8,length(q*vec2(1.,.8)));
-        vec3 col=t*(.09+spill*2.4*vec3(1.,.86,.68))*sh*(.55+.45*vig);gl_FragColor=vec4(col,1.);}
-      else gl_FragColor=vec4(vec3(1.,.8,.55)*la/max(a,.001),a);}`});
+      float spill=cone*smoothstep(-40.,6.,dd.y)*(.08+.92/(1.+pow(length(vec2(dd.x*.5,dd.y))/uReach,1.6)));
+      float sa=.7*(1.-smoothstep(-30.,40.,sd));
+      // the carriage light shows the toile where it falls (blended over the warm glow layers); the sheet's shadow on top
+      vec3 lit=t*(.09+spill*2.4*vec3(1.,.86,.68));float aM=uCarOn*smoothstep(0.,.35,spill)*.92;
+      float a=1.-(1.-aM)*(1.-sa);
+      gl_FragColor=vec4(lit*aM*(1.-sa)/max(a,.001),a);}`});
 const desk=new THREE.Mesh(new THREE.PlaneGeometry(1,1),deskMat);desk.position.z=-1;scene.add(desk);
 
 // ---- the sheet: lit by the desk lamp from the side (top-left brighter) and by the carriage light grazing along it
@@ -199,17 +199,17 @@ const sheetMat=new THREE.ShaderMaterial({uniforms:{uC:{value:tCol},uH:{value:tHe
       vec3 N=normalize(vec3((hL-hR)*uAmp*uFib,(hD-hU)*uAmp*uFib,1.));
       vec2 p=uv*uSize;                      // pixels on the sheet, y up
       // the desk lamp: from the upper left, falling off toward the lower right
-      vec3 Ld=normalize(vec3(-.55,.65,.55));float lamp=uLamp*(.38+.62*max(dot(N,Ld),0.))*(1.05-.55*clamp(length(vec2(uv.x*.6,(1.-uv.y)))*.9,0.,1.));
+      vec3 Ld=normalize(vec3(-.55,.65,.55));vec2 lq=(uv-vec2(-.12,1.12))*vec2(1.,.8);float lamp=uLamp*(.85+.15*max(dot(N,Ld),0.))*(.38+.78*exp(-dot(lq,lq)*1.1));
       // the carriage light: a source just above the paper at the working line, shining up along it
       vec3 Ls=vec3(uCar.xy,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
       vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));float ang=acos(clamp(dir.y,-1.,1.));   // 0 = straight up
       float core=1.-smoothstep(.85,1.28,ang),tail=.55*(1.-smoothstep(1.28,1.56,ang));
       float above=smoothstep(-3.,5.,p.y-Ls.y);float cone=mix(tail,1.,core);
-      float de=length(vec2(dv.x*.45,dv.y));float fall=.14+.86/(1.+pow(de/(uSize.y*.5),1.5));fall*=(smoothstep(0.,110.,dist)*.35+.65);
+      float de=length(vec2(dv.x*.45,dv.y));float fall=.16+.84/(1.+pow(de/(uSize.y*.33),1.7));fall*=(smoothstep(0.,110.,dist)*.3+.7)*.9;
       float graze=max(dot(N,L),0.);float car=uCarOn*cone*above*fall*(.95+.5*graze)*(1.+uJit);
 
 
-      vec3 c=base*(vec3(.05,.035,.025)+lamp*vec3(1.,.94,.86)*1.08+car*vec3(1.0,.93,.86));
+      vec3 c=base*(vec3(.05,.035,.025)+lamp*vec3(1.,.93,.86)*1.08+car*vec3(1.0,.93,.86));
       c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*2.;
       gl_FragColor=vec4(c,1.);}`});
 new THREE.TextureLoader().load('paper.jpg',t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;sheetMat.uniforms.uC.value=t;sheetMat.uniforms.uRep.value.set(1,1);new THREE.TextureLoader().load('paper-relief.jpg',h=>{h.anisotropy=8;sheetMat.uniforms.uH.value=h;sheetMat.uniforms.uTex.value.set(1/h.image.width,1/h.image.height);sheetMat.uniforms.uAmp.value=.35;});},undefined,()=>{});
@@ -226,18 +226,19 @@ const layout=()=>{const W=innerWidth,H=innerHeight;R.setSize(W,H,false);cam.left
   const m=Math.min(58,Math.round(SW*.085));Object.assign(ed.style,{left:m+'px',right:m+'px',top:'0',bottom:'0'});
   EM=m;deskMat.uniforms.uReach.value=SH*.5;
   setSpacer();follow();};
-const setSpacer=()=>{const sp=SH*.84;let st=document.getElementById('sp');if(!st){st=document.createElement('style');st.id='sp';document.head.appendChild(st);}st.textContent=`.ed::before{height:${Math.round(sp)}px}.ed::after{height:${Math.round(SH*.16+20)}px}`;};
+const setSpacer=()=>{const sp=workY()-SY;let st=document.getElementById('sp');if(!st){st=document.createElement('style');st.id='sp';document.head.appendChild(st);}st.textContent=`.ed::before{height:${Math.round(sp)}px}.ed::after{height:${Math.round(SH-(workY()-SY)+20)}px}`;};
 
 // ---- the caret, the carriage and the paper rolling up
 const caret=()=>{const sel=getSelection();if(!sel.rangeCount||!ed.contains(sel.anchorNode))return null;const r=sel.getRangeAt(0).cloneRange();r.collapse(true);
   let rc=r.getClientRects()[0];if(!rc){const sp=document.createElement('span');sp.textContent='​';r.insertNode(sp);rc=sp.getBoundingClientRect();sp.parentNode.removeChild(sp);sel.removeAllRanges();sel.addRange(r);}return rc;};
 let mode='type';const cur={x:0,sc:0},tgt={x:0,sc:0};let jit=0,jitT=0;
-const workY=()=>SY+SH*.84,DROP=()=>SY+SH-12-workY();
+const DROP=()=>48,workY=()=>SY+SH-12-DROP();
 const follow=()=>{const rc=caret();if(!rc)return;tgt.x=Math.max(SX+30,Math.min(SX+SW-30,rc.left));const cy=rc.top+rc.height/2,off=cy-workY();if(Math.abs(off)>6&&Math.abs(tgt.sc-cur.sc)<1)tgt.sc=Math.max(0,ed.scrollTop+off);};
 ['input','keyup','click','focus'].forEach(e=>ed.addEventListener(e,follow));document.addEventListener('selectionchange',follow);
 ed.addEventListener('keydown',e=>{if(e.key.length>1&&!['Enter','Backspace',' '].includes(e.key))return;jitT=performance.now();});
-let last=performance.now(),fc=0;
+let last=performance.now(),fc=0;const GO={car:1,lamp:.2};
 const frame=now=>{const dt=Math.min(.05,(now-last)/1000);last=now;
+  {const u=sheetMat.uniforms,f=Math.min(1,dt*2.2);u.uCarOn.value+=(GO.car-u.uCarOn.value)*f;u.uLamp.value+=(GO.lamp-u.uLamp.value)*f;deskMat.uniforms.uCarOn.value=u.uCarOn.value;}
   cur.x+=(tgt.x-cur.x)*Math.min(1,dt*12);cur.sc+=(tgt.sc-cur.sc)*Math.min(1,dt*12);
   if(++fc%12===0&&Math.abs(tgt.sc-cur.sc)<1)follow();
   if(mode==='type'&&Math.abs(ed.scrollTop-cur.sc)>=1)ed.scrollTop=Math.round(cur.sc);
@@ -250,11 +251,11 @@ const frame=now=>{const dt=Math.min(.05,(now-last)/1000);last=now;
   R.render(scene,cam);requestAnimationFrame(frame);};
 document.querySelector('.bar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.m){mode=b.dataset.m;document.body.className=document.body.className.replace(/m-\w+/,'m-'+mode);document.querySelectorAll('.bar [data-m]').forEach(x=>x.classList.toggle('on',x===b));
-    sheetMat.uniforms.uCarOn.value=deskMat.uniforms.uCarOn.value=mode==='type'?1:0;sheetMat.uniforms.uLamp.value=mode==='type'?.32:1;deskMat.uniforms.uLamp.value=mode==='type'?.75:1;
-    if(mode!=='type'){ed.scrollTop=0;cur.sc=tgt.sc=0;}setTimeout(follow,30);ed.focus();}
+    GO.car=mode==='type'?1:0;GO.lamp=mode==='type'?.2:1;
+    setTimeout(follow,30);ed.focus();}
   if(b.dataset.t==='mono'){b.classList.toggle('on',document.body.classList.toggle('mono'));setTimeout(follow,30);ed.focus();}
   if(b.dataset.t==='fibers'){const on=!b.classList.contains('on');b.classList.toggle('on',on);sheetMat.uniforms.uFib.value=on?1:0;ed.focus();}});
-sheetMat.uniforms.uLamp.value=.32;deskMat.uniforms.uLamp.value=.75;
+sheetMat.uniforms.uLamp.value=.2;
 let lw=0;addEventListener('resize',()=>{if(innerWidth===lw&&document.activeElement===ed)return;lw=innerWidth;layout();});lw=innerWidth;layout();
 const lastP=ed.lastElementChild;const r=document.createRange();r.selectNodeContents(lastP);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);ed.focus();
 setTimeout(()=>{follow();cur.x=tgt.x;cur.sc=tgt.sc;},60);requestAnimationFrame(frame);
