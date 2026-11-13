@@ -15,7 +15,7 @@ const CSS=`
 .odk .ln div .n{color:#5a3e28;font-weight:700}
 .odk .ln div b{display:inline-block;width:0}
 .odk .car{position:absolute;left:0;top:0;width:0;height:0;transition:opacity .8s}
-.odk .rail{position:absolute;height:9px;border-radius:5px;background:linear-gradient(180deg,#3a3430 0%,#141110 45%,#050404 100%);box-shadow:0 1px 0 rgba(255,240,220,.08) inset,0 6px 14px rgba(0,0,0,.7);transition:opacity .8s}
+.odk .rail{display:none;position:absolute;height:9px;border-radius:5px;background:linear-gradient(180deg,#3a3430 0%,#141110 45%,#050404 100%);box-shadow:0 1px 0 rgba(255,240,220,.08) inset,0 6px 14px rgba(0,0,0,.7);transition:opacity .8s}
 .odk .rail::before,.odk .rail::after{content:"";position:absolute;top:-3px;width:12px;height:15px;border-radius:3px;background:linear-gradient(180deg,#2a2522,#0a0807)}
 .odk .rail::before{left:-4px}.odk .rail::after{right:-4px}
 .odk .car i{position:absolute;left:-40px;top:0;width:80px;height:26px;border-radius:13px;background:linear-gradient(180deg,#d9d2c8,#a39b90 60%,#7d766d);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 0 1px rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.55)}
@@ -51,12 +51,14 @@ const SHEET=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform v
     vec3 Ld=normalize(vec3(-.55,.65,.55));vec2 lq=(uv-vec2(-.12,1.12))*vec2(1.,.8);float lamp=uLamp*(.85+.15*max(dot(N,Ld),0.))*(.4+.55*exp(-dot(lq,lq)*1.1));
     vec3 Ls=vec3(uCar,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
     vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));float ang=acos(clamp(dir.y,-1.,1.));
-    float cone=smoothstep(-.12,.72,dir.y);
-    float above=smoothstep(-4.,6.,p.y-Ls.y);
-    float de=length(vec2(dv.x*.62,dv.y));float fall=.12+.88*exp(-pow(de/(uSize.y*.34),1.5));float hot=.28*exp(-pow(dist/(uSize.y*.11),2.));
-    float car=uCarOn*above*cone*(fall+hot)*(.92+.4*max(dot(N,L),0.));
-    vec3 c=base*(vec3(.05,.045,.04)+lamp*vec3(.98,.95,.9)*1.04+car*vec3(1.,.96,.88));
-    c*=mix(1.,mix(.2,1.,smoothstep(uRail-3.,uRail+3.,p.y)),uCarOn);
+    float cone=smoothstep(.26,.8,dir.y);
+    float above=smoothstep(-8.,10.,p.y-Ls.y);
+    float fall=1.-.5*smoothstep(0.,uSize.y*.85,dist);fall*=smoothstep(0.,26.,dist)*.25+.75;
+    float car=uCarOn*above*cone*fall*(.9+.3*max(dot(N,L),0.));
+    // the room: in «Машинка» a quiet grey all over the sheet, a little darker under the device and toward the right
+    float amb=mix(lamp*1.04,.42-.1*uv.x-.1*smoothstep(0.,-120.,p.y-Ls.y),uCarOn);
+    vec3 pb=mix(base,vec3(dot(base,vec3(.3,.59,.11)))*vec3(1.,.99,.95),.55*uCarOn);
+    vec3 c=pb*(vec3(.04,.038,.035)+amb*vec3(.93,.94,.92)+car*.7*vec3(1.,.95,.8));
     // blind emboss: a raised mark in the paper; its edges catch the light (from the device and from the lamp)
     float eL=texture2D(uE,uv-vec2(uETex.x,0.)).a,eR=texture2D(uE,uv+vec2(uETex.x,0.)).a,eD=texture2D(uE,uv-vec2(0.,uETex.y)).a,eU=texture2D(uE,uv+vec2(0.,uETex.y)).a;
     vec2 eg=vec2(eL-eR,eD-eU)*uEAmp;float es=car*dot(eg,normalize(Ls.xy-p+vec2(0.,.001)))+(lamp*1.6+.12)*dot(eg,normalize(vec2(-.55,.65)));
