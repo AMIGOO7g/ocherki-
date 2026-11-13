@@ -290,6 +290,8 @@ return{
     if(o.at){const w=this.toWorld(o.at[0],o.at[1]);const unit=2*halfH()/VH();WP={x:w.x,y:w.y,s:Math.max(.2,(o.px||60)*unit/.62)};}else WP=null;
     HOLD=!!o.hold;setMode('write');},
   clearWords(){HOLD=false;},
+  // where he gathers again after writing (he is in his pen meanwhile, so the move is not seen); other modes: as moveTo
+  rest(nx,ny,sc=1){freeP={x:nx*halfW(),y:camera.position.y+ny*halfH(),sc};if(mode==='write'){if(afterWrite!=='free')afterWrite='free';S.x.t=freeP.x;S.y.t=freeP.y;S.sc.t=freeP.sc;}else setMode('free');},
   get wordsShown(){return words.material.uniforms.uA.value;},
   screenOf,
   resize:fit,

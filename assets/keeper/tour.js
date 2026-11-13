@@ -7,11 +7,11 @@ const CSS=`
 .okt{position:absolute;inset:0;font-family:var(--okt-serif);color:#f6ead8;pointer-events:none}
 .okt>*{pointer-events:auto}
 /* the heading: the Keeper's pen writes the word itself (above), here only what follows it, in plain type */
-.okt .hd{position:absolute;left:0;right:0;top:calc(8% + 118px);text-align:center;pointer-events:none}
+.okt .hd{position:absolute;left:0;right:0;top:calc(5% + 108px);text-align:center;pointer-events:none}
 .okt .hd h2{display:none;margin:0 0 6px;font:400 64px/1.25 var(--okt-script);color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.5)}
 .okt.nok .hd h2{display:block}.okt.nok .hd{top:7%}
 .okt .hd .sub{font:italic 30px/1.3 var(--okt-serif);color:#f6e3c4}
-.okt .hd p{margin:14px auto 0;max-width:760px;font:21px/1.5 var(--okt-serif);color:#e2cba6}
+.okt .hd p{margin:10px auto 0;max-width:760px;font:21px/1.5 var(--okt-serif);color:#e2cba6}
 /* words come out of the mist and go back into it */
 .okt .mist{transition:opacity 1.1s ease,filter 1.2s ease}
 .okt .mist.out{opacity:0;filter:blur(12px);transition:opacity .6s ease,filter .6s ease}
@@ -19,17 +19,17 @@ const CSS=`
 .okt .say .l1{display:block;font:400 30px/1.3 var(--okt-serif);color:#f6e3c4;letter-spacing:.01em}
 .okt .say .l2{display:block;margin-top:2px;font:400 64px/1.25 var(--okt-script);color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.45)}
 .okt .say .l3{display:block;margin-top:16px;font:italic 22px/1.5 var(--okt-serif);color:#e2cba6}
-.okt .deck{position:absolute;left:50%;top:61%;width:0;height:0;perspective:1600px;pointer-events:none}
+.okt .deck{position:absolute;left:50%;top:58%;width:0;height:0;perspective:1600px;pointer-events:none}
 .okt .cd{position:absolute;left:0;top:0;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(.2,.8,.25,1),opacity 1s ease,filter 1s ease;opacity:0}
 .okt .cd.in{opacity:1}.okt .cd.past{opacity:0;filter:blur(4px)}
 /* the host's own card styles (the e-mail and books cards are .cd too) never reach these */
-.okt .deck .cd{padding:0;border:0;border-radius:0;background:none;flex:none;min-width:0;box-shadow:none;cursor:default}
+.okt .deck .cd{padding:0;border:0;border-radius:0;background:none;flex:none;min-width:0;box-shadow:none;cursor:default;transition:transform 1.2s cubic-bezier(.2,.8,.25,1),opacity 1s ease,filter 1s ease}
 .okt .deck .cd:hover{box-shadow:none}
-.okt .deck .cd.sheet{padding:54px 50px;background:linear-gradient(170deg,#fbf6ec,#efe3cd);box-shadow:0 30px 60px rgba(0,0,0,.55)}
+.okt .deck .cd.sheet{padding:46px 44px 40px;background:radial-gradient(ellipse 85% 80% at 50% 45%,rgba(0,0,0,0) 60%,rgba(120,80,40,.16)),linear-gradient(172deg,#f8f0e0,#ecdfc5);box-shadow:0 30px 60px rgba(0,0,0,.55)}
 .okt .deck .qcard span{display:block;margin:0;font:italic 36px/1.2 var(--okt-serif);color:#3b2a1c}
 .okt .deck .qcard b{display:block;margin:0 0 18px;font:500 13px var(--okt-serif);letter-spacing:.3em;text-transform:uppercase;color:#8a6a48}
 .okt .deck .cov b{display:block;font:500 13px var(--okt-serif);letter-spacing:.34em;text-transform:uppercase;color:#e8c58e;opacity:.8}
-.okt .deck .cov strong{display:block;margin:16px 0 14px;font:400 46px/1.15 var(--okt-serif);color:#f3d39f}
+.okt .deck .cov strong{display:block;margin:14px 0 12px;font:400 54px/1.12 var(--okt-script);color:#f3d39f;text-shadow:0 1px 0 rgba(0,0,0,.5)}
 .okt .deck .cov span{display:block;margin-top:14px;font:italic 19px var(--okt-serif);color:#e8c58e;opacity:.85}
 /* the keys come last, once the words have been read */
 .okt .nav{position:absolute;left:0;right:0;bottom:6%;display:flex;justify-content:center;align-items:center;gap:26px;transition:opacity .9s ease}
@@ -43,12 +43,15 @@ const CSS=`
 .okt .btn.main{border-color:rgba(255,206,150,.95);color:#ffe9c9;box-shadow:0 0 14px 3px rgba(255,150,60,.55),0 0 34px 8px rgba(255,120,40,.22)}
 .okt .btn:active{translate:0 2px}
 .okt .skip{position:absolute;right:3%;top:4%;font:italic 18px var(--okt-serif);color:#d6b48a;cursor:pointer}.okt .skip:hover{color:#ffd9a8}
-/* 1 — the sheet: a page of a book, square corners, the line in plain type */
-.okt .sheet{width:430px;height:540px;margin:-270px 0 0 -215px;border-radius:0;background:linear-gradient(170deg,#fbf6ec,#efe3cd);box-shadow:0 30px 60px rgba(0,0,0,.55);padding:54px 50px;box-sizing:border-box;color:#3b2a1c}
-.okt .sheet .ttl{font:500 13px var(--okt-serif);letter-spacing:.24em;text-transform:uppercase;text-align:center;opacity:.65}
-.okt .sheet .ln{height:9px;margin:14px 0;background:linear-gradient(90deg,rgba(59,42,28,.3),rgba(59,42,28,.2));border-radius:2px;transform-origin:0 50%;transform:scaleX(0);transition:transform .9s ease}
-.okt .sheet .hw{font:italic 34px/1.25 var(--okt-serif);color:#5a3a22;margin:22px 0;opacity:0;transition:opacity 1s ease}
-.okt .cd.play .sheet .ln,.okt .sheet.play .ln{transform:scaleX(1)}.okt .sheet.play .hw{opacity:1}
+/* 1 — the sheet: a page written by hand from edge to edge, slightly aged; the lines come one after another */
+.okt .sheet{width:450px;height:580px;margin:-290px 0 0 -225px;border-radius:0;box-sizing:border-box;color:#3b2a1c;overflow:hidden}
+.okt .sheet::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='620'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02' numOctaves='2' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .18 0 0 0 1.2 -.72'/%3E%3C/filter%3E%3Crect width='480' height='620' filter='url(%23f)'/%3E%3C/svg%3E")}
+.okt .sheet .ttl{font:500 12px var(--okt-serif);letter-spacing:.24em;text-transform:uppercase;text-align:center;color:#8a6a48;margin-bottom:6px}
+.okt .sheet .hh{font:400 34px/1.2 var(--okt-script);text-align:center;color:#4b3424;margin-bottom:10px}
+.okt .sheet .tx{font:400 17px/1.5 var(--okt-script);color:#3e2c1e;text-align:left;hyphens:none}
+.okt .sheet .tx span{opacity:0;transition:opacity .7s ease;transition-delay:calc(var(--i) * 90ms)}
+.okt .deck .sheet .tx span{display:inline;margin:0;font:inherit;color:inherit}
+.okt .cd.play .sheet .tx span,.okt .sheet.play .tx span{opacity:.92}
 /* 2 — one record, in the middle, nothing beside it */
 .okt .voice{width:0;height:0}
 .okt .vin{position:absolute;left:-200px;top:-200px;width:400px;height:400px;border-radius:50%;background:repeating-radial-gradient(circle,#141010 0 1.4px,#211a16 1.4px 3px);box-shadow:0 0 0 2px rgba(255,200,140,.9),0 0 30px 6px rgba(255,150,60,.5),0 30px 60px rgba(0,0,0,.6)}
@@ -86,6 +89,7 @@ const CSS=`
 .okt .letter.play .lt{transform:translateY(-190px)}
 .okt .letter .pol{position:absolute;width:160px;height:180px;background:#f3ead9;padding:10px 10px 30px;box-shadow:0 18px 30px rgba(0,0,0,.5)}
 .okt .letter .pol img{width:100%;height:100%;object-fit:cover;filter:sepia(.35)}
+.okt .letter .pol i{position:absolute;left:0;right:0;bottom:4px;text-align:center;font:400 19px/1 var(--okt-script);color:#4b3424;font-style:normal}
 .okt .letter .pol.under{left:130px;top:-20px;transform:rotate(9deg);z-index:0}
 .okt .letter .pol.side{left:-390px;top:-40px;transform:rotate(-8deg);z-index:3}
 /* 5 — the book: a closed cover in the middle, nothing moving */
@@ -94,7 +98,7 @@ const CSS=`
 .okt .book .cov::before{content:"";position:absolute;inset:26px 24px 26px 34px;border:1px solid rgba(232,197,142,.55);box-shadow:inset 0 0 0 4px rgba(0,0,0,0),inset 0 0 0 5px rgba(232,197,142,.25)}
 .okt .book .cov::after{content:"";position:absolute;left:12px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.35);box-shadow:2px 0 0 rgba(255,220,180,.08)}
 .okt .book .cov b{font:500 13px var(--okt-serif);letter-spacing:.34em;text-transform:uppercase;opacity:.8}
-.okt .book .cov strong{margin:16px 0 14px;font:400 46px/1.15 var(--okt-serif);font-weight:400;letter-spacing:.02em;color:#f3d39f;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.okt .book .cov strong{margin:14px 0 12px;font:400 54px/1.12 var(--okt-script);font-weight:400;color:#f3d39f;text-shadow:0 1px 0 rgba(0,0,0,.5)}
 .okt .book .cov i{width:56px;height:1px;background:rgba(232,197,142,.6)}
 .okt .book .cov span{margin-top:14px;font:italic 19px var(--okt-serif);opacity:.85}
 .okt .book .glow{position:absolute;left:-330px;top:-300px;width:660px;height:600px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,150,60,.2),transparent 65%);pointer-events:none}
@@ -108,7 +112,7 @@ function create(host,o={}){
     <path class="ret" d="M330 160 C 240 222, 110 222, 14 156"/><path class="hd2" d="M10 154 l15 1 -7 12z"/></svg>`;
   const S=[
     {w:'Пишите',sub:'книга сложится сама',p:'К каждой главе — свои вопросы. Пишите, как говорите: заголовки и заметки на полях появятся сами.',
-     c:`<div class="cd sheet"><div class="ttl">глава 1 · начало</div><div class="ln" style="width:92%"></div><div class="ln" style="width:86%;transition-delay:.15s"></div><div class="ln" style="width:94%;transition-delay:.3s"></div><div class="hw">«Мама впервые увидела трамвай…»</div><div class="ln" style="width:90%;transition-delay:.45s"></div><div class="ln" style="width:70%;transition-delay:.6s"></div><div class="ln" style="width:88%;transition-delay:.75s"></div><div class="ln" style="width:80%;transition-delay:.9s"></div></div>`},
+     c:`<div class="cd sheet"><div class="ttl">глава 1 · начало</div><div class="hh">Детство</div><div class="tx"><span style="--i:0">Мама </span><span style="--i:1">впервые </span><span style="--i:2">увидела </span><span style="--i:3">трамвай, </span><span style="--i:4">когда </span><span style="--i:5">ей </span><span style="--i:6">было </span><span style="--i:7">шесть </span><span style="--i:8">лет. </span><span style="--i:9">Они </span><span style="--i:10">с </span><span style="--i:11">бабушкой </span><span style="--i:12">шли </span><span style="--i:13">по </span><span style="--i:14">Головинскому, </span><span style="--i:15">и </span><span style="--i:16">вдруг </span><span style="--i:17">из-за </span><span style="--i:18">угла </span><span style="--i:19">выехал </span><span style="--i:20">красный </span><span style="--i:21">вагон, </span><span style="--i:22">звенящий, </span><span style="--i:23">как </span><span style="--i:24">колокольчик. </span><span style="--i:25">Мама </span><span style="--i:26">спряталась </span><span style="--i:27">за </span><span style="--i:28">бабушкину </span><span style="--i:29">юбку, </span><span style="--i:30">а </span><span style="--i:31">потом </span><span style="--i:32">весь </span><span style="--i:33">вечер </span><span style="--i:34">рассказывала </span><span style="--i:35">соседям, </span><span style="--i:36">что </span><span style="--i:37">видела </span><span style="--i:38">«дом </span><span style="--i:39">на </span><span style="--i:40">колёсах». </span><span style="--i:41">Бабушка </span><span style="--i:42">смеялась </span><span style="--i:43">и </span><span style="--i:44">говорила, </span><span style="--i:45">что </span><span style="--i:46">в </span><span style="--i:47">Тифлисе </span><span style="--i:48">и </span><span style="--i:49">не </span><span style="--i:50">такое </span><span style="--i:51">увидишь. </span><span style="--i:52">Летом </span><span style="--i:53">мы </span><span style="--i:54">жили </span><span style="--i:55">у </span><span style="--i:56">тёти </span><span style="--i:57">Вари </span><span style="--i:58">на </span><span style="--i:59">Плехановском, </span><span style="--i:60">в </span><span style="--i:61">комнате </span><span style="--i:62">с </span><span style="--i:63">окном </span><span style="--i:64">во </span><span style="--i:65">двор, </span><span style="--i:66">где </span><span style="--i:67">росла </span><span style="--i:68">старая </span><span style="--i:69">груша. </span><span style="--i:70">По </span><span style="--i:71">субботам </span><span style="--i:72">пекли </span><span style="--i:73">хачапури, </span><span style="--i:74">и </span><span style="--i:75">весь </span><span style="--i:76">двор </span><span style="--i:77">пах </span><span style="--i:78">сыром </span><span style="--i:79">и </span><span style="--i:80">дымом. </span><span style="--i:81">Отец </span><span style="--i:82">уходил </span><span style="--i:83">рано, </span><span style="--i:84">а </span><span style="--i:85">возвращался </span><span style="--i:86">затемно, </span><span style="--i:87">приносил </span><span style="--i:88">нам </span><span style="--i:89">по </span><span style="--i:90">яблоку </span><span style="--i:91">и </span><span style="--i:92">садился </span><span style="--i:93">у </span><span style="--i:94">окна </span><span style="--i:95">читать </span><span style="--i:96">газету. </span></div></div>`},
     {w:'Голоса родных',sub:'пластинка в архиве и код в книге',p:'Запишите ответ голосом — он станет пластинкой в архиве, а в книге рядом с рассказом появится QR-код: наведёте телефон — и зазвучит голос.',
      c:`<div class="cd voice"><div class="vin"><div class="sp"><div class="lb" style="background-image:url('${PH}grandma_porch.jpg')"></div></div><div class="shine"></div><i class="hole"></i></div></div>`},
     {w:'Вопрос недели',sub:'вся семья — вместе',p:'Раз в неделю вопрос уходит родным на телефон, а ответ — голосом, словами или фото — возвращается в архив.',
@@ -121,10 +125,10 @@ function create(host,o={}){
          <radialGradient id="oktEdge" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#5a3a1a" stop-opacity=".38"/></radialGradient>
          <filter id="oktAge" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .24  0 0 0 0 .12  0 0 0 .22 0"/></filter>
          <filter id="oktFox" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .3  0 0 0 0 .12  0 0 0 1.4 -.78"/></filter></defs>
-         <rect width="460" height="300" rx="4" fill="url(#oktEnv)"/><path d="M0 300 L230 160 L460 300Z" fill="url(#oktEnvS)"/><path d="M0 0 L208 172 Q230 190 252 172 L460 0 L460 7 L254 179 Q230 198 206 179 L0 7Z" fill="rgba(110,74,40,.22)"/>
+         <rect width="460" height="300" rx="4" fill="url(#oktEnv)"/><path d="M0 300 L230 160 L460 300Z" fill="url(#oktEnvS)"/><path d="M0 0 L208 172 Q230 190 252 172 L460 0" fill="none" stroke="rgba(110,74,40,.32)" stroke-width="1.2"/>
          <path d="M0 300 L230 160 L460 300" fill="none" stroke="rgba(110,74,40,.32)" stroke-width="1.2"/>
-         <rect width="460" height="300" rx="4" filter="url(#oktFox)" opacity=".55"/><rect width="460" height="300" rx="4" filter="url(#oktAge)"/><rect width="460" height="300" rx="4" fill="url(#oktEdge)"/></svg>${SEAL}</div>
-       <div class="pol side"><img src="${PH}mother_child_bw.jpg" alt=""></div></div>`},
+         <rect width="460" height="300" rx="4" filter="url(#oktFox)" opacity=".22"/><rect width="460" height="300" rx="4" filter="url(#oktAge)" opacity=".6"/><rect width="460" height="300" rx="4" fill="url(#oktEdge)" opacity=".55"/></svg>${SEAL}</div>
+       <div class="pol side"><img src="${PH}mother_child_bw.jpg" alt=""><i>Я с мамой, 1956</i></div></div>`},
     {w:'Ваша книга',sub:'останется в семье',p:'Смотрите развороты, меняйте композиции, а когда всё готово — заказывайте печать.',
      c:`<div class="cd book"><div class="glow"></div><div class="cov"><b>история семьи</b><strong>Очерки<br>жизни</strong><i></i><span>Тифлис — Москва</span></div></div>`}];
   const el=document.createElement('div');el.className='okt wait'+(K?'':' nok');
@@ -141,9 +145,9 @@ function create(host,o={}){
     c.style.transform=d===0?'translate3d(0,0,0) rotateY(0deg) rotate(0deg)':d<0?'translate3d(-640px,40px,-300px) rotateY(38deg) rotate(-6deg)':'translate3d(680px,40px,-200px) rotateY(-42deg) rotate(8deg)';};
   cards.forEach(c=>pose(c,1));
   // where he stands while the card is shown: small, beside it, never over it
-  const SPOTS=[[-.56,-.28],[.5,-.28],[-.86,-.72],[.62,-.3],[-.5,-.3]];
+  const SPOTS=[[-.6,-.2],[.56,-.2],[-.84,-.66],[.66,-.24],[-.56,-.24]];
   // where the pen writes the step's word: the heading line at the top
-  const headAt=()=>{const H=el.clientHeight||innerHeight;return[0,1-2*((H*.08+40)/H)];};
+  const headAt=()=>{const H=el.clientHeight||innerHeight;return[0,1-2*((H*.05+38)/H)];};
   // one movement per step: the old word fades, he flows into his pen, the pen writes the new word at the top,
   // and he gathers again, small, beside the card — no flying off into a corner and growing back first
   const show=k=>{const prev=i;i=Math.max(0,Math.min(S.length-1,k));const t=++tok;
@@ -151,7 +155,7 @@ function create(host,o={}){
     cards.forEach((c,j)=>pose(c,j-i));el.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));
     $('[data-a="next"]').textContent=i===S.length-1?(o.last||'Начать'):'Далее';$('[data-a="prev"]').hidden=i<1;
     later(()=>{if(t!==tok)return;$('.hd h2').textContent=S[i].w;$('.hd .sub').textContent=S[i].sub;$('.hd p').textContent=S[i].p;
-      if(K){const sp=SPOTS[i%SPOTS.length];K.moveTo(sp[0],sp[1],.5);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.write(S[i].w,{at:headAt(),px:66,hold:true});
+      if(K){const sp=SPOTS[i%SPOTS.length];K.write(S[i].w,{at:headAt(),px:66,hold:true});later(()=>{if(t!==tok)return;K.rest(sp[0],sp[1],.78);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);},1400);
         later(()=>{if(t===tok)mist('.hd .sub',true);},3000);later(()=>{if(t===tok)mist('.hd p',true);},3500);}
       else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?200:650);};
   let begun=false;const first=()=>{begun=true;['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));$('.dots').hidden=false;later(()=>show(0),500);};
