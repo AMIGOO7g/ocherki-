@@ -2684,7 +2684,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 .book-rhythm-warning button{border:1px solid rgba(224,149,74,.65);border-radius:999px;padding:5px 9px;background:transparent;color:#f5c181;font:600 9px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .book-rhythm-warning button:hover{background:#a86731;color:#fff}
 </style>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v157">
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v158">
 </head>
 <body>
 <div class="shell is-night ui-boot" id="shell">
@@ -2904,7 +2904,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v157" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v158" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -4704,10 +4704,10 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
 </script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v157"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v157"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v157"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v157"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v157"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v157"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v158"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v158"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v158"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v158"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v158"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v158"></script>
 <script>
 // «Мои книги»: the bookcase lists every book; a click saves the open one
 // and opens another in the editor; «+» starts a new book from the first
@@ -4745,8 +4745,8 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
   });
 })();
 </script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v157"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v157"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v158"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v158"></script>
 <script id="v103-book-assembly-controller">
 (() => {
   const frame=document.getElementById('v35SheetFrame');
@@ -7675,7 +7675,7 @@ window.__OCHERKI_AUTH_GATE_PENDING = false;
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v157"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v158"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -14337,7 +14337,7 @@ html body .shell.oc-w .write-nav{scale:var(--oc-k,1);transform-origin:0 0}
 .okp .okt .deck{transform:scale(var(--ui-s,1))}
 .okp .okt .hd{transform-origin:50% 0;scale:var(--ui-s,1)}
 </style>
-<script src="assets/keeper/tour.js?v=20261107-v157"></script>
+<script src="assets/keeper/tour.js?v=20261107-v158"></script>
 <script id="intro-v142-js">
 (()=>{const shell=document.querySelector('.shell');if(!shell||!window.OcherkiTour)return;
   const ov=document.createElement('div');ov.className='okp';ov.innerHTML='<div class="kp2"><canvas class="kpc"></canvas></div>';document.body.appendChild(ov);
