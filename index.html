@@ -3370,7 +3370,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v147";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v148";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3877,8 +3877,8 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v147"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v147"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v148"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v148"></script>
 
 <style id="kob-v142">
 /* v142 — the way in, led by the Keeper: first he shows what the constructor can do (assets/keeper/tour.js),
@@ -3961,7 +3961,7 @@
     <div class="acts"><button class="btn ghost" data-go="how">Назад</button><button class="btn main" data-go="finish" data-need="book">Создать книгу</button></div></section>
   <div class="dots"><i></i><i></i><i></i></div>
 </div>
-<script src="assets/keeper/tour.js?v=20261107-v147"></script>
+<script src="assets/keeper/tour.js?v=20261107-v148"></script>
 <script id="kob-v142-js">
 (()=>{const ov=document.getElementById('kob');const html=document.documentElement;
   const off=()=>html.classList.remove('kob-wait');
@@ -3971,8 +3971,8 @@
   const STEPS=['who','how','book'];
   let K=null,T=null,cur='',ts=[];const later=(f,ms)=>ts.push(setTimeout(f,ms));
   // he stands to the left of the words and turns to them
-  const SPOT={auth:[-.6,.0],books:[-.6,.05],shelf:[-.66,.1],who:[-.66,.1],how:[-.64,.05],book:[-.66,.1]};
-  const place=s=>{if(!K)return;const sp=SPOT[s]||[-.6,0];K.moveTo(sp[0],sp[1],.62);K.face(1);K.lookAt(.95,-sp[1]*.5);};
+  const SPOT={auth:[-.5,-.04],books:[-.56,.18],shelf:[-.6,.12],who:[-.6,.1],how:[-.58,.04],book:[-.6,.1]};
+  const place=s=>{if(!K)return;const sp=SPOT[s]||[-.6,0];K.moveTo(sp[0],sp[1],.9);K.face(1);K.lookAt(.95,-sp[1]*.5);};
   function go(s){if(s===cur)return;cur=s;
     if(s==='tour'){ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));ov.classList.remove('steps');tour(true);return;}
     ov.querySelectorAll('.st').forEach(x=>x.classList.toggle('on',x.dataset.s===s));
@@ -4034,7 +4034,7 @@
     if(back){later(()=>go('books'),K?500:200);}else{later(()=>K&&K.moveTo(0,.2,1),300);cur='tour';tour(false);}};
   window.OCHERKI_KOB={get K(){return K;},go};
   if(!window.OcherkiTour){off();ov.remove();return;}
-  OcherkiTour.loadKeeper().then(()=>boot(window.OcherkiKeeper3D?OcherkiKeeper3D.create(cv,{size:.3,dust:24,quick:1.8,writeSpeed:1.7,wordsScale:1.6}):null)).catch(()=>boot(null));
+  OcherkiTour.loadKeeper().then(()=>boot(window.OcherkiKeeper3D?OcherkiKeeper3D.create(cv,{size:.3,dust:24,quick:2.6,writeSpeed:1.7,wordsScale:1.6}):null)).catch(()=>boot(null));
 })();
 </script>
 </body>
