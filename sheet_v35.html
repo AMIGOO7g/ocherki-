@@ -3003,13 +3003,22 @@ function pageIdentity(page){
   return uid;
 }
 
+// A new or continued sheet is always a writing sheet: a document, photo or map page is never copied as the next one
+// (that is how «+ Лист» once made another «Архивный документ», where text cannot flow on).
+function siblingType(src){
+  const t=src?.type;if(['chapter','intro','text','inside-back-cover'].includes(t))return t;
+  const sec=sections.find(s=>Array.isArray(s.pages)&&s.pages.includes(src));
+  const own=sec?.pages?.find(p=>['chapter','intro','text'].includes(p.type));
+  return own?own.type:(sec?.type==='chapter'?'chapter':'text');
+}
 function makeSiblingPage(src,blank=true,options={}){
   const uid='page_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+  const plain=!['chapter','intro','text','inside-back-cover'].includes(src?.type);
   return {
     uid,
     id:uid,
-    type:src.type,
-    title:src.title,
+    type:siblingType(src),
+    title:plain&&src.type==='document'?(sections.find(s=>s.pages?.includes(src))?.title||src.title):src.title,
     episode:src.episode,
     text:blank?'':src.text,
     photos:[],

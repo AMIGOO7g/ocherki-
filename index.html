@@ -3370,7 +3370,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v144";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v145";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3875,8 +3875,8 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v144"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v144"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v145"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v145"></script>
 
 <style id="kob-v142">
 /* v142 — the way in, led by the Keeper: first he shows what the constructor can do (assets/keeper/tour.js),
@@ -3959,7 +3959,7 @@
     <div class="acts"><button class="btn ghost" data-go="how">Назад</button><button class="btn main" data-go="finish" data-need="book">Создать книгу</button></div></section>
   <div class="dots"><i></i><i></i><i></i></div>
 </div>
-<script src="assets/keeper/tour.js?v=20261107-v144"></script>
+<script src="assets/keeper/tour.js?v=20261107-v145"></script>
 <script id="kob-v142-js">
 (()=>{const ov=document.getElementById('kob');const html=document.documentElement;
   const off=()=>html.classList.remove('kob-wait');
@@ -4021,7 +4021,9 @@
     if(K){K.moveTo(0,.12,1.3);K.face(1);K.lookAt(null);later(()=>K.write(title),1300);later(()=>leave(start),1300+5200);}else leave(start);}
   const start=()=>{const b=$('startConstructorBtn');if(b){b.disabled=false;b.click();}};
   function leave(then){if(K){K.awayTo(.92,-.9);K.setMode('away');}
-    later(()=>{then&&then();ov.classList.add('gone');later(()=>{K&&K.stop();T?.destroy();ov.remove();off();},1500);},K?900:0);}
+    later(()=>{then&&then();ov.classList.add('gone');later(()=>{K&&K.stop();T?.destroy();ov.remove();
+      // the old start key underneath never shows on the way into the constructor (it used to drop in for a moment)
+      const st=$('lbStart');if(st)st.style.visibility='hidden';off();},1500);},K?900:0);}
   // the stage comes up softly; returning people go straight to their books
   requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('in')));
   const back=known();
