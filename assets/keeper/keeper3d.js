@@ -84,6 +84,8 @@ const nibS=new THREE.Shape();nibS.moveTo(-.1,.6);nibS.lineTo(.1,.6);nibS.bezierC
 const hole=new THREE.Path();hole.absarc(0,.17,.06,0,Math.PI*2,true);nibS.holes.push(hole);
 const nibGeo=new THREE.ExtrudeGeometry(nibS,{depth:.04,bevelEnabled:true,bevelThickness:.03,bevelSize:.02,bevelSegments:4});nibGeo.translate(0,.54,0);
 const nib=new THREE.Mesh(nibGeo,rimMat2('.8,.38,.12','1.,.84,.52'));
+nib.material.vertexShader=nib.material.vertexShader.replace('void main(){','varying float vY;void main(){vY=position.y;');
+nib.material.fragmentShader=nib.material.fragmentShader.replace('void main(){','varying float vY;void main(){').replace('gl_FragColor=vec4(c,uOp);','float tip=1.-smoothstep(0.,.5,vY);c*=1.+tip*.45;gl_FragColor=vec4(c,uOp*(1.-smoothstep(.5,1.25,vY)*.82));');
 const slit=new THREE.Mesh(new THREE.PlaneGeometry(.022,.62),new THREE.MeshBasicMaterial({color:0x200803,transparent:true,depthTest:false}));slit.position.set(0,.33,.09);slit.renderOrder=9;nib.add(slit);
 {const rs=new THREE.Shape();const rw=.15,r0=.6,r1=.69;rs.moveTo(-rw,r0);rs.lineTo(rw,r0);rs.quadraticCurveTo(rw+.03,(r0+r1)/2,rw,r1);rs.lineTo(-rw,r1);rs.quadraticCurveTo(-rw-.03,(r0+r1)/2,-rw,r0);
  const rg=new THREE.ExtrudeGeometry(rs,{depth:.06,bevelEnabled:true,bevelThickness:.03,bevelSize:.02,bevelSegments:3});rg.translate(0,.54,-.01);nib.add(new THREE.Mesh(rg,nib.material));}
@@ -91,16 +93,16 @@ slit.scale.y=.95;slit.position.y=.3;
 nib.scale.setScalar(1.4);world.add(nib);
 
 // handwriting the pen leaves on the line
-const tc=document.createElement('canvas');tc.width=2048;tc.height=360;const tx2=tc.getContext('2d');
+const TH=440;const tc=document.createElement('canvas');tc.width=2048;tc.height=TH;const tx2=tc.getContext('2d');
 const tTex=new THREE.CanvasTexture(tc);
 let WINK=null;
-function inkOf(){try{const d=tx2.getImageData(0,0,2048,360).data,a=new Float32Array(2048).fill(-1);for(let x=0;x<2048;x+=2){let s=0,n=0;for(let y=0;y<360;y+=3){if(d[(y*2048+x)*4]>90){s+=y;n++;}}if(n){a[x]=s/n;a[x+1]=s/n;}}return a;}catch(_){return null;}}
+function inkOf(){try{const d=tx2.getImageData(0,0,2048,TH).data,a=new Float32Array(2048).fill(-1);for(let x=0;x<2048;x+=2){let s=0,n=0;for(let y=0;y<TH;y+=3){if(d[(y*2048+x)*4]>90){s+=y;n++;}}if(n){a[x]=s/n;a[x+1]=s/n;}}return a;}catch(_){return null;}}
 function inkAt(u){if(!WINK)return -1;const c=Math.round(u*2048);for(let k=0;k<40;k++){const l=WINK[Math.max(0,c-k)],r=WINK[Math.min(2047,c+k)];if(r>=0)return r;if(l>=0)return l;}return -1;}
-function paintWords(w){tx2.clearRect(0,0,2048,360);tx2.font='210px '+(opts.font||'"SignThatS", "Marck Script", cursive');tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,250);tTex.needsUpdate=true;WINK=inkOf();
+function paintWords(w){tx2.clearRect(0,0,2048,TH);tx2.font='210px '+(opts.font||'"SignThatS", "Marck Script", cursive');tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,280);tTex.needsUpdate=true;WINK=inkOf();
   return Math.min(2008,tx2.measureText(w).width+80)/2048;}
 let wordsW=paintWords(WORDS);
 if(document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"')).then(()=>{wordsW=paintWords(WORDS_NOW);}).catch(()=>{});
-const words=new THREE.Mesh(new THREE.PlaneGeometry(6.2,6.2*360/2048),new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,
+const words=new THREE.Mesh(new THREE.PlaneGeometry(6.2,6.2*TH/2048),new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,
   uniforms:{uT:{value:tTex},uR:{value:0},uA:{value:0},uW:{value:wordsW}},
   vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:`varying vec2 v;uniform sampler2D uT;uniform float uR;uniform float uA;uniform float uW;void main(){float a=texture2D(uT,v).r;
@@ -246,7 +248,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
     const wt=mt*WS,WW=WP?wordsW*6.2*WP.s:wordsW*6.2*Math.max(.001,S.sc.v)*WSC,wx0=WP?WP.x-world.position.x:0;
     if(mode==='write'&&wt>1.6&&wt<7.9){const swc=WP?WP.s:Math.max(.001,S.sc.v)*WSC,cy=WP?WP.y-world.position.y:-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1);
       // the nib walks the ink itself: at each point of the line it stands where the letters are
-      const iy=inkAt(writeP*wordsW),wx=wx0-WW/2+writeP*WW,wy=iy>=0&&writeP>0&&writeP<1?cy+(.5-iy/360)*1.09*swc:cy-.12*swc;
+      const iy=inkAt(writeP*wordsW),wx=wx0-WW/2+writeP*WW,wy=iy>=0&&writeP>0&&writeP<1?cy+(.5-iy/TH)*(6.2*TH/2048)*swc:cy-.12*swc;
       const k=Math.min(1,(wt-1.6)/.9)*(wt>6.9?Math.max(0,1-(wt-6.9)):1);const kk=k*k*(3-2*k);nx=lerp(nx,wx,kk);ny=lerp(ny,wy,kk);rot=lerp(rot,.62,kk);}
     const u=nib.userData,fol=mode==='write'&&writeP>0&&writeP<1?24:10;u.x=u.x==null?nx:lerp(u.x,nx,Math.min(1,dt*fol));u.y=u.y==null?ny:lerp(u.y,ny,Math.min(1,dt*fol));u.r=u.r==null?rot:lerp(u.r,rot,Math.min(1,dt*6));
     nib.position.set(u.x,u.y,.4);nib.rotation.z=u.r;nib.scale.setScalar(1.05*Math.max(.001,S.sc.v)*(inSpark?Math.max(.001,(f-.4)/.6):(1+(1-f)*.25)));
