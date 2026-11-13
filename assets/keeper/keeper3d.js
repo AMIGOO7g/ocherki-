@@ -68,12 +68,14 @@ const rimMat=(base,rim,op=1)=>new THREE.ShaderMaterial({transparent:true,depthWr
 const rimMat2=(base,rim,op=1)=>{const m=rimMat(base,rim,op);m.fragmentShader=m.fragmentShader.replace('BASE',base).replace('RIM',rim);return m;};
 const extr=(pts,d,b)=>{const g=new THREE.ExtrudeGeometry(shapeOf(pts),{depth:d,bevelEnabled:true,bevelThickness:b,bevelSize:b*.18,bevelSegments:14,curveSegments:80});g.translate(0,0,-d/2);return g;};
 const head=new THREE.Mesh(extr(HEAD,.2,.32),rimMat2('.04,.011,.005','.7,.26,.07'));keeper.add(head);
-const lowb=new THREE.Mesh(extr(LOWB,.16,.2),rimMat2('.04,.012,.005','.42,.15,.05',.3));lowb.position.z=.05;keeper.add(lowb);
+head.material.fragmentShader=head.material.fragmentShader.replace('gl_FragColor=vec4(c,uOp);','gl_FragColor=vec4(c*1.25,uOp*clamp(f*2.4,0.,1.));');
+const lowb=new THREE.Mesh(extr(LOWB,.16,.2),rimMat2('.04,.012,.005','.42,.15,.05',.3));
+lowb.material.fragmentShader=lowb.material.fragmentShader.replace('gl_FragColor=vec4(c,uOp);','gl_FragColor=vec4(c*1.25,uOp*clamp(f*2.4,0.,1.));');lowb.position.z=.05;keeper.add(lowb);
 
 const eyeMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uB:{value:1},uK:{value:1},uH:{value:0},uW:{value:0}},
   vertexShader:'varying vec2 v;void main(){v=uv*2.-1.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec2 v;uniform float uB;uniform float uK;uniform float uH;uniform float uW;void main(){vec2 p=v*vec2(1.,1./max(uB,.06))/(1.+.28*uW);
-    float up=.55-.55*p.x*p.x,lo=mix(-.42+.42*p.x*p.x,up-.3+.12*p.x*p.x,uH);float d=max(p.y-up,lo-p.y);
+  fragmentShader:`varying vec2 v;uniform float uB;uniform float uK;uniform float uH;uniform float uW;void main(){vec2 p=v*vec2(1.,1./max(uB,.06))/(1.+.42*uW);
+    float up=.55-.55*p.x*p.x,lo=mix(-.42+.42*p.x*p.x,up-.2+.1*p.x*p.x,uH);float d=max(p.y-up,lo-p.y);
     float core=smoothstep(.07,-.05,d)*smoothstep(1.,.9,abs(p.x));
     float glow=exp(-max(d,0.)*9.)*smoothstep(1.2,.6,abs(p.x));
     vec3 c=vec3(1.,.88,.6)*core*1.15+vec3(1.,.55,.2)*glow*.55;gl_FragColor=vec4(c*uK,1.);}`});
@@ -206,10 +208,12 @@ addEventListener('resize',fit);fit();
 
 let last=performance.now(),blinkAt=1.5;
 // moods: h — the eyes curve up (glad), w — open wide (surprised, curious), l — how open the lids are
-const MOODS={calm:[{h:0,w:0,l:1},{h:0,w:0,l:1}],joy:[{h:1,w:0,l:1},{h:1,w:0,l:1}],focus:[{h:0,w:0,l:.55},{h:0,w:0,l:.55}],listen:[{h:.35,w:0,l:.4},{h:.35,w:0,l:.4}],
-  curious:[{h:0,w:.15,l:1},{h:0,w:.6,l:1}],wonder:[{h:0,w:.6,l:1},{h:0,w:.6,l:1}],tender:[{h:.65,w:0,l:.75},{h:.65,w:0,l:.75}],wink:[{h:.8,w:0,l:1},{h:0,w:0,l:.08}]};
+const MOODS={calm:[{h:0,w:0,l:1},{h:0,w:0,l:1}],joy:[{h:1,w:0,l:1},{h:1,w:0,l:1}],focus:[{h:0,w:0,l:.55},{h:0,w:0,l:.55}],listen:[{h:.45,w:0,l:.3},{h:.45,w:0,l:.3}],
+  curious:[{h:0,w:.2,l:1},{h:0,w:.9,l:1}],wonder:[{h:0,w:.9,l:1},{h:0,w:.9,l:1}],tender:[{h:.65,w:0,l:.75},{h:.65,w:0,l:.75}],wink:[{h:.8,w:0,l:1},{h:0,w:0,l:.08}]};
 const MOOD={t:MOODS.calm.map(o=>({...o})),c:MOODS.calm.map(o=>({...o})),until:0,after:'calm'};
-function setMood(n,ms,after){const m=MOODS[n]||MOODS.calm;MOOD.t=m.map(o=>({...o}));MOOD.until=ms?clock+ms/1000:0;MOOD.after=after||'calm';}
+let TILT=0,tiltV=0,tiltUntil=0;
+function setMood(n,ms,after){const m=MOODS[n]||MOODS.calm;MOOD.t=m.map(o=>({...o}));MOOD.until=ms?clock+ms/1000:0;MOOD.after=after||'calm';
+  if(n==='joy'||n==='wink')S.y.vel+=2.4*Math.max(.3,S.sc.v);if(n==='curious'||n==='wonder'||n==='listen'){TILT=n==='listen'?-.14:.2;tiltUntil=clock+1.8;}}
 if(MODE)setTimeout(()=>setMode(MODE),10);
 const lerp=(a,b,k)=>a+(b-a)*k;
 const alerp=(a,b,k)=>{let d=(b-a)%(Math.PI*2);if(d>Math.PI)d-=Math.PI*2;if(d<-Math.PI)d+=Math.PI*2;return a+d*k;};
@@ -233,7 +237,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   const fx=Math.sin(T*.43)*.08,fy=Math.sin(T*.7)*.12;
   world.position.set(S.x.v+fx*f,S.y.v+fy*f,0);
   S.yaw.t=Math.sin(T*.38)*.2+Math.sin(T*.15)*.08+px*(lookAt?.7:.3);S.pitch.t=Math.sin(T*.27)*.05+py*.1;
-  keeper.rotation.y=S.yaw.v;keeper.rotation.x=S.pitch.v;keeper.rotation.z=Math.sin(T*.5)*.025;
+  keeper.rotation.y=S.yaw.v;keeper.rotation.x=S.pitch.v;if(tiltUntil&&clock>tiltUntil){TILT=0;tiltUntil=0;}tiltV+=(TILT-tiltV)*Math.min(1,dt*3);keeper.rotation.z=Math.sin(T*.5)*.025+tiltV;
   const sc=Math.max(.001,S.sc.v)*(1+Math.sin(T*1.1)*.012);keeper.scale.set(sc*(Math.abs(S.fx.v)<.06?.06*Math.sign(S.fx.v||1):S.fx.v),sc,sc);dust.scale.setScalar(sc);
   keeper.updateMatrix();
   head.material.uniforms.uT.value=T;
@@ -248,7 +252,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   // the mood moves in softly; a wink closes one eye for a moment
   if(MOOD.until&&clock>MOOD.until){MOOD.until=0;setMood(MOOD.after||'calm');}
   eyes.forEach((e,j)=>{const t=MOOD.t[j],c=MOOD.c[j],k=Math.min(1,dt*5);c.h+=(t.h-c.h)*k;c.w+=(t.w-c.w)*k;c.l+=(t.l-c.l)*k;
-    const u=e.material.uniforms;u.uB.value=eb*c.l;u.uK.value=ek;u.uH.value=c.h;u.uW.value=c.w;});
+    const u=e.material.uniforms;u.uB.value=eb*c.l;u.uK.value=ek*(1.+.55*Math.max(c.h,c.w));u.uH.value=c.h;u.uW.value=c.w;});
   eyes.forEach(e=>{const b=e.userData.base;e.position.set(b.x+px*.09,b.y-py*.06,.62);});
   // the pen: at the end of the lower ribbon, along its direction; while he lies in the line it walks along the words, writing
   const c=curves[LOWER];
