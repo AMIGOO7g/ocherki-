@@ -1106,7 +1106,7 @@ html body .footer #saveState{position:relative;top:3px}
     <div class="sheet active" id="activeSheet">
       
       <div class="paper">
-        <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><button class="icon voice-btn" id="voiceBtn" type="button" title="Говорить вместо печати" aria-label="Голосовой ввод"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn" hidden>•••</button></div></div>
+        <div class="topbar page-content-fade"><div class="tl"><button class="icon" id="sheetBtn">☰</button><button class="icon" id="backBtn">‹</button></div><div class="chapter">Глава 12. Возвращение</div><div class="tr"><div class="page-no" id="pageNo">1</div><span class="osl-keys" id="lightKeys"><button type="button" data-light="lamp" title="Лампа — ровный свет" aria-label="Лампа"><svg viewBox="0 0 24 24"><path d="M9 3h6l3 7H6z"/><path d="M12 10v8M8 21h8"/></svg></button><button type="button" data-light="type" title="Машинка — свет едет за строкой" aria-label="Машинка"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="18" height="8" rx="2"/><path d="M7 12V6h10v6M12 3v3"/></svg></button></span><button class="icon voice-btn" id="voiceBtn" type="button" title="Говорить вместо печати" aria-label="Голосовой ввод"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><button class="icon" id="textBtn">Aa</button><button class="icon" id="moreBtn" hidden>•••</button></div></div>
         <div class="divider page-content-fade"></div>
         <div class="episode-row page-content-fade"><div class="episode">Эпизод 1. Поворот тропы</div></div>
         <div class="editor-wrap page-content-fade"><div id="editor" class="editor" contenteditable="true" spellcheck="true"></div><div class="page-form" id="pageForm" hidden></div></div>
@@ -5372,6 +5372,17 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   box.addEventListener('change',check);document.getElementById('photoModal')?.addEventListener('transitionend',check);setInterval(()=>{if(document.getElementById('photoModal')?.classList.contains('open'))check();},800);})();
 </script>
 <script id="tour-again">document.getElementById('tourAgainBtn')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('textMenu')?.classList.remove('open');window.parent.postMessage({type:'OCHERKI_TOUR_AGAIN'},'*');});</script>
+<script src="assets/keeper/sheet-light.js?v=20261107-v160"></script>
+<script id="sheet-light-v160">
+// v160 — the sheet is laid paper; «Лампа» (default) or «Машинка», remembered
+(()=>{const sh=document.getElementById('activeSheet'),keys=document.getElementById('lightKeys');if(!sh||!window.OcherkiSheetLight)return;
+  let m='lamp';try{m=localStorage.getItem('ocherkiSheetLight')||'lamp';}catch(_){}
+  const mark=v=>keys&&keys.querySelectorAll('[data-light]').forEach(b=>b.classList.toggle('on',b.dataset.light===v));
+  const L=OcherkiSheetLight.attach(sh,{editor:document.getElementById('editor'),mode:m,onMode:mark});mark(m);
+  keys&&keys.addEventListener('click',e=>{const b=e.target.closest('[data-light]');if(!b)return;e.preventDefault();L.mode(b.dataset.light);document.getElementById('editor')?.focus();});
+  keys&&keys.addEventListener('mousedown',e=>e.preventDefault());
+  window.OCHERKI_SHEET_LIGHT=L;})();
+</script>
 </body>
 </html>
 
