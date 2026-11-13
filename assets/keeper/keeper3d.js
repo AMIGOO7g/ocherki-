@@ -253,7 +253,8 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   if(mode==='hint'&&mt>1.1&&!tip.classList.contains('on'))tip.classList.add('on');
   for(const k in S)step(S[k],dt);
   const f=Math.max(0,Math.min(1,S.form.v));
-  {let lx=tx,ly=ty;if(lookAt){lx=lookAt[0];ly=lookAt[1];}px+=(lx-px)*.035;py+=(ly-py)*.035;}
+  // he follows the pointer softly: the same pace on any screen, never a jump (a quick sweep of the mouse only turns him a little)
+  {let lx=tx,ly=ty;if(lookAt){lx=lookAt[0];ly=lookAt[1];}lx=Math.max(-1,Math.min(1,lx));ly=Math.max(-1,Math.min(1,ly));const kf=1-Math.exp(-dt*1.4);px+=(lx-px)*kf;py+=(ly-py)*kf;}
   // floating: a slow breath up and down, a little drift; he turns toward you, softly
   const fx=Math.sin(T*.43)*.08,fy=Math.sin(T*.7)*.12;
   world.position.set(S.x.v+fx*f,S.y.v+fy*f,0);
