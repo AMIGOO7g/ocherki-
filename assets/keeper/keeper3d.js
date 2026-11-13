@@ -79,6 +79,13 @@ const eyeMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTe
     float core=smoothstep(.07,-.05,d)*smoothstep(1.,.9,abs(p.x));
     float glow=exp(-max(d,0.)*9.)*smoothstep(1.2,.6,abs(p.x));
     vec3 c=vec3(1.,.88,.6)*core*1.15+vec3(1.,.55,.2)*glow*.55;gl_FragColor=vec4(c*uK,1.);}`});
+const glowMat=()=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uA:{value:1}},
+  vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'varying vec2 v;uniform float uA;void main(){float t=pow(sin(3.1416*clamp(v.x,0.,1.)),.55);float r=1.-abs(v.y*2.-1.);vec3 c=mix(vec3(1.,.5,.16),vec3(1.,.88,.62),r*r);gl_FragColor=vec4(c*t*(.5+.8*r)*uA*1.35,1.);}'});
+const tube=(pts,r)=>new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(q=>W(q[0],q[1],62)),false,'centripetal'),48,r,6,false);
+const pivoted=(pts,r,at)=>{const g=tube(pts,r);const c=W(at[0],at[1],62);g.translate(-c.x,-c.y,-c.z);const m=new THREE.Mesh(g,glowMat());m.position.copy(c);m.userData.base=c.clone();keeper.add(m);m.renderOrder=6;return m;};
+const MUS=[[[458,456],[428,466],[390,476],[356,496],[336,528],[338,566],[352,590]],[[474,454],[506,462],[546,470],[580,490],[598,522],[596,560],[580,584]]].map(pts=>pivoted(pts,.05,pts[0]));
+const BROWS=[[[384,374],[404,362],[426,360],[448,368]],[[480,362],[502,352],[524,354],[546,364]]].map(pts=>pivoted(pts,.034,[(pts[0][0]+pts[3][0])/2,(pts[0][1]+pts[3][1])/2]));
 const eyes=[[418,412,-.28],[512,404,.28]].map(([x,y,r],j)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(.62,.5),j?eyeMat.clone():eyeMat);m.rotation.z=r;keeper.add(m);m.userData.base=W(x,y,0);return m;});
 
 // the pen: belongs to him — it sits at the end of the lower ribbon and writes when he lies down
@@ -254,6 +261,11 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   eyes.forEach((e,j)=>{const t=MOOD.t[j],c=MOOD.c[j],k=Math.min(1,dt*5);c.h+=(t.h-c.h)*k;c.w+=(t.w-c.w)*k;c.l+=(t.l-c.l)*k;
     const u=e.material.uniforms;u.uB.value=eb*c.l;u.uK.value=ek*(1.+.55*Math.max(c.h,c.w));u.uH.value=c.h;u.uW.value=c.w;});
   eyes.forEach(e=>{const b=e.userData.base;e.position.set(b.x+px*.09,b.y-py*.06,.62);});
+  {const fa=Math.max(0,(f-.75)/.25)*Math.min(1,Math.max(0,S.sc.v)*1.5);const c0=MOOD.c[0],c1=MOOD.c[1];
+   MUS.forEach((m,j)=>{m.material.uniforms.uA.value=fa*.95;const sw=Math.sin(T*1.3+j*1.7)*.05+Math.sin(T*.6+j)*.03;m.rotation.z=(j?-1:1)*sw;const b=m.userData.base;m.position.set(b.x+px*.06,b.y-py*.04,b.z);});
+   BROWS.forEach((m,j)=>{const c=j?c1:c0;m.material.uniforms.uA.value=fa;
+     // up when wide (surprise, curiosity), down and in when narrowed (attention), softly lifted when glad
+     const up=c.w*.16+c.h*.05-(1-c.l)*.09;const b=m.userData.base;m.position.set(b.x+px*.09,b.y+up-py*.06,b.z);m.rotation.z=(j?1:-1)*((1-c.l)*.18-c.w*.08);});}
   // the pen: at the end of the lower ribbon, along its direction; while he lies in the line it walks along the words, writing
   const c=curves[LOWER];
   if(c){c.getPointAt(1,tmpV);c.getTangentAt(.99,T_);const end=tmpV.clone().applyMatrix4(keeper.matrix);const dir=T_.clone().transformDirection(keeper.matrix);
@@ -316,6 +328,8 @@ return{
     if(o.at){const w=this.toWorld(o.at[0],o.at[1]);const unit=2*halfH()/VH();WP={x:w.x,y:w.y,s:Math.max(.2,(o.px||60)*unit/.62)};}else WP=null;
     HOLD=!!o.hold;setMode('write');},
   clearWords(){HOLD=false;},
+  // finish the word now: the pen sweeps to its end in a moment
+  hurry(){if(mode!=='write')return false;const wt=(clock-modeAt)*WS;if(wt<5.85&&wt>.5){modeAt=clock-5.85/WS;return true;}return false;},
   // where he gathers again after writing (he is in his pen meanwhile, so the move is not seen); other modes: as moveTo
   rest(nx,ny,sc=1){freeP={x:nx*halfW(),y:camera.position.y+ny*halfH(),sc};if(mode==='write'){if(afterWrite!=='free')afterWrite='free';S.x.t=freeP.x;S.y.t=freeP.y;S.sc.t=freeP.sc;}else setMode('free');},
   get wordsShown(){return words.material.uniforms.uA.value;},
