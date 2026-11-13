@@ -3,122 +3,137 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Очерки жизни — свет за курсором (проба)</title>
+<title>Очерки жизни — свет за курсором (проба 2)</title>
 <style>
-/* Проба: ночной стол, лист А4 и свет, который идёт за курсором.
-   Три режима внизу (как в видео): «Лампа» — общий тёплый свет; «Фонарик» — лампа на нити едет над листом за курсором
-   и даёт конус света на строку; «Каретка» — маленький прибор с лампой едет под строкой и светит вверх.
-   Плюс «Машинка» — шрифт печатной машинки для письма. Свет — один слой поверх листа, он сдвигается, текст не перерисовывается. */
+/* Проба 2. Ночной стол, лист А4 и свет, который идёт за пишущим.
+   «Лампа» — общий тёплый свет. «Фонарик» — лампа на нити едет над листом за курсором, мягкий луч вниз на строку.
+   «Машинка» — как в видео: прибор с лампой стоит внизу на рабочей строке и ездит только влево-вправо, текст уезжает вверх,
+   луч мягко расходится вверх, на каждый удар клавиши свет чуть вздрагивает.
+   Отдельно: «Шрифт машинки», «Бумага» (волокна и зерно), «Темнее». Свет — слой поверх листа: он сдвигается, текст не перерисовывается. */
 @font-face{font-family:"SignThatS";src:url("SignThatS.otf") format("opentype");font-display:swap}
-:root{--ink:#3b2a1c;--paper:#f6eedd;--paper2:#ebdfc6}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#0b0604;color:#f2e0c2;font-family:"Cormorant Garamond","Iowan Old Style",Georgia,serif}
-/* the constructor's night: dark toile, the warm lamp, the shadows in the corners */
 .night{position:fixed;inset:0;pointer-events:none}
 .night>div{position:absolute;inset:0}
 .n-base{background:linear-gradient(180deg,#211006 0%,#1b0e06 36%,#150a04 72%,#0e0703 100%)}
 .n-art{background:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png") center/cover no-repeat,url("family-toile.webp") center/cover no-repeat;filter:brightness(.40) contrast(2.0) saturate(.58) sepia(.24);opacity:.54}
-.n-main{inset:-14% -12% -16% -14%;background:radial-gradient(ellipse 66% 60% at 49% 45%,rgba(236,168,91,.66) 0%,rgba(207,130,55,.55) 18%,rgba(164,88,27,.42) 38%,rgba(111,51,15,.27) 58%,rgba(62,27,9,.12) 75%,transparent 91%);filter:blur(56px);opacity:.88}
+.n-main{inset:-14% -12% -16% -14%;background:radial-gradient(ellipse 66% 60% at 49% 45%,rgba(236,168,91,.66) 0%,rgba(207,130,55,.55) 18%,rgba(164,88,27,.42) 38%,rgba(111,51,15,.27) 58%,rgba(62,27,9,.12) 75%,transparent 91%);filter:blur(56px);opacity:.88;transition:opacity .8s}
 .n-vig{inset:-6%;background:radial-gradient(ellipse 94% 86% at 46% 43%,transparent 40%,rgba(0,0,0,.13) 70%,rgba(0,0,0,.54) 100%)}
-body.dark .n-main{opacity:.35}
+body.dark .n-main{opacity:.3}
 
-.desk{position:fixed;inset:0;display:grid;place-items:center;padding:28px 16px 110px}
-.sheet{position:relative;width:min(600px,92vw);height:min(848px,calc(100vh - 150px));aspect-ratio:1/1.414;max-width:calc((100vh - 150px)/1.414);
-  background:linear-gradient(172deg,var(--paper),var(--paper2));box-shadow:0 0 0 1px rgba(90,60,30,.15),0 30px 70px rgba(0,0,0,.6);overflow:hidden}
-.head{position:absolute;left:0;right:0;top:0;padding:34px 56px 0;text-align:center;color:#8a6a48;font:500 12px/1 Georgia,serif;letter-spacing:.26em;text-transform:uppercase}
+.desk{position:fixed;inset:0;display:grid;place-items:center;padding:20px 16px 108px}
+.sheet{position:relative;height:min(860px,calc(100vh - 140px));aspect-ratio:1/1.414;max-width:94vw;
+  background:linear-gradient(172deg,#f6eddb,#ebdec4);box-shadow:0 0 0 1px rgba(90,60,30,.15),0 30px 70px rgba(0,0,0,.6);overflow:hidden}
+/* paper: fine grain, a few fibres, an uneven tone */
+.grain{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .34 0 0 0 0 .22 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3Cg fill='none' stroke='%237a5a3a' stroke-opacity='.18' stroke-width='.6'%3E%3Cpath d='M20 40c30 6 52-4 80 4'/%3E%3Cpath d='M160 210c18-12 40-10 66-22'/%3E%3Cpath d='M70 250c10 8 30 10 44 4'/%3E%3Cpath d='M230 70c-12 14-10 30-24 40'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .4 0 0 0 0 .22 0 0 0 .9 -.55'/%3E%3C/filter%3E%3Crect width='600' height='800' filter='url(%23f)'/%3E%3C/svg%3E");
+  background-size:300px 300px,100% 100%}
+body.paper .grain{opacity:1}
+.head{position:absolute;left:0;right:0;top:0;padding:34px 56px 0;text-align:center;color:#8a6a48;font:500 12px/1 Georgia,serif;letter-spacing:.26em;text-transform:uppercase;transition:opacity .6s}
 .head b{display:block;margin-top:10px;font:400 38px/1.1 "SignThatS",Georgia,serif;letter-spacing:0;text-transform:none;color:#4b3424}
-.ed{position:absolute;left:56px;right:56px;top:118px;bottom:56px;overflow:auto;outline:none;color:var(--ink);font:400 21px/1.62 "Cormorant Garamond","Iowan Old Style",Georgia,serif;caret-color:#b5651d;scrollbar-width:none}
+.ed{position:absolute;left:56px;right:56px;top:118px;bottom:56px;overflow:auto;outline:none;color:#3b2a1c;font:400 21px/1.62 "Cormorant Garamond","Iowan Old Style",Georgia,serif;caret-color:#b5651d;scrollbar-width:none}
 .ed::-webkit-scrollbar{display:none}
 .ed p{margin:0 0 .7em}
 body.mono .ed{font:400 18px/1.75 "Courier New",Courier,monospace;letter-spacing:.02em}
+/* the typewriter: the paper rolls up, the line being written stays on the working line */
+body.m-type .ed{top:0;bottom:0;padding:0}
+body.m-type .ed::before,body.m-type .ed::after{content:"";display:block;height:62vh}
+body.m-type .head{opacity:0}
 
-/* the light: one layer over the sheet; its pool follows the caret (CSS variables moved smoothly from JS) */
+/* the light layer: darkness around a soft pool; beams drawn blurred in SVG */
 .shade{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .7s ease;
-  background:radial-gradient(ellipse var(--rw,300px) var(--rh,110px) at var(--x,50%) var(--y,30%),rgba(255,224,170,.06) 0%,rgba(18,10,4,0) 38%,rgba(18,10,4,.55) 70%,rgba(12,7,3,.86) 100%)}
-.cone{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .7s ease;mix-blend-mode:screen}
-body.m-torch .shade,body.m-carriage .shade{opacity:1}
-body.m-torch .cone,body.m-carriage .cone{opacity:1}
-/* «Фонарик»: a little brass lamp on a thread rides along the top of the sheet */
+  background:radial-gradient(ellipse var(--rw,320px) var(--rh,150px) at var(--x,50%) var(--y,30%),rgba(255,230,180,.08) 0%,rgba(18,10,4,0) 30%,rgba(18,10,4,.5) 66%,rgba(12,7,3,.84) 100%)}
+.beam{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .7s ease;mix-blend-mode:screen;overflow:visible}
+body.m-torch .shade,body.m-type .shade,body.m-torch .beam,body.m-type .beam{opacity:1}
+.sheet.hit .beam{opacity:.78!important;transition:none}
+.sheet.hit .shade{opacity:.94!important;transition:none}
 .lamp{position:absolute;top:0;left:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .6s ease}
 .lamp::before{content:"";position:absolute;left:-.5px;top:0;width:1px;height:26px;background:linear-gradient(rgba(240,214,170,0),rgba(240,214,170,.7))}
 .lamp i{position:absolute;left:-17px;top:24px;width:34px;height:18px;border-radius:17px 17px 4px 4px;background:linear-gradient(180deg,#d9a25a,#8a5a26);box-shadow:inset 0 1px 0 rgba(255,236,200,.6),0 4px 8px rgba(0,0,0,.4)}
 .lamp b{position:absolute;left:-8px;top:38px;width:16px;height:8px;border-radius:0 0 8px 8px;background:#fff1c9;box-shadow:0 0 14px 6px rgba(255,200,120,.75)}
 body.m-torch .lamp{opacity:1}
-/* «Каретка»: a small device with a lamp rides under the line and lights it from below (like the typewriter in the video) */
 .car{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .6s ease}
-.car i{position:absolute;left:-30px;top:6px;width:60px;height:22px;border-radius:11px;background:linear-gradient(180deg,#3a2a1e,#1c130c);box-shadow:0 0 0 1px rgba(214,150,96,.4),0 6px 12px rgba(0,0,0,.5)}
-.car i::before,.car i::after{content:"";position:absolute;top:8px;width:5px;height:5px;border-radius:50%;background:#ffb35c;box-shadow:0 0 6px #ff9a30}
-.car i::before{left:16px}.car i::after{left:25px;background:#ff7a2a}
-.car b{position:absolute;left:-1.5px;top:-14px;width:3px;height:20px;background:#2a1a10;border-radius:2px;box-shadow:0 -2px 0 #b5651d}
-body.m-carriage .car{opacity:1}
+.car i{position:absolute;left:-34px;top:8px;width:68px;height:24px;border-radius:12px;background:linear-gradient(180deg,#3a2a1e,#1c130c);box-shadow:0 0 0 1px rgba(214,150,96,.4),0 8px 14px rgba(0,0,0,.55)}
+.car i::before,.car i::after{content:"";position:absolute;top:9px;width:6px;height:6px;border-radius:50%;background:#ffb35c;box-shadow:0 0 7px #ff9a30}
+.car i::before{left:20px}.car i::after{left:31px;background:#ff7a2a}
+.car b{position:absolute;left:-1.5px;top:-6px;width:3px;height:16px;background:#2a1a10;border-radius:2px;box-shadow:0 -2px 0 #b5651d}
+.car em{position:absolute;left:-12px;top:-2px;width:24px;height:6px;border-radius:50%;background:#fff1c9;box-shadow:0 0 18px 8px rgba(255,200,120,.65)}
+body.m-type .car{opacity:1}
+.sheet.hit .car{translate:0 1.5px}
 
-/* the keys at the bottom, as in the video */
-.bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:6px;padding:8px 12px;border-radius:22px;background:rgba(24,14,8,.82);box-shadow:0 0 0 1px rgba(214,150,96,.35),0 12px 30px rgba(0,0,0,.5);backdrop-filter:blur(6px)}
-.bar button{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:74px;padding:8px 6px 6px;border:0;border-radius:14px;background:none;color:#d9bf98;font:italic 13px Georgia,serif;cursor:pointer;transition:background .4s,color .4s,box-shadow .6s}
+.bar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:4px;padding:8px 10px;border-radius:22px;background:rgba(24,14,8,.84);box-shadow:0 0 0 1px rgba(214,150,96,.35),0 12px 30px rgba(0,0,0,.5);backdrop-filter:blur(6px);max-width:96vw;overflow-x:auto}
+.bar button{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:70px;padding:8px 6px 6px;border:0;border-radius:14px;background:none;color:#d9bf98;font:italic 13px Georgia,serif;cursor:pointer;transition:background .4s,color .4s,box-shadow .6s}
 .bar button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .bar button:hover{color:#ffe2bd}
 .bar button.on{background:rgba(255,170,90,.12);color:#ffe2bd;box-shadow:inset 0 0 0 1px rgba(255,200,140,.5),0 0 14px rgba(255,150,60,.25)}
-.bar .sep{width:1px;margin:6px 4px;background:rgba(214,150,96,.3)}
-.hint{position:fixed;left:50%;top:10px;transform:translateX(-50%);font:italic 15px Georgia,serif;color:#c9a272;text-align:center;pointer-events:none;opacity:.85}
-@media (max-width:640px){.ed{left:26px;right:26px;top:96px;font-size:18px}.head{padding:24px 26px 0}.head b{font-size:30px}.bar button{min-width:58px;font-size:11px}}
+.bar .sep{width:1px;margin:6px 4px;background:rgba(214,150,96,.3);flex:none}
+.hint{position:fixed;left:50%;top:8px;transform:translateX(-50%);font:italic 15px Georgia,serif;color:#c9a272;text-align:center;pointer-events:none;opacity:.85;width:94vw}
+@media (max-width:640px){.ed{left:26px;right:26px;top:96px;font-size:18px}.head{padding:24px 26px 0}.head b{font-size:30px}.bar button{min-width:56px;font-size:11px}}
 </style>
 </head>
-<body class="m-torch">
+<body class="m-type paper">
 <div class="night"><div class="n-base"></div><div class="n-art"></div><div class="n-main"></div><div class="n-vig"></div></div>
-<div class="hint">Пробная страница: печатайте на листе — свет идёт за курсором. Режимы внизу.</div>
+<div class="hint">Проба 2: печатайте на листе. Режимы света и бумаги — внизу.</div>
 <div class="desk">
   <div class="sheet" id="sheet">
     <div class="head">глава 1 · начало<b>Детство</b></div>
     <div class="ed" id="ed" contenteditable="true" spellcheck="false">
       <p>Мама впервые увидела трамвай, когда ей было шесть лет. Они с бабушкой шли по Головинскому, и вдруг из-за угла выехал красный вагон, звенящий, как колокольчик.</p>
       <p>Мама спряталась за бабушкину юбку, а потом весь вечер рассказывала соседям, что видела «дом на колёсах». Бабушка смеялась и говорила, что в Тифлисе и не такое увидишь.</p>
-      <p>Летом мы жили у тёти Вари на Плехановском, в комнате с окном во двор, где росла старая груша. По субботам пекли хачапури, и весь двор пах сыром и дымом.</p>
-      <p>Поставьте курсор сюда и пишите дальше…</p>
+      <p>Летом мы жили у тёти Вари на Плехановском, в комнате с окном во двор, где росла старая груша.</p>
+      <p>Пишите дальше…</p>
     </div>
+    <div class="grain"></div>
     <div class="shade" id="shade"></div>
-    <svg class="cone" id="cone" width="100%" height="100%"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd59a" stop-opacity=".22"/><stop offset="1" stop-color="#ffd59a" stop-opacity="0"/></linearGradient>
-      <linearGradient id="cgu" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc77a" stop-opacity=".26"/><stop offset="1" stop-color="#ffc77a" stop-opacity="0"/></linearGradient></defs><path id="conep" fill="url(#cg)"/></svg>
+    <svg class="beam" id="beam"><defs>
+      <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter>
+      <linearGradient id="down" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe0a8" stop-opacity=".55"/><stop offset=".55" stop-color="#ffd08a" stop-opacity=".18"/><stop offset="1" stop-color="#ffd08a" stop-opacity="0"/></linearGradient>
+      <linearGradient id="up" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffe6b4" stop-opacity=".7"/><stop offset=".35" stop-color="#ffd08a" stop-opacity=".28"/><stop offset="1" stop-color="#ffc77a" stop-opacity="0"/></linearGradient>
+      <radialGradient id="hot"><stop offset="0" stop-color="#fff0cc" stop-opacity=".55"/><stop offset="1" stop-color="#fff0cc" stop-opacity="0"/></radialGradient></defs>
+      <path id="beamp" filter="url(#soft)"/><ellipse id="hotp" rx="60" ry="22" fill="url(#hot)" filter="url(#soft)"/></svg>
     <div class="lamp" id="lamp"><i></i><b></b></div>
-    <div class="car" id="car"><b></b><i></i></div>
+    <div class="car" id="car"><em></em><b></b><i></i></div>
   </div>
 </div>
 <div class="bar">
   <button type="button" data-m="lamp"><svg viewBox="0 0 24 24"><path d="M9 3h6l3 7H6z"/><path d="M12 10v8M8 21h8"/></svg>Лампа</button>
-  <button type="button" data-m="torch" class="on"><svg viewBox="0 0 24 24"><path d="M12 2v4"/><path d="M8 6h8l-1 4H9z"/><path d="M6 21l6-10 6 10"/></svg>Фонарик</button>
-  <button type="button" data-m="carriage"><svg viewBox="0 0 24 24"><rect x="5" y="15" width="14" height="5" rx="2.5"/><path d="M12 15V9M8 4l4 5 4-5"/></svg>Каретка</button>
+  <button type="button" data-m="torch"><svg viewBox="0 0 24 24"><path d="M12 2v4"/><path d="M8 6h8l-1 4H9z"/><path d="M6 21l6-10 6 10"/></svg>Фонарик</button>
+  <button type="button" data-m="type" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="18" height="8" rx="2"/><path d="M7 12V6h10v6M12 3v3"/></svg>Машинка</button>
   <span class="sep"></span>
-  <button type="button" data-t="mono"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="9" rx="2"/><path d="M7 11V5h10v6M7 15h2M11 15h2M15 15h2"/></svg>Машинка</button>
+  <button type="button" data-t="mono"><svg viewBox="0 0 24 24"><path d="M5 5h14M12 5v14M8 19h8"/></svg>Шрифт машинки</button>
+  <button type="button" data-t="paper" class="on"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9c2 1 4-1 6 0M9 13c2 1 4-1 6 0"/></svg>Бумага</button>
   <button type="button" data-t="dark"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Темнее</button>
 </div>
 <script>
-(()=>{const sheet=document.getElementById('sheet'),ed=document.getElementById('ed'),shade=document.getElementById('shade'),cone=document.getElementById('conep'),lamp=document.getElementById('lamp'),car=document.getElementById('car');
-  let mode='torch';
-  // where the caret is, in the sheet's own coordinates (the line it stands on)
+(()=>{const sheet=document.getElementById('sheet'),ed=document.getElementById('ed'),shade=document.getElementById('shade'),beam=document.getElementById('beamp'),hot=document.getElementById('hotp'),lamp=document.getElementById('lamp'),car=document.getElementById('car');
+  let mode='type';
   const caret=()=>{const sel=getSelection();if(!sel.rangeCount||!ed.contains(sel.anchorNode))return null;const r=sel.getRangeAt(0).cloneRange();r.collapse(true);
-    let rc=r.getClientRects()[0];if(!rc){const sp=document.createElement('span');sp.textContent='​';r.insertNode(sp);rc=sp.getBoundingClientRect();sp.remove();}
-    const s=sheet.getBoundingClientRect();return{x:rc.left-s.left,y:rc.top-s.top+rc.height/2,h:rc.height||24};};
-  // the light glides to the caret (not jumps), and the loop sleeps once it is there
-  const cur={x:300,y:200},tgt={x:300,y:200};let raf=0;
-  const paint=()=>{const W=sheet.clientWidth,H=sheet.clientHeight;
-    shade.style.setProperty('--x',cur.x+'px');shade.style.setProperty('--y',cur.y+'px');
-    if(mode==='torch'){shade.style.setProperty('--rw','300px');shade.style.setProperty('--rh','90px');
-      lamp.style.transform=`translate(${cur.x}px,0)`;cone.setAttribute('fill','url(#cg)');
-      cone.setAttribute('d',`M${cur.x-8} 44 L${cur.x+8} 44 L${cur.x+190} ${cur.y+30} L${cur.x-190} ${cur.y+30} Z`);}
-    else if(mode==='carriage'){shade.style.setProperty('--rw','280px');shade.style.setProperty('--rh','70px');
-      car.style.transform=`translate(${cur.x}px,${cur.y+18}px)`;cone.setAttribute('fill','url(#cgu)');
-      cone.setAttribute('d',`M${cur.x-10} ${cur.y+20} L${cur.x+10} ${cur.y+20} L${cur.x+160} ${cur.y-34} L${cur.x-160} ${cur.y-34} Z`);}};
-  const tick=()=>{cur.x+=(tgt.x-cur.x)*.16;cur.y+=(tgt.y-cur.y)*.18;paint();
-    if(Math.abs(tgt.x-cur.x)>.4||Math.abs(tgt.y-cur.y)>.4)raf=requestAnimationFrame(tick);else{raf=0;cur.x=tgt.x;cur.y=tgt.y;paint();}};
-  const follow=()=>{const c=caret();if(!c)return;tgt.x=Math.max(40,Math.min(sheet.clientWidth-40,c.x));tgt.y=c.y;if(!raf)raf=requestAnimationFrame(tick);};
-  ['input','keyup','click','focus'].forEach(e=>ed.addEventListener(e,follow));document.addEventListener('selectionchange',follow);
-  ed.addEventListener('scroll',follow);addEventListener('resize',follow);
+    let rc=r.getClientRects()[0];if(!rc){const sp=document.createElement('span');sp.textContent='​';r.insertNode(sp);rc=sp.getBoundingClientRect();sp.parentNode.removeChild(sp);sel.removeAllRanges();sel.addRange(r);}
+    const s=sheet.getBoundingClientRect();return{x:rc.left-s.left,y:rc.top-s.top+rc.height/2};};
+  const workY=()=>sheet.clientHeight*.62;   // the typewriter's working line
+  const cur={x:200,y:300,sc:0},tgt={x:200,y:300,sc:0};let raf=0;
+  const paint=()=>{const W=sheet.clientWidth,x=cur.x;
+    if(mode==='torch'){const y=cur.y;shade.style.cssText=`--x:${x}px;--y:${y}px;--rw:340px;--rh:120px`;lamp.style.transform=`translate(${x}px,0)`;
+      beam.setAttribute('fill','url(#down)');beam.setAttribute('d',`M${x-9} 46 L${x+9} 46 L${x+200} ${y+50} Q${x} ${y+90} ${x-200} ${y+50} Z`);hot.setAttribute('cx',x);hot.setAttribute('cy',y);}
+    else if(mode==='type'){const y=workY();shade.style.cssText=`--x:${x}px;--y:${y-40}px;--rw:360px;--rh:190px`;car.style.transform=`translate(${x}px,${y+30}px)`;
+      beam.setAttribute('fill','url(#up)');beam.setAttribute('d',`M${x-14} ${y+34} L${x+14} ${y+34} L${x+230} ${y-200} Q${x} ${y-250} ${x-230} ${y-200} Z`);hot.setAttribute('cx',x);hot.setAttribute('cy',y+10);}
+    if(mode==='type')ed.scrollTop=cur.sc;};
+  const tick=()=>{cur.x+=(tgt.x-cur.x)*.2;cur.y+=(tgt.y-cur.y)*.2;cur.sc+=(tgt.sc-cur.sc)*.22;paint();
+    if(Math.abs(tgt.x-cur.x)>.4||Math.abs(tgt.y-cur.y)>.4||Math.abs(tgt.sc-cur.sc)>.4)raf=requestAnimationFrame(tick);else{raf=0;cur.x=tgt.x;cur.y=tgt.y;cur.sc=tgt.sc;paint();}};
+  const follow=()=>{const c=caret();if(!c)return;tgt.x=Math.max(40,Math.min(sheet.clientWidth-40,c.x));tgt.y=c.y;
+    // the typewriter: the paper rolls so the caret's line sits on the working line
+    if(mode==='type'){tgt.sc=Math.max(0,ed.scrollTop+(c.y-workY())-(cur.sc-ed.scrollTop));tgt.sc=Math.max(0,cur.sc+(c.y-workY()));}
+    if(!raf)raf=requestAnimationFrame(tick);};
+  ['input','keyup','click','focus'].forEach(e=>ed.addEventListener(e,follow));document.addEventListener('selectionchange',follow);addEventListener('resize',follow);
+  // a key strike: the light trembles for a moment
+  let ht=0;ed.addEventListener('keydown',e=>{if(mode==='lamp')return;if(e.key.length>1&&!['Enter','Backspace',' '].includes(e.key))return;sheet.classList.add('hit');clearTimeout(ht);ht=setTimeout(()=>sheet.classList.remove('hit'),70+Math.random()*40);});
   document.querySelector('.bar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.m){mode=b.dataset.m;document.body.classList.remove('m-lamp','m-torch','m-carriage');document.body.classList.add('m-'+mode);
-      document.querySelectorAll('.bar [data-m]').forEach(x=>x.classList.toggle('on',x===b));follow();paint();ed.focus();}
-    if(b.dataset.t){b.classList.toggle('on',document.body.classList.toggle(b.dataset.t));follow();ed.focus();}});
-  // start with the caret at the end of the text, the light on it
+    if(b.dataset.m){mode=b.dataset.m;document.body.classList.remove('m-lamp','m-torch','m-type');document.body.classList.add('m-'+mode);
+      document.querySelectorAll('.bar [data-m]').forEach(x=>x.classList.toggle('on',x===b));cur.sc=ed.scrollTop;setTimeout(follow,30);ed.focus();}
+    if(b.dataset.t){b.classList.toggle('on',document.body.classList.toggle(b.dataset.t));setTimeout(follow,30);ed.focus();}});
   const last=ed.lastElementChild;const r=document.createRange();r.selectNodeContents(last);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);ed.focus();
-  setTimeout(()=>{follow();},60);
+  setTimeout(follow,80);
 })();
 </script>
 </body>
