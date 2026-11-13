@@ -22,9 +22,14 @@ const CSS=`
 /* the objects at the edge of the desk: half in the dark, they come and go softly */
 .odk .pr{position:absolute;opacity:0;transition:opacity 1.1s ease,translate 1.4s cubic-bezier(.2,.8,.3,1);translate:0 18px}
 .odk .pr.on{opacity:1;translate:0 0}
+.odk .pr{-webkit-mask-image:var(--shade);mask-image:var(--shade)}
 .odk .pr img{display:block;width:100%;height:auto;filter:drop-shadow(0 24px 30px rgba(0,0,0,.6)) brightness(.78) saturate(.9)}
-.odk .pr img{-webkit-mask-image:var(--shade);mask-image:var(--shade)}
-.odk .pr.spin img{animation:odkSpin 9s linear infinite}
+.odk .pr .disc{position:relative;border-radius:50%;box-shadow:0 26px 44px rgba(0,0,0,.6)}
+.odk .pr .disc img{clip-path:circle(49.6%);filter:brightness(.8)}
+.odk .pr .lab{position:absolute;left:28.6%;top:28.6%;width:42.8%;height:42.8%;border-radius:50%;background:center/cover;filter:sepia(.45) brightness(.78) contrast(1.05);box-shadow:inset 0 0 0 3px rgba(40,26,16,.6),inset 0 0 22px rgba(0,0,0,.35)}
+.odk .pr .hole{position:absolute;left:50%;top:50%;width:3%;height:3%;translate:-50% -50%;border-radius:50%;background:#0b0705;box-shadow:0 0 0 2px rgba(255,220,180,.25)}
+
+.odk .pr.spin .disc{animation:odkSpin 9s linear infinite}
 @keyframes odkSpin{to{transform:rotate(360deg)}}
 `;
 const inject=()=>{if(document.getElementById('odk-css'))return;const s=document.createElement('style');s.id='odk-css';s.textContent=CSS;document.head.appendChild(s);};
@@ -70,7 +75,7 @@ function create(host,o={}){
   const lampOnly=o.lamp??matchMedia('(max-width:760px),(pointer:coarse)').matches;el.classList.toggle('lamp',lampOnly);
   const GO={car:lampOnly?0:1,lamp:lampOnly?1:.2,fade:0};sm.uniforms.uCarOn.value=GO.car;sm.uniforms.uLamp.value=GO.lamp;
   let W=0,H=0,SX=0,SY=0,SW=0,SH=0,EM=40,FS=19,LH=30;const DROP=48;
-  const workY=()=>SY+SH-12-DROP;
+  const workY=()=>SY+SH*.6;
   // the sheet stands between the heading the pen writes above and the keys below
   const layout=()=>{W=host.clientWidth||innerWidth;H=host.clientHeight||innerHeight;R.setSize(W,H,false);cam.right=W;cam.top=H;cam.updateProjectionMatrix();
     const top=H*.05+110,bot=H*.94-50-26;SH=Math.max(260,bot-top);SW=SH/1.414;if(SW>W-32){SW=W-32;SH=SW*1.414;}SX=(W-SW)/2;SY=top+((bot-top)-SH)/2;
@@ -101,12 +106,12 @@ function create(host,o={}){
     vinyl:{src:'assets/keeper/desk-vinyl.webp',w:()=>SW*.95,x:()=>SX-SW*.45,y:()=>H-SW*.06,ax:.5,ay:.5,r:0,spin:1,shade:'linear-gradient(20deg,rgba(0,0,0,.15) 25%,#000 70%)'},
     phone:{src:'assets/keeper/tour-phone.webp',w:()=>SW*.62,x:()=>SX+SW+SW*.42,y:()=>SY+SH*.62,ax:.5,ay:.5,r:-14,shade:'linear-gradient(280deg,rgba(0,0,0,.1) 25%,#000 75%)'},
     letters:{src:'assets/keeper/desk-letters.webp',w:()=>SW*1.15,x:()=>SX-SW*.52,y:()=>SY+SH*.58,ax:.5,ay:.5,r:7,shade:'linear-gradient(80deg,rgba(0,0,0,.1) 20%,#000 70%)'},
-    book:{src:'assets/keeper/tour-books.webp',w:()=>SW*1.3,x:()=>SX+SW+SW*.62,y:()=>SY+SH*.5,ax:.5,ay:.5,r:-8,shade:'linear-gradient(290deg,rgba(0,0,0,.1) 25%,#000 72%)'}};
+    spread:{src:'assets/keeper/desk-spread.webp',w:()=>SW*1.05,x:()=>SX+SW*.62,y:()=>SY+SH*.52,ax:0,ay:.5,r:-5,shade:'linear-gradient(290deg,rgba(0,0,0,.1) 25%,#000 72%)'}};
   const prEls={};let prNow='';
   const placeProps=()=>{for(const[n,e] of Object.entries(prEls)){const p=PROPS[n],w=p.w();Object.assign(e.style,{width:w+'px',left:(p.x()-w*p.ax)+'px',top:(p.y()-e.offsetHeight*p.ay||p.y()-w*.5)+'px',rotate:p.r+'deg'});}};
   const prop=name=>{if(name===prNow)return;prNow=name;Object.entries(prEls).forEach(([n,e])=>e.classList.toggle('on',n===name));
     if(name&&!prEls[name]){const p=PROPS[name];if(!p)return;const e=document.createElement('div');e.className='pr'+(p.spin?' spin':'');e.style.setProperty('--shade',p.shade);
-      const im=new Image();im.src=B+p.src;im.alt='';im.onload=()=>placeProps();e.appendChild(im);props.appendChild(e);prEls[name]=e;placeProps();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(prNow===name)e.classList.add('on');}));}};
+      const im=new Image();im.src=B+p.src;im.alt='';im.onload=()=>placeProps();if(p.spin){const dc=document.createElement('div');dc.className='disc';dc.appendChild(im);dc.insertAdjacentHTML('beforeend',`<i class="lab" style="background-image:url('${B}qa/demo-book/photos/grandma_porch.jpg')"></i><i class="hole"></i>`);e.appendChild(dc);}else e.appendChild(im);props.appendChild(e);prEls[name]=e;placeProps();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(prNow===name)e.classList.add('on');}));}};
   // where the Keeper may stand: beside the sheet, on the side away from the object
   const rect=()=>({x:SX,y:SY,w:SW,h:SH,W,H});
   let alive=true,last=performance.now(),nod=0;

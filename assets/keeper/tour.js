@@ -206,8 +206,8 @@ function create(host,o={}){
        <div class="pol side"><img src="${PH}mother_child_bw.jpg" alt=""><i>Я с мамой, 1956</i></div></div>`},
     {w:'Ваша книга',sub:'останется в семье',p:'Всё, что пишете вы, и всё, что присылают родные — голоса, письма, фото, — собирается в одну книгу. Смотрите развороты, меняйте композиции, а когда всё готово — заказывайте печать.',
      c:`<div class="cd book"><div class="glow"></div><img class="bk" src="assets/keeper/tour-books.webp" alt="Очерки жизни"></div>`}];
-  const LINE=['Пишите как говорите — книга сложится сама.','Запишите голос — в книге будет код, чтобы его услышать.','Раз в неделю семья получает вопрос и отвечает.','Письма, фото и правки родных — всё в одном месте.','Всё соберётся в книгу, которая останется в семье.'];
-  const PROP=['stack','vinyl','phone','letters','book'],SIDE=[-1,1,-1,1,-1];
+  const LINE=['1. Пишите как говорите — книга сложится сама.','2. Запишите голос — в книге будет код, чтобы его услышать.','3. Раз в неделю семья получает вопрос и отвечает.','4. Письма, фото и правки родных — всё в одном месте.','5. Всё соберётся в книгу, которая останется в семье.'];
+  const PROP=['stack','vinyl','phone','letters','spread'],SIDE=[-1,1,-1,1,-1];
   const el=document.createElement('div');el.className='okt wait'+(K?'':' nok');
   el.style.setProperty('--okt-script',o.script||'"SignThatS","Sign That S",Georgia,serif');el.style.setProperty('--okt-serif',o.serif||'"CormorantCy","Iowan Old Style",Georgia,serif');
   el.innerHTML=`<div class="say"><span class="l1 mist out">Здравствуйте! Я —</span><span class="l2 mist out">Хранитель историй</span><span class="l3 mist out">Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
@@ -269,7 +269,7 @@ function create(host,o={}){
         later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.8);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);moodLife(t,i);},1400);
         later(()=>{if(t===tok)mist('.hd .sub',true);},2400);later(()=>{if(t===tok)mist('.hd p',true);},2800);}
       else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?60:450);
-    if(D){D.prop(PROP[i]);later(()=>{if(t!==tok)return;D.setLines(LINE.slice(0,i));D.type(LINE[i]);},prev<0?700:420);}
+    if(D){D.prop(PROP[i]);later(()=>{if(t===tok)D.setLines(LINE.slice(0,i));},prev<0?60:450);later(()=>{if(t===tok)D.type(LINE[i]);},(prev<0?60:450)+(K?2750:300));}
     else later(()=>{if(t===tok){fit(cards[i]);pose(cards[i],0);}},prev<0?500:950);};
   const notes=(t,sp,chars='♪♫',font)=>{let box=$('.notes');if(!box){box=document.createElement('div');box.className='notes';el.appendChild(box);}
     const W=el.clientWidth||innerWidth,H=el.clientHeight||innerHeight,x=(sp[0]+1)/2*W,y=(1-sp[1])/2*H;
