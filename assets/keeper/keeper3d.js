@@ -114,16 +114,16 @@ slit.scale.y=.95;slit.position.y=.3;
 nib.scale.setScalar(1.4);world.add(nib);
 
 // handwriting the pen leaves on the line
-const TH=440;const tc=document.createElement('canvas');tc.width=2048;tc.height=TH;const tx2=tc.getContext('2d');
+const TH=440,CW=3072,PW=6.2*CW/2048;const tc=document.createElement('canvas');tc.width=CW;tc.height=TH;const tx2=tc.getContext('2d');
 const tTex=new THREE.CanvasTexture(tc);
 let WINK=null;
-function inkOf(){try{const d=tx2.getImageData(0,0,2048,TH).data,a=new Float32Array(2048).fill(-1);for(let x=0;x<2048;x+=2){let s=0,n=0;for(let y=0;y<TH;y+=3){if(d[(y*2048+x)*4]>90){s+=y;n++;}}if(n){a[x]=s/n;a[x+1]=s/n;}}return a;}catch(_){return null;}}
-function inkAt(u){if(!WINK)return -1;const c=Math.round(u*2048);for(let k=0;k<40;k++){const l=WINK[Math.max(0,c-k)],r=WINK[Math.min(2047,c+k)];if(r>=0)return r;if(l>=0)return l;}return -1;}
-function paintWords(w){tx2.clearRect(0,0,2048,TH);const FF=(opts.font||'"SignThatS", "Marck Script", cursive');tx2.font='210px '+FF;{const mw=tx2.measureText(w).width;if(mw>1940)tx2.font=Math.floor(210*1940/mw)+'px '+FF;}tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,280);tTex.needsUpdate=true;WINK=inkOf();
-  return Math.min(2008,tx2.measureText(w).width+80)/2048;}
+function inkOf(){try{const d=tx2.getImageData(0,0,CW,TH).data,a=new Float32Array(CW).fill(-1);for(let x=0;x<CW;x+=2){let s=0,n=0;for(let y=0;y<TH;y+=3){if(d[(y*CW+x)*4]>90){s+=y;n++;}}if(n){a[x]=s/n;a[x+1]=s/n;}}return a;}catch(_){return null;}}
+function inkAt(u){if(!WINK)return -1;const c=Math.round(u*CW);for(let k=0;k<40;k++){const l=WINK[Math.max(0,c-k)],r=WINK[Math.min(CW-1,c+k)];if(r>=0)return r;if(l>=0)return l;}return -1;}
+function paintWords(w){tx2.clearRect(0,0,CW,TH);const FF=(opts.font||'"SignThatS", "Marck Script", cursive');tx2.font='210px '+FF;{const mw=tx2.measureText(w).width;if(mw>CW-120)tx2.font=Math.floor(210*(CW-120)/mw)+'px '+FF;}tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,280);tTex.needsUpdate=true;WINK=inkOf();
+  return Math.min(CW-40,tx2.measureText(w).width+80)/CW;}
 let wordsW=paintWords(WORDS);
 if(document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"')).then(()=>{wordsW=paintWords(WORDS_NOW);}).catch(()=>{});
-const words=new THREE.Mesh(new THREE.PlaneGeometry(6.2,6.2*TH/2048),new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,
+const words=new THREE.Mesh(new THREE.PlaneGeometry(PW,6.2*TH/2048),new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,
   uniforms:{uT:{value:tTex},uR:{value:0},uA:{value:0},uW:{value:wordsW}},
   vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:`varying vec2 v;uniform sampler2D uT;uniform float uR;uniform float uA;uniform float uW;void main(){float a=texture2D(uT,v).r;
@@ -196,7 +196,7 @@ const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHei
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
 let freeP={x:0,y:0,sc:1},awayTo=null,afterWrite='idle';
 // where the words are written when the host asks for a place (a heading at the top), and whether they stay there
-let WP=null,HOLD=false,FAST=false;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
+let WP=null,HOLD=false,FAST=false,WFLY=null;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
 function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
   if(m==='free')return freeP;
@@ -227,8 +227,8 @@ addEventListener('resize',fit);fit();
 
 let last=performance.now(),blinkAt=1.5;
 // moods: h — the eyes curve up (glad), w — open wide (surprised, curious), l — how open the lids are
-const MOODS={calm:[{h:0,w:0,l:1},{h:0,w:0,l:1}],joy:[{h:1,w:0,l:1},{h:1,w:0,l:1}],focus:[{h:0,w:0,l:.55},{h:0,w:0,l:.55}],listen:[{h:.45,w:0,l:.3},{h:.45,w:0,l:.3}],
-  curious:[{h:0,w:.2,l:1},{h:0,w:.9,l:1}],wonder:[{h:0,w:.9,l:1},{h:0,w:.9,l:1}],tender:[{h:.65,w:0,l:.75},{h:.65,w:0,l:.75}],wink:[{h:.8,w:0,l:1},{h:0,w:0,l:.08}]};
+const MOODS={calm:[{h:0,w:0,l:1,u:0},{h:0,w:0,l:1,u:0}],joy:[{h:1,w:0,l:1,u:.16},{h:1,w:0,l:1,u:.16}],focus:[{h:0,w:0,l:.55,u:-.05},{h:0,w:0,l:.55,u:-.05}],listen:[{h:.45,w:0,l:.3,u:-.1},{h:.45,w:0,l:.3,u:-.1}],
+  curious:[{h:0,w:.2,l:1,u:.05},{h:0,w:.9,l:1,u:.05}],wonder:[{h:0,w:.9,l:1,u:.02},{h:0,w:.9,l:1,u:.02}],tender:[{h:.65,w:0,l:.75,u:-.06},{h:.65,w:0,l:.75,u:-.06}],wink:[{h:.8,w:0,l:1,u:.12},{h:0,w:0,l:.08,u:.12}],round:[{h:0,w:.45,l:1,u:0},{h:0,w:.45,l:1,u:0}],sad:[{h:0,w:0,l:.7,u:-.16},{h:0,w:0,l:.7,u:-.16}]};
 const MOOD={t:MOODS.calm.map(o=>({...o})),c:MOODS.calm.map(o=>({...o})),until:0,after:'calm'};
 let TILT=0,tiltV=0,tiltUntil=0;
 function setMood(n,ms,after){const m=MOODS[n]||MOODS.calm;MOOD.t=m.map(o=>({...o}));MOOD.until=ms?clock+ms/1000:0;MOOD.after=after||'calm';
@@ -239,6 +239,8 @@ const alerp=(a,b,k)=>{let d=(b-a)%(Math.PI*2);if(d>Math.PI)d-=Math.PI*2;if(d<-Ma
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;const T=clock;
   const mt=clock-modeAt;
   // the write cycle: he lies down into the line, the pen writes the words, they glow and fade, he rises
+  if(mode==='write'&&WFLY&&mt*WS>5.95){const u=nib.userData,to=WFLY;WFLY=null;HOLD=false;setMode('away');FAST=true;awayTo=to;
+    S.ex.v=S.ex.t=(u.x||0)+world.position.x;S.ey.v=S.ey.t=(u.y||0)+world.position.y;S.ex.vel=S.ey.vel=0;}
   if(mode==='write'){const wt=mt*WS;writeP=wt<2.5?0:Math.min(1,(wt-2.5)/3.3);if(wt>7.4)S.form.t=1;if(wt>9.9)setMode(afterWrite==='free'?'free':'idle');}
   if(mode==='come'){const P=placeOf(pending||'idle');
     // the body rides with the spark, so nothing jumps when he appears
@@ -270,11 +272,11 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   const talking=clock<talkUntil;const eb=talking?Math.max(bl,.8+.2*Math.sin(clock*9)):bl,ek=(talking?1.3:1)*Math.max(0,(f-.75)/.25)*Math.min(1,Math.max(0,S.sc.v)*1.5);
   // the mood moves in softly; a wink closes one eye for a moment
   if(MOOD.until&&clock>MOOD.until){MOOD.until=0;setMood(MOOD.after||'calm');}
-  eyes.forEach((e,j)=>{const t=MOOD.t[j],c=MOOD.c[j],k=Math.min(1,dt*5);c.h+=(t.h-c.h)*k;c.w+=(t.w-c.w)*k;c.l+=(t.l-c.l)*k;
+  eyes.forEach((e,j)=>{const t=MOOD.t[j],c=MOOD.c[j],k=Math.min(1,dt*5);c.h+=(t.h-c.h)*k;c.w+=(t.w-c.w)*k;c.l+=(t.l-c.l)*k;c.u=(c.u||0)+((t.u||0)-(c.u||0))*k;
     const u=e.material.uniforms;u.uB.value=eb*c.l;u.uK.value=ek*(1.+.55*Math.max(c.h,c.w));u.uH.value=c.h;u.uW.value=c.w;});
   eyes.forEach(e=>{const b=e.userData.base;e.position.set(b.x+px*.09,b.y-py*.06,.62);});
   {const fa=Math.max(0,(f-.75)/.25)*Math.min(1,Math.max(0,S.sc.v)*1.5);const c0=MOOD.c[0],c1=MOOD.c[1];
-   MUS.forEach((m,j)=>{m.material.uniforms.uA.value=fa*.95;const sw=Math.sin(T*1.3+j*1.7)*.05+Math.sin(T*.6+j)*.03;m.rotation.z=(j?-1:1)*sw;const b=m.userData.base;m.position.set(b.x+px*.06,b.y-py*.04,b.z);});
+   MUS.forEach((m,j)=>{m.material.uniforms.uA.value=fa*.95;const sw=Math.sin(T*1.3+j*1.7)*.03+Math.sin(T*.6+j)*.02+(clock<talkUntil?Math.sin(clock*13+j)*.05:0);m.rotation.z=(j?1:-1)*((c0.u||0)+sw);const b=m.userData.base;m.position.set(b.x+px*.06,b.y-py*.04,b.z);});
    BROWS.forEach((m,j)=>{const c=j?c1:c0;m.material.uniforms.uA.value=fa;
      // up when wide (surprise, curiosity), down and in when narrowed (attention), softly lifted when glad
      const up=c.w*.16+c.h*.05-(1-c.l)*.09;const b=m.userData.base;m.position.set(b.x+px*.09,b.y+up-py*.06,b.z);m.rotation.z=(j?1:-1)*((1-c.l)*.18-c.w*.08);});}
@@ -283,7 +285,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   if(c){c.getPointAt(1,tmpV);c.getTangentAt(.99,T_);const end=tmpV.clone().applyMatrix4(keeper.matrix);const dir=T_.clone().transformDirection(keeper.matrix);
     // the nib continues the ribbon: its body sits on the ribbon's end, its tip points on along the same direction
     const L=1.12*1.05*sc;let nx=end.x+dir.x*L,ny=end.y+dir.y*L,rot=Math.atan2(-dir.y,-dir.x)-Math.PI/2;
-    const wt=mt*WS,WW=WP?wordsW*6.2*WP.s:wordsW*6.2*Math.max(.001,S.sc.v)*WSC,wx0=WP?WP.x-world.position.x:0;
+    const wt=mt*WS,WW=WP?wordsW*PW*WP.s:wordsW*PW*Math.max(.001,S.sc.v)*WSC,wx0=WP?WP.x-world.position.x:0;
     if(mode==='write'&&wt>1.6&&wt<7.9){const swc=WP?WP.s:Math.max(.001,S.sc.v)*WSC,cy=WP?WP.y-world.position.y:-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1);
       // the nib walks the ink itself: at each point of the line it stands where the letters are
       const iy=inkAt(writeP*wordsW),wx=wx0-WW/2+writeP*WW,wy=iy>=0&&writeP>0&&writeP<1?cy+(.5-iy/TH)*(6.2*TH/2048)*swc:cy-.12*swc;
@@ -292,8 +294,8 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
     nib.position.set(u.x,u.y,.4);nib.rotation.z=u.r;nib.scale.setScalar(1.05*Math.max(.001,S.sc.v)*(inSpark?Math.max(.001,(f-.4)/.6):(1+(1-f)*.25)));
     // the Keeper inside the pen: a spark on the nib while he writes
     soul.position.set(u.x,u.y+.35,.5);soul.scale.setScalar(Math.max(.001,inSpark?0:(1-f)*.9)*(.9+.15*Math.sin(clock*7)));}
-  if(WP){const sw=WP.s;words.scale.setScalar(sw);words.position.set(WP.x-world.position.x+3.1*sw-wordsW*6.2*sw/2,WP.y-world.position.y,.3);}
-  else{const sw=Math.max(.001,S.sc.v)*WSC;words.scale.setScalar(sw);words.position.set(3.1*sw-wordsW*6.2*sw/2,-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1),.3);}
+  if(WP){const sw=WP.s;words.scale.setScalar(sw);words.position.set(WP.x-world.position.x+PW/2*sw-wordsW*PW*sw/2,WP.y-world.position.y,.3);}
+  else{const sw=Math.max(.001,S.sc.v)*WSC;words.scale.setScalar(sw);words.position.set(PW/2*sw-wordsW*PW*sw/2,-4.0*Math.max(.001,S.sc.v)-.3*(WSC-1),.3);}
   words.material.uniforms.uW.value=wordsW;words.material.uniforms.uR.value=writeP;
   const wa=words.material.uniforms.uA;{const wt=mt*WS;wa.value=mode==='write'?Math.min(1,Math.max(0,wt-2.3)/.3)*(wt>6.9&&!HOLD?Math.max(0,1-(wt-6.9)/1.6):1):(HOLD?wa.value:Math.max(0,wa.value-dt*1.6));}
   // the ember: where he was, it lifts off and drifts; on «come» it glides back and he grows out of it
@@ -340,7 +342,7 @@ return{
     // the canvas measures with whatever font is ready: once the handwriting font is in, measure again so the pen writes the whole word
     if(text&&document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"'),text).then(()=>{if(WORDS_NOW===text){wordsW=paintWords(text);words.material.uniforms.uW.value=wordsW;}}).catch(()=>{});
     if(o.at){const w=this.toWorld(o.at[0],o.at[1]);const unit=2*halfH()/VH();WP={x:w.x,y:w.y,s:Math.max(.2,(o.px||60)*unit/.62)};}else WP=null;
-    HOLD=!!o.hold;setMode('write');},
+    HOLD=!!o.hold;WFLY=o.fly?this.toWorld(o.fly[0],o.fly[1]):null;setMode('write');},
   clearWords(){HOLD=false;},
   // finish the word now: the pen sweeps to its end in a moment
   hurry(){if(mode!=='write')return false;const wt=(clock-modeAt)*WS;if(wt<5.85&&wt>.5){modeAt=clock-5.85/WS;return true;}return false;},

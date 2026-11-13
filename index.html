@@ -3370,7 +3370,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v153";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v154";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3877,8 +3877,8 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v153"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v153"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v154"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v154"></script>
 
 <style id="kob-v142">
 /* v142 — the way in, led by the Keeper: first he shows what the constructor can do (assets/keeper/tour.js),
@@ -4026,6 +4026,15 @@
 .kob .kmus:hover{border-color:rgba(255,206,150,.95);box-shadow:0 0 12px rgba(255,150,60,.4)}
 .kob .kmus.playing{border-color:rgba(255,206,150,.85);box-shadow:0 0 10px rgba(255,150,60,.35)}
 .kob .kmus:not(.playing)::after{content:"";position:absolute;width:24px;height:1.6px;background:currentColor;transform:rotate(-45deg);border-radius:1px}
+/* v154 — readable on the light toile: dark glass under the cards, larger and brighter words */
+.kob .st .cd{background:rgba(20,10,4,.78);border:1px solid rgba(232,180,120,.6);box-shadow:0 14px 34px rgba(0,0,0,.45);backdrop-filter:blur(4px)}
+.kob .st .cd strong{font-size:31px!important}
+.kob .st .cd span{font-size:17px!important;color:#f0dcbc!important}
+.kob .st .cd b{color:#e2b884!important}
+.kob p.d{color:#f6e5c8;text-shadow:0 1px 10px rgba(0,0,0,.7)}
+.kob .shelf{background:radial-gradient(ellipse 62% 56% at 50% 48%,rgba(10,5,2,.62),rgba(10,5,2,.3) 55%,transparent 78%)!important}
+.kob label,.kob .consent{text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.kob .btn{background:rgba(20,10,4,.6)}
 /* v152 — every screen of the way in like the tour: the heading written by his pen at the top, the words under it, the rest in the middle */
 .kob .st{left:50%;top:calc(5% + 104px);bottom:9%;width:min(820px,88vw);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;text-align:center}
 .kob .st>*{transition:opacity .45s ease,filter .5s ease}
@@ -4038,8 +4047,8 @@
 .kob .st>.d+*,.kob .st>h2+.cards,.kob .st>h2+.shelf{margin-top:auto}
 .kob .st>.acts{margin-bottom:auto}
 .kob .st>*{flex:none}
-.kob.pen .st.on>*{transition-delay:1.75s!important}.kob.pen .st.on>.d{transition-delay:1.3s!important}.kob.pen .st.on>.acts{transition-delay:2.15s!important}
-.kob.pen .st.on>.status{transition-delay:0s!important}
+.kob.pen .st.on>*{opacity:0;filter:blur(10px);transition-delay:0s!important}
+.kob.pen .st.on.s1>.d,.kob.pen .st.on.s2>*:not(.acts),.kob.pen .st.on.s3>*{opacity:1;filter:blur(0)}
 .kob .cards,.kob .fields,.kob .acts{justify-content:center;width:100%}
 .kob .fields{text-align:left}
 .kob .consent{justify-content:center}
@@ -4110,7 +4119,7 @@
     <div class="acts"><button class="btn ghost" data-go="how">Назад</button><button class="btn main" data-go="finish" data-need="book">Создать книгу</button></div></section>
   <div class="dots"><i></i><i></i><i></i></div>
 </div>
-<script src="assets/keeper/tour.js?v=20261107-v153"></script>
+<script src="assets/keeper/tour.js?v=20261107-v154"></script>
 <script id="kob-v142-js">
 (()=>{const ov=document.getElementById('kob');const html=document.documentElement;
   const off=()=>html.classList.remove('kob-wait');
@@ -4124,7 +4133,8 @@
   const MOOD={auth:'calm',books:'joy',shelf:'tender',who:'curious',how:'focus',book:'wonder'};
   const place=s=>{if(!K)return;const sp=SPOT[s]||[-.6,0];K.moveTo(sp[0],sp[1],.8,{fold:true});K.mood?.(MOOD[s]||'calm');K.face(1);K.lookAt(.95,-sp[1]*.5);};
   const headAt=()=>{const H=ov.clientHeight||innerHeight;return[0,1-2*((H*.05+38)/H)];};
-  let gt=0;const pen=s=>{if(!K)return;const t=++gt,h=ov.querySelector(`.st[data-s="${s}"] h2`);K.clearWords();
+  let gt=0;const pen=s=>{if(!K)return;const t=++gt,st=ov.querySelector(`.st[data-s="${s}"]`),h=st?.querySelector('h2');K.clearWords();st?.classList.remove('s1','s2','s3');
+    const stage=(c,ms)=>later(()=>{if(t===gt)st?.classList.add(c);},ms);const done=280+(2.5+3.3)/2.3*1000;stage('s1',done-150);stage('s2',done+250);stage('s3',done+650);
     later(()=>{if(t!==gt)return;K.write(h?.textContent||'',{at:headAt(),px:64,hold:true});
       later(()=>{if(t!==gt)return;const sp=SPOT[s]||[-.6,0];K.rest(sp[0],sp[1],.8);K.face(1);K.lookAt(.9,0);K.mood?.(MOOD[s]||'calm');},1100);},280);};
   function go(s){if(s===cur)return;cur=s;
@@ -4197,7 +4207,7 @@
   // the end: he writes the book's title with his pen, gathers into a spark, and the constructor comes up
   function finish(){const title=ov.querySelector('[data-into="bookTitleInput"]').value.trim()||'Очерки жизни';
     ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));ov.classList.remove('steps');
-    if(K){K.lookAt(null);K.mood?.('joy');K.write('Добро пожаловать',{at:[0,.1],px:72,hold:true});later(()=>{K.clearWords();K.flyAway?K.flyAway(-.94,-.92):(K.awayTo(-.94,-.92),K.setMode('away'));},3000);later(()=>leave(start),3600);}else leave(start);}
+    if(K){K.lookAt(null);K.mood?.('joy');K.write('Добро пожаловать!',{at:[0,.1],px:72,hold:true,fly:[-.94,-.92]});later(()=>leave(start),(5.95/2.3)*1000+900);}else leave(start);}
   const start=()=>{const b=$('startConstructorBtn');if(b){b.disabled=false;b.click();}};
   function leave(then){if(K&&K.mode!=='away'){if(K.flyAway)K.flyAway(-.94,-.92);else{K.awayTo(-.94,-.92);K.setMode('away');}}
     later(()=>{then&&then();ov.classList.add('gone');later(()=>{K&&K.stop();T?.destroy();ov.remove();
