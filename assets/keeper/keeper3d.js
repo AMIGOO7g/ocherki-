@@ -82,10 +82,22 @@ const eyeMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTe
 const glowMat=()=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,uniforms:{uA:{value:1}},
   vertexShader:'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:'varying vec2 v;uniform float uA;void main(){float t=pow(sin(3.1416*clamp(v.x,0.,1.)),.55);float r=1.-abs(v.y*2.-1.);vec3 c=mix(vec3(1.,.5,.16),vec3(1.,.88,.62),r*r);gl_FragColor=vec4(c*t*(.5+.8*r)*uA*1.35,1.);}'});
-const tube=(pts,r)=>new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(q=>W(q[0],q[1],62)),false,'centripetal'),48,r,6,false);
-const pivoted=(pts,r,at)=>{const g=tube(pts,r);const c=W(at[0],at[1],62);g.translate(-c.x,-c.y,-c.z);const m=new THREE.Mesh(g,glowMat());m.position.copy(c);m.userData.base=c.clone();keeper.add(m);m.renderOrder=6;return m;};
-const MUS=[[[458,456],[428,466],[390,476],[356,496],[336,528],[338,566],[352,590]],[[474,454],[506,462],[546,470],[580,490],[598,522],[596,560],[580,584]]].map(pts=>pivoted(pts,.05,pts[0]));
-const BROWS=[[[384,374],[404,362],[426,360],[448,368]],[[480,362],[502,352],[524,354],[546,364]]].map(pts=>pivoted(pts,.034,[(pts[0][0]+pts[3][0])/2,(pts[0][1]+pts[3][1])/2]));
+// a tube that changes its thickness along the way (thick at the root of a moustache, thin at its curl)
+const tube=(pts,rf)=>{const crv=new THREE.CatmullRomCurve3(pts.map(q=>W(q[0],q[1],62)),false,'centripetal');const TS=64,RS=8;
+  const g=new THREE.TubeGeometry(crv,TS,1,RS,false);const P=g.attributes.position,c=new THREE.Vector3(),v=new THREE.Vector3();
+  for(let a=0;a<=TS;a++){const t=a/TS;crv.getPointAt(t,c);const r=typeof rf==='function'?rf(t):rf;
+    for(let b=0;b<=RS;b++){const k=a*(RS+1)+b;v.fromBufferAttribute(P,k);v.sub(c).multiplyScalar(r).add(c);P.setXYZ(k,v.x,v.y,v.z);}}
+  P.needsUpdate=true;g.computeVertexNormals();return g;};
+const pivoted=(pts,rf,at)=>{const g=tube(pts,rf);const c=W(at[0],at[1],62);g.translate(-c.x,-c.y,-c.z);const m=new THREE.Mesh(g,glowMat());m.position.copy(c);m.userData.base=c.clone();keeper.add(m);m.renderOrder=6;return m;};
+// a full, curled handlebar moustache — thick under the nose, turning up into a curl at each end
+const MX=465,mir=pts=>pts.map(([x,y])=>[2*MX-x,y]);
+const MUSL=[[466,446],[446,454],[414,462],[380,462],[350,450],[330,428],[328,404],[342,392],[358,398]];
+const musR=t=>.014+.13*Math.pow(1-t,1.05)*(t<.05?.6+t/.05*.4:1);
+const MUS=[MUSL,mir(MUSL)].map(pts=>pivoted(pts,musR,pts[0]));
+// bushy brows: thick in the middle, a little tuft at the outer end
+const BRL=[[366,382],[384,362],[408,350],[432,350],[452,360]];
+const brR=t=>.02+.07*Math.pow(Math.sin(Math.PI*Math.min(1,t*1.05)),.55);
+const BROWS=[BRL,mir(BRL)].map(pts=>pivoted(pts,brR,[(pts[0][0]+pts[4][0])/2,(pts[0][1]+pts[4][1])/2]));
 const eyes=[[418,412,-.28],[512,404,.28]].map(([x,y,r],j)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(.62,.5),j?eyeMat.clone():eyeMat);m.rotation.z=r;keeper.add(m);m.userData.base=W(x,y,0);return m;});
 
 // the pen: belongs to him — it sits at the end of the lower ribbon and writes when he lies down
@@ -107,7 +119,7 @@ const tTex=new THREE.CanvasTexture(tc);
 let WINK=null;
 function inkOf(){try{const d=tx2.getImageData(0,0,2048,TH).data,a=new Float32Array(2048).fill(-1);for(let x=0;x<2048;x+=2){let s=0,n=0;for(let y=0;y<TH;y+=3){if(d[(y*2048+x)*4]>90){s+=y;n++;}}if(n){a[x]=s/n;a[x+1]=s/n;}}return a;}catch(_){return null;}}
 function inkAt(u){if(!WINK)return -1;const c=Math.round(u*2048);for(let k=0;k<40;k++){const l=WINK[Math.max(0,c-k)],r=WINK[Math.min(2047,c+k)];if(r>=0)return r;if(l>=0)return l;}return -1;}
-function paintWords(w){tx2.clearRect(0,0,2048,TH);tx2.font='210px '+(opts.font||'"SignThatS", "Marck Script", cursive');tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,280);tTex.needsUpdate=true;WINK=inkOf();
+function paintWords(w){tx2.clearRect(0,0,2048,TH);const FF=(opts.font||'"SignThatS", "Marck Script", cursive');tx2.font='210px '+FF;{const mw=tx2.measureText(w).width;if(mw>1940)tx2.font=Math.floor(210*1940/mw)+'px '+FF;}tx2.fillStyle='#fff';tx2.textBaseline='alphabetic';tx2.fillText(w,40,280);tTex.needsUpdate=true;WINK=inkOf();
   return Math.min(2008,tx2.measureText(w).width+80)/2048;}
 let wordsW=paintWords(WORDS);
 if(document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"')).then(()=>{wordsW=paintWords(WORDS_NOW);}).catch(()=>{});
@@ -184,7 +196,7 @@ const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHei
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
 let freeP={x:0,y:0,sc:1},awayTo=null,afterWrite='idle';
 // where the words are written when the host asks for a place (a heading at the top), and whether they stay there
-let WP=null,HOLD=false;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
+let WP=null,HOLD=false,FAST=false;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
 function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
   if(m==='free')return freeP;
@@ -235,7 +247,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
     if(!grownAt&&Math.hypot(S.ex.v-S.ex.t,S.ey.v-S.ey.t)<.15&&Math.hypot(S.ex.vel,S.ey.vel)<.5){grownAt=clock;S.form.t=1;S.emb.t=0;}
     if(grownAt&&clock-grownAt>2.4/QK){const m=pending||'idle';pending=null;mode='_';setMode(m);}}
   // away: once he is gathered into the spark, it lifts off and drifts to its corner
-  if(mode==='away'&&mt>1.3/QK){if(awayTo){S.ex.t=awayTo.x;S.ey.t=awayTo.y;}else{S.ex.t=3.2*aspectK();S.ey.t=3.8;}}
+  if(mode==='away'&&mt>(FAST?.35:1.3)/QK){if(awayTo){S.ex.t=awayTo.x;S.ey.t=awayTo.y;}else{S.ex.t=3.2*aspectK();S.ey.t=3.8;}}
   if(mode==='hint'&&mt>1.1&&!tip.classList.contains('on'))tip.classList.add('on');
   for(const k in S)step(S[k],dt);
   const f=Math.max(0,Math.min(1,S.form.v));
@@ -285,7 +297,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;con
   words.material.uniforms.uW.value=wordsW;words.material.uniforms.uR.value=writeP;
   const wa=words.material.uniforms.uA;{const wt=mt*WS;wa.value=mode==='write'?Math.min(1,Math.max(0,wt-2.3)/.3)*(wt>6.9&&!HOLD?Math.max(0,1-(wt-6.9)/1.6):1):(HOLD?wa.value:Math.max(0,wa.value-dt*1.6));}
   // the ember: where he was, it lifts off and drifts; on «come» it glides back and he grows out of it
-  {const drift=(mode==='away'&&mt>1.3/QK)?1:0;const sw=sparkWorld();
+  {const drift=(mode==='away'&&mt>1.3/QK&&!FAST)?1:0;const sw=sparkWorld();
    if(mode==='away'||mode==='come')ember.position.set(S.ex.v+Math.sin(clock*1.7)*.08*drift,S.ey.v+Math.sin(clock*1.3)*.15*drift,1);else ember.position.set(sw.x,sw.y,1);}
   ember.scale.setScalar(Math.max(.001,S.emb.v)*(.9+.12*Math.sin(clock*5.3)));
   halo.material.uniforms.uA.value=(inSpark||mode==='write'?f:(.55+.45*f))*Math.min(1,Math.max(0,S.sc.v)*1.3);
@@ -300,7 +312,7 @@ const screenOf=(x,y)=>{const v=new THREE.Vector3(x,y,0).applyMatrix4(keeper.matr
 return{
   start(){if(!running){running=true;fit();last=performance.now();raf=requestAnimationFrame(loop);}},
   stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0;},
-  setMode(m){setMode(m);},
+  setMode(m){if(m!=='away')FAST=false;setMode(m);},
   get mode(){return mode;},
   // jump straight to a state without animation (e.g. start as a spark in a corner)
   placeSpark(x,y){mode='away';modeAt=clock-9;NIBL=SPARK;S.form.v=S.form.t=0;S.emb.v=S.emb.t=1;S.ex.v=S.ex.t=x;S.ey.v=S.ey.t=y;S.sc.v=S.sc.t=1;},
@@ -310,6 +322,8 @@ return{
   placeSparkAt(nx,ny){const w=this.toWorld(nx,ny);this.placeSpark(w.x,w.y);},
   // where the spark goes when he leaves (null: the corner)
   awayTo(nx,ny){awayTo=nx==null?null:this.toWorld(nx,ny);},
+  // gather into the spark and fly straight to (nx, ny)
+  flyAway(nx,ny){awayTo=this.toWorld(nx,ny);FAST=true;setMode('away');},
   // fly to a point of the screen (nx, ny in −1…1, y up) at a size; fold:true — gather into the spark, fly, unfold there
   moveTo(nx,ny,sc=1,o={}){freeP={x:nx*halfW(),y:camera.position.y+ny*halfH(),sc};
     if(o.fold&&mode!=='away'&&mode!=='come'){setMode('away');setTimeout(()=>setMode('free'),1150/QK);}else setMode('free');},

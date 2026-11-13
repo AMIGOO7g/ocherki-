@@ -3370,7 +3370,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v152";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v153";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3877,8 +3877,8 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v152"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v152"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v153"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v153"></script>
 
 <style id="kob-v142">
 /* v142 — the way in, led by the Keeper: first he shows what the constructor can do (assets/keeper/tour.js),
@@ -3933,6 +3933,92 @@
 .kob .okt .hd{transform-origin:50% 0}
 @media (max-width:760px){.kob .st{transform:translate(-50%,-30%)}.kob h2{font-size:40px}}
 
+
+/* v153 — the night background of the constructor, the very same layers and numbers (no separate toile picture) */
+.kob::before{display:none}
+.kob .knight{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.kob .knight>div{position:absolute;inset:0;pointer-events:none}
+.kob .knight .night-base{
+  z-index:1;
+  background:linear-gradient(180deg,#211006 0%,#1b0e06 36%,#150a04 72%,#0e0703 100%);
+}
+.kob .knight .night-artwork{
+  z-index:2;
+  background-image:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png");
+  background-repeat:no-repeat;
+  background-position:center center;
+  background-size:cover;
+  filter:brightness(.40) contrast(2.0) saturate(.58) sepia(.24);
+}
+.kob .knight .night-main{
+  z-index:3;
+  inset:-14% -12% -16% -14%;
+  background:
+    radial-gradient(ellipse 66% 60% at 49% 45%,
+      rgba(236,168,91,.66) 0%,
+      rgba(207,130,55,.55) 18%,
+      rgba(164,88,27,.42) 38%,
+      rgba(111,51,15,.27) 58%,
+      rgba(62,27,9,.12) 75%,
+      transparent 91%),
+    radial-gradient(ellipse 80% 72% at 52% 49%,
+      rgba(142,70,20,.28) 0%,
+      rgba(101,45,13,.20) 42%,
+      rgba(58,26,9,.09) 68%,
+      transparent 90%);
+  filter:blur(54px);
+}
+.kob .knight .night-warm{
+  z-index:4;
+  inset:-12% -8% -10% -12%;
+  background:
+    radial-gradient(ellipse 48% 44% at 41% 36%,
+      rgba(244,187,112,.72) 0%,
+      rgba(225,151,71,.62) 16%,
+      rgba(190,111,39,.48) 34%,
+      rgba(139,68,19,.31) 52%,
+      rgba(82,37,11,.14) 70%,
+      transparent 88%),
+    radial-gradient(ellipse 60% 54% at 44% 39%,
+      rgba(199,122,45,.24) 0%,
+      rgba(135,65,18,.16) 44%,
+      rgba(68,30,9,.055) 72%,
+      transparent 92%);
+  filter:blur(62px);
+}
+.kob .knight .night-shadow{
+  z-index:5;
+  inset:-8% -6% -4% -8%;
+  background:
+    radial-gradient(ellipse 38% 34% at 18% 10%,
+      rgba(0,0,0,.72) 0%,
+      rgba(0,0,0,.46) 26%,
+      rgba(0,0,0,.22) 50%,
+      transparent 72%),
+    linear-gradient(135deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,.16) 12%,rgba(0,0,0,.05) 24%,transparent 38%);
+  mix-blend-mode:multiply;
+}
+.kob .knight .night-artwork-ink{
+  z-index:6;
+  background-image:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png");
+  background-repeat:no-repeat;
+  background-position:center center;
+  background-size:cover;
+  filter:grayscale(.08) brightness(.92) contrast(1.40) saturate(.36) sepia(.12);
+  mix-blend-mode:multiply;
+}
+.kob .knight .night-vignette{
+  z-index:7;
+  inset:-6%;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(0,0,0,.70) 0%,rgba(0,0,0,.34) 18%,transparent 40%),
+    radial-gradient(circle at 100% 0%,rgba(0,0,0,.76) 0%,rgba(0,0,0,.38) 19%,transparent 42%),
+    radial-gradient(circle at 0% 100%,rgba(0,0,0,.78) 0%,rgba(0,0,0,.40) 20%,transparent 43%),
+    radial-gradient(circle at 100% 100%,rgba(0,0,0,.84) 0%,rgba(0,0,0,.46) 20%,transparent 44%),
+    radial-gradient(ellipse 94% 86% at 46% 43%,transparent 40%,rgba(0,0,0,.045) 57%,rgba(0,0,0,.13) 70%,rgba(0,0,0,.28) 84%,rgba(0,0,0,.54) 100%);
+}
+.kob .knight .night-base{opacity:1}.kob .knight .night-artwork{opacity:.54}.kob .knight .night-main{opacity:.88;filter:blur(56px)}.kob .knight .night-warm{opacity:.9;filter:blur(66px)}
+.kob .knight .night-shadow{opacity:.78}.kob .knight .night-artwork-ink{opacity:.09}.kob .knight .night-vignette{opacity:1}
 /* the music key */
 .kob .kmus{position:absolute;right:calc(3% + 128px);top:calc(4% - 9px);z-index:5;width:40px;height:40px;border-radius:50%;border:1px solid rgba(214,150,96,.55);background:rgba(20,10,5,.35);color:#f2e0c2;display:grid;place-items:center;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .9s ease,border-color .5s,box-shadow .8s}
 .kob .kmus.on{opacity:1;pointer-events:auto}
@@ -3952,6 +4038,8 @@
 .kob .st>.d+*,.kob .st>h2+.cards,.kob .st>h2+.shelf{margin-top:auto}
 .kob .st>.acts{margin-bottom:auto}
 .kob .st>*{flex:none}
+.kob.pen .st.on>*{transition-delay:1.75s!important}.kob.pen .st.on>.d{transition-delay:1.3s!important}.kob.pen .st.on>.acts{transition-delay:2.15s!important}
+.kob.pen .st.on>.status{transition-delay:0s!important}
 .kob .cards,.kob .fields,.kob .acts{justify-content:center;width:100%}
 .kob .fields{text-align:left}
 .kob .consent{justify-content:center}
@@ -3964,6 +4052,8 @@
 .kob .shelf .row{position:relative;display:flex;justify-content:center;gap:56px;padding:0 20px;margin-bottom:46px}
 .kob .shelf .row::after{content:"";position:absolute;left:0;right:0;top:236px;height:18px;border-radius:2px;
   background:linear-gradient(180deg,#9a6a3e,#5e3a1c 45%,#3a210f);box-shadow:0 1px 0 rgba(255,214,160,.4) inset,0 16px 26px rgba(0,0,0,.6)}
+.kob .shelf .bk:hover,.kob .shelf .bk.asking{z-index:10}
+.kob .shelf .bk.asking .tag{opacity:1;transform:translate(-50%,0)}
 .kob .shelf .bk{position:relative;width:240px;display:flex;flex-direction:column;align-items:center;transition:opacity .5s,transform .5s}
 .kob .shelf .bk.gone{opacity:0;transform:translateY(16px)}
 .kob .shelf .cov{position:relative;height:240px;width:auto;aspect-ratio:var(--ar,1);cursor:pointer;transform-origin:50% 100%;transform:rotate(var(--tilt));transition:transform .5s cubic-bezier(.2,.8,.3,1)}
@@ -3974,12 +4064,12 @@
 .kob .shelf .face b{display:block;font:500 7px "Iowan Old Style",Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:var(--ink2,#e9c98a);opacity:.85}
 .kob .shelf .face strong{display:block;margin:6px 0 0;font:400 var(--fs,24px)/1.1 "Sign That S",Georgia,serif;overflow-wrap:normal;
   background:var(--ink,linear-gradient(180deg,#fbe3a4,#d9a64e 55%,#f3d08a));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 var(--sh,rgba(0,0,0,.55)))}
-.kob .shelf .tag{position:absolute;left:50%;top:84px;transform:translate(-50%,6px);width:max-content;max-width:240px;padding:10px 18px;border-radius:12px;background:rgba(24,13,6,.86);box-shadow:0 0 0 1px rgba(214,150,96,.45),0 10px 24px rgba(0,0,0,.5);
+.kob .shelf .tag{position:absolute;left:50%;top:calc(100% + 26px);transform:translate(-50%,-6px);width:max-content;min-width:220px;max-width:300px;padding:10px 18px;border-radius:12px;background:rgba(24,13,6,.96);box-shadow:0 0 0 1px rgba(214,150,96,.45),0 10px 24px rgba(0,0,0,.5);
   text-align:center;opacity:0;pointer-events:none;transition:opacity .4s,transform .4s;z-index:3}
 .kob .shelf .bk:hover .tag{opacity:1;transform:translate(-50%,0)}
 .kob .shelf .tag strong{display:block;font:400 21px/1.2 "Iowan Old Style",Georgia,serif;color:#fff2dc}
 .kob .shelf .tag span{display:block;margin-top:4px;font:italic 15px "Iowan Old Style",Georgia,serif;color:#e7cfaa}
-.kob .shelf .ops,.kob .shelf .ask{position:absolute;left:-30px;right:-30px;top:calc(100% + 26px);display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.kob .shelf .ops,.kob .shelf .ask{position:absolute;left:-40px;right:-40px;top:calc(100% + 104px);z-index:4;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .kob .shelf .ops{opacity:0;transition:opacity .4s}.kob .shelf .bk:hover .ops{opacity:1}
 .kob .shelf .ask{display:none;text-align:center}.kob .shelf .ask span{width:100%;font:italic 15px "Iowan Old Style",Georgia,serif;color:#ffd9a8}
 .kob .shelf .bk.asking .ops{display:none}.kob .shelf .bk.asking .ask{display:flex}
@@ -3990,7 +4080,7 @@
 @media (max-width:760px){.kob .shelf .row{gap:14px;flex-wrap:wrap}.kob .shelf .bk{width:150px}.kob .shelf .cov{height:150px}.kob .shelf .row::after{top:146px}.kob .shelf .ops{opacity:1}}
 
 </style>
-<div class="kob" id="kob" aria-label="Вход в «Очерки жизни»"><canvas></canvas><button type="button" class="kmus" id="kobMusic" aria-label="Музыка"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+<div class="kob" id="kob" aria-label="Вход в «Очерки жизни»"><div class="knight"><div class="night-base"></div><div class="night-artwork"></div><div class="night-main"></div><div class="night-warm"></div><div class="night-shadow"></div><div class="night-artwork-ink"></div><div class="night-vignette"></div></div><canvas></canvas><button type="button" class="kmus" id="kobMusic" aria-label="Музыка"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
   <section class="st" data-s="auth"><div class="k">вход</div><h2>Ваша почта</h2>
     <p class="d">Чтобы книга была с вами на любом компьютере, пришлю код — пароль не нужен.</p>
     <div class="fields"><label>почта<input type="email" id="kobEmail" autocomplete="email" placeholder="name@example.com"></label><label id="kobCodeL" hidden>код из письма<input id="kobCode" inputmode="numeric" maxlength="7" placeholder="123 456"></label></div>
@@ -4020,7 +4110,7 @@
     <div class="acts"><button class="btn ghost" data-go="how">Назад</button><button class="btn main" data-go="finish" data-need="book">Создать книгу</button></div></section>
   <div class="dots"><i></i><i></i><i></i></div>
 </div>
-<script src="assets/keeper/tour.js?v=20261107-v152"></script>
+<script src="assets/keeper/tour.js?v=20261107-v153"></script>
 <script id="kob-v142-js">
 (()=>{const ov=document.getElementById('kob');const html=document.documentElement;
   const off=()=>html.classList.remove('kob-wait');
@@ -4107,9 +4197,9 @@
   // the end: he writes the book's title with his pen, gathers into a spark, and the constructor comes up
   function finish(){const title=ov.querySelector('[data-into="bookTitleInput"]').value.trim()||'Очерки жизни';
     ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));ov.classList.remove('steps');
-    if(K){K.lookAt(null);K.mood?.('joy');K.write('Добро пожаловать',{at:[0,.1],px:72,hold:true});later(()=>K.clearWords(),3500);later(()=>leave(start),3900);}else leave(start);}
+    if(K){K.lookAt(null);K.mood?.('joy');K.write('Добро пожаловать',{at:[0,.1],px:72,hold:true});later(()=>{K.clearWords();K.flyAway?K.flyAway(-.94,-.92):(K.awayTo(-.94,-.92),K.setMode('away'));},3000);later(()=>leave(start),3600);}else leave(start);}
   const start=()=>{const b=$('startConstructorBtn');if(b){b.disabled=false;b.click();}};
-  function leave(then){if(K){K.awayTo(-.94,-.92);K.setMode('away');}
+  function leave(then){if(K&&K.mode!=='away'){if(K.flyAway)K.flyAway(-.94,-.92);else{K.awayTo(-.94,-.92);K.setMode('away');}}
     later(()=>{then&&then();ov.classList.add('gone');later(()=>{K&&K.stop();T?.destroy();ov.remove();
       // the old start key underneath never shows on the way into the constructor (it used to drop in for a moment)
       const st=$('lbStart');if(st)st.style.visibility='hidden';off();},1500);},K?900:0);}
