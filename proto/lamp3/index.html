@@ -20,7 +20,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0604;color:#f2e0c2;
 }
 .knight .night-artwork{
   z-index:2;
-  background-image:url("toile-night.png"),url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png"),url("family-toile.webp");
+  background-image:url("toile.webp");
   background-repeat:no-repeat;
   background-position:center center;
   background-size:cover;
@@ -76,7 +76,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0604;color:#f2e0c2;
 }
 .knight .night-artwork-ink{
   z-index:6;
-  background-image:url("toile-night.png"),url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png"),url("family-toile.webp");
+  background-image:url("toile.webp");
   background-repeat:no-repeat;
   background-position:center center;
   background-size:cover;
@@ -108,6 +108,7 @@ body.mono .ed{font:400 17px/1.6 "Courier New",Courier,monospace;letter-spacing:.
 .car i::before{left:20px}.car i::after{left:31px;background:#ff7a2a}
 .car b{position:absolute;left:-1.5px;top:-6px;width:3px;height:15px;background:#20140c;border-radius:2px;box-shadow:0 -2px 0 #b5651d}
 body:not(.m-type) .car{opacity:0}
+.knight{transition:opacity .6s}body.m-type .knight{opacity:0}
 .bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:4px;padding:8px 10px;border-radius:22px;background:rgba(20,12,7,.86);box-shadow:0 0 0 1px rgba(214,150,96,.3),0 12px 30px rgba(0,0,0,.5);backdrop-filter:blur(6px);max-width:96vw;overflow-x:auto;z-index:5}
 .bar button{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:72px;padding:8px 6px 6px;border:0;border-radius:14px;background:none;color:#d9bf98;font:italic 13px Georgia,serif;cursor:pointer;transition:background .4s,color .4s,box-shadow .6s}
 .bar button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -167,21 +168,24 @@ const tCol=new THREE.CanvasTexture(col),tHei=new THREE.CanvasTexture(hei);
 tCol.encoding=THREE.sRGBEncoding;[tCol,tHei].forEach(t=>{t.anisotropy=4;t.needsUpdate=true;});
 
 // ---- the desk: the toile, a lamp from the upper left, the sheet's shadow falling right and down
-const toile=new THREE.TextureLoader().load('family-toile.webp',t=>{deskMat.uniforms.uAsp.value=t.image.width/t.image.height;});toile.encoding=THREE.sRGBEncoding;toile.anisotropy=4;
+const toile=new THREE.TextureLoader().load('toile.webp',t=>{deskMat.uniforms.uAsp.value=t.image.width/t.image.height;});toile.encoding=THREE.sRGBEncoding;toile.anisotropy=4;
 const deskMat=new THREE.ShaderMaterial({transparent:true,uniforms:{uT:{value:toile},uRes:{value:new THREE.Vector2()},uS:{value:new THREE.Vector4()},uLamp:{value:1},uAsp:{value:1.5},uSrc:{value:new THREE.Vector2()},uCarOn:{value:1},uReach:{value:600},uShOff:{value:new THREE.Vector2(16,-22)}},
   vertexShader:'varying vec2 vP;void main(){vP=(modelMatrix*vec4(position,1.)).xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:`varying vec2 vP;uniform sampler2D uT;uniform vec2 uRes;uniform vec4 uS;uniform float uLamp;uniform float uAsp;uniform vec2 uSrc;uniform float uCarOn;uniform float uReach;uniform vec2 uShOff;
     float sdBox(vec2 p,vec2 c,vec2 h){vec2 d=abs(p-c)-h;return length(max(d,0.))+min(max(d.x,d.y),0.);}
-    void main(){vec2 uv=vP/uRes;float ra=uRes.x/uRes.y;if(ra>uAsp){uv.y=.5+(uv.y-.5)*uAsp/ra;}else{uv.x=.5+(uv.x-.5)*ra/uAsp;}vec3 t=texture2D(uT,uv).rgb;t=mix(vec3(dot(t,vec3(.33))),t,.7)*vec3(1.,.86,.66);
+    void main(){vec2 uv=vP/uRes;float ra=uRes.x/uRes.y;if(ra>uAsp){uv.y=.5+(uv.y-.5)*uAsp/ra;}else{uv.x=.5+(uv.x-.5)*ra/uAsp;}vec4 tx=texture2D(uT,uv);float lu=dot(tx.rgb,vec3(.3,.59,.11));vec3 t=mix(vec3(.13,.08,.045),vec3(.80,.63,.45),smoothstep(.25,.9,lu));t=mix(vec3(.10,.06,.03),t,tx.a);
       vec2 lamp=vec2(uRes.x*.12,uRes.y*1.05);float dl=length(vP-lamp)/length(uRes);
       float light=.2+uLamp*1.5*exp(-dl*dl*2.2);
       // the sheet's shadow: offset right and down, soft
       vec2 c=uS.xy,h=uS.zw;float sd=sdBox(vP,c+uShOff,h);float sh=1.-.75*(1.-smoothstep(-30.,40.,sd));
       // a little of the carriage light spills onto the desk under the sheet's bottom edge
-      vec2 dd=vP-uSrc;float ang=acos(clamp(normalize(dd+vec2(0.,.001)).y,-1.,1.));float cone=mix(.5*(1.-smoothstep(1.28,1.56,ang)),1.,1.-smoothstep(.85,1.28,ang));
-      float spill=uCarOn*cone*smoothstep(-3.,6.,dd.y)*(.1+.9/(1.+pow(length(vec2(dd.x*.5,dd.y))/uReach,1.8)));
+      vec2 dd=vP-uSrc;float ang=acos(clamp(normalize(dd+vec2(0.,.001)).y,-1.,1.));float cone=mix(.85*(1.-smoothstep(1.3,1.62,ang)),1.,1.-smoothstep(.85,1.28,ang));
+      float spill=uCarOn*cone*smoothstep(-40.,6.,dd.y)*(.08+.92/(1.+pow(length(vec2(dd.x*.5,dd.y))/uReach,1.6)));
       float sa=.7*(1.-smoothstep(-30.,40.,sd));float la=clamp(spill*.12,0.,.25);
-      float a=la+sa*(1.-la);gl_FragColor=vec4(vec3(1.,.8,.55)*la/max(a,.001),a);}`});
+      float a=la+sa*(1.-la);
+      if(uCarOn>.5){vec2 q=vP/uRes-.5;float vig=1.-smoothstep(.35,.8,length(q*vec2(1.,.8)));
+        vec3 col=t*(.09+spill*2.4*vec3(1.,.86,.68))*sh*(.55+.45*vig);gl_FragColor=vec4(col,1.);}
+      else gl_FragColor=vec4(vec3(1.,.8,.55)*la/max(a,.001),a);}`});
 const desk=new THREE.Mesh(new THREE.PlaneGeometry(1,1),deskMat);desk.position.z=-1;scene.add(desk);
 
 // ---- the sheet: lit by the desk lamp from the side (top-left brighter) and by the carriage light grazing along it
@@ -201,11 +205,11 @@ const sheetMat=new THREE.ShaderMaterial({uniforms:{uC:{value:tCol},uH:{value:tHe
       vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));float ang=acos(clamp(dir.y,-1.,1.));   // 0 = straight up
       float core=1.-smoothstep(.85,1.28,ang),tail=.55*(1.-smoothstep(1.28,1.56,ang));
       float above=smoothstep(-3.,5.,p.y-Ls.y);float cone=mix(tail,1.,core);
-      float de=length(vec2(dv.x*.45,dv.y));float fall=.1+.9/(1.+pow(de/(uSize.y*.3),1.8));fall*=smoothstep(0.,40.,dist)*.25+.75;
+      float de=length(vec2(dv.x*.45,dv.y));float fall=.14+.86/(1.+pow(de/(uSize.y*.5),1.5));fall*=(smoothstep(0.,110.,dist)*.35+.65);
       float graze=max(dot(N,L),0.);float car=uCarOn*cone*above*fall*(.95+.5*graze)*(1.+uJit);
 
 
-      vec3 c=base*(vec3(.05,.035,.025)+lamp*vec3(1.,.9,.74)*.95+car*vec3(1.0,.93,.86));
+      vec3 c=base*(vec3(.05,.035,.025)+lamp*vec3(1.,.94,.86)*1.08+car*vec3(1.0,.93,.86));
       c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*2.;
       gl_FragColor=vec4(c,1.);}`});
 new THREE.TextureLoader().load('paper.jpg',t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8;sheetMat.uniforms.uC.value=t;sheetMat.uniforms.uRep.value.set(1,1);new THREE.TextureLoader().load('paper-relief.jpg',h=>{h.anisotropy=8;sheetMat.uniforms.uH.value=h;sheetMat.uniforms.uTex.value.set(1/h.image.width,1/h.image.height);sheetMat.uniforms.uAmp.value=.35;});},undefined,()=>{});
@@ -215,20 +219,20 @@ const sheet=new THREE.Mesh(new THREE.PlaneGeometry(1,1),sheetMat);scene.add(shee
 let SW=0,SH=0,SX=0,SY=0,EM=58;
 const layout=()=>{const W=innerWidth,H=innerHeight;R.setSize(W,H,false);cam.left=0;cam.right=W;cam.top=H;cam.bottom=0;cam.updateProjectionMatrix();
   desk.scale.set(W,H,1);desk.position.set(W/2,H/2,-1);deskMat.uniforms.uRes.value.set(W,H);
-  SH=Math.min(H-110,(W-40)*1.414);SW=SH/1.414;SX=(W-SW)/2;SY=(H-SH)/2-20;
+  SH=Math.min(H-150,(W-40)*1.414);SW=SH/1.414;SX=(W-SW)/2;SY=Math.max(30,(H-120-SH)/2+10);
   sheet.scale.set(SW,SH,1);sheet.position.set(SX+SW/2,H-(SY+SH/2),0);sheetMat.uniforms.uSize.value.set(SW,SH);
   deskMat.uniforms.uS.value.set(SX+SW/2,H-(SY+SH/2),SW/2,SH/2);
   Object.assign(sheetEl.style,{left:SX+'px',top:SY+'px',width:SW+'px',height:SH+'px'});
   const m=Math.min(58,Math.round(SW*.085));Object.assign(ed.style,{left:m+'px',right:m+'px',top:'0',bottom:'0'});
   EM=m;deskMat.uniforms.uReach.value=SH*.5;
   setSpacer();follow();};
-const setSpacer=()=>{const sp=SH*.62;let st=document.getElementById('sp');if(!st){st=document.createElement('style');st.id='sp';document.head.appendChild(st);}st.textContent=`.ed::before,.ed::after{height:${Math.round(sp)}px}`;};
+const setSpacer=()=>{const sp=SH*.84;let st=document.getElementById('sp');if(!st){st=document.createElement('style');st.id='sp';document.head.appendChild(st);}st.textContent=`.ed::before{height:${Math.round(sp)}px}.ed::after{height:${Math.round(SH*.16+20)}px}`;};
 
 // ---- the caret, the carriage and the paper rolling up
 const caret=()=>{const sel=getSelection();if(!sel.rangeCount||!ed.contains(sel.anchorNode))return null;const r=sel.getRangeAt(0).cloneRange();r.collapse(true);
   let rc=r.getClientRects()[0];if(!rc){const sp=document.createElement('span');sp.textContent='​';r.insertNode(sp);rc=sp.getBoundingClientRect();sp.parentNode.removeChild(sp);sel.removeAllRanges();sel.addRange(r);}return rc;};
 let mode='type';const cur={x:0,sc:0},tgt={x:0,sc:0};let jit=0,jitT=0;
-const workY=()=>SY+SH*.62,DROP=58;
+const workY=()=>SY+SH*.84,DROP=()=>SY+SH-12-workY();
 const follow=()=>{const rc=caret();if(!rc)return;tgt.x=Math.max(SX+30,Math.min(SX+SW-30,rc.left));const cy=rc.top+rc.height/2,off=cy-workY();if(Math.abs(off)>6&&Math.abs(tgt.sc-cur.sc)<1)tgt.sc=Math.max(0,ed.scrollTop+off);};
 ['input','keyup','click','focus'].forEach(e=>ed.addEventListener(e,follow));document.addEventListener('selectionchange',follow);
 ed.addEventListener('keydown',e=>{if(e.key.length>1&&!['Enter','Backspace',' '].includes(e.key))return;jitT=performance.now();});
@@ -238,11 +242,11 @@ const frame=now=>{const dt=Math.min(.05,(now-last)/1000);last=now;
   if(++fc%12===0&&Math.abs(tgt.sc-cur.sc)<1)follow();
   if(mode==='type'&&Math.abs(ed.scrollTop-cur.sc)>=1)ed.scrollTop=Math.round(cur.sc);
   // a key strike: only the light and the carriage tremble, for a moment
-  const t=(now-jitT)/170,k=t<1?Math.pow(1-t,2):0;jit=-.18*k;const dy=-1.6*k;
-  const lx=cur.x-SX,ly=SH-(workY()-SY)-DROP;
-  deskMat.uniforms.uSrc.value.set(cur.x,innerHeight-workY()-DROP);const cx=SX+SW/2;if(mode==='type')deskMat.uniforms.uShOff.value.set((cx-cur.x)*.09,-14);else deskMat.uniforms.uShOff.value.set(16,-22);
+  const t=(now-jitT)/170,k=t<1?Math.pow(1-t,2):0;jit=0;const dy=-1.2*k;
+  const lx=cur.x-SX,ly=SH-(workY()-SY)-DROP();
+  deskMat.uniforms.uSrc.value.set(cur.x,innerHeight-workY()-DROP());const cx=SX+SW/2;if(mode==='type')deskMat.uniforms.uShOff.value.set((cx-cur.x)*.09,-14);else deskMat.uniforms.uShOff.value.set(16,-22);
   sheetMat.uniforms.uCar.value.set(lx,ly,0);sheetMat.uniforms.uJit.value=jit;
-  car.style.transform=`translate(${cur.x}px,${workY()+DROP+2-dy}px)`;
+  car.style.transform=`translate(${cur.x}px,${workY()+DROP()+2-dy}px)`;
   R.render(scene,cam);requestAnimationFrame(frame);};
 document.querySelector('.bar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.m){mode=b.dataset.m;document.body.className=document.body.className.replace(/m-\w+/,'m-'+mode);document.querySelectorAll('.bar [data-m]').forEach(x=>x.classList.toggle('on',x===b));
