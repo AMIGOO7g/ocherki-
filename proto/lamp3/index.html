@@ -108,7 +108,7 @@ body.mono .ed{font:400 17px/1.6 "Courier New",Courier,monospace;letter-spacing:.
 .car i::before{left:20px}.car i::after{left:31px;background:#ff7a2a}
 .car b{position:absolute;left:-1.5px;top:-6px;width:3px;height:15px;background:#20140c;border-radius:2px;box-shadow:0 -2px 0 #b5651d}
 body:not(.m-type) .car{opacity:0}
-.knight{transition:opacity 1.2s ease}body.m-type .knight{opacity:.6}
+.knight{transition:opacity 1.2s ease}body.m-type .knight{opacity:1}
 .bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:4px;padding:8px 10px;border-radius:22px;background:rgba(20,12,7,.86);box-shadow:0 0 0 1px rgba(214,150,96,.3),0 12px 30px rgba(0,0,0,.5);backdrop-filter:blur(6px);max-width:96vw;overflow-x:auto;z-index:5}
 .bar button{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:72px;padding:8px 6px 6px;border:0;border-radius:14px;background:none;color:#d9bf98;font:italic 13px Georgia,serif;cursor:pointer;transition:background .4s,color .4s,box-shadow .6s}
 .bar button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -183,7 +183,7 @@ const deskMat=new THREE.ShaderMaterial({transparent:true,uniforms:{uT:{value:toi
       float spill=cone*smoothstep(-40.,6.,dd.y)*(.08+.92/(1.+pow(length(vec2(dd.x*.5,dd.y))/uReach,1.6)));
       float sa=.7*(1.-smoothstep(-30.,40.,sd));
       // the carriage light shows the toile where it falls (blended over the warm glow layers); the sheet's shadow on top
-      vec3 lit=t*(.09+spill*2.4*vec3(1.,.86,.68));float aM=uCarOn*smoothstep(0.,.35,spill)*.92;
+      vec3 lit=t*(.09+spill*2.4*vec3(1.,.86,.68));float aM=0.;   // the desk looks the same in both modes: amber glow on the dark toile
       float a=1.-(1.-aM)*(1.-sa);
       gl_FragColor=vec4(lit*aM*(1.-sa)/max(a,.001),a);}`});
 const desk=new THREE.Mesh(new THREE.PlaneGeometry(1,1),deskMat);desk.position.z=-1;scene.add(desk);
@@ -199,7 +199,7 @@ const sheetMat=new THREE.ShaderMaterial({uniforms:{uC:{value:tCol},uH:{value:tHe
       vec3 N=normalize(vec3((hL-hR)*uAmp*uFib,(hD-hU)*uAmp*uFib,1.));
       vec2 p=uv*uSize;                      // pixels on the sheet, y up
       // the desk lamp: from the upper left, falling off toward the lower right
-      vec3 Ld=normalize(vec3(-.55,.65,.55));vec2 lq=(uv-vec2(-.12,1.12))*vec2(1.,.8);float lamp=uLamp*(.85+.15*max(dot(N,Ld),0.))*(.38+.78*exp(-dot(lq,lq)*1.1));
+      vec3 Ld=normalize(vec3(-.55,.65,.55));vec2 lq=(uv-vec2(-.12,1.12))*vec2(1.,.8);float lamp=uLamp*(.85+.15*max(dot(N,Ld),0.))*(.4+.55*exp(-dot(lq,lq)*1.1));
       // the carriage light: a source just above the paper at the working line, shining up along it
       vec3 Ls=vec3(uCar.xy,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
       vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));float ang=acos(clamp(dir.y,-1.,1.));   // 0 = straight up
