@@ -43,6 +43,11 @@ const CSS=`
 .okt .btn:hover{border-color:rgba(255,206,150,.95);box-shadow:0 0 14px 2px rgba(255,150,60,.4)}
 .okt .btn.main{border-color:rgba(255,206,150,.95);color:#ffe9c9;box-shadow:0 0 14px 3px rgba(255,150,60,.55),0 0 34px 8px rgba(255,120,40,.22)}
 .okt .btn:active{translate:0 2px}
+.okt .btn{position:relative}.okt .btn::after{content:"";position:absolute;inset:-14px -10px}
+/* hybrid: one desk, one sheet, the typewriter's line instead of the cards */
+.okt.hy .deck,.okt.hy .hd .sub,.okt.hy .hd p{display:none}
+.okt .dots .cnt{white-space:nowrap}
+@media (max-width:560px){.okt .nav{gap:12px}.okt .btn{padding:0 18px;font-size:18px}.okt .dots{gap:6px}}
 .okt .skip{position:absolute;right:3%;top:4%;font:italic 18px var(--okt-serif);color:#d6b48a;cursor:pointer}.okt .skip:hover{color:#ffd9a8}
 /* 1 — the page: A4 upright, folded once across; it opens upward and the writing is there all along; a pile under it, untidy */
 .okt .page{width:0;height:0;perspective:1800px}
@@ -201,6 +206,8 @@ function create(host,o={}){
        <div class="pol side"><img src="${PH}mother_child_bw.jpg" alt=""><i>Я с мамой, 1956</i></div></div>`},
     {w:'Ваша книга',sub:'останется в семье',p:'Всё, что пишете вы, и всё, что присылают родные — голоса, письма, фото, — собирается в одну книгу. Смотрите развороты, меняйте композиции, а когда всё готово — заказывайте печать.',
      c:`<div class="cd book"><div class="glow"></div><img class="bk" src="assets/keeper/tour-books.webp" alt="Очерки жизни"></div>`}];
+  const LINE=['Пишите как говорите — книга сложится сама.','Запишите голос — в книге будет код, чтобы его услышать.','Раз в неделю семья получает вопрос и отвечает.','Письма, фото и правки родных — всё в одном месте.','Всё соберётся в книгу, которая останется в семье.'];
+  const PROP=['stack','vinyl','phone','letters','book'],SIDE=[-1,1,-1,1,-1];
   const el=document.createElement('div');el.className='okt wait'+(K?'':' nok');
   el.style.setProperty('--okt-script',o.script||'"SignThatS","Sign That S",Georgia,serif');el.style.setProperty('--okt-serif',o.serif||'"CormorantCy","Iowan Old Style",Georgia,serif');
   el.innerHTML=`<div class="say"><span class="l1 mist out">Здравствуйте! Я —</span><span class="l2 mist out">Хранитель историй</span><span class="l3 mist out">Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
@@ -208,6 +215,9 @@ function create(host,o={}){
     <div class="nav"><button type="button" class="btn back" data-a="prev" hidden>Назад</button><span class="dots" hidden>${S.map(()=>'<i></i>').join('')}<em class="cnt"></em></span><button type="button" class="btn main" data-a="next">Показать</button></div>
     <span class="skip" data-a="skip">${o.skipLabel||'Пропустить'}</span>`;
   host.appendChild(el);
+  // the hybrid view: the desk goes under the Keeper's canvas (his pen writes above the sheet)
+  const D=o.view==='hybrid'&&window.OcherkiDesk&&window.THREE?OcherkiDesk.create(host,{base:o.base||''}):null;
+  if(D){el.classList.add('hy');host.insertBefore(D.el,host.querySelector(':scope>canvas')||el);}
   // the face of the upper half carries the same writing as the page
   {const sh=el.querySelector('.page>.sheet'),fr=el.querySelector('.page .flT .fr');if(sh&&fr)fr.appendChild(sh.cloneNode(true));}
   const cards=[...el.querySelectorAll('.deck .cd')],$=q=>el.querySelector(q);let i=-1,ts=[],alive=false,tok=0;
@@ -230,7 +240,9 @@ function create(host,o={}){
     c.style.transform=d===0?`translate3d(${c._dx||0}px,${c._dy||0}px,0) rotateY(0deg) rotate(0deg)`:d<0?'translate3d(-640px,40px,-300px) rotateY(38deg) rotate(-6deg)':'translate3d(680px,40px,-200px) rotateY(-42deg) rotate(8deg)';};
   cards.forEach(c=>pose(c,1));
   // where he stands while the card is shown: small, beside it, never over it
-  const spotOf=k=>{const c=cards[k];let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  const deskSpot=k=>{const r=D.rect(),W=r.W,H=r.H;let x=SIDE[k]<0?r.x-120:r.x+r.w+120,y=r.y+r.h*.42;
+    if(x<70||x>W-70){x=SIDE[k]<0?70:W-70;y=r.y-24;}return[x/W*2-1,1-y/H*2];};
+  const spotOf=k=>{if(D)return deskSpot(k);const c=cards[k];let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
     // where the picture will stand once it has arrived (it may still be gliding in)
     let mx=0,my=0;try{const m=new DOMMatrix(getComputedStyle(c).transform),k=deckScale();mx=(m.e-(c._dx||0))*k;my=(m.f-(c._dy||0))*k;}catch(_){}c.querySelectorAll('*:not(.far):not(.eq):not(.eq *):not(.flT):not(.flT *)').forEach(e=>{const r=e.getBoundingClientRect();if(!r.width||r.width>innerWidth*.9)return;x0=Math.min(x0,r.left-mx);x1=Math.max(x1,r.right-mx);y0=Math.min(y0,r.top-my);y1=Math.max(y1,r.bottom-my);});
     const W=el.clientWidth||innerWidth,H=el.clientHeight||innerHeight;if(x1<x0)return[k%2?.5:-.5,-.2];const left=k%2===0;let x=left?x0-120:x1+120,y=y0+(y1-y0)*.38;
@@ -253,11 +265,12 @@ function create(host,o={}){
     cards.forEach((c,j)=>{if(j!==i)pose(c,j-i);});el.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));$('.dots .cnt').textContent=`${i+1} из ${S.length}`;
     $('[data-a="next"]').textContent=i===S.length-1?(o.last||'Начать'):'Далее';$('[data-a="prev"]').hidden=i<1;
     later(()=>{if(t!==tok)return;$('.hd h2').textContent=S[i].w;$('.hd .sub').textContent=S[i].sub;$('.hd p').textContent=S[i].p;
-      if(K){K.write(S[i].w,{at:headAt(),px:66,hold:true});
-        later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.8);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);moodLife(t,i);if(i===1)notes(t,sp,'♪♫');if(i===2)notes(t,sp,'?','var(--okt-serif)');if(i===3)notes(t,sp,'абвгдеёжзиклмнопрстуфхэюя','var(--okt-script)');},1400);
+      if(K){const Wd=el.clientWidth||innerWidth;K.write(S[i].w,{at:headAt(),px:Math.round(Math.min(66,(Wd-60)/(.6*S[i].w.length))),hold:true});
+        later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.8);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);moodLife(t,i);},1400);
         later(()=>{if(t===tok)mist('.hd .sub',true);},2400);later(()=>{if(t===tok)mist('.hd p',true);},2800);}
       else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?60:450);
-    later(()=>{if(t===tok){fit(cards[i]);pose(cards[i],0);}},prev<0?500:950);};
+    if(D){D.prop(PROP[i]);later(()=>{if(t!==tok)return;D.setLines(LINE.slice(0,i));D.type(LINE[i]);},prev<0?700:420);}
+    else later(()=>{if(t===tok){fit(cards[i]);pose(cards[i],0);}},prev<0?500:950);};
   const notes=(t,sp,chars='♪♫',font)=>{let box=$('.notes');if(!box){box=document.createElement('div');box.className='notes';el.appendChild(box);}
     const W=el.clientWidth||innerWidth,H=el.clientHeight||innerHeight,x=(sp[0]+1)/2*W,y=(1-sp[1])/2*H;
     const one=()=>{if(t!==tok||!alive)return;const n=document.createElement('i');n.textContent=chars[Math.floor(Math.random()*chars.length)];if(font)n.style.setProperty('--f',font);
@@ -266,14 +279,18 @@ function create(host,o={}){
       n.style.animationDuration=(2.4+Math.random()*1.4)+'s';n.style.fontSize=(18+Math.random()*10)+'px';box.appendChild(n);setTimeout(()=>n.remove(),4000);later(one,500+Math.random()*700);};
     // start once he stands there, gathered
     const ready=()=>{if(t!==tok||!alive)return;if(!K||(K.state.form>.92&&K.mode==='free'))one();else later(ready,150);};later(ready,300);};
-  let begun=false;const first=()=>{begun=true;['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));$('.dots').hidden=false;later(()=>show(0),250);};
-  const finish=r=>{alive=false;ts.forEach(clearTimeout);ts=[];tok++;['h2','.sub','p'].forEach(q=>mist('.hd '+q,false));['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));if(K)K.clearWords();cards.forEach(c=>pose(c,1));o.onDone?.(r);};
+  let begun=false;const first=()=>{begun=true;D?.show();['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));$('.dots').hidden=false;later(()=>show(0),250);};
+  const finish=r=>{alive=false;ts.forEach(clearTimeout);ts=[];tok++;['h2','.sub','p'].forEach(q=>mist('.hd '+q,false));['.l1','.l2','.l3'].forEach(q=>mist('.say '+q,false));if(K)K.clearWords();cards.forEach(c=>pose(c,1));D?.hide();o.onDone?.(r);};
   el.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;
     if(a==='skip'){finish('skip');return;}
     if(a==='prev'){if(i>0)show(i-1);return;}
-    if(a==='next'){if(i<0){first();return;}if(K&&K.hurry?.()){const n=i+1;later(()=>{if(n>=S.length)finish('done');else show(n);},380);return;}if(i>=S.length-1){finish('done');return;}show(i+1);}});
+    if(a==='next'){if(i<0){first();return;}K?.hurry?.();D?.finish();if(i>=S.length-1){finish('done');return;}show(i+1);}});
   const key=e=>{if(!alive||el.classList.contains('wait'))return;if(e.key==='Escape')finish('skip');if(e.key==='ArrowRight'||e.key==='Enter')$('[data-a="next"]').click();if(e.key==='ArrowLeft')$('[data-a="prev"]').click();};
   addEventListener('keydown',key);
+  // a swipe on a phone: left — next, right — back
+  let sx=null,sy=0;const ts0=e=>{const p=e.touches[0];sx=p.clientX;sy=p.clientY;},ts1=e=>{if(sx===null||!alive||el.classList.contains('wait'))return;const p=e.changedTouches[0],dx=p.clientX-sx,dy=p.clientY-sy;sx=null;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)$(dx<0?'[data-a="next"]':'[data-a="prev"]').click();};
+  host.addEventListener('touchstart',ts0,{passive:true});host.addEventListener('touchend',ts1,{passive:true});
   return{el,
     // greeting:true — he greets first: the words come out of the mist one after another, the keys last;
     // false — straight to the first card
@@ -284,14 +301,14 @@ function create(host,o={}){
           else later(wait,160);};later(wait,500);}
       else{el.classList.remove('wait');first();}},
     stop(){alive=false;ts.forEach(clearTimeout);ts=[];},
-    destroy(){this.stop();removeEventListener('keydown',key);el.remove();}};
+    destroy(){this.stop();removeEventListener('keydown',key);host.removeEventListener('touchstart',ts0);host.removeEventListener('touchend',ts1);D?.destroy();el.remove();}};
 }
 // three.js and the Keeper, loaded once for everyone who needs him (scripts already on the page are not loaded again)
 const ME=(document.currentScript&&document.currentScript.src)||'';const VER=(ME.match(/\?v=[^&]+/)||[''])[0];const BASE=ME?ME.replace(/assets\/keeper\/tour\.js.*$/,''):'';
-const V=BASE+'assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js',BASE+'assets/keeper/keeper3d.js'+VER];
+const V=BASE+'assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js',BASE+'assets/keeper/keeper3d.js'+VER,BASE+'assets/keeper/desk.js'+VER];
 let libs=null;
-const loadKeeper=()=>libs||(libs=window.OcherkiKeeper3D?Promise.resolve():LIBS.reduce((p,src)=>p.then(()=>{
-  if(src.includes('three.min')&&window.THREE)return null;if(src.includes('keeper3d')&&window.OcherkiKeeper3D)return null;
+const loadKeeper=()=>libs||(libs=window.OcherkiKeeper3D&&window.OcherkiDesk?Promise.resolve():LIBS.reduce((p,src)=>p.then(()=>{
+  if(src.includes('three.min')&&window.THREE)return null;if(src.includes('keeper3d')&&window.OcherkiKeeper3D)return null;if(src.includes('desk.js')&&window.OcherkiDesk)return null;
   const nm=src.split('/').pop().split('?')[0];if(!src.includes('three.min')&&!src.includes('keeper3d')&&[...document.scripts].some(sc=>sc.src&&sc.src.includes(nm)))return null;
   return new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);});}),Promise.resolve()).catch(e=>{libs=null;throw e;}));
 // warm him up while nothing else happens, so the first call never shows an empty dark screen
