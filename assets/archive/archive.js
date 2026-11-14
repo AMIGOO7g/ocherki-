@@ -42,6 +42,23 @@ const EXTRA=`
 .oar .ph .fri{position:absolute;inset:0;width:100%;height:100%}
 .oar .phone .scr{left:4.2%;top:2.1%;width:90.6%;height:95.6%}
 .oar audio{display:none}
+.oar .page.withstrip{bottom:150px}
+.oar .strip{position:fixed;left:6vw;right:6vw;bottom:18px;height:112px;z-index:6;display:flex;gap:18px;align-items:center;overflow-x:auto;overflow-y:hidden;padding:8px 6px;scrollbar-width:thin;scrollbar-color:#6b4a2c transparent;-webkit-mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent);mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.oar .strip .th{flex:none;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;opacity:.55;transition:opacity .4s,transform .4s;position:relative}
+.oar .strip .th:hover{opacity:.9;transform:translateY(-3px)}
+.oar .strip .th.on{opacity:1}
+.oar .strip .th.on::after{content:"";position:absolute;bottom:-6px;left:30%;right:30%;height:2px;border-radius:1px;background:#e8c58e;box-shadow:0 0 8px rgba(255,170,90,.7)}
+.oar .strip .th img,.oar .strip .th .pic2{height:74px;width:auto;display:block;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))}
+.oar .strip .th .pic2{width:60px;background:center/cover;border:5px solid #efe2c8}
+.oar .strip .th.land .pic2{width:96px}
+.oar .strip .dsc{position:relative;width:74px;height:74px}
+.oar .strip .dsc img{position:absolute;inset:0;width:100%;height:100%}
+.oar .strip .dsc i{position:absolute;left:28%;top:28%;width:44%;height:44%;border-radius:50%;background:center/cover;filter:sepia(.4)}
+.oar .strip .sht{width:58px;height:74px;background:url("${A}keeper/desk-paper-small.jpg") center/cover;box-shadow:0 6px 8px rgba(0,0,0,.5);padding:8px 6px;font:400 13px/1 "SignThatS",Georgia;color:#3b2a1c;overflow:hidden}
+.oar .strip .th small{margin-top:6px;font:italic 12px Georgia,serif;color:#e2c9a2;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oar .k.done{border-color:#9fd08a;color:#d9f2cc;box-shadow:0 0 12px rgba(140,210,120,.35)}
+.oar [contenteditable="true"]{outline:1px dashed rgba(232,197,142,.55);outline-offset:4px;border-radius:3px;background:rgba(255,220,170,.05)}
+.oar .toast{position:fixed;left:50%;top:24px;translate:-50% 0;padding:12px 22px;border-radius:22px;background:rgba(20,10,4,.92);border:1px solid rgba(232,197,142,.45);font:italic 16px Georgia,serif;color:#f2e0c2;z-index:9;animation:oa-up .5s ease both}
 `;
 const inject=()=>{if(document.getElementById('oar-css'))return;
   const l=document.createElement('link');l.id='oar-css';l.rel='stylesheet';l.href=BASE+'assets/archive/archive.css'+VER;document.head.appendChild(l);
@@ -117,7 +134,7 @@ const page=(k,i)=>{
  if(k==='edits')return{c:'Правки',l:`<div class="sheet proof settle"><h3>Тифлис</h3><div class="print"><p>Отец уходил рано, а возвращался затемно. <span class="e" data-n="0"><del>В сорок четвёртом</del><span class="over">В 1944 году</span></span> они шли пешком до Кутаиси и пели всю дорогу<span class="e" data-n="1"><span class="mark">,</span></span> чтобы не уснуть.</p><p>По субботам пекли хачапури, и весь двор пах сыром и дымом. Дом был <span class="e" data-n="2"><del>на две семьи</del><span class="over">на два хозяина</span></span>, во дворе росла старая груша.</p><p>Мама пекла <span class="e" data-n="3"><del>в ноябре месяце</del><span class="over">в ноябре</span></span> медовик, и вся улица знала, что скоро праздник…</p></div></div>`,
    r:`<div class="kk">правки · мастерская · 30 октября</div><h2>Вычитка главы</h2><div class="sub">4 правки — примите или отклоните каждую</div><div class="rule"></div><div class="list">${[['В сорок четвёртом','В 1944 году','даты — цифрами'],['всю дорогу чтобы','всю дорогу, чтобы','запятая'],['на две семьи','на два хозяина','так говорила бабушка'],['в ноябре месяце','в ноябре','лишнее слово']].map(([w,n,c],j)=>`<div class="row" data-n="${j}"><span class="tx"><span class="was">${w}</span> → <span class="now">${n}</span><small>${c}</small></span><span class="ok" data-ok>✓</span><span class="no" data-no>✕</span></div>`).join('')}</div>${keys([['Принять все','okall'],['Открыть главу']])}`,n:1};
  if(k==='record')return{c:'Записать голос',l:reel(false),r:recRight('ready'),n:1};
- if(k==='send')return{c:'Вопрос недели',ph:1,l:`<div class="phone"><img src="${A}archive/phone2.webp" alt=""><div class="scr"><div class="glow"></div><div class="time">10:00</div><div class="note"><b></b><span>Вопрос недели<small>от Нины Петровны · сейчас</small></span></div><div class="body"><i>вопрос недели</i><h4>Какое блюдо в детстве было праздничным?</h4><small>ответьте, как удобно</small><div class="mic"></div><div class="alt"><span>написать</span><span>фото</span></div></div></div></div>`,
+ if(k==='send')return{c:'Вопрос недели',ph:1,l:`<div class="phone"><img src="${A}archive/phone2.webp" alt=""><div class="scr"><div class="glow"></div><div class="time">10:00</div><div class="ntf"><b></b><span>Вопрос недели<small>от Нины Петровны · сейчас</small></span></div><div class="body"><i>вопрос недели</i><h4>Какое блюдо в детстве было праздничным?</h4><small>ответьте, как удобно</small><div class="mic"></div><div class="alt"><span>написать</span><span>фото</span></div></div></div></div>`,
    r:`<div class="kk">новый вопрос недели</div><h2>Кому отправить</h2><div class="sub">так вопрос увидят родные · ответят по ссылке, без регистрации</div><div class="rule"></div><div class="chips">${['детство','дом','праздники','любовь','война','работа'].map((t,j)=>`<span class="${j===2?'on':''}">${t}</span>`).join('')}</div><div class="list" style="max-height:30vh">${[['grandma_porch','Нина Петровна','бабушка · телефон'],['mother_daughter','Мама','почта'],['mountains_father_son','Сергей','телефон'],['girl_flowers','Варя','телефон'],['nikolai_portrait','Николай','почта']].map(([f,n,s])=>`<div class="row"><b class="av" style="background-image:url('${P}${f}.jpg')"></b><span class="tx">${n}<small>${s}</small></span><span class="tick">✓</span></div>`).join('')}</div>${keys(['Отправить в понедельник','Другой вопрос','+ Пригласить'])}`,n:1};
  return null;};
 const recRight=(st,len)=>{const head=`<div class="kk">записать голос</div><h2 class="q">Каким был ваш первый дом?</h2><div class="rule"></div>`;
@@ -136,9 +153,23 @@ const showDesk=()=>{where={v:'desk'};render(`${top('Конструктор')}<he
 const showSec=k=>{const s=SECS.find(x=>x.k===k);if(k==='week'||k==='edits'){showPage(k,0,true);return;}
   where={v:'sec',k};list=items(k);
   render(`${top('Архив')}<header><h1>${s.t}</h1><p>${s.n()}</p></header><div class="spread">${list.length?list.map((it,i)=>`<div class="it" data-i="${i}" style="--d:${(.06*i).toFixed(2)}s;--r:${((i*37%7)-3)*.8}deg"><div class="vis">${it.h}</div><strong>${esc(it.t)}</strong><em>${esc(it.s)}</em></div>`).join(''):'<div class="empty">Здесь пока пусто</div>'}</div>${k==='voices'?`<div class="sp-acts"><button class="k main" data-go="record">● Записать голос</button></div>`:''}`);};
-const showPage=(k,i,fromDesk)=>{const p=page(k,i);if(!p)return;where={v:'page',k,i,fromDesk};at=i;
+const strip=(k,i)=>{let th=[];
+  if(k==='photos')th=D.photos.map(x=>({h:`<span class="pic2" style="background-image:url('${P}${x[0]}.jpg')"></span>`,t:x[1],land:x[7]}));
+  else if(k==='voices')th=[...store.get().map(m=>({h:`<span class="dsc"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}grandma_porch.jpg')"></i></span>`,t:m.t})),...D.voices.map(x=>({h:`<span class="dsc"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}${x[0]}.jpg')"></i></span>`,t:x[1]}))];
+  else if(k==='letters')th=D.letters.map(x=>({h:`<img src="${A}archive/envelope.webp" alt="">`,t:'от '+x[0]}));
+  else if(k==='texts')th=D.texts.map(x=>({h:`<span class="sht">${x[0]}</span>`,t:x[0]}));
+  if(th.length<2)return'';return `<div class="strip">${th.map((x,j)=>`<div class="th${j===i?' on':''}${x.land?' land':''}" data-th="${j}">${x.h}<small>${esc(x.t)}</small></div>`).join('')}</div>`;};
+const IB='ocherkiArchiveInBook',ED='ocherkiArchiveEdits';
+const getJ=n=>{try{return JSON.parse(localStorage.getItem(n)||'{}');}catch(_){return{};}},setJ=(n,v)=>{try{localStorage.setItem(n,JSON.stringify(v));}catch(_){}};
+const toast=t=>{root.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;root.appendChild(d);setTimeout(()=>d.remove(),3200);};
+const showPage=(k,i,fromDesk)=>{const p=page(k,i);if(!p)return;where={v:'page',k,i,fromDesk};at=i;const st=strip(k,i);
   const nav=p.n>1?`<div class="nav"><b data-nav="-1">‹ предыдущее</b><span>${i+1} из ${p.n}</span><b data-nav="1">следующее ›</b></div>`:'';
-  render(`${top(fromDesk?'Архив':p.c)}<div class="page"><div class="obj${p.ph?' phn':''}">${p.l}</div><div class="info">${p.r}${nav}</div></div>`);
+  render(`${top(fromDesk?'Архив':p.c)}<div class="page${st?' withstrip':''}"><div class="obj${p.ph?' phn':''}">${p.l}</div><div class="info">${p.r}${nav}</div></div>${st}`);
+  root.querySelector('.strip .th.on')?.scrollIntoView({inline:'center',block:'nearest'});
+  // «В книгу» and «Изменить» on every thing; what was changed is kept
+  const key=k+':'+i,info=root.querySelector('.info');
+  info.querySelectorAll('.keys .k').forEach(b=>{const t=b.textContent.trim();if(t==='В книгу'){b.dataset.act='tobook';if(getJ(IB)[key]){b.textContent='✓ В книге';b.classList.add('done');}}if(t==='Изменить')b.dataset.act='edit';});
+  const ed=getJ(ED)[key];if(ed)info.querySelectorAll('h2,.sub,.story,dd').forEach((e,j)=>{if(ed[j]!=null)e.innerHTML=ed[j];});
   if(k==='edits')root.querySelectorAll('.row[data-n]').forEach(r=>r.addEventListener('mouseenter',()=>{const n=r.dataset.n;root.querySelectorAll('.row,.e').forEach(x=>x.classList.toggle(x.classList.contains('row')?'on':'hl',x.dataset.n===n));}));};
 // play: a real recording plays its sound; a demo one only turns, the wave advancing in time
 const play=async b=>{const d=root.querySelector('.bigdisc');const on=b.classList.contains('paused');stopAudio();if(!on)return;
@@ -173,7 +204,11 @@ const onClick=e=>{const t=e.target;
   const go=t.closest('[data-go]');if(go){showPage(go.dataset.go,0);return;}
   const pl=t.closest('[data-play]');if(pl){play(pl);return;}
   if(t.closest('[data-rec]')){startRec();return;}if(t.closest('[data-stop]')){rec&&rec.stop();return;}
+  const th=t.closest('.strip [data-th]');if(th){showPage(where.k,+th.dataset.th,where.fromDesk);return;}
   const a=t.closest('[data-act]')?.dataset.act;
+  if(a==='tobook'){const b=t.closest('[data-act]'),key=where.k+':'+where.i,m=getJ(IB);if(m[key]){delete m[key];b.textContent='В книгу';b.classList.remove('done');toast('Убрано из книги');}else{m[key]=Date.now();b.textContent='✓ В книге';b.classList.add('done');toast('Отмечено для книги — появится в «Рукописи» при сборке главы');}setJ(IB,m);return;}
+  if(a==='edit'){const b=t.closest('[data-act]'),info=root.querySelector('.info'),els=[...info.querySelectorAll('h2,.sub,.story,dd')],on=b.dataset.on!=='1';
+    els.forEach(e=>e.contentEditable=on?'true':'false');if(on){b.dataset.on='1';b.textContent='Сохранить';els[0]?.focus();}else{b.dataset.on='0';b.textContent='Изменить';const m=getJ(ED);m[where.k+':'+where.i]=els.map(e=>e.innerHTML);setJ(ED,m);toast('Сохранено');}return;}
   if(a==='save'){saveRec();return;}if(a==='again'){recBlob=null;root.querySelector('.info').innerHTML=recRight('ready');return;}
   if(a==='cycle'){cycle();return;}if(a==='send'){showPage('send',0);return;}
   if(a==='okall'){root.querySelectorAll('.row[data-n]').forEach(r=>accept(r));return;}
@@ -184,7 +219,7 @@ const onClick=e=>{const t=e.target;
 // accepting a correction: the red ink fades, the new word stays in the line
 const accept=r=>{if(!r||r.dataset.done)return;r.dataset.done=1;const e=root.querySelector(`.e[data-n="${r.dataset.n}"]`);if(e){const o=e.querySelector('.over'),d=e.querySelector('del'),m=e.querySelector('.mark');
   if(o&&d){d.replaceWith(document.createTextNode(o.textContent));o.remove();}if(m){m.style.color='inherit';m.style.font='inherit';}}r.style.opacity=.35;r.querySelector('.ok').textContent='✓';};
-const onKey=e=>{if(!root)return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){const p=page(where.k,0);if(p.n>1)showPage(where.k,(where.i+(e.key==='ArrowRight'?1:-1)+p.n)%p.n,where.fromDesk);}};
+const onKey=e=>{if(!root)return;if(e.target.isContentEditable&&e.key!=='Escape')return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){const p=page(where.k,0);if(p.n>1)showPage(where.k,(where.i+(e.key==='ArrowRight'?1:-1)+p.n)%p.n,where.fromDesk);}};
 const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';document.body.appendChild(root);root.addEventListener('click',onClick);addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
   if(w==='desk')showDesk();else if(['record','send'].includes(w))showPage(w,0);else if(SECS.some(s=>s.k===w))showSec(w);else showDesk();};
 const close=()=>{if(!root)return;stopAudio();if(rec&&rec.state==='recording')rec.stop();const r=root;root=null;where=null;removeEventListener('keydown',onKey,true);r.classList.remove('in');setTimeout(()=>r.remove(),600);};
