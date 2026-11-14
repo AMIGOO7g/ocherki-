@@ -105,7 +105,7 @@ function create(host,o={}){
     const top=H*.05+110,bot=H*.94-50-26;SH=Math.max(260,bot-top);SW=SH/1.414;if(SW>W-32){SW=W-32;SH=SW*1.414;}SX=(W-SW)/2;SY=top+((bot-top)-SH)/2;
     sheet.scale.set(SW,SH,1);sheet.position.set(SX+SW/2,H-(SY+SH/2),0);sm.uniforms.uSize.value.set(SW,SH);
     desk.scale.set(W,H,1);desk.position.set(W/2,H/2,-1);dm.uniforms.uS.value.set(SX+SW/2,H-(SY+SH/2),SW/2,SH/2);
-    EM=Math.round(SW*.075);FS=Math.max(14,Math.min(16,Math.round(SW*.037)));LH=Math.round(FS*1.5);
+    EM=Math.round(SW*(SW<440?.05:.075));FS=Math.max(16,Math.min(17,Math.round(SW*.037)));LH=Math.round(FS*1.5);
     const pt=SY+SH*.15;Object.assign(pg.style,{left:SX+EM+'px',top:pt+'px',width:(SW-2*EM)+'px',height:(SY+SH-pt)+'px'});pg.style.setProperty('--fs',FS+'px');
     Object.assign(rail.style,{left:(SX-16)+'px',width:(SW+32)+'px',top:(workY()+DROP+9)+'px'});sm.uniforms.uRail.value=SH-(workY()+DROP+13-SY);
     ln.style.bottom=(SY+SH-workY()-LH/2)+'px';placeProps();follow(true);};
@@ -142,7 +142,9 @@ function create(host,o={}){
   // where the Keeper may stand: beside the sheet, on the side away from the object
   const rect=()=>({x:SX,y:SY,w:SW,h:SH,W,H});
   let alive=true,last=performance.now(),nod=0,spread=0;
-  const frame=now=>{if(!alive)return;const dt=Math.min(.05,(now-last)/1000);last=now;
+  let probe=0,probeN=0,probeT=0;
+  const frame=now=>{if(!alive)return;const raw=(now-last)/1000;const dt=Math.min(.05,raw);last=now;
+    if(GO.fade>0&&GO.car>0&&probeN<0+120){if(!probeT)probeT=now;probe+=raw;probeN++;if(now-probeT>2500){if(probe/probeN>1/24){GO.car=0;GO.lamp=1;el.classList.add('lamp');}probeN=999;}}
     const u=sm.uniforms,f=Math.min(1,dt*2.2),g=Math.min(1,dt*2.6);u.uCarOn.value+=(GO.car-u.uCarOn.value)*f;u.uLamp.value+=(GO.lamp-u.uLamp.value)*f;
     u.uFade.value+=(GO.fade-u.uFade.value)*g;dm.uniforms.uFade.value=u.uFade.value;
     spread+=((centred?1:0)-spread)*Math.min(1,dt*1.6);cur.x+=(tgt.x-cur.x)*Math.min(1,dt*(centred?2.2:12));const DR=DROP;
