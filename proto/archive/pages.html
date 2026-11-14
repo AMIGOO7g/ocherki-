@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Архив — страницы</title>
+<style>
+@font-face{font-family:"SignThatS";src:url("../../assets/fonts/SignThatS.otf") format("opentype");font-display:swap}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#140a04;color:#f3e3c8;font-family:"Iowan Old Style",Georgia,serif}
+.knight{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.knight>div{position:absolute;inset:0}
+.nb{background:linear-gradient(180deg,#211006 0%,#1b0e06 36%,#150a04 72%,#0e0703 100%)}
+.na{background:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png") center/cover no-repeat;filter:brightness(.40) contrast(2) saturate(.58) sepia(.24);opacity:.54}
+.nm{inset:-14% -12% -16% -14%!important;background:radial-gradient(ellipse 66% 60% at 49% 45%,rgba(236,168,91,.66) 0%,rgba(207,130,55,.55) 18%,rgba(164,88,27,.42) 38%,rgba(111,51,15,.27) 58%,rgba(62,27,9,.12) 75%,transparent 91%);filter:blur(56px);opacity:.88}
+.nw{inset:-12% -8% -10% -12%!important;background:radial-gradient(ellipse 48% 44% at 41% 36%,rgba(244,187,112,.72) 0%,rgba(225,151,71,.62) 16%,rgba(190,111,39,.48) 34%,rgba(139,68,19,.31) 52%,rgba(82,37,11,.14) 70%,transparent 88%);filter:blur(66px);opacity:.9}
+.ni{background:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png") center/cover no-repeat;filter:grayscale(.08) brightness(.92) contrast(1.4) saturate(.36) sepia(.12);mix-blend-mode:multiply;opacity:.09}
+.nv{inset:-6%!important;background:radial-gradient(circle at 0% 0%,rgba(0,0,0,.7) 0%,transparent 40%),radial-gradient(circle at 100% 0%,rgba(0,0,0,.76) 0%,transparent 42%),radial-gradient(circle at 0% 100%,rgba(0,0,0,.78) 0%,transparent 43%),radial-gradient(circle at 100% 100%,rgba(0,0,0,.84) 0%,transparent 44%),radial-gradient(ellipse 94% 86% at 46% 43%,transparent 40%,rgba(0,0,0,.28) 84%,rgba(0,0,0,.54) 100%)}
+
+.dim{position:fixed;inset:0;background:radial-gradient(ellipse 80% 70% at 45% 50%,rgba(0,0,0,.05),rgba(0,0,0,.45));pointer-events:none}
+.top{position:fixed;left:28px;right:28px;top:22px;display:flex;justify-content:space-between;align-items:center;z-index:5;font:italic 17px Georgia,serif;color:#d9bf98}
+.top .x{width:44px;height:44px;border-radius:50%;border:1px solid rgba(232,197,142,.35);display:grid;place-items:center;font-style:normal}
+.page{position:fixed;inset:84px 6vw 44px;display:grid;grid-template-columns:1.1fr 1fr;gap:5vw;align-items:center}
+.obj{display:flex;align-items:center;justify-content:center;height:100%;min-height:0;position:relative}
+/* ---------- the catalogue style (B) ---------- */
+.kk{font:500 12px "Iowan Old Style",Georgia,serif;letter-spacing:.42em;text-transform:uppercase;color:#d8b47e}
+h2{margin:30px 0 6px;font:400 64px/1 "SignThatS",Georgia,serif;color:#fff2dc;text-shadow:0 0 22px rgba(255,160,70,.25)}
+.sub{font:italic 22px Georgia,serif;color:#e9cfa6}
+.rule{width:120px;height:1px;margin:26px 0;background:linear-gradient(90deg,#e8c58e,rgba(232,197,142,0))}
+dl{display:grid;grid-template-columns:auto 1fr;gap:12px 28px;margin:0;font:18px/1.35 Georgia,serif}
+dt{font:500 11px "Iowan Old Style",Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:#bf9a6c;padding-top:5px}dd{margin:0;color:#f6e8d2}
+.story{margin:26px 0 0;max-width:480px;font:italic 20px/1.55 Georgia,serif;color:#ead6b4}
+.keys{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.k{height:46px;padding:0 24px;border-radius:23px;border:1px solid rgba(232,197,142,.35);background:none;color:#f2e0c2;font:italic 17px Georgia,serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.k.main{border-color:rgba(255,206,150,.95);color:#ffe9c9;box-shadow:0 0 12px 2px rgba(255,150,60,.45)}
+.nav{display:flex;align-items:center;gap:16px;margin-top:16px;font:italic 15px Georgia,serif;color:#c99a6a}.nav b{font-weight:400;color:#e9d3b0}
+/* ---------- the player: a fine waveform of hairlines, mirrored on a centre line; the played part in gold ---------- */
+.pl{display:flex;align-items:center;gap:20px;max-width:520px}
+.pp{width:60px;height:60px;flex:none;border-radius:50%;border:1px solid #e8c58e;display:grid;place-items:center;box-shadow:0 0 18px rgba(255,170,90,.35),inset 0 0 12px rgba(255,190,120,.12)}
+.pp::after{content:"";border-left:3px solid #ffe9c9;border-right:3px solid #ffe9c9;width:5px;height:16px}
+.pp.rec{border-color:#e46a4a;box-shadow:0 0 22px rgba(240,90,60,.5)}.pp.rec::after{border:0;width:22px;height:22px;border-radius:50%;background:#e2503a}
+.pp.stop::after{border:0;width:16px;height:16px;border-radius:3px;background:#ffe9c9}
+.wf{position:relative;flex:1;height:56px;display:flex;align-items:center;gap:2px}
+.wf i{flex:1;max-width:2px;height:calc(var(--h)*100%);border-radius:2px;background:rgba(232,197,142,.28);transform-origin:center}
+.wf i.p{background:linear-gradient(180deg,#fff0d4,#e8b26a 50%,#fff0d4)}
+.wf i.near{animation:br 1.1s ease-in-out var(--dl) infinite alternate}
+@keyframes br{to{transform:scaleY(1.25)}}
+.wf .head{position:absolute;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff3dc;box-shadow:0 0 10px 3px rgba(255,190,110,.7)}
+.wf.live i{animation:lv var(--d) ease-in-out var(--dl) infinite alternate;background:linear-gradient(180deg,#ffd8c8,#e46a4a 50%,#ffd8c8)}
+@keyframes lv{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.tm{display:flex;justify-content:space-between;max-width:520px;padding-left:80px;margin-top:6px;font:italic 14px Georgia,serif;color:#c99a6a}
+/* ---------- objects ---------- */
+.bigph{position:relative;height:72vh;aspect-ratio:900/1214}
+.bigph .pic{position:absolute;inset:6.5% 7%;background:center/cover;filter:sepia(.25)}
+.bigph img{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.7))}
+.bigdisc{position:relative;width:min(62vh,40vw);aspect-ratio:1}
+.bigdisc .spin{position:absolute;inset:0;animation:sp 3.6s linear infinite}.bigdisc .spin img{width:100%;height:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.7))}
+.bigdisc .lab{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%;border-radius:50%;background:center/cover;filter:sepia(.45) brightness(.82)}
+.bigdisc .sh{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.9}
+@keyframes sp{to{transform:rotate(360deg)}}
+.rec{position:relative;width:min(64vh,40vw)}.rec img{width:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.7))}
+.rec .reel{position:absolute;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,255,255,.22) 0 6%,transparent 6% 33%,rgba(255,255,255,.22) 33% 39%,transparent 39% 66%,rgba(255,255,255,.22) 66% 72%,transparent 72%);animation:sp 2.2s linear infinite;mix-blend-mode:screen}
+.rec .lamp{position:absolute;left:69%;top:73%;width:10px;height:10px;border-radius:50%;background:#ff5a3a;box-shadow:0 0 12px 4px rgba(255,80,50,.7);animation:bl 1.2s ease-in-out infinite alternate}
+@keyframes bl{to{opacity:.35}}
+/* the laid sheet: letters, stories, edits (much text reads better on paper) */
+.sheet{position:relative;width:min(560px,100%);height:78vh;padding:52px 58px;background:url("../../assets/keeper/desk-paper.jpg") center/cover;color:#2a1c12;box-shadow:0 2px 3px rgba(0,0,0,.3),0 34px 60px rgba(0,0,0,.6);rotate:-.8deg;overflow:hidden}
+.sheet::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 110% at 0% 0%,rgba(255,240,215,.16),transparent 55%),linear-gradient(135deg,transparent 50%,rgba(60,35,15,.2))}
+.sheet .hand{font:400 25px/1.5 "SignThatS",Georgia,serif;color:#33231a}
+.sheet .print{font:18px/1.65 Georgia,serif}
+.sheet h3{margin:0 0 16px;font:400 38px "SignThatS",Georgia,serif;color:#4b3424}
+.sheet .env{position:absolute;right:-60px;bottom:-40px;width:300px;rotate:-12deg;filter:drop-shadow(0 14px 18px rgba(0,0,0,.5))}
+.sheet del{color:#a8302a;text-decoration-thickness:1.5px}
+.sheet ins{text-decoration:none;color:#1f140c;background:linear-gradient(transparent 62%,rgba(232,180,90,.38) 62%)}
+.sheet .mk{position:absolute;right:14px;width:22px;height:22px;border-radius:50%;border:1.5px solid #a8302a;color:#a8302a;display:grid;place-items:center;font:700 12px Georgia,serif;background:rgba(255,255,255,.4)}
+/* list of edits / of family on the right */
+.row{display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid rgba(232,197,142,.16);max-width:520px}
+.row:last-of-type{border-bottom:1px solid rgba(232,197,142,.16)}
+.row .av{width:44px;height:44px;border-radius:50%;background:center/cover #3a2a1c;flex:none;box-shadow:0 0 0 1px rgba(232,197,142,.5)}
+.row .tx{flex:1;font:17px/1.35 Georgia,serif;color:#f6e8d2}.row .tx small{display:block;font:italic 14px Georgia,serif;color:#bf9a6c}
+.row .was{color:#d98a7a;text-decoration:line-through}.row .now{color:#ffe9c9}
+.row .ok,.row .no{width:36px;height:36px;border-radius:50%;border:1px solid rgba(232,197,142,.4);display:grid;place-items:center;font:16px Georgia,serif;color:#f2e0c2;flex:none}
+.row .ok{border-color:#e8c58e;color:#ffe9c9}
+.tick{width:22px;height:22px;border-radius:5px;border:1px solid rgba(232,197,142,.6);display:grid;place-items:center;color:#ffe9c9;font:14px Georgia}
+/* the question card and the empty frame */
+.qbig{width:100%;max-width:520px;translate:-6% -10%;padding:46px 50px;border-radius:8px;background:url("../../assets/keeper/desk-paper.jpg") center/cover;color:#2a1c12;box-shadow:0 34px 60px rgba(0,0,0,.6);text-align:center;rotate:-1deg}
+.qbig i{font:600 12px Arial,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:#8a6a48;font-style:normal}
+.qbig h3{margin:16px 0 18px;font:italic 36px/1.25 Georgia,serif}.qbig small{font:italic 15px Georgia,serif;color:#8a6a48}
+.drop{position:absolute;inset:6.5% 7%;border:1.5px dashed rgba(120,84,50,.55);display:grid;place-items:center;text-align:center;font:italic 20px/1.4 Georgia,serif;color:#5a4030;background:url('../../assets/keeper/desk-paper.jpg') center/cover;filter:sepia(.2) brightness(.92);z-index:-1}
+.bigph .drop+img,.bigph img{z-index:1}
+.drop b{display:block;font:400 36px "SignThatS",Georgia;color:#3b2a1c;margin-bottom:6px}
+.field{display:flex;flex-direction:column;gap:6px;max-width:520px;margin-bottom:16px}
+.field span{font:500 11px "Iowan Old Style",Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:#bf9a6c}
+.field div{padding:10px 0;border-bottom:1px solid rgba(232,197,142,.45);font:italic 19px Georgia,serif;color:#f6e8d2}
+.field div.ph{color:rgba(245,225,195,.5)}
+.timer{font:300 54px/1 Georgia,serif;letter-spacing:.04em;color:#fff2dc;margin:4px 0 14px}
+.phone{position:absolute;right:-6%;bottom:-2%;height:40%;rotate:-10deg;filter:drop-shadow(0 20px 26px rgba(0,0,0,.6))}
+</style></head><body>
+<div class="knight"><div class="nb"></div><div class="na"></div><div class="nm"></div><div class="nw"></div><div class="ni"></div><div class="nv"></div></div><div class="dim"></div>
+<div class="top"><span id="crumb"></span><span class="x">✕</span></div>
+<div id="root"></div>
+<script>
+const A='../../assets/',P='../../qa/demo-book/photos/';
+const S=new URLSearchParams(location.search).get('s')||'photo';
+// a fine waveform: a smooth, natural envelope; the played part gold, the bars by the playhead breathe
+const wf=(n,played,live)=>{let h=[];for(let k=0;k<n;k++){const e=.35+.65*Math.pow(Math.sin(Math.PI*k/n),.6);const v=e*(.35+.65*Math.abs(Math.sin(k*.53)*Math.cos(k*.21)+.25*Math.sin(k*1.7)));h.push(Math.max(.08,Math.min(1,v)));}
+  const ph=Math.round(n*played);return `<div class="wf${live?' live':''}">${h.map((v,k)=>`<i class="${k<ph?'p':''}${Math.abs(k-ph)<6&&!live?' near':''}" style="--h:${v.toFixed(2)};--dl:-${((k*53%17)/10).toFixed(2)}s;--d:${(.35+(k*37%9)/18).toFixed(2)}s"></i>`).join('')}${live?'':`<span class="head" style="left:${(played*100).toFixed(1)}%"></span>`}</div>`;};
+const keys=(a)=>`<div class="keys">${a.map((t,i)=>`<button class="k${i?'':' main'}">${t}</button>`).join('')}</div>`;
+const nav=n=>`<div class="nav"><b>‹ предыдущее</b><span>${n}</span><b>следующее ›</b></div>`;
+const dl=r=>`<dl>${r.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+const PAGES={
+ photo:['Архив · Фото',`<div class="bigph"><i class="pic" style="background-image:url('${P}grandma_porch.jpg')"></i><img src="${A}archive/frame.webp" alt=""></div>`,
+  `<div class="kk">фото</div><h2>Бабушка на крыльце</h2><div class="sub">Тифлис, 1956</div><div class="rule"></div>${dl([['место','Тифлис, Плехановский'],['на фото','Нина Петровна, Серёжа'],['прислала','тётя Варя, 3 мая']])}<p class="story">«Это наше крыльцо на Плехановском. Бабушка всегда сидела здесь по вечерам, а мы с Серёжей бегали вокруг…»</p>${keys(['В книгу','Изменить','Кто на фото'])}${nav('1 из 6')}`],
+ voice:['Архив · Голоса',`<div class="bigdisc"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}grandma_porch.jpg')"></i></div><img class="sh" src="${A}keeper/desk-vinyl-shine.webp" alt=""></div>`,
+  `<div class="kk">голос</div><h2>Бабушка Нина</h2><div class="sub">о трамвае</div><div class="rule"></div><div class="pl"><span class="pp"></span>${wf(110,.3)}</div><div class="tm"><span>0:46</span><span>осталось 2:28</span></div><p class="story" style="margin-bottom:22px">«Мне было шесть лет, когда я впервые увидела трамвай. Мы с бабушкой шли по Головинскому…»</p>${dl([['записано','12 марта 2026'],['в книге','QR у главы «Детство»']])}${keys(['В книгу','Изменить'])}${nav('1 из 3')}`],
+ letter:['Архив · Письма',`<div class="sheet"><div class="hand">Дорогие мои, пишу вам из Тифлиса… Здесь уже настоящая весна, в садах цветут абрикосы, и воздух такой тёплый, что невольно думаешь о доме. Серёжа вырос — вы его не узнаете. Вчера ходили на Куру, смотрели, как ловят рыбу. Скучаю по вам, по нашей кухне и маминым пирогам.<br><br>Целую всех крепко,<br>ваша Нина</div><img class="env" src="${A}archive/envelope.webp" alt=""></div>`,
+  `<div class="kk">письмо</div><h2>от Нины</h2><div class="sub">Тифлис → Москва, 1957</div><div class="rule"></div>${dl([['кому','семье Евстафиади'],['прислал','Сергей · фото письма'],['в книге','глава 2 · «Тифлис»']])}${keys(['В книгу','Изменить','Оригинал письма'])}${nav('1 из 3')}`],
+ text:['Архив · Тексты',`<div class="sheet"><h3>Детство</h3><div class="print"><p>Мама впервые увидела трамвай, когда ей было шесть лет. Они с бабушкой шли по Головинскому, и вдруг из-за угла выехал красный вагон, звенящий, как колокольчик.</p><p>Мама спряталась за бабушкину юбку, а потом весь вечер рассказывала соседям, что видела «дом на колёсах». Бабушка смеялась и говорила, что в Тифлисе и не такое увидишь.</p><p>Летом мы жили у тёти Вари на Плехановском, в комнате с окном во двор, где росла старая груша…</p></div></div>`,
+  `<div class="kk">рассказ</div><h2>Детство</h2><div class="sub">Нина Петровна · 5 апреля</div><div class="rule"></div>${dl([['слов','412'],['в книге','глава 1 · «Детство»'],['фото','2 снимка к рассказу']])}${keys(['Открыть в редакторе','В книгу'])}${nav('1 из 3')}`],
+ qs:['Архив · Вопрос недели',`<div class="qbig"><i>вопрос недели · эта неделя</i><h3>Как вы познакомились с дедушкой?</h3><small>отправлен 10 ноября · всей семье, 6 человек</small></div><img class="phone" src="${A}keeper/tour-phone.webp" alt="">`,
+  `<div class="kk">ответы</div><h2>2 из 6</h2><div class="rule"></div>
+   <div class="row"><b class="av" style="background-image:url('${P}grandma_porch.jpg')"></b><span class="tx">Нина Петровна<small>голос · 2:28 · вчера</small></span><span class="ok">▶</span></div>
+   <div class="row"><b class="av" style="background-image:url('${P}mother_daughter.jpg')"></b><span class="tx">Мама<small>текст · «Он пришёл на танцы в чужом пиджаке…»</small></span><span class="ok">›</span></div>
+   <div class="row"><b class="av"></b><span class="tx">Ждём ответа<small>Сергей, Варя, Николай, Анна</small></span><button class="k" style="height:38px">Напомнить</button></div>${keys(['В книгу','Новый вопрос'])}`],
+ edits:['Архив · Правки',`<div class="sheet"><h3>Тифлис</h3><div class="print"><p>Отец уходил рано, а возвращался затемно. <del>В сорок четвёртом</del> <ins>В 1944 году</ins> они шли пешком до Кутаиси и пели всю дорогу<ins>,</ins> чтобы не уснуть.</p><p>По субботам пекли хачапури, и весь двор пах сыром и дымом. Дом был <del>на две семьи</del> <ins>на два хозяина</ins>, во дворе росла старая груша.</p><p>Мама пекла <del>в ноябре месяце</del> <ins>в ноябре</ins> медовик…</p></div><span class="mk" style="top:128px">1</span><span class="mk" style="top:232px">2</span><span class="mk" style="top:300px">3</span></div>`,
+  `<div class="kk">правки</div><h2>Вычитка главы</h2><div class="sub">Мастерская · 30 октября · 3 правки</div><div class="rule"></div>
+   <div class="row"><span class="tick">1</span><span class="tx"><span class="was">в сорок четвёртом</span> → <span class="now">в 1944 году</span><small>даты — цифрами</small></span><span class="ok">✓</span><span class="no">✕</span></div>
+   <div class="row"><span class="tick">2</span><span class="tx"><span class="was">на две семьи</span> → <span class="now">на два хозяина</span><small>слова Нины Петровны</small></span><span class="ok">✓</span><span class="no">✕</span></div>
+   <div class="row"><span class="tick">3</span><span class="tx"><span class="was">в ноябре месяце</span> → <span class="now">в ноябре</span><small>лишнее слово</small></span><span class="ok">✓</span><span class="no">✕</span></div>${keys(['Принять все','Открыть главу'])}`],
+ record:['Архив · Записать голос',`<div class="rec"><img src="${A}archive/recorder.webp" alt=""><i class="reel" style="left:21%;top:50.5%;width:22%;aspect-ratio:1"></i><i class="reel" style="left:49.5%;top:47%;width:22%;aspect-ratio:1"></i><i class="lamp"></i></div>`,
+  `<div class="kk">запись голоса</div><h2>Идёт запись</h2><div class="sub">«Каким был ваш первый дом?»</div><div class="rule"></div><div class="timer">01:24</div><div class="pl"><span class="pp stop"></span>${wf(110,0,true)}</div><p class="story" style="font-size:17px">Говорите спокойно, как за столом. Паузы можно — лишнее потом вырежем. Если сбились — просто продолжайте.</p>${keys(['Остановить и прослушать','Начать заново'])}${dl([['кто говорит','Нина Петровна'],['пойдёт в','Голоса · глава «Дом»']])}`],
+ addphoto:['Архив · Добавить фото',`<div class="bigph"><div class="drop"><div><b>Положите фото</b>перетащите сюда<br>или нажмите, чтобы выбрать<br><small style="font-size:15px">можно сразу несколько</small></div></div><img src="${A}archive/frame.webp" alt="" style="pointer-events:none"></div>`,
+  `<div class="kk">новое фото</div><h2>Что на снимке?</h2><div class="sub">Подпишите — и фото само найдёт место в книге</div><div class="rule"></div>
+   <div class="field"><span>подпись</span><div class="ph">Например: Бабушка на крыльце</div></div>
+   <div class="field"><span>год и место</span><div class="ph">1956, Тифлис</div></div>
+   <div class="field"><span>кто на фото</span><div class="ph">Нина Петровна, Серёжа</div></div>
+   <div class="field"><span>история к фото</span><div class="ph">Что вы помните об этом дне?</div></div>${keys(['Сохранить в архив','Сфотографировать телефоном'])}`],
+ send:['Архив · Вопрос недели',`<div class="qbig"><i>новый вопрос недели</i><h3>Какое блюдо в детстве было праздничным?</h3><small>уйдёт в понедельник, 10:00 · ответить можно голосом, текстом или фото</small></div><img class="phone" src="${A}keeper/tour-phone.webp" alt="">`,
+  `<div class="kk">кому отправить</div><h2>Семья</h2><div class="sub">6 человек · ответят по ссылке, без регистрации</div><div class="rule"></div>
+   ${[['grandma_porch','Нина Петровна','бабушка · телефон'],['mother_daughter','Мама','почта'],['mountains_father_son','Сергей','телефон'],['girl_flowers','Варя','телефон'],['nikolai_portrait','Николай','почта']].map(([f,n,s])=>`<div class="row"><b class="av" style="background-image:url('${P}${f}.jpg')"></b><span class="tx">${n}<small>${s}</small></span><span class="tick">✓</span></div>`).join('')}${keys(['Отправить вопрос','Другой вопрос','+ Пригласить'])}`]};
+const [c,l,r]=PAGES[S];document.getElementById('crumb').textContent='‹ '+c;
+document.getElementById('root').innerHTML=`<div class="page"><div class="obj">${l}</div><div class="info">${r}</div></div>`;
+</script></body></html>
