@@ -42,20 +42,29 @@ const EXTRA=`
 .oar .ph .fri{position:absolute;inset:0;width:100%;height:100%}
 .oar .phone .scr{left:4.2%;top:2.1%;width:90.6%;height:95.6%}
 .oar audio{display:none}
-.oar .page.withstrip{bottom:150px}
-.oar .strip{position:fixed;left:6vw;right:6vw;bottom:18px;height:112px;z-index:6;display:flex;gap:18px;align-items:center;overflow-x:auto;overflow-y:hidden;padding:8px 6px;scrollbar-width:thin;scrollbar-color:#6b4a2c transparent;-webkit-mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent);mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
-.oar .strip .th{flex:none;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;opacity:.55;transition:opacity .4s,transform .4s;position:relative}
-.oar .strip .th:hover{opacity:.9;transform:translateY(-3px)}
-.oar .strip .th.on{opacity:1}
-.oar .strip .th.on::after{content:"";position:absolute;bottom:-6px;left:30%;right:30%;height:2px;border-radius:1px;background:#e8c58e;box-shadow:0 0 8px rgba(255,170,90,.7)}
-.oar .strip .th img,.oar .strip .th .pic2{height:74px;width:auto;display:block;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))}
-.oar .strip .th .pic2{width:60px;background:center/cover;border:5px solid #efe2c8}
-.oar .strip .th.land .pic2{width:96px}
-.oar .strip .dsc{position:relative;width:74px;height:74px}
-.oar .strip .dsc img{position:absolute;inset:0;width:100%;height:100%}
-.oar .strip .dsc i{position:absolute;left:28%;top:28%;width:44%;height:44%;border-radius:50%;background:center/cover;filter:sepia(.4)}
-.oar .strip .sht{width:58px;height:74px;background:url("${A}keeper/desk-paper-small.jpg") center/cover;box-shadow:0 6px 8px rgba(0,0,0,.5);padding:8px 6px;font:400 13px/1 "SignThatS",Georgia;color:#3b2a1c;overflow:hidden}
-.oar .strip .th small{margin-top:6px;font:italic 12px Georgia,serif;color:#e2c9a2;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oar .cr{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.oar .info{position:relative;z-index:7}
+.oar .cr .mainv{position:relative;z-index:5;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.oar .cr .mainv.from-r{animation:oa-fromr .7s cubic-bezier(.2,.8,.3,1) both}.oar .cr .mainv.from-l{animation:oa-froml .7s cubic-bezier(.2,.8,.3,1) both}
+@keyframes oa-fromr{from{transform:translateX(34%) scale(.72);filter:brightness(.5)}to{transform:none;filter:none}}
+@keyframes oa-froml{from{transform:translateX(-34%) scale(.72);filter:brightness(.5)}to{transform:none;filter:none}}
+.oar .cr .nbr{position:absolute;left:50%;top:50%;cursor:pointer;transition:transform .7s cubic-bezier(.2,.8,.3,1),filter .5s;pointer-events:auto}
+.oar .cr .nbr.l1{transform:translate(-50%,-50%) translateX(-38%) scale(.72);filter:brightness(.42);z-index:3}
+.oar .cr .nbr.r1{transform:translate(-50%,-50%) translateX(38%) scale(.72);filter:brightness(.42);z-index:3}
+.oar .cr .nbr.l2{transform:translate(-50%,-50%) translateX(-62%) scale(.54);filter:brightness(.24);z-index:2}
+.oar .cr .nbr.r2{transform:translate(-50%,-50%) translateX(62%) scale(.54);filter:brightness(.24);z-index:2}
+.oar .cr .nbr:hover{filter:brightness(.75)}
+.oar .cr .nbr .fr .pic{animation:none}.oar .cr .nbr .fr::before,.oar .cr .nbr .fr::after{display:none}
+.oar .cr .nbd{position:relative;width:min(62vh,40vw);aspect-ratio:1}.oar .cr .nbd img{position:absolute;inset:0;width:100%;height:100%}
+.oar .cr .nbd i{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%;border-radius:50%;background:center/cover;filter:sepia(.45)}
+.oar .cr .nbe{width:min(560px,36vw)}
+.oar .cr .nbs{width:min(480px,32vw);height:70vh;padding:48px;background:url("${A}keeper/desk-paper.jpg") center/cover;color:#2a1c12;font:17px/1.6 Georgia,serif;overflow:hidden;box-shadow:0 30px 50px rgba(0,0,0,.6)}
+.oar .cr .nbs b{display:block;font:400 34px "SignThatS",Georgia;color:#4b3424;margin-bottom:12px}
+.oar .cr .cnt{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:center;align-items:center;gap:18px;z-index:6;font:italic 16px Georgia,serif;color:#e2c9a2}
+.oar .cr .cnt b{width:38px;height:38px;border-radius:50%;border:1px solid rgba(232,197,142,.45);display:grid;place-items:center;font:20px Georgia;color:#f2e0c2;cursor:pointer;transition:box-shadow .4s}
+.oar .cr .cnt b:hover{box-shadow:0 0 12px 2px rgba(255,150,60,.4)}
+.oar .cr .cnt em{margin-left:10px;padding:6px 14px;border-radius:16px;border:1px solid rgba(232,197,142,.35);cursor:pointer}
+.oar .page{bottom:64px}
 .oar .k.done{border-color:#9fd08a;color:#d9f2cc;box-shadow:0 0 12px rgba(140,210,120,.35)}
 .oar [contenteditable="true"]{outline:1px dashed rgba(232,197,142,.55);outline-offset:4px;border-radius:3px;background:rgba(255,220,170,.05)}
 .oar .toast{position:fixed;left:50%;top:24px;translate:-50% 0;padding:12px 22px;border-radius:22px;background:rgba(20,10,4,.92);border:1px solid rgba(232,197,142,.45);font:italic 16px Georgia,serif;color:#f2e0c2;z-index:9;animation:oa-up .5s ease both}
@@ -128,7 +137,7 @@ const page=(k,i)=>{
  if(k==='photos'){const x=D.photos[i];return{c:'Фото',l:frame(P+x[0]+'.jpg',x[7]),r:`<div class="kk">фото</div><h2>${x[1]}</h2><div class="sub">${x[2]}</div><div class="rule"></div>${dl([['место',x[3]],['на фото',x[4]],['прислал(а)',x[5]]])}${x[6]?`<p class="story">${x[6]}</p>`:''}${keys(['В книгу','Изменить','Кто на фото'])}`,n:D.photos.length};}
  if(k==='voices'){const mine=store.get();if(i<mine.length){const m=mine[i];return{c:'Голоса',l:disc('',false,P+'grandma_porch.jpg'),r:`<div class="kk">голос · ваша запись</div><h2>${esc(m.t)}</h2><div class="sub">${esc(m.when||'')}</div><div class="rule"></div><div class="pl"><span class="pp paused" data-play data-id="${m.id}"></span>${wf(110,0,false,false,7)}</div><div class="tm"><span data-cur>0:00</span><span data-left>${fmt(m.len)}</span></div>${keys(['В книгу','Изменить'])}`,n:mine.length+D.voices.length};}
    const x=D.voices[i-mine.length];return{c:'Голоса',l:disc(x[0],false),r:`<div class="kk">голос</div><h2>${x[1]}</h2><div class="sub">${x[2]}</div><div class="rule"></div><div class="pl"><span class="pp paused" data-play data-len="${x[3]}"></span>${wf(110,0,false,false,i)}</div><div class="tm"><span data-cur>0:00</span><span data-left>осталось ${fmt(x[3])}</span></div>${x[4]?`<p class="story" style="margin-bottom:22px">${x[4]}</p>`:''}${dl([['записано',x[5]],['в книге',x[6]]])}${keys(['В книгу','Изменить'])}`,n:mine.length+D.voices.length};}
- if(k==='letters'){const x=D.letters[i];return{c:'Письма',l:`<div class="lw"><img class="env" src="${A}archive/envelope.webp" alt=""><div class="sheet"><div class="hand">${x[2]}</div></div></div>`,r:`<div class="kk">письмо</div><h2>от ${x[0]}</h2><div class="sub">${x[1]}</div><div class="rule"></div>${dl([['кому','семье Евстафиади'],['в книге',x[3]]])}${keys(['В книгу','Изменить','Оригинал письма'])}`,n:D.letters.length};}
+ if(k==='letters'){const x=D.letters[i];return{c:'Письма',l:`<div class="lw"><img class="env" src="${A}archive/envelope.webp" alt=""><div class="sheet"><div class="hnd">${x[2]}</div></div></div>`,r:`<div class="kk">письмо</div><h2>от ${x[0]}</h2><div class="sub">${x[1]}</div><div class="rule"></div>${dl([['кому','семье Евстафиади'],['в книге',x[3]]])}${keys(['В книгу','Изменить','Оригинал письма'])}`,n:D.letters.length};}
  if(k==='texts'){const x=D.texts[i];return{c:'Тексты',l:`<div class="sheet settle"><h3>${x[0]}</h3><div class="print">${x[2].split('|').map(p=>`<p>${p}</p>`).join('')}</div></div>`,r:`<div class="kk">рассказ</div><h2>${x[0]}</h2><div class="sub">${x[1]}</div><div class="rule"></div>${dl([['слов',String(x[4])],['в книге',x[3]]])}${keys(['Открыть в редакторе','В книгу'])}`,n:D.texts.length};}
  if(k==='week')return{c:'Вопрос недели',l:deck(),r:qsRight(-1),n:1};
  if(k==='edits')return{c:'Правки',l:`<div class="sheet proof settle"><h3>Тифлис</h3><div class="print"><p>Отец уходил рано, а возвращался затемно. <span class="e" data-n="0"><del>В сорок четвёртом</del><span class="over">В 1944 году</span></span> они шли пешком до Кутаиси и пели всю дорогу<span class="e" data-n="1"><span class="mark">,</span></span> чтобы не уснуть.</p><p>По субботам пекли хачапури, и весь двор пах сыром и дымом. Дом был <span class="e" data-n="2"><del>на две семьи</del><span class="over">на два хозяина</span></span>, во дворе росла старая груша.</p><p>Мама пекла <span class="e" data-n="3"><del>в ноябре месяце</del><span class="over">в ноябре</span></span> медовик, и вся улица знала, что скоро праздник…</p></div></div>`,
@@ -153,19 +162,24 @@ const showDesk=()=>{where={v:'desk'};render(`${top('Конструктор')}<he
 const showSec=k=>{const s=SECS.find(x=>x.k===k);if(k==='week'||k==='edits'){showPage(k,0,true);return;}
   where={v:'sec',k};list=items(k);
   render(`${top('Архив')}<header><h1>${s.t}</h1><p>${s.n()}</p></header><div class="spread">${list.length?list.map((it,i)=>`<div class="it" data-i="${i}" style="--d:${(.06*i).toFixed(2)}s;--r:${((i*37%7)-3)*.8}deg"><div class="vis">${it.h}</div><strong>${esc(it.t)}</strong><em>${esc(it.s)}</em></div>`).join(''):'<div class="empty">Здесь пока пусто</div>'}</div>${k==='voices'?`<div class="sp-acts"><button class="k main" data-go="record">● Записать голос</button></div>`:''}`);};
-const strip=(k,i)=>{let th=[];
-  if(k==='photos')th=D.photos.map(x=>({h:`<span class="pic2" style="background-image:url('${P}${x[0]}.jpg')"></span>`,t:x[1],land:x[7]}));
-  else if(k==='voices')th=[...store.get().map(m=>({h:`<span class="dsc"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}grandma_porch.jpg')"></i></span>`,t:m.t})),...D.voices.map(x=>({h:`<span class="dsc"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}${x[0]}.jpg')"></i></span>`,t:x[1]}))];
-  else if(k==='letters')th=D.letters.map(x=>({h:`<img src="${A}archive/envelope.webp" alt="">`,t:'от '+x[0]}));
-  else if(k==='texts')th=D.texts.map(x=>({h:`<span class="sht">${x[0]}</span>`,t:x[0]}));
-  if(th.length<2)return'';return `<div class="strip">${th.map((x,j)=>`<div class="th${j===i?' on':''}${x.land?' land':''}" data-th="${j}">${x.h}<small>${esc(x.t)}</small></div>`).join('')}</div>`;};
+// the carousel: the other things of the section stand behind the main one, smaller and in the dark
+const CAR=['photos','voices','letters','texts'];
+const nbVis=(k,j)=>{const mine=store.get();
+  if(k==='photos'){const x=D.photos[j];return frame(P+x[0]+'.jpg',x[7]);}
+  if(k==='voices'){const f=j<mine.length?'grandma_porch':D.voices[j-mine.length][0];return `<div class="nbd"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}${f}.jpg')"></i><img src="${A}keeper/desk-vinyl-shine.webp" alt=""></div>`;}
+  if(k==='letters')return `<img class="nbe" src="${A}archive/envelope.webp" alt="">`;
+  if(k==='texts'){const x=D.texts[j];return `<div class="nbs"><b>${x[0]}</b>${x[2].split('|')[0]}</div>`;}
+  return '';};
+const carousel=(k,i,n,main,dir)=>{if(!CAR.includes(k)||n<2)return main;
+  const at=d=>(i+d+n*4)%n,sides=n>2?[-2,-1,1,2]:[1];
+  return `<div class="cr">${sides.filter(d=>n>4||Math.abs(d)===1).map(d=>`<div class="nbr ${d<0?'l':'r'}${Math.abs(d)}" data-go-i="${at(d)}">${nbVis(k,at(d))}</div>`).join('')}<div class="mainv${dir?' from-'+(dir>0?'r':'l'):''}">${main}</div>
+    <div class="cnt"><b data-nav="-1">‹</b><span>${i+1} из ${n}</span><b data-nav="1">›</b>${n>10?'<em data-all>все записи</em>':''}</div></div>`;};
 const IB='ocherkiArchiveInBook',ED='ocherkiArchiveEdits';
 const getJ=n=>{try{return JSON.parse(localStorage.getItem(n)||'{}');}catch(_){return{};}},setJ=(n,v)=>{try{localStorage.setItem(n,JSON.stringify(v));}catch(_){}};
 const toast=t=>{root.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;root.appendChild(d);setTimeout(()=>d.remove(),3200);};
-const showPage=(k,i,fromDesk)=>{const p=page(k,i);if(!p)return;where={v:'page',k,i,fromDesk};at=i;const st=strip(k,i);
-  const nav=p.n>1?`<div class="nav"><b data-nav="-1">‹ предыдущее</b><span>${i+1} из ${p.n}</span><b data-nav="1">следующее ›</b></div>`:'';
-  render(`${top(fromDesk?'Архив':p.c)}<div class="page${st?' withstrip':''}"><div class="obj${p.ph?' phn':''}">${p.l}</div><div class="info">${p.r}${nav}</div></div>${st}`);
-  root.querySelector('.strip .th.on')?.scrollIntoView({inline:'center',block:'nearest'});
+const showPage=(k,i,fromDesk,dir)=>{const p=page(k,i);if(!p)return;where={v:'page',k,i,fromDesk};at=i;const isCar=CAR.includes(k)&&p.n>1;
+  const nav=p.n>1&&!isCar?`<div class="nav"><b data-nav="-1">‹ предыдущее</b><span>${i+1} из ${p.n}</span><b data-nav="1">следующее ›</b></div>`:'';
+  render(`${top(fromDesk?'Архив':p.c)}<div class="page"><div class="obj${p.ph?' phn':''}">${carousel(k,i,p.n,p.l,dir)}</div><div class="info">${p.r}${nav}</div></div>`);
   // «В книгу» and «Изменить» on every thing; what was changed is kept
   const key=k+':'+i,info=root.querySelector('.info');
   info.querySelectorAll('.keys .k').forEach(b=>{const t=b.textContent.trim();if(t==='В книгу'){b.dataset.act='tobook';if(getJ(IB)[key]){b.textContent='✓ В книге';b.classList.add('done');}}if(t==='Изменить')b.dataset.act='edit';});
@@ -200,11 +214,12 @@ const onClick=e=>{const t=e.target;
   if(t.closest('[data-close]')){close();return;}if(t.closest('[data-back]')){back();return;}
   const s=t.closest('[data-sec]');if(s){showSec(s.dataset.sec);return;}
   const it=t.closest('.it[data-i]');if(it&&where.v==='sec'){showPage(where.k,+it.dataset.i);return;}
-  const nv=t.closest('[data-nav]');if(nv){const p=page(where.k,0);showPage(where.k,(where.i+ +nv.dataset.nav+p.n)%p.n,where.fromDesk);return;}
+  const nv=t.closest('[data-nav]');if(nv){step(+nv.dataset.nav);return;}
+  const gi=t.closest('[data-go-i]');if(gi){const j=+gi.dataset.goI,p=page(where.k,0);const d=((j-where.i+p.n)%p.n)<=p.n/2?1:-1;showPage(where.k,j,where.fromDesk,d);return;}
+  if(t.closest('[data-all]')){showSec(where.k);return;}
   const go=t.closest('[data-go]');if(go){showPage(go.dataset.go,0);return;}
   const pl=t.closest('[data-play]');if(pl){play(pl);return;}
   if(t.closest('[data-rec]')){startRec();return;}if(t.closest('[data-stop]')){rec&&rec.stop();return;}
-  const th=t.closest('.strip [data-th]');if(th){showPage(where.k,+th.dataset.th,where.fromDesk);return;}
   const a=t.closest('[data-act]')?.dataset.act;
   if(a==='tobook'){const b=t.closest('[data-act]'),key=where.k+':'+where.i,m=getJ(IB);if(m[key]){delete m[key];b.textContent='В книгу';b.classList.remove('done');toast('Убрано из книги');}else{m[key]=Date.now();b.textContent='✓ В книге';b.classList.add('done');toast('Отмечено для книги — появится в «Рукописи» при сборке главы');}setJ(IB,m);return;}
   if(a==='edit'){const b=t.closest('[data-act]'),info=root.querySelector('.info'),els=[...info.querySelectorAll('h2,.sub,.story,dd')],on=b.dataset.on!=='1';
@@ -216,11 +231,14 @@ const onClick=e=>{const t=e.target;
   const no=t.closest('[data-no]');if(no){const r=no.closest('.row');const e=root.querySelector(`.e[data-n="${r.dataset.n}"]`);e&&(e.querySelector('.over,.mark')?.remove(),e.querySelector('del')&&e.querySelector('del').replaceWith(...e.querySelector('del').childNodes));r.style.opacity=.35;return;}
   const ar=t.closest('.row[data-ans]');if(ar){const i=+ar.dataset.ans;where.sel=i;const obj=root.querySelector('.obj');obj.classList.remove('phn');obj.innerHTML=ansLeft(D.week.ans[i]);root.querySelector('.info').innerHTML=qsRight(i);return;}
   const f=t.closest('.chips [data-f]');if(f){root.querySelectorAll('.chips span').forEach(x=>x.classList.toggle('on',x===f));root.querySelectorAll('.row[data-ty]').forEach(r=>r.style.display=!f.dataset.f||r.dataset.ty===f.dataset.f?'':'none');return;}};
+const step=d=>{if(!where||where.v!=='page')return;const p=page(where.k,0);if(p.n<2)return;showPage(where.k,(where.i+d+p.n)%p.n,where.fromDesk,d);};
+let wheelAt=0;const onWheel=e=>{if(!root||where?.v!=='page'||!e.target.closest('.cr'))return;e.preventDefault();const v=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(v)<12||performance.now()-wheelAt<650)return;wheelAt=performance.now();step(v>0?1:-1);};
+let tx0=null;const onTs=e=>{if(e.target.closest('.cr'))tx0=e.touches[0].clientX;},onTe=e=>{if(tx0==null)return;const dx=e.changedTouches[0].clientX-tx0;tx0=null;if(Math.abs(dx)>50)step(dx<0?1:-1);};
 // accepting a correction: the red ink fades, the new word stays in the line
 const accept=r=>{if(!r||r.dataset.done)return;r.dataset.done=1;const e=root.querySelector(`.e[data-n="${r.dataset.n}"]`);if(e){const o=e.querySelector('.over'),d=e.querySelector('del'),m=e.querySelector('.mark');
   if(o&&d){d.replaceWith(document.createTextNode(o.textContent));o.remove();}if(m){m.style.color='inherit';m.style.font='inherit';}}r.style.opacity=.35;r.querySelector('.ok').textContent='✓';};
-const onKey=e=>{if(!root)return;if(e.target.isContentEditable&&e.key!=='Escape')return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){const p=page(where.k,0);if(p.n>1)showPage(where.k,(where.i+(e.key==='ArrowRight'?1:-1)+p.n)%p.n,where.fromDesk);}};
-const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';document.body.appendChild(root);root.addEventListener('click',onClick);addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
+const onKey=e=>{if(!root)return;if(e.target.isContentEditable&&e.key!=='Escape')return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))step(e.key==='ArrowRight'?1:-1);};
+const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';document.body.appendChild(root);root.addEventListener('click',onClick);root.addEventListener('wheel',onWheel,{passive:false});root.addEventListener('touchstart',onTs,{passive:true});root.addEventListener('touchend',onTe,{passive:true});addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
   if(w==='desk')showDesk();else if(['record','send'].includes(w))showPage(w,0);else if(SECS.some(s=>s.k===w))showSec(w);else showDesk();};
 const close=()=>{if(!root)return;stopAudio();if(rec&&rec.state==='recording')rec.stop();const r=root;root=null;where=null;removeEventListener('keydown',onKey,true);r.classList.remove('in');setTimeout(()=>r.remove(),600);};
 window.OcherkiArchive={open,close,get isOpen(){return!!root;}};
