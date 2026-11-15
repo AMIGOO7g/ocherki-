@@ -109,3 +109,31 @@
 .oar .tdesk .at-letters:hover .obj>img{rotate:-4deg;translate:0 -6px}
 .oar .tdesk .at-texts:hover .obj>img{rotate:3deg}
 .oar .tdesk .at-edits:hover .obj>div{rotate:0deg!important;translate:0 -8px}
+/* ===== v167c: Фото — the road of life; Тексты and Письма — A4 sheets and a scene in the mist ===== */
+.oar .fr .ins{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 22px 6px rgba(40,22,8,.5),inset 0 0 3px 1px rgba(40,22,8,.6)}
+.oar .page.has-road{bottom:170px}
+.oar .road{position:fixed;left:7vw;right:7vw;bottom:30px;height:120px;z-index:4}
+.oar .road .ln{position:absolute;left:0;right:0;bottom:38px;height:1px;background:linear-gradient(90deg,transparent,rgba(232,197,142,.55) 8%,rgba(232,197,142,.55) 92%,transparent)}
+.oar .road .yr{position:absolute;bottom:10px;translate:-50% 0;font:italic 14px Georgia,serif;color:rgba(226,200,160,.45)}
+.oar .road .dot{position:absolute;bottom:33px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:#2a1a0e;border:1px solid rgba(232,197,142,.7);cursor:pointer;transition:background .4s,box-shadow .4s,transform .4s}
+.oar .road .dot em{position:absolute;bottom:18px;left:50%;translate:-50% 0;font:italic 13px Georgia,serif;color:#e8cfa6;opacity:0;transition:opacity .3s;white-space:nowrap}
+.oar .road .dot:hover{transform:scale(1.35)}.oar .road .dot:hover em{opacity:1}
+.oar .road .dot.on{background:#e8b46a;box-shadow:0 0 10px 2px rgba(255,170,80,.55)}
+.oar .road .walker{position:absolute;bottom:38px;width:62px;height:112px;margin-left:-31px;transition:left 1.4s cubic-bezier(.45,.05,.4,1);pointer-events:none}
+.oar .road .walker img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom}
+.oar .road .walker .go{opacity:0}.oar .road .walker.walking .go{opacity:1}.oar .road .walker.walking .st{opacity:0}
+.oar .road .walker.back img{transform:scaleX(-1)}
+.oar .road .cap{position:absolute;right:0;bottom:62px;font:400 26px "SignThatS",Georgia,serif;color:rgba(255,226,189,.55)}
+/* the texts: a real A4 sheet */
+.oar .pg-texts .mainv .sheet{height:74vh;width:auto;aspect-ratio:1/1.414;padding:6vh 5vh}
+/* the letters: a large A4 letter over its envelope */
+.oar .pg-letters .lw{width:min(46vw,640px);height:80vh}
+.oar .pg-letters .lw .sheet{width:auto;height:92%;aspect-ratio:1/1.414;right:4%}
+.oar .pg-letters .lw .sheet .hnd{font-size:clamp(20px,2.6vh,27px)}
+.oar .pg-letters .lw .env{width:74%;bottom:0}
+/* a scene from the family's memory, in the mist, low in the corner */
+.oar .scene{position:fixed;right:2vw;bottom:2vh;width:min(30vw,440px);z-index:0;pointer-events:none;opacity:.95}
+.oar .page{z-index:1}
+.oar .pg-photos .fr .pic{height:47vh;max-width:34vw}
+.oar .pg-photos .fr.land .pic{height:auto;width:31vw;max-height:42vh}
+.oar .pg-photos .cr .nbr.r1,.oar .pg-photos .cr .nbr.r2{display:none}

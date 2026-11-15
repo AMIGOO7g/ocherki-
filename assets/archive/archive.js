@@ -86,7 +86,7 @@ const dl=r=>`<dl>${r.filter(x=>x[1]).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v
 const tt=(f,src)=>`<div class="tt"><div class="bigdisc"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${src||P+f+'.jpg'}')"></i></div><img class="shn" src="${A}keeper/desk-vinyl-shine.webp" alt=""></div><div class="arm" style="--rot:${ARM.rest}deg"><img src="${A}archive/tonearm.webp" alt=""></div></div>`;
 const disc=(f,play,src)=>`<div class="bigdisc${play?' playing':''}"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${src||P+f+'.jpg'}')"></i></div></div>`;
 const reel=on=>`<div class="reel1${on?' on':''}"><img class="t" src="${A}archive/reel.webp" alt=""><img src="${A}archive/reel-shine.webp" alt=""></div>`;
-const frame=(src,land)=>`<div class="fr${land?' land':''}"><img class="pic" src="${src}" alt=""></div>`;
+const frame=(src,land)=>`<div class="fr${land?' land':''}"><img class="pic" src="${src}" alt=""><i class="ins"></i></div>`;
 const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
 
 // the tonearm: its pivot stands up and right of the record (in record radii: 1.15 right, 0.75 up), the arm is 1.37 radii long.
@@ -94,6 +94,7 @@ const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%6
 const ARM=(()=>{const px=1.15,py=-.75,L=1.37,base=180.3;const at=th=>{const t=th*Math.PI/180;return Math.hypot(px+L*Math.cos(t),py+L*Math.sin(t));};
   const find=r=>{let th=97;while(at(th)>r&&th<260)th+=.1;return th;};// the first meeting with the groove, coming in from the right like a real arm
   const rest=97,start=find(.95),end=find(.47);return{rest:(rest-base).toFixed(2),start:start-base,end:end-base};})();
+const SCENE={texts:'scene-pier.webp',letters:'scene-umbrella.webp'};
 const RECGO=`<div class="recgo" data-go="record"><span class="rd"></span><span><b>Записать голос</b><small>свой рассказ или ответ на вопрос недели</small></span></div>`;
 // ---------- the things (demo until the family sends its own) ----------
 const D={
@@ -115,6 +116,16 @@ const D={
  week:{q:'Как вы познакомились с дедушкой?',deck:['Как вы познакомились с дедушкой?','Какое блюдо в детстве было праздничным?','Каким был ваш первый дом?','Какую песню пели в семье?'],
    ans:[['voice','grandma_porch','Нина Петровна','голос · 2:28 · вчера'],['text','mother_daughter','Мама','текст · 3 дня назад','Он пришёл на танцы в чужом пиджаке, на два размера больше. Я смеялась весь вечер, а через год мы поженились.'],['photo','girl_flowers','Варя','фото · 3 дня назад'],['voice','nikolai_portrait','Николай','голос · 1:12 · неделю назад'],['text','mountains_father_son','Сергей','текст · неделю назад','Папа всегда говорил, что увидел её первым — на мосту через Куру.']]},
  edits:[['Тифлис','Мастерская · 30 октября']]};
+const yearOf=s=>+((String(s).match(/(1[89]\d\d|20\d\d)/)||[])[1]||0);
+D.photos.sort((a,b)=>yearOf(a[2])-yearOf(b[2]));
+let roadX=null;
+const roadGeo=()=>{const ys=D.photos.map(x=>yearOf(x[2]));const y0=Math.floor((Math.min(...ys)-4)/5)*5,y1=Math.ceil((Math.max(...ys)+4)/5)*5;
+  const seen={};const X=ys.map(y=>{const n=seen[y]=(seen[y]||0)+1;return 6+88*(y-y0)/(y1-y0)+(n-1)*1.4;});return{ys,y0,y1,X,at:y=>6+88*(y-y0)/(y1-y0)};};
+const road=i=>{const g=roadGeo();const dec=[];for(let y=g.y0;y<=g.y1;y+=5)dec.push(y);
+  return `<div class="road"><div class="ln"></div>${dec.map(y=>`<span class="yr" style="left:${g.at(y)}%">${y}</span>`).join('')}${D.photos.map((x,j)=>`<b class="dot${j===i?' on':''}" style="left:${g.X[j]}%" data-go-i="${j}" title="${esc(x[1])} · ${g.ys[j]}"><em>${g.ys[j]}</em></b>`).join('')}<div class="walker" style="left:${roadX??g.X[i]}%"><img class="go" src="${A}archive/walker.webp" alt=""><img class="st" src="${A}archive/walker-still.png" alt=""></div><div class="cap">дорога жизни</div></div>`;};
+const walkTo=i=>{const w=root.querySelector('.walker');if(!w)return;const to=roadGeo().X[i];const from=roadX;roadX=to;if(from==null||Math.abs(from-to)<.1)return;
+  w.classList.add('walking');w.classList.toggle('back',to<from);requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.left=to+'%';}));
+  const dur=Math.min(2600,900+Math.abs(to-from)*40);w.style.transitionDuration=dur+'ms';setTimeout(()=>w.classList.remove('walking'),dur);};
 const store={get:()=>{try{return JSON.parse(localStorage.getItem('ocherkiArchiveMine')||'[]');}catch(_){return[];}},set:v=>{try{localStorage.setItem('ocherkiArchiveMine',JSON.stringify(v));}catch(_){}}};
 // recorded voices: the sound itself in IndexedDB, its card in localStorage
 const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open('ocherki-archive',1);r.onupgradeneeded=()=>r.result.createObjectStore('audio');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);});
@@ -214,7 +225,8 @@ const getJ=n=>{try{return JSON.parse(localStorage.getItem(n)||'{}');}catch(_){re
 const toast=t=>{root.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;root.appendChild(d);setTimeout(()=>d.remove(),3200);};
 const showPage=(k,i,fromDesk,dir)=>{const p=page(k,i);if(!p)return;where={v:'page',k,i,fromDesk};at=i;const isCar=CAR.includes(k)&&p.n>1;
   const nav=p.n>1&&!isCar?`<div class="nav"><b data-nav="-1">‹ предыдущее</b><span>${i+1} из ${p.n}</span><b data-nav="1">следующее ›</b></div>`:'';
-  render(`${top(fromDesk?'Архив':p.c)}<div class="page"><div class="obj${p.ph?' phn':''}">${carousel(k,i,p.n,p.l,dir)}</div><div class="info">${p.r}${nav}</div></div>`);
+  render(`${top(fromDesk?'Архив':p.c)}${SCENE[k]?`<img class="scene" src="${A}archive/${SCENE[k]}" alt="">`:''}<div class="page${k==='photos'?' has-road':''} pg-${k}"><div class="obj${p.ph?' phn':''}">${carousel(k,i,p.n,p.l,dir)}</div><div class="info">${p.r}${nav}</div></div>${k==='photos'?road(i):''}`);
+  if(k==='photos')walkTo(i);
   // «В книгу» and «Изменить» on every thing; what was changed is kept
   const key=k+':'+i,info=root.querySelector('.info');
   info.querySelectorAll('.keys .k').forEach(b=>{const t=b.textContent.trim();if(t==='В книгу'){b.dataset.act='tobook';if(getJ(IB)[key]){b.textContent='✓ В книге';b.classList.add('done');}}if(t==='Изменить')b.dataset.act='edit';});
