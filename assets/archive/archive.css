@@ -262,3 +262,4 @@
 .oar.oar .recbtn::before,.oar.oar .recbtn::after{display:none}
 .oar .pg-edits .row[hidden]{display:none!important}
 .oar .noedits{font:italic 17px Georgia,serif;color:#cfae84;margin:14px 0}
+.oar.oar .phone{height:70vh;margin-top:3vh}
