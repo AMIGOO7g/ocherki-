@@ -50,3 +50,45 @@
 .handoff .phone{animation:oa-away 1s cubic-bezier(.5,0,.3,1) 4.4s both}
 @keyframes oa-away{to{transform:translateY(70vh);opacity:0}}.oar .handoff .after{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;animation:oa-on 1s ease 5s both}.oar .desk{position:fixed;inset:150px 6vw 46px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:20px 30px;z-index:3;transition:opacity .6s,transform .8s cubic-bezier(.2,.8,.3,1)}.oar .desk.away{opacity:0;transform:scale(.94);pointer-events:none}.oar .sec{position:relative;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;border-radius:18px;padding-bottom:10px;transition:background .5s}.oar .sec:hover{background:radial-gradient(ellipse 60% 55% at 50% 50%,rgba(255,170,90,.12),transparent 70%)}.oar .sec .obj{position:relative;flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;transition:transform .6s cubic-bezier(.2,.8,.3,1)}.oar .sec:hover .obj{transform:translateY(-6px) scale(1.03)}.oar .sec .obj>img{max-height:100%;max-width:80%;object-fit:contain;filter:drop-shadow(0 18px 24px rgba(0,0,0,.6))}.oar .sec b{font:400 22px/1.2 Georgia,serif;color:#fff2dc;letter-spacing:.01em}.oar .sec small{display:block;margin-top:3px;font:italic 15px Georgia,serif;color:#d6b78f}.oar .sec .new{position:absolute;top:10%;right:18%;padding:3px 10px;border-radius:12px;background:#b5522a;color:#fff;font:600 12px Arial,sans-serif;letter-spacing:.06em;box-shadow:0 0 12px rgba(255,120,60,.6)}.oar .st3{position:relative;height:100%;aspect-ratio:1;max-width:100%}.oar .st3>*{position:absolute;filter:drop-shadow(0 14px 18px rgba(0,0,0,.6))}.oar .ph{position:absolute;width:46%;aspect-ratio:900/1214}.oar .ph .pic{position:absolute;inset:6.5% 7%;background:center/cover;filter:sepia(.35) contrast(1.05)}.oar .ph .fr{position:absolute;inset:0;width:100%;height:100%}.oar .disc{position:absolute;width:62%;aspect-ratio:1}.oar .disc img{width:100%;height:100%}.oar .disc .lab{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%;border-radius:50%;background:center/cover;filter:sepia(.45) brightness(.8)}.oar .disc .sh{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.9;pointer-events:none}.oar .card{position:absolute;width:62%;aspect-ratio:1.6;border-radius:6px;background:linear-gradient(170deg,#f6eddb,#e4d4b6);box-shadow:0 14px 26px rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6%;text-align:center;color:#3b2a1c}.oar .card i{font:600 9px Arial,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#8a6a48;font-style:normal}.oar .card span{margin-top:6px;font:italic 15px/1.2 Georgia,serif}.oar .spread{position:fixed;inset:140px 5vw 40px;z-index:4;display:flex;flex-wrap:wrap;align-content:flex-start;justify-content:center;gap:34px 40px;overflow:auto;padding:20px;opacity:0;pointer-events:none;transition:opacity .5s;scrollbar-width:thin;scrollbar-color:#6b4a2c transparent}.oar .spread.on{opacity:1;pointer-events:auto}.oar .it{position:relative;width:220px;cursor:pointer;text-align:center;opacity:0;transform:translateY(30px) rotate(var(--r,0deg));transition:opacity .6s ease var(--d,0s),transform .9s cubic-bezier(.2,.8,.3,1) var(--d,0s)}.oar .spread.on .it{opacity:1;transform:translateY(0) rotate(var(--r,0deg))}.oar .it:hover .vis{transform:translateY(-6px) scale(1.04)}.oar .it .vis{position:relative;height:200px;display:flex;align-items:center;justify-content:center;transition:transform .5s cubic-bezier(.2,.8,.3,1)}.oar .it .vis .ph{position:relative;width:auto;height:100%}.oar .it .vis .disc,
 .oar .it .vis .card{position:relative;width:auto;height:auto}.oar .it .vis .disc{width:190px}.oar .it .vis .card{width:210px}.oar .it .vis>img{max-width:100%;max-height:100%;filter:drop-shadow(0 16px 20px rgba(0,0,0,.6))}.oar .it strong{display:block;margin-top:12px;font:400 18px/1.25 Georgia,serif;color:#fff2dc}.oar .it em{display:block;margin-top:3px;font:italic 14px Georgia,serif;color:#d6b78f}.oar .it .ans{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;width:300px;margin-left:-40px}.oar .it .ans u{text-decoration:none;white-space:nowrap;padding:3px 9px;border-radius:11px;background:rgba(255,200,140,.12);border:1px solid rgba(214,150,96,.4);font:13px Georgia,serif;color:#f0dcbc}
+/* ===== v167: the archive in its shadow root; the desk under the family tree; the record with its tonearm ===== */
+.oar{pointer-events:auto}
+.oar header{top:30px}
+.oar header h1{line-height:1.3;padding-top:4px}
+/* the desk: the tree in the mist in the middle, the six things in an arc round its foot */
+.oar .tdesk{position:fixed;inset:118px 2vw 18px;z-index:3}
+.oar .tdesk .tree{position:absolute;left:50%;bottom:0;width:min(104vw,1600px);transform:translateX(-50%);pointer-events:none;transition:filter .9s ease}
+.oar .tdesk:has(.sec:hover) .tree{filter:brightness(1.6)}
+.oar .tdesk .sec{position:absolute;width:220px;height:230px;margin:-115px 0 0 -110px;padding-bottom:0;justify-content:flex-end}
+.oar .tdesk .sec .obj{flex:0 0 160px;height:160px}
+.oar .tdesk .sec:hover .obj{transform:translateY(-14px) scale(1.07)}
+.oar .tdesk .sec b{margin-top:10px}
+.oar .tdesk .at-voices{left:13%;top:40%}.oar .tdesk .at-photos{left:25%;top:66%}.oar .tdesk .at-texts{left:40%;top:80%}
+.oar .tdesk .at-letters{left:60%;top:80%}.oar .tdesk .at-week{left:75%;top:66%}.oar .tdesk .at-edits{left:87%;top:40%}
+.oar .tdesk .sec .new{top:2%;right:12%}
+/* Голоса on the desk: a record in its paper sleeve — it slides out under the pointer */
+.oar .slv{position:relative;width:150px;aspect-ratio:1}
+.oar .slv .dsk{position:absolute;left:3%;top:3%;width:94%;aspect-ratio:1;transform:translateX(24%);transition:transform 1s cubic-bezier(.2,.8,.3,1);filter:drop-shadow(0 10px 14px rgba(0,0,0,.6))}
+.oar .slv .dsk img{width:100%;height:100%;display:block}
+.oar .slv .dsk .lab{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%;border-radius:50%;background:center/cover;filter:sepia(.45) brightness(.82)}
+.oar .slv .sl{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 14px 18px rgba(0,0,0,.6))}
+.oar .sec:hover .slv .dsk{transform:translateX(56%) rotate(80deg)}
+/* the record player: our record, its light standing still, and the tonearm */
+.oar .tt{position:relative;width:min(56vh,29vw);aspect-ratio:1;margin-right:12vw}
+.oar .tt .bigdisc{width:100%}
+.oar .tt .bigdisc .spin{animation:none}
+.oar .tt .shn{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.9;pointer-events:none}
+.oar .tt .arm{position:absolute;width:88.6%;left:37.5%;top:1.24%;z-index:4;pointer-events:none;transform-origin:79% 44.5%;transform:rotate(var(--rot));
+  transition:transform 1.25s cubic-bezier(.45,.05,.25,1),filter .4s ease;filter:drop-shadow(5px 9px 5px rgba(0,0,0,.6))}
+.oar .tt .arm img{width:100%;display:block;transform-origin:79% 44.5%;transition:transform .4s ease}
+.oar .tt .arm.up{filter:drop-shadow(16px 26px 14px rgba(0,0,0,.42))}
+.oar .tt .arm.up img{transform:scale(1.018)}
+.oar .tt .arm.track{transition:filter .4s ease}
+/* the way to record, in plain sight */
+.oar .recgo{display:flex;gap:16px;align-items:center;margin-top:28px;padding:14px 26px 14px 18px;width:fit-content;border:1px solid rgba(232,170,110,.45);border-radius:40px;background:rgba(255,150,70,.06);cursor:pointer;transition:background .4s,border-color .4s}
+.oar .recgo:hover{background:rgba(255,150,70,.14);border-color:rgba(255,190,130,.8)}
+.oar .recgo .rd{width:16px;height:16px;border-radius:50%;background:#d4452f;box-shadow:0 0 0 4px rgba(212,69,47,.18),0 0 14px rgba(255,90,60,.6);flex:none}
+.oar .recgo b{display:block;font:400 19px Georgia,serif;color:#fff0d8}
+.oar .recgo small{display:block;font:italic 14px Georgia,serif;color:#cfae84;margin-top:2px}
+/* the voice page: the other records wait on the left only — the arm keeps the right side to itself */
+.oar .cr:has(.tt) .nbr.r1,.oar .cr:has(.tt) .nbr.r2{display:none}
+.oar .tdesk .at-week .new{right:auto;left:58%;top:16%}

@@ -69,9 +69,13 @@ const EXTRA=`
 .oar [contenteditable="true"]{outline:1px dashed rgba(232,197,142,.55);outline-offset:4px;border-radius:3px;background:rgba(255,220,170,.05)}
 .oar .toast{position:fixed;left:50%;top:24px;translate:-50% 0;padding:12px 22px;border-radius:22px;background:rgba(20,10,4,.92);border:1px solid rgba(232,197,142,.45);font:italic 16px Georgia,serif;color:#f2e0c2;z-index:9;animation:oa-up .5s ease both}
 `;
-const inject=()=>{if(document.getElementById('oar-css'))return;
-  const l=document.createElement('link');l.id='oar-css';l.rel='stylesheet';l.href=BASE+'assets/archive/archive.css'+VER;document.head.appendChild(l);
-  const s=document.createElement('style');s.id='oar-css2';s.textContent=EXTRA;document.head.appendChild(s);
+// v167: the archive lives in its own shadow root — the constructor's styles cannot reach it, and its own cannot leak out
+let host=null,SR=null;
+const inject=()=>{if(SR)return;
+  host=document.createElement('div');host.id='oar-host';host.style.cssText='position:fixed;inset:0;z-index:2147483646;pointer-events:none';document.body.appendChild(host);
+  SR=host.attachShadow({mode:'open'});
+  const l=document.createElement('link');l.rel='stylesheet';l.href=BASE+'assets/archive/archive.css'+VER;SR.appendChild(l);
+  const s=document.createElement('style');s.textContent=EXTRA;SR.appendChild(s);
   if(!document.fonts||![...document.fonts].some(f=>/SignThatS/.test(f.family))){const f=document.createElement('style');f.textContent=`@font-face{font-family:"SignThatS";src:url("${A}fonts/SignThatS.otf") format("opentype");font-display:swap}`;document.head.appendChild(f);}};
 
 // ---------- pieces ----------
@@ -79,11 +83,18 @@ const wf=(n,played,live,sm,seed=0)=>{let h=[];for(let k=0;k<n;k++){const e=.35+.
   const ph=Math.round(n*played);return `<div class="wf${live?' live':''}${sm?' sm':''}">${h.map((v,k)=>`<i class="${k<ph?'p':''}${Math.abs(k-ph)<6&&!live?' near':''}" style="--h:${v.toFixed(2)};--dl:-${((k*53%17)/10).toFixed(2)}s;--d:${(.35+(k*37%9)/18).toFixed(2)}s"></i>`).join('')}${live?'':`<span class="head" style="left:${(played*100).toFixed(1)}%"></span>`}</div>`;};
 const keys=a=>`<div class="keys">${a.map((t,i)=>{const[x,act]=Array.isArray(t)?t:[t];return `<button class="k${i?'':' main'}" ${act?`data-act="${act}"`:''}>${esc(x)}</button>`;}).join('')}</div>`;
 const dl=r=>`<dl>${r.filter(x=>x[1]).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
+const tt=(f,src)=>`<div class="tt"><div class="bigdisc"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${src||P+f+'.jpg'}')"></i></div><img class="shn" src="${A}keeper/desk-vinyl-shine.webp" alt=""></div><div class="arm" style="--rot:${ARM.rest}deg"><img src="${A}archive/tonearm.webp" alt=""></div></div>`;
 const disc=(f,play,src)=>`<div class="bigdisc${play?' playing':''}"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${src||P+f+'.jpg'}')"></i></div></div>`;
 const reel=on=>`<div class="reel1${on?' on':''}"><img class="t" src="${A}archive/reel.webp" alt=""><img src="${A}archive/reel-shine.webp" alt=""></div>`;
 const frame=(src,land)=>`<div class="fr${land?' land':''}"><img class="pic" src="${src}" alt=""></div>`;
 const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
 
+// the tonearm: its pivot stands up and right of the record (in record radii: 1.15 right, 0.75 up), the arm is 1.37 radii long.
+// In the picture the arm points left (180.3°); --rot turns it to where the stylus should be.
+const ARM=(()=>{const px=1.15,py=-.75,L=1.37,base=180.3;const at=th=>{const t=th*Math.PI/180;return Math.hypot(px+L*Math.cos(t),py+L*Math.sin(t));};
+  const find=r=>{let th=97;while(at(th)>r&&th<260)th+=.1;return th;};// the first meeting with the groove, coming in from the right like a real arm
+  const rest=97,start=find(.95),end=find(.47);return{rest:(rest-base).toFixed(2),start:start-base,end:end-base};})();
+const RECGO=`<div class="recgo" data-go="record"><span class="rd"></span><span><b>Записать голос</b><small>свой рассказ или ответ на вопрос недели</small></span></div>`;
 // ---------- the things (demo until the family sends its own) ----------
 const D={
  photos:[['grandma_porch','Бабушка на крыльце','Тифлис, 1956','Тифлис, Плехановский','Нина Петровна, Серёжа','тётя Варя, 3 мая','«Это наше крыльцо на Плехановском. Бабушка всегда сидела здесь по вечерам, а мы с Серёжей бегали вокруг…»'],
@@ -111,7 +122,8 @@ const putAudio=async(id,blob)=>{const db=await idb();return new Promise(ok=>{con
 const getAudio=async id=>{const db=await idb();return new Promise(ok=>{const r=db.transaction('audio').objectStore('audio').get(id);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>ok(null);});};
 
 const SECS=[
- {k:'voices',t:'Голоса',n:()=>`${D.voices.length+store.get().length} записи`,o:()=>`<div class="st3"><div class="disc" style="left:30%;top:8%"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}nikolai_portrait.jpg')"></i></div><div class="disc" style="left:8%;top:22%"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}grandma_porch.jpg')"></i></div></div>`},
+ {k:'voices',t:'Голоса',n:()=>`${D.voices.length+store.get().length} записи`,o:()=>`<div class="slv"><div class="dsk"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}nikolai_portrait.jpg')"></i></div><img class="sl" src="${A}archive/sleeve.webp" alt=""></div>`},
+
  {k:'photos',t:'Фото',n:()=>`${D.photos.length} снимков`,o:()=>`<div class="st3">${['lake_two','grandma_porch','mother_child_bw'].map((f,i)=>`<div class="ph" style="left:${[46,12,30][i]}%;top:${[4,12,22][i]}%;rotate:${[-9,6,-3][i]}deg"><i class="pic" style="background-image:url('${P}${f}.jpg')"></i><img class="fri" src="${A}archive/frame.webp" alt=""></div>`).join('')}</div>`},
  {k:'letters',t:'Письма',n:()=>`${D.letters.length} письма`,o:()=>`<img src="${A}archive/envelopes.webp" alt="">`,nw:1},
  {k:'texts',t:'Тексты',n:()=>`${D.texts.length} рассказа`,o:()=>`<img src="${A}keeper/desk-stack.webp" alt="" style="filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)) sepia(.6) saturate(1.3) hue-rotate(-10deg) brightness(.72)">`},
@@ -135,8 +147,8 @@ const ansLeft=a=>a[0]==='voice'?disc(a[1],true):a[0]==='photo'?frame(P+'city_tif
 const deck=(i0=0)=>`<div class="deck" id="oaDeck">${[3,2,1,0].map(d=>`<div class="card" data-d="${d}"><i>вопрос недели</i><h3>${D.week.deck[(i0+d)%D.week.deck.length]}</h3><small>${d?'':'тема: любовь · отправлен 10 ноября'}</small></div>`).join('')}</div>`;
 const page=(k,i)=>{
  if(k==='photos'){const x=D.photos[i];return{c:'Фото',l:frame(P+x[0]+'.jpg',x[7]),r:`<div class="kk">фото</div><h2>${x[1]}</h2><div class="sub">${x[2]}</div><div class="rule"></div>${dl([['место',x[3]],['на фото',x[4]],['прислал(а)',x[5]]])}${x[6]?`<p class="story">${x[6]}</p>`:''}${keys(['В книгу','Изменить','Кто на фото'])}`,n:D.photos.length};}
- if(k==='voices'){const mine=store.get();if(i<mine.length){const m=mine[i];return{c:'Голоса',l:disc('',false,P+'grandma_porch.jpg'),r:`<div class="kk">голос · ваша запись</div><h2>${esc(m.t)}</h2><div class="sub">${esc(m.when||'')}</div><div class="rule"></div><div class="pl"><span class="pp paused" data-play data-id="${m.id}"></span>${wf(110,0,false,false,7)}</div><div class="tm"><span data-cur>0:00</span><span data-left>${fmt(m.len)}</span></div>${keys(['В книгу','Изменить'])}`,n:mine.length+D.voices.length};}
-   const x=D.voices[i-mine.length];return{c:'Голоса',l:disc(x[0],false),r:`<div class="kk">голос</div><h2>${x[1]}</h2><div class="sub">${x[2]}</div><div class="rule"></div><div class="pl"><span class="pp paused" data-play data-len="${x[3]}"></span>${wf(110,0,false,false,i)}</div><div class="tm"><span data-cur>0:00</span><span data-left>осталось ${fmt(x[3])}</span></div>${x[4]?`<p class="story" style="margin-bottom:22px">${x[4]}</p>`:''}${dl([['записано',x[5]],['в книге',x[6]]])}${keys(['В книгу','Изменить'])}`,n:mine.length+D.voices.length};}
+ if(k==='voices'){const mine=store.get();if(i<mine.length){const m=mine[i];return{c:'Голоса',l:tt('',P+'grandma_porch.jpg'),r:`<div class="kk">голос · ваша запись</div><h2>${esc(m.t)}</h2><div class="sub">${esc(m.when||'')}</div><div class="rule"></div><div class="pl"><span class="pp paused" data-play data-id="${m.id}"></span>${wf(110,0,false,false,7)}</div><div class="tm"><span data-cur>0:00</span><span data-left>${fmt(m.len)}</span></div>${keys(['В книгу','Изменить'])}${RECGO}`,n:mine.length+D.voices.length};}
+   const x=D.voices[i-mine.length];return{c:'Голоса',l:tt(x[0]),r:`<div class="kk">голос</div><h2>${x[1]}</h2><div class="sub">${x[2]}</div><div class="rule"></div><div class="pl"><span class="pp paused" data-play data-len="${x[3]}"></span>${wf(110,0,false,false,i)}</div><div class="tm"><span data-cur>0:00</span><span data-left>осталось ${fmt(x[3])}</span></div>${x[4]?`<p class="story" style="margin-bottom:22px">${x[4]}</p>`:''}${dl([['записано',x[5]],['в книге',x[6]]])}${keys(['В книгу','Изменить'])}${RECGO}`,n:mine.length+D.voices.length};}
  if(k==='letters'){const x=D.letters[i];return{c:'Письма',l:`<div class="lw"><img class="env" src="${A}archive/envelope.webp" alt=""><div class="sheet"><div class="hnd">${x[2]}</div></div></div>`,r:`<div class="kk">письмо</div><h2>от ${x[0]}</h2><div class="sub">${x[1]}</div><div class="rule"></div>${dl([['кому','семье Евстафиади'],['в книге',x[3]]])}${keys(['В книгу','Изменить','Оригинал письма'])}`,n:D.letters.length};}
  if(k==='texts'){const x=D.texts[i];return{c:'Тексты',l:`<div class="sheet settle"><h3>${x[0]}</h3><div class="print">${x[2].split('|').map(p=>`<p>${p}</p>`).join('')}</div></div>`,r:`<div class="kk">рассказ</div><h2>${x[0]}</h2><div class="sub">${x[1]}</div><div class="rule"></div>${dl([['слов',String(x[4])],['в книге',x[3]]])}${keys(['Открыть в редакторе','В книгу'])}`,n:D.texts.length};}
  if(k==='week')return{c:'Вопрос недели',l:deck(),r:qsRight(-1),n:1};
@@ -156,10 +168,33 @@ let root=null,where=null,list=[],at=0,audio=null,rec=null,recBlob=null,recLen=0,
 const later=(f,ms)=>timers.push(setTimeout(f,ms));
 const knight=`<div class="knight"><div class="nb"></div><div class="na"></div><div class="nm"></div><div class="nw"></div><div class="ni"></div><div class="nv"></div></div><div class="dim"></div>`;
 const top=(crumb)=>`<div class="top"><span class="crumb" data-back>‹ ${esc(crumb)}</span><span class="x" data-close>✕</span></div>`;
-const stopAudio=()=>{if(audio){audio.pause();audio=null;}root?.querySelectorAll('.bigdisc.playing').forEach(d=>d.classList.remove('playing'));root?.querySelectorAll('[data-play]').forEach(b=>b.classList.add('paused'));};
-const render=html=>{stopAudio();timers.forEach(clearTimeout);timers=[];root.innerHTML=knight+html;};
-const showDesk=()=>{where={v:'desk'};render(`${top('Конструктор')}<header><h1>Архив семьи</h1><p>Всё, что присылают родные, — на одном столе</p></header><div class="desk">${SECS.map(s=>`<div class="sec" data-sec="${s.k}"><div class="obj">${s.o()}</div>${s.nw?'<span class="new">новое</span>':''}<b>${s.t}</b><small>${s.n()}</small></div>`).join('')}</div>`);};
-const showSec=k=>{const s=SECS.find(x=>x.k===k);if(k==='week'||k==='edits'){showPage(k,0,true);return;}
+const stopAudio=(ended)=>{if(audio){audio.pause();audio=null;}root?.querySelectorAll('.bigdisc.playing').forEach(d=>d.classList.remove('playing'));root?.querySelectorAll('[data-play]').forEach(b=>b.classList.add('paused'));deck2.stop(ended);};
+// the turntable: the record turns up to speed and runs down slowly; the arm lifts, swings, lowers and tracks the groove
+const deck2={ang:0,vel:0,target:0,raf:0,last:0,f:0,armOn:false,ts:[],
+  el(){return root&&root.querySelector('.tt');},
+  loop(now){const d=deck2,tt=d.el();if(!tt){d.raf=0;return;}const dt=Math.min(.05,(now-(d.last||now))/1000);d.last=now;
+    d.vel+=(d.target-d.vel)*Math.min(1,dt*(d.target>d.vel?2.2:.9));d.ang=(d.ang+d.vel*dt)%360;tt.querySelector('.spin').style.transform=`rotate(${d.ang.toFixed(2)}deg)`;
+    if(d.target===0&&d.vel<.5){d.vel=0;d.raf=0;d.last=0;return;}d.raf=requestAnimationFrame(d.loop);},
+  spin(on){this.target=on?120:0;if(!this.raf){this.last=0;this.raf=requestAnimationFrame(this.loop);}},
+  arm(rot,{up,track}={}){const a=this.el()?.querySelector('.arm');if(!a)return;a.classList.toggle('up',!!up);a.classList.toggle('track',!!track);a.style.setProperty('--rot',rot.toFixed(2)+'deg');},
+  clear(){this.ts.forEach(clearTimeout);this.ts=[];},
+  start(go){const d=this;d.clear();d.spin(true);const pos=ARM.start+(ARM.end-ARM.start)*d.f;
+    if(d.armOn){d.arm(pos,{up:true});d.ts.push(setTimeout(()=>{d.arm(pos);crackle();d.ts.push(setTimeout(go,380));},420));return;}
+    d.arm(+ARM.rest,{up:true});d.ts.push(setTimeout(()=>d.arm(pos,{up:true}),260));
+    d.ts.push(setTimeout(()=>{d.arm(pos);crackle();d.armOn=true;d.ts.push(setTimeout(go,420));},1500));},
+  track(f){this.f=f;this.arm(ARM.start+(ARM.end-ARM.start)*f,{track:true});},
+  stop(ended){const d=this;d.clear();d.spin(false);if(!d.el())return;
+    if(ended){d.f=0;d.arm(ARM.end,{up:true});d.ts.push(setTimeout(()=>{d.arm(+ARM.rest,{up:true});d.armOn=false;},450));d.ts.push(setTimeout(()=>d.arm(+ARM.rest),1800));}
+    else if(d.armOn)d.arm(ARM.start+(ARM.end-ARM.start)*d.f,{up:true});},
+  reset(){this.clear();this.ang=0;this.vel=0;this.target=0;this.f=0;this.armOn=false;}};
+// the needle touching the record: a short soft crackle, made on the spot
+const crackle=()=>{try{const C=new (window.AudioContext||window.webkitAudioContext)();const n=C.createBuffer(1,Math.floor(C.sampleRate*.8),C.sampleRate),b=n.getChannelData(0);
+  for(let i=0;i<b.length;i++){const k=1-i/b.length;b[i]=((Math.random()<.003)?(Math.random()*2-1)*.7:0)+(Math.random()*2-1)*.025*k;}
+  const src=C.createBufferSource(),g=C.createGain(),lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;g.gain.value=.45;src.buffer=n;src.connect(lp).connect(g).connect(C.destination);src.start();setTimeout(()=>C.close(),1400);}catch(_){}};
+const render=html=>{stopAudio();deck2.reset();timers.forEach(clearTimeout);timers=[];root.innerHTML=knight+html;};
+const showDesk=()=>{where={v:'desk'};render(`${top('Конструктор')}<header><h1>Архив семьи</h1><p>Всё, что присылают родные, — под одним деревом</p></header><div class="tdesk"><img class="tree" src="${A}archive/tree-mist.webp" alt="">${SECS.map(s=>`<div class="sec at-${s.k}" data-sec="${s.k}"><div class="obj">${s.o()}</div>${s.nw?'<span class="new">новое</span>':''}<b>${s.t}</b><small>${s.n()}</small></div>`).join('')}</div>`);};
+const showSec=k=>{if(k==='week'||k==='edits'||CAR.includes(k)){showPage(k,0,true);return;}showAll(k);};
+const showAll=k=>{const s=SECS.find(x=>x.k===k);
   where={v:'sec',k};list=items(k);
   render(`${top('Архив')}<header><h1>${s.t}</h1><p>${s.n()}</p></header><div class="spread">${list.length?list.map((it,i)=>`<div class="it" data-i="${i}" style="--d:${(.06*i).toFixed(2)}s;--r:${((i*37%7)-3)*.8}deg"><div class="vis">${it.h}</div><strong>${esc(it.t)}</strong><em>${esc(it.s)}</em></div>`).join(''):'<div class="empty">Здесь пока пусто</div>'}</div>${k==='voices'?`<div class="sp-acts"><button class="k main" data-go="record">● Записать голос</button></div>`:''}`);};
 // the carousel: the other things of the section stand behind the main one, smaller and in the dark
@@ -173,7 +208,7 @@ const nbVis=(k,j)=>{const mine=store.get();
 const carousel=(k,i,n,main,dir)=>{if(!CAR.includes(k)||n<2)return main;
   const at=d=>(i+d+n*4)%n,sides=n>2?[-2,-1,1,2]:[1];
   return `<div class="cr">${sides.filter(d=>n>4||Math.abs(d)===1).map(d=>`<div class="nbr ${d<0?'l':'r'}${Math.abs(d)}" data-go-i="${at(d)}">${nbVis(k,at(d))}</div>`).join('')}<div class="mainv${dir?' from-'+(dir>0?'r':'l'):''}">${main}</div>
-    <div class="cnt"><b data-nav="-1">‹</b><span>${i+1} из ${n}</span><b data-nav="1">›</b>${n>10?'<em data-all>все записи</em>':''}</div></div>`;};
+    <div class="cnt"><b data-nav="-1">‹</b><span>${i+1} из ${n}</span><b data-nav="1">›</b><em data-all>все записи</em></div></div>`;};
 const IB='ocherkiArchiveInBook',ED='ocherkiArchiveEdits';
 const getJ=n=>{try{return JSON.parse(localStorage.getItem(n)||'{}');}catch(_){return{};}},setJ=(n,v)=>{try{localStorage.setItem(n,JSON.stringify(v));}catch(_){}};
 const toast=t=>{root.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;root.appendChild(d);setTimeout(()=>d.remove(),3200);};
@@ -187,15 +222,16 @@ const showPage=(k,i,fromDesk,dir)=>{const p=page(k,i);if(!p)return;where={v:'pag
   if(k==='edits')root.querySelectorAll('.row[data-n]').forEach(r=>r.addEventListener('mouseenter',()=>{const n=r.dataset.n;root.querySelectorAll('.row,.e').forEach(x=>x.classList.toggle(x.classList.contains('row')?'on':'hl',x.dataset.n===n));}));};
 // play: a real recording plays its sound; a demo one only turns, the wave advancing in time
 const play=async b=>{const d=root.querySelector('.bigdisc');const on=b.classList.contains('paused');stopAudio();if(!on)return;
-  b.classList.remove('paused');d?.classList.add('playing');const cur=root.querySelector('[data-cur]'),left=root.querySelector('[data-left]'),bars=[...root.querySelectorAll('.info .wf i')],head=root.querySelector('.info .wf .head');
+  b.classList.remove('paused');const hasTT=!!root.querySelector('.tt');if(!hasTT)d?.classList.add('playing');
+  if(hasTT){await new Promise(r=>deck2.start(r));if(b.classList.contains('paused'))return;}const cur=root.querySelector('[data-cur]'),left=root.querySelector('[data-left]'),bars=[...root.querySelectorAll('.info .wf i')],head=root.querySelector('.info .wf .head');
   let len=+b.dataset.len||recLen||60;let el=null;
   if(b.dataset.id){const blob=await getAudio(b.dataset.id);if(blob){el=new Audio(URL.createObjectURL(blob));}}
   else if(b.hasAttribute('data-rec-blob')&&recBlob){el=new Audio(URL.createObjectURL(recBlob));}
-  const t0=performance.now();const fake={pause(){fake.stopped=1;}};audio=el||fake;if(el){el.play().catch(()=>{});el.onloadedmetadata=()=>{if(isFinite(el.duration))len=el.duration;};}
-  const tick=()=>{if(audio!==(el||fake)||fake.stopped)return;const t=el?el.currentTime:(performance.now()-t0)/1000;const f=Math.min(1,t/len);
+  const off=root.querySelector('.tt')?deck2.f:0;const t0=performance.now();const fake={pause(){fake.stopped=1;}};audio=el||fake;if(el){el.onloadedmetadata=()=>{if(isFinite(el.duration)){len=el.duration;if(off)el.currentTime=off*len;}};el.play().catch(()=>{});}
+  const tick=()=>{if(audio!==(el||fake)||fake.stopped)return;const t=el?el.currentTime:(performance.now()-t0)/1000+off*len;const f=Math.min(1,t/len);
     if(cur)cur.textContent=fmt(t);if(left)left.textContent=(left.textContent.includes('осталось')?'осталось ':'')+fmt(len-t);
-    bars.forEach((x,k)=>x.classList.toggle('p',k/bars.length<f));if(head)head.style.left=(f*100)+'%';
-    if(f>=1||(el&&el.ended)){stopAudio();return;}requestAnimationFrame(tick);};requestAnimationFrame(tick);};
+    bars.forEach((x,k)=>x.classList.toggle('p',k/bars.length<f));if(head)head.style.left=(f*100)+'%';if(root.querySelector('.tt'))deck2.track(f);
+    if(f>=1||(el&&el.ended)){stopAudio(true);return;}requestAnimationFrame(tick);};requestAnimationFrame(tick);};
 // recording, with the microphone
 const startRec=async()=>{let st;try{st=await navigator.mediaDevices.getUserMedia({audio:true});}catch(_){alert('Нет доступа к микрофону. Разрешите его в настройках браузера.');return;}
   const ch=[];rec=new MediaRecorder(st);rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
@@ -203,20 +239,20 @@ const startRec=async()=>{let st;try{st=await navigator.mediaDevices.getUserMedia
   rec.start();recT=performance.now();root.querySelector('.reel1')?.classList.add('on');root.querySelector('.info').innerHTML=recRight('rec');
   const tm=()=>{const t=root?.querySelector('[data-timer]');if(!t||!rec||rec.state!=='recording')return;t.textContent=fmt((performance.now()-recT)/1000);setTimeout(tm,250);};tm();};
 const saveRec=async()=>{if(!recBlob)return;const id='v'+Date.now().toString(36);await putAudio(id,recBlob);const mine=store.get();
-  mine.unshift({id,t:'Каким был ваш первый дом?',len:recLen,when:new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'})});store.set(mine);recBlob=null;showSec('voices');};
+  mine.unshift({id,t:'Каким был ваш первый дом?',len:recLen,when:new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'})});store.set(mine);recBlob=null;showPage('voices',0,true);};
 const cycle=()=>{const dk=root.querySelector('#oaDeck');if(!dk)return;const t=dk.querySelector('[data-d="0"]');t.classList.add('out');
   later(()=>{dk.querySelectorAll('.card').forEach(c=>{if(c!==t)c.dataset.d=+c.dataset.d-1;});t.dataset.d=3;requestAnimationFrame(()=>t.classList.remove('out'));},700);};
 const back=()=>{if(rec&&rec.state==='recording')rec.stop();
   if(!where||where.v==='desk'){close();return;}
   if(where.v==='page'&&!where.fromDesk&&where.k!=='record'&&where.k!=='send'){showSec(where.k);return;}
-  if(where.k==='record'){showSec('voices');return;}if(where.k==='send'){showPage('week',0,true);return;}showDesk();};
+  if(where.k==='record'){showPage('voices',0,true);return;}if(where.k==='send'){showPage('week',0,true);return;}showDesk();};
 const onClick=e=>{const t=e.target;
   if(t.closest('[data-close]')){close();return;}if(t.closest('[data-back]')){back();return;}
   const s=t.closest('[data-sec]');if(s){showSec(s.dataset.sec);return;}
-  const it=t.closest('.it[data-i]');if(it&&where.v==='sec'){showPage(where.k,+it.dataset.i);return;}
+  const it=t.closest('.it[data-i]');if(it&&where.v==='sec'){showPage(where.k,+it.dataset.i,true);return;}
   const nv=t.closest('[data-nav]');if(nv){step(+nv.dataset.nav);return;}
   const gi=t.closest('[data-go-i]');if(gi){const j=+gi.dataset.goI,p=page(where.k,0);const d=((j-where.i+p.n)%p.n)<=p.n/2?1:-1;showPage(where.k,j,where.fromDesk,d);return;}
-  if(t.closest('[data-all]')){showSec(where.k);return;}
+  if(t.closest('[data-all]')){showAll(where.k);return;}
   const go=t.closest('[data-go]');if(go){showPage(go.dataset.go,0);return;}
   const pl=t.closest('[data-play]');if(pl){play(pl);return;}
   if(t.closest('[data-rec]')){startRec();return;}if(t.closest('[data-stop]')){rec&&rec.stop();return;}
@@ -237,8 +273,8 @@ let tx0=null;const onTs=e=>{if(e.target.closest('.cr'))tx0=e.touches[0].clientX;
 // accepting a correction: the red ink fades, the new word stays in the line
 const accept=r=>{if(!r||r.dataset.done)return;r.dataset.done=1;const e=root.querySelector(`.e[data-n="${r.dataset.n}"]`);if(e){const o=e.querySelector('.over'),d=e.querySelector('del'),m=e.querySelector('.mark');
   if(o&&d){d.replaceWith(document.createTextNode(o.textContent));o.remove();}if(m){m.style.color='inherit';m.style.font='inherit';}}r.style.opacity=.35;r.querySelector('.ok').textContent='✓';};
-const onKey=e=>{if(!root)return;if(e.target.isContentEditable&&e.key!=='Escape')return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))step(e.key==='ArrowRight'?1:-1);};
-const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';document.body.appendChild(root);root.addEventListener('click',onClick);root.addEventListener('wheel',onWheel,{passive:false});root.addEventListener('touchstart',onTs,{passive:true});root.addEventListener('touchend',onTe,{passive:true});addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
+const onKey=e=>{if(!root)return;const tg=(e.composedPath&&e.composedPath()[0])||e.target;if(tg.isContentEditable&&e.key!=='Escape')return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))step(e.key==='ArrowRight'?1:-1);};
+const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';SR.appendChild(root);root.addEventListener('click',onClick);root.addEventListener('wheel',onWheel,{passive:false});root.addEventListener('touchstart',onTs,{passive:true});root.addEventListener('touchend',onTe,{passive:true});addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
   if(w==='desk')showDesk();else if(['record','send'].includes(w))showPage(w,0);else if(SECS.some(s=>s.k===w))showSec(w);else showDesk();};
 const close=()=>{if(!root)return;stopAudio();if(rec&&rec.state==='recording')rec.stop();const r=root;root=null;where=null;removeEventListener('keydown',onKey,true);r.classList.remove('in');setTimeout(()=>r.remove(),600);};
 window.OcherkiArchive={open,close,get isOpen(){return!!root;}};
