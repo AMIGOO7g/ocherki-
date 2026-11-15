@@ -47,7 +47,7 @@ const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform ve
     vec3 N=normalize(vec3((hL-hR)*uAmp,(hD-hU)*uAmp,1.));vec2 p=uv*uSize;
     // the desk lamp from the upper left: by day almost even, at night warmer and softer toward the lower right
     vec3 Ld=normalize(vec3(-.55,.65,.55));vec2 lq=(uv-vec2(-.12,1.12))*vec2(1.,.8);
-    float lamp=uLamp*(.88+.12*max(dot(N,Ld),0.))*mix(1.02,(.86+.2*exp(-dot(lq,lq)*1.1)),uNight);
+    float ld=length((uv-vec2(-.05,1.05))*vec2(.85,1.));float lamp=uLamp*(.9+.1*max(dot(N,Ld),0.))*mix(1.04,1.2-.36*smoothstep(.05,1.35,ld),uNight);
     // the typewriter light, as in the tour
     vec3 Ls=vec3(uCar,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
     vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));
@@ -56,7 +56,7 @@ const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform ve
     float car=uCarOn*above*cone*fall*(.9+.3*max(dot(N,L),0.));
     float amb=mix(lamp,.45-.1*uv.x-.1*smoothstep(0.,-120.,p.y-Ls.y),uCarOn);
     vec3 pb=mix(base,vec3(dot(base,vec3(.3,.59,.11)))*vec3(1.,.99,.95),.55*uCarOn);
-    vec3 col=mix(vec3(1.),vec3(1.,.97,.92),uNight*(1.-uCarOn));
+    vec3 col=mix(vec3(1.),vec3(1.03,.99,.93),uNight*(1.-uCarOn));
     vec3 c=pb*(vec3(.05,.046,.042)+amb*col+car*.9*vec3(1.,.95,.8));
     c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*2.;
     gl_FragColor=vec4(c,1.);}`;
@@ -108,7 +108,7 @@ function attach(sheet,o={}){
     if((moving||dirty)&&isActive()){const H=sheet.offsetHeight,W=sheet.offsetWidth;U.uCar.value.set(cur.x,H-cur.y-2);R.render(scene,cam);dirty=false;car.style.transform=`translate(${cur.x}px,${cur.y}px)`;
       // the sheet's shadow moves away from the light; under the desk lamp it falls right and down
       const on=U.uCarOn.value,dx=(W/2-cur.x)*.05*on+10*(1-on),dy=14;
-      sheet.style.setProperty('box-shadow',`${(dx*.5).toFixed(1)}px 8px 18px rgba(0,0,0,${(.32+.1*on).toFixed(2)})`,'important');
+      const sx=on>.5?(W/2-cur.x)*.07:16,sy=on>.5?10+(H*.45-cur.y)*.025:20;sheet.style.setProperty('box-shadow',`${sx.toFixed(1)}px ${sy.toFixed(1)}px 30px rgba(0,0,0,.5),${(sx*.4).toFixed(1)}px ${(sy*.4).toFixed(1)}px 8px rgba(0,0,0,.35)`,'important');
       const r=sheet.getBoundingClientRect(),sc=r.width/W||1,gx=r.left+cur.x*sc,gy=r.top+cur.y*sc;spill.style.left=gx+'px';spill.style.top=(gy-200)+'px';
       if(now-(frame.t||0)>120){frame.t=now;tell(gx,gy,on);}}
     requestAnimationFrame(frame);};

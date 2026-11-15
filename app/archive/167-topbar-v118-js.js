@@ -26,7 +26,7 @@
   const one=(keys,cls)=>`<div class="row ${cls}">${keys.map(k=>hk(L+k[3],k[0],k[1],k[2])).join('')}</div>`;
   top.innerHTML=`<div class="sw hg" data-k="logo" style="left:${L-32}px;top:0;width:64px;height:${KY+32}px">${th(32,0,KY-32)}${kb('logo','<img alt="" class="ld" src="assets/brand/logo-day-bare.png"><img alt="" class="ln" src="assets/brand/logo-night-bare.png">','',64)}</div>`
     +one(RL,'ed')+one(RR,'ar')
-    +`<div class="more" style="left:${L+266}px;top:${KY+58}px"></div>`;
+    +`<div class="more" style="left:${L+266}px;top:0"></div>`;
   document.body.appendChild(top);
   const more=top.querySelector('.more');
   // ——— where we are ———
@@ -56,11 +56,11 @@
     else{const p=k==='week'?1:2;if(fromEd){if(!swClick('family'))f.openRoom?.(p);setTimeout(()=>f.show?.(p),fromEd?60:0);}else{room()?.querySelector('.fm-open.on .fm-x,.fm-open.on [data-close]')?.click();f.show?.(p);}}
     setTimeout(sync,120);};
   const act=k=>{closeMore();
+    if(k==='archive'&&window.OcherkiArchive)return window.OcherkiArchive.open('desk');
     if(k==='logo'||k==='write'||k==='manuscript'||k==='book')return goEd(k==='logo'?'write':k);
     if(k==='shelf'){if(famOpen())F()?.closeRoom?.();document.getElementById('booksBtn')?.click();return;}
     if(['archive','week','record','voice','photo','note','letter'].includes(k))return goArch(k);
     if(k==='more')return more.classList.contains('on')?closeMore():openMore();
-    if(k==='archive'&&window.OcherkiArchive)return window.OcherkiArchive.open('desk');
     if(k==='pages')return document.getElementById('pagesBtn')?.click();};
   top.addEventListener('click',e=>{const b=e.target.closest('button[data-k],button[data-w]');if(!b)return;e.stopPropagation();
     if(b.dataset.w)return b.dataset.w==='ed'?act(world()==='ed'?'write':'logo'):act('archive');act(b.dataset.k);});
@@ -68,8 +68,9 @@
   const musicOn=()=>/pause|❚|stop/i.test(document.getElementById('transportPlayBtn')?.getAttribute('aria-label')||'')||document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true';
   function drawMore(){const night=shell.classList.contains('is-night');
     const big=shell.classList.contains('is-large-ui');
-    const L=[['music','note',musicOn()?'Музыка · играет':'Музыка',musicOn()],['light',night?'sun':'moon',night?'Дневной свет':'Ночной свет',false],['big','big',big?'Обычный интерфейс':'Крупный интерфейс',big],['tour','tour','Знакомство',false],['mail','mail','Написать нам',false]];
-    more.innerHTML=L.map((m,i)=>`<div class="mi ${m[3]?'on':''}" style="--y:${i*60}px;transition-delay:${i*70}ms"><div class="sw hg" data-k="m-${m[0]}" style="left:-22px;top:${i?i*60-16:-30}px;width:44px;height:${i?60:74}px">${th(22,0,i?16:30)}${kb('m-'+m[0],S+I[m[1]]+E,'',44).replace('data-k="m-'+m[0]+'"','data-m="'+m[0]+'"')}</div><span class="ml" data-m="${m[0]}">${m[2]}</span></div>`).join('');
+    const L=[['music','note','Музыка',musicOn()],['light',night?'sun':'moon',night?'День':'Ночь',false],['big','big',big?'Обычный':'Крупно',big],['tour','tour','Знакомство',false],['mail','mail','Написать',false]];
+    // v168: the choices of «Ещё» open to the right, in the same row as the keys, never over the sheet
+    more.innerHTML=L.map((m,i)=>`<div class="mi mi-r ${m[3]?'on':''}" style="--lx:${(i+1)*84}px;--ly:${KY+29}px;transition-delay:${i*70}ms"><div class="sw hg" data-k="m-${m[0]}" style="left:${(i+1)*84-22}px;top:0;width:44px;height:${KY+22}px">${th(22,0,KY-22)}${kb('m-'+m[0],S+I[m[1]]+E,'',44).replace('data-k="m-'+m[0]+'"','data-m="'+m[0]+'"')}</div><span class="ml" data-m="${m[0]}">${m[2]}</span></div>`).join('');
     more.querySelectorAll('.sw').forEach(attach);}
   function openMore(){drawMore();void more.offsetWidth;more.classList.add('on');top.querySelector('.k[data-k="more"]')?.classList.add('glow');
     more.querySelectorAll('.sw').forEach((h,i)=>setTimeout(()=>h._push?.(i%2?-1:1,.16),160+i*90));}

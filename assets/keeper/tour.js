@@ -7,10 +7,11 @@ const CSS=`
 .okt{position:absolute;inset:0;font-family:var(--okt-serif);color:#f6ead8;pointer-events:none}
 /* the greeting: a man walks slowly along the bottom, a memory in the mist (the same as on the archive's road of life) */
 .okt .walk{position:absolute;left:0;right:0;bottom:4vh;height:min(17vh,150px);opacity:0;transition:opacity 1.6s ease;pointer-events:none}
-.okt.greet .walk{opacity:.5;filter:blur(1px)}
+.okt.greet.walkon .walk{opacity:.5;filter:blur(1px)}
 .okt .walk::before{content:"";position:absolute;left:8%;right:8%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,197,142,.28) 20%,rgba(232,197,142,.28) 80%,transparent)}
-.okt .walk img{position:absolute;bottom:0;height:100%;left:6%;animation:okt-walk 46s linear infinite}
-@keyframes okt-walk{from{left:4%}to{left:90%}}
+.okt .walk img{position:absolute;bottom:0;height:100%;left:var(--wx,6%);animation:none}
+.okt.greet.walkon .walk img{animation:okt-walk 46s linear infinite}
+@keyframes okt-walk{from{left:var(--wx,6%)}to{left:calc(100% - 90px)}}
 .okt>*{pointer-events:auto}
 /* the heading: the Keeper's pen writes the word itself (above), here only what follows it, in plain type */
 .okt .hd{position:absolute;left:0;right:0;top:calc(5% + 108px);text-align:center;pointer-events:none}
@@ -260,7 +261,7 @@ function create(host,o={}){
   // where the pen writes the step's word: the heading line at the top
   // v165: after writing the heading he stays close — just past its last letter, on the right
   const headEnd=w=>{const Wd=el.clientWidth||innerWidth,px=Math.round(Math.min(66,(Wd-60)/(.6*w.length))),hw=.6*px*w.length*1.6;
-    const x=Math.min(Wd-70,Wd/2+hw/2+56);const h=headAt();return[x/Wd*2-1,h[1]-.02];};
+    let x=Math.min(Wd-70,Wd/2+hw/2+56);if(D){const r=D.rect();x=Math.min(Wd-70,Math.max(x,r.x+r.w+90));}const h=headAt();return[x/Wd*2-1,h[1]-.02];};
   const headAt=()=>{const H=el.clientHeight||innerHeight;return[0,1-2*((H*.05+38)/H)];};
   // one movement per step: the old word fades, he flows into his pen, the pen writes the new word at the top,
   // and he gathers again, small, beside the card — no flying off into a corner and growing back first
@@ -270,7 +271,7 @@ function create(host,o={}){
   const moodLife=(t,k)=>{const go=()=>{if(t!==tok||!alive||!K)return;K.mood?.(FLASH[Math.floor(Math.random()*FLASH.length)],1300+Math.random()*700,MOODS[k]);later(go,3800+Math.random()*3000);};later(go,3500);};
   // the order of a step: the old picture and words go and he flows into his pen; then the new picture comes;
   // the pen writes the word at the top; he gathers beside the picture with the step's mood; the line under it last
-  const show=k=>{el.classList.remove('greet');const prev=i;i=Math.max(0,Math.min(S.length-1,k));const t=++tok;
+  const show=k=>{el.classList.remove('greet','walkon');const prev=i;i=Math.max(0,Math.min(S.length-1,k));const t=++tok;
     ['h2','.sub','p'].forEach(q=>mist('.hd '+q,false));if(K)K.clearWords();
     cards.forEach((c,j)=>{if(j!==i)pose(c,j-i);});el.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));$('.dots .cnt').textContent=`${i+1} из ${S.length}`;
     $('[data-a="next"]').textContent=i===S.length-1?(o.last||'Начать'):'Далее';$('[data-a="prev"]').hidden=i<1;
@@ -307,7 +308,7 @@ function create(host,o={}){
     start(){alive=true;i=-1;tok++;begun=false;cards.forEach(c=>pose(c,1));$('[data-a="prev"]').hidden=true;
       if(o.greeting!==false){el.classList.add('wait','greet');$('.dots').hidden=true;$('[data-a="next"]').textContent='Показать';
         const wait=()=>{if(!alive||i>=0||begun)return;if(!K||(K.state.form>.88&&['idle','free'].includes(K.state.mode))){
-            mist('.say .l1',true);later(()=>mist('.say .l2',true),300);K&&K.talk(3000);K&&K.mood?.('joy',3800);later(()=>mist('.say .l3',true),950);later(()=>el.classList.remove('wait'),1750);}
+            mist('.say .l1',true);later(()=>{mist('.say .l2',true);const l2=$('.say .l2'),w=$('.walk img');if(l2&&w){const a=l2.getBoundingClientRect(),b=el.getBoundingClientRect();const rg=document.createRange();rg.setStart(l2.firstChild||l2,0);rg.setEnd(l2.firstChild||l2,1);const x=(rg.getBoundingClientRect().left||a.left)-b.left;w.style.setProperty('--wx',Math.round(x-w.offsetWidth*.35)+'px');}later(()=>el.classList.add('walkon'),900);},300);K&&K.talk(3000);K&&K.mood?.('joy',3800);later(()=>mist('.say .l3',true),950);later(()=>el.classList.remove('wait'),1750);}
           else later(wait,160);};later(wait,500);}
       else{el.classList.remove('wait');first();}},
     stop(){alive=false;ts.forEach(clearTimeout);ts=[];},
