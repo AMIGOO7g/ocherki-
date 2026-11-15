@@ -236,3 +236,17 @@
 .kp-hint u{display:inline-block;margin:0 0 0 18px;vertical-align:middle}
 .kp[data-at="photos"]{top:46px;bottom:auto}
 .kp[data-at="photos"] .kp-hint{top:72px;bottom:auto}
+/* 11 — several proof sheets: a stack, the top one turns away to show the next */
+.oar .proofs{position:relative;width:min(540px,100%);height:76vh}
+.oar .proofs .ps{position:absolute;inset:0;transition:transform .8s cubic-bezier(.3,.7,.3,1),opacity .6s ease,filter .6s ease}
+.oar .proofs .ps .sheet{height:100%;width:100%}
+.oar .proofs .ps{transform:translate(calc(var(--k)*14px),calc(var(--k)*10px)) rotate(calc(var(--k)*1.6deg));filter:brightness(calc(1 - var(--k)*.18));z-index:calc(5 - var(--k))}
+.oar .proofs[data-p="0"] .p0,.oar .proofs[data-p="1"] .p1,.oar .proofs[data-p="2"] .p2{--k:0}
+.oar .proofs[data-p="0"] .p1,.oar .proofs[data-p="1"] .p2,.oar .proofs[data-p="2"] .p0{--k:1}
+.oar .proofs[data-p="0"] .p2,.oar .proofs[data-p="1"] .p0,.oar .proofs[data-p="2"] .p1{--k:2}
+.oar .proofs .pnav{position:absolute;left:0;right:0;bottom:-58px;display:flex;justify-content:center;align-items:center;gap:18px;font:italic 16px Georgia,serif;color:#e2c9a2;z-index:6}
+.oar .proofs .pnav b{width:38px;height:38px;border-radius:50%;border:1px solid rgba(232,197,142,.45);display:grid;place-items:center;font:20px Georgia;color:#f2e0c2;cursor:pointer}
+.oar .proofs .pnav em{font-style:normal;color:#fff0d8}
+.oar.oar .pg-edits .page{bottom:90px}
+/* 10 — the boy faces the other way and stands further right, clear of the button */
+.oar .scene.s-week{right:-2vw;width:min(30vw,430px);transform:scaleX(-1)}
