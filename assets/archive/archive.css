@@ -189,3 +189,16 @@
 .oar.oar .pg-week .deck{width:min(36vw,620px)}
 .oar .scene.s-week{right:auto;left:3vw;width:min(24vw,360px)}
 .oar.oar .pg-send .info h2{font-size:clamp(38px,3.8vw,58px)}
+/* 10 — the question of the week: a tall postcard, the question in hand */
+.oar.oar .pg-week .deck{width:min(30vw,440px);aspect-ratio:.72}
+.oar.oar .pg-week .deck .card{inset:0;width:auto;aspect-ratio:auto;padding:13% 11% 11%;justify-content:space-between;border-radius:4px;
+  background:url("../keeper/desk-paper.jpg") center/cover;box-shadow:0 2px 3px rgba(0,0,0,.3),0 26px 46px rgba(0,0,0,.55)}
+.oar.oar .pg-week .deck .card i{font:600 12px Arial,sans-serif;letter-spacing:.34em;color:#8a6a48}
+.oar.oar .pg-week .deck .card h3{margin:0;font:400 clamp(40px,3.5vw,56px)/1.18 "SignThatS",Georgia,serif;color:#3a2516}
+.oar.oar .pg-week .deck .card small{display:block;width:100%;padding-top:16px;border-top:1px solid rgba(120,85,50,.3);font:italic 15px/1.6 Georgia,serif;color:#7a5a3c}
+.oar .scene.s-week{left:1vw;bottom:0;width:min(38vw,560px)}
+.oar.oar .pg-week .obj{justify-content:flex-end;padding-right:3vw}
+.oar.oar .pg-week .deck{width:min(25vw,370px)}
+.oar.oar .pg-week .deck .card h3{font-size:clamp(32px,2.7vw,44px)}
+.oar .scene.s-week{left:0;bottom:0;width:min(33vw,470px)}
+.oar .scene.s-week{left:0;top:9vh;bottom:auto;width:min(33vw,470px)}
