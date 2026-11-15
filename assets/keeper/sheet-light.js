@@ -38,7 +38,7 @@ html body .sheet.osl-type .footer-line{background-color:rgba(240,225,200,.35)!im
 .osl-spill{position:fixed;z-index:0;width:1100px;height:900px;margin:-450px 0 0 -550px;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .9s;
   background:radial-gradient(ellipse 50% 50% at 50% 60%,rgba(255,214,160,.16),rgba(255,190,120,.06) 45%,transparent 70%)}
 .osl-type-on .osl-spill{opacity:1}
-body.osl-active .sheet.ghost{background:#e2dacd url(BASE_PAPER) center/cover!important;filter:brightness(.86) sepia(.12)}
+body.osl-active .sheet:not(.active){background:#e2dacd url(BASE_PAPER) center/cover!important;filter:brightness(.8) sepia(.12)}
 `;
 const VERT='varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
 const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform vec2 uTex;uniform vec2 uSize;uniform vec2 uCar;uniform float uCarOn;uniform float uLamp;uniform float uAmp;uniform float uNight;
@@ -57,13 +57,13 @@ const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform ve
     float amb=mix(lamp,.45-.1*uv.x-.1*smoothstep(0.,-120.,p.y-Ls.y),uCarOn);
     vec3 pb=mix(base,vec3(dot(base,vec3(.3,.59,.11)))*vec3(1.,.99,.95),.55*uCarOn);
     vec3 col=mix(vec3(1.),vec3(1.,.97,.92),uNight*(1.-uCarOn));
-    vec3 c=pb*(vec3(.04,.038,.035)+amb*col+car*.62*vec3(1.,.95,.8));
+    vec3 c=pb*(vec3(.05,.046,.042)+amb*col+car*.9*vec3(1.,.95,.8));
     c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*2.;
     gl_FragColor=vec4(c,1.);}`;
 let threeP=null;
 const loadThree=base=>window.THREE?Promise.resolve():threeP||(threeP=new Promise((ok,no)=>{const s=document.createElement('script');s.src=base+'assets/vendor/three/three.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);}));
 function attach(sheet,o={}){
-  const B=o.base||'';if(!document.getElementById('osl-css')){const st=document.createElement('style');st.id='osl-css';st.textContent=CSS.split('BASE_PAPER').join(`'${B}assets/keeper/desk-paper.jpg'`);document.head.appendChild(st);}
+  const B=o.base||'';if(!document.getElementById('osl-css')){const st=document.createElement('style');st.id='osl-css';st.textContent=CSS.split('BASE_PAPER').join(`'${B}assets/keeper/sheet-paper.jpg'`);document.head.appendChild(st);}
   const cv=document.createElement('canvas');cv.className='osl-cv';sheet.insertBefore(cv,sheet.firstChild);
   const car=document.createElement('div');car.className='osl-car';car.innerHTML='<b></b><i></i>';sheet.appendChild(car);
   const spill=document.createElement('div');spill.className='osl-spill';document.body.appendChild(spill);
@@ -94,8 +94,8 @@ function attach(sheet,o={}){
     U={uC:{value:px},uH:{value:fl},uTex:{value:new T.Vector2(1/1240,1/1754)},uSize:{value:new T.Vector2(1,1)},uCar:{value:new T.Vector2()},uCarOn:{value:GO.car},uLamp:{value:1},uAmp:{value:.35},uNight:{value:GO.night}};
     scene.add(new T.Mesh(new T.PlaneGeometry(1,1),new T.ShaderMaterial({uniforms:U,vertexShader:VERT,fragmentShader:FRAG})));
     const L=new T.TextureLoader();
-    L.load(B+'assets/keeper/desk-paper.jpg',t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;U.uC.value=t;dirty=true;ready=true;applyActive();});
-    L.load(B+'assets/keeper/desk-relief.jpg',t=>{t.anisotropy=8;U.uH.value=t;U.uTex.value.set(1/t.image.width,1/t.image.height);dirty=true;});
+    L.load(B+'assets/keeper/sheet-paper.jpg',t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;U.uC.value=t;dirty=true;ready=true;applyActive();});
+    L.load(B+'assets/keeper/sheet-flat.jpg',t=>{t.anisotropy=8;U.uH.value=t;U.uTex.value.set(1/t.image.width,1/t.image.height);dirty=true;});
     R.setSize(sheet.offsetWidth,sheet.offsetHeight,false);U.uSize.value.set(sheet.offsetWidth,sheet.offsetHeight);ro.observe(sheet);follow(true);requestAnimationFrame(frame);});
   // the ghost sheets of the pile: the same paper, a little darker
   let last=performance.now();
@@ -108,7 +108,7 @@ function attach(sheet,o={}){
     if((moving||dirty)&&isActive()){const H=sheet.offsetHeight,W=sheet.offsetWidth;U.uCar.value.set(cur.x,H-cur.y-2);R.render(scene,cam);dirty=false;car.style.transform=`translate(${cur.x}px,${cur.y}px)`;
       // the sheet's shadow moves away from the light; under the desk lamp it falls right and down
       const on=U.uCarOn.value,dx=(W/2-cur.x)*.05*on+10*(1-on),dy=14;
-      sheet.style.setProperty('box-shadow',`${dx.toFixed(1)}px ${dy}px 26px rgba(0,0,0,${(.34+.12*on).toFixed(2)}),${(dx*2).toFixed(1)}px ${dy*1.8}px 60px rgba(0,0,0,${(.22+.1*on).toFixed(2)})`,'important');
+      sheet.style.setProperty('box-shadow',`${(dx*.5).toFixed(1)}px 8px 18px rgba(0,0,0,${(.32+.1*on).toFixed(2)})`,'important');
       const r=sheet.getBoundingClientRect(),sc=r.width/W||1,gx=r.left+cur.x*sc,gy=r.top+cur.y*sc;spill.style.left=gx+'px';spill.style.top=(gy-200)+'px';
       if(now-(frame.t||0)>120){frame.t=now;tell(gx,gy,on);}}
     requestAnimationFrame(frame);};

@@ -11,7 +11,9 @@
     note:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',tour:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     mail:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><path d="M3 7l9 6 9-6"/>',big:'<path d="M4 18l4.5-12L13 18M6 14h5M15 18l2.5-7 2.5 7M15.8 16h3.4"/>',pdf:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 14h6M10 17h4"/>'};
   // Geometry of the group (its own coordinates; the whole group is moved and scaled).
-  const P1=118,L=308,P2=528,PY=18,PB=68,KY=114,GAP=58,W=700;
+  const P1=118,L=350,P2=528,PY=18,PB=0,KY=40,GAP=58,W=700;
+  // v168: one row of keys over the middle of the sheet — the book's work on the left of the angel, everything else on the right
+  const RL=[['write','pen','Писать',-266],['manuscript','ms','Рукопись',-188],["book","book","Книга",-110]],RR=[['archive','arch','Архив семьи',110],['shelf','shelf','Мои книги',188],['more','more','Ещё',266]];
   const ED=[['write','pen','Писать'],['manuscript','ms','Рукопись'],["book","book","Книга"],['shelf','shelf','Мои книги']];
   // v141: the archive's own rooms hang under «Архив семьи»; «Ещё» lives by the music now
   const AR=[['voice','vinyl','Голоса'],['photo','photos','Фото'],['note','texts','Тексты'],['letter','letter','Письма'],['record','mic','Запись'],['week','q','Вопрос\nнедели']];
@@ -21,11 +23,10 @@
   const hk=(x,id,ic,lab,s=44)=>`<div class="sw hg" data-k="${id}" style="left:${x-s/2}px;top:${PB}px;width:${s}px;height:${KY+s/2-PB}px">${th(s/2,0,KY-s/2-PB)}${kb(id,S+I[ic]+E,'',s).replace('aria-label=""',`aria-label="${lab.replace(/\n/g,' ')}"`)}</div><span class="lbx" data-for="${id}" style="left:${x}px;top:${KY+s/2+7}px">${lab}</span>`;
   const row=(keys,cx,cls)=>`<div class="row ${cls}">${keys.map((k,i)=>hk(cx+(i-(keys.length-1)/2)*(cls==='ar'?GAP:62)+0,k[0],k[1],k[2])).join('')}</div>`;
   const plate=(cx,w,lab,pw=236)=>`<div class="sw" style="left:${cx-pw/2}px;top:0;width:${pw}px;height:${PB}px">${th(48,0,PY)}${th(pw-48,0,PY)}<button type="button" class="pl" data-w="${w}"><i class="gl"></i><i class="nf"></i><span>${lab}</span></button></div>`;
-  top.innerHTML=plate(P1,'ed','Редактура')+plate(P2,'arch','Архив семьи',340)
-    +`<div class="sw hg" data-k="logo" style="left:${L-34}px;top:0;width:68px;height:96px">${th(34,0,28)}${kb('logo','<img alt="" class="ld" src="assets/brand/logo-day-bare.png"><img alt="" class="ln" src="assets/brand/logo-night-bare.png">','',68)}</div>`
-    +`<div class="sw hg" data-k="pages" style="left:${L-20}px;top:96px;width:40px;height:56px">${th(20,0,16)}${kb('pages','<b class="pgn"></b>','',40)}</div>`
-    +row(ED,P1,'ed')+row(AR,P2,'ar')
-    +`<div class="more" style="left:${P2+1.5*GAP}px;top:${KY+60}px"></div>`;
+  const one=(keys,cls)=>`<div class="row ${cls}">${keys.map(k=>hk(L+k[3],k[0],k[1],k[2])).join('')}</div>`;
+  top.innerHTML=`<div class="sw hg" data-k="logo" style="left:${L-32}px;top:0;width:64px;height:${KY+32}px">${th(32,0,KY-32)}${kb('logo','<img alt="" class="ld" src="assets/brand/logo-day-bare.png"><img alt="" class="ln" src="assets/brand/logo-night-bare.png">','',64)}</div>`
+    +one(RL,'ed')+one(RR,'ar')
+    +`<div class="more" style="left:${L+266}px;top:${KY+58}px"></div>`;
   document.body.appendChild(top);
   const more=top.querySelector('.more');
   // ——— where we are ———
@@ -59,6 +60,7 @@
     if(k==='shelf'){if(famOpen())F()?.closeRoom?.();document.getElementById('booksBtn')?.click();return;}
     if(['archive','week','record','voice','photo','note','letter'].includes(k))return goArch(k);
     if(k==='more')return more.classList.contains('on')?closeMore():openMore();
+    if(k==='archive'&&window.OcherkiArchive)return window.OcherkiArchive.open('desk');
     if(k==='pages')return document.getElementById('pagesBtn')?.click();};
   top.addEventListener('click',e=>{const b=e.target.closest('button[data-k],button[data-w]');if(!b)return;e.stopPropagation();
     if(b.dataset.w)return b.dataset.w==='ed'?act(world()==='ed'?'write':'logo'):act('archive');act(b.dataset.k);});
@@ -66,7 +68,7 @@
   const musicOn=()=>/pause|❚|stop/i.test(document.getElementById('transportPlayBtn')?.getAttribute('aria-label')||'')||document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true';
   function drawMore(){const night=shell.classList.contains('is-night');
     const big=shell.classList.contains('is-large-ui');
-    const L=[['light',night?'sun':'moon',night?'Дневной свет':'Ночной свет',false],['big','big',big?'Обычный интерфейс':'Крупный интерфейс',big],['tour','tour','Знакомство',false],['mail','mail','Написать нам',false]];
+    const L=[['music','note',musicOn()?'Музыка · играет':'Музыка',musicOn()],['light',night?'sun':'moon',night?'Дневной свет':'Ночной свет',false],['big','big',big?'Обычный интерфейс':'Крупный интерфейс',big],['tour','tour','Знакомство',false],['mail','mail','Написать нам',false]];
     more.innerHTML=L.map((m,i)=>`<div class="mi ${m[3]?'on':''}" style="--y:${i*60}px;transition-delay:${i*70}ms"><div class="sw hg" data-k="m-${m[0]}" style="left:-22px;top:${i?i*60-16:-30}px;width:44px;height:${i?60:74}px">${th(22,0,i?16:30)}${kb('m-'+m[0],S+I[m[1]]+E,'',44).replace('data-k="m-'+m[0]+'"','data-m="'+m[0]+'"')}</div><span class="ml" data-m="${m[0]}">${m[2]}</span></div>`).join('');
     more.querySelectorAll('.sw').forEach(attach);}
   function openMore(){drawMore();void more.offsetWidth;more.classList.add('on');top.querySelector('.k[data-k="more"]')?.classList.add('glow');
@@ -98,8 +100,7 @@
     if(!r||!r.width||r.width<200)return;const sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;sheetLeft=r.left-sh;};
   function place(force){const w=world();if(!force&&w===lastWorld)return;lastWorld=w;
     let x,s=1;
-    if(w==='ed'){const room=(sheetLeft??innerWidth/2-330)-24-40;s=Math.max(.72,Math.min(1,room/W));x=40;}
-    else{s=Math.max(.66,Math.min(1,(innerWidth-80)/W,innerHeight/1000));x=innerWidth/2-L*s;}
+    s=Math.max(.7,Math.min(1,(innerWidth-80)/W,innerHeight/860));x=innerWidth/2-L*s;
     // the rooms below lay out their headings from this line (laptops get a smaller bar and higher headings)
     {const sa=Math.max(.66,Math.min(1,(innerWidth-80)/W,innerHeight/1000)),ui=Math.min(1,innerHeight/1000,innerWidth/1500);
      document.documentElement.style.setProperty('--oct-b',Math.round(186*sa+6)+'px');document.documentElement.style.setProperty('--ui-s',ui.toFixed(3));}
@@ -112,7 +113,7 @@
     const w=world(),c=current(),night=shell.classList.contains('is-night')||w==='arch';
     top.classList.toggle('is-night',night);
     top.querySelectorAll('.pl').forEach(p=>p.classList.toggle('on',p.dataset.w===w));
-    top.querySelector('.row.ed').classList.toggle('dim',w!=='ed');top.querySelector('.row.ar').classList.toggle('dim',w!=='arch');
+    
     top.querySelectorAll('.row .k[data-k],.k[data-k="logo"]').forEach(k=>{if(k.dataset.k==='more'&&more.classList.contains('on'))return;k.classList.toggle('glow',k.dataset.k===c);});
     const fam=sw()?.querySelector('button[data-mode="family"]');top.querySelector('.k[data-k="archive"]')?.classList.toggle('has-new',!!fam?.classList.contains('has-new')&&w!=='arch');
     document.body.classList.toggle('oct-book',c==='book');
