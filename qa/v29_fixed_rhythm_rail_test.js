@@ -48,7 +48,7 @@ if(manifest.hard_rules.one_source_rail_uses_distinct_crops!==true)fail('The one-
 
 // Guard against a collapsed hidden probe: it must not be able to declare a
 // candidate fit and paginate a manuscript one line at a time.
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const rendererSource=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.js'),'utf8');
 if(!rendererSource.includes('box.width<=0')||!rendererSource.includes('available>=leading'))fail('Collapsed DOM geometry is not rejected');
 if(/createEditorialTextFit|fallbackCapacityByKey|measureEditorialPageWords/.test(shell))fail('Legacy capacity fallback is still wired into the constructor');

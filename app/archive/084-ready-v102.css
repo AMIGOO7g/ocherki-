@@ -1,0 +1,27 @@
+/*@block [" id=\"ready-v102\"", ""]*/
+/* v102: how far the book is — a thin gold line under the title; pressed, the
+   room blurs and the steps lie on it, done ones crossed out. */
+.rd-line{position:fixed;z-index:30;height:3px;border-radius:2px;background:rgba(226,176,106,.18);cursor:pointer;opacity:0;transition:opacity .8s ease}
+.rd-line{transition:opacity .35s ease}
+.shell.is-open:not(.is-manuscript):not(.is-start-screen):not(.is-family-room):not(.is-book-preview):not(.is-ms-to-book) ~ .rd-line{opacity:1}
+.rd-line .rd-tip{position:absolute;left:50%;top:12px;transform:translateX(-50%);white-space:nowrap;font:italic 15px 'CormorantCy',Georgia,serif;color:var(--ink,#5a4030);opacity:0;transition:opacity .3s;pointer-events:none}
+.shell.is-night ~ .rd-line .rd-tip{color:#e6cfa8}
+.rd-line:hover .rd-tip,.rd-line.hint .rd-tip{opacity:.9}
+.rd-line.hint b{animation:rdPulse 1.8s ease-in-out 3}
+@keyframes rdPulse{50%{box-shadow:0 0 16px 3px rgba(255,217,154,.95)}}
+.rd-line b{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:linear-gradient(90deg,#9c6a30,#f0cf8e);box-shadow:0 0 8px rgba(240,207,142,.7);transition:width 1s cubic-bezier(.2,.8,.3,1)}
+.rd-line::after{content:"";position:absolute;inset:-10px 0}
+.rd-line:hover b{box-shadow:0 0 14px rgba(255,217,154,.95)}
+.rd-veil{position:fixed;inset:0;z-index:2147483300;opacity:0;pointer-events:none;transition:opacity .5s ease;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);background:rgba(15,9,4,.64)}
+.rd-veil.on{opacity:1;pointer-events:auto}
+.rd-box{position:fixed;z-index:2147483301;width:min(640px,80vw);color:#f3e3c8;font-family:'CormorantCy',Georgia,serif;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1)}
+.rd-box.on{opacity:1;transform:none;pointer-events:auto}
+.rd-box h4{margin:0 0 4px;font:42px/1.2 'SignThatS',cursive;font-weight:400;color:#f6e4c4}
+.rd-box .s{font:italic 18px 'CormorantCy';color:#cdb08a;margin-bottom:16px}
+.rd-box ul{margin:0;padding:0}
+.rd-box li{list-style:none;font:italic 22px/1.25 'CormorantCy';padding:7px 0;color:#f6e4c4;cursor:default}
+.rd-box li.ok{color:rgba(243,227,200,.42);text-decoration:line-through;text-decoration-color:rgba(243,227,200,.35)}
+.rd-box li em{display:block;font-size:16px;color:#cdb08a}
+.rd-box li[data-go]{cursor:pointer}.rd-box li[data-go]:hover{color:#ffd99a}
+.rd-box .go{margin-top:16px;font:30px 'SignThatS',cursive;color:rgba(255,217,154,.4)}
+.rd-box .go.ready{color:#ffd99a;cursor:pointer}

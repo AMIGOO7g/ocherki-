@@ -31,7 +31,7 @@ const manual=engine.assemble({sections:[{id:'chapter',type:'chapter',title:'Гл
 ]}]},{title:'Ручной выбор'});
 if(!manual.spreads.some(spread=>spread.master==='D01-SPREAD-PHOTO-RAIL'))fail('Manual one-and-a-half-page rail is no longer reachable');
 
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'book-renderer','design-pack-01.manifest.json'),'utf8'));
 const shared=fs.readFileSync(path.join(root,'book-renderer/layout-pagination-engine.js'),'utf8');

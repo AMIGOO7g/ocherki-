@@ -1,6 +1,6 @@
 const fs=require('fs'),path=require('path'),vm=require('vm');
 const assert=require('assert');
-const root=path.join(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const root=path.join(__dirname,'..'),read=file=>require('./lib/page_source.js').readPage(root,file);
 let liveHosts=0;
 const document={body:{appendChild(){liveHosts++;}},createElement(){return {style:{},firstElementChild:{},remove(){liveHosts--;}};}};
 const ctx={window:{},document,console};vm.createContext(ctx);
@@ -48,6 +48,6 @@ assert(!source.includes("fallback:'source-kept-in-prose'"),'automatic accent sti
 // An unplaceable automatic accent no longer stops the whole book; it is
 // recorded explicitly so the author can see which page lost it.
 assert(source.includes("code:'ACCENT_AUTO_UNPLACED'")&&source.includes("fallback:'plain-text-page'"),'automatic accent fallback is not recorded');
-for(const file of ['index.html','shell.html','test-mode-runner.html'])assert(read(file).includes('demo-book-20261107-v165'),`${file} has a stale cache key`);
-assert(read('test-mode.html').includes('demo-book-20261107-v165'),'test-mode.html has a stale cache key');
+for(const file of ['index.html','shell.html','test-mode-runner.html'])assert(read(file).includes('demo-book-20261107-v166'),`${file} has a stale cache key`);
+assert(read('test-mode.html').includes('demo-book-20261107-v166'),'test-mode.html has a stale cache key');
 console.log(JSON.stringify({status:'pass',rhythm:body.map(page=>page.rhythm),noBlankPostOpening:true,automaticRetries:[...attempts.values()].some(value=>value>1),sourceInvariant:'exact'}));

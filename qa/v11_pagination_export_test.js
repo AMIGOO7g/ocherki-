@@ -36,7 +36,7 @@ if(!/dpk-side-photo/.test(sideHtml)||!/dpk-side-copy/.test(sideHtml))fail('Side 
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 if(/dpk-fill-relaxed/.test(css))fail('Short pages still change the body font size');
 if(!/--dpk-body-size:13\.5px/.test(css)||!/dpk-photo-side-text/.test(css)||!/dpk-date-era/.test(css))fail('Unified typography or new master CSS is missing');
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 if(!/data-pdf-mode="pages"/.test(shell)||!/data-pdf-mode="spreads"/.test(shell)||!/standalonePrintHtmlForMode/.test(shell)||!/sheetWidth=spreadMode\?size\[0\]\*2:size\[0\]/.test(shell))fail('Page/spread PDF export is incomplete');
 if(!/\.book-preview-modal\.is-preparing/.test(shell))fail('Preview first-frame stabilization is missing');
 

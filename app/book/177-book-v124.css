@@ -1,0 +1,7 @@
+/*@block [" id=\"book-v124\"", ""]*/
+/* v124 — «Книга»: the keys of the composition under the spread, «Разворот N из M» above it */
+html body .book-preview-modal.oc-bk .book-preview-layout-hanger{top:var(--bk-ky,auto)!important;transition:opacity .4s ease}
+html body .book-preview-modal.oc-bk .book-preview-layout-hanger .book-preview-control::before{top:-14px!important;height:14px!important;background:linear-gradient(to bottom,rgba(245,225,198,0),rgba(245,225,198,.3))!important;box-shadow:none!important}
+html body #bookPreviewModal:not(.bk-ip) #bookPreviewInfo{opacity:0!important;transition:none!important}
+html body #bookPreviewModal.bk-ip #bookPreviewInfo{transition:opacity .7s ease .1s}
+html body #bookPreviewModal.has-arc.oc-bk #bookPreviewInfo,html body #bookPreviewModal.oc-bk #bookPreviewInfo{position:fixed!important;left:0!important;right:0!important;top:var(--bk-iy,auto)!important;margin:0!important;text-align:center!important}

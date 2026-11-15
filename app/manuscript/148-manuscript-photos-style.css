@@ -1,0 +1,20 @@
+/*@block [" id=\"manuscript-photos-style\"", ""]*/
+/* Photos in «Рукопись»: dropped from the computer (or chosen with «＋ Фото»)
+   they lie at the bottom as a small stack of prints; each print is carried
+   onto the sheet it belongs to. */
+.ms-tray{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:16px;z-index:5;max-width:min(980px,calc(100vw - 520px))}
+.ms-prints{display:flex;align-items:flex-end;gap:0;padding:0 10px;overflow-x:auto;overflow-y:visible;max-width:100%;scrollbar-width:none}
+.ms-print{flex:0 0 auto;width:92px;margin:0 -8px;padding:6px 6px 16px;background:#fbf5ea;box-shadow:0 10px 22px rgba(40,22,8,.35);cursor:grab;transform:rotate(var(--r,0deg));transition:transform .35s cubic-bezier(.2,.8,.3,1),box-shadow .35s;animation:msPrintIn .6s cubic-bezier(.2,.8,.3,1) both;touch-action:none}
+.ms-print:hover{transform:rotate(0) translateY(-14px) scale(1.08);z-index:2;box-shadow:0 18px 30px rgba(40,22,8,.4)}
+.ms-print img{display:block;width:100%;height:76px;object-fit:cover;pointer-events:none}
+.ms-print.is-dragging{position:fixed;z-index:2147483100;margin:0;transition:none;cursor:grabbing;pointer-events:none;animation:none;box-shadow:0 30px 50px rgba(40,22,8,.45)}
+@keyframes msPrintIn{from{opacity:0;transform:translateY(40px) rotate(var(--r,0deg))}to{opacity:1;transform:rotate(var(--r,0deg))}}
+.ms-add-photos{flex:0 0 auto;appearance:none;border:1.5px dashed rgba(255,244,226,.75);background:rgba(255,248,235,.12);color:#f6ead8;border-radius:10px;padding:14px 16px;cursor:pointer;font:italic 16px Georgia,serif;white-space:nowrap;transition:background .3s}
+.ms-add-photos:hover{background:rgba(255,248,235,.24)}
+.ms-tray-note{position:absolute;left:50%;bottom:calc(100% + 34px);transform:translateX(-50%);white-space:nowrap;font:italic 14px Georgia,serif;color:rgba(255,246,232,.85);text-shadow:0 1px 6px rgba(60,35,15,.4);pointer-events:none}
+.ms-sheet.is-photo-target .ms-paper{box-shadow:0 0 0 3px #e2b06a,0 0 30px rgba(226,176,106,.7),0 30px 50px rgba(40,22,8,.32)!important;transform:translateZ(40px) scale(1.04)}
+.ms-screen.is-file-over::after{content:"Отпустите — фото лягут в стопку внизу, а если над листом — прямо на лист";position:absolute;inset:18px;border:2px dashed rgba(255,244,226,.8);border-radius:22px;display:flex;align-items:center;justify-content:center;font:italic 22px Georgia,serif;color:#fff6e8;background:rgba(40,25,12,.25);pointer-events:none;z-index:30;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.ms-toast{position:absolute;left:50%;top:120px;transform:translate(-50%,-8px);font:italic 18px Georgia,serif;color:#fff6e8;text-shadow:0 2px 10px rgba(40,25,12,.5);opacity:0;transition:opacity .4s,transform .5s;pointer-events:none;z-index:31}
+.ms-toast.on{opacity:1;transform:translate(-50%,0)}
+.ms-hint{max-width:none!important;left:50%!important;transform:translateX(-50%);bottom:auto!important;top:118px;white-space:nowrap;font:italic 14px Georgia,serif!important;opacity:0;transition:opacity 1.2s ease;pointer-events:none;top:88px!important}
+.ms-hint.is-shown{opacity:.8}

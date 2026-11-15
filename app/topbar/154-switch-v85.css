@@ -1,0 +1,11 @@
+/*@block [" id=\"switch-v85\"", ""]*/
+html body .mode-switch.project-key,html body .mode-switch.project-key:hover{color:#3a2a1c!important}
+html body .mode-switch.project-key.is-night,html body .mode-switch.project-key.is-night:hover{color:#f3e7d6!important}
+html body .mode-switch.is-fading,html body .mode-switch.is-fading button{transition:color 2.45s cubic-bezier(.37,0,.63,1),opacity .9s,filter .9s,translate 1.46s cubic-bezier(.22,.72,.18,1)!important}
+html body .mode-switch button{transition:color .9s cubic-bezier(.3,.6,.3,1),text-shadow .9s cubic-bezier(.3,.6,.3,1)!important;background:none!important;box-shadow:none!important;border-radius:12px}
+/* A word under the pointer lights up slowly, like the lamp key: warm
+   colour and a glow that grows around the letters. */
+html body .mode-switch button:hover{color:#b8732e!important;opacity:1;text-shadow:0 0 6px rgba(255,196,120,.85),0 0 16px rgba(255,170,80,.55),0 0 30px rgba(255,150,60,.3)}
+html body .mode-switch.is-night button:hover{color:#ffd99a!important;text-shadow:0 0 6px rgba(255,210,140,.9),0 0 18px rgba(255,180,90,.6),0 0 34px rgba(255,160,70,.35)}
+html body .mode-switch button.on{opacity:1;box-shadow:inset 0 2px 4px rgba(40,24,10,.32),inset 0 0 0 1px rgba(73,52,35,.28),0 1px 0 rgba(255,246,228,.35)!important;background:rgba(120,85,50,.08)!important}
+html body .mode-switch.is-night button.on{box-shadow:inset 0 2px 5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(0,0,0,.5),0 1px 0 rgba(255,235,205,.08)!important;background:rgba(0,0,0,.18)!important}

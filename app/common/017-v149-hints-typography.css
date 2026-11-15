@@ -1,0 +1,19 @@
+/*@block [" id=\"v149-hints-typography\"", ""]*/
+/* Авторские пояснения: отдельный слой, не декоративный акцент */
+.book-build-hint,
+.book-map-note,
+.writing-prompt-text{
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif !important;
+  font-style: italic;
+  letter-spacing: .01em;
+  color: rgba(244,233,216,.66);
+}
+.book-build-hint{
+  padding:22px 8px;
+  font-size:14px;
+  line-height:1.4;
+}
+.book-map-note{
+  font-size:13px;
+  line-height:1.45;
+}

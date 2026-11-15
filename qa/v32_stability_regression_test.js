@@ -3,7 +3,7 @@ const path=require('path');
 const vm=require('vm');
 
 const root=path.resolve(__dirname,'..');
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'book-renderer/design-pack-01.css'),'utf8');

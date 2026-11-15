@@ -1,0 +1,21 @@
+/*@block [" id=\"tour-v99\"", ""]*/
+/* v103: the tour — dark soft veil, a small clear window on the thing
+   explained, the words on a quiet dark halo (readable by day and night). */
+.tr-dim{position:fixed;inset:0;z-index:2147483640;pointer-events:none;opacity:0;transition:opacity .6s ease;
+  backdrop-filter:blur(6px) brightness(.5);-webkit-backdrop-filter:blur(6px) brightness(.5);background:rgba(16,9,4,.42);
+  -webkit-mask:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 70%,#000 100%);
+  mask:radial-gradient(ellipse var(--rw,200px) var(--rh,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 70%,#000 100%)}
+.tr-dim.on{opacity:1;pointer-events:auto;cursor:pointer}
+.tr-ring{display:none}
+.tr-card{position:fixed;z-index:2147483642;width:380px;padding:26px 30px;color:#f6e4c4;font-family:'CormorantCy',Georgia,serif;opacity:0;transform:translateY(8px);pointer-events:none;
+  background:radial-gradient(ellipse 75% 70% at 50% 50%,rgba(20,12,6,.78),rgba(20,12,6,.5) 60%,transparent 100%);
+  transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1),left .6s cubic-bezier(.2,.8,.3,1),top .6s cubic-bezier(.2,.8,.3,1)}
+.tr-card.on{opacity:1;transform:none;pointer-events:auto}
+.tr-card small{display:block;font:600 11px 'CormorantCy';letter-spacing:.24em;color:#e2b06a;margin-bottom:8px;text-transform:uppercase}
+.tr-card h3{margin:0 0 10px;font:italic 500 28px/1.2 'CormorantCy';color:#ffe6bd}
+.tr-card p{margin:0 0 18px;font:italic 19px/1.45 'CormorantCy';color:#f1e0c2}
+.tr-card p b{font-style:normal;font-weight:600;color:#ffe6bd}
+.tr-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.tr-dots{flex:1 0 100%;margin-bottom:10px}.tr-dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(255,230,190,.35);margin-right:6px}.tr-dots i.on{background:#ffd99a;width:16px;border-radius:3px}
+.tr-btn{all:unset;cursor:pointer;font:italic 600 19px 'CormorantCy';color:#ffd99a;border-bottom:1px solid rgba(255,217,154,.6)}
+.tr-skip{all:unset;cursor:pointer;font:italic 16px 'CormorantCy';color:rgba(241,224,194,.8);border-bottom:1px solid rgba(241,224,194,.4);margin-right:26px}

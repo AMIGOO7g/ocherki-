@@ -1,0 +1,5 @@
+/*@block [" id=\"more-corner-v141\"", ""]*/
+html body .oc-more2{right:116px!important;left:auto!important}
+/* v143: no body:has — it made the browser recheck the whole page on every change */
+.shell:not(.is-night):not(.is-family-room) ~ .oc-more2 .ml{color:#fff;text-shadow:none}
+html body .oc-more2 .ml{color:#fff!important;text-shadow:none!important}

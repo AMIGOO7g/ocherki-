@@ -3,7 +3,7 @@
 require('./dom_pagination_contract_test');
 const fs=require('fs'),path=require('path'),assert=require('assert');
 const root=path.resolve(__dirname,'..');
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
 assert(/bindPreviewAccentEditors/.test(shell)&&/setEditorialAccent/.test(shell)&&/editorialOverrides/.test(shell));
 assert(/a === 'setEditorialAccent'/.test(sheet)&&/editorialOverrides/.test(sheet));

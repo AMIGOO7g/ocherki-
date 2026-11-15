@@ -1,0 +1,28 @@
+/*@block [" id=\"write-v121\"", ""]*/
+/* v121 — calm loading, the «в книге» key that stays, music in the corner, the angel on the pendulum */
+html body .shell.oc-w:not(.oc-ready) .writing-prompt,html body .shell.oc-w:not(.oc-ready)~.oc-ttl,html body .shell.oc-w:not(.oc-ready) .write-nav,html body .shell.oc-w:not(.oc-ready) .bottom-left .master-clock{opacity:0!important;translate:0 18px;transition:none!important}
+html body .shell.oc-w:not(.oc-ready) .bottom-left{opacity:0!important;transition:none!important}
+html body .shell.oc-w .writing-prompt,.oc-ttl,html body .shell.oc-w .write-nav,html body .shell.oc-w .bottom-left .master-clock{translate:0 0;transition:opacity 1.4s cubic-bezier(.4,0,.2,1),translate 1.4s cubic-bezier(.2,.8,.3,1)}
+html body .shell.oc-w .writing-prompt,html body .shell.oc-w .write-nav,.oc-ttl,html body .shell.oc-w .bottom-left{transition:opacity 1.4s cubic-bezier(.4,0,.2,1),translate 1.4s cubic-bezier(.2,.8,.3,1),color 2.45s cubic-bezier(.37,0,.63,1)!important}
+html body .shell.oc-w .bottom-left{translate:none!important}
+/* «в книге»: it stays over the sheet and lights while the book's page is out */
+html body .shell.oc-w .wp-keys.k-closed{left:var(--oc-k1x)!important;top:var(--oc-ky)!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:none!important}
+html body .shell.oc-w .wp-keys.k-closed .key,html body .shell.oc-w:not(.is-book-preview) .bd-rail-key[data-rail="tips"]{--size:46px!important;width:46px!important;height:46px!important}
+html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before{box-shadow:0 0 0 1.5px rgba(255,200,140,.95),0 0 14px 3px rgba(255,150,60,.75),0 0 38px 10px rgba(255,120,40,.35)!important;transition:box-shadow .9s ease}
+/* the clock: dark by day, light by night */
+.master-clock .hand,.master-clock .clock-pivot{transition:background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 1.4s ease}
+.master-clock .pendulum{transition:transform 2.25s cubic-bezier(.45,.05,.55,.95),background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1)!important}
+.shell:not(.is-night) .master-clock .hand,.shell:not(.is-night) .master-clock .clock-pivot,.shell:not(.is-night) .master-clock .pendulum{background:#3b2a1c!important;box-shadow:none!important}
+/* the pendulum's weight: our angel in a small key */
+.master-clock .logo-bob img{display:none!important}
+.oc-bob{position:relative;display:block;width:40px;height:40px;border-radius:50%}
+.oc-bob::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,var(--metal1),var(--metal2) 24%,var(--metal3) 62%,var(--metal4));box-shadow:0 4px 8px rgba(0,0,0,.25)}
+.oc-bob::after{content:"";position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle at 50% 53%,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 24%,transparent 47%),radial-gradient(circle,var(--face1),var(--face2) 43%,var(--face3) 72%,var(--face4));box-shadow:inset 0 4px 5px rgba(0,0,0,.28),inset 0 1px 1px rgba(0,0,0,.34),inset 0 0 0 1px rgba(73,52,35,.34)}
+.oc-bob .nf{position:absolute;inset:2px;border-radius:50%;z-index:1;box-shadow:inset 0 4px 5px rgba(0,0,0,.46),inset 0 2px 2px rgba(0,0,0,.58),inset 0 0 0 1px rgba(24,17,13,.82);background:radial-gradient(circle,var(--night1),var(--night2) 43%,var(--night3) 72%,var(--night4));opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.shell.is-night .oc-bob .nf{opacity:1}
+/* music: its own key in the top-right corner; its keys fall below it */
+.oc-mus{position:fixed;top:0;right:46px;width:44px;height:0;z-index:2147483300;opacity:0;transition:opacity .6s ease;pointer-events:none}
+.oc-mus.on{opacity:1}
+.oc-mus .mm{position:absolute;left:0;top:0;opacity:0;transform:translateY(-22px);pointer-events:none;transition:opacity .4s ease,transform .55s cubic-bezier(.2,.8,.3,1)}
+.oc-mus.open .mm{opacity:1;transform:none;pointer-events:auto}
+.oc-mus .ml{position:absolute;right:58px;transform:translateY(-50%);white-space:nowrap;font:italic 17px 'CormorantCy',Georgia,serif;color:#f3e3c8;text-shadow:0 1px 3px rgba(0,0,0,.55);pointer-events:none}

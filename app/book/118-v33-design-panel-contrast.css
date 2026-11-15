@@ -1,0 +1,118 @@
+/*@block [" id=\"v33-design-panel-contrast\"", ""]*/
+/* The design panel must retain hierarchy in both light and night scenes. */
+.shell:not(.is-night) .book-design-shell .bd-head h2,
+.shell:not(.is-night) .book-design-shell .bd-spreads-head h2{color:#5b3c27!important}
+.shell:not(.is-night) .book-design-shell .bd-card-label,
+.shell:not(.is-night) .book-design-shell .bd-link,
+.shell:not(.is-night) .book-design-shell .bd-spread-meta{color:#fff!important;text-shadow:0 1px 5px rgba(49,29,15,.42)!important}
+.shell:not(.is-night) .book-design-shell .bd-dims,
+.shell:not(.is-night) .book-design-shell .bd-spread-count{color:rgba(255,255,255,.82)!important;text-shadow:0 1px 5px rgba(49,29,15,.42)!important}
+.shell:not(.is-night) .book-design-shell .bd-swatch,
+.shell:not(.is-night) .book-design-shell .bd-format-shape{border-color:rgba(255,255,255,.84)!important}
+.shell.is-night .book-design-shell .bd-head h2,
+.shell.is-night .book-design-shell .bd-spreads-head h2{color:#f7e7d1!important}
+.shell.is-night .book-design-shell .bd-card-label,
+.shell.is-night .book-design-shell .bd-link,
+.shell.is-night .book-design-shell .bd-spread-meta{color:#fff!important;text-shadow:0 1px 5px rgba(0,0,0,.42)!important}
+.shell.is-night .book-design-shell .bd-dims,
+.shell.is-night .book-design-shell .bd-spread-count{color:rgba(255,255,255,.82)!important;text-shadow:0 1px 5px rgba(0,0,0,.42)!important}
+.shell.is-night .book-design-shell .bd-swatch,
+.shell.is-night .book-design-shell .bd-format-shape{border-color:rgba(255,255,255,.84)!important}
+.book-design-shell .bd-link svg{stroke:currentColor!important}
+
+/* Card labels and the format wells use the same bright ink in both scenes. */
+.book-design-shell .bd-card-label,
+.book-design-shell .bd-link,
+.book-design-shell .bd-spread-meta{color:#fff!important;text-shadow:0 1px 5px rgba(49,29,15,.42)!important}
+.book-design-shell .bd-dims{color:rgba(255,255,255,.82)!important;text-shadow:0 1px 5px rgba(49,29,15,.42)!important}
+.book-design-shell .bd-format-shape{border-color:rgba(255,255,255,.84)!important;box-shadow:0 0 0 1px rgba(255,255,255,.08)!important}
+
+/*@block [" id=\"v36-composition-picker-and-panel-contrast\"", "\n\n"]*/
+/* Right-panel hierarchy uses the same warm ink as the book map title. */
+.shell .book-design-shell .bd-head h2,
+.shell .book-design-shell .bd-spreads-head h2{
+  color:var(--bm-text)!important;
+  text-shadow:0 1px 5px rgba(49,29,15,.28)!important;
+}
+.book-design-shell .book-map-action,
+.book-design-shell .bd-card-label,
+.book-design-shell .bd-link,
+.book-design-shell .bd-spread-meta{
+  color:#fff!important;
+  text-shadow:0 1px 5px rgba(49,29,15,.42)!important;
+}
+.book-map-action{
+  color:#fff!important;
+  border-color:rgba(255,255,255,.82)!important;
+  background:rgba(255,255,255,.06)!important;
+}
+.book-map-action:hover{
+  color:#fff!important;
+  border-color:#fff!important;
+  background:rgba(255,255,255,.14)!important;
+}
+.book-design-shell .bd-format-shape{
+  border-color:rgba(255,255,255,.88)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.10)!important;
+}
+
+/* The map and the design panel share one calm ink. The previous cascade
+   mixed brown, dim gold and opaque white between leaf/episode/chapter rows. */
+.book-design-shell .bd-head h2,
+.book-design-shell .bd-spreads-head h2,
+.book-design-shell .bd-link,
+.book-design-shell .bd-card-label,
+.book-design-shell .bd-spread-meta,
+.book-design-shell .bd-dims{color:#f4e9d8!important;text-shadow:0 1px 5px rgba(0,0,0,.36)!important}
+.book-map-dot,
+.book-map-dot.page,
+.book-map-dot.chapter,
+.book-map-dot.auto{opacity:.78!important;background:#dec7a8!important;border-color:#dec7a8!important}
+.book-map-row.active .book-map-dot,
+.book-map-page.active .book-map-dot{opacity:1!important;background:#ef9b4e!important;border-color:#ef9b4e!important}
+.shell.is-night .book-map-dot,
+.shell.is-night .book-map-dot.page,
+.shell.is-night .book-map-dot.chapter,
+.shell.is-night .book-map-dot.auto{opacity:.78!important;background:#dec7a8!important;border-color:#dec7a8!important}
+.shell.is-night .book-map-row.active .book-map-dot,
+.shell.is-night .book-map-page.active .book-map-dot{opacity:1!important;background:#ef9b4e!important;border-color:#ef9b4e!important}
+
+/* The thumbnail and preview share the v33 page-canvas contract. The page
+   renderer owns typography and colour; the host only scales the full page. */
+
+/* Composition controls are the same .hanging + .key mechanism as the
+   constructor icons. Each key has its own thread; the old shared line sat
+   between the keys and looked like a stray vertical separator. */
+.book-preview-stage{position:relative!important;overflow:visible!important}
+.book-preview-layout-hanger{
+  position:absolute!important;left:50%!important;top:-96px!important;z-index:40!important;
+  display:flex!important;align-items:flex-start!important;gap:14px!important;
+  padding:0!important;transform:translateX(-50%)!important;pointer-events:none!important;
+}
+.book-preview-layout-hanger::before{display:none!important;content:none!important}
+.book-preview-layout-hanger .book-preview-control{
+  position:relative!important;flex:0 0 auto!important;display:block!important;
+  transform-origin:50% -100vh!important;pointer-events:auto!important;
+  transition:none!important;will-change:transform;
+}
+.book-preview-layout-hanger .book-preview-control::before{
+  content:"";position:absolute;left:50%;top:-100vh;width:1px;height:100vh;
+  transform:translateX(-50%);background:linear-gradient(to bottom,rgba(87,65,47,.05),rgba(111,82,55,.68));
+  box-shadow:0 0 5px rgba(224,149,74,.20);pointer-events:none;z-index:0;
+}
+.book-preview-layout-hanger .key{
+  position:relative!important;z-index:1;display:block!important;flex:0 0 auto!important;
+  appearance:none!important;border:0!important;border-radius:50%!important;background:transparent!important;
+  padding:0!important;cursor:pointer!important;pointer-events:auto!important;
+}
+.book-preview-layout-hanger .book-preview-layout-step{--size:36px!important}
+.book-preview-layout-hanger .book-preview-layout{--size:58px!important}
+.book-preview-layout-hanger .cap svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.book-preview-layout-hanger .book-preview-layout-step .cap svg{width:15px;height:15px}
+.book-preview-layout-hanger .key:disabled{opacity:.36!important;cursor:default!important;pointer-events:none!important}
+.book-preview-layout-hanger .key:hover:not(:disabled){color:var(--gold)!important;filter:brightness(1.025) drop-shadow(0 7px 10px rgba(0,0,0,.16)) drop-shadow(0 0 10px rgba(181,110,39,.08))}
+.book-preview-layout-hanger .key:active:not(:disabled){transform:translateY(4px) scale(.993)!important}
+.book-preview-modal.is-night .book-preview-layout-hanger .key{color:#c7a77f!important;filter:drop-shadow(0 7px 10px rgba(0,0,0,.38))}
+.book-preview-modal.is-night .book-preview-layout-hanger .key::after{background:radial-gradient(circle at 50% 53%,rgba(255,255,255,.025) 0%,rgba(255,255,255,.01) 24%,transparent 47%),radial-gradient(circle at 50% 50%,#2a2119 0%,#211a15 43%,#18130f 72%,#110d0a 100%);box-shadow:inset 0 4px 5px rgba(0,0,0,.46),inset 0 2px 2px rgba(0,0,0,.58),inset 0 0 0 1px rgba(24,17,13,.82)}
+.book-preview-modal.is-night .book-preview-control::before{background:linear-gradient(to bottom,rgba(245,225,198,.06),rgba(245,225,198,.42))}
+.book-preview-spread.preview-layout-changing{opacity:.68!important;transform:scale(.997)!important;transition:opacity .36s ease,transform .46s cubic-bezier(.22,.61,.36,1)!important}

@@ -1,0 +1,8 @@
+/*@block [" id=\"keyboard-rests\"", ""]*/
+/* The keyboard comes up while the author types and goes down after a pause,
+   leaving the sheet alone on the desk. The independent «translate» property
+   keeps the boot and preview motions (which use «transform») untouched. */
+#editorKeyboardWrap{transition-property:transform,translate,opacity!important;translate:0 0}
+html body .shell.is-keyboard-resting #editorKeyboardWrap{translate:0 calc(100% + 60px);opacity:0;pointer-events:none;
+  transition:translate .8s cubic-bezier(.4,0,.2,1),opacity .6s ease!important}
+html body .shell:not(.is-keyboard-resting) #editorKeyboardWrap{transition:translate .55s cubic-bezier(.2,.8,.3,1),opacity .35s ease,transform 1.02s cubic-bezier(.22,.72,.18,1)!important}

@@ -1,0 +1,119 @@
+/*@block [" id=\"v122-physical-interface-travel\"", ""]*/
+/* Preview: no major block fades away. It remains fully visible while physically
+   travelling beyond the viewport, then returns from the same direction. */
+.shell .mode-controls,
+.shell .project-actions,
+.shell .project-top,
+.shell .power-dock,
+.shell .book-map-shell,
+.shell .book-design-shell,
+.shell .editor-paper-wrap,
+.shell .editor-keyboard-wrap{
+  transition-duration:1.42s !important;
+  transition-timing-function:cubic-bezier(.22,.72,.18,1) !important;
+}
+
+/* top controls leave through the top edge */
+.shell.is-open.is-book-preview .mode-controls,
+.shell.is-open.is-book-preview .project-actions,
+.shell.is-open.is-book-preview .project-top,
+.shell.is-open.is-book-preview .power-dock{
+  top:-190px !important;
+  opacity:1 !important;
+  filter:none !important;
+  pointer-events:none !important;
+}
+
+/* left menu: override the old is-positioned transform:none rule with greater specificity */
+.shell.is-open.is-book-preview .book-map-shell.is-positioned{
+  visibility:visible !important;
+  opacity:1 !important;
+  transform:translateX(calc(-100vw - 120px)) !important;
+  pointer-events:none !important;
+  transition:transform 1.48s cubic-bezier(.22,.72,.18,1), color 2.45s cubic-bezier(.37,0,.63,1) !important;
+}
+.shell.is-open.is-book-preview .book-design-shell{
+  visibility:visible !important;
+  opacity:1 !important;
+  transform:translateX(calc(100vw + 120px)) !important;
+  pointer-events:none !important;
+  transition:transform 1.48s cubic-bezier(.22,.72,.18,1), color 2.45s cubic-bezier(.37,0,.63,1) !important;
+}
+
+/* central objects also travel instead of dissolving */
+.shell.is-open.is-book-preview .editor-paper-wrap{
+  animation:none !important;
+  opacity:1 !important;
+  filter:none !important;
+  transform:translateX(calc(-100vw - 180px)) !important;
+  transition:transform 1.42s cubic-bezier(.22,.72,.18,1) !important;
+  pointer-events:none !important;
+}
+.shell.is-open.is-book-preview .editor-keyboard-wrap{
+  animation:none !important;
+  opacity:1 !important;
+  filter:none !important;
+  transform:translateY(calc(100vh + 220px)) !important;
+  transition:transform 1.46s cubic-bezier(.22,.72,.18,1) !important;
+  pointer-events:none !important;
+}
+
+/* Startup: one physical sequence — light → top controls → side menus → paper → keyboard. */
+.shell.ui-boot .mode-controls,
+.shell.ui-boot .project-actions,
+.shell.ui-boot .project-top,
+.shell.ui-boot .power-dock,
+.shell.ui-boot .book-map-shell.is-positioned,
+.shell.ui-boot .book-design-shell,
+.shell.ui-boot .editor-paper-wrap,
+.shell.ui-boot .editor-keyboard-wrap{
+  visibility:visible !important;
+  opacity:1 !important;
+  filter:none !important;
+  animation:none !important;
+  transition:transform 1.46s cubic-bezier(.22,.72,.18,1), top 1.46s cubic-bezier(.22,.72,.18,1), color 2.45s cubic-bezier(.37,0,.63,1) !important;
+}
+/* Before each phase its object remains physically outside the viewport. */
+.shell.ui-boot:not(.boot-icons) .mode-controls,
+.shell.ui-boot:not(.boot-icons) .project-actions,
+.shell.ui-boot:not(.boot-icons) .project-top{
+  top:-190px !important;
+}
+.shell.ui-boot:not(.boot-menus) .book-map-shell.is-positioned{
+  transform:translateX(calc(-100vw - 120px)) !important;
+}
+.shell.ui-boot:not(.boot-menus) .book-design-shell{
+  transform:translateX(calc(100vw + 120px)) !important;
+}
+.shell.ui-boot:not(.boot-paper) .editor-paper-wrap{
+  transform:translateX(calc(100vw + 160px)) !important;
+}
+.shell.ui-boot:not(.boot-keyboard) .editor-keyboard-wrap{
+  transform:translateY(calc(100vh + 260px)) !important;
+}
+/* Each phase arrives at its normal geometry and stays there. */
+.shell.ui-boot.boot-menus .book-map-shell.is-positioned,
+.shell.ui-boot.boot-menus .book-design-shell,
+.shell.ui-boot.boot-paper .editor-paper-wrap,
+.shell.ui-boot.boot-keyboard .editor-keyboard-wrap{
+  transform:translate3d(0,0,0) !important;
+}
+
+/* The synchronized-menu rule used to hide both panels until ready. During the
+   physical boot sequence positioning is enough; keep them renderable for travel. */
+.shell.ui-boot .book-map-shell.is-positioned,
+.shell.ui-boot .book-design-shell{
+  visibility:visible !important;
+  pointer-events:none !important;
+}
+.shell.ui-boot.boot-menus .book-map-shell.is-positioned,
+.shell.ui-boot.boot-menus .book-design-shell{
+  pointer-events:auto !important;
+}
+
+/*@block [" id=\"v146-shell-overrides\"", "\n\n"]*/
+.project-name,#projectTitle{font-family:var(--font-signature),cursive !important;text-transform:none !important;}
+.book-map-note{opacity:.58;letter-spacing:.04em;font-family:Arial,sans-serif !important;font-style:normal !important;}
+#soundToggleBtn.is-active .cap{box-shadow:0 0 0 1px rgba(224,149,74,.38),0 10px 24px rgba(0,0,0,.18);}
+.shell.ui-boot .mode-controls,.shell.ui-boot .project-actions,.shell.ui-boot .project-top,.shell.ui-boot .power-dock,.shell.ui-boot .book-map-shell.is-positioned,.shell.ui-boot .book-design-shell,.shell.ui-boot .editor-paper-wrap,.shell.ui-boot .editor-keyboard-wrap{transition-duration:1.12s !important;}
+

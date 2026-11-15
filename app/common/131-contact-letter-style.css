@@ -1,0 +1,37 @@
+/*@block [" id=\"contact-letter-style\"", ""]*/
+/* «Написать нам»: an old postcard — «Письмо» on the left, «Адрес» on the
+   right, a stamp in the corner; after sending a postmark lands on it. */
+.ct-veil{position:fixed;inset:0;z-index:2147483300;background:rgba(18,12,8,0);backdrop-filter:blur(0);transition:background .5s,backdrop-filter .5s;pointer-events:none}
+.ct-veil.on{background:rgba(18,12,8,.5);backdrop-filter:blur(5px);pointer-events:auto}
+.ct-card{position:fixed;left:50%;top:50%;z-index:2147483301;width:min(920px,calc(100vw - 40px));aspect-ratio:1.55;box-sizing:border-box;padding:3.4% 4.4% 3%;color:#2e2116;
+  background:radial-gradient(circle at 18% 22%,rgba(150,110,60,.13) 0 2%,transparent 3%),radial-gradient(circle at 72% 64%,rgba(150,110,60,.10) 0 1.5%,transparent 2.5%),radial-gradient(circle at 40% 80%,rgba(150,110,60,.09) 0 1%,transparent 2%),
+    radial-gradient(ellipse at center,#f4ead2 0%,#ecdfc0 62%,#dcc9a0 100%);
+  border-radius:6px;box-shadow:0 2px 0 rgba(255,255,255,.4) inset,0 0 40px rgba(120,80,30,.25) inset,0 30px 80px rgba(10,5,0,.55);
+  transform:translate(-50%,-46%) rotate(-1.2deg);opacity:0;pointer-events:none;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.8,.3,1);display:grid;grid-template-rows:auto auto 1fr auto}
+.ct-card.on{opacity:1;transform:translate(-50%,-50%) rotate(-.6deg);pointer-events:auto}
+.ct-head{text-align:center;font:400 clamp(26px,3.6vw,40px)/1 Georgia,'Times New Roman',serif;letter-spacing:.16em;color:#2a1e14}
+.ct-sub{margin:10px 0 16px;text-align:center;font:italic clamp(12px,1.3vw,15px) Georgia,serif;color:#4a3828}
+.ct-body{display:grid;grid-template-columns:1fr 1px 1fr;gap:0 4%;min-height:0}
+.ct-rule{background:linear-gradient(#5a4632,#5a4632) center/1px 100% no-repeat}
+.ct-col h4{margin:0 0 10px;text-align:center;font:italic 400 clamp(15px,1.6vw,19px) Georgia,serif;color:#3a2a1c}
+.ct-letter-text{width:100%;height:calc(100% - 34px);box-sizing:border-box;border:0;outline:none;resize:none;background:repeating-linear-gradient(transparent 0 29px,rgba(70,50,30,.32) 29px 30px);line-height:30px;font:italic 17px/30px Georgia,serif;color:#2a1e14;padding:0 4px}
+.ct-addr label{display:block;position:relative;margin:0 0 14px;padding-top:4px}
+.ct-addr label span{display:block;font:11px Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(58,42,28,.55)}
+.ct-addr input{width:100%;box-sizing:border-box;border:0;border-bottom:1px dotted rgba(70,50,30,.6);background:transparent;outline:none;padding:6px 2px;font:italic 18px Georgia,serif;color:#2a1e14}
+.ct-card input:-webkit-autofill,.ct-card input:-webkit-autofill:hover,.ct-card input:-webkit-autofill:focus{-webkit-text-fill-color:#2a1e14;-webkit-box-shadow:0 0 0 40px #efe3c6 inset!important;box-shadow:0 0 0 40px #efe3c6 inset!important;transition:background-color 9999s ease 0s;caret-color:#2a1e14}
+.ct-card input{background:transparent!important}
+.ct-card ::placeholder{color:rgba(90,61,38,.38);transition:color .3s}
+.ct-card :focus::placeholder{color:transparent}
+.ct-stamp{position:absolute;right:4%;top:4%;width:96px;height:auto;transform:rotate(4deg);pointer-events:none;mix-blend-mode:multiply}
+.ct-foot{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:12px}
+.ct-foot small{font:italic 13px Georgia,serif;color:#5a4632}.ct-foot small a{color:#5a4632}
+.ct-send{border:0;border-radius:999px;padding:11px 26px;background:linear-gradient(180deg,#6b4a2c,#4a3322);color:#f7ecd8;font:italic 17px Georgia,serif;cursor:pointer;box-shadow:0 0 0 1px #c59664,0 6px 14px rgba(40,20,5,.35);transition:transform .3s,box-shadow .3s}
+.ct-send:hover{transform:translateY(-1px);box-shadow:0 0 0 1px #e2b779,0 10px 18px rgba(40,20,5,.4)}
+.ct-x{position:absolute;top:10px;right:14px;z-index:3;border:0;background:none;font:26px/1 Georgia,serif;color:#5a4632;cursor:pointer}
+.ct-postmark{position:absolute;left:8%;bottom:9%;width:170px;height:170px;border-radius:50%;border:3px double rgba(40,28,20,.78);display:grid;place-items:center;text-align:center;color:rgba(40,28,20,.82);
+  font:600 11px/1.35 Georgia,serif;letter-spacing:.12em;transform:rotate(-14deg) scale(1.8);opacity:0;transition:transform .45s cubic-bezier(.3,1.6,.5,1),opacity .2s;pointer-events:none;mix-blend-mode:multiply}
+.ct-postmark b{display:block;font-size:22px;letter-spacing:.06em;margin:4px 0}
+.ct-card.is-sent .ct-postmark{opacity:1;transform:rotate(-14deg) scale(1)}
+.ct-sent-note{display:none;margin-left:auto;font:italic 16px Georgia,serif;color:#3a2a1c}
+.ct-card.is-sent .ct-sent-note{display:block}.ct-card.is-sent .ct-foot .ct-send,.ct-card.is-sent .ct-foot small{display:none}
+@media (max-width:700px){.ct-card{aspect-ratio:auto;height:calc(100vh - 60px)}.ct-body{grid-template-columns:1fr;gap:16px}.ct-rule{display:none}.ct-stamp{display:none}}

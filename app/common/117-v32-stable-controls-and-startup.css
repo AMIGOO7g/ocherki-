@@ -1,0 +1,29 @@
+/*@block [" id=\"v32-stable-controls-and-startup\"", ""]*/
+/* The fitted paper has one scale only.  No control reserves a hidden zoom
+   slot, and the remaining actions close up naturally. */
+:root{--ui-scale:1!important}
+.shell.is-open:not(.ui-boot) .mode-controls,
+.shell.is-open:not(.ui-boot) .project-actions{
+  transform:translateY(0) scale(1)!important;
+}
+.project-actions{gap:14px!important;right:30px!important}
+/* Authorization belongs to the first-run screen only. The constructor keeps
+   one clean row of editing actions and has no duplicate login affordance. */
+
+/* The startup stage contains one sentence and one action only.  The old
+   explanatory/map prompt was competing with the light button. */
+.book-map-note,.writing-prompt,.writing-prompt-restore{display:none!important}
+.power-title{display:none!important}
+.power-sub{display:block!important;visibility:visible!important}
+
+/* Night mode keeps the controls and their outlines readable without making
+   the interface glow. */
+.shell.is-night .mode-controls .key,
+.shell.is-night .project-actions .key{color:#f0d3ad!important}
+.shell.is-night .mode-controls .cap svg,
+.shell.is-night .project-actions .cap svg{stroke:#f0d3ad!important}
+.shell.is-night .mode-controls .key:hover,
+.shell.is-night .project-actions .key:hover{color:#ffd09a!important}
+.shell.is-night .book-map-action{border-color:rgba(255,218,174,.72)!important;color:#ffe0b4!important}
+
+@media(max-width:1180px){.project-actions{right:16px!important;gap:9px!important}}

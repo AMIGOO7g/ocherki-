@@ -4,7 +4,7 @@ const renderer=fs.readFileSync(path.join(root,'book-renderer/design-pack-01.js')
 const css=fs.readFileSync(path.join(root,'book-renderer/design-pack-01.css'),'utf8');
 const layout=fs.readFileSync(path.join(root,'book-renderer/layout-pagination-engine.js'),'utf8');
 const pack=fs.readFileSync(path.join(root,'book-renderer/design-pack-01.layout.js'),'utf8');
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const testMode=fs.readFileSync(path.join(root,'test-mode.js'),'utf8');
 const split=renderer.split('function splitRenderedText')[1].split('function nextSentence')[0];
 assert(split.includes('renderedPrefixFits(target,ends[index])'),'column boundary is not selected from one full DOM render');

@@ -1,0 +1,32 @@
+/*@block [" id=\"ms-v85\"", ""]*/
+.ms-undo{left:auto!important;right:24px!important;bottom:150px!important;transform:translateY(12px)!important}
+.ms-undo.on{transform:none!important}
+/* prints lie still: no scrollbar appearing under a lifted print */
+.ms-prints{overflow:visible!important}
+.ms-print{margin:0 -14px!important}
+.ms-print:hover{transform:rotate(0) translateY(-10px) scale(1.06)!important}
+/* the section just chosen in «Разделы книги» glows in front */
+.ms-sheet.is-target .ms-paper{box-shadow:0 0 0 3px #e2b06a,0 0 34px rgba(226,176,106,.75),0 30px 50px rgba(40,22,8,.32)!important}
+.ms-sec-always{margin:0 0 16px;font:italic 13.5px/1.5 Georgia,serif;color:#8a7058}
+.ms-sec-always b{font-style:normal;font-weight:600;color:#6b4a2e}
+/* the flyer: a sheet travelling between the editor and the manuscript */
+.ms-flyer{position:fixed;z-index:2147483150;pointer-events:none;border-radius:2px;background:linear-gradient(160deg,#fffaf1 0,#f6ecdc 55%,#eddcc2 100%);box-shadow:0 30px 60px rgba(40,22,8,.35);overflow:hidden;transition:left .9s cubic-bezier(.3,.7,.2,1),top .9s cubic-bezier(.3,.7,.2,1),width .9s cubic-bezier(.3,.7,.2,1),height .9s cubic-bezier(.3,.7,.2,1),opacity .45s ease}
+.ms-flyer .ms-paper{position:absolute;inset:0;transform-origin:0 0}
+/* photo card: like the editor's, in the middle, everything else hazy */
+.ms-photo-card{position:fixed!important;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:332px!important;padding:18px 18px 16px!important;border-radius:30px!important;background:linear-gradient(180deg,#f8eddb,#efe0c9)!important;border:1px solid rgba(100,68,42,.18);box-shadow:0 26px 68px rgba(28,17,10,.30)!important;color:#4b3527;font-family:Georgia,serif;z-index:40!important;max-height:calc(100vh - 60px);overflow:auto}
+.ms-screen.is-photo-card .ms-space,.ms-screen.is-photo-card .ms-toc,.ms-screen.is-photo-card .ms-prints,.ms-screen.is-photo-card .ms-hint,.ms-screen.is-photo-card .ms-bin{filter:blur(6px);opacity:.55;transition:filter .4s,opacity .4s}
+.ms-pc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font:600 9px/1 Arial,sans-serif;letter-spacing:.15em;color:rgba(93,62,39,.58)}
+.ms-pc-head button{border:0;background:none;color:#825a39;font-size:24px;line-height:1;cursor:pointer}
+.ms-photo-card .ms-pc-top{height:182px;border-radius:18px;overflow:hidden;background:rgba(98,74,51,.06)}
+.ms-photo-card .ms-pc-top img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
+.ms-pc-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:14px}
+.ms-pc-field{display:flex;flex-direction:column;gap:5px;min-width:0}.ms-pc-field.wide{grid-column:1/-1}
+.ms-pc-field>label,.ms-pc-hero{font:600 9px/1 Arial,sans-serif!important;letter-spacing:.13em;color:rgba(93,62,39,.58)!important;margin:0!important}
+.ms-pc-field input,.ms-pc-field textarea,.ms-pc-field select{width:100%;border:0!important;border-bottom:1px solid rgba(112,77,48,.18)!important;border-radius:0!important;background:transparent!important;padding:4px 0 7px!important;font:15px Georgia,serif!important;color:#4c3628!important;outline:none;resize:none;margin:0!important}
+.ms-pc-field textarea{min-height:44px}
+.ms-pc-hint{font:italic 11.5px/1.35 Georgia,serif;color:rgba(93,62,39,.6)}
+.ms-pc-hero{display:flex;align-items:center;gap:8px;cursor:pointer}
+.ms-pc-actions{display:flex;justify-content:flex-end;gap:18px;margin-top:18px}
+.ms-pc-actions button{border:0;background:none;color:#765036;font:600 11px Arial,sans-serif;cursor:pointer;padding:0}
+.ms-pc-actions button:hover{color:#a0642d}
+.ms-pc-note{margin-top:12px;font:italic 12px Georgia,serif;color:#8a7058}

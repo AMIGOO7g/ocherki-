@@ -1,0 +1,20 @@
+/*@block [" id=\"writing-prompt-mist\"", ""]*/
+/* Questions above the sheet: white handwriting out of a mist. */
+html body .shell .writing-prompt-text{font:400 30px/1.25 'SignThatS','CormorantCy',Georgia,serif!important;font-style:normal!important;color:#fbf6ee!important;letter-spacing:.01em;
+  text-shadow:0 0 14px rgba(255,248,236,.35),0 1px 2px rgba(0,0,0,.25)!important}
+.writing-prompt .wp-word{white-space:nowrap}
+.writing-prompt .wp-ch{display:inline-block;opacity:0;filter:blur(7px);transform:translateY(3px)}
+.writing-prompt.is-visible .wp-ch{animation:wpMistIn .9s cubic-bezier(.2,.7,.25,1) forwards;animation-delay:calc(var(--i) * 34ms)}
+.writing-prompt.is-leaving .wp-ch{opacity:1;filter:blur(0);transform:none;animation:wpMistOut .6s ease forwards;animation-delay:calc(var(--i) * 10ms)}
+@keyframes wpMistIn{to{opacity:1;filter:blur(0);transform:none}}
+@keyframes wpMistOut{to{opacity:0;filter:blur(8px);transform:translateY(-3px)}}
+/* The block itself no longer blurs: the letters do. */
+html body .writing-prompt,html body .writing-prompt.is-visible,html body .writing-prompt.is-leaving{filter:none!important}
+/* An old rule hid the prompts everywhere; in the constructor they show again. */
+html body .shell.is-open.menus-ready .writing-prompt{display:block!important}
+html body .shell.is-open.menus-ready .writing-prompt-restore{display:block!important}
+html body .shell .writing-prompt.is-on-paper .writing-prompt-text{font-size:24px!important;color:#5a3d26!important;text-shadow:0 0 10px rgba(255,250,240,.9)!important}
+html body .shell .writing-prompt.is-on-paper .writing-prompt-link{color:rgba(90,61,38,.85)!important}
+.writing-prompt-link{font:italic 14px Georgia,serif!important;color:rgba(255,246,232,.82)!important}
+@media(max-width:1180px){html body .writing-prompt{display:block!important}html body .shell .writing-prompt-text{font-size:24px!important}}
+@media (prefers-reduced-motion: reduce){.writing-prompt .wp-ch{animation:none!important;opacity:1;filter:none;transform:none}}

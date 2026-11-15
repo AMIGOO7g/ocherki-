@@ -85,7 +85,7 @@ for(let index=1;index<=260;index++)if(!restored.includes(sentence(index)))fail(`
 
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 const rendererSource=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.js'),'utf8');
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 if(!/max-height:none!important;height:calc\(var\(--book-page-h,1000px\) - 270px\)/.test(css))fail('Document text height is not fixed to the real transcript field');
 if(!/dpk-document-transcript p[\s\S]*overflow:visible!important/.test(css))fail('Document transcript still hides text overflow');
 if(!/firstNeedsInlineQuote/.test(fs.readFileSync(path.join(root,'book-renderer','book-engine.js'),'utf8')))fail('Inline quote capacity is not reserved before pagination');

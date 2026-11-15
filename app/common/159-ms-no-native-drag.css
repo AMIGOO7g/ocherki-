@@ -1,0 +1,8 @@
+/*@block [" id=\"ms-no-native-drag\"", ""]*/
+.ms-screen img{-webkit-user-drag:none;user-drag:none;user-select:none}
+
+/*@block [" id=\"book-click-catcher\"", "\n"]*/
+.preview-catcher{position:fixed;left:0;top:0;bottom:0;right:130px;z-index:-1;pointer-events:auto}
+#bookPreviewModal:not(.open) .preview-catcher{display:none}
+/* While a panel of the right rail (design, format, photo) is open, its cards lie over this catcher's area: the catcher steps aside. */
+.shell.oc-rail-open ~ #bookPreviewModal .preview-catcher{pointer-events:none!important}

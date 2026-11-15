@@ -44,7 +44,7 @@ const renderContext={meta:{},image:(source,index)=>source?.photos?.[index]?.src|
 const darkHtml=renderer.renderPage({kind:'dark-text',layout:'dark-text',master:'D01-DARK-TEXT',source:{},text:prose(20),pullQuote:'Память остаётся.'},'left',renderContext);
 if(!/dpk-dark-text/.test(darkHtml))fail('Dark text renderer is missing');
 
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 const proof=fs.readFileSync(path.join(root,'book-renderer','master-proof.html'),'utf8');

@@ -1,0 +1,38 @@
+/*@block [" id=\"week-v136\"", ""]*/
+/* v136 — «Вопрос недели» as drawn: a deck of question cards, who it goes to on the left, when on the right */
+html body .fm-room .fm-week{padding:0!important}
+html body .fm-week .wk2{position:absolute;left:0;top:-150px;width:calc(100% / var(--ui-s,1));height:calc((100% + 150px) / var(--ui-s,1));transform:scale(var(--ui-s,1));transform-origin:0 0;font-family:'CormorantCy',Georgia,serif;color:#f2e0c2}
+.wk2-h{position:absolute;left:0;right:0;top:calc(calc(var(--oct-b,192px) / var(--ui-s,1)) + 30px);text-align:center;font:400 56px/1.1 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc}
+html body .wk2 .fm-topics{position:absolute;left:0;right:0;top:calc(calc(var(--oct-b,192px) / var(--ui-s,1)) + 112px);display:flex;justify-content:center;gap:30px;margin:0;max-width:none}
+html body .wk2 .fm-topics span{padding:0 0 3px!important;border-radius:0!important;box-shadow:none!important;background:none!important;font:italic 20px 'CormorantCy',Georgia,serif!important;color:#d6b48a!important;transition:color .5s,text-shadow .5s,border-color .5s;border-bottom:1px solid transparent!important;cursor:pointer}
+html body .wk2 .fm-topics span:hover{color:#ffe2bd!important}
+html body .wk2 .fm-topics span.on{color:#ffe2bd!important;text-shadow:0 0 10px rgba(255,150,60,.8);border-bottom-color:rgba(255,200,140,.8)!important}
+.wk2-deck{position:absolute;left:50%;top:57%;width:640px;height:340px;transform:translate(-50%,-50%)}
+.wk2-deck .u{position:absolute;inset:0;border-radius:6px;background:#e2d3b6;box-shadow:0 14px 26px rgba(0,0,0,.45)}
+.wk2-deck .u1{transform:rotate(-3deg) translate(-8px,14px)}.wk2-deck .u2{transform:rotate(2deg) translate(10px,8px)}
+.wk2-card{position:absolute;inset:0;border-radius:6px;background:linear-gradient(170deg,#f6eddb,#e9dcc2);box-shadow:0 22px 44px rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#3b2a1c;padding:40px 70px;box-sizing:border-box;
+  transition:transform .9s cubic-bezier(.2,.8,.3,1),opacity .8s ease}
+.wk2-card .k{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.38em;text-transform:uppercase;color:#8a6a48}
+html body .wk2 .wk2-card .fm-q{position:relative;font:400 42px/1.25 'SignThatS',Georgia,serif!important;color:#3b2a1c!important;margin-top:22px;min-height:0;text-shadow:none!important}
+html body .wk2 .wk2-card .fm-q::before{display:none}
+.wk2-card.ghost{z-index:3;pointer-events:none}
+.wk2-card.ghost.gone{transform:translate(-460px,80px) rotate(-16deg) scale(.86);opacity:0}
+.wk2-card.ghost.gone-r{transform:translate(460px,80px) rotate(16deg) scale(.86);opacity:0}
+.wk2-card.rise{animation:wkRise .7s cubic-bezier(.2,.8,.3,1)}
+@keyframes wkRise{from{transform:translate(6px,10px) rotate(1.5deg) scale(.98)}to{transform:none}}
+html body .wk2 .fm-env{position:absolute;left:50%;bottom:-24px;width:84px;height:auto;margin-left:-42px;opacity:0;transition:opacity .5s;z-index:4}
+html body .wk2 .fm-env.busy{opacity:1}
+.wk2-nav{position:absolute;left:50%;top:calc(57% + 214px);transform:translateX(-50%);display:flex;gap:30px;align-items:center;font:italic 19px 'CormorantCy',Georgia,serif;color:#d6b48a}
+.wk2-nav b{font:400 30px 'CormorantCy',Georgia,serif;color:#f2e0c2;cursor:pointer;transition:color .4s,text-shadow .4s}.wk2-nav b:hover{color:#ffe2bd;text-shadow:0 0 10px rgba(255,150,60,.8)}
+.wk2-who{position:absolute;left:15.5%;top:57%;transform:translate(-50%,-50%);text-align:center}
+.wk2-who .ph{width:170px;height:170px;margin:0 auto;border-radius:50%;background:center/cover;filter:sepia(.3);box-shadow:0 0 0 2px rgba(255,200,140,.95),0 0 22px 5px rgba(255,150,60,.55),0 0 60px 14px rgba(255,120,40,.25)}
+.wk2-who .n{font:28px 'CormorantCy',Georgia,serif;color:#f6ead8;margin-top:20px}.wk2-who .s{font:italic 16px 'CormorantCy',Georgia,serif;color:#d6b48a;margin-top:4px}
+.wk2-when{position:absolute;left:84%;top:57%;transform:translate(-50%,-50%);text-align:center}
+.wk2-when .k{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.38em;text-transform:uppercase;color:#d6b48a;margin-bottom:14px}
+html body .wk2 .fm-sched{position:static;margin:0;font:italic 21px/1.9 'CormorantCy',Georgia,serif;color:#f2e0c2;text-align:center}
+html body .wk2 .fm-sched .fm-pick{color:#ffe2bd;border-bottom:1px solid rgba(255,200,140,.5);cursor:pointer}
+html body .wk2 .fm-acts{position:absolute;left:0;right:0;bottom:7%;display:flex;justify-content:center;gap:28px;margin:0}
+html body .wk2 .fm-note{position:absolute;left:0;right:0;bottom:3%;text-align:center;font:italic 15px 'CormorantCy',Georgia,serif;color:rgba(214,180,138,.7)}
+html body .fm-room:has(.fm-week.on) :is(.fm-sample,.fm-dots){opacity:0!important;pointer-events:none}
+html body .fm-room .fm-week .oc-cap,html body .fm-room .fm-week .wk-who{display:none}
+html body .wk2-card .fm-q{display:block!important;white-space:normal!important}.wk2-card .fm-q b.w{font-weight:400;display:inline-block;white-space:nowrap;margin:0 .13em}

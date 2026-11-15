@@ -1,0 +1,46 @@
+/*@block [" id=\"archive-cards-v131\"", ""]*/
+/* v131 — the archive's own cards speak the same language: thin copper outline, the main one kindles */
+html body .fm-room .oc-btn{background:none!important;border:1px solid rgba(214,150,96,.55)!important;color:#f2e0c2!important;box-shadow:none!important;text-shadow:none!important;transition:border-color .6s,box-shadow .9s,color .6s,translate .3s!important}
+html body .fm-room .oc-btn svg{stroke:#d9a074!important}
+html body .fm-room .oc-btn:hover{border-color:rgba(255,206,150,.95)!important;box-shadow:0 0 14px 2px rgba(255,150,60,.4)!important}
+html body .fm-room .oc-btn.is-main,html body .fm-room .oc-btn.is-round{border-color:rgba(255,206,150,.95)!important;color:#ffe9c9!important;box-shadow:0 0 14px 3px rgba(255,150,60,.55),0 0 34px 8px rgba(255,120,40,.22)!important}
+html body .fm-room .oc-btn:active{translate:0 2px}
+html body .fm-room .oc-btn::before,html body .fm-room .oc-btn::after{display:none!important}
+html body .fm-room .oc-btn{background-image:none!important}
+
+/*@block [" id=\"rec-v135\"", "\n\n"]*/
+/* v135 — the recording screen, as drawn: same dark room, same copper, one main key on the right */
+html body .fm-room .fm-open.is-rec{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;transform:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
+  background:radial-gradient(ellipse 55% 60% at 50% 42%,rgba(196,120,52,.42),rgba(120,64,24,.2) 45%,transparent 75%),radial-gradient(ellipse 100% 90% at 50% 45%,#3a1f0d,#1c0f07 60%,#0b0604)!important;color:#f2e0c2}
+.rc2{position:absolute;inset:0;font-family:'CormorantCy',Georgia,serif}
+.rc2-h{position:absolute;left:0;right:0;top:calc(calc(var(--oct-b,192px) / var(--ui-s,1)) + 34px);text-align:center;font:400 56px/1.1 'SignThatS','CormorantCy',Georgia,serif;color:#fff2dc}
+.rc2-card{position:absolute;left:50%;top:41%;width:min(720px,52vw);min-height:190px;transform:translate(-50%,-50%);box-sizing:border-box;padding:34px 90px;border-radius:6px;background:linear-gradient(170deg,#f6eddb,#e9dcc2);box-shadow:0 22px 44px rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#3b2a1c}
+.rc2-card .k{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.38em;text-transform:uppercase;color:#8a6a48}
+html body .rc2-card .rc-qt{font:400 34px/1.25 'CormorantCy',Georgia,serif!important;margin:14px 0 0!important;color:#3b2a1c;transition:opacity .38s ease,filter .38s ease}
+.rc2-card .rc-qt.swap{opacity:0;filter:blur(4px)}
+.rc2-a{position:absolute;top:50%;transform:translateY(-50%);font:34px 'CormorantCy',Georgia,serif;color:#8a6a48;cursor:pointer;padding:10px;transition:color .4s}.rc2-a:hover{color:#3b2a1c}.rc2-a.l{left:18px}.rc2-a.r{right:18px}
+html body .rc2 .rc-yr{position:absolute!important;display:block!important;width:auto!important;transform:none!important;margin:0!important;left:0!important;right:0!important;top:calc(41% + 112px);text-align:center;font:italic 18px 'CormorantCy',Georgia,serif;color:#d6b48a}
+html body .rc2 .rc-yr input{width:70px;background:none;border:0;border-bottom:1px solid rgba(214,180,138,.6);color:#ffe9c9;font:italic 18px 'CormorantCy',Georgia,serif;text-align:center;outline:none}
+.rc2-me{position:absolute;left:17%;top:47%;transform:translate(-50%,-50%);text-align:center}
+.rc2-me .ph{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;font:italic 46px 'CormorantCy',Georgia,serif;color:#ffe2bd;background:radial-gradient(circle at 40% 35%,#5a3418,#24130a);box-shadow:0 0 0 2px rgba(255,200,140,.95),0 0 22px 5px rgba(255,150,60,.55)}
+.rc2-me .n{font:26px 'CormorantCy',Georgia,serif;margin-top:18px}.rc2-me .s{font:italic 16px 'CormorantCy',Georgia,serif;color:#d6b48a}
+html body .rc2 .rc2-th{position:absolute;left:auto;right:12%;top:30%;display:flex;flex-direction:column;gap:14px;font:italic 21px 'CormorantCy',Georgia,serif;color:#d6b48a;border:0;padding:0;overflow:visible}
+.rc2-th .k{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.38em;text-transform:uppercase;font-style:normal;margin-bottom:6px}
+.rc2-th span{cursor:pointer;transition:color .5s,text-shadow .5s}.rc2-th span:hover{color:#ffe2bd}.rc2-th span.on{color:#ffe2bd;text-shadow:0 0 10px rgba(255,150,60,.8)}
+html body .rc2 .rc-stage{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);height:140px;gap:34px}
+html body .rc2 .rc-btn{width:104px;height:104px;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,#4a2a14,#1e1009)!important;box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),0 0 0 1px rgba(255,200,140,.85),0 0 14px 3px rgba(255,150,60,.72),0 0 34px 9px rgba(255,120,40,.3)!important;transition:translate .3s,box-shadow .9s}
+html body .rc2 .rc-btn::before{display:none}
+html body .rc2 .rc-btn:hover{transform:none;translate:0 -2px}html body .rc2 .rc-btn:active{translate:0 3px}
+html body .rc2 .rc-btn svg{width:40px;height:40px;fill:none;stroke:#ffd2a0;stroke-width:1.4;stroke-linecap:round;transition:opacity .5s}
+html body .rc2 .rc-btn i{position:absolute;width:14px;height:14px;right:22px;top:22px;opacity:0;transition:opacity .5s}
+html body .rc2.is-x,.is-recording .rc2 .rc-btn i{opacity:1}
+.is-paused .rc2 .rc-btn i{width:12px!important;height:12px!important;border-radius:3px}
+.rc2 .rc-wave i{background:linear-gradient(#ffd9a8,#c9874a)!important}
+html body .rc2 .rc-time{position:absolute;left:0;right:0;top:calc(66% + 74px);margin:0;text-align:center;font:28px 'CormorantCy',Georgia,serif;letter-spacing:.1em;color:#f2e0c2;opacity:0;transition:opacity .6s}
+.is-recording .rc2 .rc-time{opacity:1}
+html body .rc2 .rc-strip{position:absolute;left:50%;top:calc(66% + 118px);transform:translateX(-50%);width:min(900px,70vw);min-height:0;max-height:3.2em;padding:0;background:none;box-shadow:none;text-align:center;font:italic 20px/1.5 'CormorantCy',Georgia,serif;overflow:hidden}
+html body .rc2 .rc-strip .rc-text{color:#d6b48a}html body .has-words .rc2 .rc-strip .rc-text{color:#f6ead8}
+.rc2-acts{position:absolute;left:0;right:0;bottom:7%;display:flex;justify-content:center;gap:28px}
+.rc2-acts .live{display:none}.is-recording .rc2-acts .live{display:inline-flex}.is-recording .rc2-acts .idle{display:none}
+.is-recording .rc2-th,.is-recording .rc2-a{opacity:.35;pointer-events:none}
+html body .fm-room .fm-open.is-rec>.fm-x{z-index:3}

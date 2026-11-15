@@ -1,0 +1,22 @@
+/*@block [" id=\"ms-photo-card-v86\"", ""]*/
+.ms-photo-card{width:min(440px,calc(100vw - 40px))!important;padding:24px 26px 20px!important}
+.ms-photo-card input[type=file],.ms-photo-card input[hidden]{display:none!important}
+.ms-photo-card{top:calc(50% + 40px)!important;max-height:calc(100vh - 150px)!important;overflow:hidden!important}
+.ms-photo-card *{max-width:100%;box-sizing:border-box}
+.ms-photo-card .ms-pc-top{height:clamp(96px,calc(100vh - 800px),240px)!important}
+.ms-pc-head{font-size:11px!important}
+.ms-pc-field>label{font-size:11px!important}
+.ms-pc-field input,.ms-pc-field textarea{font-size:17px!important}
+.ms-pc-hint{font-size:13px!important}
+.ms-pc-inline{display:flex;justify-content:center;gap:22px;margin-top:10px}
+.ms-pc-inline button{appearance:none;border:0;background:none;padding:0;color:#7f614a;font:italic 15px Georgia,serif;cursor:pointer;opacity:.85}
+.ms-pc-inline button:hover{opacity:1;color:#a0642d}
+.ms-pc-hero{display:flex!important;align-items:center;gap:14px;cursor:pointer;padding:10px 12px;border:1px solid rgba(112,77,48,.2);border-radius:14px;background:rgba(255,250,242,.6);letter-spacing:0!important}
+.ms-pc-hero input{position:absolute;opacity:0;pointer-events:none}
+.ms-pc-toggle{flex:0 0 auto;width:42px;height:24px;border-radius:12px;background:rgba(112,77,48,.22);position:relative;transition:background .3s}
+.ms-pc-toggle::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .3s}
+.ms-pc-hero input:checked+.ms-pc-toggle{background:#b8894f}
+.ms-pc-hero input:checked+.ms-pc-toggle::after{transform:translateX(18px)}
+.ms-pc-hero b{display:block;font:500 16px Georgia,serif!important;color:#3a2a1c;letter-spacing:0}
+.ms-pc-hero small{display:block;font:italic 13px Georgia,serif;color:#8a7058;margin-top:2px;letter-spacing:0}
+.ms-pc-actions button{font-size:13px!important}

@@ -1,0 +1,11 @@
+/*@block [" id=\"wp-build-v140\"", ""]*/
+/* v140 — the first «показать в книге»: instead of a blinking key, a clear «собираю страницу» with a running copper line, as when the book is built */
+html body .wp-item.tog.is-busy .cap svg{animation:none!important}
+.wp-item.tog{position:relative}
+.wp-item.tog::after{content:"собираю страницу…";position:absolute;left:50%;top:calc(100% + 30px);translate:-50% 0;white-space:nowrap;font:italic 16px 'CormorantCy',Georgia,serif;color:#d9b47e;opacity:0;transition:opacity .4s ease;pointer-events:none}
+.shell:not(.is-night) .wp-item.tog::after{color:#7a5428}
+.wp-item.tog::before{content:"";position:absolute;left:50%;top:calc(100% + 56px);width:120px;height:2px;margin-left:-60px;border-radius:2px;opacity:0;transition:opacity .4s ease;pointer-events:none;
+  background:linear-gradient(90deg,transparent,#ffcf8e,#e08a3c,transparent) -120px 0/120px 2px no-repeat,rgba(214,150,96,.25)}
+.wp-item.tog.is-busy::after,.wp-item.tog.is-busy::before{opacity:1}
+.wp-item.tog.is-busy::before{animation:wpRun 1.1s linear infinite}
+@keyframes wpRun{to{background-position:120px 0,0 0}}

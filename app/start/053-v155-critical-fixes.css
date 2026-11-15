@@ -1,0 +1,14 @@
+/*@block [" id=\"v155-critical-fixes\"", ""]*/
+/* Startup light button: exact v23 geometry, but override later ui-boot/preview
+   rules that previously dropped `left` from the transition. */
+.shell.ui-boot .power-dock,
+.shell.is-open .power-dock,
+.shell.ui-boot.is-open .power-dock{
+  transition-property:left,top,transform !important;
+  transition-duration:1.35s,1.35s,1.35s !important;
+  transition-timing-function:cubic-bezier(.18,.78,.24,1) !important;
+  transition-delay:0s !important;
+}
+.shell:not(.is-open) .power-dock{left:50% !important;top:50% !important;transform:translate(-50%,-50%) !important;}
+.shell.is-open .power-dock{left:20px !important;top:44px !important;transform:translate(0,0) !important;}
+

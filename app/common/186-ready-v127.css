@@ -1,0 +1,30 @@
+/*@block [" id=\"ready-v127\"", ""]*/
+/* v127 — «До книги»: the room darkens and blurs; the steps lie on it, done ones crossed out, the next one glowing */
+html body .rd-veil.rd-veil{position:fixed;inset:0;z-index:2147483400!important;background:radial-gradient(ellipse at 50% 45%,rgba(22,13,7,.965),rgba(6,4,2,.985))!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;opacity:0;pointer-events:none;transition:opacity .7s ease!important}
+html body .rd-veil.rd-veil.on{opacity:1!important;pointer-events:auto}
+html body .rd-box{position:fixed!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-46%)!important;z-index:2147483401!important;width:min(620px,86vw)!important;max-height:84vh;overflow:auto;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;color:#f3e3c8;text-align:center;opacity:0;pointer-events:none;transition:opacity .7s ease,transform .8s cubic-bezier(.2,.8,.3,1)!important;font-family:'CormorantCy',Georgia,serif}
+html body .rd-box.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)!important}
+.rd-box .rd3-k{font:500 13px 'CormorantCy',Georgia,serif;letter-spacing:.34em;text-transform:uppercase;opacity:.75}
+.rd-box h4{font:400 58px/1.1 'SignThatS','CormorantCy',Georgia,serif!important;margin:10px 0 4px!important;color:#f6e6c8!important}
+.rd-box .rd3-s{font:italic 18px 'CormorantCy',Georgia,serif;opacity:.8;margin-bottom:28px}
+.rd-box .rd3-list{list-style:none;margin:0 auto;padding:0;display:inline-flex;flex-direction:column;gap:12px;text-align:left;max-width:560px}
+.rd-box .rd3-list li{display:flex;align-items:flex-start;gap:16px;cursor:default;opacity:0;transform:translateY(8px);animation:rd3In .6s cubic-bezier(.2,.8,.3,1) forwards;transition:translate .35s cubic-bezier(.2,.8,.3,1)}
+.rd-box .rd3-list li[data-go]:hover{translate:0 -3px}
+.rd-box .rd3-list li[data-go]:hover .dot{box-shadow:0 0 10px 2px rgba(255,170,90,.6)}
+.rd-box,.rd-box h4,.rd-box .rd3-list li span{color:#fff7ea!important}
+.rd-box .rd3-list li:nth-child(1){animation-delay:.08s}.rd-box .rd3-list li:nth-child(2){animation-delay:.14s}.rd-box .rd3-list li:nth-child(3){animation-delay:.2s}.rd-box .rd3-list li:nth-child(4){animation-delay:.26s}.rd-box .rd3-list li:nth-child(5){animation-delay:.32s}.rd-box .rd3-list li:nth-child(6){animation-delay:.38s}.rd-box .rd3-list li:nth-child(n+7){animation-delay:.44s}
+@keyframes rd3In{to{opacity:1;transform:none}}
+.rd-box .rd3-list li[data-go]{cursor:pointer}
+.rd-box .rd3-list .dot{flex:none;width:10px;height:10px;margin-top:8px;border-radius:50%;border:1px solid rgba(243,227,200,.7);transition:box-shadow .6s ease,background .6s ease}
+.rd-box .rd3-list li span{font:21px/1.35 'CormorantCy',Georgia,serif}
+.rd-box .rd3-list li em{display:block;font:italic 15px/1.35 'CormorantCy',Georgia,serif;opacity:.7}
+.rd-box .rd3-list li.ok span{text-decoration:line-through;text-decoration-thickness:1px;opacity:.5}
+.rd-box .rd3-list li.ok em{display:none}
+.rd-box .rd3-list li.ok .dot{background:rgba(243,227,200,.55);border-color:transparent}
+.rd-box .rd3-list li.is-next .dot{background:#ffd9a8;border-color:#ffe3bf;box-shadow:0 0 0 2px rgba(255,200,140,.35),0 0 12px 3px rgba(255,150,60,.75)}
+.rd-box .rd3-list li.is-next span{color:#ffe7c6}
+.rd-box .rd3-list li[data-go]:hover span{color:#ffd9a8}
+.rd-box .rd3-x{position:absolute;right:0;top:0;font:300 34px/1 'CormorantCy',Georgia,serif;opacity:.7;cursor:pointer}
+.rd-box .rd3-foot{margin-top:32px}
+html body .rd-box .rd3-foot .oc-btn{display:inline-flex;align-items:center;height:48px;padding:0 30px;border-radius:24px;border:1px solid rgba(214,150,96,.55)!important;background:none!important;font:italic 20px 'CormorantCy',Georgia,serif!important;color:#f3e3c8!important;opacity:.6;box-shadow:none!important}
+.rd-box .rd3-foot .oc-btn.ready.ready{opacity:1;border-color:rgba(255,206,150,.95);box-shadow:0 0 14px 3px rgba(255,150,60,.55);cursor:pointer}

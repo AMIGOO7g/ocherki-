@@ -1,0 +1,17 @@
+/*@block [" id=\"manuscript-v124\"", ""]*/
+/* v124 — «Рукопись»: the fan in the middle of the screen, «Глава» in script and lower, no hint about the wheel */
+html body .ms-world{left:50%!important;scale:max(.82,var(--ui-s,1));top:calc(50% + (1 - var(--ui-s,1)) * 120px)}
+html body .ms-screen .ms-hint{display:none!important}
+html body .ms-screen .ms-label{margin-top:46px}
+html body .ms-screen .ms-label b{font:400 66px/1.1 'SignThatS','CormorantCy',Georgia,serif!important}
+/* the photos below: stacks without frames, centred; «Из архива» larger in the middle */
+html body .ms-prints{display:flex!important;align-items:flex-end;gap:56px!important;overflow:visible!important}
+.ms-grp{display:flex;flex-direction:column;align-items:center}
+.ms-grp[hidden]{display:none!important}
+.ms-grp-lab{font:italic 17px 'CormorantCy',Georgia,serif;color:rgba(255,246,232,.85);margin-bottom:10px;white-space:nowrap;text-shadow:0 1px 6px rgba(60,35,15,.4)}
+.ms-screen:not(.is-night) .ms-grp-lab{color:#4a3424;text-shadow:none}
+.ms-grp-row{display:flex;align-items:flex-end}
+html body .ms-grp.is-arch .ms-print{width:112px!important}
+html body .ms-grp.is-arch .ms-print img{height:94px!important}
+html body .ms-grp.is-pc .ms-print{width:84px!important}
+html body .ms-grp.is-pc .ms-print img{height:68px!important}

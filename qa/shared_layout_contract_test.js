@@ -1,6 +1,6 @@
 // Orchestration tests with controlled boundaries. These are NOT geometry tests.
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');let liveHosts=0;
+const root=path.resolve(__dirname,'..'),read=f=>require('./lib/page_source.js').readPage(root,f);let liveHosts=0;
 const document={body:{appendChild(){liveHosts++;}},createElement(){return {style:{},firstElementChild:{},remove(){liveHosts--;}};}};
 const ctx={window:{},document,console};vm.createContext(ctx);for(const f of ['design-pack-01.layout.js','book-engine.js','design-pack-01.js'])vm.runInContext(read('book-renderer/'+f),ctx);
 const original=ctx.window.OcherkiBookRenderer;let failMode='';ctx.window.OcherkiBookRenderer={...original,paginateText(page,text){

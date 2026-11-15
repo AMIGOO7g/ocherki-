@@ -1,0 +1,9 @@
+/*@block [" id=\"v164-brand-scale\"", ""]*/
+/* v164: Evstafiadi is the signature accent; keep the workshop caption subordinate. */
+.brand-wrap{width:40px !important;}
+.brand-line .brand-strong{
+  font-size:25px !important;
+  line-height:.96 !important;
+  letter-spacing:.035em !important;
+  text-shadow:0 2px 10px rgba(0,0,0,.30);
+}

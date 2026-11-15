@@ -1,0 +1,3 @@
+/*@block [" id=\"prompt-no-grow\"", ""]*/
+/* «дальше»: the question fades and changes in place, it never grows. */
+html body .shell .writing-prompt,html body .shell .writing-prompt.is-visible,html body .shell .writing-prompt.is-leaving{transform:none!important}

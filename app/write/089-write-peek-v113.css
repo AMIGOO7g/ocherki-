@@ -1,0 +1,44 @@
+/*@block [" id=\"write-peek-v113\"", ""]*/
+/* v113: «Писать» in two sheets — the sheet glides left, the book page comes out from behind it. */
+/* the boot rules hold the sheet's transition to «transform» only — the glide sideways rides on «translate» beside it */
+.shell.boot-paper #editorPaperWrap#editorPaperWrap,.shell:not(.ui-boot) #editorPaperWrap#editorPaperWrap{transition:transform .82s cubic-bezier(.22,.72,.18,1),opacity .95s cubic-bezier(.18,.78,.24,1),translate 1.25s cubic-bezier(.6,.04,.3,1)!important}
+.shell.wp-on #editorPaperWrap#editorPaperWrap{transition-delay:0s,0s,.3s!important}
+.wp-pane{position:fixed;z-index:15;will-change:transform,opacity;pointer-events:none;opacity:0;transform:translateX(-62%) scale(.96);transform-origin:0 50%;
+  transition:transform 1.15s cubic-bezier(.55,.05,.3,1),opacity .55s ease .35s}
+.shell.wp-on .wp-pane{opacity:1;transform:none;pointer-events:auto;transition:transform 1.15s cubic-bezier(.55,.05,.3,1) .36s,opacity .6s ease .4s}
+.wp-page{position:absolute;inset:0;background:#fff;box-shadow:0 30px 60px rgba(0,0,0,.45),0 6px 14px rgba(0,0,0,.2);overflow:hidden}
+.shell:not(.is-night) .wp-page{box-shadow:0 26px 50px rgba(70,40,15,.28),0 5px 12px rgba(70,40,15,.14)}
+.wp-host,.wp-wait{position:absolute;inset:0;transition:opacity .55s ease}
+.wp-host .page-canvas-host{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+.wp-none{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:italic 20px/1.5 'CormorantCy',Georgia,serif;color:#a07a4c;background:#fbf8f2}
+.wp-wait{display:grid;place-items:center;font:italic 19px 'CormorantCy',Georgia,serif;color:#a07a4c;opacity:0;pointer-events:none;background:#fff}
+.wp-pane.is-busy .wp-wait{opacity:1}.wp-pane.is-busy .wp-host{opacity:.15}
+.wp-wait span{animation:wpBreath 1.6s ease-in-out infinite}
+@keyframes wpBreath{0%,100%{opacity:.45}50%{opacity:1}}
+.shell.wp-up .wp-pane{z-index:17}
+.wp-cap{position:absolute;left:0;right:0;bottom:100%;margin-bottom:16px;text-align:center;transition:padding .3s;font:600 12px 'CormorantCy',Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#d9b47e;white-space:nowrap}
+.shell:not(.is-night) .wp-cap{color:#8f5f28}
+.wp-keys{position:fixed;z-index:18;display:flex;gap:22px;align-items:flex-start;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .35s ease,transform .45s ease}
+.shell.wp-ready:not(.wp-on):not(.wp-closing) .wp-keys.k-closed{opacity:1;pointer-events:auto;transform:none;transition:opacity .7s ease .15s,transform .8s ease .15s}
+.shell.wp-ready.wp-on .wp-keys.k-open{opacity:1;pointer-events:auto;transform:none;transition:opacity .7s ease 1.25s,transform .8s ease 1.25s}
+.wp-pg{display:flex;align-items:center;gap:6px;height:50px;font:italic 17px 'CormorantCy',Georgia,serif;color:#d9b47e;visibility:hidden}
+.wp-pg.on{visibility:visible}.shell:not(.is-night) .wp-pg{color:#7a5428}
+.wp-pg button{border:0;background:none;color:inherit;font:30px/1 'CormorantCy',Georgia,serif;cursor:pointer;padding:0 6px;opacity:.85}.wp-pg button:hover{opacity:1}.wp-pg button:disabled{opacity:.2;cursor:default}
+.wp-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+.wp-item .key{--size:50px}
+.wp-item .lab{font:italic 16px 'CormorantCy',Georgia,serif;color:#d9b47e;white-space:nowrap;transition:color .3s}
+.shell:not(.is-night) .wp-item .lab{color:#7a5428}
+.wp-item:hover .lab{color:var(--gold,#e2b36c)}
+.wp-item.ref.is-stale .cap svg{animation:wpBulb 1.5s ease-in-out infinite!important;color:#f0a845}
+@keyframes wpBulb{0%,100%{filter:drop-shadow(0 0 2px rgba(255,200,110,.5))}50%{filter:drop-shadow(0 0 7px rgba(255,200,110,1)) drop-shadow(0 0 18px rgba(255,160,60,.95)) brightness(1.5)}}
+.wp-pager{position:absolute;right:0;bottom:100%;margin-bottom:6px;display:none;justify-content:flex-end;align-items:center;gap:14px;font:italic 16px 'CormorantCy',Georgia,serif;color:#d9b47e}
+.wp-pane.has-pages .wp-pager{display:flex}.wp-pane.has-pages .wp-cap{text-align:left}.shell:not(.is-night) .wp-pager{color:#7a5428}
+.wp-pager button{border:0;background:none;color:inherit;font:28px/1 'CormorantCy',Georgia,serif;cursor:pointer;padding:0 6px;opacity:.8}.wp-pager button:hover{opacity:1}.wp-pager button:disabled{opacity:.2;cursor:default}
+.wp-item .cap svg{width:22px;height:22px}
+.wp-item.tog.is-busy .cap svg{animation:wpBreath 1s ease-in-out infinite}
+.wp-item.ref.is-spin .cap svg{animation:wpSpin .9s cubic-bezier(.3,.6,.3,1)}
+@keyframes wpSpin{to{transform:rotate(360deg)}}
+/* while the page is out, what stood around the sheet steps back */
+.shell .write-nav,.shell #writingPrompt{transition:opacity .4s ease}
+html body .shell.wp-on .write-nav,html body .shell.wp-on #writingPrompt,html body .shell.wp-on .writing-prompt-restore,html body .shell.wp-closing .write-nav,html body .shell.wp-closing #writingPrompt,html body .shell.wp-closing .writing-prompt-restore{opacity:0!important;pointer-events:none!important}
+@media (prefers-reduced-motion:reduce){.wp-pane,.editor-paper-wrap{transition:none!important}}

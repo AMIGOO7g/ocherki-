@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const root=path.resolve(__dirname,'..'),read=file=>require('./lib/page_source.js').readPage(root,file);
 const renderer=read('book-renderer/design-pack-01.js');
 const css=read('book-renderer/design-pack-01.css');
 const layout=read('book-renderer/layout-pagination-engine.js');

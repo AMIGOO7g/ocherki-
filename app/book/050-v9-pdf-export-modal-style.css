@@ -1,0 +1,63 @@
+/*@block [" id=\"v9-pdf-export-modal-style\"", ""]*/
+.pdf-export-modal{position:fixed;inset:0;z-index:26000;display:grid;place-items:center;background:rgba(18,12,8,.64);backdrop-filter:blur(10px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility 0s linear .25s}
+.pdf-export-modal.open{opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+.pdf-export-card{position:relative;width:min(560px,calc(100vw - 44px));padding:46px 50px 38px;border:1px solid rgba(184,139,83,.46);border-radius:24px;background:linear-gradient(155deg,#2a2119,#1b1612 62%,#15110e);color:#eee1cf;box-shadow:0 32px 90px rgba(0,0,0,.48);font-family:Georgia,"Times New Roman",serif}
+.pdf-export-close{position:absolute;right:20px;top:16px;border:0;background:none;color:#bfa98c;font:28px/1 Georgia;cursor:pointer}
+.pdf-export-kicker{font:600 10px/1 Arial,sans-serif;letter-spacing:.18em;color:#b89872}.pdf-export-card h2{margin:13px 0 18px;font:italic 400 35px/1.1 Georgia,serif}.pdf-export-rule{height:1px;background:rgba(190,151,104,.34);margin-bottom:24px}
+.pdf-export-facts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.pdf-export-facts span{display:flex;flex-direction:column;gap:6px;color:#a99780;font-size:12px}.pdf-export-facts b{color:#f0e3d2;font-weight:400;font-size:15px}
+.pdf-export-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 24px;padding:5px;border:1px solid rgba(190,151,104,.25);border-radius:16px;background:rgba(255,255,255,.035)}.pdf-export-mode button{border:0;border-radius:11px;padding:12px 14px;background:transparent;color:#aa9880;font:italic 14px/1.2 Georgia,serif;cursor:pointer}.pdf-export-mode button.is-active{background:#c59860;color:#1c1510;box-shadow:0 7px 20px rgba(0,0,0,.22)}
+.pdf-export-note{margin:28px 0 20px;color:#c0ae96;font-size:14px;line-height:1.55}.pdf-export-progress{height:2px;background:rgba(255,255,255,.10);overflow:hidden;opacity:0}.pdf-export-progress.show{opacity:1}.pdf-export-progress i{display:block;width:36%;height:100%;background:#c99b62;transform:translateX(-110%)}.pdf-export-progress.show i{animation:pdfProgress 1.25s ease-in-out infinite}@keyframes pdfProgress{to{transform:translateX(390%)}}
+.pdf-export-error{margin:12px 0;color:#e5b59e;font-size:13px;line-height:1.45}.pdf-export-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.pdf-export-actions button{border:1px solid rgba(196,151,98,.44);border-radius:999px;padding:11px 22px;background:transparent;color:#dac6ad;font:italic 15px Georgia,serif;cursor:pointer}.pdf-export-actions #pdfExportDownload{background:#c59860;color:#1c1510;border-color:#c59860}.pdf-export-actions button:disabled{opacity:.42;cursor:wait}
+@media(max-width:620px){.pdf-export-card{padding:40px 28px 30px}.pdf-export-facts{grid-template-columns:1fr}.pdf-export-card h2{font-size:30px}}
+
+/*@block [" id=\"v137-ux-polish\"", "\n\n\n"]*/
+/* Right panel: format changes recompose only the spreads, never the control stack. */
+#bookDesignShell{contain:layout style;}
+#bookDesignShell .bd-spreads-viewport{height:330px!important;min-height:330px!important;}
+
+/* Headings are visually separated from their working areas. */
+.book-map-head{
+  margin-top:-10px!important;
+  margin-bottom:18px!important;
+  padding-bottom:13px!important;
+  border-bottom:1px solid var(--bm-line)!important;
+}
+#bookDesignShell .bd-section:first-child{padding-top:0!important;}
+#bookDesignShell .bd-spreads-head{
+  margin-top:-10px!important;
+  margin-bottom:14px!important;
+  padding-bottom:13px!important;
+  border-bottom:1px solid var(--bd-line)!important;
+}
+.book-map-footer{
+  margin-top:20px!important;
+  padding-top:18px!important;
+  border-top:1px solid var(--bm-line)!important;
+}
+.book-map-actions{margin-bottom:15px!important;gap:18px!important;}
+
+/* Quiet author-like service note: informative, not a warning. */
+.book-map-note{
+  font:italic 400 12px/1.45 'Cormorant Garamond',Georgia,'Times New Roman',serif!important;
+  letter-spacing:.015em!important;
+  color:var(--bm-text)!important;
+  opacity:.43!important;
+  max-width:290px;
+}
+
+/* Prompt question transition: a slight inhale, then a soft dissolve. */
+.writing-prompt{
+  transition:opacity .68s ease,filter .68s ease,transform .68s cubic-bezier(.22,.61,.36,1),visibility 0s linear .68s!important;
+}
+.writing-prompt.is-visible{transition-delay:0s!important;}
+.writing-prompt.is-leaving{
+  opacity:0!important;
+  filter:blur(6px) brightness(1.06)!important;
+  transform:translate3d(0,-5px,0) scale(1.055)!important;
+  visibility:visible!important;
+  animation:none!important;
+  transition:opacity .68s ease,filter .68s ease,transform .68s cubic-bezier(.22,.61,.36,1)!important;
+}
+
+/* Tooltip itself may shift to stay inside viewport; hanging keys never move. */
+.hanging-tip{max-width:calc(100vw - 28px);}

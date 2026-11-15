@@ -1,0 +1,27 @@
+/*@block [" id=\"v125\"", ""]*/
+/* v125 — set aside, the press, the threads that move with their keys, the same light everywhere */
+html body .ms-grp.is-later .ms-print{width:84px!important}
+html body .ms-grp.is-later .ms-print img{height:68px!important}
+.ms-print .ms-aside{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);opacity:0;transition:opacity .35s ease;appearance:none;border:0;background:rgba(40,26,16,.72);color:#f6e8d2;border-radius:10px;padding:3px 9px;font:italic 13px 'CormorantCy',Georgia,serif;white-space:nowrap;cursor:pointer}
+.ms-print:hover .ms-aside{opacity:1}
+/* one press for every key: it sinks a little */
+html body .shell .wp-keys .key:active,html body .shell .bd-rail-key:active,html body .book-preview-layout-hanger .key:active{translate:0 3px}
+/* «показать в книге» and «До книги»: the thread is part of the key, so it swings with it */
+html body .shell.oc-w .wp-keys.k-closed::before,html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item:has([data-rail="tips"])::before{display:none!important}
+.oc-thr{position:absolute;left:50%;bottom:100%;width:1px;height:var(--oc-ky,30px);transform:translateX(-.5px);background:linear-gradient(to bottom,rgba(87,65,47,0),rgba(87,65,47,.5));pointer-events:none;z-index:0}
+.shell.is-night .oc-thr{background:linear-gradient(to bottom,rgba(245,225,198,0),rgba(245,225,198,.34))}
+.shell:not(.oc-w) .oc-thr,.shell.is-book-preview .bd-rail .oc-thr{display:none}
+html body .shell.oc-w:not(.is-book-preview) .bd-rail-key[data-rail="tips"],html body .shell.oc-w .wp-keys.k-closed .key{transform-origin:50% calc(-1 * var(--oc-ky,30px))!important}
+/* the same light on them as on the keys above */
+html body .shell.oc-w .wp-keys.k-closed .key::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"]::before{transition:box-shadow .9s cubic-bezier(.4,0,.2,1)!important}
+html body .shell.oc-w .wp-keys.k-closed .key:hover::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"]:hover::before{box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),0 0 0 1px rgba(255,200,140,.85),0 0 14px 3px rgba(255,150,60,.5),0 0 34px 9px rgba(255,120,40,.2)!important}
+html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"].is-active::before{box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),0 0 0 1px rgba(255,200,140,.85),0 0 14px 3px rgba(255,150,60,.72),0 0 34px 9px rgba(255,120,40,.3)!important}
+/* a photo card open on the sheet: the question steps aside */
+html body .shell.oc-card .writing-prompt,html body .shell.oc-card .writing-prompt-restore{opacity:0!important;pointer-events:none!important;transition:opacity .5s ease!important}
+/* the years that run back behind the second hand, on the first opening */
+.oc-years{position:fixed;z-index:13;pointer-events:none;width:0;height:0}
+.oc-years i{position:absolute;font:italic 13px 'CormorantCy',Georgia,serif;color:#f2e0c2;transform:translate(-50%,-50%);opacity:0;white-space:nowrap;animation:ocYear 1.5s ease forwards}
+.shell:not(.is-night)~.oc-years i{color:#3b2a1c}
+@keyframes ocYear{0%{opacity:0}18%{opacity:.85}100%{opacity:0;filter:blur(1.5px)}}
+.oc-years b{position:absolute;left:0;top:0;width:96px;height:1px;transform-origin:0 50%;background:linear-gradient(to right,rgba(242,224,194,.65),rgba(242,224,194,0));}
+.shell:not(.is-night)~.oc-years b{background:linear-gradient(to right,rgba(59,42,28,.55),rgba(59,42,28,0))}

@@ -33,7 +33,7 @@ if(![1,2,3,4].every(n=>used.has(`data:image/jpeg;base64,p${n}`)))fail('The fourt
 if(result.pages.some(page=>page.kind==='intro'||String(page.text||'').includes('Скрытое вступление')))fail('Disabled page returned after rebuild');
 if(result.pages.some(page=>!page.sectionTitle&&page.showHeading===true))fail('Continuation received an episode heading');
 
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
 if(!/pendingPhotoReplaceTarget/.test(sheet)||!/block\.src=rec\.src/.test(sheet))fail('Photo replacement is not bound to the original photo object');
 if(!/removeEmptyUserSheet/.test(sheet)||!/900\)/.test(sheet))fail('Empty user sheets are not removed after edit settles');

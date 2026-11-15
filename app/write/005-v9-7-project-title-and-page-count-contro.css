@@ -1,0 +1,393 @@
+/*@block ["", ""]*/
+/* v9.7 — project title and page-count controls follow the same night palette */
+.project-key,
+.pages-child .key{
+  transition:
+    color 2.45s cubic-bezier(.37,0,.63,1),
+    filter 2.45s cubic-bezier(.37,0,.63,1);
+}
+.project-name{
+  z-index:5;
+  transition:
+    color 2.45s cubic-bezier(.37,0,.63,1),
+    text-shadow .34s ease;
+}
+.page-number{
+  z-index:5;
+  transition:
+    color 2.45s cubic-bezier(.37,0,.63,1),
+    text-shadow .34s ease;
+}
+
+.project-night-metal,
+.project-night-face,
+.page-night-metal,
+.page-night-face{
+  position:absolute;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
+}
+
+.project-night-metal{
+  inset:0;
+  z-index:3;
+  border-radius:18px;
+  background:linear-gradient(145deg,#51483f 0%,#3d3731 27%,#2d2925 68%,#211e1b 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,235,205,.10),
+    inset 0 -1px 0 rgba(0,0,0,.72),
+    0 2px 0 rgba(16,12,9,.74),
+    0 4px 8px rgba(0,0,0,.34);
+}
+.project-night-face{
+  inset:2px;
+  z-index:4;
+  border-radius:16px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 38%),
+    linear-gradient(180deg,#292622 0%,#23211e 43%,#1e1c19 72%,#191714 100%);
+  box-shadow:
+    inset 0 4px 5px rgba(0,0,0,.46),
+    inset 0 2px 2px rgba(0,0,0,.56),
+    inset 0 -1px 0 rgba(255,224,184,.05),
+    inset 0 0 0 1px rgba(24,17,13,.82);
+}
+
+.page-night-metal{
+  inset:0;
+  z-index:2;
+  border-radius:50%;
+  background:linear-gradient(145deg,#51483f 0%,#3d3731 25%,#2d2925 64%,#211e1b 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,235,205,.10),
+    inset 0 -1px 0 rgba(0,0,0,.72),
+    0 2px 0 rgba(16,12,9,.74),
+    0 4px 7px rgba(0,0,0,.32);
+}
+.page-night-face{
+  inset:2px;
+  z-index:3;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 53%,rgba(255,255,255,.025) 0%,rgba(255,255,255,.01) 24%,transparent 47%),
+    radial-gradient(circle at 50% 50%,#292622 0%,#23211e 43%,#1e1c19 72%,#191714 100%);
+  box-shadow:
+    inset 0 4px 5px rgba(0,0,0,.46),
+    inset 0 2px 2px rgba(0,0,0,.58),
+    inset 0 -1px 0 rgba(255,224,184,.05),
+    inset 0 0 0 1px rgba(24,17,13,.82);
+}
+
+.shell.is-night .project-night-metal,
+.shell.is-night .project-night-face,
+.shell.is-night .page-night-metal,
+.shell.is-night .page-night-face{
+  opacity:1;
+}
+
+.shell.is-night .project-key,
+.shell.is-night .pages-child .key{
+  color:#c7a77f;
+}
+
+.shell.is-night .project-name,
+.shell.is-night .page-number{
+  color:#c7a77f;
+}
+
+/* Keep hover behavior restrained: text/number only get a subtle warm lift */
+.shell.is-night .project-key:hover .project-name,
+.shell.is-night .pages-child .key:hover .page-number{
+  color:#ffd39a;
+  text-shadow:
+    0 0 3px rgba(255,211,154,.72),
+    0 0 8px rgba(239,156,65,.38);
+}
+
+
+/* ===== editor paper + keyboard merge v10 ===== */
+.project-night-metal,
+.project-night-face,
+.page-night-metal,
+.page-night-face{display:none !important;}
+
+.project-key{
+  min-width:340px;
+  height:52px;
+  border-radius:999px;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.16));
+}
+.project-key::before{
+  background:
+    radial-gradient(circle at 29% 16%,rgba(255,245,224,.78) 0 1px,transparent 1.8px),
+    linear-gradient(145deg,#e9cfaa 0%,#c79a68 18%,#9a6c48 39%,#d4ad7b 58%,#8a6242 77%,#4b3324 100%);
+  box-shadow:
+    0 1px 0 rgba(255,236,207,.34) inset,
+    0 -1px 0 rgba(53,35,23,.56) inset,
+    0 3px 0 rgba(55,36,24,.78),
+    0 5px 7px rgba(0,0,0,.18);
+}
+.project-key::after{
+  inset:2px;
+  border-radius:999px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.035) 13%,transparent 27%),
+    linear-gradient(180deg,#eadcc2 0%,#e5d3b5 39%,#dcc49f 70%,#cfb184 100%);
+  box-shadow:
+    0 4px 5px rgba(0,0,0,.36) inset,
+    0 2px 2px rgba(0,0,0,.44) inset,
+    0 -1px 0 rgba(255,224,184,.06) inset,
+    0 0 0 1px rgba(24,17,13,.84) inset;
+}
+.shell.is-night .project-key::after{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.018) 0%,rgba(255,255,255,.006) 13%,transparent 26%),
+    linear-gradient(180deg,#24221f 0%,#22201d 39%,#1f1d1a 70%,#1c1a17 100%);
+  box-shadow:
+    0 4px 5px rgba(0,0,0,.46) inset,
+    0 2px 2px rgba(0,0,0,.58) inset,
+    0 -1px 0 rgba(255,224,184,.045) inset,
+    0 0 0 1px rgba(24,17,13,.90) inset;
+}
+.project-name{font-size:19px;letter-spacing:.02em;}
+.pages-child .key{
+  --size:44px;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.17));
+}
+
+.editor-stage{
+  position:absolute;
+  left:50%;
+  top:55%;
+  transform:translate(-50%,-50%);
+  z-index:16;
+  width:min(95vw,1120px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+  pointer-events:none;
+}
+.editor-paper-wrap,
+.editor-keyboard-wrap{
+  opacity:0;
+  will-change:transform, opacity, filter;
+}
+.editor-paper-wrap{
+  position:relative;
+  width:min(44vw,760px);
+  min-width:600px;
+  transform:translateY(92px);
+  transition:transform 1.15s cubic-bezier(.18,.78,.24,1), opacity .95s cubic-bezier(.18,.78,.24,1);
+}
+.editor-keyboard-wrap{
+  width:min(66vw,930px);
+  min-width:690px;
+  transform:translateY(122px);
+  transition:transform 1.2s cubic-bezier(.18,.78,.24,1) .08s, opacity 1s cubic-bezier(.18,.78,.24,1) .08s, filter 2.45s cubic-bezier(.37,0,.63,1);
+  filter:drop-shadow(0 10px 14px rgba(0,0,0,.13));
+  pointer-events:auto;
+}
+.shell.is-open .editor-paper-wrap,
+.shell.is-open .editor-keyboard-wrap{
+  opacity:1;
+}
+.shell.is-open .editor-paper-wrap{
+  animation: editorPaperEnter 1.15s cubic-bezier(.18,.78,.24,1) .95s both;
+}
+.shell.is-open .editor-keyboard-wrap{
+  animation: editorKeyboardEnter 1.2s cubic-bezier(.18,.78,.24,1) 1.25s both;
+}
+@keyframes editorPaperEnter{
+  from{opacity:0;transform:translateY(95px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes editorKeyboardEnter{
+  from{opacity:0;transform:translateY(125px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.shell.is-night .editor-keyboard-wrap{filter:drop-shadow(0 14px 18px rgba(0,0,0,.26));}
+.editor-paper{
+  position:relative;
+  width:100%;
+  aspect-ratio:210/297;
+  border-radius:2px;
+  background:linear-gradient(180deg,#fffefa 0%,#fbf7f0 42%,#f3eadc 100%);
+  box-shadow:
+    22px 28px 38px rgba(61,42,24,.16),
+    9px 11px 16px rgba(61,42,24,.10),
+    0 1px 0 rgba(255,255,255,.86) inset,
+    0 0 0 1px rgba(110,88,64,.05);
+  transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1), background 2.45s cubic-bezier(.37,0,.63,1);
+}
+.editor-paper::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,.07) 22%,rgba(0,0,0,0) 60%);
+  opacity:.46;
+}
+.editor-paper::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;
+  background:
+    linear-gradient(100deg,
+      rgba(255,229,185,.26) 0%,
+      rgba(255,226,178,.21) 18%,
+      rgba(255,223,172,.12) 34%,
+      rgba(255,222,170,.05) 48%,
+      rgba(100,64,32,.05) 68%,
+      rgba(52,30,13,.12) 86%,
+      rgba(24,12,6,.17) 100%),
+    linear-gradient(98deg,
+      rgba(240,229,211,.15) 0%,
+      rgba(238,226,208,.13) 22%,
+      rgba(229,215,196,.10) 62%,
+      rgba(216,199,181,.08) 100%);
+  transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
+}
+.shell.is-night .editor-paper::after{opacity:1;}
+.editor-paper-shadow{
+  position:absolute;left:50%;bottom:-26px;width:114%;height:64px;border-radius:50%;
+  transform:translateX(-42%);
+  background:radial-gradient(ellipse at center,
+    rgba(48,28,14,.30) 0%,
+    rgba(48,28,14,.20) 36%,
+    rgba(48,28,14,.10) 56%,
+    rgba(48,28,14,0) 82%);
+  filter:blur(16px);
+  opacity:.86;
+  transition:transform 2.45s cubic-bezier(.37,0,.63,1),opacity 2.45s cubic-bezier(.37,0,.63,1),background 2.45s cubic-bezier(.37,0,.63,1),filter 2.45s cubic-bezier(.37,0,.63,1);
+}
+.shell.is-night .editor-paper{
+  box-shadow:
+    24px 28px 42px rgba(0,0,0,.36),
+    10px 12px 24px rgba(86,54,26,.19),
+    0 1px 0 rgba(255,246,228,.18) inset,
+    0 0 0 1px rgba(91,64,37,.08);
+}
+.shell.is-night .editor-paper-shadow{
+  transform:translateX(-39%);
+  opacity:.98;
+  filter:blur(17px);
+  background:radial-gradient(ellipse at center,
+    rgba(0,0,0,.42) 0%,
+    rgba(0,0,0,.28) 36%,
+    rgba(0,0,0,.14) 58%,
+    rgba(0,0,0,0) 84%);
+}
+.editor-keyboard{width:100%;position:relative;transform:scale(.83);transform-origin:center top;}
+.editor-row{display:flex;justify-content:center;gap:15px;margin-top:6px;position:relative;}
+.editor-row:first-child{margin-top:0}
+.editor-row.r2{transform:translateX(-12px)}
+.editor-row.r3{transform:translateX(0)}
+.editor-row.r4{transform:translateX(-1px)}
+.editor-row.r5{transform:translateX(0);margin-top:10px}
+.editor-key{
+  --w:46px;--h:46px;
+  width:var(--w);height:var(--h);flex:0 0 auto;border:0;padding:0;border-radius:50%;
+  position:relative;background:transparent;color:var(--ink);cursor:pointer;outline:none;
+  -webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation;
+  transform:translateY(0) scale(1);transform-origin:50% 75%;
+  transition:transform 60ms cubic-bezier(.2,.9,.25,1),filter 70ms ease,color 2.45s cubic-bezier(.37,0,.63,1);
+  will-change:transform;
+}
+.editor-key.wide{border-radius:999px;--w:84px}
+.editor-key.space{--w:330px;--h:46px;border-radius:999px}
+.editor-key::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:
+    radial-gradient(circle at 29% 16%,rgba(255,245,224,.78) 0 1px,transparent 1.8px),
+    linear-gradient(145deg,#e9cfaa 0%,#c79a68 18%,#9a6c48 39%,#d4ad7b 58%,#8a6242 77%,#4b3324 100%);
+  box-shadow:
+    0 1px 0 rgba(255,236,207,.34) inset,
+    0 -1px 0 rgba(53,35,23,.56) inset,
+    0 3px 0 rgba(55,36,24,.78),
+    0 5px 7px rgba(0,0,0,.20);
+  transition:box-shadow 60ms ease,filter 60ms ease,transform 60ms cubic-bezier(.2,.9,.25,1);
+}
+.editor-key::after{
+  content:"";position:absolute;inset:2px;border-radius:inherit;
+  background:
+    radial-gradient(circle at 50% 50%,transparent 0 76%,rgba(120,88,55,.16) 76.5%,rgba(92,65,40,.30) 82%,rgba(78,54,34,.38) 87%,transparent 88%),
+    radial-gradient(circle at 50% 54%,rgba(255,255,255,.22) 0%,rgba(255,255,255,.08) 24%,transparent 48%),
+    radial-gradient(circle at 50% 50%,#eadcc2 0%,#e5d3b5 40%,#dcc49f 70%,#cfb184 100%);
+  box-shadow:
+    0 5px 6px rgba(0,0,0,.44) inset,
+    0 2px 2px rgba(0,0,0,.54) inset,
+    0 -1px 0 rgba(255,224,184,.065) inset,
+    0 0 0 1px rgba(24,17,13,.90) inset;
+  transition:box-shadow 60ms ease,background 60ms ease,transform 60ms cubic-bezier(.2,.9,.25,1);
+}
+.editor-key .night-face{
+  position:absolute;inset:2px;z-index:2;border-radius:inherit;opacity:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 50%,transparent 0 76%,rgba(20,15,12,.25) 76.5%,rgba(9,7,6,.88) 82%,rgba(18,13,10,.96) 87%,transparent 88%),
+    radial-gradient(circle at 50% 54%,rgba(255,255,255,.028) 0%,rgba(255,255,255,.012) 24%,transparent 48%),
+    radial-gradient(circle at 50% 50%,#24221f 0%,#22201d 40%,#1f1d1a 70%,#1c1a17 100%);
+  box-shadow:
+    0 5px 6px rgba(0,0,0,.48) inset,
+    0 2px 2px rgba(0,0,0,.64) inset,
+    0 -1px 0 rgba(255,224,184,.075) inset,
+    0 0 0 1px rgba(24,17,13,.92) inset;
+  transition:opacity 2.45s cubic-bezier(.37,0,.63,1),transform 60ms cubic-bezier(.2,.9,.25,1);
+}
+.shell.is-night .editor-key .night-face{opacity:1}
+.shell.is-night .editor-key{color:var(--ink-night)}
+.editor-cap{
+  position:absolute;inset:6px;z-index:3;display:flex;align-items:center;justify-content:center;text-align:center;
+  border-radius:inherit;font-size:16px;line-height:.95;letter-spacing:.2px;
+  text-shadow:0 1px 0 rgba(255,255,255,.24),0 1px 2px rgba(86,58,35,.10);
+  transition:transform 70ms ease,color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1);
+}
+.shell.is-night .editor-cap{text-shadow:0 1px 0 rgba(255,239,205,.06),0 2px 4px rgba(0,0,0,.22),0 -1px 0 rgba(0,0,0,.72)}
+.editor-key.smalltxt .editor-cap{font-size:12px;font-family:Arial,Helvetica,sans-serif;letter-spacing:.3px}
+.editor-key.num .editor-cap{font-size:14px;line-height:1.02}
+.editor-key.arrow .editor-cap{font-size:19px}
+.editor-key.space .editor-cap{font-size:0}
+.editor-key.wide::after,
+.editor-key.space::after{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.11) 0%,rgba(255,255,255,.035) 13%,transparent 27%),
+    linear-gradient(180deg,#eadcc2 0%,#e5d3b5 39%,#dcc49f 70%,#cfb184 100%);
+  box-shadow:
+    0 4px 5px rgba(0,0,0,.36) inset,
+    0 2px 2px rgba(0,0,0,.44) inset,
+    0 -1px 0 rgba(255,224,184,.06) inset,
+    0 0 0 1px rgba(24,17,13,.84) inset;
+}
+.editor-key.wide .night-face,
+.editor-key.space .night-face{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.018) 0%,rgba(255,255,255,.006) 13%,transparent 26%),
+    linear-gradient(180deg,#24221f 0%,#22201d 39%,#1f1d1a 70%,#1c1a17 100%);
+  box-shadow:
+    0 4px 5px rgba(0,0,0,.46) inset,
+    0 2px 2px rgba(0,0,0,.58) inset,
+    0 -1px 0 rgba(255,224,184,.045) inset,
+    0 0 0 1px rgba(24,17,13,.90) inset;
+}
+.editor-key.pressed{transform:translateY(4px) scale(.993);filter:brightness(.96);}
+.editor-key.pressed::before{transform:translateY(1px);filter:brightness(.92);box-shadow:0 1px 0 rgba(248,220,180,.16) inset,0 -1px 0 rgba(26,18,12,.78) inset,0 1px 0 rgba(49,31,19,.96),0 2px 4px rgba(0,0,0,.20);}
+.editor-key.pressed::after,.editor-key.pressed .night-face{transform:translateY(1px)}
+.editor-key.pressed .editor-cap{transform:translateY(1px)}
+.editor-key.rebound{animation:editorKeyRebound 145ms cubic-bezier(.15,.75,.2,1)}
+@keyframes editorKeyRebound{0%{transform:translateY(4px) scale(.993)}52%{transform:translateY(-1px) scale(1.004)}100%{transform:translateY(0) scale(1)}}
+@media(max-width:1200px){
+  .editor-paper-wrap{width:min(50vw,700px);min-width:500px}
+  .editor-keyboard-wrap{width:min(74vw,840px);min-width:580px}
+  .editor-keyboard{transform:scale(.74)}
+}
+@media(max-width:900px){
+  .editor-stage{top:58%;gap:12px;width:min(96vw,920px)}
+  .editor-paper-wrap{width:min(74vw,560px);min-width:0}
+  .editor-keyboard-wrap{width:min(94vw,760px);min-width:0}
+  .editor-keyboard{transform:scale(.70)}
+  .editor-row{gap:9px}
+  .editor-key{--w:38px;--h:38px}
+  .editor-key.wide{--w:70px}
+  .editor-key.space{--w:250px;--h:38px}
+  .editor-cap{font-size:13px}
+  .editor-key.smalltxt .editor-cap{font-size:10px}
+  .editor-key.num .editor-cap{font-size:11px}
+  .editor-key.arrow .editor-cap{font-size:16px}
+}
+

@@ -1,0 +1,68 @@
+/*@block [" id=\"v121-preview-motion-format\"", ""]*/
+/* Slow, readable workspace exit/return in both directions. */
+.shell .mode-controls,
+.shell .project-actions,
+.shell .project-top,
+.shell .power-dock,
+.shell .book-map-shell,
+.shell .book-design-shell,
+.shell .writing-prompt,
+.shell .writing-prompt-restore,
+.shell .editor-paper-wrap,
+.shell .editor-keyboard-wrap{
+  transition-property:transform,opacity,top,filter !important;
+  transition-duration:1.18s, .82s, 1.18s, .78s !important;
+  transition-timing-function:cubic-bezier(.20,.72,.20,1),ease,cubic-bezier(.20,.72,.20,1),ease !important;
+}
+.shell.is-book-preview .mode-controls,
+.shell.is-book-preview .project-actions,
+.shell.is-book-preview .project-top,
+.shell.is-book-preview .power-dock{
+  transition-duration:1.22s,.88s,1.22s,.8s !important;
+}
+.shell.is-book-preview .book-map-shell,
+.shell.is-book-preview .book-design-shell{
+  transition-duration:1.28s,.92s,1.28s,.8s !important;
+}
+.shell.is-book-preview .editor-paper-wrap{
+  transition-duration:1.16s,.82s,1.16s,.7s !important;
+}
+.shell.is-book-preview .editor-keyboard-wrap{
+  transition-duration:1.24s,.86s,1.24s,.72s !important;
+}
+
+/* Preview uses the vacated workspace: larger, but still fits portrait/square/landscape formats. */
+.book-preview-stage{
+  width:min(96vw,1940px) !important;
+  max-width:96vw !important;
+  max-height:92vh !important;
+  padding:32px 54px 38px !important;
+  transition:transform 1.18s cubic-bezier(.20,.72,.20,1),opacity .82s ease !important;
+}
+.book-preview-modal.open .book-preview-stage{
+  transition-duration:1.18s,.82s !important;
+}
+.book-preview-modal.is-closing .book-preview-stage{
+  transition-duration:1.18s,.82s !important;
+}
+.book-preview-spread{
+  width:100%;
+  max-width:100%;
+  max-height:84vh !important;
+  transition:opacity .58s ease,transform .72s cubic-bezier(.20,.72,.20,1) !important;
+}
+.book-preview-spread.page-out-next{transform:translateX(-76px) scale(.994);opacity:0}
+.book-preview-spread.page-out-prev{transform:translateX(76px) scale(.994);opacity:0}
+.book-preview-spread.page-in-next{animation:v121PageInNext .72s cubic-bezier(.20,.72,.20,1) both !important}
+.book-preview-spread.page-in-prev{animation:v121PageInPrev .72s cubic-bezier(.20,.72,.20,1) both !important}
+@keyframes v121PageInNext{from{opacity:0;transform:translateX(76px) scale(.994)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes v121PageInPrev{from{opacity:0;transform:translateX(-76px) scale(.994)}to{opacity:1;transform:translateX(0) scale(1)}}
+
+/* Format-aware spread geometry. No fake board/shadow: only the fold line. */
+.book-preview-spread[data-format="wide"]{max-height:72vh !important}
+.book-preview-spread[data-format="square"]{max-height:82vh !important}
+.book-preview-spread::after{width:1px !important;background:rgba(72,58,44,.24) !important}
+.book-preview-half,.book-preview-spread{box-shadow:none !important;background:transparent !important}
+
+/* Right-panel cards now visibly follow the selected book format. */
+.bd-spread-card{transition:aspect-ratio .62s cubic-bezier(.20,.72,.20,1),transform .32s cubic-bezier(.2,.8,.3,1),box-shadow .32s ease !important}

@@ -1,0 +1,23 @@
+/*@block [" id=\"v35-host-integration\"", ""]*/
+.editor-paper-wrap{overflow:visible!important}
+.editor-paper.v35-host-paper{
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  overflow:visible!important;
+}
+.editor-paper.v35-host-paper::before,.editor-paper.v35-host-paper::after{display:none!important}
+.v35-sheet-frame{
+  position:absolute;
+  z-index:12;
+  border:0;
+  background:transparent;
+  width:calc(100% + 1440px);
+  height:calc(100% + 180px);
+  left:-720px;
+  top:-90px;
+  overflow:visible;
+  pointer-events:auto;
+}
+/* old paper shadow is no longer needed: v35 carries its own physical shadow */
+.editor-paper-wrap>.editor-paper-shadow{display:none!important}

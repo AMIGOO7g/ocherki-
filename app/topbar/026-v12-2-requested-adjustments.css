@@ -1,0 +1,225 @@
+/*@block ["", ""]*/
+/* v12.2 requested adjustments */
+/* move player group and project group to the right like in the reference */
+.project-top{transform:translateX(calc(-50% + 170px)) !important;}
+.project-key,.pages-child{transform:none !important;}
+.transport-group{transform:translateX(112px) !important;}
+
+/* synchronize day/night transition for project title + page count with all other top icons */
+.key,.project-key,.pages-child .key,.project-name,.page-number,
+.key::before,.key::after,.project-key::before,.project-key::after,.pages-child .key::before,.pages-child .key::after{
+  transition:
+    color 1.55s cubic-bezier(.37,0,.63,1),
+    background 1.55s cubic-bezier(.37,0,.63,1),
+    box-shadow 1.55s cubic-bezier(.37,0,.63,1),
+    filter 1.55s cubic-bezier(.37,0,.63,1),
+    opacity 1.55s cubic-bezier(.37,0,.63,1),
+    transform 60ms cubic-bezier(.2,.9,.25,1);
+}
+
+/* keep night face of project title + page count in sync with the rest */
+.shell.is-night .project-key::after,
+.shell.is-night .pages-child .key::after{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.006) 24%,transparent 46%),
+    linear-gradient(180deg,#24221f 0%,#22201d 43%,#1f1d1a 72%,#1c1a17 100%) !important;
+}
+.shell.is-night .project-key::before,
+.shell.is-night .pages-child .key::before{filter:brightness(.42) !important;}
+.shell.is-night .project-name,
+.shell.is-night .page-number{color:#c7a77f !important;}
+
+/* remove the dark band from the bottom of the sheet itself */
+.editor-paper::after{
+  background:
+    linear-gradient(100deg,
+      rgba(255,229,185,.18) 0%,
+      rgba(255,226,178,.14) 18%,
+      rgba(255,223,172,.08) 34%,
+      rgba(255,222,170,.03) 48%,
+      rgba(100,64,32,.015) 70%,
+      rgba(52,30,13,.04) 100%),
+    linear-gradient(98deg,
+      rgba(240,229,211,.08) 0%,
+      rgba(238,226,208,.06) 22%,
+      rgba(229,215,196,.045) 62%,
+      rgba(216,199,181,.035) 100%) !important;
+}
+
+/* stronger right/down shadow under the sheet, but not touching the sheet edge */
+.editor-paper{
+  box-shadow:
+    30px 34px 48px rgba(61,42,24,.22),
+    12px 16px 22px rgba(61,42,24,.12),
+    0 1px 0 rgba(255,255,255,.86) inset,
+    0 0 0 1px rgba(110,88,64,.05) !important;
+}
+.shell.is-night .editor-paper{
+  box-shadow:
+    32px 36px 54px rgba(0,0,0,.44),
+    13px 18px 28px rgba(86,54,26,.23),
+    0 1px 0 rgba(255,246,228,.18) inset,
+    0 0 0 1px rgba(91,64,37,.08) !important;
+}
+.editor-paper-shadow{
+  bottom:-42px !important;
+  width:128% !important;
+  height:92px !important;
+  transform:translateX(-35%) !important;
+  filter:blur(20px) !important;
+  background:radial-gradient(ellipse at center,
+    rgba(35,20,10,.44) 0%,
+    rgba(35,20,10,.30) 36%,
+    rgba(35,20,10,.16) 60%,
+    rgba(35,20,10,0) 86%) !important;
+}
+.shell.is-night .editor-paper-shadow{
+  bottom:-44px !important;
+  transform:translateX(-33%) !important;
+  filter:blur(22px) !important;
+  background:radial-gradient(ellipse at center,
+    rgba(0,0,0,.60) 0%,
+    rgba(0,0,0,.42) 36%,
+    rgba(0,0,0,.22) 60%,
+    rgba(0,0,0,0) 88%) !important;
+}
+
+@media(max-width:900px){
+  .project-top{transform:translateX(calc(-50% + 108px)) !important;}
+  .transport-group{transform:translateX(62px) !important;}
+}
+
+/*@block [" id=\"v13-project-redraw\"", "\n\n\n"]*/
+/* FINAL redraw: project title + page count are the same mechanical family as all hanging controls */
+.project-top{
+  left:auto !important;
+  right:335px !important;
+  top:44px !important;
+  transform:none !important;
+}
+.project-hanger{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  transform-origin:50% -58px !important;
+  will-change:transform;
+}
+.project-key,
+.pages-child{ transform:none !important; }
+
+/* Player controls are a visibly separate group after Sun */
+.mode-controls .transport-first{ margin-left:42px !important; }
+
+.project-key{
+  position:relative;
+  width:340px;
+  min-width:340px !important;
+  height:50px;
+  padding:0;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:var(--ink);
+  cursor:pointer;
+  outline:none;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.17));
+  transition:transform 60ms cubic-bezier(.2,.9,.25,1),filter .18s ease,color .34s ease !important;
+}
+.project-key::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:999px !important;
+  background:linear-gradient(145deg,var(--metal1) 0%,var(--metal2) 24%,var(--metal3) 62%,var(--metal4) 100%) !important;
+  box-shadow:inset 0 1px 0 rgba(255,246,228,.35),inset 0 -1px 0 rgba(63,43,29,.42),0 2px 0 rgba(62,42,29,.56),0 4px 6px rgba(0,0,0,.15) !important;
+  filter:none !important;
+}
+.project-key::after{
+  content:"";
+  position:absolute;
+  inset:2px;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.035) 20%,transparent 40%),linear-gradient(180deg,var(--face1),var(--face2) 43%,var(--face3) 72%,var(--face4)) !important;
+  box-shadow:inset 0 4px 5px rgba(0,0,0,.28),inset 0 1px 1px rgba(0,0,0,.34),inset 0 -1px 0 rgba(255,230,194,.10),inset 0 0 0 1px rgba(73,52,35,.34) !important;
+}
+.project-cap{
+  position:absolute;
+  inset:2px;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  overflow:hidden;
+}
+/* Same dimmer mechanism as .key .cap::before */
+.project-cap::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  border-radius:999px;
+  opacity:0;
+  background:linear-gradient(180deg,#25221e 0%,#211f1c 44%,#1d1b18 72%,#191714 100%);
+  box-shadow:inset 0 4px 5px rgba(0,0,0,.42),inset 0 2px 2px rgba(0,0,0,.52),inset 0 0 0 1px rgba(24,17,13,.72);
+  transition:opacity 2.45s cubic-bezier(.37,0,.63,1) !important;
+  pointer-events:none;
+}
+.shell.is-night .project-cap::before{opacity:1;}
+.shell.is-night .project-key::after{
+  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.035) 20%,transparent 40%),linear-gradient(180deg,var(--face1),var(--face2) 43%,var(--face3) 72%,var(--face4)) !important;
+  box-shadow:inset 0 4px 5px rgba(0,0,0,.28),inset 0 1px 1px rgba(0,0,0,.34),inset 0 -1px 0 rgba(255,230,194,.10),inset 0 0 0 1px rgba(73,52,35,.34) !important;
+}
+.project-name{
+  position:relative;
+  z-index:2;
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  font-size:18px;
+  color:currentColor;
+  letter-spacing:.02em;
+  transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow .34s ease !important;
+}
+.shell.is-night .project-key{color:var(--ink-night) !important;}
+
+/* Page count is now literally the same .key + .cap construction as every round icon */
+.pages-child{margin-top:24px !important;transform-origin:50% -24px !important;will-change:transform;}
+.pages-child::before{top:-24px !important;height:24px !important;}
+.pages-child .key{--size:46px !important;filter:drop-shadow(0 7px 10px rgba(0,0,0,.17)) !important;}
+.pages-child .key::before{filter:none !important;}
+.pages-child .cap{inset:5px !important;}
+.pages-child .cap::before{transition:opacity 2.45s cubic-bezier(.37,0,.63,1) !important;}
+.page-number{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  font-weight:600;
+  color:currentColor;
+  pointer-events:none;
+  transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow .34s ease !important;
+}
+.shell.is-night .pages-child .key{color:var(--ink-night) !important;}
+
+/* remove legacy night helper layers completely */
+.project-night-metal,.project-night-face,.page-night-metal,.page-night-face{display:none !important;}
+
+/* Slightly larger paper now that the top-center is free */
+.editor-paper-wrap{width:min(48vw,820px) !important;min-width:620px !important;}
+.editor-stage{top:54.3% !important;}
+
+@media(max-width:1200px){
+  .project-top{right:270px !important;}
+  .project-key{width:300px;min-width:300px !important;}
+  .mode-controls .transport-first{margin-left:30px !important;}
+  .editor-paper-wrap{width:min(52vw,740px) !important;min-width:520px !important;}
+}
+@media(max-width:900px){
+  .project-top{right:190px !important;top:34px !important;}
+  .project-key{width:250px;min-width:250px !important;}
+  .mode-controls .transport-first{margin-left:20px !important;}
+  .editor-paper-wrap{width:min(76vw,590px) !important;min-width:0 !important;}
+}

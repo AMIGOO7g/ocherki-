@@ -1,0 +1,13 @@
+/*@block [" id=\"ms-ghost-v102\"", ""]*/
+html body .ms-sheet.is-ghost .ms-paper{background:rgba(255,248,235,.05)!important;box-shadow:none!important;border:1px solid rgba(255,230,190,.3)!important;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .4s,border-color .4s}
+html body .ms-screen:not(.is-night) .ms-sheet.is-ghost .ms-paper{background:rgba(255,250,240,.22)!important;border-color:rgba(90,60,35,.32)!important}
+html body .ms-sheet.is-ghost:hover .ms-paper{background:rgba(255,248,235,.16)!important;border-color:rgba(255,217,154,.7)!important}
+.ms-sheet.is-ghost .gh-t{text-align:center;font:30px/1.15 'SignThatS',cursive;color:rgba(255,236,206,.82)}
+.ms-screen:not(.is-night) .ms-sheet.is-ghost .gh-t{color:rgba(58,42,28,.8)}
+.ms-sheet.is-ghost .gh-t small{display:block;margin-top:10px;font:italic 15px 'CormorantCy',Georgia,serif;opacity:.75}
+.ms-sheet.is-ghost.is-adding .ms-paper{background:rgba(255,248,235,.6)!important;transition:background .5s}
+.ms-sec-x{position:absolute;right:10px;top:8px;z-index:6;min-width:22px;height:22px;padding:0 6px;border-radius:11px;box-sizing:border-box;background:rgba(58,42,28,.72);color:#f6ead8;font:14px/22px Georgia,serif;text-align:center;cursor:pointer;opacity:0;transition:opacity .3s}
+.ms-sheet:hover .ms-sec-x,.ms-sec-x.is-ask{opacity:1}
+.ms-sec-x.is-ask{font:italic 13px/22px Georgia,serif;background:#7a3b2a}
+/* «Разделы книги» no longer needs its own window */
+html body .ms-add-photos.ms-sections-open{display:none!important}

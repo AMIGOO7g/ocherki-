@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const shell = fs.readFileSync(path.join(root, 'shell.html'), 'utf8');
+const shell = require('./lib/page_source.js').readPage(root,'shell.html');
 const css = fs.readFileSync(path.join(root, 'book-renderer', 'design-pack-01.css'), 'utf8');
 const fail = message => { throw new Error(message); };
 

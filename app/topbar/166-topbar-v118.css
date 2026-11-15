@@ -1,0 +1,68 @@
+/*@block [" id=\"topbar-v118\"", ""]*/
+/* v118/v120 — one top for the whole constructor: two plates («Редактура», «Архив семьи»),
+   the angel key between them, the keys of each world hanging under its plate.
+   Same metal, same slow day/night fade and the same small pendulum as the old keys. */
+.oct{position:fixed;left:0;top:0;width:720px;height:170px;z-index:2147483300;transform-origin:0 0;pointer-events:none;
+  --th1:rgba(87,65,47,.64);--th2:rgba(111,82,55,.28);--ink:#5b4633;
+  opacity:0;transition:transform 1.1s cubic-bezier(.6,.04,.3,1),opacity .6s ease;font-family:'CormorantCy',Georgia,serif}
+.oct.no-move{transition:opacity .6s ease}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.55s;animation-timing-function:cubic-bezier(.37,0,.63,1)}
+.oct.on{opacity:1}
+.oct.is-night{--th1:rgba(245,225,198,.40);--th2:rgba(245,225,198,.16)}
+.oct>*{pointer-events:auto}
+.oct .th{position:absolute;width:1px;transform:translateX(-.5px);background:linear-gradient(to bottom,var(--th1),var(--th2));pointer-events:none;transition:background 2.45s cubic-bezier(.37,0,.63,1)}
+.oct .sw{position:absolute;transform-origin:50% 0;will-change:transform;pointer-events:none}
+.oct .sw>*{pointer-events:auto}
+/* the plates */
+.oct .pl{position:absolute;left:0;bottom:0;width:100%;height:50px;border-radius:25px;border:0;padding:0;cursor:pointer;background:none;font:italic 22px 'CormorantCy',Georgia,serif;color:#3b2a1c;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+.oct.is-night .pl{color:#f2e0c2}
+.oct .pl::before{content:"";position:absolute;inset:0;border-radius:25px;background:linear-gradient(145deg,var(--metal1),var(--metal2) 27%,var(--metal3) 68%,var(--metal4));box-shadow:inset 0 1px 0 rgba(255,246,228,.35),inset 0 -1px 0 rgba(63,43,29,.42),0 8px 14px rgba(0,0,0,.22)}
+.oct .pl::after{content:"";position:absolute;inset:2px;border-radius:23px;background:linear-gradient(180deg,var(--face1),var(--face4));box-shadow:inset 0 3px 5px rgba(0,0,0,.24)}
+.oct .pl .nf{position:absolute;inset:2px;border-radius:23px;z-index:1;background:linear-gradient(180deg,var(--night1),var(--night4));box-shadow:inset 0 4px 6px rgba(0,0,0,.46);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.oct.is-night .pl .nf{opacity:1}
+.oct .pl span{position:relative;z-index:3;transition:opacity .9s ease}
+.oct .pl:not(.on) span{opacity:.6}
+.oct .pl .gl{border-radius:25px}
+/* the round keys */
+.oct .k{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:var(--s,44px);height:var(--s,44px);border-radius:50%;border:0;padding:0;background:none;cursor:pointer;color:var(--ink);transition:color 2.45s cubic-bezier(.37,0,.63,1),opacity .9s ease,transform 70ms ease}
+.oct.is-night .k{color:var(--ink-night)}
+.oct .k:active{translate:0 3px}
+.oct .k::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,var(--metal1) 0%,var(--metal2) 24%,var(--metal3) 62%,var(--metal4) 100%);box-shadow:inset 0 1px 0 rgba(255,246,228,.35),inset 0 -1px 0 rgba(63,43,29,.42),0 2px 0 rgba(62,42,29,.56),0 6px 10px rgba(0,0,0,.24)}
+.oct .k::after{content:"";position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle at 50% 53%,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 24%,transparent 47%),radial-gradient(circle at 50% 50%,var(--face1) 0%,var(--face2) 43%,var(--face3) 72%,var(--face4) 100%);box-shadow:inset 0 4px 5px rgba(0,0,0,.28),inset 0 1px 1px rgba(0,0,0,.34),inset 0 0 0 1px rgba(73,52,35,.34)}
+.oct .k .nf{position:absolute;inset:2px;border-radius:50%;z-index:1;background:radial-gradient(circle at 50% 50%,var(--night1) 0%,var(--night2) 43%,var(--night3) 72%,var(--night4) 100%);box-shadow:inset 0 4px 5px rgba(0,0,0,.46),inset 0 2px 2px rgba(0,0,0,.58),inset 0 0 0 1px rgba(24,17,13,.82);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.oct.is-night .k .nf{opacity:1}
+.oct .k .c{position:absolute;inset:0;z-index:3;display:grid;place-items:center}
+.oct .k svg{width:44%;height:44%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.oct .k img{position:absolute;left:4px;top:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;border-radius:50%;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.oct .k img.ln{opacity:0}.oct.is-night .k img.ln{opacity:1}.oct.is-night .k img.ld{opacity:0}
+/* the light: a ring inside the key, so it always moves with it; it kindles slowly */
+.oct .gl{position:absolute;inset:0;border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity .9s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 0 1.5px rgba(255,200,140,.95),0 0 14px 3px rgba(255,150,60,.75),0 0 38px 10px rgba(255,120,40,.35)}
+.oct .k:hover .gl,.oct .pl:hover .gl{opacity:.6}
+.oct .k .gl{inset:0;box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),0 0 0 1px rgba(255,200,140,.85),0 0 14px 3px rgba(255,150,60,.72),0 0 34px 9px rgba(255,120,40,.3)}
+.oct .k.glow::before,.oct .k:hover::before{box-shadow:inset 0 1px 0 rgba(255,246,228,.35),inset 0 -1px 0 rgba(63,43,29,.42);transition:box-shadow .9s ease}
+.oct .k.glow .gl{opacity:1}
+.oct .pl.on .gl{opacity:.32}
+.oct .pl .gl{box-shadow:0 0 0 1px rgba(255,200,140,.6),0 0 14px 2px rgba(255,150,60,.35)}
+.oct .k.glow .c,.oct .k:hover .c{color:#ffe2b8;transition:color .9s ease}
+.oct:not(.is-night) .k.glow .c,.oct:not(.is-night) .k:hover .c{color:#8a4510}
+/* words under the keys: the same white italic as before */
+.oct .lb{position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);white-space:pre;text-align:center;line-height:1.02;font:italic 15px 'CormorantCy',Georgia,serif;color:#f3e3c8;text-shadow:0 1px 3px rgba(0,0,0,.55);opacity:.92;pointer-events:none;transition:opacity .9s ease;z-index:4}
+.oct .lbx{position:absolute;transform:translateX(-50%);white-space:pre;text-align:center;line-height:1.02;font:italic 15px 'CormorantCy',Georgia,serif;color:#f3e3c8;text-shadow:0 1px 3px rgba(0,0,0,.55);opacity:.92;pointer-events:none;transition:opacity .9s ease}
+.oct .row.dim .k{opacity:.5}.oct .row.dim .lb,.oct .row.dim .lbx{opacity:.6}
+.oct .row.dim .k:hover{opacity:.95}
+.oct .k .pgn{font:600 14px/1 'CormorantCy',Georgia,serif;font-style:normal}
+.oct .k[data-k="pages"]{--s:40px}
+.oct .k .dot{position:absolute;right:-1px;top:-1px;z-index:4;width:8px;height:8px;border-radius:50%;background:#ffcf9a;box-shadow:0 0 7px 2px rgba(255,150,60,.75);display:none}
+.oct .k.has-new .dot{display:block}
+/* «Ещё»: four keys fall one under another; the words stand straight on their left */
+.oct .more{position:absolute;pointer-events:none}
+.oct .more .mi{position:absolute;left:0;top:0;pointer-events:none;opacity:0;transform:translateY(-26px);transition:opacity .45s ease,transform .6s cubic-bezier(.2,.8,.3,1)}
+.oct .more.on .mi{opacity:1;transform:none;pointer-events:auto}
+.oct .more .ml{position:absolute;right:34px;top:calc(var(--y) + 22px);transform:translateY(-50%);white-space:nowrap;font:italic 18px 'CormorantCy',Georgia,serif;color:#f3e3c8;text-shadow:0 1px 3px rgba(0,0,0,.55);cursor:pointer}
+.oct .more .mi.on .gl{opacity:.6}
+/* what the new top replaces */
+html body .shell.is-open:not(.is-start-screen)~.mode-switch,html body .shell.is-open:not(.is-start-screen) .mode-switch{visibility:hidden!important;pointer-events:none!important}
+html body .shell.oct-on.oct-on.oct-on .power-dock,html body .shell.oct-on.oct-on.oct-on .books-hanging,html body .shell.oct-on.oct-on.oct-on .project-actions .hanging:has(#moreKey){visibility:hidden!important;opacity:0!important;pointer-events:none!important;animation:none!important;transition:none!important}
+html body.oct-on-arch .fm-room{top:150px!important}
+body:not(.oct-book) .bd-rail-item:has(.bd-rail-key[data-rail="pdf"]){display:none!important}

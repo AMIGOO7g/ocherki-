@@ -1,0 +1,4 @@
+/*@block [" id=\"keeper-v137\"", ""]*/
+/* the Keeper's canvas lies over the page and only adds light (no z-index here: it would cut the blend off from the page) */
+.kp2{position:absolute;inset:0;pointer-events:none}
+.kp2 .kpc{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen}

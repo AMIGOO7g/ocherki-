@@ -1,0 +1,12 @@
+/*@block [" id=\"ui-v142\"", ""]*/
+/* v142 — on a narrow sheet the three keys carry their labels underneath, so they sit evenly with equal margins */
+html body .shell.oc-ktight .wp-keys.k-closed .wp-item,html body .shell.oc-ktight .book-design-shell.is-rail .bd-rail-item,html body .shell.oc-ktight .oc-add2 .it.main{position:relative}
+html body .shell.oc-ktight .wp-keys.k-closed .lab,html body .shell.oc-ktight.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item:has([data-rail="tips"]) .oc-klab,html body .shell.oc-ktight .oc-add2 .it.main .lab{position:absolute!important;left:50%!important;top:100%!important;transform:none!important;translate:-50% 5px!important;margin:0!important;text-align:center;white-space:nowrap}
+html body .oc-add2 .it.main .key{--size:46px}
+/* v142 — a smaller weight on the pendulum */
+html body .master-clock .logo-bob .oc-bob{width:28px;height:28px}
+/* the lamp: its copper ring breathes with the bulb */
+@keyframes rdRim{0%,100%{box-shadow:0 0 0 1px rgba(214,150,96,.35),0 0 0 0 rgba(255,150,60,0)}50%{box-shadow:0 0 0 1.5px rgba(255,206,150,.95),0 0 14px 3px rgba(255,150,60,.65)}}
+html body .bd-rail-key[data-rail="tips"].rd-glow{border-radius:50%;animation:rdRim 1.5s ease-in-out infinite}
+/* hanging cascades: one at a time, the closing one leaves quickly so the labels never cross */
+.oc-mus:not(.open) .mm{transition-duration:.22s,.3s!important;transition-delay:0s!important}

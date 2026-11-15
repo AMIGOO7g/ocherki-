@@ -1,0 +1,59 @@
+/*@block [" id=\"hub-v142\"", ""]*/
+/* v142 — the archive rooms */
+/* voices: every record is one size and only scales, so it grows smoothly; it turns by hand (no snapping stop) */
+.oc-hub .oc-vin{transition:transform 1.1s cubic-bezier(.22,.7,.2,1),opacity .9s ease,box-shadow .9s ease!important}
+.oc-hub .oc-vin.play .sp{animation:none!important}
+.oc-hub .oc-vin .who{scale:calc(1 / var(--k,1));transform-origin:50% 0}
+/* the equalizer glows above the record, under «Голоса» — a quiet copper line while it waits */
+.oc-hub .scr[data-view="voice"] .oc-eq.top{display:flex!important;position:absolute;left:50%;top:calc(50% - 125px - 54px);translate:-50% 0;width:300px;height:44px;margin:0;align-items:center;justify-content:center;gap:4px;opacity:.45;transition:opacity .9s ease;pointer-events:none}
+.oc-hub .scr[data-view="voice"].playing .oc-eq.top{opacity:1;height:44px;margin:0}
+.oc-hub .oc-eq.top i{width:3px;height:2px;border-radius:2px;background:linear-gradient(#fff0d4,#e8964e);box-shadow:0 0 6px rgba(255,160,70,.75),0 0 14px rgba(255,120,40,.35)}
+.oc-hub .scr[data-view="voice"] .oc-cp .s{margin-top:8px}
+.oc-hub .scr[data-view="voice"] .oc-tx{margin-top:24px!important;line-height:1.55}
+/* photos and letters turn in real depth */
+.oc-hub .scr[data-view="photo"] .oc-stage,.oc-hub .scr[data-view="letter"] .oc-stage{perspective:1600px}
+.oc-hub .oc-pr{transition:transform 1.25s cubic-bezier(.22,.7,.2,1),width 1.25s cubic-bezier(.22,.7,.2,1),height 1.25s cubic-bezier(.22,.7,.2,1),rotate .95s cubic-bezier(.45,.05,.35,1),opacity 1s ease,filter 1s ease!important}
+.oc-hub .oc-pr .bk{inset:0!important;background:linear-gradient(170deg,#f3ead8,#e6d6b8)!important}
+/* letters: the front carries only who sent it; the back is a real envelope back */
+.oc-hub .oc-env>.fr{align-items:center!important;justify-content:center!important;padding:0 24px!important;text-align:center!important}
+.oc-hub .oc-env>.fr .k{font:500 11px 'CormorantCy',Georgia,serif;letter-spacing:.34em;text-transform:uppercase;color:#8a6a48}
+.oc-hub .oc-env>.fr b{margin-top:8px!important;border:0!important;padding:0!important;min-width:0!important;font-size:34px!important}
+.oc-hub .oc-env>.fr .y{margin-top:10px;font:italic 15px 'CormorantCy',Georgia,serif;color:#7a5a3c}
+.oc-hub .oc-env>.fr .stp,.oc-hub .oc-env>.fr .to,.oc-hub .oc-env>.fr .frm{display:none!important}
+.oc-hub .oc-env>.bk2f::before{display:none!important}
+/* the turn happens before the centring shift: turning about the left edge keeps the envelope in its place */
+.oc-hub .oc-env.is-c,.oc-hub .oc-pr.is-c{transform-origin:0 50%}
+.oc-hub .oc-env>.bk2f{background:#ead9b8!important}
+.oc-hub .oc-env>.bk2f .eb{position:absolute;inset:0;width:100%;height:100%;border-radius:4px}
+.oc-hub .oc-env>.bk2f .tf,.oc-flp{position:absolute;left:0;top:0;width:100%;height:60%;clip-path:polygon(0 0,100% 0,52% 97%,50% 100%,48% 97%);background:linear-gradient(180deg,#efe0c2,#e0caa2);filter:drop-shadow(0 2px 2px rgba(80,50,25,.35))}
+.oc-hub .oc-env>.bk2f .wx,.oc-hub .oc-env>.bk2f em{top:56%!important;z-index:2}
+.oc-hub .oc-env.open>.bk2f .tf{opacity:0}
+.oc-flp{transform-origin:50% 0;display:none;pointer-events:none;border-radius:4px 4px 0 0}
+.oc-flp.on{display:block}
+.oc-lt{position:absolute;left:0;top:0;width:540px;max-height:62vh;overflow:auto;box-sizing:border-box;padding:34px 42px;background:linear-gradient(170deg,#fbf6ec,#efe3cd);box-shadow:0 24px 50px rgba(0,0,0,.5);color:#4b3424;font:24px/1.38 'SignThatS','CormorantCy',Georgia,serif;transform-origin:50% 50%;pointer-events:auto;scrollbar-width:thin}
+.oc-lt .pk{font:500 12px 'CormorantCy',Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#8a6a4c;margin-bottom:16px}
+.oc-hub .oc-env .ppr{display:none!important}
+.oc-hub .scr.reading .oc-stage{translate:none!important}
+/* «Запись»: the card goes aside and under the deck and stays there (no fading); backwards, the bottom card comes out and lies on top */
+@keyframes rcUnder{0%{transform:translate(-50%,-50%)}45%{transform:translate(calc(-50% - 520px),-46%) rotate(-11deg) scale(.95);z-index:3}55%{z-index:0}100%{transform:translate(calc(-50% - 9px),calc(-50% + 11px)) scale(.99);z-index:0}}
+.rc2-card.rc-ghost.back{animation:none!important;z-index:0}
+.rc2-card.rc-down{animation:rcDown 1.25s cubic-bezier(.45,.05,.3,1);z-index:3}
+@keyframes rcDown{0%{transform:translate(calc(-50% - 9px),calc(-50% + 11px)) scale(.99);z-index:0}45%{transform:translate(calc(-50% - 520px),-46%) rotate(-11deg) scale(.95);z-index:3}100%{transform:translate(-50%,-50%);z-index:3}}
+.rc2-card.rc-up{animation:rcUp 1.1s cubic-bezier(.2,.8,.3,1) .1s both}
+@keyframes rcUp{from{transform:translate(calc(-50% - 9px),calc(-50% + 11px)) scale(.99)}to{transform:translate(-50%,-50%)}}
+/* «Вопрос недели»: the same deck, and room to breathe between the card, the schedule and the keys */
+@keyframes wkUnder{0%{transform:none;z-index:3}45%{transform:translate(-520px,30px) rotate(-12deg) scale(.95);z-index:3}55%{z-index:0}100%{transform:translate(-9px,11px) scale(.99);z-index:0}}
+.wk2-card.ghost.stay{animation:none!important;z-index:0}
+@keyframes wkUp{from{transform:translate(-9px,11px) scale(.99)}to{transform:none}}
+@keyframes wkDown{0%{transform:translate(-9px,11px) scale(.99);z-index:0}45%{transform:translate(-520px,30px) rotate(-12deg) scale(.95);z-index:3}100%{transform:none;z-index:3}}
+html body .wk2 .wk2-who{top:37%}
+html body .wk2 .wk2-deck{top:58%}
+html body .wk2 .wk2-when{top:calc(58% + 232px)}
+html body .wk2 .wk2-nav{top:calc(58% + 266px)}
+html body .wk2 .fm-acts{top:calc(58% + 312px)}
+
+/*@block [" id=\"rooms-v142\"", "\n"]*/
+/* v142 — into a family room nothing flies over it: the sheet that would travel back to the editor is not shown */
+html.oc-to-room .ms-flyer,.shell.is-family-room ~ .ms-flyer{display:none!important}
+/* leaving the archive for another room, its cards go out quickly instead of showing through the next room */
+.oc-hub:not(.on){transition:opacity .28s ease!important}

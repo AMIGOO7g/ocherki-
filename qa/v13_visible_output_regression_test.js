@@ -76,7 +76,7 @@ const documentHtml=renderer.renderPage({kind:'document',layout:'document-letter'
 if(!/dpk-document-transcript/.test(documentHtml)||!/Архивный документ/.test(documentHtml))fail('Text-only document does not use the transcription master');
 
 const engineSource=fs.readFileSync(path.join(root,'book-renderer','book-engine.js'),'utf8');
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 const proof=fs.readFileSync(path.join(root,'book-renderer','master-proof.html'),'utf8');
 if(/firstTarget\s*=\s*Math\.ceil\(total\/2\)/.test(engineSource))fail('Text is still balanced into two half-empty pages');

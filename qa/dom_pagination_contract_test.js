@@ -54,7 +54,7 @@ assert(engine.assemble(one,{textRhythmOnly:true,paginateText:adapter}).ready);ch
 const script=fs.readFileSync(path.join(root,'book-renderer/book-engine.js'),'utf8');
 const active=script.split('function assembleExactText')[1].split('function auditExactText')[0];
 assert(!/wordCount|wordList|pageWords|takeWords|normalizeProse|stripQuote|substring|consumeMeasuredFlow/.test(active));checks++;
-const shell=fs.readFileSync(path.join(root,'shell.html'),'utf8');assert(!/createEditorialTextFit|measureEditorialPageWords|textFitProbe/.test(shell));checks++;
+const shell=require('./lib/page_source.js').readPage(root,'shell.html');assert(!/createEditorialTextFit|measureEditorialPageWords|textFitProbe/.test(shell));checks++;
 const css=fs.readFileSync(path.join(root,'book-renderer/design-pack-01.css'),'utf8');
 assert(/\.left \.dpk-margin-note span\{[^}]*rotate\(-89deg\)/.test(css));assert(/\.right \.dpk-margin-note span\{[^}]*rotate\(91deg\)/.test(css));checks++;
 console.log(JSON.stringify({status:'pass',checks,pages:body.length,exactUnicodeAndWhitespace:true,chapterUsesDOM:true,browserGeometry:'not executed'},null,2));

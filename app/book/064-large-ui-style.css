@@ -1,0 +1,7 @@
+/*@block [" id=\"large-ui-style\"", ""]*/
+/* «Крупный интерфейс» (chosen in the sheet's «Аа» menu). */
+.shell.is-large-ui .book-map-shell{transform:scale(1.2);transform-origin:0 0}
+.shell.is-large-ui .book-design-shell.is-rail{zoom:1.15}
+.shell.is-large-ui .writing-prompt{zoom:1.15}
+.shell.is-large-ui .book-preview-info,.shell.is-large-ui #bookPreviewInfo{font-size:18px!important}
+.shell.is-large-ui .photo-frame-tools{zoom:1.2}

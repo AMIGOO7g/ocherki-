@@ -3,7 +3,7 @@ const path = require('path');
 const vm = require('vm');
 
 const root = path.resolve(__dirname, '..');
-const shell = fs.readFileSync(path.join(root, 'shell.html'), 'utf8');
+const shell = require('./lib/page_source.js').readPage(root,'shell.html');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const engineSource = fs.readFileSync(path.join(root, 'book-renderer', 'book-engine.js'), 'utf8');
 const fail = message => { throw new Error(message); };

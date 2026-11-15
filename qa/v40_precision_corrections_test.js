@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),read=file=>fs.readFileSync(path.join(root,file),'utf8');
+const root=path.resolve(__dirname,'..'),read=file=>require('./lib/page_source.js').readPage(root,file);
 const ctx={window:{},console,Intl};vm.createContext(ctx);
 for(const file of ['book-engine.js','design-pack-01.js'])vm.runInContext(read(`book-renderer/${file}`),ctx);
 
