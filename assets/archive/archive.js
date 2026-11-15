@@ -94,6 +94,29 @@ const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%6
 const ARM=(()=>{const px=1.15,py=-.75,L=1.37,base=180.3;const at=th=>{const t=th*Math.PI/180;return Math.hypot(px+L*Math.cos(t),py+L*Math.sin(t));};
   const find=r=>{let th=97;while(at(th)>r&&th<260)th+=.1;return th;};// the first meeting with the groove, coming in from the right like a real arm
   const rest=97,start=find(.95),end=find(.47);return{rest:(rest-base).toFixed(2),start:start-base,end:end-base};})();
+// ---------- the Keeper: he lives in the corner of the archive and says what this page is for ----------
+const HINTS={desk:'Здесь всё, что присылают родные. Нажмите на любой предмет',voices:'Нажмите ▶ — игла опустится. Отсюда можно записать свой голос',
+  photos:'Листайте — человечек пройдёт по годам вашей семьи',texts:'Рассказ можно открыть в редакторе и вставить в главу',letters:'Письмо можно перенести в книгу целиком',
+  week:'Родные ответят с телефона. Ответы попадут сюда',edits:'Примите правку или оставьте как было — всегда можно отменить',
+  record:'Говорите спокойно, как за столом. Паузы потом вырежем',send:'Выберите, кому отправить. Вопрос придёт в понедельник'};
+const HK='ocherkiArchiveHints';
+const keeper={K:null,box:null,cv:null,hint:null,key:null,t:0,off(){return getJ(HK).off;},
+  mount(){if(this.box||!SR)return;const b=document.createElement('div');b.className='kp';b.innerHTML='<canvas class="kp-cv"></canvas><i class="kp-spark"></i><div class="kp-hint"></div>';
+    (root||SR).appendChild(b);this.box=b;this.cv=b.querySelector('canvas');this.hint=b.querySelector('.kp-hint');
+    b.querySelector('.kp-cv').addEventListener('click',()=>this.say(this.key,true));b.querySelector('.kp-spark').addEventListener('click',()=>this.say(this.key,true));
+    this.hint.addEventListener('click',e=>{if(e.target.closest('[data-hoff]')){const m=getJ(HK);m.off=1;setJ(HK,m);this.quiet();}});
+    const go=()=>{try{const L=window.OcherkiTour?.loadKeeper;if(!L){b.classList.add('flat');return;}L().then(()=>{if(!this.box)return;
+      const K=window.OcherkiKeeper3D&&OcherkiKeeper3D.create(this.cv,{size:1.05,dust:8,quick:1.6});if(!K){b.classList.add('flat');return;}this.K=K;K.start();K.resize?.();b.classList.add('live');}).catch(()=>b.classList.add('flat'));}catch(_){b.classList.add('flat');}};
+    // a slow computer gets the spark only
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)b.classList.add('flat');else setTimeout(go,300);},
+  place(k){if(!this.box)return;this.box.dataset.at=k;},
+  say(k,force){if(!this.box||!k||!HINTS[k])return;this.key=k;this.place(k);const seen=getJ(HK);if(!force&&(seen.off||seen[k]))return;
+    seen[k]=1;setJ(HK,seen);clearTimeout(this.t);const h=this.hint;
+    h.innerHTML=HINTS[k].split(' ').map((w,i)=>`<span style="--i:${i}">${esc(w)}</span>`).join(' ')+'<u data-hoff>больше не показывать</u>';
+    h.classList.remove('on');void h.offsetWidth;h.classList.add('on');try{this.K?.talk(2600);this.K?.mood?.('joy',2200);}catch(_){}
+    this.t=setTimeout(()=>h.classList.remove('on'),9000);},
+  quiet(){clearTimeout(this.t);this.hint?.classList.remove('on');},
+  unmount(){try{this.K?.destroy();}catch(_){}this.K=null;this.box?.remove();this.box=null;}};
 const SCENE={texts:'scene-pier.webp',letters:'scene-umbrella.webp',week:'scene-kite.webp'};
 const RECGO=`<div class="recgo" data-go="record"><span class="rd"></span><span><b>Записать голос</b><small>свой рассказ или ответ на вопрос недели</small></span></div>`;
 // ---------- the things (demo until the family sends its own) ----------
@@ -203,8 +226,8 @@ const deck2={ang:0,vel:0,target:0,raf:0,last:0,f:0,armOn:false,ts:[],
 const crackle=()=>{try{const C=new (window.AudioContext||window.webkitAudioContext)();const n=C.createBuffer(1,Math.floor(C.sampleRate*.8),C.sampleRate),b=n.getChannelData(0);
   for(let i=0;i<b.length;i++){const k=1-i/b.length;b[i]=((Math.random()<.003)?(Math.random()*2-1)*.7:0)+(Math.random()*2-1)*.025*k;}
   const src=C.createBufferSource(),g=C.createGain(),lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;g.gain.value=.45;src.buffer=n;src.connect(lp).connect(g).connect(C.destination);src.start();setTimeout(()=>C.close(),1400);}catch(_){}};
-const render=html=>{stopAudio();deck2.reset();timers.forEach(clearTimeout);timers=[];root.innerHTML=knight+html;};
-const showDesk=()=>{where={v:'desk'};render(`${top('Конструктор')}<header><h1>Архив семьи</h1><p>Всё, что присылают родные, — под одним деревом</p></header><div class="tdesk"><img class="tree" src="${A}archive/tree-mist.webp" alt="">${SECS.map(s=>`<div class="sec at-${s.k}" data-sec="${s.k}"><div class="obj">${s.o()}</div>${s.nw?'<span class="new">новое</span>':''}<b>${s.t}</b><small>${s.n()}</small></div>`).join('')}</div>`);};
+const render=html=>{stopAudio();deck2.reset();timers.forEach(clearTimeout);timers=[];root.innerHTML=knight+html;if(keeper.box)root.appendChild(keeper.box);};
+const showDesk=()=>{where={v:'desk'};setTimeout(()=>{if(where&&where.v==='desk')keeper.say('desk');},1600);render(`${top('Конструктор')}<header><h1>Архив семьи</h1><p>Всё, что присылают родные, — под одним деревом</p></header><div class="tdesk"><img class="tree" src="${A}archive/tree-mist.webp" alt="">${SECS.map(s=>`<div class="sec at-${s.k}" data-sec="${s.k}"><div class="obj">${s.o()}</div>${s.nw?'<span class="new">новое</span>':''}<b>${s.t}</b><small>${s.n()}</small></div>`).join('')}</div>`);};
 const showSec=k=>{if(k==='week'||k==='edits'||CAR.includes(k)){showPage(k,0,true);return;}showAll(k);};
 const showAll=k=>{const s=SECS.find(x=>x.k===k);
   where={v:'sec',k};list=items(k);
@@ -228,6 +251,7 @@ const showPage=(k,i,fromDesk,dir)=>{const p=page(k,i);if(!p)return;where={v:'pag
   const nav=p.n>1&&!isCar?`<div class="nav"><b data-nav="-1">‹ предыдущее</b><span>${i+1} из ${p.n}</span><b data-nav="1">следующее ›</b></div>`:'';
   render(`${top(fromDesk?'Архив':p.c)}${SCENE[k]?`<img class="scene s-${k}" src="${A}archive/${SCENE[k]}" alt="">`:''}<div class="page${k==='photos'?' has-road':''} pg-${k}"><div class="obj${p.ph?' phn':''}">${carousel(k,i,p.n,p.l,dir)}</div><div class="info">${p.r}${nav}</div></div>${k==='photos'?road(i):''}`);
   if(k==='photos')walkTo(i);
+  keeper.say(k);
   // «В книгу» and «Изменить» on every thing; what was changed is kept
   const key=k+':'+i,info=root.querySelector('.info');
   info.querySelectorAll('.keys .k').forEach(b=>{const t=b.textContent.trim();if(t==='В книгу'){b.dataset.act='tobook';if(getJ(IB)[key]){b.textContent='✓ В книге';b.classList.add('done');}}if(t==='Изменить')b.dataset.act='edit';});
@@ -291,9 +315,9 @@ const undoRow=r=>{const e=root.querySelector(`.e[data-n="${r.dataset.n}"]`);if(e
 const accept=r=>{if(!r||r.dataset.done)return;const e=root.querySelector(`.e[data-n="${r.dataset.n}"]`);if(e){if(e.dataset.orig==null)e.dataset.orig=e.innerHTML;const o=e.querySelector('.over'),d=e.querySelector('del'),m=e.querySelector('.mark');
   if(o&&d){d.replaceWith(document.createTextNode(o.textContent));o.remove();}if(m){m.style.color='inherit';m.style.font='inherit';}e.classList.add('took');setTimeout(()=>e.classList.remove('took'),1400);}markRow(r,true);};
 const onKey=e=>{if(!root)return;const tg=(e.composedPath&&e.composedPath()[0])||e.target;if(tg.isContentEditable&&e.key!=='Escape')return;if(e.key==='Escape'){e.preventDefault();back();}if(where?.v==='page'&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))step(e.key==='ArrowRight'?1:-1);};
-const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';SR.appendChild(root);root.addEventListener('click',onClick);root.addEventListener('wheel',onWheel,{passive:false});root.addEventListener('touchstart',onTs,{passive:true});root.addEventListener('touchend',onTe,{passive:true});addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
+const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';SR.appendChild(root);keeper.mount();root.addEventListener('click',onClick);root.addEventListener('wheel',onWheel,{passive:false});root.addEventListener('touchstart',onTs,{passive:true});root.addEventListener('touchend',onTe,{passive:true});addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
   if(w==='desk')showDesk();else if(['record','send'].includes(w))showPage(w,0);else if(SECS.some(s=>s.k===w))showSec(w);else showDesk();};
-const close=()=>{if(!root)return;stopAudio();if(rec&&rec.state==='recording')rec.stop();const r=root;root=null;where=null;removeEventListener('keydown',onKey,true);r.classList.remove('in');setTimeout(()=>r.remove(),600);};
+const close=()=>{if(!root)return;keeper.quiet();setTimeout(()=>keeper.unmount(),600);stopAudio();if(rec&&rec.state==='recording')rec.stop();const r=root;root=null;where=null;removeEventListener('keydown',onKey,true);r.classList.remove('in');setTimeout(()=>r.remove(),600);};
 window.OcherkiArchive={open,close,get isOpen(){return!!root;}};
 // the constructor's keys open it: the pill «Архив семьи» and the six keys under it
 const MAP={voice:'voices',photo:'photos',note:'texts',letter:'letters',record:'record',week:'week'};

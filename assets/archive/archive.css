@@ -202,3 +202,37 @@
 .oar.oar .pg-week .deck .card h3{font-size:clamp(32px,2.7vw,44px)}
 .oar .scene.s-week{left:0;bottom:0;width:min(33vw,470px)}
 .oar .scene.s-week{left:0;top:9vh;bottom:auto;width:min(33vw,470px)}
+/* ===== v167f: the Keeper in the corner of the archive ===== */
+.kp{position:fixed;left:6px;bottom:4px;width:210px;height:240px;z-index:20;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+.kp.live,.kp.flat{opacity:1}
+.kp-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;cursor:pointer}
+.kp-spark{position:absolute;left:92px;bottom:96px;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff6e0,#ffb35a 45%,rgba(255,140,40,0) 70%);
+  box-shadow:0 0 22px 8px rgba(255,160,70,.45);display:none;pointer-events:auto;cursor:pointer;animation:kp-breath 3.4s ease-in-out infinite}
+.kp.flat .kp-spark{display:block}.kp.flat .kp-cv{display:none}
+@keyframes kp-breath{50%{transform:scale(1.25);opacity:.8}}
+.kp-hint{position:absolute;left:190px;bottom:70px;width:max-content;max-width:min(440px,38vw);font:400 26px/1.3 "SignThatS",Georgia,serif;color:#ffe2bd;
+  text-shadow:0 0 14px rgba(255,150,60,.45);pointer-events:none}
+.kp-hint span{display:inline-block;opacity:0;filter:blur(8px);transform:translateY(4px);transition:opacity .9s ease,filter .9s ease,transform .9s ease;transition-delay:calc(var(--i)*.09s)}
+.kp-hint.on span{opacity:1;filter:blur(0);transform:none}
+.kp-hint u{display:block;margin-top:8px;font:italic 13px Georgia,serif;color:rgba(226,200,160,.55);text-shadow:none;cursor:pointer;opacity:0;transition:opacity .8s 1.2s;width:fit-content}
+.kp-hint.on u{opacity:1;pointer-events:auto}
+.kp-hint:not(.on) span{transition-delay:0s}
+/* on the photos page the road runs along the bottom: the Keeper waits higher, under «‹ Архив» */
+.kp[data-at="photos"]{bottom:auto;top:70px}
+.kp[data-at="photos"] .kp-hint{bottom:auto;top:90px}
+/* 10 — the boy and his kite on the right, like every scene, under the answers */
+.oar .scene.s-week{left:auto;right:1vw;top:auto;bottom:0;width:min(33vw,470px)}
+.kp{z-index:30}
+/* the Keeper's canvas is black where there is nothing: laid over the page with «screen», as at the start */
+.kp{mix-blend-mode:screen}
+/* the hint stands in a narrow column above him, clear of the things on the desk */
+.kp{width:230px;height:250px}
+.kp-hint{left:14px;bottom:236px;max-width:300px;width:300px;font-size:23px}
+.kp[data-at="photos"] .kp-hint{bottom:auto;top:236px}
+.kp-cv{-webkit-mask-image:radial-gradient(closest-side,#000 45%,transparent 100%);mask-image:radial-gradient(closest-side,#000 45%,transparent 100%)}
+/* the Keeper smaller, the hint one line beside him along the very bottom, where the pages are empty */
+.kp{width:170px;height:190px;left:0;bottom:0}
+.kp-hint{left:150px;bottom:20px;top:auto;width:max-content;max-width:64vw;white-space:nowrap;font-size:24px}
+.kp-hint u{display:inline-block;margin:0 0 0 18px;vertical-align:middle}
+.kp[data-at="photos"]{top:46px;bottom:auto}
+.kp[data-at="photos"] .kp-hint{top:72px;bottom:auto}
