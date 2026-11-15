@@ -1,0 +1,67 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Писать — как может стать</title>
+<style>
+@font-face{font-family:"SignThatS";src:url("../../assets/fonts/SignThatS.otf")}
+html,body{margin:0;height:100%;overflow:hidden;background:#140c06;color:#f3e3c8;font-family:Georgia,serif}
+.bg{position:fixed;inset:0;mix-blend-mode:normal;background:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png") center/cover;opacity:.32;filter:sepia(.6) brightness(.55)}
+.light{position:fixed;inset:0;background:radial-gradient(ellipse 48% 62% at 50% 52%,rgba(255,175,95,.62),rgba(170,90,35,.34) 42%,rgba(0,0,0,.6) 90%)}
+/* top: four keys, as the archive's heading line */
+.top{position:fixed;left:0;right:0;top:26px;display:flex;justify-content:center;gap:54px;z-index:5}
+.top a{font:italic 21px Georgia,serif;color:rgba(242,224,194,.55);text-decoration:none;position:relative;padding-bottom:8px}
+.top a.on{color:#ffe7c4;text-shadow:0 0 14px rgba(255,160,70,.6)}
+.top a.on::after{content:"";position:absolute;left:50%;bottom:0;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:#ffc27a;box-shadow:0 0 10px 3px rgba(255,150,60,.6)}
+.logo{position:fixed;left:30px;top:20px;width:46px;opacity:.85}
+.more{position:fixed;right:30px;top:22px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(232,197,142,.4);display:grid;place-items:center;font:20px Georgia;color:#f2e0c2}
+/* the title by light */
+h1{position:fixed;left:0;right:0;top:84px;text-align:center;margin:0;font:400 52px/1.2 "SignThatS",Georgia,serif;color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.45)}
+.sub{position:fixed;left:0;right:0;top:150px;text-align:center;font:italic 16px Georgia,serif;color:#d9bf98;letter-spacing:.02em}
+/* the sheet: our paper with the emboss, under the lamp */
+.sheet{position:fixed;left:50%;top:190px;width:500px;height:660px;margin-left:-250px;background:url("../../assets/keeper/desk-paper.jpg") center/cover;box-shadow:0 2px 3px rgba(0,0,0,.35),12px 26px 50px rgba(0,0,0,.6);color:#2a1c12;box-sizing:border-box;padding:40px 58px 0}
+.sheet::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 90% 80% at 30% 15%,rgba(255,240,215,.14),transparent 55%),radial-gradient(ellipse 120% 100% at 50% 40%,transparent 55%,rgba(60,30,10,.28))}
+.emb{text-align:center;margin-bottom:22px}
+.emb b{display:block;width:40px;height:40px;margin:0 auto 2px;background:#e6dccb;-webkit-mask:url("../../assets/brand/logo-night.png") center/contain no-repeat;filter:drop-shadow(-.8px -.8px 0 rgba(255,255,255,.75)) drop-shadow(.9px 1px 0 rgba(90,60,30,.35))}
+.emb em{display:block;font:400 17px "SignThatS",Georgia;color:#e6dccb;text-shadow:-.7px -.7px 0 rgba(255,255,255,.8),.8px .9px 0 rgba(90,60,30,.3);font-style:normal}
+.sheet h2{margin:0 0 4px;font:400 34px "SignThatS",Georgia,serif;color:#3b2a1c}
+.sheet .ep{font:italic 14px Georgia;color:#8a6a48;margin-bottom:18px}
+.sheet p{margin:0 0 12px;font:16.5px/1.75 Georgia,serif}
+.caret{display:inline-block;width:1.5px;height:19px;background:#3b2a1c;vertical-align:-3px;animation:b 1s steps(2) infinite}@keyframes b{50%{opacity:0}}
+/* the sheet's foot: everything that used to hang at the top */
+.foot{position:absolute;left:24px;right:24px;bottom:14px;display:flex;align-items:center;gap:6px;white-space:nowrap;font:italic 12px Georgia;color:#6b4e33;border-top:1px solid rgba(90,60,30,.22);padding-top:12px}
+.foot .k{padding:4px 9px;border-radius:14px;border:1px solid rgba(90,60,30,.3)}
+.foot .k.main{background:rgba(120,70,30,.1)}
+.foot .sp{flex:1}
+.foot .rd{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c9772f;margin-right:6px;box-shadow:0 0 6px rgba(220,120,40,.7)}
+/* light keys: white icons beside the sheet */
+.lk{position:fixed;left:calc(50% - 320px);top:210px;display:flex;flex-direction:column;gap:22px}
+.lk svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:1.3;opacity:.5}.lk svg.on{opacity:1}
+/* left: the question by hand, as in the archive */
+.q{position:fixed;left:3vw;top:44%;width:24vw;text-align:center}
+.q small{display:block;font:italic 13px Georgia;color:#cdb08a;letter-spacing:.06em;margin-bottom:12px}
+.q div{font:400 30px/1.25 "SignThatS",Georgia,serif;color:#f6e0bd}
+.q nav{margin-top:16px;font:italic 14px Georgia;color:#cdb08a}
+/* right: the book and where we are in it */
+.r{position:fixed;right:3vw;top:30%;width:22vw;text-align:center}
+.r .t{font:400 40px/1.1 "SignThatS",Georgia,serif;color:#f6e0bd}
+.r small{display:block;font:italic 14px Georgia;color:#cdb08a;margin:6px 0 26px}
+.r ol{list-style:none;padding:0;margin:0;text-align:left;display:inline-block;font:italic 15px/2 Georgia;color:rgba(242,224,194,.55)}
+.r ol li.on{color:#ffe7c4}.r ol li.on::before{content:"● ";color:#ffb35a;font-size:10px;vertical-align:2px}
+.r ol li i{font-size:12px;color:#a88a66;margin-left:8px}
+/* the Keeper in his corner, as in the archive */
+.kp{position:fixed;left:0;bottom:0;width:170px;height:190px;object-fit:cover;object-position:bottom;mix-blend-mode:screen;-webkit-mask-image:radial-gradient(closest-side,#000 55%,transparent)}
+.hint{position:fixed;left:150px;bottom:40px;width:290px;font:400 21px/1.1 "SignThatS",Georgia,serif;color:#ffe2bd;text-shadow:0 0 14px rgba(255,150,60,.45)}
+</style></head><body>
+<div class="bg"></div><div class="light"></div>
+<img class="logo" src="../../assets/brand/logo-night-bare.png" alt="">
+<nav class="top"><a class="on">Писать</a><a>Рукопись</a><a>Книга</a><a>Архив семьи</a></nav>
+<div class="more">···</div>
+<h1>Глава 1 · Детство</h1><div class="sub">лист 3 из 7 · эпизод «Трамвай»</div>
+<div class="lk"><svg viewBox="0 0 32 32" class="on"><path d="M9 28h12M15 28V17M15 17l-5-6M10 11l6-5M14 4.5l9 3.5-3.6 7.2z"/></svg><svg viewBox="0 0 32 32"><path d="M9 13V6h14v7M12 9h8"/><rect x="4" y="13" width="24" height="12" rx="2"/><path d="M10 21.5h12"/></svg></div>
+<div class="sheet"><div class="emb"><b></b><em>Evstafiadi</em></div>
+<h2>Детство</h2><div class="ep">эпизод · трамвай</div>
+<p>Мама впервые увидела трамвай, когда ей было шесть лет. Они с бабушкой шли по Головинскому, и вдруг из-за угла выехал красный вагон, звенящий, как колокольчик.</p>
+<p>Мама спряталась за бабушкину юбку, а потом весь вечер рассказывала соседям, что видела «дом на колёсах».<span class="caret"></span></p>
+<div class="foot"><span class="k">‹ назад</span><span class="k main">дальше ›</span><span class="sp"></span><span class="k">в книге</span><span class="k"><span class="rd"></span>до книги · 2 шага</span><span class="k">+ добавить</span><span style="margin-left:6px;opacity:.7">сохранено</span></div></div>
+<div class="q"><small>вопрос 1 из 4</small><div>Как мама впервые увидела город?</div><nav>‹ другой вопрос ›</nav></div>
+<div class="r"><div class="t">Очерки жизни</div><small>история семьи Евстафиади</small>
+<ol><li>Начало книги</li><li class="on">Глава 1 · Детство <i>3/7</i></li><li>Глава 2 · Тифлис <i>5</i></li><li>Глава 3 · Москва <i>2</i></li><li>+ новая глава</li></ol></div>
+<img class="kp" src="keeper.png" alt=""><div class="hint">Пишите, как говорите — книга сложится сама</div>
+</body></html>
