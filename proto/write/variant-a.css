@@ -48,3 +48,22 @@ body:has(.shell:not(.is-night)) .va-k i.th{background:linear-gradient(rgba(87,65
 body:has(.shell:not(.is-night)) .va-car .ck{background:none!important}
 body:has(.shell:not(.is-night)) .va-car .ck svg{stroke:#4a2f16!important}
 body:has(.shell:not(.is-night)) .va-car .ck.on svg{stroke:#8a3a0c!important}
+/* ===== the carriage, recessed: a brass bezel like the keys', the face sunk inside with its own shadow ===== */
+.va-car{height:34px!important;padding:0 22px!important;gap:16px!important;border-radius:17px!important;border:3px solid transparent!important;
+  background:radial-gradient(ellipse 80% 140% at 50% 30%,#3a2a1c,#140c07 75%) padding-box,
+             linear-gradient(180deg,#f2d9ac 0%,#c49a62 35%,#7d5a34 70%,#d8b382 100%) border-box!important;
+  box-shadow:0 0 0 1px #3a2615,inset 0 4px 9px rgba(0,0,0,.8),inset 0 -1px 0 rgba(255,220,170,.14),0 8px 14px rgba(0,0,0,.55)!important}
+.va-car::before,.va-car::after{display:none!important}
+.va-car .ck svg{stroke:#ead2ad!important;filter:drop-shadow(0 -1px 0 rgba(0,0,0,.7)) drop-shadow(0 1px 0 rgba(255,220,170,.1))!important}
+.va-car .ck.on svg{stroke:#ffd29a!important;filter:drop-shadow(0 0 4px rgba(255,150,60,.85))!important}
+.va-car .ck em{color:#ffb35a!important;text-shadow:0 0 4px rgba(255,140,40,.6)!important}
+.va-car .t{color:#ead2ad!important;text-shadow:0 -1px 0 rgba(0,0,0,.7)!important}
+.va-car .sep{background:rgba(234,210,173,.18)!important;box-shadow:none!important}
+/* by day: the same bezel, the face light and sunk, as the day keys */
+body:has(.shell:not(.is-night)) .va-car{background:radial-gradient(ellipse 80% 140% at 50% 30%,#fff4e2,#e2cfae 75%) padding-box,linear-gradient(180deg,#f2d9ac 0%,#c49a62 35%,#7d5a34 70%,#d8b382 100%) border-box!important;
+  box-shadow:0 0 0 1px #6a4a2a,inset 0 4px 8px rgba(90,60,30,.4),inset 0 -1px 0 rgba(255,255,255,.6),0 8px 14px rgba(60,35,10,.35)!important}
+body:has(.shell:not(.is-night)) .va-car .ck svg{stroke:#4a3324!important;filter:drop-shadow(0 1px 0 rgba(255,250,240,.8))!important}
+body:has(.shell:not(.is-night)) .va-car .ck.on svg{stroke:#9a4510!important;filter:drop-shadow(0 0 3px rgba(255,150,60,.7))!important}
+body:has(.shell:not(.is-night)) .va-car .t{color:#4a3324!important;text-shadow:0 1px 0 rgba(255,250,240,.8)!important}
+body:has(.shell:not(.is-night)) .va-car .sep{background:rgba(74,51,36,.25)!important}
+body:has(.shell:not(.is-night)) .va-car .ck em{color:#9a4510!important;text-shadow:none!important}
