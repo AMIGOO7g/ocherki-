@@ -252,6 +252,9 @@ function create(host,o={}){
     x=Math.max(90,Math.min(W-90,x));
     return[x/W*2-1,1-y/H*2];};
   // where the pen writes the step's word: the heading line at the top
+  // v165: after writing the heading he stays close — just past its last letter, on the right
+  const headEnd=w=>{const Wd=el.clientWidth||innerWidth,px=Math.round(Math.min(66,(Wd-60)/(.6*w.length))),hw=.6*px*w.length*1.6;
+    const x=Math.min(Wd-70,Wd/2+hw/2+56);const h=headAt();return[x/Wd*2-1,h[1]-.02];};
   const headAt=()=>{const H=el.clientHeight||innerHeight;return[0,1-2*((H*.05+38)/H)];};
   // one movement per step: the old word fades, he flows into his pen, the pen writes the new word at the top,
   // and he gathers again, small, beside the card — no flying off into a corner and growing back first
@@ -267,7 +270,7 @@ function create(host,o={}){
     $('[data-a="next"]').textContent=i===S.length-1?(o.last||'Начать'):'Далее';$('[data-a="prev"]').hidden=i<1;
     later(()=>{if(t!==tok)return;$('.hd h2').textContent=S[i].w;$('.hd .sub').textContent=S[i].sub;$('.hd p').textContent=S[i].p;
       if(K){const Wd=el.clientWidth||innerWidth;K.write(S[i].w,{at:headAt(),px:Math.round(Math.min(66,(Wd-60)/(.6*S[i].w.length))),hold:true});
-        later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.8);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);moodLife(t,i);},1400);
+        later(()=>{if(t!==tok)return;const sp=D?headEnd(S[i].w):spotOf(i);K.rest(sp[0],sp[1],.8);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);moodLife(t,i);},1400);
         later(()=>{if(t===tok)mist('.hd .sub',true);},2400);later(()=>{if(t===tok)mist('.hd p',true);},2800);}
       else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?60:450);
     if(D){D.prop(PROP[i]);later(()=>{if(t===tok)D.setLines(LINE.slice(0,i));},prev<0?60:450);later(()=>{if(t===tok)D.type(LINE[i],()=>later(()=>{if(t===tok)D.centre();},350));},(prev<0?60:450)+(K?2750:300));}
@@ -308,10 +311,13 @@ function create(host,o={}){
 const ME=(document.currentScript&&document.currentScript.src)||'';const VER=(ME.match(/\?v=[^&]+/)||[''])[0];const BASE=ME?ME.replace(/assets\/keeper\/tour\.js.*$/,''):'';
 const V=BASE+'assets/vendor/three/',LIBS=[V+'three.min.js',V+'CopyShader.js',V+'LuminosityHighPassShader.js',V+'EffectComposer.js',V+'RenderPass.js',V+'ShaderPass.js',V+'UnrealBloomPass.js',BASE+'assets/keeper/keeper3d.js'+VER,BASE+'assets/keeper/desk.js'+VER];
 let libs=null;
-const loadKeeper=()=>libs||(libs=window.OcherkiKeeper3D&&window.OcherkiDesk?Promise.resolve():LIBS.reduce((p,src)=>p.then(()=>{
-  if(src.includes('three.min')&&window.THREE)return null;if(src.includes('keeper3d')&&window.OcherkiKeeper3D)return null;if(src.includes('desk.js')&&window.OcherkiDesk)return null;
-  const nm=src.split('/').pop().split('?')[0];if(!src.includes('three.min')&&!src.includes('keeper3d')&&[...document.scripts].some(sc=>sc.src&&sc.src.includes(nm)))return null;
-  return new Promise((ok,no)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);});}),Promise.resolve()).catch(e=>{libs=null;throw e;}));
+// v165: all files come down at once and run in their order (async=false), instead of one after another
+const loadKeeper=()=>libs||(libs=window.OcherkiKeeper3D&&window.OcherkiDesk?Promise.resolve():new Promise((ok,no)=>{
+  const need=LIBS.filter(src=>{if(src.includes('three.min')&&window.THREE)return false;if(src.includes('keeper3d')&&window.OcherkiKeeper3D)return false;if(src.includes('desk.js')&&window.OcherkiDesk)return false;
+    const nm=src.split('/').pop().split('?')[0];if(!src.includes('three.min')&&!src.includes('keeper3d')&&[...document.scripts].some(sc=>sc.src&&sc.src.includes(nm)))return false;return true;});
+  if(!need.length)return ok();let left=need.length,bad=false;
+  need.forEach(src=>{const sc=document.createElement('script');sc.src=src;sc.async=false;sc.onload=()=>{if(--left===0&&!bad)ok();};sc.onerror=e=>{bad=true;no(e);};document.head.appendChild(sc);});
+}).catch(e=>{libs=null;throw e;}));
 // warm him up while nothing else happens, so the first call never shows an empty dark screen
 const warm=()=>{const go=()=>loadKeeper().catch(()=>{});(window.requestIdleCallback||setTimeout)(go,{timeout:4000});};
 window.OcherkiTour={create,loadKeeper,warm};

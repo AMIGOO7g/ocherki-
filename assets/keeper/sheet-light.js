@@ -8,7 +8,7 @@
 const CSS=`
 .osl-cv{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:0;transition:opacity .9s ease}
 .osl-on .osl-cv{opacity:1}
-.sheet.active.osl-on{background:#e9e2d8!important}
+body.osl-active .sheet.active{background:#e9e2d8 url(BASE_PAPER) center/cover!important}
 .osl-on .paper::before,.osl-on .paper::after{display:none!important}
 /* on the laid paper the hints read clearly: darker ink, the same italic */
 .osl-on .pf-input::placeholder,.osl-on .pf-text::placeholder{color:#8a7462!important}
@@ -21,16 +21,13 @@ const CSS=`
 .osl-car i::after{left:25px;background:#ffa64a;box-shadow:0 0 5px #ff8a2a,9px 0 0 #4a443e}
 .osl-car b{position:absolute;left:-1.5px;top:-13px;width:3px;height:14px;background:#1c1714;border-radius:1px}
 .osl-car b::before{content:"";position:absolute;left:-4px;top:0;width:11px;height:3px;background:#1c1714;border-radius:1px}
-/* the two lights: large hanging keys beside the sheet, on the left */
-.osl-keys{position:fixed;z-index:60;display:flex;flex-direction:column;gap:22px;align-items:center;transition:opacity .6s}
-.osl-keys button{display:flex;flex-direction:column;align-items:center;gap:7px;border:0;background:none;cursor:pointer;color:#e9d3b0;font:italic 13px Georgia,serif;padding:0}
-.osl-keys button i{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 45% 35%,#3a281a,#170e08 70%);border:1px solid rgba(232,197,142,.55);box-shadow:inset 0 0 0 4px rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.5);transition:box-shadow .5s,border-color .5s}
-.osl-keys button::before{content:"";width:1px;height:18px;margin-bottom:-7px;background:linear-gradient(rgba(232,197,142,0),rgba(232,197,142,.5))}
-.osl-keys button:hover i{border-color:rgba(255,214,160,.95);box-shadow:inset 0 0 0 4px rgba(0,0,0,.35),0 0 16px 3px rgba(255,150,60,.4)}
-.osl-keys button.on i{border-color:#ffd9a8;box-shadow:inset 0 0 0 4px rgba(0,0,0,.35),0 0 18px 4px rgba(255,150,60,.55)}
-.osl-keys button.on{color:#ffe9c9}
-.osl-keys svg{width:24px;height:24px;fill:none;stroke:#f2e0c2;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-body:not(.host-night) .osl-keys button{color:#5a4030}
+/* the two lights: two plain white icons beside the sheet, on the left — no rings, no threads */
+.osl-keys{position:fixed;z-index:60;display:flex;flex-direction:column;gap:26px;align-items:center;transition:opacity .6s}
+.osl-keys button{display:block;border:0;background:none;cursor:pointer;padding:6px;font-size:0;line-height:0;opacity:.5;transition:opacity .35s}
+.osl-keys button:hover{opacity:.85}
+.osl-keys button.on{opacity:1}
+.osl-keys button i{display:block}
+.osl-keys svg{width:40px;height:40px;fill:none;stroke:#fff;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
 /* no thin light edge round the sheet; the footer reads on the paper and in the shade */
 html body .sheet.active.osl-on{border:0!important;outline:0!important}
 html body .sheet.osl-on .footer,html body .sheet.osl-on .footer button,html body .sheet.osl-on #saveState{color:#5e4838!important;opacity:1!important}
@@ -41,7 +38,7 @@ html body .sheet.osl-type .footer-line{background-color:rgba(240,225,200,.35)!im
 .osl-spill{position:fixed;z-index:0;width:1100px;height:900px;margin:-450px 0 0 -550px;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .9s;
   background:radial-gradient(ellipse 50% 50% at 50% 60%,rgba(255,214,160,.16),rgba(255,190,120,.06) 45%,transparent 70%)}
 .osl-type-on .osl-spill{opacity:1}
-.sheet.ghost.osl-ghost{filter:brightness(.86) sepia(.12)}
+body.osl-active .sheet.ghost{background:#e2dacd url(BASE_PAPER) center/cover!important;filter:brightness(.86) sepia(.12)}
 `;
 const VERT='varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
 const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform vec2 uTex;uniform vec2 uSize;uniform vec2 uCar;uniform float uCarOn;uniform float uLamp;uniform float uAmp;uniform float uNight;
@@ -66,13 +63,18 @@ const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform ve
 let threeP=null;
 const loadThree=base=>window.THREE?Promise.resolve():threeP||(threeP=new Promise((ok,no)=>{const s=document.createElement('script');s.src=base+'assets/vendor/three/three.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);}));
 function attach(sheet,o={}){
-  const B=o.base||'';if(!document.getElementById('osl-css')){const st=document.createElement('style');st.id='osl-css';st.textContent=CSS;document.head.appendChild(st);}
+  const B=o.base||'';if(!document.getElementById('osl-css')){const st=document.createElement('style');st.id='osl-css';st.textContent=CSS.split('BASE_PAPER').join(`'${B}assets/keeper/desk-paper.jpg'`);document.head.appendChild(st);}
   const cv=document.createElement('canvas');cv.className='osl-cv';sheet.insertBefore(cv,sheet.firstChild);
   const car=document.createElement('div');car.className='osl-car';car.innerHTML='<b></b><i></i>';sheet.appendChild(car);
   const spill=document.createElement('div');spill.className='osl-spill';document.body.appendChild(spill);
   // the parent constructor hears where the light is: its desk dims a little and the nearest keys catch the light
   const tell=(x,y,on)=>{try{parent!==window&&parent.postMessage({type:'OCHERKI_LIGHT',x,y,on},'*');}catch(_){}};
-  let mode=o.mode||'lamp',alive=true,R=null,scene,cam,U=null,dirty=true;
+  let mode=o.mode||'lamp',alive=true,R=null,scene,cam,U=null,dirty=true,ready=false;
+  // v165: by day under the lamp the sheet is the plain white page it always was; the laid paper and the light
+  // come only at night or with «Машинка»
+  const isActive=()=>GO.night>0||mode==='type';
+  const applyActive=()=>{const on=isActive();document.body.classList.toggle('osl-active',on);sheet.classList.toggle('osl-on',on&&ready);
+    if(!on){sheet.style.removeProperty('box-shadow');tell(0,0,0);}dirty=true;};
   const GO={car:mode==='type'?1:0,night:document.body.classList.contains('host-night')?1:0};
   const cur={x:0,y:0},tgt={x:0,y:0};
   // where the caret is, in the sheet's own pixels (y from the top)
@@ -84,7 +86,7 @@ function attach(sheet,o={}){
   const follow=snap=>{const c=caret();if(!c)return;tgt.x=Math.max(30,Math.min(sheet.offsetWidth-30,c.x));tgt.y=Math.min(sheet.offsetHeight-14,c.y+20);if(snap){cur.x=tgt.x;cur.y=tgt.y;}dirty=true;};
   const onSel=()=>{if(mode==='type')follow();};document.addEventListener('selectionchange',onSel);
   const ro=new ResizeObserver(()=>{if(!R)return;R.setSize(sheet.offsetWidth,sheet.offsetHeight,false);U.uSize.value.set(sheet.offsetWidth,sheet.offsetHeight);dirty=true;follow(true);});
-  const nightObs=new MutationObserver(()=>{GO.night=document.body.classList.contains('host-night')?1:0;dirty=true;});nightObs.observe(document.body,{attributes:true,attributeFilter:['class']});
+  const nightObs=new MutationObserver(()=>{const n=document.body.classList.contains('host-night')?1:0;if(n!==GO.night){GO.night=n;applyActive();}dirty=true;});nightObs.observe(document.body,{attributes:true,attributeFilter:['class']});
   loadThree(B).then(()=>{if(!alive)return;const T=window.THREE;
     try{R=new T.WebGLRenderer({canvas:cv,antialias:false,alpha:false});}catch(_){return;}
     R.setPixelRatio(Math.min(2,devicePixelRatio||1));scene=new T.Scene();cam=new T.OrthographicCamera(-.5,.5,.5,-.5,-1,1);
@@ -92,29 +94,29 @@ function attach(sheet,o={}){
     U={uC:{value:px},uH:{value:fl},uTex:{value:new T.Vector2(1/1240,1/1754)},uSize:{value:new T.Vector2(1,1)},uCar:{value:new T.Vector2()},uCarOn:{value:GO.car},uLamp:{value:1},uAmp:{value:.35},uNight:{value:GO.night}};
     scene.add(new T.Mesh(new T.PlaneGeometry(1,1),new T.ShaderMaterial({uniforms:U,vertexShader:VERT,fragmentShader:FRAG})));
     const L=new T.TextureLoader();
-    L.load(B+'assets/keeper/desk-paper.jpg',t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;U.uC.value=t;dirty=true;sheet.classList.add('osl-on');});
+    L.load(B+'assets/keeper/desk-paper.jpg',t=>{t.encoding=T.sRGBEncoding;t.anisotropy=8;U.uC.value=t;dirty=true;ready=true;applyActive();});
     L.load(B+'assets/keeper/desk-relief.jpg',t=>{t.anisotropy=8;U.uH.value=t;U.uTex.value.set(1/t.image.width,1/t.image.height);dirty=true;});
     R.setSize(sheet.offsetWidth,sheet.offsetHeight,false);U.uSize.value.set(sheet.offsetWidth,sheet.offsetHeight);ro.observe(sheet);follow(true);requestAnimationFrame(frame);});
   // the ghost sheets of the pile: the same paper, a little darker
-  document.querySelectorAll('.sheet.ghost').forEach(g=>{g.classList.add('osl-ghost');g.style.setProperty('background',`url('${B}assets/keeper/desk-paper.jpg') center/cover`,'important');});
   let last=performance.now();
   const frame=now=>{if(!alive)return;const dt=Math.min(.05,(now-last)/1000);last=now;
     const k=Math.min(1,dt*2.2);let moving=false;
     const st=(u,g)=>{const d=g-u.value;if(Math.abs(d)>.002){u.value+=d*k;moving=true;}else u.value=g;};
     st(U.uCarOn,GO.car);st(U.uNight,GO.night);
     const m=Math.min(1,dt*10);if(Math.abs(tgt.x-cur.x)>.3||Math.abs(tgt.y-cur.y)>.3){cur.x+=(tgt.x-cur.x)*m;cur.y+=(tgt.y-cur.y)*m;moving=true;}
-    if(moving||dirty){const H=sheet.offsetHeight,W=sheet.offsetWidth;U.uCar.value.set(cur.x,H-cur.y-2);R.render(scene,cam);dirty=false;car.style.transform=`translate(${cur.x}px,${cur.y}px)`;
+    if((moving||dirty)&&!isActive()){dirty=false;}
+    if((moving||dirty)&&isActive()){const H=sheet.offsetHeight,W=sheet.offsetWidth;U.uCar.value.set(cur.x,H-cur.y-2);R.render(scene,cam);dirty=false;car.style.transform=`translate(${cur.x}px,${cur.y}px)`;
       // the sheet's shadow moves away from the light; under the desk lamp it falls right and down
       const on=U.uCarOn.value,dx=(W/2-cur.x)*.05*on+10*(1-on),dy=14;
       sheet.style.setProperty('box-shadow',`${dx.toFixed(1)}px ${dy}px 26px rgba(0,0,0,${(.34+.12*on).toFixed(2)}),${(dx*2).toFixed(1)}px ${dy*1.8}px 60px rgba(0,0,0,${(.22+.1*on).toFixed(2)})`,'important');
       const r=sheet.getBoundingClientRect(),sc=r.width/W||1,gx=r.left+cur.x*sc,gy=r.top+cur.y*sc;spill.style.left=gx+'px';spill.style.top=(gy-200)+'px';
       if(now-(frame.t||0)>120){frame.t=now;tell(gx,gy,on);}}
     requestAnimationFrame(frame);};
-  const setMode=m=>{mode=m==='type'?'type':'lamp';GO.car=mode==='type'?1:0;sheet.classList.toggle('osl-type',mode==='type');document.body.classList.toggle('osl-type-on',mode==='type');if(mode!=='type')tell(0,0,0);if(mode==='type')follow(true);dirty=true;
+  const setMode=m=>{mode=m==='type'?'type':'lamp';GO.car=mode==='type'?1:0;applyActive();sheet.classList.toggle('osl-type',mode==='type');document.body.classList.toggle('osl-type-on',mode==='type');if(mode!=='type')tell(0,0,0);if(mode==='type')follow(true);dirty=true;
     try{localStorage.setItem('ocherkiSheetLight',mode);}catch(_){}o.onMode?.(mode);};
   setMode(mode);
   return{mode:setMode,get current(){return mode;},refresh(){dirty=true;follow();},
-    destroy(){alive=false;document.removeEventListener('selectionchange',onSel);ro.disconnect();nightObs.disconnect();try{R&&R.dispose();}catch(_){}cv.remove();car.remove();sheet.classList.remove('osl-on','osl-type');}};
+    destroy(){alive=false;document.removeEventListener('selectionchange',onSel);ro.disconnect();nightObs.disconnect();try{R&&R.dispose();}catch(_){}cv.remove();car.remove();sheet.classList.remove('osl-on','osl-type');document.body.classList.remove('osl-active');}};
 }
 window.OcherkiSheetLight={attach};
 })();

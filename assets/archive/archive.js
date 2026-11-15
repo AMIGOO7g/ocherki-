@@ -79,7 +79,7 @@ const wf=(n,played,live,sm,seed=0)=>{let h=[];for(let k=0;k<n;k++){const e=.35+.
   const ph=Math.round(n*played);return `<div class="wf${live?' live':''}${sm?' sm':''}">${h.map((v,k)=>`<i class="${k<ph?'p':''}${Math.abs(k-ph)<6&&!live?' near':''}" style="--h:${v.toFixed(2)};--dl:-${((k*53%17)/10).toFixed(2)}s;--d:${(.35+(k*37%9)/18).toFixed(2)}s"></i>`).join('')}${live?'':`<span class="head" style="left:${(played*100).toFixed(1)}%"></span>`}</div>`;};
 const keys=a=>`<div class="keys">${a.map((t,i)=>{const[x,act]=Array.isArray(t)?t:[t];return `<button class="k${i?'':' main'}" ${act?`data-act="${act}"`:''}>${esc(x)}</button>`;}).join('')}</div>`;
 const dl=r=>`<dl>${r.filter(x=>x[1]).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`;
-const disc=(f,play,src)=>`<div class="bigdisc${play?' playing':''}"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${src||P+f+'.jpg'}')"></i></div><img class="sh" src="${A}keeper/desk-vinyl-shine.webp" alt=""></div>`;
+const disc=(f,play,src)=>`<div class="bigdisc${play?' playing':''}"><div class="spin"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${src||P+f+'.jpg'}')"></i></div></div>`;
 const reel=on=>`<div class="reel1${on?' on':''}"><img class="t" src="${A}archive/reel.webp" alt=""><img src="${A}archive/reel-shine.webp" alt=""></div>`;
 const frame=(src,land)=>`<div class="fr${land?' land':''}"><img class="pic" src="${src}" alt=""></div>`;
 const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
@@ -111,7 +111,7 @@ const putAudio=async(id,blob)=>{const db=await idb();return new Promise(ok=>{con
 const getAudio=async id=>{const db=await idb();return new Promise(ok=>{const r=db.transaction('audio').objectStore('audio').get(id);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>ok(null);});};
 
 const SECS=[
- {k:'voices',t:'Голоса',n:()=>`${D.voices.length+store.get().length} записи`,o:()=>`<div class="st3"><div class="disc" style="left:30%;top:8%"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}nikolai_portrait.jpg')"></i><img class="sh" src="${A}keeper/desk-vinyl-shine.webp" alt=""></div><div class="disc" style="left:8%;top:22%"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}grandma_porch.jpg')"></i><img class="sh" src="${A}keeper/desk-vinyl-shine.webp" alt=""></div></div>`},
+ {k:'voices',t:'Голоса',n:()=>`${D.voices.length+store.get().length} записи`,o:()=>`<div class="st3"><div class="disc" style="left:30%;top:8%"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}nikolai_portrait.jpg')"></i></div><div class="disc" style="left:8%;top:22%"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i class="lab" style="background-image:url('${P}grandma_porch.jpg')"></i></div></div>`},
  {k:'photos',t:'Фото',n:()=>`${D.photos.length} снимков`,o:()=>`<div class="st3">${['lake_two','grandma_porch','mother_child_bw'].map((f,i)=>`<div class="ph" style="left:${[46,12,30][i]}%;top:${[4,12,22][i]}%;rotate:${[-9,6,-3][i]}deg"><i class="pic" style="background-image:url('${P}${f}.jpg')"></i><img class="fri" src="${A}archive/frame.webp" alt=""></div>`).join('')}</div>`},
  {k:'letters',t:'Письма',n:()=>`${D.letters.length} письма`,o:()=>`<img src="${A}archive/envelopes.webp" alt="">`,nw:1},
  {k:'texts',t:'Тексты',n:()=>`${D.texts.length} рассказа`,o:()=>`<img src="${A}keeper/desk-stack.webp" alt="" style="filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)) sepia(.6) saturate(1.3) hue-rotate(-10deg) brightness(.72)">`},
@@ -166,7 +166,7 @@ const showSec=k=>{const s=SECS.find(x=>x.k===k);if(k==='week'||k==='edits'){show
 const CAR=['photos','voices','letters','texts'];
 const nbVis=(k,j)=>{const mine=store.get();
   if(k==='photos'){const x=D.photos[j];return frame(P+x[0]+'.jpg',x[7]);}
-  if(k==='voices'){const f=j<mine.length?'grandma_porch':D.voices[j-mine.length][0];return `<div class="nbd"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}${f}.jpg')"></i><img src="${A}keeper/desk-vinyl-shine.webp" alt=""></div>`;}
+  if(k==='voices'){const f=j<mine.length?'grandma_porch':D.voices[j-mine.length][0];return `<div class="nbd"><img src="${A}keeper/desk-vinyl-disc.webp" alt=""><i style="background-image:url('${P}${f}.jpg')"></i></div>`;}
   if(k==='letters')return `<img class="nbe" src="${A}archive/envelope.webp" alt="">`;
   if(k==='texts'){const x=D.texts[j];return `<div class="nbs"><b>${x[0]}</b>${x[2].split('|')[0]}</div>`;}
   return '';};
