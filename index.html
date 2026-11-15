@@ -3370,7 +3370,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v163";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v164";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -3877,8 +3877,8 @@
 .start-auth-key__pendulum.lb-hanging-icon svg{position:relative!important;z-index:2!important;color:#5b4633!important}
 </style>
 
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v163"></script>
-<script src="book-renderer/bookcase.js?v=demo-book-20261107-v163"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v164"></script>
+<script src="book-renderer/bookcase.js?v=demo-book-20261107-v164"></script>
 
 <style id="kob-v142">
 /* v142 — the way in, led by the Keeper: first he shows what the constructor can do (assets/keeper/tour.js),
@@ -4087,6 +4087,11 @@
 .kob .shelf .tag{position:absolute;left:50%;top:calc(100% + 26px);transform:translate(-50%,-6px);width:max-content;min-width:220px;max-width:300px;padding:10px 18px;border-radius:12px;background:rgba(24,13,6,.96);box-shadow:0 0 0 1px rgba(214,150,96,.45),0 10px 24px rgba(0,0,0,.5);
   text-align:center;opacity:0;pointer-events:none;transition:opacity .4s,transform .4s;z-index:3}
 .kob .shelf .bk:hover .tag{opacity:1;transform:translate(-50%,0)}
+/* v164 — one book at a time: the others step back into the dark while one is pointed at */
+.kob .shelf .bk .cov img{transition:filter .6s}
+.kob .shelf:has(.bk:hover) .bk:not(:hover) .cov img{filter:brightness(.4) saturate(.7) drop-shadow(0 14px 18px rgba(0,0,0,.6))}
+.kob .shelf:has(.bk:hover) .bk:not(:hover) .face{opacity:.35}
+.kob .shelf .face{transition:opacity .6s;top:22%;height:40%}
 .kob .shelf .tag strong{display:block;font:400 21px/1.2 "Iowan Old Style",Georgia,serif;color:#fff2dc}
 .kob .shelf .tag span{display:block;margin-top:4px;font:italic 15px "Iowan Old Style",Georgia,serif;color:#e7cfaa}
 .kob .shelf .ops,.kob .shelf .ask{position:absolute;left:-40px;right:-40px;top:calc(100% + 104px);z-index:4;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -4130,7 +4135,7 @@
     <div class="acts"><button class="btn ghost" data-go="how">Назад</button><button class="btn main" data-go="finish" data-need="book">Создать книгу</button></div></section>
   <div class="dots"><i></i><i></i><i></i></div>
 </div>
-<script src="assets/keeper/tour.js?v=20261107-v163"></script>
+<script src="assets/keeper/tour.js?v=20261107-v164"></script>
 <script id="kob-v142-js">
 (()=>{const ov=document.getElementById('kob');const html=document.documentElement;
   const off=()=>html.classList.remove('kob-wait');
@@ -4201,11 +4206,11 @@
     if(!books.length){box.innerHTML='<div class="empty">Пока на полке пусто — начните первую книгу кнопкой «Создать книгу».</div>';return;}
     const rows=[];for(let k=0;k<books.length;k+=3)rows.push(books.slice(k,k+3));
     // four real covers; the face of each (where the title goes) measured on the picture; on the light one the title is pressed dark
-    const COVERS=[{n:'wine',ar:573/560,fx:27,fw:46.2},{n:'green',ar:513/560,fx:22,fw:51.6},{n:'cream',ar:563/560,fx:27.4,fw:46.9,dark:1},{n:'brown',ar:563/560,fx:26.7,fw:45.8}];
+    const COVERS=[{n:'wine2',ar:620/882,fx:21,fw:64},{n:'olive',ar:620/921,fx:21,fw:64},{n:'navy',ar:620/912,fx:21,fw:64},{n:'terra',ar:620/882,fx:21,fw:64}];
     const cover=id=>COVERS[[...String(id)].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7)%COVERS.length];
     box.innerHTML=rows.map(r=>`<div class="row">${r.map((b,k)=>`<div class="bk" data-id="${esc(b.id)}" style="--tilt:${[-1.2,.9,-.5][k]}deg">
         ${(()=>{const cv=cover(b.id);return `<div class="tag"><strong>${esc(b.title||'Книга без названия')}</strong><span>сохранена ${esc(when(b.savedAt)||'—')}${b.pages?` · ${b.pages} стр.`:''}</span></div>
-        <div class="cov" data-go="open" data-id="${esc(b.id)}" style="--ar:${cv.ar};--fx:${cv.fx}%;--fw:${cv.fw}%;${cv.dark?'--ink:linear-gradient(180deg,#6b4a22,#3e2a12 60%,#7a5428);--ink2:#7a5428;--sh:rgba(255,240,210,.5);':''}--fs:${(()=>{const t=String(b.title||''),w=Math.max(...t.split(/\s+/).map(x=>x.length),1);return Math.max(12,Math.min(24,Math.floor(100/(w*.7)),t.length>26?17:24));})()}px"><img src="assets/keeper/cover-${cv.n}.webp?v=20261107-v163" alt=""><div class="face"><b>книга</b><strong>${esc(b.title||'Книга без названия')}</strong></div></div>`;})()}
+        <div class="cov" data-go="open" data-id="${esc(b.id)}" style="--ar:${cv.ar};--fx:${cv.fx}%;--fw:${cv.fw}%;${cv.dark?'--ink:linear-gradient(180deg,#6b4a22,#3e2a12 60%,#7a5428);--ink2:#7a5428;--sh:rgba(255,240,210,.5);':''}--fs:${(()=>{const t=String(b.title||''),w=Math.max(...t.split(/\s+/).map(x=>x.length),1);return Math.max(12,Math.min(24,Math.floor(100/(w*.7)),t.length>26?17:24));})()}px"><img src="assets/keeper/cover-${cv.n}.webp?v=20261107-v164" alt=""><div class="face"><b>книга</b><strong>${esc(b.title||'Книга без названия')}</strong></div></div>`;})()}
         <div class="ops"><button type="button" class="op" data-go="open" data-id="${esc(b.id)}">Открыть</button><button type="button" class="op del" data-del="${esc(b.id)}">Удалить</button></div>
         <div class="ask"><span>Удалить «${esc(b.title||'книгу')}» навсегда?</span><button type="button" class="op del" data-del-yes="${esc(b.id)}">Удалить</button><button type="button" class="op" data-del-no>Оставить</button></div></div>`).join('')}</div>`).join('');}
   $('kobShelf').addEventListener('click',async e=>{const d=e.target.closest('[data-del]');if(d){e.stopPropagation();d.closest('.bk')?.classList.add('asking');return;}
@@ -4223,7 +4228,7 @@
   // the end: he writes the book's title with his pen, gathers into a spark, and the constructor comes up
   function finish(){const title=ov.querySelector('[data-into="bookTitleInput"]').value.trim()||'Очерки жизни';
     ov.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));ov.classList.remove('steps');
-    if(K){K.lookAt(null);K.mood?.('joy');K.write('С этой строки начинается книга',{at:[0,.1],px:Math.round(Math.min(72,((ov.clientWidth||innerWidth)-60)/(.6*30))),hold:true,fly:[-.94,-.92]});later(()=>leave(start),(5.95/2.3)*1000+900);}else leave(start);}
+    if(K){K.lookAt(null);K.mood?.('joy');K.write('С этой строки начинается книга!',{at:[0,.1],px:Math.round(Math.min(72,((ov.clientWidth||innerWidth)-60)/(.6*30))),hold:true,fly:[-.94,-.92],flyHold:2.4});later(()=>leave(start),(5.95/2.3)*1000+2400+1100);}else leave(start);}
   const start=()=>{const b=$('startConstructorBtn');if(b){b.disabled=false;b.click();}};
   function leave(then){if(K&&K.mode!=='away'){if(K.flyAway)K.flyAway(-.94,-.92);else{K.awayTo(-.94,-.92);K.setMode('away');}}
     later(()=>{const ls=$('lbStart');if(ls)ls.style.visibility='hidden';then&&then();ov.classList.add('gone');later(()=>{K&&K.stop();T?.destroy();ov.remove();

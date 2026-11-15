@@ -21,12 +21,26 @@ const CSS=`
 .osl-car i::after{left:25px;background:#ffa64a;box-shadow:0 0 5px #ff8a2a,9px 0 0 #4a443e}
 .osl-car b{position:absolute;left:-1.5px;top:-13px;width:3px;height:14px;background:#1c1714;border-radius:1px}
 .osl-car b::before{content:"";position:absolute;left:-4px;top:0;width:11px;height:3px;background:#1c1714;border-radius:1px}
-/* the two keys in the sheet's top line */
-.osl-keys{display:inline-flex;gap:2px;margin-right:4px;vertical-align:middle}
-.osl-keys button{width:30px;height:30px;display:inline-grid;place-items:center;border:0;border-radius:50%;background:none;color:inherit;opacity:.55;cursor:pointer;transition:opacity .3s,background .3s,box-shadow .4s}
-.osl-keys button:hover{opacity:.95;background:rgba(160,110,60,.1)}
-.osl-keys button.on{opacity:1;box-shadow:0 0 0 1px rgba(170,110,50,.45),0 0 10px rgba(255,170,90,.35)}
-.osl-keys svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+/* the two lights: large hanging keys beside the sheet, on the left */
+.osl-keys{position:fixed;z-index:60;display:flex;flex-direction:column;gap:22px;align-items:center;transition:opacity .6s}
+.osl-keys button{display:flex;flex-direction:column;align-items:center;gap:7px;border:0;background:none;cursor:pointer;color:#e9d3b0;font:italic 13px Georgia,serif;padding:0}
+.osl-keys button i{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 45% 35%,#3a281a,#170e08 70%);border:1px solid rgba(232,197,142,.55);box-shadow:inset 0 0 0 4px rgba(0,0,0,.35),0 8px 16px rgba(0,0,0,.5);transition:box-shadow .5s,border-color .5s}
+.osl-keys button::before{content:"";width:1px;height:18px;margin-bottom:-7px;background:linear-gradient(rgba(232,197,142,0),rgba(232,197,142,.5))}
+.osl-keys button:hover i{border-color:rgba(255,214,160,.95);box-shadow:inset 0 0 0 4px rgba(0,0,0,.35),0 0 16px 3px rgba(255,150,60,.4)}
+.osl-keys button.on i{border-color:#ffd9a8;box-shadow:inset 0 0 0 4px rgba(0,0,0,.35),0 0 18px 4px rgba(255,150,60,.55)}
+.osl-keys button.on{color:#ffe9c9}
+.osl-keys svg{width:24px;height:24px;fill:none;stroke:#f2e0c2;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+body:not(.host-night) .osl-keys button{color:#5a4030}
+/* no thin light edge round the sheet; the footer reads on the paper and in the shade */
+html body .sheet.active.osl-on{border:0!important;outline:0!important}
+html body .sheet.osl-on .footer,html body .sheet.osl-on .footer button,html body .sheet.osl-on #saveState{color:#5e4838!important;opacity:1!important}
+html body .sheet.osl-on .footer-line{background-color:rgba(90,60,30,.32)!important}
+html body .sheet.osl-type .footer,html body .sheet.osl-type .footer *,html body .sheet.osl-type #nsBook,html body .sheet.osl-type #nextStep,html body .sheet.osl-type #nextStep *,html body .sheet.osl-type #saveState{color:#f1e4cc!important;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+html body .sheet.osl-type .footer-line{background-color:rgba(240,225,200,.35)!important}
+/* the typewriter's light spilling onto the desk round the sheet */
+.osl-spill{position:fixed;z-index:0;width:1100px;height:900px;margin:-450px 0 0 -550px;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .9s;
+  background:radial-gradient(ellipse 50% 50% at 50% 60%,rgba(255,214,160,.16),rgba(255,190,120,.06) 45%,transparent 70%)}
+.osl-type-on .osl-spill{opacity:1}
 .sheet.ghost.osl-ghost{filter:brightness(.86) sepia(.12)}
 `;
 const VERT='varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
@@ -41,12 +55,12 @@ const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform ve
     vec3 Ls=vec3(uCar,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
     vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));
     float cone=smoothstep(.26,.8,dir.y);float above=smoothstep(-8.,10.,p.y-Ls.y);
-    float fall=1.-.5*smoothstep(0.,uSize.y*.85,dist);fall*=smoothstep(0.,26.,dist)*.25+.75;
+    float fall=1.-.5*smoothstep(0.,uSize.y*.85,dist);fall*=smoothstep(0.,70.,dist)*.35+.65;
     float car=uCarOn*above*cone*fall*(.9+.3*max(dot(N,L),0.));
-    float amb=mix(lamp,.6-.08*uv.x-.1*smoothstep(0.,-120.,p.y-Ls.y),uCarOn);
-    vec3 pb=mix(base,vec3(dot(base,vec3(.3,.59,.11)))*vec3(1.,.99,.95),.5*uCarOn);
+    float amb=mix(lamp,.45-.1*uv.x-.1*smoothstep(0.,-120.,p.y-Ls.y),uCarOn);
+    vec3 pb=mix(base,vec3(dot(base,vec3(.3,.59,.11)))*vec3(1.,.99,.95),.55*uCarOn);
     vec3 col=mix(vec3(1.),vec3(1.,.97,.92),uNight*(1.-uCarOn));
-    vec3 c=pb*(vec3(.04,.038,.035)+amb*col+car*.7*vec3(1.,.95,.8));
+    vec3 c=pb*(vec3(.04,.038,.035)+amb*col+car*.62*vec3(1.,.95,.8));
     c+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.*2.;
     gl_FragColor=vec4(c,1.);}`;
 let threeP=null;
@@ -55,6 +69,9 @@ function attach(sheet,o={}){
   const B=o.base||'';if(!document.getElementById('osl-css')){const st=document.createElement('style');st.id='osl-css';st.textContent=CSS;document.head.appendChild(st);}
   const cv=document.createElement('canvas');cv.className='osl-cv';sheet.insertBefore(cv,sheet.firstChild);
   const car=document.createElement('div');car.className='osl-car';car.innerHTML='<b></b><i></i>';sheet.appendChild(car);
+  const spill=document.createElement('div');spill.className='osl-spill';document.body.appendChild(spill);
+  // the parent constructor hears where the light is: its desk dims a little and the nearest keys catch the light
+  const tell=(x,y,on)=>{try{parent!==window&&parent.postMessage({type:'OCHERKI_LIGHT',x,y,on},'*');}catch(_){}};
   let mode=o.mode||'lamp',alive=true,R=null,scene,cam,U=null,dirty=true;
   const GO={car:mode==='type'?1:0,night:document.body.classList.contains('host-night')?1:0};
   const cur={x:0,y:0},tgt={x:0,y:0};
@@ -86,9 +103,14 @@ function attach(sheet,o={}){
     const st=(u,g)=>{const d=g-u.value;if(Math.abs(d)>.002){u.value+=d*k;moving=true;}else u.value=g;};
     st(U.uCarOn,GO.car);st(U.uNight,GO.night);
     const m=Math.min(1,dt*10);if(Math.abs(tgt.x-cur.x)>.3||Math.abs(tgt.y-cur.y)>.3){cur.x+=(tgt.x-cur.x)*m;cur.y+=(tgt.y-cur.y)*m;moving=true;}
-    if(moving||dirty){const H=sheet.offsetHeight;U.uCar.value.set(cur.x,H-cur.y-2);R.render(scene,cam);dirty=false;car.style.transform=`translate(${cur.x}px,${cur.y}px)`;}
+    if(moving||dirty){const H=sheet.offsetHeight,W=sheet.offsetWidth;U.uCar.value.set(cur.x,H-cur.y-2);R.render(scene,cam);dirty=false;car.style.transform=`translate(${cur.x}px,${cur.y}px)`;
+      // the sheet's shadow moves away from the light; under the desk lamp it falls right and down
+      const on=U.uCarOn.value,dx=(W/2-cur.x)*.05*on+10*(1-on),dy=14;
+      sheet.style.setProperty('box-shadow',`${dx.toFixed(1)}px ${dy}px 26px rgba(0,0,0,${(.34+.12*on).toFixed(2)}),${(dx*2).toFixed(1)}px ${dy*1.8}px 60px rgba(0,0,0,${(.22+.1*on).toFixed(2)})`,'important');
+      const r=sheet.getBoundingClientRect(),sc=r.width/W||1,gx=r.left+cur.x*sc,gy=r.top+cur.y*sc;spill.style.left=gx+'px';spill.style.top=(gy-200)+'px';
+      if(now-(frame.t||0)>120){frame.t=now;tell(gx,gy,on);}}
     requestAnimationFrame(frame);};
-  const setMode=m=>{mode=m==='type'?'type':'lamp';GO.car=mode==='type'?1:0;sheet.classList.toggle('osl-type',mode==='type');if(mode==='type')follow(true);dirty=true;
+  const setMode=m=>{mode=m==='type'?'type':'lamp';GO.car=mode==='type'?1:0;sheet.classList.toggle('osl-type',mode==='type');document.body.classList.toggle('osl-type-on',mode==='type');if(mode!=='type')tell(0,0,0);if(mode==='type')follow(true);dirty=true;
     try{localStorage.setItem('ocherkiSheetLight',mode);}catch(_){}o.onMode?.(mode);};
   setMode(mode);
   return{mode:setMode,get current(){return mode;},refresh(){dirty=true;follow();},

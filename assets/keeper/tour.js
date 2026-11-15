@@ -270,7 +270,7 @@ function create(host,o={}){
         later(()=>{if(t!==tok)return;const sp=spotOf(i);K.rest(sp[0],sp[1],.8);K.face(sp[0]<0?1:-1);K.lookAt(sp[0]<0?.9:-.9,-sp[1]*.4);K.mood?.(MOODS[i]);moodLife(t,i);},1400);
         later(()=>{if(t===tok)mist('.hd .sub',true);},2400);later(()=>{if(t===tok)mist('.hd p',true);},2800);}
       else{mist('.hd h2',true);later(()=>{if(t===tok)mist('.hd .sub',true);},300);later(()=>{if(t===tok)mist('.hd p',true);},600);}},prev<0?60:450);
-    if(D){D.prop(PROP[i]);later(()=>{if(t===tok)D.setLines(LINE.slice(0,i));},prev<0?60:450);later(()=>{if(t===tok)D.type(LINE[i],i===S.length-1?()=>later(()=>{if(t===tok)D.centre();},500):null);},(prev<0?60:450)+(K?2750:300));}
+    if(D){D.prop(PROP[i]);later(()=>{if(t===tok)D.setLines(LINE.slice(0,i));},prev<0?60:450);later(()=>{if(t===tok)D.type(LINE[i],()=>later(()=>{if(t===tok)D.centre();},350));},(prev<0?60:450)+(K?2750:300));}
     else later(()=>{if(t===tok){fit(cards[i]);pose(cards[i],0);}},prev<0?500:950);};
   const notes=(t,sp,chars='♪♫',font)=>{let box=$('.notes');if(!box){box=document.createElement('div');box.className='notes';el.appendChild(box);}
     const W=el.clientWidth||innerWidth,H=el.clientHeight||innerHeight,x=(sp[0]+1)/2*W,y=(1-sp[1])/2*H;
@@ -298,7 +298,7 @@ function create(host,o={}){
     start(){alive=true;i=-1;tok++;begun=false;cards.forEach(c=>pose(c,1));$('[data-a="prev"]').hidden=true;
       if(o.greeting!==false){el.classList.add('wait');$('.dots').hidden=true;$('[data-a="next"]').textContent='Показать';
         const wait=()=>{if(!alive||i>=0||begun)return;if(!K||(K.state.form>.88&&['idle','free'].includes(K.state.mode))){
-            mist('.say .l1',true);later(()=>mist('.say .l2',true),500);K&&K.talk(4200);K&&K.mood?.('joy',5200);later(()=>mist('.say .l3',true),1600);later(()=>el.classList.remove('wait'),2800);}
+            mist('.say .l1',true);later(()=>mist('.say .l2',true),300);K&&K.talk(3000);K&&K.mood?.('joy',3800);later(()=>mist('.say .l3',true),950);later(()=>el.classList.remove('wait'),1750);}
           else later(wait,160);};later(wait,500);}
       else{el.classList.remove('wait');first();}},
     stop(){alive=false;ts.forEach(clearTimeout);ts=[];},

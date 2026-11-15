@@ -196,7 +196,7 @@ const VW=()=>canvas.clientWidth||innerWidth,VH=()=>canvas.clientHeight||innerHei
 function halfW(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2)*camera.aspect;}
 let freeP={x:0,y:0,sc:1},awayTo=null,afterWrite='idle';
 // where the words are written when the host asks for a place (a heading at the top), and whether they stay there
-let WP=null,HOLD=false,FAST=false,WFLY=null;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
+let WP=null,HOLD=false,FAST=false,WFLY=null,WFH=0;const WS=opts.writeSpeed||1;let WSC=opts.wordsScale||1;
 function halfH(){const fov=camera.fov*Math.PI/180;return camera.position.z*Math.tan(fov/2);}
 function placeOf(m){const narrow=VW()<640;
   if(m==='free')return freeP;
@@ -239,7 +239,7 @@ const alerp=(a,b,k)=>{let d=(b-a)%(Math.PI*2);if(d>Math.PI)d-=Math.PI*2;if(d<-Ma
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;const T=clock;
   const mt=clock-modeAt;
   // the write cycle: he lies down into the line, the pen writes the words, they glow and fade, he rises
-  if(mode==='write'&&WFLY&&mt*WS>5.95){const u=nib.userData,to=WFLY;WFLY=null;HOLD=false;setMode('away');FAST=true;awayTo=to;
+  if(mode==='write'&&WFLY&&mt*WS>5.95+WFH*WS){const u=nib.userData,to=WFLY;WFLY=null;HOLD=false;setMode('away');FAST=true;awayTo=to;
     S.ex.v=S.ex.t=(u.x||0)+world.position.x;S.ey.v=S.ey.t=(u.y||0)+world.position.y;S.ex.vel=S.ey.vel=0;}
   if(mode==='write'){const wt=mt*WS;writeP=wt<2.5?0:Math.min(1,(wt-2.5)/3.3);if(wt>7.4)S.form.t=1;if(wt>9.9)setMode(afterWrite==='free'?'free':'idle');}
   if(mode==='come'){const P=placeOf(pending||'idle');
@@ -343,7 +343,7 @@ return{
     // the canvas measures with whatever font is ready: once the handwriting font is in, measure again so the pen writes the whole word
     if(text&&document.fonts)document.fonts.load('210px '+(opts.font||'"SignThatS"'),text).then(()=>{if(WORDS_NOW===text){wordsW=paintWords(text);words.material.uniforms.uW.value=wordsW;}}).catch(()=>{});
     if(o.at){const w=this.toWorld(o.at[0],o.at[1]);const unit=2*halfH()/VH();WP={x:w.x,y:w.y,s:Math.max(.2,(o.px||60)*unit/.62)};}else WP=null;
-    HOLD=!!o.hold;WFLY=o.fly?this.toWorld(o.fly[0],o.fly[1]):null;setMode('write');},
+    HOLD=!!o.hold;WFLY=o.fly?this.toWorld(o.fly[0],o.fly[1]):null;WFH=o.flyHold||0;setMode('write');},
   clearWords(){HOLD=false;},
   // finish the word now: the pen sweeps to its end in a moment
   hurry(){if(mode!=='write')return false;const wt=(clock-modeAt)*WS;if(wt<5.85&&wt>.5){modeAt=clock-5.85/WS;return true;}return false;},
