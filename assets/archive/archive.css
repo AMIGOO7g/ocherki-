@@ -159,3 +159,33 @@
 .oar .pg-letters .lw .env3{aspect-ratio:1063/737;width:70%;left:-4%;bottom:0}
 .oar .lw .env3 .flap{top:auto;bottom:calc(100% - 3px);height:64.9%;width:100%;left:0;transform-origin:50% 100%;animation:oa-flap2 1s cubic-bezier(.3,.6,.3,1) .3s both}
 @keyframes oa-flap2{from{transform:rotateX(-88deg);opacity:.2}30%{opacity:1}to{transform:rotateX(0)}}
+/* ===== v167e: Вопрос недели, Правки, Запись, Отправка ===== */
+/* 10 — the question card and the answers, larger; asking the family in plain sight */
+.oar.oar .pg-week .deck{width:min(620px,100%)}
+.oar.oar .pg-week .card h3{font-size:clamp(30px,3vw,42px);line-height:1.25}
+.oar.oar .pg-week .list{max-width:600px;max-height:46vh}
+.oar.oar .pg-week .row{padding-top:12px;padding-bottom:12px;font-size:18px}
+.oar.oar .pg-week .row .av{width:52px;height:52px}
+.oar .recgo.ask .rd{background:#e8b46a;box-shadow:0 0 0 4px rgba(232,180,106,.2),0 0 14px rgba(255,190,110,.55)}
+/* 11 — each correction says what will happen; after it, «отменить» */
+.oar.oar .pg-edits .row .ok,.oar.oar .pg-edits .row .no{width:auto;height:34px;border-radius:17px;padding:0 12px;display:flex;gap:6px;align-items:center;cursor:pointer;margin-left:6px}
+.oar .pg-edits .row .ok i,.oar .pg-edits .row .no i{font:italic 13px Georgia,serif}
+.oar .pg-edits .row.acc .ok,.oar .pg-edits .row.acc .no,.oar .pg-edits .row.rej .ok,.oar .pg-edits .row.rej .no{display:none}
+.oar .pg-edits .row.acc .tx,.oar .pg-edits .row.rej .tx{opacity:.5}
+.oar .pg-edits .row .st{font:italic 14px Georgia,serif;color:#cfae84;white-space:nowrap;margin-left:10px}
+.oar .pg-edits .row.acc .st{color:#b9d79a}
+.oar .pg-edits .row .st u{color:#f2d3a6;cursor:pointer}
+.oar .sheet .print .e.took{background:rgba(150,210,130,.28);transition:background 1.2s}
+/* 12 — what the microphone needs, and a look without it */
+.oar .info .mic{margin:18px 0 8px;max-width:520px;font:italic 15px/1.55 Georgia,serif;color:#cdb08a}
+.oar .info .mic b{font-style:normal;color:#f0dcbc}
+.oar .info .mic u{display:block;margin-top:12px;color:#f2d3a6;cursor:pointer;width:fit-content}
+.oar .info .mic.warn{animation:oa-warn 1.6s ease}
+@keyframes oa-warn{0%,40%{color:#ffd9b0;text-shadow:0 0 12px rgba(255,140,80,.5)}100%{}}
+/* 13 — the whole phone in view, the title on one line */
+.oar.oar .phone{height:84vh;margin-top:5vh}
+.oar.oar .pg-send .info h2{white-space:nowrap;font-size:clamp(44px,5vw,70px);line-height:1.2}
+.oar.oar .page.pg-week{grid-template-columns:1fr 1fr}
+.oar.oar .pg-week .deck{width:min(36vw,620px)}
+.oar .scene.s-week{right:auto;left:3vw;width:min(24vw,360px)}
+.oar.oar .pg-send .info h2{font-size:clamp(38px,3.8vw,58px)}
