@@ -155,3 +155,7 @@
 @keyframes oa-flap{from{transform:rotateX(0)}to{transform:rotateX(178deg)}}
 .oar .pg-letters .lw .sheet{z-index:3;animation-delay:1.1s}
 .oar .road .walker{opacity:.72}
+/* the open envelope (a real one): its flap rises from the fold, then the letter comes out */
+.oar .pg-letters .lw .env3{aspect-ratio:1063/737;width:70%;left:-4%;bottom:0}
+.oar .lw .env3 .flap{top:auto;bottom:calc(100% - 3px);height:64.9%;width:100%;left:0;transform-origin:50% 100%;animation:oa-flap2 1s cubic-bezier(.3,.6,.3,1) .3s both}
+@keyframes oa-flap2{from{transform:rotateX(-88deg);opacity:.2}30%{opacity:1}to{transform:rotateX(0)}}
