@@ -263,3 +263,26 @@
 .oar .pg-edits .row[hidden]{display:none!important}
 .oar .noedits{font:italic 17px Georgia,serif;color:#cfae84;margin:14px 0}
 .oar.oar .phone{height:70vh;margin-top:3vh}
+/* ===== v167g: the archive and the start, one house ===== */
+/* 1 — the same paper as the start's sheet: the studio's blind emboss at its head */
+.oar .sheet .emb{display:block;text-align:center;margin:-22px 0 18px;pointer-events:none;font-style:normal}
+.oar .sheet .emb b{display:block;width:44px;height:44px;margin:0 auto 2px;background:#e9e0cf;-webkit-mask:url("../brand/logo-night.png") center/contain no-repeat;mask:url("../brand/logo-night.png") center/contain no-repeat;
+  filter:drop-shadow(-.8px -.8px 0 rgba(255,255,255,.75)) drop-shadow(.9px 1px 0 rgba(90,60,30,.35))}
+.oar .sheet .emb em,.oar .sheet .emb s{display:block;text-decoration:none;color:rgba(232,222,204,.95);text-shadow:-.7px -.7px 0 rgba(255,255,255,.8),.8px .9px 0 rgba(90,60,30,.32)}
+.oar .sheet .emb em{font:400 19px/1.1 "SignThatS",Georgia,serif;font-style:normal}
+.oar .sheet .emb s{font:600 7.5px/1.4 "Iowan Old Style",Georgia,serif;letter-spacing:.32em;text-transform:uppercase}
+/* 3 — the proof sheets are typewritten, as on the start; corrections in red ink */
+.oar .pg-edits .sheet .print{font:700 15px/2.6 "Courier New",Courier,monospace;color:#1a0f08;letter-spacing:.01em}
+.oar .pg-edits .sheet h3{margin-bottom:10px}
+/* 4 — the desk of the archive: the same paper desk in the evening light, a small open book by the tree */
+.oar .tdesk::before{content:"";position:absolute;inset:-6% -4% -10%;z-index:-1;pointer-events:none;background:url("../keeper/desk-paper.jpg") center/cover;opacity:.07;
+  -webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 62%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse 60% 55% at 50% 62%,#000 20%,transparent 75%)}
+.oar .tdesk .book{position:absolute;left:50%;top:58%;width:min(15vw,220px);translate:-50% -50%;rotate:-4deg;pointer-events:none;filter:drop-shadow(0 14px 18px rgba(0,0,0,.6)) brightness(.86);opacity:.95}
+/* 6 — opening the archive: the things fly in from above one after another, the Keeper comes down as a spark to his corner */
+@keyframes oa-arrive{from{opacity:0;transform:translateY(-38vh) scale(.55)}to{opacity:1;transform:none}}
+.oar .tdesk .sec{animation:oa-arrive 1.1s cubic-bezier(.2,.8,.3,1) both}
+.oar .tdesk .at-voices{animation-delay:.15s}.oar .tdesk .at-photos{animation-delay:.27s}.oar .tdesk .at-texts{animation-delay:.39s}
+.oar .tdesk .at-letters{animation-delay:.51s}.oar .tdesk .at-week{animation-delay:.63s}.oar .tdesk .at-edits{animation-delay:.75s}
+@keyframes kp-come{from{opacity:0;transform:translate(42vw,-82vh) scale(.25)}60%{opacity:1}to{opacity:1;transform:none}}
+.kp.live,.kp.flat{animation:kp-come 1.6s cubic-bezier(.3,.6,.25,1) both}
+.oar .tdesk .book{top:53%;width:min(8.5vw,130px);rotate:-3deg}

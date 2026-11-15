@@ -5,6 +5,12 @@
 (()=>{
 const CSS=`
 .okt{position:absolute;inset:0;font-family:var(--okt-serif);color:#f6ead8;pointer-events:none}
+/* the greeting: a man walks slowly along the bottom, a memory in the mist (the same as on the archive's road of life) */
+.okt .walk{position:absolute;left:0;right:0;bottom:4vh;height:min(17vh,150px);opacity:0;transition:opacity 1.6s ease;pointer-events:none}
+.okt.greet .walk{opacity:.5;filter:blur(1px)}
+.okt .walk::before{content:"";position:absolute;left:8%;right:8%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,197,142,.28) 20%,rgba(232,197,142,.28) 80%,transparent)}
+.okt .walk img{position:absolute;bottom:0;height:100%;left:6%;animation:okt-walk 46s linear infinite}
+@keyframes okt-walk{from{left:4%}to{left:90%}}
 .okt>*{pointer-events:auto}
 /* the heading: the Keeper's pen writes the word itself (above), here only what follows it, in plain type */
 .okt .hd{position:absolute;left:0;right:0;top:calc(5% + 108px);text-align:center;pointer-events:none}
@@ -211,7 +217,7 @@ function create(host,o={}){
   const PROP=['stack','vinyl','phone','letters','spread'],SIDE=[-1,1,-1,1,-1];
   const el=document.createElement('div');el.className='okt wait'+(K?'':' nok');
   el.style.setProperty('--okt-script',o.script||'"SignThatS","Sign That S",Georgia,serif');el.style.setProperty('--okt-serif',o.serif||'"CormorantCy","Iowan Old Style",Georgia,serif');
-  el.innerHTML=`<div class="say"><span class="l1 mist out">Здравствуйте! Я —</span><span class="l2 mist out">Хранитель историй</span><span class="l3 mist out">Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
+  el.innerHTML=`<div class="walk"><img src="assets/archive/walker.webp" alt=""></div><div class="say"><span class="l1 mist out">Здравствуйте! Я —</span><span class="l2 mist out">Хранитель историй</span><span class="l3 mist out">Помогу собрать воспоминания вашей семьи в книгу. Покажу, что здесь можно делать.</span></div>
     <div class="hd"><h2 class="mist out"></h2><div class="sub mist out"></div><p class="mist out"></p></div><div class="deck">${S.map(s=>s.c).join('')}</div>
     <div class="nav"><button type="button" class="btn back" data-a="prev" hidden>Назад</button><span class="dots" hidden>${S.map(()=>'<i></i>').join('')}<em class="cnt"></em></span><button type="button" class="btn main" data-a="next">Показать</button></div>
     <span class="skip" data-a="skip">${o.skipLabel||'Пропустить'}</span>`;
@@ -264,7 +270,7 @@ function create(host,o={}){
   const moodLife=(t,k)=>{const go=()=>{if(t!==tok||!alive||!K)return;K.mood?.(FLASH[Math.floor(Math.random()*FLASH.length)],1300+Math.random()*700,MOODS[k]);later(go,3800+Math.random()*3000);};later(go,3500);};
   // the order of a step: the old picture and words go and he flows into his pen; then the new picture comes;
   // the pen writes the word at the top; he gathers beside the picture with the step's mood; the line under it last
-  const show=k=>{const prev=i;i=Math.max(0,Math.min(S.length-1,k));const t=++tok;
+  const show=k=>{el.classList.remove('greet');const prev=i;i=Math.max(0,Math.min(S.length-1,k));const t=++tok;
     ['h2','.sub','p'].forEach(q=>mist('.hd '+q,false));if(K)K.clearWords();
     cards.forEach((c,j)=>{if(j!==i)pose(c,j-i);});el.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('on',j<=i));$('.dots .cnt').textContent=`${i+1} из ${S.length}`;
     $('[data-a="next"]').textContent=i===S.length-1?(o.last||'Начать'):'Далее';$('[data-a="prev"]').hidden=i<1;
@@ -299,7 +305,7 @@ function create(host,o={}){
     // greeting:true — he greets first: the words come out of the mist one after another, the keys last;
     // false — straight to the first card
     start(){alive=true;i=-1;tok++;begun=false;cards.forEach(c=>pose(c,1));$('[data-a="prev"]').hidden=true;
-      if(o.greeting!==false){el.classList.add('wait');$('.dots').hidden=true;$('[data-a="next"]').textContent='Показать';
+      if(o.greeting!==false){el.classList.add('wait','greet');$('.dots').hidden=true;$('[data-a="next"]').textContent='Показать';
         const wait=()=>{if(!alive||i>=0||begun)return;if(!K||(K.state.form>.88&&['idle','free'].includes(K.state.mode))){
             mist('.say .l1',true);later(()=>mist('.say .l2',true),300);K&&K.talk(3000);K&&K.mood?.('joy',3800);later(()=>mist('.say .l3',true),950);later(()=>el.classList.remove('wait'),1750);}
           else later(wait,160);};later(wait,500);}

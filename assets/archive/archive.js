@@ -227,7 +227,7 @@ const crackle=()=>{try{const C=new (window.AudioContext||window.webkitAudioConte
   for(let i=0;i<b.length;i++){const k=1-i/b.length;b[i]=((Math.random()<.003)?(Math.random()*2-1)*.7:0)+(Math.random()*2-1)*.025*k;}
   const src=C.createBufferSource(),g=C.createGain(),lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;g.gain.value=.45;src.buffer=n;src.connect(lp).connect(g).connect(C.destination);src.start();setTimeout(()=>C.close(),1400);}catch(_){}};
 const render=html=>{stopAudio();deck2.reset();timers.forEach(clearTimeout);timers=[];root.innerHTML=knight+html;if(keeper.box)root.appendChild(keeper.box);};
-const showDesk=()=>{where={v:'desk'};setTimeout(()=>{if(where&&where.v==='desk')keeper.say('desk');},1600);render(`${top('Конструктор')}<header><h1>Архив семьи</h1><p>Всё, что присылают родные, — под одним деревом</p></header><div class="tdesk"><img class="tree" src="${A}archive/tree-mist.webp" alt="">${SECS.map(s=>`<div class="sec at-${s.k}" data-sec="${s.k}"><div class="obj">${s.o()}</div>${s.nw?'<span class="new">новое</span>':''}<b>${s.t}</b><small>${s.n()}</small></div>`).join('')}</div>`);};
+const showDesk=()=>{where={v:'desk'};setTimeout(()=>{if(where&&where.v==='desk')keeper.say('desk');},1600);render(`${top('Конструктор')}<header><h1>Архив семьи</h1><p>Всё, что присылают родные, — под одним деревом</p></header><div class="tdesk"><img class="tree" src="${A}archive/tree-mist.webp" alt=""><img class="book" src="${A}keeper/desk-spread.webp" alt="">${SECS.map(s=>`<div class="sec at-${s.k}" data-sec="${s.k}"><div class="obj">${s.o()}</div>${s.nw?'<span class="new">новое</span>':''}<b>${s.t}</b><small>${s.n()}</small></div>`).join('')}</div>`);};
 const showSec=k=>{if(k==='week'||k==='edits'||CAR.includes(k)){showPage(k,0,true);return;}showAll(k);};
 const showAll=k=>{const s=SECS.find(x=>x.k===k);
   where={v:'sec',k};list=items(k);
@@ -252,6 +252,8 @@ const showPage=(k,i,fromDesk,dir)=>{const p=page(k,i);if(!p)return;where={v:'pag
   render(`${top(fromDesk?'Архив':p.c)}${SCENE[k]?`<img class="scene s-${k}" src="${A}archive/${SCENE[k]}" alt="">`:''}<div class="page${k==='photos'?' has-road':''} pg-${k}"><div class="obj${p.ph?' phn':''}">${carousel(k,i,p.n,p.l,dir)}</div><div class="info">${p.r}${nav}</div></div>${k==='photos'?road(i):''}`);
   if(k==='photos')walkTo(i);
   keeper.say(k);
+  // our paper: the studio's blind emboss at the head of the sheet, as on the start's sheet
+  root.querySelectorAll('.pg-texts .mainv .sheet,.pg-edits .sheet').forEach(sh=>{if(sh.querySelector('.emb'))return;const e=document.createElement('i');e.className='emb';e.innerHTML='<b></b><em>Evstafiadi</em><s>мастерская дизайна</s>';sh.prepend(e);});
   // «В книгу» and «Изменить» on every thing; what was changed is kept
   const key=k+':'+i,info=root.querySelector('.info');
   info.querySelectorAll('.keys .k').forEach(b=>{const t=b.textContent.trim();if(t==='В книгу'){b.dataset.act='tobook';if(getJ(IB)[key]){b.textContent='✓ В книге';b.classList.add('done');}}if(t==='Изменить')b.dataset.act='edit';});

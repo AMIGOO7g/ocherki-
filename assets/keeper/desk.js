@@ -131,7 +131,7 @@ function create(host,o={}){
   const PROPS={
     stack:{src:'assets/keeper/desk-stack.webp',w:()=>SW*1.42,x:()=>SX+SW/2,y:()=>SY+SH*.5,ax:.5,ay:.5,r:-5,shade:'none',fl:'sepia(.6) saturate(1.3) hue-rotate(-10deg) brightness(.66)'},
     vinyl:{src:'assets/keeper/desk-vinyl-disc.webp',shine:'assets/keeper/desk-vinyl-shine.webp',w:()=>SW*.9,x:()=>SX-SW*.45,y:()=>H-SW*.06,ax:.5,ay:.5,r:0,spin:1,shade:'linear-gradient(200deg,transparent 40%,rgba(8,4,2,.6) 95%)'},
-    phone:{src:'assets/keeper/tour-phone.webp',w:()=>SW*.62,x:()=>SX+SW+SW*.28,y:()=>SY+SH*.6,ax:.5,ay:.5,r:-14,shade:'linear-gradient(100deg,transparent 35%,rgba(8,4,2,.7) 92%)'},
+    phone:{src:'assets/keeper/tour-phone.webp',w:()=>SW*.34,x:()=>SX+SW+SW*.28,y:()=>SY+SH*.6,ax:.5,ay:.5,r:-14,shade:'linear-gradient(100deg,transparent 35%,rgba(8,4,2,.7) 92%)'},
     letters:{src:'assets/keeper/desk-letters.webp',w:()=>SW*1.25,x:()=>SX-SW*.5,y:()=>SY+SH*.56,ax:.5,ay:.5,r:5,shade:'linear-gradient(260deg,transparent 40%,rgba(8,4,2,.65) 96%)'},
     spread:{src:'assets/keeper/desk-spread.webp',w:()=>SW*.9,x:()=>SX+SW*.9,y:()=>SY+SH*.5,ax:0,ay:.5,r:-5,shade:'linear-gradient(100deg,transparent 40%,rgba(8,4,2,.65) 96%)'}};
   const prEls={};let prNow='';
