@@ -85,6 +85,7 @@ function drawTurn(t){const {left,front,back,under,M:M0,C}=t;desk();
   const lift=Math.sin(Math.PI*Math.min(1,dl/(2*W))); // 0 when the leaf lies flat on either side, 1 halfway
   const stay=clipPoly(rect,F,n,false),fold=clipPoly(rect,F,n,true);
   if(stay.length>2){ctx.save();path(stay);ctx.clip();page(front,S);ctx.restore();}
+  spine(left,under);
   // the shadow the leaf throws on the page beneath, along the fold
   if(fold.length>2){ctx.save();path(fold);ctx.clip();const sw=Math.max(6,Math.min(W*.35,dl*.6)*(.35+.65*lift)),g=ctx.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);g.addColorStop(0,`rgba(0,0,0,${(.12+.3*lift).toFixed(3)})`);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(S-W,Y,2*W,H);ctx.restore();}
   // the leaf turned over: its back (the left page of the next spread), across the fold
@@ -97,8 +98,7 @@ function drawTurn(t){const {left,front,back,under,M:M0,C}=t;desk();
     T(1,0,0,1,0,0);
     const far=refl(C),g=ctx.createLinearGradient(F[0],F[1],far[0],far[1]);
     const q=.25+.75*lift;g.addColorStop(0,`rgba(0,0,0,${(.3*q).toFixed(3)})`);g.addColorStop(.06,`rgba(0,0,0,${(.08*q).toFixed(3)})`);g.addColorStop(.2,`rgba(255,255,255,${(.28*q).toFixed(3)})`);g.addColorStop(.5,`rgba(255,255,255,${(.05*q).toFixed(3)})`);g.addColorStop(1,`rgba(0,0,0,${(.12*q).toFixed(3)})`);
-    ctx.fillStyle=g;ctx.fillRect(S-2*W,Y-H,4*W,3*H);ctx.restore();}
-  spine(left,under);}
+    ctx.fillStyle=g;ctx.fillRect(S-2*W,Y-H,4*W,3*H);ctx.restore();}}
 function draw(){if(anim&&anim.turn)return drawTurn(anim.turn);if(drag&&drag.turn)return drawTurn(drag.turn);
   const c=spreads[at];desk();bookShadow(c.L,c.R);page(c.L,S-W);page(c.R,S);spine(c.L,c.R);
   if(anim&&anim.fade){const o=anim.fade;page(o.L,S-W,o.a);page(o.R,S,o.a);}
