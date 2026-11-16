@@ -7,9 +7,9 @@
 | `app/write/` | «Писать» (с v174): `write.css` и `write.js` — лист, каретка, клавиатура, вопросы, часы |
 | `app/manuscript/` | «Рукопись»: `manuscript.css` и `manuscript.js` — весь экран в двух файлах (с v171); `134-three-screens-script.js` — переключение трёх экранов |
 | `app/book/` | «Книга»: `book.css` и `book.js` — экран в двух файлах (с v172); `044-v103-book-assembly-controller.js` — движок сборки книги |
-| `app/archive/` | старая комната «Семья» и связка с новым архивом (`assets/archive/`) |
-| `app/topbar/` | верхние висящие ключи, «Ещё», музыка, подсказки ключей: `topbar.js` (с v176); их стили — в `app/common/chrome.css` |
-| `app/start/` | включение, вход в конструктор, знакомство |
+| `app/archive/` | связка конструктора с архивом (с v177): `archive.css`, `archive.js`; сам новый архив — `assets/archive/` |
+| `app/topbar/` | верхние висящие ключи: `keys.js` (сами ключи), `topbar.js` («Ещё», музыка, подсказки); их стили — в `app/common/chrome.css` |
+| `app/start/` | включение, вход, знакомство (с v177): `start.css`, `start.js`; замок входа `022` — в голове страницы |
 | `app/shelf/` | «Мои книги» (с v173): `shelf.css` и `shelf.js` — витрина книг и карточка книги с её настоящей обложкой |
 | `app/common/` | основа (`001-base.css`); стили верха и общих правил в исходном порядке (`chrome.css`); общие скрипты (`common-early.js`, `common-late.js`); ядро оболочки (`025-shell-core.js`), загрузка и карта (`042-boot-and-map.js`), тихий DOM (`021`) |
 
