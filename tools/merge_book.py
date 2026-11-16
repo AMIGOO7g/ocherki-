@@ -141,7 +141,7 @@ def main():
             sels = [s for s in (x.strip() for x in st[1].split(',')) if not DEAD.search(s)]
             if not sels:
                 continue
-            rules.append(['rule', ', '.join(sels), decls(st[2])])
+            rules.append(['rule', ','.join(sels), decls(st[2])])
         else:
             rules.append(['at', st[1]])
     last = {}

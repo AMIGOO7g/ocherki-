@@ -12,5 +12,10 @@ function inline(root,html){
     return parts.map((p,i)=>{let body=p.body;if(i<parts.length-1&&body.endsWith('\n'))body=body.slice(0,-1);
       const [attrs,sep]=p.meta;return css?`${sep}<style${attrs}>${unrewrite(body)}</style>`:`<script${attrs}>${body}</script>`;}).join('');});
 }
-function readPage(root,name){return inline(root,fs.readFileSync(path.join(root,name),'utf8'));}
+// v172: a screen that was made clean (app/<screen>/<screen>.css|js, the write carriage…) is loaded as a plain file: it is read in place too
+function plain(root,html){
+  return html.replace(/<link rel="stylesheet" href="(app\/[^"?]+)(?:\?[^"]*)?">|<script src="(app\/[^"?]+)(?:\?[^"]*)?"><\/script>/g,(all,css,js)=>{
+    const text=fs.readFileSync(path.join(root,css||js),'utf8');return css?`<style>${unrewrite(text)}</style>`:`<script>${text}</script>`;});
+}
+function readPage(root,name){return plain(root,inline(root,fs.readFileSync(path.join(root,name),'utf8')));}
 module.exports={readPage,inline};
