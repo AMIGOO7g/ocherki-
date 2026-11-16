@@ -1,0 +1,35 @@
+/* Б2: верх разгружен — название главы прямо на плашке; много фото — стопка с числом и разложенный лоток */
+.cr-title{display:none}
+.cr .vm-car{top:118px;width:720px;height:58px}
+.cr .vm-car .t{flex-direction:column;gap:2px!important}
+.cr .vm-car .t b.ct{font:28px/1 SignThatS,Georgia,serif!important;letter-spacing:0!important;color:#f3dcc0!important;text-shadow:0 0 10px rgba(255,160,70,.35)!important}
+.cr-day .vm-car .t b.ct{color:#5a3a22!important;text-shadow:0 1px 0 rgba(255,252,244,.9)!important}
+.cr .vm-car .t small{font:italic 12.5px Georgia,serif;color:#cdb08c;letter-spacing:.03em}
+.cr-day .vm-car .t small{color:#7a5a3c}
+.cr-row.r1{transform:translate3d(0,400px,0)}
+.cr-row.r2{transform:translate3d(0,290px,-520px)}
+.cr-row.r3{transform:translate3d(0,225px,-1150px)}
+/* stack with a counter */
+.cr .vf-tray{top:300px!important}
+.st-n{position:absolute;left:60px;top:322px;z-index:5;font:600 13px Georgia,serif;color:#3a2616;padding:8px 13px;border-radius:18px;background:linear-gradient(#ecd09a,#b98a4c);box-shadow:0 4px 10px rgba(0,0,0,.45);pointer-events:auto}
+.st-fit{display:block;margin-top:6px;font:italic 13.5px/1.3 Georgia,serif;color:#ffd79a}
+/* the laid-out tray */
+.lt{position:fixed;inset:0;z-index:2147483300;background:radial-gradient(ellipse at 50% 45%,rgba(40,24,12,.86),rgba(12,7,4,.95));font-family:Georgia,serif;color:#f3dcc0}
+.lt h3{position:absolute;left:0;right:0;top:46px;margin:0;text-align:center;font:44px/1 SignThatS,Georgia,serif;color:#ffe2bd}
+.lt .tabs{position:absolute;left:0;right:0;top:112px;display:flex;justify-content:center;gap:10px}
+.lt .tabs span{font:italic 15px Georgia,serif;padding:8px 16px;border-radius:18px;border:1px solid rgba(255,220,170,.3)}
+.lt .tabs span.on{background:linear-gradient(#ecd09a,#b98a4c);color:#3a2616;border-color:transparent}
+.lt .grp{position:absolute;left:90px;right:90px;font:600 11px Georgia,serif;letter-spacing:.24em;text-transform:uppercase;color:#e3b97c}
+.lt .grp i{font:italic 14px Georgia,serif;letter-spacing:0;text-transform:none;color:#cdb08c;margin-left:12px}
+.lt .row{position:absolute;left:90px;right:90px;display:flex;gap:22px}
+.lt .ph{position:relative;width:150px;padding:7px 7px 24px;background:#fbf6ec;box-shadow:0 10px 22px rgba(0,0,0,.5)}
+.lt .ph img{display:block;width:100%;height:108px;object-fit:cover;filter:sepia(.2)}
+.lt .ph i{position:absolute;left:9px;right:9px;bottom:5px;font:italic 12px Georgia,serif;color:#4a3324;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lt .ph s{position:absolute;top:-8px;right:-6px;text-decoration:none;font:600 8.5px/1 Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:#3a2616;padding:5px 7px;border-radius:10px;background:linear-gradient(#e9c98f,#b98a4c)}
+.lt .ph s.pc{background:linear-gradient(#ddd6c8,#a9a092)}
+.lt .ph.sel{outline:3px solid #ffc979;outline-offset:3px}
+.lt .ph.sel:after{content:'✓';position:absolute;left:-9px;top:-9px;width:24px;height:24px;border-radius:50%;background:#ffc979;color:#3a2616;font:700 14px/24px Georgia;text-align:center}
+.lt .bar{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:flex;gap:14px;align-items:center;font:italic 16px Georgia,serif;color:#fff}
+.lt .bar b{font:600 11px Georgia,serif;letter-spacing:.18em;text-transform:uppercase;color:#3a2616;padding:11px 18px;border-radius:20px;background:linear-gradient(#ecd09a,#b98a4c)}
+.lt .bar u{text-decoration:none;font:italic 15px Georgia,serif;padding:10px 16px;border-radius:20px;border:1px solid rgba(255,220,170,.4)}
+.lt .x{position:absolute;right:34px;top:34px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,220,170,.4);text-align:center;font:22px/42px Georgia}
