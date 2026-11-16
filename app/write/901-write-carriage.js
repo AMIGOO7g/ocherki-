@@ -73,7 +73,11 @@
   new MutationObserver(()=>{if(shell.classList.contains('is-keyboard-resting')||!isWrite())typing(false);}).observe(shell,{attributes:true,attributeFilter:['class']});
   addEventListener('resize',()=>{if(shell.classList.contains('wc-typing'))lift();});
   // the Keeper in the corner: once, he says what this place is for; a click on him says it again
-  const HK='ocherkiWriteHints',HINT='Пишите, как говорите — книга сложится сама';
+  // v170: the same Keeper says one thing on «Писать» and one on «Рукопись», each once
+  const isMsQ=()=>shell.classList.contains('is-manuscript')&&!!document.querySelector('.ms-screen.on');
+  const where=()=>isWrite()&&!shell.classList.contains('wc-typing')?'w':isMsQ()?'m':'';
+  const HKS={w:'ocherkiWriteHints',m:'ocherkiMsHints'},HINTS={w:'Пишите, как говорите — книга сложится сама',m:'Крутите колёсико — пойдёте по главам дальше. Фото — на кнопке с фотоаппаратом'};
+  let HK=HKS.w,HINT=HINTS.w;
   const wk=document.createElement('div');wk.className='wk';wk.innerHTML='<canvas></canvas>';document.body.appendChild(wk);
   const hint=document.createElement('div');hint.className='wk-hint';document.body.appendChild(hint);
   let K=null,ht=0;
@@ -83,7 +87,8 @@
   const rest=()=>{try{K?.flyAway(0,-.15);}catch(_){}};
   hint.addEventListener('click',e=>{if(e.target.closest('[data-off]')){try{localStorage.setItem(HK,JSON.stringify({off:1,seen:1}));}catch(_){}hint.classList.remove('on');}});
   wk.querySelector('canvas').addEventListener('click',()=>say(true));
-  const show=()=>{const on=isWrite()&&!shell.classList.contains('wc-typing');wk.classList.toggle('on',on&&!!K);if(!on)hint.classList.remove('on');
+  const show=()=>{const w=where(),on=!!w;wk.classList.toggle('on',on&&!!K);if(!on)hint.classList.remove('on');
+    if(w&&w!==show.w){show.w=w;HK=HKS[w];HINT=HINTS[w];show.said=0;hint.classList.remove('on');}
     if(on&&K&&!show.said){show.said=1;setTimeout(()=>{let m={};try{m=JSON.parse(localStorage.getItem(HK)||'{}');}catch(_){}if(m.off||m.seen)rest();else say(false);},1800);}};
   setInterval(show,600);
   const boot=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const L=window.OcherkiTour?.loadKeeper;if(!L){setTimeout(boot,1500);return;}

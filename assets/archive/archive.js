@@ -246,6 +246,14 @@ const carousel=(k,i,n,main,dir)=>{if(!CAR.includes(k)||n<2)return main;
   return `<div class="cr">${sides.filter(d=>n>4||Math.abs(d)===1).map(d=>`<div class="nbr ${d<0?'l':'r'}${Math.abs(d)}" data-go-i="${at(d)}">${nbVis(k,at(d))}</div>`).join('')}<div class="mainv${dir?' from-'+(dir>0?'r':'l'):''}">${main}</div>
     <div class="cnt"><b data-nav="-1">‹</b><span>${i+1} из ${n}</span><b data-nav="1">›</b><em data-all>все записи</em></div></div>`;};
 const IB='ocherkiArchiveInBook',ED='ocherkiArchiveEdits';
+// v170: an archive photo as a card for the book (its caption, year, place and people go with it)
+const photoCard=i=>{const x=D.photos[i];if(!x)return null;return{ak:'photos:'+i,src:P+x[0]+'.jpg',caption:x[1]||'',year:((String(x[2]||'').match(/\d{4}/)||[''])[0]),place:x[3]||'',people:x[4]||''};};
+const goNote=t=>{let n=document.querySelector('.mq-go');if(!n){n=document.createElement('div');n.className='mq-go';n.innerHTML='<span></span><button type="button">Открыть рукопись</button>';document.body.appendChild(n);
+  n.querySelector('button').addEventListener('click',()=>{n.classList.remove('on');window.OCHERKI_OPEN_MANUSCRIPT?.();});}
+  n.querySelector('span').textContent=t;n.classList.add('on');clearTimeout(goNote.t);goNote.t=setTimeout(()=>n.classList.remove('on'),6500);};
+// what was marked before v170 comes to the ribbon too (each card once)
+setTimeout(function sync(){if(!window.OCHERKI_FROM_ARCHIVE){if(!sync.n||sync.n++<10)setTimeout(sync,2000);sync.n=sync.n||1;return;}
+  Object.keys(getJ(IB)).forEach(k=>{const m=/^photos:(\d+)$/.exec(k);const c=m&&photoCard(+m[1]);if(c)window.OCHERKI_FROM_ARCHIVE(c,true);});},2500);
 const getJ=n=>{try{return JSON.parse(localStorage.getItem(n)||'{}');}catch(_){return{};}},setJ=(n,v)=>{try{localStorage.setItem(n,JSON.stringify(v));}catch(_){}};
 const toast=t=>{root.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=t;root.appendChild(d);setTimeout(()=>d.remove(),3200);};
 const showPage=(k,i,fromDesk,dir)=>{const p=page(k,i);if(!p)return;where={v:'page',k,i,fromDesk};at=i;const isCar=CAR.includes(k)&&p.n>1;
@@ -298,7 +306,13 @@ const onClick=e=>{const t=e.target;
   const pl=t.closest('[data-play]');if(pl){play(pl);return;}
   if(t.closest('[data-rec]')){startRec();return;}if(t.closest('[data-stop]')){rec&&rec.stop();return;}
   const a=t.closest('[data-act]')?.dataset.act;
-  if(a==='tobook'){const b=t.closest('[data-act]'),key=where.k+':'+where.i,m=getJ(IB);if(m[key]){delete m[key];b.textContent='В книгу';b.classList.remove('done');toast('Убрано из книги');}else{m[key]=Date.now();b.textContent='✓ В книге';b.classList.add('done');toast('Отмечено для книги — появится в «Рукописи» при сборке главы');}setJ(IB,m);return;}
+  if(a==='tobook'){const b=t.closest('[data-act]'),key=where.k+':'+where.i,m=getJ(IB),ph=where.k==='photos'&&photoCard(where.i);
+    if(m[key]){delete m[key];b.textContent='В книгу';b.classList.remove('done');if(ph)window.OCHERKI_FROM_ARCHIVE?.(ph,false);toast('Убрано из книги');}
+    else{m[key]=Date.now();b.textContent='✓ В книге';b.classList.add('done');
+      // v170: a photo lies down in the ribbon of «Рукопись» at once; the note says so and leads there
+      if(ph&&window.OCHERKI_FROM_ARCHIVE){window.OCHERKI_FROM_ARCHIVE(ph,true);goNote('Фото ждёт в «Рукописи» — положите его на лист');}
+      else toast('Отмечено для книги');}
+    setJ(IB,m);return;}
   if(a==='edit'){const b=t.closest('[data-act]'),info=root.querySelector('.info'),els=[...info.querySelectorAll('h2,.sub,.story,dd')],on=b.dataset.on!=='1';
     els.forEach(e=>e.contentEditable=on?'true':'false');if(on){b.dataset.on='1';b.textContent='Сохранить';els[0]?.focus();}else{b.dataset.on='0';b.textContent='Изменить';const m=getJ(ED);m[where.k+':'+where.i]=els.map(e=>e.innerHTML);setJ(ED,m);toast('Сохранено');}return;}
   if(a==='preview'){const inf=root.querySelector('.info');root.querySelector('.reel1')?.classList.add('on');inf.innerHTML=recRight('rec');const t0=performance.now();const tm=()=>{const x=root?.querySelector('[data-timer]');if(!x)return;const s=(performance.now()-t0)/1000;x.textContent=fmt(s);if(s<6)setTimeout(tm,250);else{root.querySelector('.reel1')?.classList.remove('on');inf.innerHTML=recRight('preview',42);}};tm();return;}

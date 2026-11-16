@@ -86,7 +86,12 @@
   input.addEventListener('change',()=>{readFiles(input.files).then(list=>{stack.push(...list);save();draw();if(list.length)say('Фото в стопке — перетащите каждое на свой лист');});input.value='';});
   tray.querySelector('.ms-add-photos').addEventListener('click',()=>input.click());
   // v105: photos sent by the family go onto the same stack.
-  window.OCHERKI_TRAY_ADD=srcs=>Promise.all((srcs||[]).map(src=>new Promise(ok=>{const im=new Image();im.onload=()=>ok({id:'tray_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),src,width:im.naturalWidth,height:im.naturalHeight,from:'arch'});im.onerror=()=>ok(null);im.src=src;}))).then(list=>{list=list.filter(Boolean);stack.push(...list);save();draw();return list.length;});
+  // v170: an item may be a picture's address or a card from the archive ({src, caption, year, place, people, ak}); one archive card lies here once
+  window.OCHERKI_TRAY_ADD=srcs=>Promise.all((srcs||[]).map(x=>new Promise(ok=>{const it=typeof x==='string'?{src:x}:x||{};if(it.ak&&stack.some(p=>p.ak===it.ak))return ok(null);const im=new Image();im.onload=()=>{
+      // the picture is kept itself (not its address), so it stays when the archive changes
+      let src=it.src;try{const c=document.createElement('canvas'),k=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight));c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);src=c.toDataURL('image/jpeg',.9);}catch(_){}
+      ok({id:'tray_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),src,width:im.naturalWidth,height:im.naturalHeight,from:'arch',ak:it.ak||'',caption:it.caption||'',year:it.year||'',place:it.place||'',people:it.people||''});};im.onerror=()=>ok(null);im.src=it.src;}))).then(list=>{list=list.filter(Boolean);stack.push(...list);save();draw();return list.length;});
+  window.OCHERKI_TRAY_DROP=ak=>{const n=stack.length;stack=stack.filter(p=>p.ak!==ak);if(stack.length!==n){save();draw();}return n-stack.length;};
   // Files dragged from the computer.
   let depth=0;
   scr.addEventListener('dragenter',e=>{if(![...(e.dataTransfer?.types||[])].includes('Files'))return;e.preventDefault();depth++;scr.classList.add('is-file-over');});
