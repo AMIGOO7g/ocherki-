@@ -403,3 +403,10 @@ html body .ms-print.is-dragging img{height:72px!important}
 .mq-go{position:fixed;left:50%;bottom:40px;transform:translate(-50%,16px);z-index:2147483647;display:flex;gap:16px;align-items:center;padding:12px 14px 12px 22px;border-radius:30px;background:rgba(30,18,10,.92);box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 1px rgba(233,201,143,.45);font:italic 16px Georgia,serif;color:#fff;opacity:0;pointer-events:none;transition:opacity .4s,transform .4s}
 .mq-go.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .mq-go button{all:unset;cursor:pointer;font:600 11px Georgia,serif;letter-spacing:.18em;text-transform:uppercase;color:#3a2616;padding:9px 14px;border-radius:18px;background:linear-gradient(#ecd09a,#b98a4c)}
+
+/* v180: the carriage leaves at once */
+.mq-car:not(.on){transition:opacity .15s ease!important}
+/* the switch between screens is a cross-fade of the whole page: the carriage of «Рукопись» is not carried in it */
+.mq-car{view-transition-name:mq-car}
+::view-transition-old(mq-car){animation:none;opacity:0}
+::view-transition-new(mq-car){animation:none}

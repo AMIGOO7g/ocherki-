@@ -379,7 +379,7 @@ html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-nigh
 .shell .write-nav,.shell #writingPrompt{transition:opacity .4s ease}
 html body .shell.wp-on .write-nav,html body .shell.wp-on #writingPrompt,html body .shell.wp-on .writing-prompt-restore,html body .shell.wp-closing .write-nav,html body .shell.wp-closing #writingPrompt,html body .shell.wp-closing .writing-prompt-restore{opacity:0!important;pointer-events:none!important}
 @media (prefers-reduced-motion:reduce){.wp-pane,.editor-paper-wrap{transition:none!important}}
-html body .shell.oc-w .wp-keys,html body .oc-add2,html body .oc-more2,html body .oc-mus{display:none!important}
+html body .shell.oc-w .wp-keys.k-closed,html body .oc-add2,html body .oc-more2,html body .oc-mus{display:none!important}
 html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item{visibility:hidden!important}
 .wc{position:fixed;z-index:2147483150;height:36px;display:flex;align-items:center;gap:14px;padding:0 20px;box-sizing:border-box;border-radius:18px;border:3px solid transparent;opacity:0;pointer-events:none;transition:opacity .6s ease}
 .wc.on{opacity:1;pointer-events:auto}
@@ -605,3 +605,6 @@ html body .shell.oc-w .wp-keys.k-closed .key:hover::before,html body .shell.oc-w
 html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"].is-active::before,html body .oc-add2.open .it.main .key::before{box-shadow:inset 0 0 0 2px rgba(255,214,166,.95),inset 0 -1px 0 rgba(63,43,29,.2),0 0 0 1px rgba(255,200,140,.85),0 4px 6px rgba(0,0,0,.15),0 0 14px 3px rgba(255,150,60,.72),0 0 34px 9px rgba(255,120,40,.3)!important}
 html body .oc-add2 .key:hover{color:var(--gold)}
 html body .okh-dot span,html body .shell:not(.is-night) ~ .okh-dot span{color:#fff!important;text-shadow:none!important;filter:none!important}
+/* v180: the clock half a size larger */
+html body .shell.oc-w .master-clock{scale:1.45;transform-origin:50% 20%}
+html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{opacity:0!important;transition:opacity .4s!important}

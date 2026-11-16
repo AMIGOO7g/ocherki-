@@ -138,7 +138,7 @@
 // v168 — «Писать»: the carriage on the sheet (what belongs to the sheet), the Keeper in the corner, the keyboard rising while one types
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const S='<svg viewBox="0 0 24 24">',E='</svg>';
-  const IC={back:'<path d="M15 5l-7 7 7 7"/>',lamp:'<path d="M8 21h8M12 21v-8M12 13l-4-5M8 8l5-4 4 3-4 5"/>',type:'<rect x="3" y="11" width="18" height="8" rx="2"/><path d="M7 11V6h10v5M7 15h10"/>',
+  const IC={back:'<path d="M15 5l-7 7 7 7"/>',book:'<path d="M12 6c-2.6-1.8-5.6-1.9-8.5-1.3v13.5c2.9-.6 5.9-.5 8.5 1.3 2.6-1.8 5.6-1.9 8.5-1.3V4.7C17.6 4.1 14.6 4.2 12 6zM12 6v13.5"/>',lamp:'<path d="M8 21h8M12 21v-8M12 13l-4-5M8 8l5-4 4 3-4 5"/>',type:'<rect x="3" y="11" width="18" height="8" rx="2"/><path d="M7 11V6h10v5M7 15h10"/>',
     mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',aa:'<path d="M3 18l5-12 5 12M5 14h6M15 18l3-7 3 7M16 16h4"/>',plus:'<path d="M12 5v14M5 12h14"/>',
     bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>',
     photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',
@@ -149,7 +149,7 @@
   const bt=(c,ic,tip,cls='')=>`<button class="${cls}" data-c="${c}" aria-label="${tip}" data-tip="${tip}">${sv(ic)}${c==='tips'?'<em></em>':''}</button>`;
   wc.innerHTML=`<i class="nf"></i>`+bt('back','back','Назад')+bt('lamp','lamp','Лампа · ровный свет','lt')+bt('type','type','Машинка · свет за строкой','lt')
     +`<span class="grow"></span><span class="t"><b></b><span class="sv"></span></span>`
-    +bt('mic','mic','Говорить вместо печати')+bt('aa','aa','Шрифт и размер')+bt('add','plus','Добавить')+bt('tips','bulb','До книги — что улучшить');
+    +bt('mic','mic','Говорить вместо печати')+bt('aa','aa','Шрифт и размер')+bt('add','plus','Добавить')+bt('peek','book','Как ляжет в книге')+bt('tips','bulb','До книги — что улучшить');
   document.body.appendChild(wc);
   const add=document.createElement('div');add.className='wc-add';
   add.innerHTML=[['photo','фото'],['episode','эпизод'],['document','документ'],['quote','цитата'],['date','дата'],['page','новый лист']].map(([a,l])=>`<button data-a="${a}">${sv(a)}${l}</button>`).join('');
@@ -169,6 +169,8 @@
     else if(c==='mic')d?.getElementById('voiceBtn')?.click();
     else if(c==='aa')d?.getElementById('textBtn')?.click();
     else if(c==='tips')document.querySelector('.bd-rail-key[data-rail="tips"]')?.click();
+    // v180: the page as it will lie in the book slides out from under the sheet (and back)
+    else if(c==='peek'){if(shell.classList.contains('wp-on'))document.querySelector('.wp-keys.k-open .back button')?.click();else document.querySelector('.wp-keys.k-closed .tog button')?.click();}
     else if(c==='add'){const r=b.getBoundingClientRect();add.style.left=Math.round(r.left-60)+'px';add.style.top=Math.round(r.bottom+10)+'px';add.classList.toggle('on');}});
   add.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.stopPropagation();add.classList.remove('on');
     try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:b.dataset.a},'*');}catch(_){}});
@@ -181,7 +183,7 @@
     const k=[L,T,W].map(Math.round).join();if(k!==lastKey){lastKey=k;wc.style.left=Math.round(L-14)+'px';wc.style.top=Math.round(T-19)+'px';wc.style.width=Math.round(W+28)+'px';}};
   requestAnimationFrame(follow);
   // what it says: where we are, the light, «до книги», saved
-  const tick=()=>{if(!isWrite())return;const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
+  const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
     const ch=(d?.querySelector('.topbar .chapter')?.textContent||'').trim(),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
     const t=[ch,n&&all?`лист ${n} из ${all}`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te.textContent!==t)te.textContent=t;
     const mode=FW()?.OCHERKI_SHEET_LIGHT?.current;wc.querySelector('[data-c="lamp"]').classList.toggle('on',mode!=='type');wc.querySelector('[data-c="type"]').classList.toggle('on',mode==='type');

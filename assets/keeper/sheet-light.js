@@ -47,7 +47,7 @@ const FRAG=`varying vec2 vU;uniform sampler2D uC;uniform sampler2D uH;uniform ve
     vec3 N=normalize(vec3((hL-hR)*uAmp,(hD-hU)*uAmp,1.));vec2 p=uv*uSize;
     // the desk lamp from the upper left: by day almost even, at night warmer and softer toward the lower right
     vec3 Ld=normalize(vec3(-.55,.65,.55));vec2 lq=(uv-vec2(-.12,1.12))*vec2(1.,.8);
-    float ld=length((uv-vec2(-.05,1.05))*vec2(.85,1.));float lamp=uLamp*(.9+.1*max(dot(N,Ld),0.))*mix(1.04,1.2-.36*smoothstep(.05,1.35,ld),uNight);
+    float ld=length((uv-vec2(-.05,1.05))*vec2(.85,1.));float lamp=uLamp*(.9+.1*max(dot(N,Ld),0.))*mix(1.02,1.04-.15*smoothstep(.0,1.5,ld),uNight);
     // the typewriter light, as in the tour
     vec3 Ls=vec3(uCar,9.);vec3 dv=vec3(Ls.xy-p,Ls.z);float dist=length(dv.xy);vec3 L=normalize(dv);
     vec2 dir=normalize(p-Ls.xy+vec2(0.,.001));

@@ -269,7 +269,7 @@
     scr.classList.add('is-sheet-dragging');bin.classList.toggle('is-over',overBin(e.clientX,e.clientY));
     // Where it would land: the sheets of the row part to make room.
     const wr=world.getBoundingClientRect(),gx=e.clientX-wr.left;const k=Math.round(focus);
-    const nextGap=(!over&&!bin.classList.contains('is-over')&&+drag.el.dataset.c===currentGroup())?{c:+drag.el.dataset.c,k,x:gx}:null;
+    const nextGap=(!over&&!bin.classList.contains('is-over')&&+drag.el.dataset.c===currentGroup()&&!!drag.g.chapter)?{c:+drag.el.dataset.c,k,x:gx}:null;
     if(JSON.stringify(nextGap&&{c:nextGap.c,k:nextGap.k,s:Math.round(nextGap.x/40)})!==JSON.stringify(gap&&{c:gap.c,k:gap.k,s:Math.round(gap.x/40)})){gap=nextGap;layout();}else gap=nextGap;},true);
   // Heard first (capture): other parts of the page stop this event on its way.
   addEventListener('pointerup',e=>{if(!drag)return;const {el,sh,g,moved}=drag;drag=null;el.classList.remove('is-dragging');toc.querySelectorAll('button').forEach(b=>b.classList.remove('drop'));
@@ -280,7 +280,7 @@
     world.querySelectorAll('.ms-label').forEach(b=>b.classList.remove('drop'));
     const target=document.elementsFromPoint(e.clientX,e.clientY).map(n=>n.closest&&n.closest('.ms-toc button[data-c],.ms-label.is-far-title')).find(Boolean);
     if(target){const tg=groups[+target.dataset.c];if(tg&&tg.chapter&&g.chapter&&tg.chapter.id!==g.chapter.id){send({action:'movePage',sectionId:sh.s.id,pageUid:sh.p.uid,toSectionId:tg.chapter.id});return;}layout();return;}
-    if(!g.chapter){gap=null;layout();return;}
+    if(!g.chapter){gap=null;layout();window.OCHERKI_SAY?.('В начале и в конце книги порядок листов задан — переставлять можно листы глав');return;}
     if(gap){const c=+el.dataset.c,row=[...world.querySelectorAll(`.ms-sheet[data-c="${c}"][data-k="${gap.k}"]:not(.is-new)`)].filter(x=>x!==el);
       const before=row.filter(x=>+x.dataset.x0<gap.x).length,cols=colsFor(innerWidth),rowStart=(gap.k-groupRow0[c])*cols;
       const order=g.sheets.map(x=>x.p.uid),ids=order.filter(id=>id!==sh.p.uid);ids.splice(Math.min(ids.length,rowStart+before),0,sh.p.uid);
@@ -515,7 +515,7 @@
   const name=document.createElement('div');name.className='mq-name';name.innerHTML='<b></b><small></small>';scr.appendChild(name);
   const toc=scr.querySelector('.ms-toc'),bin=scr.querySelector('.ms-bin');
   const B=c=>car.querySelector(`[data-c="${c}"]`);
-  const isMs=()=>shell.classList.contains('is-manuscript')&&scr.classList.contains('on');
+  const isMs=()=>shell.classList.contains('is-manuscript')&&scr.classList.contains('on')&&!shell.classList.contains('is-ms-to-book')&&!scr.classList.contains('is-opening')&&!leaving;
   const say=t=>window.OCHERKI_SAY?.(t);
   const frame=()=>document.getElementById('v35SheetFrame');
   const send=cmd=>{try{frame()?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',...cmd},'*');}catch(e){}};
@@ -528,7 +528,12 @@
   const openSheet=()=>{const c=cg(),list=sheets(c),act=list.find(e=>e.classList.contains('is-active'));if(act)return act;const f=M()?.frontPick?.();return(f&&scr.querySelector(`.ms-sheet[data-uid="${f.pageUid}"]`))||list[0]||null;};
   // the carriage and the name follow the chapter in front
   let lastC=-1,lastT='';
-  const tick=()=>{const on=isMs();car.classList.toggle('on',on);if(!on){scr.classList.remove('mq-ph','mq-list');B('photo').classList.remove('on');return;}
+  // v180: the carriage stands just above the sheets in front, the chapter's name just below them
+  const fit=()=>{const c=cg(),rect=e=>(e.querySelector('.ms-paper')||e).getBoundingClientRect(),all=[...scr.querySelectorAll(`.ms-sheet[data-c="${c}"]`)];
+    const front=all.filter(e=>!e.classList.contains('is-far')&&+getComputedStyle(e).opacity>.6).map(rect).filter(r=>r.width>40),seen=all.filter(e=>+getComputedStyle(e).opacity>.12).map(rect).filter(r=>r.width>40);
+    if(!front.length)return;const top=Math.min(...seen.map(r=>r.top)),bot=Math.max(...front.map(r=>r.bottom));
+    car.style.top=Math.max(96,Math.round(top-36-26))+'px';name.style.top=Math.round(Math.min(innerHeight-86,bot+22))+'px';name.style.bottom='auto';};
+  const tick=()=>{const on=isMs();car.classList.toggle('on',on);if(on)fit();if(!on){scr.classList.remove('mq-ph','mq-list');B('photo').classList.remove('on');return;}
     car.classList.toggle('night',shell.classList.contains('is-night'));
     const c=cg(),I=info(c),list=sheets(c),done=list.filter(e=>e.classList.contains('is-done')).length;
     car.querySelector('.t b').textContent=`${I.k||I.t} · ${done} из ${list.length} готовы`;
@@ -543,6 +548,10 @@
     if(bin){const r=B('bin').getBoundingClientRect();bin.style.left=r.left+'px';bin.style.top=r.top+'px';
       B('bin').classList.toggle('bin-over',bin.classList.contains('is-over'));}};
   setInterval(tick,300);
+  // leaving for another screen (a key, a sheet opened): the carriage goes at once, it does not wait for the flight
+  let leaving=false;
+  document.addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k]');if(k&&k.dataset.k!=='manuscript'&&k.dataset.k!=='more'){leaving=true;tick();setTimeout(()=>{leaving=false;},1600);}},true);
+  new MutationObserver(tick).observe(scr,{attributes:true,attributeFilter:['class']});new MutationObserver(tick).observe(shell,{attributes:true,attributeFilter:['class']});
   const goC=c=>{const b=toc?.querySelector(`button[data-c="${c}"]`);if(b)b.click();};
   car.addEventListener('click',e=>{const b=e.target.closest('button[data-c]');if(!b||!isMs())return;e.stopPropagation();const c=b.dataset.c;
     if(b.classList.contains('off')&&c!=='page')return;

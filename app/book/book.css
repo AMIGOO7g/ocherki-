@@ -1456,13 +1456,13 @@ html body #bookPreviewModal.bk-ip #bookPreviewInfo{transition:opacity .7s ease .
 html body #bookPreviewModal.has-arc.oc-bk #bookPreviewInfo,html body #bookPreviewModal.oc-bk #bookPreviewInfo{position:fixed!important;left:0!important;right:0!important;top:var(--bk-iy,auto)!important;margin:0!important;text-align:center!important}
 
 /* ——— v172: «Книга» в едином стиле: плашка как в редакторе, раскрытая книга, название раздела, дуга превью на месте */
-body.oct-book #bookPreviewLayoutHanger,body.oct-book #bookPreviewClose,body.oct-book #bookPreviewInfo,body.oct-book #bookPreviewPrev,body.oct-book #bookPreviewNext,
+body.oct-book #bookPreviewLayoutHanger,body.oct-book #bookPreviewClose,body.oct-book #bookPreviewInfo,
 body.oct-book .bd-rail-key,body.oct-book .bd-rail-tip,body.oct-book .bd-rail-item .oc-klab{opacity:0!important;pointer-events:none!important}
 .bq-car{left:50%;top:115px;width:568px;transform:translateX(-50%)}
 .bq-car button.off{opacity:.35;cursor:default}
 .bq-book{position:fixed;z-index:2147483000;pointer-events:none;opacity:0;transition:opacity .6s ease}
 .bq-book.on{opacity:1}
-.bq-book .gut{position:absolute;left:50%;top:0;bottom:0;width:90px;margin-left:-45px;background:linear-gradient(90deg,transparent,rgba(60,40,20,.10) 30%,rgba(40,25,10,.32) 48%,rgba(255,255,255,.18) 50%,rgba(40,25,10,.28) 52%,rgba(60,40,20,.10) 70%,transparent)}
+.bq-book .gut{position:absolute;left:50%;top:0;bottom:0;width:32%;margin-left:-16%;background:linear-gradient(90deg,rgba(40,25,10,0),rgba(40,25,10,.07) 38%,rgba(30,18,8,.2) 47%,rgba(25,15,6,.3) 50%,rgba(30,18,8,.2) 53%,rgba(40,25,10,.07) 62%,rgba(40,25,10,0))}
 .bq-book.single .gut{display:none}
 .bq-book .lit{position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 30% 15%,rgba(255,236,200,.10),transparent 60%),linear-gradient(90deg,rgba(0,0,0,.06),transparent 8%,transparent 92%,rgba(0,0,0,.08))}
 .bq-book .el,.bq-book .er{position:absolute;top:3px;bottom:-5px;width:7px;background:repeating-linear-gradient(0deg,#efe6d6 0 1px,#d9ccb6 1px 2px);box-shadow:0 6px 14px rgba(0,0,0,.35)}
@@ -1480,9 +1480,16 @@ body.oct-book .bd-rail-key,body.oct-book .bd-rail-tip,body.oct-book .bd-rail-ite
 .bq-name.swap{opacity:0}
 
 /* v175: the turning leaf */
-.bq-curl{position:fixed;z-index:2147483001;pointer-events:none}
+.bq-curl{position:fixed;z-index:2147482999;pointer-events:none}
 .bq-curl .bq-pc{position:absolute;top:0;width:0;height:0}
 .bq-curl .bq-pc>*{box-shadow:none!important}
 .bq-curl canvas{pointer-events:none}
-.bq-book.is-curling .gut,.bq-book.is-curling .lit,.bq-book.is-curling .cr,.bq-book.is-curling .cl{opacity:0;transition:opacity .15s}
+.bq-book.is-curling .gut{opacity:0}
 .bq-book .cr,.bq-book .cl{touch-action:none;cursor:grab}
+
+/* v180: the corners go; the arrows on both sides are back */
+.bq-book .cr,.bq-book .cl{display:none!important}
+/* v180: «композиция» under its three keys; bright when this spread has compositions to choose from */
+.bq-car .bq-cl{position:absolute;left:18px;top:calc(100% + 6px);width:96px;text-align:center;font:italic 12px Georgia,serif;color:rgba(255,226,189,.7);pointer-events:none;transition:opacity .4s}
+.bq-car:not(.night) .bq-cl{color:rgba(74,51,36,.75)}
+.bq-car.no-comp .bq-cl{opacity:.35}
