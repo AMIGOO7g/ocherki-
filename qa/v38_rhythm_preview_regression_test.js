@@ -4,7 +4,7 @@ const vm = require('vm');
 
 const root = path.resolve(__dirname, '..');
 const shell = require('./lib/page_source.js').readPage(root,'shell.html');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = require('./lib/page_source').readPage(root,'index.html');
 const engineSource = fs.readFileSync(path.join(root, 'book-renderer', 'book-engine.js'), 'utf8');
 const fail = message => { throw new Error(message); };
 

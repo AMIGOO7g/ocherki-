@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
 const shell = require('./lib/page_source.js').readPage(root,'shell.html');
-const sheet = fs.readFileSync(path.join(root, 'sheet_v35.html'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const sheet = require('./lib/page_source').readPage(root,'sheet_v35.html');
+const index = require('./lib/page_source').readPage(root,'index.html');
 const renderer = fs.readFileSync(path.join(root, 'book-renderer/design-pack-01.js'), 'utf8');
 
 const must = (source, pattern, label) => {

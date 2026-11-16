@@ -46,7 +46,7 @@ const renderContext={meta:{},image:(source,index)=>source?.photos?.[index]?.src|
 if((renderer.renderPage(duoPage,'left',renderContext).match(/<figure/g)||[]).length!==2)fail('Duo renderer did not draw two photographs');
 if(!/dpk-photo-over-copy/.test(renderer.renderPage(overPage,'right',renderContext)))fail('Photo-over-text renderer is missing');
 
-const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
+const sheet=require('./lib/page_source').readPage(root,'sheet_v35.html');
 const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const proof=fs.readFileSync(path.join(root,'book-renderer','master-proof.html'),'utf8');
 if(!/s\.included=true/.test(sheet)||!/Можно выключить · сейчас включено/.test(sheet))fail('Default system-section policy is missing');

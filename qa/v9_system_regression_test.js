@@ -34,7 +34,7 @@ if(result.pages.some(page=>page.kind==='intro'||String(page.text||'').includes('
 if(result.pages.some(page=>!page.sectionTitle&&page.showHeading===true))fail('Continuation received an episode heading');
 
 const shell=require('./lib/page_source.js').readPage(root,'shell.html');
-const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
+const sheet=require('./lib/page_source').readPage(root,'sheet_v35.html');
 if(!/pendingPhotoReplaceTarget/.test(sheet)||!/block\.src=rec\.src/.test(sheet))fail('Photo replacement is not bound to the original photo object');
 if(!/removeEmptyUserSheet/.test(sheet)||!/900\)/.test(sheet))fail('Empty user sheets are not removed after edit settles');
 if(!/pdf-export-modal/.test(shell)||!/api\/export-pdf/.test(shell)||/window\.print\(\)/.test(shell))fail('Direct PDF modal/export is not active');

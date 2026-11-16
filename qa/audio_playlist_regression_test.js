@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const html = require('./lib/page_source').readPage(root,'index.html');
 const fail = message => { throw new Error(message); };
 const sourcesMatch = html.match(/const musicPlaylistSources = \[([\s\S]*?)\];/);
 if (!sourcesMatch) fail('Music playlist declaration is missing');

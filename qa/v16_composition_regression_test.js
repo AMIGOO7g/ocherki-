@@ -32,7 +32,7 @@ if(!/dpk-dark/.test(dark)||/dpk-light-quote/.test(dark))fail('Dark full-page quo
 
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 const engineSource=fs.readFileSync(path.join(root,'book-renderer','book-engine.js'),'utf8');
-const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
+const sheet=require('./lib/page_source').readPage(root,'sheet_v35.html');
 const shell=require('./lib/page_source.js').readPage(root,'shell.html');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'book-renderer','design-pack-01.manifest.json'),'utf8'));
 if(!/dpk-light-quote/.test(css)||!/gradient-scrim/.test(css)||!/inset:36px 0 82px/.test(css))fail('Light quote or edge-fading gradient treatment is missing');

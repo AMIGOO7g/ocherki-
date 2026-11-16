@@ -34,7 +34,7 @@ if(!/<div class="dpk-date-watermark"[^>]*>1987<\/div>/.test(continuationHtml))fa
 
 const rendererSource=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
-const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
+const sheet=require('./lib/page_source').readPage(root,'sheet_v35.html');
 if(!/dateMode='watermark'/.test(sheet)||!/dateWatermark=content/.test(sheet))fail('Editor does not mark dates as watermark decorations');
 if(!/addDate\(page,content\).*mode:'watermark'/.test(sheet))fail('Date block mode is not persisted');
 if(!/position:absolute!important;left:50%[^;]*!important;top:51%/.test(css))fail('Watermark is not absolutely positioned outside the flow');

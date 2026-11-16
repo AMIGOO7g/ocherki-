@@ -2,11 +2,14 @@
 // and the card of one book, as the card of a photo in the archive: its own cover on the left (in its own format),
 // what it is on the right, and Открыть · Переименовать · Копия · PDF · Удалить.
 // It answers as window.OcherkiBookcase (open, close, isOpen), so the keys and the screens know it as before.
-(()=>{const shell=document.querySelector('.shell');if(!shell)return;
+// On the start page (index.html) there is no constructor: the same shelf opens there too, with no book open,
+// and «Открыть» / «+ новая книга» go where the start page says (window.OCHERKI_SHELF_HOOKS).
+(()=>{const solo=!document.querySelector('.shell');const shell=document.querySelector('.shell')||document.createElement('div');if(solo)shell.classList.add('is-night');
+  const hooks=()=>window.OCHERKI_SHELF_HOOKS||{};
   const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
   const ls={get:k=>{try{return localStorage.getItem(k);}catch(_){return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);return true;}catch(_){return false;}},del:k=>{try{localStorage.removeItem(k);}catch(_){}}};
   const frame=()=>document.getElementById('v35SheetFrame');
-  const activeId=()=>ls.get('ocherkiActiveBook')||'current';
+  const activeId=()=>solo?'':(ls.get('ocherkiActiveBook')||'current');
   const persist=async()=>{try{await frame()?.contentWindow?.__ocherkiPersistNow?.();}catch(_){}};
   const store=()=>window.OcherkiStore;
   // cloth of the showcase: the same cover for every book, its colour by the book
@@ -34,7 +37,7 @@
   // ——— the screen
   const root=document.createElement('div');root.className='mb';root.setAttribute('aria-label','Мои книги');
   root.innerHTML=`<div class="mb-bg"></div>
-    <div class="mb-view mb-show"><h1>Мои книги</h1><div class="mb-row"></div><div class="mb-ledge"></div>
+    <div class="mb-view mb-show">${solo?'<button class="mb-back mb-home" type="button">‹ На старт</button>':''}<h1>Мои книги</h1><div class="mb-row"></div><div class="mb-ledge"></div>
       <button class="mb-arr l" type="button" aria-label="Левее">‹</button><button class="mb-arr r" type="button" aria-label="Правее">›</button>
       <div class="mb-name"><b></b><small></small></div></div>
     <div class="mb-view mb-card off"><button class="mb-back" type="button">‹ Мои книги</button><div class="mb-left"><i class="mb-floor"></i><div class="mb-book"><div class="mb-face"></div><i class="sp"></i><i class="pr"></i><i class="pt"></i><i class="pb"></i><i class="bk"></i></div></div>
@@ -45,7 +48,7 @@
 
   const load=async()=>{let list=[];try{list=await store()?.list()||[];}catch(_){}
     const cur=activeId(),meta=window.OCHERKI_BOOK_META||{};
-    if(!list.some(b=>b.id===cur))list.unshift({id:cur,title:meta.title||'',author:meta.author||'',pages:0,savedAt:Date.now()});
+    if(!solo&&!list.some(b=>b.id===cur))list.unshift({id:cur,title:meta.title||'',author:meta.author||'',pages:0,savedAt:Date.now()});
     // the open book always reads its title from the book itself
     list=list.map(b=>b.id===cur&&meta.title?{...b,title:meta.title}:b);
     return list.sort((a,b)=>(b.id===cur)-(a.id===cur)||(b.savedAt||0)-(a.savedAt||0));};
@@ -92,19 +95,19 @@
     $('.mb-nav .n').textContent=`${i+1} из ${books.length}`;
     $('.mb-show').classList.add('off');$('.mb-card').classList.remove('off');}
   const showShelf=()=>{$('.mb-card').classList.add('off');$('.mb-show').classList.remove('off');if(cardAt>=0){mid=cardAt;place();}cardAt=-1;};
-  $('.mb-back').onclick=showShelf;$('.mb-nav .all').onclick=showShelf;
+  $('.mb-card .mb-back').onclick=showShelf;$('.mb-home')&&($('.mb-home').onclick=()=>close());$('.mb-nav .all').onclick=showShelf;
   root.querySelectorAll('.mb-nav .ar').forEach(b=>b.onclick=()=>{const n=cardAt+ +b.dataset.go;if(n>=0&&n<books.length)showCard(n);});
 
   // ——— what the keys do
   const key=k=>document.querySelector(`.oct .k[data-k="${k}"]`);
-  function openBook(b){if(b.id===activeId()){close();key('write')?.click();return;}
+  function openBook(b){if(solo){close();hooks().onOpen?.(b.id);return;}if(b.id===activeId()){close();key('write')?.click();return;}
     ls.set('ocherkiActiveBook',b.id);const node=document.getElementById('projectTitle');if(node)node.textContent=titleOf(b);
     close();key('write')?.click();
     // the sheet reloads behind a soft fade, so no bare white frame flashes while it starts
     const sheet=frame();if(sheet){sheet.style.transition='opacity .25s ease';sheet.style.opacity='0';
       sheet.addEventListener('load',()=>setTimeout(()=>{sheet.style.transition='opacity .9s ease';sheet.style.opacity='';},700),{once:true});
       setTimeout(()=>{sheet.src=sheet.src;},260);setTimeout(()=>{if(sheet.style.opacity==='0')sheet.style.opacity='';},6000);}}
-  function newBook(){ls.set('ocherkiActiveBook','book-'+Date.now().toString(36));ls.del('ocherkiLifeProjectDraft');(window.top||window).location.href='index.html';}
+  function newBook(){if(solo){close();hooks().onNew?.();return;}ls.set('ocherkiActiveBook','book-'+Date.now().toString(36));ls.del('ocherkiLifeProjectDraft');(window.top||window).location.href='index.html';}
   // a new name goes where the book keeps it: the first line of the cover and of the title page
   async function retitle(id,newTitle,toId){const S=store();if(!S)return false;if(id===activeId())await persist();
     const rec=await S.load(id);if(!rec)return false;const old=titleOf(rec.book);

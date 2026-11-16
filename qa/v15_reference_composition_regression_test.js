@@ -47,7 +47,7 @@ if(!/dpk-columns dpk-reading/.test(date)||!/dpk-columns dpk-reading/.test(episod
 const css=fs.readFileSync(path.join(root,'book-renderer','design-pack-01.css'),'utf8');
 const proof=fs.readFileSync(path.join(root,'book-renderer','master-proof.html'),'utf8');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'book-renderer','design-pack-01.manifest.json'),'utf8'));
-const sheet=fs.readFileSync(path.join(root,'sheet_v35.html'),'utf8');
+const sheet=require('./lib/page_source').readPage(root,'sheet_v35.html');
 if(!/16px\/27px/.test(css)||!/padding:42px 58px 78px/.test(css)||!/repeating-linear-gradient/.test(css))fail('V15 document size, safe margins or ruled lines are missing');
 if(!/dpk-photo-rail-main/.test(css)||!/dpk-photo-rail-copy/.test(css)||!/dpk-gradient-scrim/.test(css)||!/dpk-dark-gradient-scrim/.test(css)||!/dpk-photo-bw/.test(css)||!/dpk-mosaic-count-8/.test(css))fail('V15 reference composition CSS is missing');
 if(!/D01-SPREAD-PHOTO-RAIL/.test(proof)||!/D01-SPREAD-PHOTO-RAIL-MIRROR/.test(proof)||!/D01-SPREAD-DARK-TEXT-PAIR/.test(proof)||!/D01-SPREAD-PHOTO-GRADIENT-TEXT/.test(proof)||!/D01-SPREAD-DARK-GRADIENT-PHOTO/.test(proof))fail('V15 Master Proof does not show all new compositions');
