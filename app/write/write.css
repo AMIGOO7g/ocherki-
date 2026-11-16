@@ -400,7 +400,6 @@ html body .shell.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-
 .wc.night .sep{background:rgba(234,210,173,.18)}
 .wc .sv{width:7px;height:7px;border-radius:50%;background:#c9772f;box-shadow:0 0 6px 2px rgba(255,140,40,.55);transition:opacity .4s,box-shadow .4s}
 .wc .sv.busy{opacity:.35;box-shadow:none}
-.wc:not(.night) .lt{display:none}
 .wc-add{position:fixed;z-index:2147483151;display:flex;flex-direction:column;gap:2px;padding:8px;border-radius:14px;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .3s,transform .3s;background:linear-gradient(180deg,rgba(40,27,17,.96),rgba(24,16,10,.96));box-shadow:0 0 0 1px rgba(232,197,142,.35),0 14px 28px rgba(0,0,0,.55)}
 .wc-add.on{opacity:1;pointer-events:auto;transform:none}
 .wc-add button{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:6px 12px;border-radius:9px;font:italic 15px 'CormorantCy',Georgia,serif;color:#f2e0c2}
@@ -608,3 +607,24 @@ html body .okh-dot span,html body .shell:not(.is-night) ~ .okh-dot span{color:#f
 /* v180: the clock half a size larger */
 html body .shell.oc-w .master-clock{scale:1.45;transform-origin:50% 20%}
 html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{opacity:0!important;transition:opacity .4s!important}
+
+/* v182 — «Писать»: the bar is bigger (24px icons, 19px words), its rim round all four corners */
+.wc.wc-w{height:52px;gap:22px;padding:0 28px;border-radius:26px}
+.wc.wc-w .nf{border-radius:23px}
+.wc.wc-w button{width:32px;height:32px}
+.wc.wc-w svg{width:24px;height:24px}
+.wc.wc-w .t b{font-size:19px}
+/* v182 — the desk and its one light. By day the window on the left: the toile under daylight, the frame's soft cross.
+   At night no light from above: the bar's lamp spreads down from its ends, soft-edged; the rest of the desk goes dark. */
+.desk-day,.desk-shade,.desk-cone{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+.desk-day{z-index:8;background:linear-gradient(104deg,transparent 21%,rgba(70,50,30,.13) 23.5%,transparent 26%),linear-gradient(16deg,transparent 57%,rgba(70,50,30,.10) 59.5%,transparent 62%),linear-gradient(98deg,rgba(255,252,244,.45) 0%,rgba(255,250,240,.16) 32%,transparent 55%,rgba(60,40,20,.26) 100%),
+  linear-gradient(rgba(240,229,208,.72),rgba(240,229,208,.72)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#e8d8bc}
+.desk-shade{z-index:8;background:rgba(10,5,2,.3)}
+.desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(46px)}
+.desk-cone i{position:absolute;inset:0;clip-path:polygon(29.5% 14%,70.5% 14%,94% 104%,6% 104%);
+  background:linear-gradient(180deg,rgba(255,200,125,.6) 0%,rgba(255,180,100,.36) 35%,rgba(255,160,80,.16) 75%,rgba(255,150,70,.07) 100%)}
+.shell.oc-w:not(.is-manuscript):not(.is-book-preview):not(.is-night) .desk-day{opacity:1}
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .desk-shade,
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .desk-cone{opacity:1}
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-main,
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-warm{opacity:0!important}

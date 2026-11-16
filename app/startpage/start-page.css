@@ -2339,7 +2339,7 @@
 }
 .kob .knight .night-artwork{
   z-index:2;
-  background-image:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png");
+  background-image:url("../../assets/toile/desk-toile.png");
   background-repeat:no-repeat;
   background-position:center center;
   background-size:cover;
@@ -2395,7 +2395,7 @@
 }
 .kob .knight .night-artwork-ink{
   z-index:6;
-  background-image:url("https://static.tildacdn.com/tild3564-6631-4539-a265-316165616139/photo.png");
+  background-image:url("../../assets/toile/desk-toile.png");
   background-repeat:no-repeat;
   background-position:center center;
   background-size:cover;

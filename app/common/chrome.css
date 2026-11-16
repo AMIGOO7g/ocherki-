@@ -217,8 +217,6 @@ html body .wp-item.tog.is-busy .cap svg{animation:none!important}
 .wp-item.tog.is-busy::after,.wp-item.tog.is-busy::before{opacity:1}
 .wp-item.tog.is-busy::before{animation:wpRun 1.1s linear infinite}
 @keyframes wpRun{to{background-position:120px 0,0 0}}
-.shell.osl-typing .night-main{opacity:.86!important;transition:opacity 1.4s ease!important}
-.shell.osl-typing .night-warm{opacity:.6!important;transition:opacity 1.4s ease!important}
 .oct button.k,.oct button.pl{transition:filter .6s ease}
 .hanging::after,.pages-child::after,.project-hanger::after,.hanging:hover::after,.pages-child:hover::after,.project-hanger:hover::after,.shell:not(.is-night) .hanging:hover::after,.shell:not(.is-night) .pages-child:hover::after,.shell:not(.is-night) .project-hanger:hover::after,.shell.is-night .hanging:hover::after,.shell.is-night .pages-child:hover::after,.shell.is-night .project-hanger:hover::after{display:none !important;opacity:0 !important;content:none !important}
 .shell.is-night .pages-child .key::after,.shell.is-night .pages-child .key .night-face{opacity:1}

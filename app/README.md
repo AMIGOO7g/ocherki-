@@ -14,13 +14,13 @@
 
 Страницы (с v179 тоже разложены по файлам):
 - `index.html` — стартовая страница с Хранителем: `app/startpage/` (`start-page.css`, `start-page.js`, `keeper-intro.js`);
-- `sheet_v35.html` — лист редактора (внутри рамки): `app/sheet/` (`sheet.css`, `sheet.js`, `light.js`);
+- `sheet_v35.html` — лист редактора (внутри рамки): `app/sheet/` (`sheet.css`, `sheet.js`);
 - в разметке страниц остались только сама разметка и порядок подключения.
 
 Отдельно и раньше:
 - старая комната «Семья» удалена в v178 — архивом в конструкторе служит новый архив (`assets/archive/`, ключ «Архив семьи»);
 - `index.html` + `assets/keeper/` — стартовый экран с Хранителем;
-- `sheet_v35.html` + `assets/keeper/sheet-light.js` — сам лист редактора (внутри рамки);
+- `sheet_v35.html` — сам лист редактора (внутри рамки);
 - `assets/archive/` — новый архив;
 - `book-renderer/` — движок вёрстки книги.
 
