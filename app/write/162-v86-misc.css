@@ -1,9 +1,4 @@
-/*@block [" id=\"v86-misc\"", ""]*/
-.ms-sheet:hover .ms-paper{transform:translateY(-5px) scale(1.025)!important;transition:transform .55s cubic-bezier(.2,.8,.3,1),box-shadow .55s!important}
-.ms-sheet .ms-paper{transition:transform .55s cubic-bezier(.2,.8,.3,1),box-shadow .55s!important}
-.ms-sheet.is-target .ms-paper{transform:translateY(-10px) scale(1.14)!important}
-.ms-sheet.is-target{z-index:500!important}
-html body .shell .writing-prompt{transition-property:opacity,filter,visibility,color!important}
+/*@block [" id=\"v86-misc\"", ""]*/html body .shell .writing-prompt{transition-property:opacity,filter,visibility,color!important}
 .writing-prompt-why{display:none!important}
 .writing-prompt.is-leaving .wp-ch{animation:wpMistOut .8s ease forwards!important;animation-delay:calc(var(--i) * 18ms)!important}
 .book-design-shell.is-rail>.bd-section.is-rail-open:not(.is-carousel){overflow-x:hidden!important}

@@ -1,13 +1,6 @@
-/*@block [" id=\"contrast-v102\"", ""]*/
-/* v102: small words read clearly on a 14–15" laptop too (WCAG AA for small
-   text); icons and the sheet's own type stay as they were. */
-html body .shell .writing-prompt-actions{opacity:1!important}
+/*@block [" id=\"contrast-v102\"", ""]*/html body .shell .writing-prompt-actions{opacity:1!important}
 html body .shell .writing-prompt :is(#writingPromptCount,#writingPromptAgree,#writingPromptNext,#writingPromptHide){color:#3f2c1c!important;opacity:1!important}
 html body .shell.is-night .writing-prompt :is(#writingPromptCount,#writingPromptAgree,#writingPromptNext,#writingPromptHide){color:#ecd9b8!important}
 html body .shell .writing-prompt-why{opacity:1!important}
 html body #bookPreviewInfo{color:rgba(72,55,40,.88)!important}
 html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-night ~ #bookPreviewModal #bookPreviewInfo{color:rgba(245,226,199,.88)!important}
-html body .ms-screen .ms-label small{opacity:1!important}
-html body .ms-screen:not(.is-night) .ms-label small{color:#4a3424!important}
-html body .ms-screen.is-night .ms-label small{color:#ead6b4!important}
-html body .ms-screen .ms-hint{opacity:.95!important}
