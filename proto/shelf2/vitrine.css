@@ -55,3 +55,11 @@
 .vc-back{position:absolute;left:30px;top:34px;font:italic 16px Georgia,serif;color:#e9cfae}
 .vc-r h2{margin-top:24px}
 .vc-keys{gap:10px}.vc-keys span{padding:11px 17px;font-size:16px}
+/* правки: заголовок ниже, название книги обычным шрифтом, карточка по центру по высоте, как в архиве */
+.vt h1{top:150px}
+.vt-name b{font:400 26px/1.2 'CormorantCy',Georgia,serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,232,205,.82)}
+.vt.day .vt-name b{color:rgba(70,44,24,.8)}
+.vt-name small{margin-top:8px}
+.vc-r{top:110px;bottom:110px;display:flex;flex-direction:column;justify-content:center}
+.vc-left{top:110px;height:auto;bottom:110px}
+.vc-nav{top:auto;bottom:40px}
