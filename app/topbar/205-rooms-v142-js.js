@@ -1,4 +1,0 @@
-/*@block [" id=\"rooms-v142-js\"", ""]*/
-(()=>{let t=0;document.addEventListener('pointerdown',e=>{if(!e.target.closest?.('.oct .k[data-k="voice"],.oct .k[data-k="photo"],.oct .k[data-k="note"],.oct .k[data-k="letter"],.oct .k[data-k="record"],.oct .k[data-k="week"],.oct .k[data-k="archive"],.oct .pl[data-w="arch"]'))return;
-  document.documentElement.classList.add('oc-to-room');clearTimeout(t);t=setTimeout(()=>document.documentElement.classList.remove('oc-to-room'),1800);},true);
-  document.addEventListener('click',e=>{if(e.target.closest?.('.oct .k[data-k="voice"],.oct .k[data-k="photo"],.oct .k[data-k="note"],.oct .k[data-k="letter"],.oct .k[data-k="record"],.oct .k[data-k="week"]')){document.documentElement.classList.add('oc-to-room');clearTimeout(t);t=setTimeout(()=>document.documentElement.classList.remove('oc-to-room'),1800);}},true);})();

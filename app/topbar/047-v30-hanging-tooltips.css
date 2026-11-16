@@ -1,4 +1,0 @@
-/*@block [" id=\"v30-hanging-tooltips\"", ""]*/
-.hanging-tip{position:fixed;z-index:2147483250;pointer-events:none;white-space:nowrap;color:#f3e4cf;font:italic 400 14px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.01em;opacity:0;filter:blur(5px);transform:translate(-50%,6px);transition:opacity .42s ease,filter .42s ease,transform .42s cubic-bezier(.2,.8,.3,1);text-shadow:none}
-.hanging-tip.show{opacity:.92;filter:blur(0);transform:translate(-50%,0)}
-.shell:not(.is-night) ~ .hanging-tip,.shell:not(.is-night) .hanging-tip{color:#6b4d37}

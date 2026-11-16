@@ -1,1 +1,0 @@
-/*@block ["", ""]*/(()=>{const m=document.getElementById('bookPreviewModal');if(!m)return;const c=document.createElement('div');c.className='preview-catcher';m.prepend(c);})();

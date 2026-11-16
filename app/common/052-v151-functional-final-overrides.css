@@ -1,7 +1,0 @@
-/*@block [" id=\"v151-functional-final-overrides\"", ""]*/
-.shell.has-entered .power-copy{display:none!important;opacity:0!important;visibility:hidden!important;}
-.power-dock{transition:left 1.35s cubic-bezier(.18,.78,.24,1),top 1.35s cubic-bezier(.18,.78,.24,1),transform 1.35s cubic-bezier(.18,.78,.24,1)!important;}
-.book-map-note,.book-build-hint,.writing-prompt-text{font-family:Georgia,"Times New Roman",serif!important;font-style:italic!important;font-weight:400!important;text-transform:none!important;letter-spacing:.005em!important;}
-.book-map-note{font-size:12px!important;line-height:1.48!important;opacity:.64!important;}
-.book-build-hint{font-size:14px!important;line-height:1.42!important;opacity:.78!important;}
-.shell.has-entered:not(.is-open) .book-map-shell,.shell.has-entered:not(.is-open) .book-design-shell,.shell.has-entered:not(.is-open) .writing-prompt{pointer-events:none;}

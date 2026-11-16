@@ -1,3 +1,0 @@
-/*@block [" id=\"ms-no-native-drag\"", ""]*//*@block [" id=\"book-click-catcher\"", "\n"]*/.preview-catcher{position:fixed;left:0;top:0;bottom:0;right:130px;z-index:-1;pointer-events:auto}
-#bookPreviewModal:not(.open) .preview-catcher{display:none}
-.shell.oc-rail-open ~ #bookPreviewModal .preview-catcher{pointer-events:none!important}

@@ -1,4 +1,0 @@
-/*@block [" id=\"laptop-v135\"", ""]*/
-/* v135 — laptops: the archive rooms and the recording screen are drawn for a 1000px-high screen and scaled down as one picture */
-.oc-hub .scr,html body .rc2{inset:auto!important;left:0!important;top:0!important;width:calc(100% / var(--ui-s,1));height:calc(100% / var(--ui-s,1));transform:scale(var(--ui-s,1));transform-origin:0 0}
-.okp .hd,.okp .deck,.okp .nav{zoom:var(--ui-s,1)}
