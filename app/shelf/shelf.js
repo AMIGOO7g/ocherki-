@@ -56,7 +56,7 @@
   const SPOT=[[0,1],[270,.62],[470,.5]];
   function drawShow(){const row=$('.mb-row');const items=[...books,{add:true}];
     row.innerHTML=items.map((b,i)=>{if(b.add)return`<div class="mb-b new" data-i="${i}"><div class="mb-cover" style="width:230px;height:300px"><b>+</b><small>новая книга</small></div></div>`;
-      const [bg,ink]=cloth(b.id),c=cover(b.id);return`<div class="mb-b" data-i="${i}"><div class="mb-cover" style="width:230px;height:300px;background:${bg};color:${ink}"><b>${esc(titleOf(b))}</b><i></i><small>${esc(c?.subtitle||'')}</small></div></div>`;}).join('');
+      const [bg,ink]=cloth(b.id),c=cover(b.id);return`<div class="mb-b" data-i="${i}"><div class="mb-cover grain" style="width:230px;height:300px;background:${bg};color:${ink}"><b>${esc(titleOf(b))}</b><i></i><small>${esc(c?.subtitle||'')}</small></div></div>`;}).join('');
     place();}
   function place(){const items=[...root.querySelectorAll('.mb-b')];
     items.forEach((el,i)=>{const k=i-mid,a=Math.abs(k),[dx,s]=SPOT[Math.min(a,2)];const far=a>2;

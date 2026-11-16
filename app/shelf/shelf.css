@@ -91,3 +91,12 @@
 .mb.day .mb-nav{color:#6a4026}.mb.day .mb-nav button{border-color:rgba(110,70,35,.45)}
 /* the Keeper's corner stays above the screen */
 body.mb-on .wk,body.mb-on .wk-hint{z-index:2147483250!important}
+
+/* the cover as a made thing: the grain of its board and the title pressed into it (blind and foil pressing) */
+.mb-face:before,.mb-cover.grain:before{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:overlay;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(0deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px)}
+.mb-face h1,.mb-face .dpk-cover-subtitle,.mb-face .dpk-cover-kicker{text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.22),0 0 1px rgba(0,0,0,.6)!important}
+.mb-face h1{color:#f2e8d6!important;text-shadow:0 1.5px 1px rgba(0,0,0,.95),0 -1px 0 rgba(255,255,255,.35),0 0 12px rgba(255,236,200,.08)!important}
+.mb-cover b,.mb-cover small{text-shadow:0 -1px 0 rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.18)}
+.mb-cover i{box-shadow:0 1px 0 rgba(255,255,255,.18),0 -1px 0 rgba(0,0,0,.5)}

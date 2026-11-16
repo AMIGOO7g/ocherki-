@@ -41,7 +41,7 @@ footer button:focus-visible{outline:2px solid var(--brass-hi)}
     </div>
   </header>
   <div class="stage" id="stage"><canvas id="cv" aria-label="Книга: тяните за угол страницы или нажмите на её край"></canvas>
-    <div class="hint" id="hint">Тяните за уголок страницы — или просто нажмите на правый край</div></div>
+    <div class="hint" id="hint">Тяните страницу за внешний край — или просто нажмите на него</div></div>
   <footer><button id="prev" type="button" aria-label="Назад">‹</button><span id="count"></span><button id="next" type="button" aria-label="Дальше">›</button></footer>
 </div>
 
@@ -49,20 +49,19 @@ footer button:focus-visible{outline:2px solid var(--brass-hi)}
 const PAGES=__PAGES__;
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),stage=document.getElementById('stage');
 const imgs=PAGES.map(p=>{const i=new Image();i.src=p.src;return i;});
-// the book as spreads: the cover alone on the right, the back cover alone on the left
+// the book is always a book of spreads: the cover alone on the right, the back cover alone on the left.
+// On an upright phone the eye looks at one page of the spread at a time: moving to the other page of the same
+// spread is a glide of the book; going on to the next spread is a real turn of the leaf.
 const spreads=[];{const by={};PAGES.forEach((p,k)=>{(by[p.s]=by[p.s]||{})[p.side]=k;});Object.keys(by).map(Number).sort((a,b)=>a-b).forEach(s=>spreads.push({L:by[s].left??null,R:by[s].right??null}));}
-let mode='curl',single=false,at=0,anim=null,drag=null,W=0,H=0,S=0,Y=0,dpr=1;
+let mode='curl',single=false,at=0,side='R',anim=null,drag=null,W=0,H=0,S=0,Y=0,cx=0,dpr=1;
 const PAPER='#f3eee5';
-
+const spotOf=sd=>single?(sd==='L'?cx+W/2:cx-W/2):cx; // where the spine stands for the page in view
 function layout(){dpr=Math.min(2.5,window.devicePixelRatio||1);const r=stage.getBoundingClientRect();cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
-  single=r.width<r.height*1.05; // a phone held upright: one page at a time
+  single=r.width<r.height*1.05;cx=r.width/2;
   const a=(imgs[0].naturalHeight||640)/(imgs[0].naturalWidth||640);const maxH=r.height-40;
-  if(single){W=Math.min(r.width-24,maxH/a);H=W*a;S=(r.width-W)/2;}else{W=Math.min((r.width-40)/2,maxH/a);H=W*a;S=r.width/2;}
-  Y=(r.height-H)/2;draw();}
-// what lies where at «at»: in spreads «at» is a spread, one page at a time it is a page
-const count=()=>single?PAGES.length:spreads.length;
-function cur(){if(single)return{L:null,R:at};return spreads[at];}
-function nextOf(){if(single)return at+1<PAGES.length?{L:null,R:at+1,back:null}:null;const n=spreads[at+1];return n?{L:n.L,R:n.R}:null;}
+  W=single?Math.min(r.width-40,maxH/a):Math.min((r.width-40)/2,maxH/a);H=W*a;Y=(r.height-H)/2;
+  if(!single)side='R';else if(spreads[at][side]==null)side=spreads[at].R!=null?'R':'L';
+  if(!anim)S=spotOf(side);draw();}
 
 // ——— geometry of the fold: the corner C is carried to the point M; the fold is the line halfway between them
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1],len=a=>Math.hypot(a[0],a[1]);
@@ -74,78 +73,84 @@ const path=pts=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.
 const T=(a,b,c,d,e,f)=>ctx.setTransform(dpr*a,dpr*b,dpr*c,dpr*d,dpr*e,dpr*f);
 function page(k,x,alpha=1){if(k==null)return;const im=imgs[k];ctx.globalAlpha=alpha;if(im.complete&&im.naturalWidth)ctx.drawImage(im,x,Y,W,H);else{ctx.fillStyle=PAPER;ctx.fillRect(x,Y,W,H);}ctx.globalAlpha=1;}
 function desk(){T(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);}
-function bookShadow(L,R){const x0=L!=null&&!single?S-W:S,x1=R!=null||single?S+W:S;ctx.save();ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=34;ctx.shadowOffsetY=18;ctx.fillStyle=PAPER;ctx.fillRect(x0,Y,x1-x0,H);ctx.restore();}
-function spine(){if(single)return;const g=ctx.createLinearGradient(S-46,0,S+46,0);g.addColorStop(0,'rgba(60,40,20,0)');g.addColorStop(.42,'rgba(40,25,10,.22)');g.addColorStop(.5,'rgba(255,255,255,.14)');g.addColorStop(.58,'rgba(40,25,10,.2)');g.addColorStop(1,'rgba(60,40,20,0)');ctx.fillStyle=g;ctx.fillRect(S-46,Y,92,H);}
+function bookShadow(L,R){const x0=L!=null?S-W:S,x1=R!=null?S+W:S;if(x1<=x0)return;ctx.save();ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=34;ctx.shadowOffsetY=18;ctx.fillStyle=PAPER;ctx.fillRect(x0,Y,x1-x0,H);ctx.restore();}
+function spine(L,R){if(L==null||R==null)return;const g=ctx.createLinearGradient(S-46,0,S+46,0);g.addColorStop(0,'rgba(60,40,20,0)');g.addColorStop(.42,'rgba(40,25,10,.22)');g.addColorStop(.5,'rgba(255,255,255,.14)');g.addColorStop(.58,'rgba(40,25,10,.2)');g.addColorStop(1,'rgba(60,40,20,0)');ctx.fillStyle=g;ctx.fillRect(S-46,Y,92,H);}
 
-// a turn in flight: left stays, under shows the next page, the leaf carries front and back
+// a turn in flight: the left page stays, beneath lies the next right page, the leaf carries its front and its back
 function drawTurn(t){const {left,front,back,under,M:M0,C}=t;desk();
-  bookShadow(left,1);if(!single)page(left,S-W);page(under,S);spine();
+  bookShadow(left,1);page(left,S-W);page(under,S);spine(left,under);
   const M=constrain(M0,C),d=sub(C,M),dl=len(d);const rect=[[S,Y],[S+W,Y],[S+W,Y+H],[S,Y+H]];
-  if(dl<1){page(front,S);spine();return;}
+  if(dl<1){page(front,S);return;}
   const n=[d[0]/dl,d[1]/dl],F=[(M[0]+C[0])/2,(M[1]+C[1])/2];
   const stay=clipPoly(rect,F,n,false),fold=clipPoly(rect,F,n,true);
-  // the part of the leaf still lying flat
   if(stay.length>2){ctx.save();path(stay);ctx.clip();page(front,S);ctx.restore();}
   // the shadow the leaf throws on the page beneath, along the fold
   if(fold.length>2){ctx.save();path(fold);ctx.clip();const sw=Math.min(W*.35,dl*.6),g=ctx.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);g.addColorStop(0,'rgba(0,0,0,.42)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(S-W,Y,2*W,H);ctx.restore();}
-  // the leaf itself, turned over: its back, mirrored across the fold
+  // the leaf turned over: its back (the left page of the next spread), across the fold
   const refl=p=>{const k=2*dot(sub(p,F),n);return[p[0]-k*n[0],p[1]-k*n[1]];};const flap=fold.map(refl);
   if(flap.length>2){const lift=Math.min(1,dl/(2*W));ctx.save();ctx.shadowColor=`rgba(0,0,0,${(.22+.18*(1-lift)).toFixed(2)})`;ctx.shadowBlur=18+26*lift;ctx.shadowOffsetX=-n[0]*10*lift;ctx.shadowOffsetY=-n[1]*10*lift+4;path(flap);ctx.fillStyle=PAPER;ctx.fill();ctx.restore();
     ctx.save();path(flap);ctx.clip();
     const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
-    // back image (u,v) → leaf (S+W-u, Y+v) → reflected
     const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;T(a,b,c,dd,e,f);
     if(back!=null){const im=imgs[back];if(im.complete)ctx.drawImage(im,0,0,W,H);}else{ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);}
     T(1,0,0,1,0,0);
-    // the bend: a crease at the fold, light on the rounded back, a little shade towards the edge
     const far=refl(C),g=ctx.createLinearGradient(F[0],F[1],far[0],far[1]);
     g.addColorStop(0,'rgba(0,0,0,.30)');g.addColorStop(.06,'rgba(0,0,0,.08)');g.addColorStop(.2,'rgba(255,255,255,.28)');g.addColorStop(.5,'rgba(255,255,255,.05)');g.addColorStop(1,'rgba(0,0,0,.12)');
-    ctx.fillStyle=g;ctx.fillRect(S-2*W,Y-H,4*W,3*H);ctx.restore();}
-  spineOver();}
-function spineOver(){if(single)return;ctx.save();const g=ctx.createLinearGradient(S-8,0,S+8,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.5,'rgba(0,0,0,.12)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(S-8,Y,16,H);ctx.restore();}
+    ctx.fillStyle=g;ctx.fillRect(S-2*W,Y-H,4*W,3*H);ctx.restore();}}
 function draw(){if(anim&&anim.turn)return drawTurn(anim.turn);if(drag&&drag.turn)return drawTurn(drag.turn);
-  const c=cur();desk();bookShadow(c.L,c.R);if(!single)page(c.L,S-W);page(c.R,S);spine();
-  if(anim&&anim.fade){const o=anim.fade;if(!single)page(o.L,S-W,o.a);page(o.R,S,o.a);}
-  document.getElementById('count').textContent=single?`страница ${at+1} из ${count()}`:`разворот ${at+1} из ${count()}`;
-  document.getElementById('prev').disabled=at<=0;document.getElementById('next').disabled=at>=count()-1;}
+  const c=spreads[at];desk();bookShadow(c.L,c.R);page(c.L,S-W);page(c.R,S);spine(c.L,c.R);
+  if(anim&&anim.fade){const o=anim.fade;page(o.L,S-W,o.a);page(o.R,S,o.a);}
+  const k=single?(c[side]??0)+1:at+1;
+  document.getElementById('count').textContent=single?`страница ${k} из ${PAGES.length}`:`разворот ${at+1} из ${spreads.length}`;
+  document.getElementById('prev').disabled=!canGo(-1);document.getElementById('next').disabled=!canGo(1);}
 
-// ——— the turns
-function turnFor(dir,corner){const c=cur();const C=[S+W,corner==='top'?Y:Y+H];
-  if(dir>0){const nx=single?(at+1<PAGES.length?at+1:null):spreads[at+1];if(nx==null)return null;
-    return single?{left:null,front:at,back:nx,under:nx,M:C,C,dir}:{left:c.L,front:c.R,back:nx.L,under:nx.R,M:C,C,dir};}
-  const pv=single?(at>0?at-1:null):spreads[at-1];if(pv==null)return null;const done=[S-W,C[1]];
-  return single?{left:null,front:pv,back:at,under:at,M:done,C,dir}:{left:pv.L,front:pv.R,back:c.L,under:c.R,M:done,C,dir};}
+// ——— moving: a turn between spreads, a glide between the two pages of one spread
+const canGo=dir=>{const c=spreads[at];if(single){if(dir>0&&side==='L'&&c.R!=null)return true;if(dir<0&&side==='R'&&c.L!=null)return true;}return !!spreads[at+dir];};
+function turnFor(dir,corner){const c=spreads[at];const C=[S+W,corner==='top'?Y:Y+H];
+  if(dir>0){const nx=spreads[at+1];if(!nx)return null;return{left:c.L,front:c.R,back:nx.L,under:nx.R,M:C,C,dir};}
+  const pv=spreads[at-1];if(!pv)return null;return{left:pv.L,front:pv.R,back:c.L,under:c.R,M:[S-W,C[1]],C,dir};}
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function glide(to,ms,then){const from=S,t0=performance.now();anim={glide:1};const step=now=>{const k=Math.min(1,(now-t0)/ms);S=from+(to-from)*ease(k);draw();if(k<1)requestAnimationFrame(step);else{anim=null;then&&then();draw();}};requestAnimationFrame(step);}
 function fly(turn,to,ms,then){const from=turn.M.slice(),t0=performance.now();const lift=H*.18*(to[0]<from[0]?1:-1)*(turn.C[1]===Y?-1:1);
   anim={turn};const step=now=>{const k=Math.min(1,(now-t0)/ms),e=ease(k);turn.M=[from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e-Math.sin(Math.PI*e)*lift];draw();
     if(k<1)requestAnimationFrame(step);else{anim=null;then&&then();draw();}};requestAnimationFrame(step);}
-function go(dir){if(anim||drag)return;hint();
-  if(mode==='now'){const n=at+dir;if(n<0||n>=count())return;const old=cur();at=n;const t0=performance.now();anim={fade:{...old,a:1}};
+// after a turn on a phone, the book glides so that the page just turned to is in view
+const landNext=()=>{at++;if(!single){side='R';return;}if(spreads[at].L!=null){side='L';glide(spotOf('L'),520);}else side='R';};
+const landPrev=()=>{at--;if(!single){side='R';return;}if(spreads[at].R!=null){side='R';glide(spotOf('R'),520);}else side='L';};
+function go(dir){if(anim||drag||!canGo(dir))return;hint();const c=spreads[at];
+  if(single&&((dir>0&&side==='L'&&c.R!=null)||(dir<0&&side==='R'&&c.L!=null))){side=dir>0?'R':'L';glide(spotOf(side),520);return;}
+  if(mode==='now'){const old={...c};at+=dir;side=single?(dir>0?(spreads[at].L!=null?'L':'R'):(spreads[at].R!=null?'R':'L')):'R';S=spotOf(side);const t0=performance.now();anim={fade:{...old,a:1}};
     const step=now=>{const k=Math.min(1,(now-t0)/450);anim.fade.a=1-k;draw();if(k<1)requestAnimationFrame(step);else{anim=null;draw();}};requestAnimationFrame(step);return;}
-  const t=turnFor(dir,'bottom');if(!t)return;
-  if(dir>0)fly(t,[S-W,t.C[1]],760,()=>{at++;});else fly(t,t.C.slice(),760,()=>{at--;});}
+  // a turn starts from the right page; on a phone looking at the left page, the book first glides back to the spine
+  const doTurn=()=>{const t=turnFor(dir,'bottom');if(!t)return;if(dir>0)fly(t,[S-W,t.C[1]],760,landNext);else fly(t,t.C.slice(),760,landPrev);};
+  if(single&&dir>0&&side==='L')return; // handled above by the glide
+  if(single&&dir<0&&side==='L'){S=spotOf('L');doTurn();return;}
+  doTurn();}
 document.getElementById('next').onclick=()=>go(1);document.getElementById('prev').onclick=()=>go(-1);
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);});
 
-// ——— the hand: take the page by its edge and carry it; a short tap on an edge turns it
+// ——— the hand: take the page by its outer edge and carry it; a tap on an edge goes on
 const local=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
 cv.addEventListener('pointerdown',e=>{if(anim)return;const p=local(e);cv.setPointerCapture(e.pointerId);
-  const onRight=p[0]>S+W*.55&&p[0]<S+W+30,onLeft=single?p[0]<S+W*.35:p[0]<S-W*.45&&p[0]>S-W-30;
-  drag={p0:p,t0:performance.now(),dir:onRight?1:onLeft?-1:0,turn:null};});
-cv.addEventListener('pointermove',e=>{if(!drag||!drag.dir||mode!=='curl')return;const p=local(e);
-  if(!drag.turn){if(Math.hypot(p[0]-drag.p0[0],p[1]-drag.p0[1])<6)return;const t=turnFor(drag.dir,drag.p0[1]<Y+H/2?'top':'bottom');if(!t){drag.dir=0;return;}drag.turn=t;hint();}
-  drag.turn.M=[p[0]+(drag.dir>0?0:-W*0),p[1]];if(drag.dir<0){drag.turn.M=[p[0]-(drag.p0[0]-(S-W)),p[1]];}draw();});
+  const onRight=p[0]>S+W*.55&&p[0]<S+W+30,onLeft=p[0]<S-W*.45&&p[0]>S-W-30,c=spreads[at];
+  let dir=onRight?1:onLeft?-1:0;if(!dir&&single)dir=p[0]>cx?1:-1;
+  // only the outer edge of a page turns it; on a phone the inner edge glides to the other page
+  const flip=dir>0?(!single||side==='R')&&onRight&&!!spreads[at+1]:dir<0?(!single||side==='L')&&onLeft&&!!spreads[at-1]:false;
+  drag={p0:p,t0:performance.now(),dir,flip,turn:null};});
+cv.addEventListener('pointermove',e=>{if(!drag||!drag.flip||mode!=='curl')return;const p=local(e);
+  if(!drag.turn){if(Math.hypot(p[0]-drag.p0[0],p[1]-drag.p0[1])<6)return;const t=turnFor(drag.dir,drag.p0[1]<Y+H/2?'top':'bottom');if(!t){drag.flip=false;return;}drag.turn=t;hint();}
+  drag.turn.M=drag.dir>0?[p[0],p[1]]:[S-W+(p[0]-drag.p0[0]),p[1]];draw();});
 cv.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;const p=local(e);
   if(!d.turn){if(d.dir)go(d.dir);return;}
-  const t=d.turn,fast=performance.now()-d.t0<260,toLeft=t.M[0]<S+W*.35||(fast&&p[0]<d.p0[0]-20);
-  if(t.dir>0){if(toLeft)fly(t,[S-W,t.C[1]],420,()=>{at++;});else fly(t,t.C.slice(),380);}
-  else{const back=t.M[0]>S-W*.4||(fast&&p[0]>d.p0[0]+20);if(back)fly(t,t.C.slice(),420,()=>{at--;});else fly(t,[S-W,t.C[1]],380);}});
+  const t=d.turn,fast=performance.now()-d.t0<260;
+  if(t.dir>0){const done=t.M[0]<S+W*.35||(fast&&p[0]<d.p0[0]-20);if(done)fly(t,[S-W,t.C[1]],420,landNext);else fly(t,t.C.slice(),380);}
+  else{const done=t.M[0]>S-W*.4||(fast&&p[0]>d.p0[0]+20);if(done)fly(t,t.C.slice(),420,landPrev);else fly(t,[S-W,t.C[1]],380);}});
 cv.addEventListener('pointercancel',()=>{drag=null;draw();});
 
 // ——— the switch, the hint, the size
 const setMode=m=>{mode=m;document.getElementById('m-curl').setAttribute('aria-pressed',m==='curl');document.getElementById('m-now').setAttribute('aria-pressed',m==='now');};
 document.getElementById('m-curl').onclick=()=>setMode('curl');document.getElementById('m-now').onclick=()=>setMode('now');
 let hinted=false;const hint=()=>{if(hinted)return;hinted=true;document.getElementById('hint').classList.add('gone');};
-new ResizeObserver(()=>{const was=single,a=at;layout();if(was!==single){at=single?(spreads[Math.min(a,spreads.length-1)].R??spreads[a].L??0):Math.max(0,spreads.findIndex(s=>s.L===a||s.R===a));draw();}}).observe(stage);
+new ResizeObserver(layout).observe(stage);
 Promise.all(imgs.map(i=>i.decode?i.decode().catch(()=>{}):0)).then(layout);layout();
 </script>
