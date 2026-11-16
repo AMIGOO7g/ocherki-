@@ -614,17 +614,30 @@ html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{o
 .wc.wc-w button{width:32px;height:32px}
 .wc.wc-w svg{width:24px;height:24px}
 .wc.wc-w .t b{font-size:19px}
-/* v182 — the desk and its one light. By day the window on the left: the toile under daylight, the frame's soft cross.
-   At night no light from above: the bar's lamp spreads down from its ends, soft-edged; the rest of the desk goes dark. */
-.desk-day,.desk-shade,.desk-cone{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
-.desk-day{z-index:8;background:linear-gradient(104deg,transparent 21%,rgba(70,50,30,.13) 23.5%,transparent 26%),linear-gradient(16deg,transparent 57%,rgba(70,50,30,.10) 59.5%,transparent 62%),linear-gradient(98deg,rgba(255,252,244,.45) 0%,rgba(255,250,240,.16) 32%,transparent 55%,rgba(60,40,20,.26) 100%),
-  linear-gradient(rgba(240,229,208,.72),rgba(240,229,208,.72)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#e8d8bc}
+/* v183 — the desk and its one light (changes with day and night at the same pace as the bar and the keys: 2.45s).
+   By day the window on the left: the left of the desk lit, the right in shade; the frame's shadow — an upright on the left,
+   one near the right edge, a transom across; the toile well muted.
+   At night no light from above: the beam starts at the bar's own ends and goes down nearly straight, strong at the top and
+   fading on the way down; the rest of the desk is dark. On the way in the lamp lights up last (.oc-lit, set by write.js). */
+.desk-day,.desk-shade,.desk-cone{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.desk-day{z-index:8;background:linear-gradient(100deg,transparent 15.5%,rgba(70,50,30,.15) 17%,transparent 18.5%),linear-gradient(100deg,transparent 80%,rgba(70,50,30,.13) 81.5%,transparent 83%),linear-gradient(190deg,transparent 44%,rgba(70,50,30,.13) 45.5%,transparent 47%),
+  linear-gradient(90deg,rgba(255,251,240,.62) 0%,rgba(255,249,236,.32) 30%,rgba(255,248,235,.06) 50%,rgba(70,48,26,.16) 72%,rgba(45,30,16,.36) 100%),
+  linear-gradient(rgba(242,233,214,.86),rgba(242,233,214,.86)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ece0c8}
 .desk-shade{z-index:8;background:rgba(10,5,2,.3)}
-.desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(46px)}
-.desk-cone i{position:absolute;inset:0;clip-path:polygon(29.5% 14%,70.5% 14%,94% 104%,6% 104%);
-  background:linear-gradient(180deg,rgba(255,200,125,.6) 0%,rgba(255,180,100,.36) 35%,rgba(255,160,80,.16) 75%,rgba(255,150,70,.07) 100%)}
+.desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(26px)}
+.desk-cone i{position:absolute;inset:0;clip-path:polygon(28.6% 15%,71.4% 15%,87% 104%,13% 104%);/* the shape follows the bar (write.js) */
+  background:linear-gradient(180deg,rgba(255,205,135,.8) 0%,rgba(255,185,105,.42) 30%,rgba(255,165,85,.16) 65%,rgba(255,150,70,.05) 100%)}
 .shell.oc-w:not(.is-manuscript):not(.is-book-preview):not(.is-night) .desk-day{opacity:1}
 .shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .desk-shade,
-.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .desk-cone{opacity:1}
+.shell.oc-w.oc-lit.is-night:not(.is-manuscript):not(.is-book-preview) .desk-cone{opacity:1}
+.shell.oc-w:not(.oc-lit) .desk-cone{transition:none}
 .shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-main,
 .shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-warm{opacity:0!important}
+/* v183 — the clock: its centre a small brass cap like the bob; by day the hands in dark bronze; the pendulum casts its shadow
+   down (at night under the lamp, by day away from the window); at night its parts outside the beam sink into the dark (write.js) */
+html body .shell.oc-w.oc-w .master-clock .clock-pivot{opacity:1!important;z-index:5!important;border-radius:50%!important;
+  background:radial-gradient(circle,var(--night1),var(--night3) 70%,var(--night4))!important;box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35)!important}
+html body .shell.oc-w.oc-w:not(.is-night) .master-clock .clock-pivot{background:radial-gradient(circle,var(--face1),var(--face3) 70%,var(--face4))!important}
+html body .shell.oc-w.oc-w:not(.is-night) .master-clock .hand{background:#3b2a1c!important;opacity:.62!important}
+html body .shell.oc-w .master-clock .pendulum{filter:drop-shadow(0 16px 7px rgba(0,0,0,.5))}
+html body .shell.oc-w:not(.is-night) .master-clock .pendulum{filter:drop-shadow(-10px 12px 6px rgba(40,25,10,.28))}
