@@ -1,3 +1,0 @@
-/*@block [" id=\"bp-info-v164\"", ""]*/
-/* v164: «Разворот N из M» waits until the book has entered, so it never starts mid-screen and jumps up */
-#bookPreviewModal:is(.is-preparing,.is-entering) #bookPreviewInfo{opacity:0!important;transition:none!important}

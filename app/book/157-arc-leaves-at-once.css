@@ -1,3 +1,0 @@
-/*@block [" id=\"arc-leaves-at-once\"", ""]*/
-#bookPreviewModal.is-closing .preview-arc,#bookPreviewModal:not(.open) .preview-arc{opacity:0!important;transition:none!important}
-.shell:not(.is-book-preview) ~ #bookPreviewModal .preview-arc{opacity:0!important;transition:none!important}
