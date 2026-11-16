@@ -89,3 +89,6 @@ html body .shell .master-clock .logo-bob{transform:translate(-50%,62%)!important
 html body .shell.oc-w .master-clock .hand,html body .shell.oc-w .master-clock .clock-pivot{opacity:1!important;background:#a8906f!important;box-shadow:none!important}
 html body .shell.oc-w.is-night .master-clock .hand,html body .shell.oc-w.is-night .master-clock .clock-pivot{background:#6b5845!important}
 html body .shell.oc-w .master-clock .clock-pivot{z-index:3;border-radius:50%}
+/* the host paper under the sheet's frame stayed where the sheet used to be and peeped out above the carriage: it shows nothing now (the sheet has its own shadow) */
+html body .shell.oc-w .editor-paper.v35-host-paper{background:none!important;box-shadow:none!important;border:0!important}
+html body .shell.oc-w .editor-paper.v35-host-paper::before,html body .shell.oc-w .editor-paper.v35-host-paper::after{display:none!important}
