@@ -318,7 +318,9 @@ document.addEventListener('click',e=>{
   const frame=()=>{requestAnimationFrame(frame);const on=isBook();car.classList.toggle('on',on);
     if(!on){book.classList.remove('on');name.classList.remove('on');return;}
     car.classList.toggle('night',shell.classList.contains('is-night'));
-    const info=$('bookPreviewInfo');car.querySelector('.t b').textContent=(info?.textContent||'').trim();
+    // while a leaf is turning, the carriage and the name still tell the spread it leaves
+    const curling=book.classList.contains('is-curling');
+    const info=$('bookPreviewInfo');if(!curling)car.querySelector('.t b').textContent=(info?.textContent||'').trim();
     Object.entries(COMP).forEach(([c,id])=>{const b=$(id),btn=car.querySelector(`[data-c="${c}"]`);const off=!b||b.disabled;btn.classList.toggle('off',off);btn.dataset.tip=off&&b?.title?b.title:btn.getAttribute('aria-label');});
     // the dress follows the spread (it opens and grows first)
     const L=modal.querySelector('.book-preview-half.left'),R=modal.querySelector('.book-preview-half.right');
@@ -328,13 +330,91 @@ document.addEventListener('click',e=>{
     const x0=Math.min(...rs.map(r=>r.left)),x1=Math.max(...rs.map(r=>r.right)),y0=Math.min(...rs.map(r=>r.top)),y1=Math.max(...rs.map(r=>r.bottom));
     Object.assign(book.style,{left:x0+'px',top:y0+'px',width:(x1-x0)+'px',height:(y1-y0)+'px'});book.classList.add('on');book.classList.toggle('single',rs.length<2);
     book.querySelector('.cl').classList.toggle('off',!!$('bookPreviewPrev')?.disabled);book.querySelector('.cr').classList.toggle('off',!!$('bookPreviewNext')?.disabled);
-    name.style.top=(y1+14)+'px';const n=section();
+    name.style.top=(y1+14)+'px';const n=curling?lastName:section();
     if(n!==lastName){const first=lastName===null;lastName=n;if(first){name.querySelector('b').textContent=n;}else{name.classList.add('swap');setTimeout(()=>{name.querySelector('b').textContent=n;name.classList.remove('swap');},350);}}
     name.classList.toggle('on',!!n);};
   requestAnimationFrame(frame);
   car.addEventListener('click',e=>{const b=e.target.closest('button[data-c]');if(!b||!isBook())return;e.stopPropagation();const c=b.dataset.c;
     if(COMP[c]){if(!b.classList.contains('off'))$(COMP[c])?.click();return;}
     document.querySelector(`.bd-rail-key[data-rail="${c}"]`)?.click();});
-  book.querySelector('.cr').addEventListener('click',()=>$('bookPreviewNext')?.click());
-  book.querySelector('.cl').addEventListener('click',()=>$('bookPreviewPrev')?.click());
+})();
+
+
+// ——— v175: the leaf bends as it turns. The pages are the book's own (clones of the live spread), the fold is the line
+// between the corner and the hand; the leaf shows its back across the fold; shadows grow while the leaf is up and go when
+// it lies down; the shade of the gutter stays on the pages under the leaf. A corner can be taken and carried by the hand.
+(()=>{const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1],len=a=>Math.hypot(a[0],a[1]);
+  const clipPoly=(poly,F,n,keepPos)=>{const out=[];for(let i=0;i<poly.length;i++){const A=poly[i],B=poly[(i+1)%poly.length],da=dot(sub(A,F),n),db=dot(sub(B,F),n);
+    const ina=keepPos?da>0:da<=0,inb=keepPos?db>0:db<=0;if(ina)out.push(A);if(ina!==inb){const t=da/(da-db);out.push([A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t]);}}return out;};
+  const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  let hand=null; // the corner held by the pointer: {dir,x,y,t0,moved}
+  window.OCHERKI_CURL=o=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
+    const {forward,S:W,H}=o;const S=W,Y=0;
+    const root=document.createElement('div');root.className='bq-curl';root.style.cssText=`left:${o.X0}px;top:${o.Y0}px;width:${2*W}px;height:${H}px`;
+    const ghost=el=>!el||el.classList.contains('is-ghost');
+    const piece=(el,cls)=>{if(ghost(el))return null;const b=document.createElement('div');b.className='bq-pc '+cls;el.style.cssText+=`;position:absolute;left:0;top:0;width:${W}px;height:${H}px;margin:0;transform:none;visibility:visible`;b.style.width=W+'px';b.style.height=H+'px';b.appendChild(el);root.appendChild(b);return b;};
+    // forward: left=old L, leaf front=old R, leaf back=new L, under=new R; backward: the same turn run from its end
+    const pick=forward?{left:o.oldL,front:o.oldR,back:o.newL,under:o.newR}:{left:o.newL,front:o.newR,back:o.oldL,under:o.oldR};
+    const leftEl=piece(pick.left,'l'),underEl=piece(pick.under,'u'),stayEl=piece(pick.front,'s');
+    const cA=document.createElement('canvas');root.appendChild(cA);
+    const flapEl=piece(pick.back,'f');const cB=document.createElement('canvas');root.appendChild(cB);
+    if(leftEl)leftEl.style.left='0px';if(underEl)underEl.style.left=W+'px';if(stayEl)stayEl.style.left=W+'px';
+    if(flapEl){flapEl.style.left='0px';flapEl.style.transformOrigin='0 0';}
+    const dpr=Math.min(2,devicePixelRatio||1),pad=W;[cA,cB].forEach(c=>{c.width=Math.round((2*W+2*pad)*dpr);c.height=Math.round((H+2*pad)*dpr);c.style.cssText=`position:absolute;left:${-pad}px;top:${-pad}px;width:${2*W+2*pad}px;height:${H+2*pad}px`;});
+    const xA=cA.getContext('2d'),xB=cB.getContext('2d');
+    document.body.appendChild(root);document.querySelector('.bq-book')?.classList.add('is-curling');
+    const poly=pts=>'polygon('+pts.map(p=>`${p[0].toFixed(1)}px ${p[1].toFixed(1)}px`).join(',')+')';
+    const path=(x,pts)=>{x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();};
+    const constrain=(M,C)=>{const B=[S,C[1]],B2=[S,C[1]===Y?Y+H:Y],diag=Math.hypot(W,H);let v=sub(M,B),l=len(v);if(l>W)M=[B[0]+v[0]*W/l,B[1]+v[1]*W/l];
+      v=sub(M,B2);l=len(v);if(l>diag)M=[B2[0]+v[0]*diag/l,B2[1]+v[1]*diag/l];return M;};
+    const spine=x=>{if(!leftEl||!underEl)return;const g=x.createLinearGradient(S-W*.16,0,S+W*.16,0);[[0,0],[.38,.07],[.47,.2],[.5,.3],[.53,.2],[.62,.07],[1,0]].forEach(([k,a])=>g.addColorStop(k,`rgba(30,18,8,${a})`));x.fillStyle=g;x.fillRect(S-W*.16,Y,W*.32,H);};
+    const rect=[[S,Y],[S+W,Y],[S+W,Y+H],[S,Y+H]];
+    let C=[S+W,Y+H];
+    function draw(M0){const M=constrain(M0,C),d=sub(C,M),dl=len(d);
+      for(const x of [xA,xB]){x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,cA.width,cA.height);x.setTransform(dpr,0,0,dpr,pad*dpr,pad*dpr);}
+      if(dl<1){if(stayEl)stayEl.style.clipPath='none';if(flapEl)flapEl.style.visibility='hidden';spine(xA);return;}
+      const n=[d[0]/dl,d[1]/dl],F=[(M[0]+C[0])/2,(M[1]+C[1])/2],lift=Math.sin(Math.PI*Math.min(1,dl/(2*W)));
+      const stay=clipPoly(rect,F,n,false),fold=clipPoly(rect,F,n,true);
+      if(stayEl)stayEl.style.clipPath=stay.length>2?poly(stay.map(p=>[p[0]-S,p[1]])):'polygon(0 0,0 0,0 0)';
+      // on the pages beneath: the shade the leaf throws along the fold, the gutter, the leaf's own shadow
+      if(fold.length>2){xA.save();path(xA,fold);xA.clip();const sw=Math.max(6,Math.min(W*.35,dl*.6)*(.35+.65*lift)),g=xA.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);
+        g.addColorStop(0,`rgba(0,0,0,${(.12+.3*lift).toFixed(3)})`);g.addColorStop(1,'rgba(0,0,0,0)');xA.fillStyle=g;xA.fillRect(S-W,Y,2*W,H);xA.restore();}
+      spine(xA);
+      const refl=p=>{const k=2*dot(sub(p,F),n);return[p[0]-k*n[0],p[1]-k*n[1]];},flap=fold.map(refl);
+      if(flap.length>2){xA.save();xA.shadowColor=`rgba(0,0,0,${(.1+.32*lift).toFixed(3)})`;xA.shadowBlur=4+30*lift;xA.shadowOffsetX=(-n[0]*14*lift)*dpr;xA.shadowOffsetY=(-n[1]*14*lift+3*lift)*dpr;path(xA,flap);xA.fillStyle='#f3eee5';xA.fill();xA.restore();}
+      // the leaf: its back page, mirrored across the fold (u,v of the back → the leaf at (S+W-u, v) → across the fold)
+      if(flapEl){if(flap.length>2){const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
+          const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;
+          flapEl.style.visibility='visible';flapEl.style.transform=`matrix(${a},${b},${c},${dd},${e},${f})`;flapEl.style.clipPath=poly(fold.map(p=>[S+W-p[0],p[1]-Y]));}
+        else flapEl.style.visibility='hidden';}
+      // the bend: a crease at the fold, light on the rounded back, a little shade towards the edge
+      if(flap.length>2){xB.save();path(xB,flap);xB.clip();const far=refl(C),g=xB.createLinearGradient(F[0],F[1],far[0],far[1]),q=.25+.75*lift;
+        g.addColorStop(0,`rgba(0,0,0,${(.3*q).toFixed(3)})`);g.addColorStop(.06,`rgba(0,0,0,${(.08*q).toFixed(3)})`);g.addColorStop(.2,`rgba(255,255,255,${(.28*q).toFixed(3)})`);g.addColorStop(.5,`rgba(255,255,255,${(.05*q).toFixed(3)})`);g.addColorStop(1,`rgba(0,0,0,${(.12*q).toFixed(3)})`);
+        xB.fillStyle=g;xB.fillRect(S-2*W,Y-H,4*W,3*H);xB.restore();}}
+    const at=e=>[e.clientX-o.X0,e.clientY-o.Y0];
+    const end=()=>{root.remove();document.querySelector('.bq-book')?.classList.remove('is-curling');document.querySelector('.bq-book')?.classList.remove('is-curling');o.done();};
+    // from where the leaf lies to where it goes; a lift through the middle of the way
+    const fly=(from,to,ms,then)=>{const t0=performance.now(),lift=H*.16*(to[0]<from[0]?1:-1)*(C[1]===Y?-1:1);
+      const step=now=>{const k=Math.min(1,(now-t0)/ms),e=ease(k);draw([from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e-Math.sin(Math.PI*e)*lift]);if(k<1)requestAnimationFrame(step);else then();};requestAnimationFrame(step);};
+    const flat=[S-W,0];// the leaf lying on the left
+    const finish=ok=>{const target=forward?(ok?[S-W,C[1]]:C.slice()):(ok?C.slice():[S-W,C[1]]);return target;};
+    if(hand&&hand.dir===(forward?1:-1)){
+      // the hand holds the corner it took: the leaf follows it; let go past the middle (or with a flick) and it turns
+      const h=hand;C=[S+W,h.y-o.Y0<H/2?Y:Y+H];flat[1]=C[1];
+      let M=forward?C.slice():[S-W,C[1]];
+      const move=e=>{const p=at(e);M=forward?[Math.min(S+W,p[0]),p[1]]:[S-W+(p[0]-(h.x-o.X0)),p[1]];if(Math.hypot(e.clientX-h.x,e.clientY-h.y)>6)h.moved=true;draw(M);};
+      const up=e=>{removeEventListener('pointermove',move);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);hand=null;
+        const fast=performance.now()-h.t0<260,dx=e.clientX-h.x;
+        const ok=!h.moved||(forward?(M[0]<S+W*.35||(fast&&dx<-20)):(M[0]>S-W*.4||(fast&&dx>20)));
+        const to=finish(ok);fly(M,to,ok?(h.moved?460:760):380,()=>{if(!ok)o.back();end();});};
+      addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);draw(M);return true;}
+    // a press on a key or an arrow: the leaf is taken by its lower corner and turned
+    if(forward)fly(C.slice(),[S-W,C[1]],820,end);else fly([S-W,C[1]],C.slice(),820,end);
+    draw(forward?C.slice():[S-W,C[1]]);return true;};
+  // the corners of the open book are taken by the hand
+  const take=(dir,e)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();hand={dir,x:e.clientX,y:e.clientY,t0:performance.now(),moved:false};
+    document.getElementById(dir>0?'bookPreviewNext':'bookPreviewPrev')?.click();
+    setTimeout(()=>{if(hand&&hand.dir===dir&&!document.querySelector('.bq-curl'))hand=null;},60);};
+  const wire=()=>{const b=document.querySelector('.bq-book');if(!b){setTimeout(wire,500);return;}
+    b.querySelector('.cr')?.addEventListener('pointerdown',e=>take(1,e));b.querySelector('.cl')?.addEventListener('pointerdown',e=>take(-1,e));};wire();
 })();

@@ -1478,3 +1478,11 @@ body.oct-book .bd-rail-key,body.oct-book .bd-rail-tip,body.oct-book .bd-rail-ite
 .bq-name b{display:block;font:400 30px/1.1 'SignThatS','CormorantCy',Georgia,serif;color:rgba(255,226,189,.66);text-shadow:0 0 14px rgba(255,170,90,.25);white-space:nowrap}
 .shell:not(.is-night) ~ .bq-name b{color:rgba(80,50,28,.62);text-shadow:none}
 .bq-name.swap{opacity:0}
+
+/* v175: the turning leaf */
+.bq-curl{position:fixed;z-index:2147483001;pointer-events:none}
+.bq-curl .bq-pc{position:absolute;top:0;width:0;height:0}
+.bq-curl .bq-pc>*{box-shadow:none!important}
+.bq-curl canvas{pointer-events:none}
+.bq-book.is-curling .gut,.bq-book.is-curling .lit,.bq-book.is-curling .cr,.bq-book.is-curling .cl{opacity:0;transition:opacity .15s}
+.bq-book .cr,.bq-book .cl{touch-action:none;cursor:grab}

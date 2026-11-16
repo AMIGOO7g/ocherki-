@@ -2926,7 +2926,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v174"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v175"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -3032,6 +3032,7 @@
     if(!(L.width>40&&Math.abs(L.width-R.width)<4&&Math.abs(L.right-R.left)<4))return false;
     const S=L.width,H=L.height,X0=L.left,Y0=L.top;
     const oldL=hosts[0].cloneNode(true),oldR=hosts[1].cloneNode(true);
+    const fromSpread=activeSpread;
     activeSpread=target;
     previewRender();
     renderActiveOnly();
@@ -3043,6 +3044,10 @@
     const waiting=(forward?hosts[0]:hosts[1]).classList.contains('is-ghost')?(forward?fresh[0]:fresh[1]):null;
     if(waiting)waiting.style.visibility='hidden';
     back.style.visibility='visible';
+    // v175: the leaf bends — the turn is drawn by the curl of «Книга» (app/book/book.js) when it is there
+    if(window.OCHERKI_CURL){try{if(window.OCHERKI_CURL({forward,oldL,oldR,newL:fresh[0].cloneNode(true),newR:fresh[1].cloneNode(true),X0,Y0,S,H,
+      back:()=>{activeSpread=fromSpread;previewRender();renderActiveOnly();},
+      done:()=>{if(waiting)waiting.style.visibility='';previewPaging=false;}}))return true;}catch(err){console.warn('curl',err);}}
     const layer=document.createElement('div');
     layer.style.cssText=`position:fixed;left:${X0}px;top:${Y0}px;width:${2*S}px;height:${H}px;z-index:2147482000;pointer-events:none`;
     const piece=(host,z)=>{const box=document.createElement('div');box.style.cssText=`position:absolute;top:0;height:${H}px;overflow:hidden;z-index:${z}`;host.style.cssText+=`;position:absolute;top:0;left:0;width:${S}px;height:${H}px;margin:0;transform:none`;box.appendChild(host);layer.appendChild(box);return box;};
