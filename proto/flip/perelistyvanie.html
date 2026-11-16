@@ -74,7 +74,7 @@ const T=(a,b,c,d,e,f)=>ctx.setTransform(dpr*a,dpr*b,dpr*c,dpr*d,dpr*e,dpr*f);
 function page(k,x,alpha=1){if(k==null)return;const im=imgs[k];ctx.globalAlpha=alpha;if(im.complete&&im.naturalWidth)ctx.drawImage(im,x,Y,W,H);else{ctx.fillStyle=PAPER;ctx.fillRect(x,Y,W,H);}ctx.globalAlpha=1;}
 function desk(){T(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);}
 function bookShadow(L,R){const x0=L!=null?S-W:S,x1=R!=null?S+W:S;if(x1<=x0)return;ctx.save();ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=34;ctx.shadowOffsetY=18;ctx.fillStyle=PAPER;ctx.fillRect(x0,Y,x1-x0,H);ctx.restore();}
-function spine(L,R){if(L==null||R==null)return;const g=ctx.createLinearGradient(S-46,0,S+46,0);g.addColorStop(0,'rgba(60,40,20,0)');g.addColorStop(.42,'rgba(40,25,10,.22)');g.addColorStop(.5,'rgba(255,255,255,.14)');g.addColorStop(.58,'rgba(40,25,10,.2)');g.addColorStop(1,'rgba(60,40,20,0)');ctx.fillStyle=g;ctx.fillRect(S-46,Y,92,H);}
+function spine(L,R){if(L==null||R==null)return;const g=ctx.createLinearGradient(S-W*.16,0,S+W*.16,0);g.addColorStop(0,'rgba(40,25,10,0)');g.addColorStop(.38,'rgba(40,25,10,.07)');g.addColorStop(.47,'rgba(30,18,8,.2)');g.addColorStop(.5,'rgba(25,15,6,.3)');g.addColorStop(.53,'rgba(30,18,8,.2)');g.addColorStop(.62,'rgba(40,25,10,.07)');g.addColorStop(1,'rgba(40,25,10,0)');ctx.fillStyle=g;ctx.fillRect(S-W*.16,Y,W*.32,H);}
 
 // a turn in flight: the left page stays, beneath lies the next right page, the leaf carries its front and its back
 function drawTurn(t){const {left,front,back,under,M:M0,C}=t;desk();
@@ -82,20 +82,21 @@ function drawTurn(t){const {left,front,back,under,M:M0,C}=t;desk();
   const M=constrain(M0,C),d=sub(C,M),dl=len(d);const rect=[[S,Y],[S+W,Y],[S+W,Y+H],[S,Y+H]];
   if(dl<1){page(front,S);return;}
   const n=[d[0]/dl,d[1]/dl],F=[(M[0]+C[0])/2,(M[1]+C[1])/2];
+  const lift=Math.sin(Math.PI*Math.min(1,dl/(2*W))); // 0 when the leaf lies flat on either side, 1 halfway
   const stay=clipPoly(rect,F,n,false),fold=clipPoly(rect,F,n,true);
   if(stay.length>2){ctx.save();path(stay);ctx.clip();page(front,S);ctx.restore();}
   // the shadow the leaf throws on the page beneath, along the fold
-  if(fold.length>2){ctx.save();path(fold);ctx.clip();const sw=Math.min(W*.35,dl*.6),g=ctx.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);g.addColorStop(0,'rgba(0,0,0,.42)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(S-W,Y,2*W,H);ctx.restore();}
+  if(fold.length>2){ctx.save();path(fold);ctx.clip();const sw=Math.max(6,Math.min(W*.35,dl*.6)*(.35+.65*lift)),g=ctx.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);g.addColorStop(0,`rgba(0,0,0,${(.12+.3*lift).toFixed(3)})`);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(S-W,Y,2*W,H);ctx.restore();}
   // the leaf turned over: its back (the left page of the next spread), across the fold
   const refl=p=>{const k=2*dot(sub(p,F),n);return[p[0]-k*n[0],p[1]-k*n[1]];};const flap=fold.map(refl);
-  if(flap.length>2){const lift=Math.min(1,dl/(2*W));ctx.save();ctx.shadowColor=`rgba(0,0,0,${(.22+.18*(1-lift)).toFixed(2)})`;ctx.shadowBlur=18+26*lift;ctx.shadowOffsetX=-n[0]*10*lift;ctx.shadowOffsetY=-n[1]*10*lift+4;path(flap);ctx.fillStyle=PAPER;ctx.fill();ctx.restore();
+  if(flap.length>2){ctx.save();ctx.shadowColor=`rgba(0,0,0,${(.1+.32*lift).toFixed(3)})`;ctx.shadowBlur=4+30*lift;ctx.shadowOffsetX=-n[0]*14*lift;ctx.shadowOffsetY=-n[1]*14*lift+3*lift;path(flap);ctx.fillStyle=PAPER;ctx.fill();ctx.restore();
     ctx.save();path(flap);ctx.clip();
     const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
     const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;T(a,b,c,dd,e,f);
     if(back!=null){const im=imgs[back];if(im.complete)ctx.drawImage(im,0,0,W,H);}else{ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);}
     T(1,0,0,1,0,0);
     const far=refl(C),g=ctx.createLinearGradient(F[0],F[1],far[0],far[1]);
-    g.addColorStop(0,'rgba(0,0,0,.30)');g.addColorStop(.06,'rgba(0,0,0,.08)');g.addColorStop(.2,'rgba(255,255,255,.28)');g.addColorStop(.5,'rgba(255,255,255,.05)');g.addColorStop(1,'rgba(0,0,0,.12)');
+    const q=.25+.75*lift;g.addColorStop(0,`rgba(0,0,0,${(.3*q).toFixed(3)})`);g.addColorStop(.06,`rgba(0,0,0,${(.08*q).toFixed(3)})`);g.addColorStop(.2,`rgba(255,255,255,${(.28*q).toFixed(3)})`);g.addColorStop(.5,`rgba(255,255,255,${(.05*q).toFixed(3)})`);g.addColorStop(1,`rgba(0,0,0,${(.12*q).toFixed(3)})`);
     ctx.fillStyle=g;ctx.fillRect(S-2*W,Y-H,4*W,3*H);ctx.restore();}}
 function draw(){if(anim&&anim.turn)return drawTurn(anim.turn);if(drag&&drag.turn)return drawTurn(drag.turn);
   const c=spreads[at];desk();bookShadow(c.L,c.R);page(c.L,S-W);page(c.R,S);spine(c.L,c.R);
