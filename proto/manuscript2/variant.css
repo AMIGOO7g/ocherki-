@@ -1,0 +1,16 @@
+/* Рукопись — как может стать. Пробный вид, в конструктор не подключён. */
+/* the title as the archive's: light, warm, readable day and night */
+.vm-hide{display:none!important}
+/* the carriage under the fan of sheets: what belongs to the manuscript */
+.vm-car{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);width:720px;z-index:2147483150}
+.vm-car .t b{font-size:15px}
+/* the Keeper in the corner */
+.vm-kp{position:fixed;left:6px;bottom:6px;width:150px;z-index:2147483000;mix-blend-mode:screen;-webkit-mask-image:radial-gradient(closest-side,#000 55%,transparent)}
+.vm-hint{position:fixed;left:150px;bottom:44px;z-index:2147483000;max-width:300px;font:italic 16px/1.4 Georgia,serif;color:#fff}
+.ms-bin{display:none!important}
+.vm-car{bottom:118px;width:640px}
+.vm-hint{bottom:30px;left:150px;max-width:330px}
+.vm-n .ms-label small{color:#e6c9a4!important;opacity:.9}
+
+.vm-d .ms-label b{color:#6a4026!important;text-shadow:none!important;opacity:1!important}
+.vm-d [class*=ms-] a,.vm-d .vm-col{color:#5a3f2a}
