@@ -37,7 +37,7 @@
     <div class="mb-view mb-show"><h1>Мои книги</h1><div class="mb-row"></div><div class="mb-ledge"></div>
       <button class="mb-arr l" type="button" aria-label="Левее">‹</button><button class="mb-arr r" type="button" aria-label="Правее">›</button>
       <div class="mb-name"><b></b><small></small></div></div>
-    <div class="mb-view mb-card off"><button class="mb-back" type="button">‹ Мои книги</button><div class="mb-left"><div class="mb-book"><div class="mb-face"></div></div></div>
+    <div class="mb-view mb-card off"><button class="mb-back" type="button">‹ Мои книги</button><div class="mb-left"><i class="mb-floor"></i><div class="mb-book"><div class="mb-face"></div><i class="sp"></i><i class="pr"></i><i class="pt"></i><i class="pb"></i><i class="bk"></i></div></div>
       <div class="mb-r"></div><div class="mb-nav"><button class="ar" data-go="-1" type="button" aria-label="Предыдущая книга">‹</button><span class="n"></span><button class="ar" data-go="1" type="button" aria-label="Следующая книга">›</button><button class="all" type="button">все книги</button></div></div>`;
   document.body.appendChild(root);
   const $=s=>root.querySelector(s);
@@ -73,12 +73,16 @@
   let wheelAt=0;root.addEventListener('wheel',e=>{if(!$('.mb-card').classList.contains('off'))return;const t=performance.now();if(t-wheelAt<380)return;wheelAt=t;go(e.deltaY>0||e.deltaX>0?1:-1);},{passive:true});
 
   // ——— the card of one book
-  function face(b){const f=$('.mb-face'),c=cover(b.id);const W=470,H=520;
-    if(c&&c.html){const k=Math.min(W/c.w,H/c.h);f.className='mb-face';f.style.width=Math.round(c.w*k)+'px';f.style.height=Math.round(c.h*k)+'px';f.style.background='';f.style.color='';
-      f.innerHTML=`<div class="book-preview-half right page-canvas-host ${esc(c.host||'bd-design-editorial')}" style="position:absolute;inset:0;width:100%;height:100%;margin:0;transform:none;box-shadow:none"><div class="page-canvas" style="width:${c.w}px;height:${c.h}px;transform:scale(${k})">${c.html}</div></div>`;return;}
-    // a book not drawn yet: its cloth, in the proportions of a page
-    const [bg,ink]=cloth(b.id);f.className='mb-face cloth mb-cover';f.style.width='360px';f.style.height='470px';f.style.background=bg;f.style.color=ink;f.style.position='relative';
-    f.innerHTML=`<b style="font-size:24px">${esc(titleOf(b))}</b><i></i><small>${esc(c?.subtitle||'')}</small>`;}
+  // the book in volume: the face is its cover (in the book's own proportions), the spine and the back in its cloth,
+  // the page block as thick as the book has sheets
+  function face(b){const f=$('.mb-face'),bk=$('.mb-book'),fl=$('.mb-floor'),c=cover(b.id),[bg,ink]=cloth(b.id);const W=440,H=500;
+    let w,h;
+    if(c&&c.html){const k=Math.min(W/c.w,H/c.h);w=Math.round(c.w*k);h=Math.round(c.h*k);f.className='mb-face';f.style.background='';f.style.color='';
+      f.innerHTML=`<div class="book-preview-half right page-canvas-host ${esc(c.host||'bd-design-editorial')}" style="position:absolute;inset:0;width:100%;height:100%;margin:0;transform:none;box-shadow:none"><div class="page-canvas" style="width:${c.w}px;height:${c.h}px;transform:scale(${k})">${c.html}</div></div>`;}
+    else{w=360;h=470;f.className='mb-face cloth mb-cover';f.style.background=bg;f.style.color=ink;f.innerHTML=`<b style="font-size:24px">${esc(titleOf(b))}</b><i></i><small>${esc(c?.subtitle||'')}</small>`;}
+    const t=Math.round(Math.max(24,Math.min(48,16+(b.pages||20)*.7)));
+    bk.style.setProperty('--w',w+'px');bk.style.setProperty('--h',h+'px');bk.style.setProperty('--t',t+'px');bk.style.setProperty('--cl',c&&c.html?'#151210':bg);
+    fl.style.width=Math.round(w*1.15)+'px';fl.style.top=`calc(50% + ${Math.round(h/2-14)}px)`;}
   function showCard(i){cardAt=i;const b=books[i],c=cover(b.id),cur=b.id===activeId();face(b);
     const inside=[b.pages&&`${b.pages} ${sheetsWord(b.pages)}`].filter(Boolean).join(' · ')||'—';
     $('.mb-r').innerHTML=`<div class="kk">книга${c?.format?' · '+esc(c.format):''}</div><h2>${esc(titleOf(b))}</h2><div class="sub">${esc(c?.subtitle||'')}</div><div class="rule"></div>

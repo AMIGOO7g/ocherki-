@@ -90,12 +90,12 @@ function drawTurn(t){const {left,front,back,under,M:M0,C}=t;desk();
   if(fold.length>2){ctx.save();path(fold);ctx.clip();const sw=Math.min(W*.35,dl*.6),g=ctx.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);g.addColorStop(0,'rgba(0,0,0,.42)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(S-W,Y,2*W,H);ctx.restore();}
   // the leaf itself, turned over: its back, mirrored across the fold
   const refl=p=>{const k=2*dot(sub(p,F),n);return[p[0]-k*n[0],p[1]-k*n[1]];};const flap=fold.map(refl);
-  if(flap.length>2){ctx.save();ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=22;path(flap);ctx.fillStyle=PAPER;ctx.fill();ctx.restore();
+  if(flap.length>2){const lift=Math.min(1,dl/(2*W));ctx.save();ctx.shadowColor=`rgba(0,0,0,${(.22+.18*(1-lift)).toFixed(2)})`;ctx.shadowBlur=18+26*lift;ctx.shadowOffsetX=-n[0]*10*lift;ctx.shadowOffsetY=-n[1]*10*lift+4;path(flap);ctx.fillStyle=PAPER;ctx.fill();ctx.restore();
     ctx.save();path(flap);ctx.clip();
     const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
     // back image (u,v) → leaf (S+W-u, Y+v) → reflected
     const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;T(a,b,c,dd,e,f);
-    if(back!=null){const im=imgs[back];if(im.complete)ctx.drawImage(im,0,0,W,H);}else{ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(0,0,0,.03)';for(let i=0;i<14;i++)ctx.fillRect(W*.12,H*.14+i*H*.05,W*.76,1);}
+    if(back!=null){const im=imgs[back];if(im.complete)ctx.drawImage(im,0,0,W,H);}else{ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);}
     T(1,0,0,1,0,0);
     // the bend: a crease at the fold, light on the rounded back, a little shade towards the edge
     const far=refl(C),g=ctx.createLinearGradient(F[0],F[1],far[0],far[1]);
@@ -112,9 +112,9 @@ function draw(){if(anim&&anim.turn)return drawTurn(anim.turn);if(drag&&drag.turn
 // ——— the turns
 function turnFor(dir,corner){const c=cur();const C=[S+W,corner==='top'?Y:Y+H];
   if(dir>0){const nx=single?(at+1<PAGES.length?at+1:null):spreads[at+1];if(nx==null)return null;
-    return single?{left:null,front:at,back:null,under:nx,M:C,C,dir}:{left:c.L,front:c.R,back:nx.L,under:nx.R,M:C,C,dir};}
+    return single?{left:null,front:at,back:nx,under:nx,M:C,C,dir}:{left:c.L,front:c.R,back:nx.L,under:nx.R,M:C,C,dir};}
   const pv=single?(at>0?at-1:null):spreads[at-1];if(pv==null)return null;const done=[S-W,C[1]];
-  return single?{left:null,front:pv,back:null,under:at,M:done,C,dir}:{left:pv.L,front:pv.R,back:c.L,under:c.R,M:done,C,dir};}
+  return single?{left:null,front:pv,back:at,under:at,M:done,C,dir}:{left:pv.L,front:pv.R,back:c.L,under:c.R,M:done,C,dir};}
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 function fly(turn,to,ms,then){const from=turn.M.slice(),t0=performance.now();const lift=H*.18*(to[0]<from[0]?1:-1)*(turn.C[1]===Y?-1:1);
   anim={turn};const step=now=>{const k=Math.min(1,(now-t0)/ms),e=ease(k);turn.M=[from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e-Math.sin(Math.PI*e)*lift];draw();
