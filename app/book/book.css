@@ -1331,6 +1331,7 @@ html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body
 .book-map-shell .bm-episode-pages .book-map-page.active .book-map-label,.book-map-shell .book-map-row.active .bm-chapter-title{color:var(--bm-dim)!important;font-weight:500!important}
 .book-preview-layout-hanger .key:active:not(:disabled){transform:none!important}
 .start-auth-key__pendulum.lb-hanging-icon{overflow:visible!important;isolation:isolate!important}
+/* v39-entry-empty-preview-map-clock: while the constructor opens, the clock waits in the middle, under the book */
 .bottom-left{left:50%!important;top:calc(50% + 78px)!important;bottom:auto!important;transform:translateX(-50%)!important;opacity:.82!important;pointer-events:none!important;transition:left 1.35s cubic-bezier(.18,.78,.24,1),top 1.35s cubic-bezier(.18,.78,.24,1),bottom 1.35s cubic-bezier(.18,.78,.24,1),transform 1.35s cubic-bezier(.18,.78,.24,1),opacity .55s ease!important}
 .bottom-left .brand-wrap{width:0!important;opacity:0!important;visibility:hidden!important;overflow:hidden!important;transition:opacity .35s ease,width .35s ease,visibility 0s linear .35s!important}
 .bottom-left .master-clock{margin-left:0!important}
