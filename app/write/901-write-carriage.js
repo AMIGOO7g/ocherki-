@@ -75,8 +75,8 @@
   // the Keeper in the corner: once, he says what this place is for; a click on him says it again
   // v170: the same Keeper says one thing on «Писать» and one on «Рукопись», each once
   const isMsQ=()=>shell.classList.contains('is-manuscript')&&!!document.querySelector('.ms-screen.on');
-  const where=()=>isWrite()&&!shell.classList.contains('wc-typing')?'w':isMsQ()?'m':'';
-  const HKS={w:'ocherkiWriteHints',m:'ocherkiMsHints'},HINTS={w:'Пишите, как говорите — книга сложится сама',m:'Крутите колёсико — пойдёте по главам дальше. Фото — на кнопке с фотоаппаратом'};
+  const where=()=>isWrite()&&!shell.classList.contains('wc-typing')?'w':isMsQ()?'m':window.OcherkiBookcase?.isOpen?.()?'b':'';
+  const HKS={w:'ocherkiWriteHints',m:'ocherkiMsHints',b:'ocherkiShelfHints'},HINTS={w:'Пишите, как говорите — книга сложится сама',m:'Крутите колёсико — пойдёте по главам дальше. Фото — на кнопке с фотоаппаратом',b:'Нажмите на книгу — откроется её карточка. Колёсико — листать полку'};
   let HK=HKS.w,HINT=HINTS.w;
   const wk=document.createElement('div');wk.className='wk';wk.innerHTML='<canvas></canvas>';document.body.appendChild(wk);
   const hint=document.createElement('div');hint.className='wk-hint';document.body.appendChild(hint);

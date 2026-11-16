@@ -1,0 +1,80 @@
+/* «Мои книги» (v173): a showcase of books face out on a brass ledge, and the card of one book, as in the archive */
+.mb{position:fixed;inset:0;z-index:2147483200;font-family:Georgia,serif;color:#f3dcc0;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .7s ease}
+.mb.on{opacity:1;pointer-events:auto}
+.mb-bg{position:absolute;inset:0;background:radial-gradient(ellipse 55% 50% at 50% 46%,rgba(170,95,35,.42),transparent 70%),radial-gradient(ellipse at 50% 120%,#000,transparent 60%),#150c06}
+.mb.day .mb-bg{background:radial-gradient(ellipse 55% 50% at 50% 46%,#fff3e0,transparent 72%),linear-gradient(#ead4b4,#c9a57c)}
+.mb-view{position:absolute;inset:0;transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1)}
+.mb-view.off{opacity:0;pointer-events:none;transform:scale(.97)}
+
+/* ——— the showcase ——— */
+.mb-show>h1{position:absolute;left:0;right:0;top:150px;margin:0;text-align:center;font:400 54px/1 'SignThatS','CormorantCy',Georgia,serif;color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.4)}
+.mb.day .mb-show>h1{color:#4a2d1a;text-shadow:none}
+.mb-row{position:absolute;left:50%;top:0;bottom:0;width:0}
+.mb-b{position:absolute;top:628px;transform-origin:50% 100%;cursor:pointer;transition:transform .6s cubic-bezier(.2,.8,.3,1),opacity .5s ease,filter .5s ease}
+.mb-b.far{opacity:0;pointer-events:none}
+.mb-cover{position:absolute;left:0;bottom:0;border-radius:2px 5px 5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
+  box-shadow:inset 7px 0 8px -4px rgba(0,0,0,.45),inset -2px 0 0 rgba(255,255,255,.12),0 18px 34px rgba(0,0,0,.55)}
+.mb-cover:before{content:'';position:absolute;left:9px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.25);box-shadow:1px 0 0 rgba(255,255,255,.12)}
+.mb-cover:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.14),transparent 38%),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+.mb-cover b{font:500 17px/1.25 'CormorantCy',Georgia,serif;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:0 18px}
+.mb-cover i{display:block;width:40px;height:1px;background:currentColor;opacity:.55;margin:14px 0}
+.mb-cover small{font:italic 12px Georgia,serif;opacity:.8;padding:0 14px;text-align:center}
+.mb-b.side{filter:brightness(.55) saturate(.8)}
+.mb.day .mb-b.side{filter:brightness(.85) saturate(.8)}
+.mb-b.side:hover{filter:brightness(.8)}
+.mb-b.mid .mb-cover{box-shadow:inset 7px 0 8px -4px rgba(0,0,0,.45),0 30px 50px rgba(0,0,0,.6),0 0 60px rgba(255,170,90,.25)}
+.mb-b.mid:hover{transform:var(--t) translateY(-6px)!important}
+.mb-b.new .mb-cover{background:none!important;border:1px dashed rgba(233,201,143,.6);box-shadow:none;color:#e9c98f}
+.mb.day .mb-b.new .mb-cover{border-color:rgba(110,70,35,.55);color:#6a4026}
+.mb-b.new .mb-cover:before,.mb-b.new .mb-cover:after{display:none}
+.mb-b.new .mb-cover b{font-size:30px}
+.mb-ledge{position:absolute;left:8%;right:8%;top:628px;height:12px;border-radius:2px;background:linear-gradient(var(--metal1),var(--metal3) 60%,var(--metal4));box-shadow:0 10px 20px rgba(0,0,0,.6)}
+.mb-name{position:absolute;left:0;right:0;top:668px;text-align:center;transition:opacity .35s ease}
+.mb-name.swap{opacity:0}
+.mb-name b{display:block;font:400 26px/1.2 'CormorantCy',Georgia,serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,232,205,.82)}
+.mb-name small{display:block;margin-top:8px;font:italic 14px Georgia,serif;color:rgba(240,210,170,.62)}
+.mb.day .mb-name b{color:rgba(70,44,24,.8)}.mb.day .mb-name small{color:rgba(80,50,28,.6)}
+.mb-arr{position:absolute;top:420px;width:48px;height:48px;border:0;background:none;cursor:pointer;font:40px/48px Georgia;color:rgba(255,226,189,.5);transition:color .3s,opacity .3s}
+.mb-arr:hover{color:#ffd29a}.mb-arr.off{opacity:0;pointer-events:none}
+.mb.day .mb-arr{color:rgba(80,50,28,.45)}
+.mb-arr.l{left:90px}.mb-arr.r{right:90px}
+
+/* ——— the card of one book ——— */
+.mb-back{position:absolute;left:30px;top:34px;border:0;background:none;cursor:pointer;font:italic 16px Georgia,serif;color:#e9cfae}
+.mb.day .mb-back{color:#6a4026}
+.mb-left{position:absolute;left:110px;top:110px;bottom:110px;width:560px;display:flex;align-items:center;justify-content:center;perspective:1600px}
+.mb-book{position:relative;transform:rotateY(14deg) rotateZ(-1.2deg);transform-style:preserve-3d;transition:transform .6s ease}
+.mb-book:hover{transform:rotateY(6deg) rotateZ(-.6deg)}
+.mb-face{position:relative;overflow:hidden;border-radius:2px 5px 5px 2px;box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 70px rgba(255,170,90,.18);background:#111}
+.mb-face .page-canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+.mb-face.cloth{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mb-book:before{content:'';position:absolute;right:-12px;top:6px;bottom:6px;width:12px;background:repeating-linear-gradient(0deg,#f2eadb 0 1px,#d9ccb6 1px 2px);transform:rotateY(90deg);transform-origin:0 50%}
+.mb-book:after{content:'';position:absolute;left:8px;top:0;bottom:0;width:3px;background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(255,255,255,.15))}
+.mb-r{position:absolute;left:780px;right:60px;top:110px;bottom:110px;display:flex;flex-direction:column;justify-content:center}
+.mb-r .kk{font:600 11px Georgia,serif;letter-spacing:.32em;text-transform:uppercase;color:#d8b07a}
+.mb-r h2{margin:24px 0 4px;font:400 64px/1.05 'SignThatS','CormorantCy',Georgia,serif;color:#ffe2bd;text-shadow:0 0 16px rgba(255,150,60,.35)}
+.mb-r .sub{font:italic 21px Georgia,serif;color:#e9cfae;min-height:1px}
+.mb-r .rule{width:110px;height:1px;background:rgba(233,201,143,.5);margin:22px 0}
+.mb-r dl{display:grid;grid-template-columns:130px 1fr;gap:12px 18px;margin:0}
+.mb-r dt{font:600 10px/1.9 Georgia,serif;letter-spacing:.3em;text-transform:uppercase;color:#b89670}
+.mb-r dd{margin:0;font:17px Georgia,serif;color:#f6e6cf}
+.mb-keys{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.mb-keys button{appearance:none;cursor:pointer;padding:11px 17px;border-radius:24px;border:1px solid rgba(233,201,143,.45);background:none;font:italic 16px Georgia,serif;color:#f6e6cf;transition:background .3s,border-color .3s}
+.mb-keys button:hover{border-color:#e9c98f;background:rgba(233,201,143,.08)}
+.mb-keys button.main{background:linear-gradient(#ecd09a,#b98a4c);color:#3a2616;border-color:transparent;box-shadow:0 0 18px rgba(255,170,80,.35)}
+.mb-keys button.del{color:#d9a28c;border-color:rgba(217,162,140,.4)}
+.mb-keys button.ask{background:#7a2a1c;color:#fff;border-color:#c9644a}
+.mb-keys button[disabled]{opacity:.35;cursor:default}
+.mb-edit{display:flex;gap:10px;margin-top:18px}
+.mb-edit input{flex:1;max-width:340px;padding:10px 14px;border-radius:10px;border:1px solid rgba(233,201,143,.5);background:rgba(0,0,0,.25);color:#fff;font:18px Georgia,serif}
+.mb-nav{position:absolute;left:110px;width:560px;bottom:40px;display:flex;justify-content:center;align-items:center;gap:18px;font:italic 15px Georgia,serif;color:#e9cfae}
+.mb-nav button{appearance:none;cursor:pointer;background:none;color:inherit;border:1px solid rgba(233,201,143,.45);font:inherit}
+.mb-nav .ar{width:38px;height:38px;border-radius:50%;font-style:normal}
+.mb-nav .all{padding:7px 14px;border-radius:16px}
+/* the card by day: dark ink on the light desk */
+.mb.day .mb-r .kk{color:#8a5a2c}.mb.day .mb-r h2{color:#4a2d1a;text-shadow:none}.mb.day .mb-r .sub{color:#6a4a2e}
+.mb.day .mb-r dt{color:#8a6a48}.mb.day .mb-r dd{color:#3a2a1c}.mb.day .mb-r .rule{background:rgba(120,80,40,.4)}
+.mb.day .mb-keys button{color:#3a2a1c;border-color:rgba(110,70,35,.45)}.mb.day .mb-keys button.main{color:#3a2616}
+.mb.day .mb-nav{color:#6a4026}.mb.day .mb-nav button{border-color:rgba(110,70,35,.45)}
+/* the Keeper's corner stays above the screen */
+body.mb-on .wk,body.mb-on .wk-hint{z-index:2147483250!important}
