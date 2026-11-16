@@ -14,11 +14,13 @@
 .mb-view{position:absolute;inset:0;transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.3,1)}
 .mb-view.off{opacity:0;pointer-events:none;transform:scale(.97)}
 
-/* ——— the showcase ——— */
-.mb-show>h1{position:absolute;left:0;right:0;top:150px;margin:0;text-align:center;font:400 54px/1 'SignThatS','CormorantCy',Georgia,serif;color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.4)}
+/* ——— the showcase ———
+   drawn for a 900px-high screen; on any other the whole group stands just as far from the middle */
+.mb{--mid:calc((100vh - 900px) / 2)}
+.mb-show>h1{position:absolute;left:0;right:0;top:calc(150px + var(--mid));margin:0;text-align:center;font:400 54px/1 'SignThatS','CormorantCy',Georgia,serif;color:#ffe2bd;text-shadow:0 0 18px rgba(255,150,60,.4)}
 .mb.day .mb-show>h1{color:#4a2d1a;text-shadow:none}
 .mb-row{position:absolute;left:50%;top:0;bottom:0;width:0}
-.mb-b{position:absolute;top:628px;transform-origin:50% 100%;cursor:pointer;transition:transform .6s cubic-bezier(.2,.8,.3,1),opacity .5s ease,filter .5s ease}
+.mb-b{position:absolute;top:calc(628px + var(--mid));transform-origin:50% 100%;cursor:pointer;transition:transform .6s cubic-bezier(.2,.8,.3,1),opacity .5s ease,filter .5s ease}
 .mb-b.far{opacity:0;pointer-events:none}
 .mb-cover{position:absolute;left:0;bottom:0;border-radius:2px 5px 5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
   box-shadow:inset 7px 0 8px -4px rgba(0,0,0,.45),inset -2px 0 0 rgba(255,255,255,.12),0 18px 34px rgba(0,0,0,.55)}
@@ -36,13 +38,13 @@
 .mb.day .mb-b.new .mb-cover{border-color:rgba(110,70,35,.55);color:#6a4026}
 .mb-b.new .mb-cover:before,.mb-b.new .mb-cover:after{display:none}
 .mb-b.new .mb-cover b{font-size:30px}
-.mb-ledge{position:absolute;left:8%;right:8%;top:628px;height:12px;border-radius:2px;background:linear-gradient(var(--metal1),var(--metal3) 60%,var(--metal4));box-shadow:0 10px 20px rgba(0,0,0,.6)}
-.mb-name{position:absolute;left:0;right:0;top:668px;text-align:center;transition:opacity .35s ease}
+.mb-ledge{position:absolute;left:8%;right:8%;top:calc(628px + var(--mid));height:12px;border-radius:2px;background:linear-gradient(var(--metal1),var(--metal3) 60%,var(--metal4));box-shadow:0 10px 20px rgba(0,0,0,.6)}
+.mb-name{position:absolute;left:0;right:0;top:calc(668px + var(--mid));text-align:center;transition:opacity .35s ease}
 .mb-name.swap{opacity:0}
 .mb-name b{display:block;font:400 26px/1.2 'CormorantCy',Georgia,serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,232,205,.82)}
 .mb-name small{display:block;margin-top:8px;font:italic 14px Georgia,serif;color:rgba(240,210,170,.62)}
 .mb.day .mb-name b{color:rgba(70,44,24,.8)}.mb.day .mb-name small{color:rgba(80,50,28,.6)}
-.mb-arr{position:absolute;top:420px;width:48px;height:48px;border:0;background:none;cursor:pointer;font:40px/48px Georgia;color:rgba(255,226,189,.5);transition:color .3s,opacity .3s}
+.mb-arr{position:absolute;top:calc(420px + var(--mid));width:48px;height:48px;border:0;background:none;cursor:pointer;font:40px/48px Georgia;color:rgba(255,226,189,.5);transition:color .3s,opacity .3s}
 .mb-arr:hover{color:#ffd29a}.mb-arr.off{opacity:0;pointer-events:none}
 .mb.day .mb-arr{color:rgba(80,50,28,.45)}
 .mb-arr.l{left:90px}.mb-arr.r{right:90px}

@@ -73,7 +73,9 @@
   $('.mb-row').addEventListener('click',e=>{const el=e.target.closest('.mb-b');if(!el)return;const i=+el.dataset.i;
     if(i!==mid){mid=i;place();return;}
     if(i>=books.length)return newBook();showCard(i);});
-  let wheelAt=0;root.addEventListener('wheel',e=>{if(!$('.mb-card').classList.contains('off'))return;const t=performance.now();if(t-wheelAt<380)return;wheelAt=t;go(e.deltaY>0||e.deltaX>0?1:-1);},{passive:true});
+  // one turn of the wheel (or one swipe, with its run-out) moves one book: the next waits until the wheel has rested
+  let wheelLast=0;root.addEventListener('wheel',e=>{if(!$('.mb-card').classList.contains('off'))return;const t=performance.now(),rested=t-wheelLast>200;wheelLast=t;
+    if(rested&&Math.abs(e.deltaY)+Math.abs(e.deltaX)>=2)go(e.deltaY>0||e.deltaX>0?1:-1);},{passive:true});
 
   // ——— the card of one book
   // the book in volume: the face is its cover (in the book's own proportions), the spine and the back in its cloth,
