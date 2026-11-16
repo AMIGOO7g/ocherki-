@@ -620,7 +620,7 @@ html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{o
    At night no light from above: the beam starts at the bar's own ends and goes down nearly straight, strong at the top and
    fading on the way down; the rest of the desk is dark. On the way in the lamp lights up last (.oc-lit, set by write.js). */
 .desk-day,.desk-shade,.desk-cone{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-.desk-day{z-index:8;background:linear-gradient(100deg,transparent 15.5%,rgba(70,50,30,.15) 17%,transparent 18.5%),linear-gradient(100deg,transparent 80%,rgba(70,50,30,.13) 81.5%,transparent 83%),linear-gradient(190deg,transparent 44%,rgba(70,50,30,.13) 45.5%,transparent 47%),
+.desk-day{z-index:8;background:linear-gradient(100deg,transparent 15.5%,rgba(70,50,30,.15) 17%,transparent 18.5%),linear-gradient(100deg,transparent 80%,rgba(70,50,30,.13) 81.5%,transparent 83%),linear-gradient(190deg,transparent 15%,rgba(70,50,30,.13) 16.5%,transparent 18%),
   linear-gradient(90deg,rgba(255,251,240,.62) 0%,rgba(255,249,236,.32) 30%,rgba(255,248,235,.06) 50%,rgba(70,48,26,.16) 72%,rgba(45,30,16,.36) 100%),
   linear-gradient(rgba(242,233,214,.86),rgba(242,233,214,.86)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ece0c8}
 .desk-shade{z-index:8;background:rgba(10,5,2,.3)}
