@@ -627,12 +627,16 @@ html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{o
 .desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(26px)}
 .desk-cone i{position:absolute;inset:0;clip-path:polygon(28.6% 15%,71.4% 15%,87% 104%,13% 104%);/* the shape follows the bar (write.js) */
   background:linear-gradient(180deg,rgba(255,205,135,.8) 0%,rgba(255,185,105,.42) 30%,rgba(255,165,85,.16) 65%,rgba(255,150,70,.05) 100%)}
-.shell.oc-w:not(.is-manuscript):not(.is-book-preview):not(.is-night) .desk-day{opacity:1}
-.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .desk-shade,
-.shell.oc-w.oc-lit.is-night:not(.is-manuscript):not(.is-book-preview) .desk-cone{opacity:1}
-.shell.oc-w:not(.oc-lit) .desk-cone{transition:none}
-.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-main,
-.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-warm{opacity:0!important}
+/* «Писать» and (v185) «Рукопись» share it */
+.shell.oc-w:not(.is-manuscript):not(.is-book-preview):not(.is-night) .desk-day,.shell.is-manuscript:not(.is-night) .desk-day{opacity:1}
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .desk-shade,.shell.is-manuscript.is-night .desk-shade,
+.shell.oc-w.oc-lit.is-night:not(.is-manuscript):not(.is-book-preview) .desk-cone,.shell.oc-lit.is-manuscript.is-night .desk-cone{opacity:1}
+.shell:not(.oc-lit) .desk-cone{transition:none}
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-main,.shell.is-manuscript.is-night .night-main,
+.shell.oc-w.is-night:not(.is-manuscript):not(.is-book-preview) .night-warm,.shell.is-manuscript.is-night .night-warm{opacity:0!important}
+/* the Keeper's word in the corner reads on either desk */
+html:has(.shell.is-night) .wk-hint{color:#f3e2c6!important;text-shadow:0 0 12px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.9)!important}
+html:has(.shell:not(.is-night)) .wk-hint{color:#4a3020!important;text-shadow:0 0 10px rgba(255,250,240,.95),0 0 3px rgba(255,250,240,.9)!important}
 /* v183 — the clock: its centre a small brass cap like the bob; by day the hands in dark bronze; the pendulum casts its shadow
    down (at night under the lamp, by day away from the window); at night its parts outside the beam sink into the dark (write.js) */
 html body .shell.oc-w.oc-w .master-clock .clock-pivot{opacity:1!important;z-index:5!important;border-radius:50%!important;

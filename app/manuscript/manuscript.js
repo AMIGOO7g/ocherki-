@@ -508,8 +508,8 @@
     photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',
     done:'<path d="M7 3h10v18l-5-4-5 4z"/><path d="M9.5 9.5l2 2 3.5-4"/>',bin:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>'};
   const bt=(c,tip,em)=>`<button data-c="${c}" aria-label="${tip}" data-tip="${tip}">${S+IC[c]+E}${em?'<em></em>':''}</button>`;
-  const car=document.createElement('div');car.className='wc mq-car';
-  car.innerHTML='<i class="nf"></i>'+bt('prev','Предыдущая глава')+bt('next','Следующая глава')+'<span class="grow"></span><span class="t"><b></b></span>'
+  const car=document.createElement('div');car.className='wc wc-w mq-car';
+  car.innerHTML='<i class="nf"></i>'+bt('prev','Предыдущая глава')+bt('next','Следующая глава')+'<span class="grow"></span><span class="t"><b></b><u class="all" role="button" tabindex="0"></u></span>'
     +bt('page','Добавить лист')+bt('photo','Фото',1)+bt('done','Отметить открытый лист готовым')+bt('bin','Корзина',1);
   document.body.appendChild(car);
   const name=document.createElement('div');name.className='mq-name';name.innerHTML='<b></b><small></small>';scr.appendChild(name);
@@ -528,15 +528,17 @@
   const openSheet=()=>{const c=cg(),list=sheets(c),act=list.find(e=>e.classList.contains('is-active'));if(act)return act;const f=M()?.frontPick?.();return(f&&scr.querySelector(`.ms-sheet[data-uid="${f.pageUid}"]`))||list[0]||null;};
   // the carriage and the name follow the chapter in front
   let lastC=-1,lastT='';
-  // v180: the carriage stands just above the sheets in front, the chapter's name just below them
-  const fit=()=>{const c=cg(),rect=e=>(e.querySelector('.ms-paper')||e).getBoundingClientRect(),all=[...scr.querySelectorAll(`.ms-sheet[data-c="${c}"]`)];
-    const front=all.filter(e=>!e.classList.contains('is-far')&&+getComputedStyle(e).opacity>.6).map(rect).filter(r=>r.width>40),seen=all.filter(e=>+getComputedStyle(e).opacity>.12).map(rect).filter(r=>r.width>40);
-    if(!front.length)return;const top=Math.min(...seen.map(r=>r.top)),bot=Math.max(...front.map(r=>r.bottom));
-    car.style.top=Math.max(96,Math.round(top-36-26))+'px';name.style.top=Math.round(Math.min(innerHeight-86,bot+22))+'px';name.style.bottom='auto';};
-  const tick=()=>{const on=isMs();car.classList.toggle('on',on);if(on)fit();if(!on){scr.classList.remove('mq-ph','mq-list');B('photo').classList.remove('on');return;}
+  // v185: the bar stands where the «Писать» bar stands (--bar-* from write.js), the name in its own place under the sheets;
+  // neither follows the sheets any more. At night the sheets further from the middle lie outside the lamp's beam: darker.
+  const fit=()=>{const night=shell.classList.contains('is-night'),W=innerWidth;
+    scr.querySelectorAll('.ms-sheet').forEach(e=>{const pp=e.querySelector('.ms-paper')||e;if(!night){if(pp.style.filter)pp.style.removeProperty('filter');return;}
+      const r=e.getBoundingClientRect();if(!r.width)return;const d=Math.abs(r.left+r.width/2-W/2)/(W/2),k=Math.max(0,Math.min(1,(d-.22)/.55));
+      pp.style.setProperty('filter',k>.01?`brightness(${(1-.55*k).toFixed(2)}) sepia(${(.08+.35*k).toFixed(2)})`:'','important');});};
+  // the room follows the day and the night while it is open (it used to keep the one it opened with)
+  const tick=()=>{scr.classList.toggle('is-night',shell.classList.contains('is-night'));const on=isMs();car.classList.toggle('on',on);if(on)fit();if(!on){scr.classList.remove('mq-ph','mq-list');B('photo').classList.remove('on');return;}
     car.classList.toggle('night',shell.classList.contains('is-night'));
     const c=cg(),I=info(c),list=sheets(c),done=list.filter(e=>e.classList.contains('is-done')).length;
-    car.querySelector('.t b').textContent=`${I.k||I.t} · ${done} из ${list.length} готовы`;
+    car.querySelector('.t b').textContent=`${I.k||I.t} · ${done} из ${list.length} готовы`;car.querySelector('.t u').textContent=`все главы · ${groupsN()} ▾`;
     B('prev').classList.toggle('off',c<=0);B('next').classList.toggle('off',c>=groupsN()-1);
     const ref=list[0]&&M()?.sheetOf?.(list[0]);B('page').classList.toggle('off',!(ref&&ref.s.type==='chapter'));
     const n=scr.querySelectorAll('.ms-print').length;B('photo').querySelector('em').textContent=n?String(n):'';
@@ -565,8 +567,10 @@
     if(c==='bin'&&bin){bin.click();}});
   // the chapters: a press on the name opens the short list; a choice closes it
   name.addEventListener('click',e=>{e.stopPropagation();scr.classList.toggle('mq-list');});
+  car.querySelector('.t u').addEventListener('click',e=>{e.stopPropagation();if(isMs())scr.classList.toggle('mq-list');});
   toc?.addEventListener('click',e=>{if(e.target.closest('button[data-c]:not(.ms-toc-del)')&&!e.target.closest('.ms-toc-del'))setTimeout(()=>scr.classList.remove('mq-list'),250);});
   scr.addEventListener('pointerdown',e=>{if(!e.target.closest('.ms-toc,.mq-name'))scr.classList.remove('mq-list');});
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.ms-toc,.mq-name,.mq-car .t u'))scr.classList.remove('mq-list');},true);
   // «Разделы книги» (what is in the beginning and the end) moves into the same list
   const secs=()=>{if(!toc||toc.querySelector('.mq-secs'))return;const s=document.createElement('button');s.type='button';s.className='mq-secs';s.textContent='Разделы книги…';
     s.addEventListener('click',e=>{e.stopPropagation();scr.classList.remove('mq-list');window.OCHERKI_MS_SECTIONS?.();});toc.appendChild(s);};

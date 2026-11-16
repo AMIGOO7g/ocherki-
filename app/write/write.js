@@ -179,16 +179,17 @@
   const follow=()=>{requestAnimationFrame(follow);const on=isWrite();wc.classList.toggle('on',on);if(!on){add.classList.remove('on');return;}
     const f=F(),d=FD();if(!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;dress();
     const fr=f.getBoundingClientRect(),r=sh.getBoundingClientRect();const L=fr.left+r.left,T=fr.top+r.top,W=r.width;
-    const k=[L,T,W].map(Math.round).join();if(k!==lastKey){lastKey=k;wc.style.left=Math.round(L-96)+'px';wc.style.top=Math.round(T-19)+'px';wc.style.width=Math.round(W+192)+'px';}};
+    const k=[L,T,W].map(Math.round).join();if(k!==lastKey){lastKey=k;wc.style.left=Math.round(L-96)+'px';wc.style.top=Math.round(T-19)+'px';wc.style.width=Math.round(W+192)+'px';
+      const R=document.documentElement.style;R.setProperty('--bar-l',Math.round(L-96)+'px');R.setProperty('--bar-t',Math.round(T-19)+'px');R.setProperty('--bar-w',Math.round(W+192)+'px');}};
   requestAnimationFrame(follow);
   // v183 — the lamp under the bar: its beam starts at the bar's own ends and spreads a third of the bar's width each way by the
   // foot of the screen; it lights up last, a moment after the bar has come; at night the clock's parts outside it sink into the dark
   const cone=document.querySelector('.desk-cone'),beam=cone?.querySelector('i'),clk=document.querySelector('.master-clock');
   let lit=false;
-  const lamp=()=>{const night=shell.classList.contains('is-night'),on=isWrite();
-    if(!lit&&on&&wc.classList.contains('on')){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),900);}
-    const r=wc.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
-    const x0=r.left+20,x1=r.right-20,y=r.top+r.height*.9,sp=r.width*.33,P=(x,h)=>`${x}px ${h}px`;
+  const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),on=isWrite()||ms;
+    if(!lit&&on){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),900);}
+    const bar=ms?document.querySelector('.mq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
+    const x0=r.left+20,x1=r.right-20,y=r.top+r.height*.9,sp=r.width*(ms?.6:.33),P=(x,h)=>`${x}px ${h}px`;
     beam.style.clipPath=`polygon(${P(x0,y)},${P(x1,y)},${P(x1+sp,H*1.04)},${P(x0-sp,H*1.04)})`;
     const m=`linear-gradient(180deg,transparent ${y-20}px,#000 ${y+25}px)`;cone.style.webkitMaskImage=cone.style.maskImage=m;
     if(!clk)return;if(!(on&&night)){clk.style.webkitMaskImage=clk.style.maskImage='';return;}

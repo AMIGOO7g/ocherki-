@@ -410,3 +410,29 @@ html body .ms-print.is-dragging img{height:72px!important}
 .mq-car{view-transition-name:mq-car}
 ::view-transition-old(mq-car){animation:none;opacity:0}
 ::view-transition-new(mq-car){animation:none}
+
+/* v185 — «Рукопись» on the same desk, in the same light as «Писать» (the desk and the lamp live in write.css):
+   the room's own backdrop gives way; the bar stands where the «Писать» bar stands, at its size; «все главы · N ▾» in the bar
+   opens the list of chapters under it (paper with a brass rim by day, the bar's own dark at night); the chapter's name keeps
+   one place under the sheets and reads at night. */
+html body .ms-screen,html body .ms-screen.is-night{background:transparent!important}
+html body .mq-car{left:var(--bar-l,calc(50% - 430px));top:var(--bar-t,115px);width:var(--bar-w,860px);transform:none}
+html body .mq-car .t b{font-size:19px}
+.mq-car .t u{text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px;pointer-events:auto;cursor:pointer;font:italic 19px 'CormorantCy',Georgia,serif;font-weight:500;letter-spacing:.03em;color:#6a4a2e;white-space:nowrap}
+.mq-car.night .t u{color:#cdb592}
+.mq-car .t u:hover{color:#9a4510}.mq-car.night .t u:hover{color:#ffd29a}
+html body .ms-screen .mq-name{top:auto!important;bottom:96px}
+html body .ms-screen.is-night .mq-name b{color:rgba(255,226,189,.92);text-shadow:0 0 18px rgba(0,0,0,.9),0 0 6px rgba(0,0,0,.8)}
+html body .ms-screen.is-night .mq-name small{color:rgba(240,210,170,.82);text-shadow:0 0 8px rgba(0,0,0,.9)}
+html body .ms-screen .ms-toc{position:fixed!important;top:calc(var(--bar-t,115px) + 62px)!important;bottom:auto!important;min-width:320px;
+  background:linear-gradient(#fbf5ea,#efe4d0);box-shadow:0 14px 30px rgba(60,35,10,.28),inset 0 0 0 1.5px #b98a4e;z-index:2147483100}
+html body .ms-screen .ms-toc button{color:#5a3a20!important;font-size:18px!important}
+html body .ms-screen .ms-toc button.on{color:#2f1d10!important;font-weight:600}
+html body .ms-screen .ms-toc .mq-secs{color:#9a5a1c!important}
+html body .ms-screen.is-night .ms-toc{background:radial-gradient(circle at 50% 30%,#2e241c,#1a1410);box-shadow:0 18px 40px rgba(0,0,0,.5),inset 0 0 0 1.5px #8a6a3e}
+html body .ms-screen.is-night .ms-toc button{color:rgba(240,215,175,.85)!important}
+html body .ms-screen.is-night .ms-toc button.on{color:#ffe2bd!important}
+html body .ms-screen.is-night .ms-toc .mq-secs{color:#e7b56a!important}
+html body .ms-screen.mq-list .mq-name small{opacity:1!important}
+/* by day the row lies in one window light: the sheets next to the open one only a touch dimmer, not grey */
+html body .ms-screen:not(.is-night) .ms-sheet:not(.is-active):not(.is-far):not(.is-ghost) .ms-paper{filter:brightness(.97) saturate(.97)!important}
