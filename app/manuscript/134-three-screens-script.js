@@ -18,7 +18,6 @@
   // One flight for every screen change: a clean sheet of paper travels
   // from where the page was to where it will be.
   function flyPaper(from,to,{ms=900,html='',fadeIn=false,dissolve=false,track=null}={}){
-    if(document.querySelector('.shell')?.classList.contains('is-family-room'))return null;
     if(!from||!to||!from.width||!to.width)return null;const f=document.createElement('div');f.className='ms-flyer';
     f.style.cssText=`left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;transition:left ${ms}ms cubic-bezier(.3,.7,.2,1),top ${ms}ms cubic-bezier(.3,.7,.2,1),width ${ms}ms cubic-bezier(.3,.7,.2,1),height ${ms}ms cubic-bezier(.3,.7,.2,1),opacity .45s ease`;
     document.body.appendChild(f);void f.offsetWidth;requestAnimationFrame(()=>{f.style.left=to.left+'px';f.style.top=to.top+'px';f.style.width=to.width+'px';f.style.height=to.height+'px';

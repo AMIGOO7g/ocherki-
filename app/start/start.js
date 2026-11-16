@@ -37,7 +37,7 @@
     const click=id=>document.getElementById(id)?.click();
     if(a==='light')click(shell.classList.contains('is-night')?'dayBtn':'nightBtn');else if(a==='big')click('largeUiKey');else if(a==='mail')click('contactBtn');else if(a==='tour')window.OCHERKI_KEEPER?.open?.();});
   document.addEventListener('click',e=>{if(!box.contains(e.target))open(false);});
-  const sync=()=>{const on=shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen');box.classList.toggle('on',on);box.classList.toggle('is-night',shell.classList.contains('is-night')||shell.classList.contains('is-family-room'));};
+  const sync=()=>{const on=shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen');box.classList.toggle('on',on);box.classList.toggle('is-night',shell.classList.contains('is-night'));};
   new MutationObserver(sync).observe(shell,{attributes:true,attributeFilter:['class']});sync();
 })();
 
@@ -52,7 +52,7 @@
     book:'Листайте развороты. Под книгой — другая композиция разворота, справа — дизайн и формат. Когда всё готово — «До книги».',
     archive:'Архив семьи: голоса, фото, тексты и письма родных. Любое из них одним касанием ложится в книгу.',
     week:'Вопрос недели уходит родным на телефон. Они отвечают голосом, словами или фото — ответы придут в архив.'};
-  const where=()=>{const F=window.OCHERKI_FAMILY;if(F?.isOpen?.())return F.part()===1?'week':'archive';
+  const where=()=>{if(window.OcherkiArchive?.isOpen)return 'archive';
     if(document.getElementById('bookPreviewModal')?.classList.contains('open'))return 'book';
     if(shell.classList.contains('oc-w'))return 'write';return document.querySelector('.ms-screen.is-on,.ms-screen.on')?'manuscript':'write';};
   const dot=document.createElement('button');dot.type='button';dot.className='okh-dot';dot.setAttribute('aria-label','Хранитель — подсказка');dot.innerHTML='<i></i><b></b><b></b><b></b><span>Хранитель — подсказать?</span>';

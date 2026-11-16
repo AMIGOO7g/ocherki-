@@ -412,10 +412,9 @@ html body .shell .project-top .project-hanger::before{display:none!important}
 .oct .more .mi.on .gl{opacity:.6}
 html body .shell.is-open:not(.is-start-screen)~.mode-switch,html body .shell.is-open:not(.is-start-screen) .mode-switch{visibility:hidden!important;pointer-events:none!important}
 html body .shell.oct-on.oct-on.oct-on .power-dock,html body .shell.oct-on.oct-on.oct-on .books-hanging,html body .shell.oct-on.oct-on.oct-on .project-actions .hanging:has(#moreKey){visibility:hidden!important;opacity:0!important;pointer-events:none!important;animation:none!important;transition:none!important}
-html body.oct-on-arch .fm-room{top:150px!important}
 body:not(.oct-book) .bd-rail-item:has(.bd-rail-key[data-rail="pdf"]){display:none!important}
 html body .oc-more2{right:116px!important;left:auto!important}
-.shell:not(.is-night):not(.is-family-room) ~ .oc-more2 .ml{color:#fff;text-shadow:none}
+.shell:not(.is-night) ~ .oc-more2 .ml{color:#fff;text-shadow:none}
 html body .oc-more2 .ml{color:#fff!important;text-shadow:none!important}
 .okh-dot{position:fixed;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:2147483200;width:34px;height:34px;border:0;padding:0;background:none;cursor:pointer;opacity:0;pointer-events:none;transition:opacity 1s ease}
 .shell.is-open:not(.is-start-screen)~.okh-dot,.okh-dot.on{opacity:1;pointer-events:auto}

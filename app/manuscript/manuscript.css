@@ -340,7 +340,7 @@ html body .ms-grp.is-pc .ms-print{width:84px!important}
 html body .ms-grp.is-pc .ms-print img{height:68px!important}
 html body .ms-grp.is-later .ms-print{width:84px!important}
 html body .ms-grp.is-later .ms-print img{height:68px!important}
-html.oc-to-room .ms-flyer,.shell.is-family-room ~ .ms-flyer{display:none!important}
+html.oc-to-room .ms-flyer{display:none!important}
 html body .ms-sheet.is-auto .ms-paper{opacity:1!important}
 html body .ms-sheet .ms-paper{background-color:#fbf6ec}
 html body .ms-sheet.is-adding-new .ms-paper{animation:msNewPress .8s cubic-bezier(.2,.8,.3,1)}

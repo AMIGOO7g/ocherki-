@@ -79,7 +79,7 @@
   let on=false,uid='',stale=false,busy=false,shown=-1,tAuto=0,pick=null,count=1;
   // the paper and the sheets of the chapter lying behind it, to its right
   const stackRight=()=>{let m=0;try{const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect();f.contentDocument.querySelectorAll('.sheet-stack .sheet').forEach(el=>{const r=el.getBoundingClientRect();if(r.width>50)m=Math.max(m,fr.left+r.right);});}catch(_){}return m;};
-  const usable=()=>shell.classList.contains('is-open')&&!['is-manuscript','is-book-preview','is-family-room','is-start-screen','is-ms-to-book'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open');
+  const usable=()=>shell.classList.contains('is-open')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open');
   const shift=()=>{const w=wrap();return w?parseFloat(getComputedStyle(w).translate)||0:0;};
   function geo(){const w=wrap();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;
     const sh=shift(),base={left:r.left-sh,top:r.top,width:r.width,height:r.height};
@@ -243,7 +243,7 @@
   const qk=document.createElement('button');qk.type='button';qk.className='oc-qk';qk.setAttribute('aria-label','Другой вопрос');qk.innerHTML='<span>?</span>';
   const acts=document.querySelector('#writingPrompt .writing-prompt-actions');if(acts)acts.appendChild(qk);
   qk.addEventListener('click',e=>{e.stopPropagation();document.getElementById('writingPromptNext')?.click();});
-  const isWrite=()=>shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen')&&!shell.classList.contains('is-manuscript')&&!modal?.classList.contains('open')&&!shell.classList.contains('is-family-room');
+  const isWrite=()=>shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen')&&!shell.classList.contains('is-manuscript')&&!modal?.classList.contains('open');
   const root=document.documentElement.style;
   function words(){const t=(document.getElementById('projectTitle')?.textContent||'').trim();
     const n=ttl.querySelector('.n');if(n.textContent!==t){const v=t||'Очерки жизни';n.textContent=v;ttl.querySelector('.k').style.display=/^очерки жизни$/i.test(v)?'none':'';n.style.setProperty('--n',(v.length>22?36:v.length>14?44:v.length>10?52:60)+'px');}

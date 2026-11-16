@@ -336,7 +336,7 @@ const onKey=e=>{if(!root)return;const tg=(e.composedPath&&e.composedPath()[0])||
 const open=(w='desk')=>{inject();if(!root){root=document.createElement('div');root.className='oar';SR.appendChild(root);keeper.mount();root.addEventListener('click',onClick);root.addEventListener('wheel',onWheel,{passive:false});root.addEventListener('touchstart',onTs,{passive:true});root.addEventListener('touchend',onTe,{passive:true});addEventListener('keydown',onKey,true);requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add('in')));}
   if(w==='desk')showDesk();else if(['record','send'].includes(w))showPage(w,0);else if(SECS.some(s=>s.k===w))showSec(w);else showDesk();};
 const close=()=>{if(!root)return;keeper.quiet();setTimeout(()=>keeper.unmount(),600);stopAudio();if(rec&&rec.state==='recording')rec.stop();const r=root;root=null;where=null;removeEventListener('keydown',onKey,true);r.classList.remove('in');setTimeout(()=>r.remove(),600);};
-window.OcherkiArchive={open,close,get isOpen(){return!!root;}};
+window.OcherkiArchive={open,close,get isOpen(){return!!root;},get newCount(){return SECS.filter(x=>x.nw).length;}};
 // the constructor's keys open it: the pill «Архив семьи» and the six keys under it
 const MAP={voice:'voices',photo:'photos',note:'texts',letter:'letters',record:'record',week:'week'};
 document.addEventListener('click',e=>{const pl=e.target.closest('button.pl[data-w="arch"]');const k=e.target.closest('button.k[data-k]');

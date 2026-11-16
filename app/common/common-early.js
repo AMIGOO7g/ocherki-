@@ -96,23 +96,22 @@ addEventListener('message',e=>{if(e.data&&e.data.type==='OCHERKI_LARGE_UI'){appl
   const box=sel=>{if(typeof sel==='function')return sel();const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();return r.width&&r.height?r:null;};
   const TOURS={
     write:[
-      ['.mode-switch','Три комнаты мастерской','<b>Писать</b> — лист, на котором вы рассказываете.<br><b>Рукопись</b> — все листы книги на одном столе.<br><b>Книга</b> — как это будет напечатано.'],
+      [()=>{const ks=['write','manuscript','book'].map(k=>document.querySelector(`.oct .k[data-k="${k}"]`)?.getBoundingClientRect()).filter(r=>r&&r.width);if(!ks.length)return null;
+        const l=Math.min(...ks.map(r=>r.left)),t=Math.min(...ks.map(r=>r.top)),rr=Math.max(...ks.map(r=>r.right)),bb=Math.max(...ks.map(r=>r.bottom))+22;return {left:l,top:t,right:rr,bottom:bb,width:rr-l,height:bb-t};},
+        'Три комнаты мастерской','<b>Писать</b> — лист, на котором вы рассказываете.<br><b>Рукопись</b> — все листы книги на одном столе.<br><b>Книга</b> — как это будет напечатано.'],
       ['.editor-paper','Ваш лист','Пишите как в обычном письме. Всё сохраняется само, каждую секунду.'],
-      [()=>inFrame('#voiceBtn'),'Можно говорить','Нажмите микрофон и рассказывайте — слова сами лягут на лист.'],
+      ['.wc:not(.mq-car):not(.bq-car)','Плашка листа','Слева — назад и свет: лампа или машинка. Справа — говорить вместо печати, шрифт, «добавить» (фото, эпизод, цитату) и советы до книги.'],
       ['#writingPrompt','Вопросы к главе','Если не знаете, с чего начать, — ответьте на вопрос. «Дальше» покажет следующий.'],
-      ['#bookMapShell','Карта книги','Главы и листы. Нажмите на главу, чтобы перейти к ней.'],
-      ['.mode-controls','Свет, крупный шрифт, музыка','Ночь и день, крупный интерфейс и тихая музыка для работы.'],
       ['.rd-line','Сколько осталось до книги','Нажмите золотую линию под названием — увидите, что ещё нужно сделать, и перейдёте прямо к этому месту.'],
-      ['#booksBtn','Мои книги','Здесь хранятся все ваши книги — можно вести несколько.'],
-      ['#pdfBtn','Сохранить','Черновик книги в PDF — посмотреть или показать родным.'],
-      ['#contactBtn','Написать нам','Вопрос, идея или помощь — открытка придёт в мастерскую.']],
+      ['.oct .k[data-k="archive"]','Архив семьи','Голоса, фото, письма и ответы родных. Огонёк — пришло новое. Нужное — кнопкой «В книгу».'],
+      ['.oct .k[data-k="shelf"]','Мои книги','Все ваши книги на полке — можно вести несколько.'],
+      ['.oct .k[data-k="more"]','Ещё','День и ночь, крупный шрифт, музыка, это знакомство и «Написать нам».']],
     manuscript:[
       ['.ms-space','Все листы на одном столе','Колесо — листать главы. Нажмите лист — откроется для письма. Потяните — переставите.'],
       ['.mq-car','Плашка главы','‹ › — соседняя глава. Справа: новый лист, фото, «готово» для открытого листа, корзина.'],
       ['.mq-name','Название главы','Нажмите — откроется список глав, «＋ Новая глава» и разделы книги.']],
     book:[
       ['#bookPreviewSpread','Ваша книга','Так она будет напечатана. Листайте стрелками или колесом.'],
-      ['#bookPreviewLayoutHanger','Композиция разворота','Стрелки меняют расположение фото и текста на этом развороте.'],
       ['.bq-car','Плашка книги','‹ ⟳ › — композиция разворота. Справа: дизайн, формат, фото в книге и PDF. Листать — за уголок страницы или по превью внизу.'],
       ['.preview-arc','Лента разворотов','Нажмите на любой разворот, чтобы перейти к нему.']]};
   const key=n=>'ocherki_tour_'+n;
@@ -136,7 +135,7 @@ addEventListener('message',e=>{if(e.data&&e.data.type==='OCHERKI_LARGE_UI'){appl
   function end(){if(!cur)return;cur=null;dim.classList.remove('on');ring.classList.remove('on');card.classList.remove('on');}
   addEventListener('keydown',e=>{if(!cur)return;if(e.key==='Escape')end();if(e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();idx++;place();}},true);
   addEventListener('resize',()=>{if(cur)place();});
-  const room=()=>shell.classList.contains('is-start-screen')||shell.classList.contains('is-family-room')?'':shell.classList.contains('is-manuscript')?'manuscript':modal?.classList.contains('open')?'book':shell.classList.contains('is-open')?'write':'';
+  const room=()=>shell.classList.contains('is-start-screen')?'':shell.classList.contains('is-manuscript')?'manuscript':modal?.classList.contains('open')?'book':shell.classList.contains('is-open')?'write':'';
   // Automated checks (tests) are not greeted.
   const quiet=navigator.webdriver&&!/[?&]tour=1/.test(location.search+(parent!==window?parent.location.search:''));
   let t=0;const check=()=>{if(quiet)return;clearTimeout(t);t=setTimeout(()=>{const r=room();if(r&&!cur)start(r);},r0()==='book'?2600:1500);};const r0=room;
@@ -154,13 +153,9 @@ addEventListener('message',e=>{if(e.data&&e.data.type==='OCHERKI_LARGE_UI'){appl
     el.innerHTML='';const t=document.createElement('span');t.textContent=text;el.appendChild(t);
     if(action){const b=document.createElement('b');b.textContent=action;b.addEventListener('click',()=>{el.classList.remove('on');try{fn?.();}catch(_){}});el.appendChild(b);}
     el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),action?5200:3200);};
-  // Back to the start screen: a press on the book's title or on the signature.
-  const home=e=>{const sh=document.querySelector('.shell');if(!sh||sh.classList.contains('is-start-screen'))return;e.preventDefault();e.stopPropagation();
-    const F=window.OCHERKI_FAMILY;if(!F)return;F.closeRoom?.();
-    const go=()=>F.showStart?.();
-    if(sh.classList.contains('is-book-preview')||sh.classList.contains('is-manuscript')){window.OCHERKI_SET_MODE?.('write');setTimeout(go,700);}else go();};
-  document.getElementById('projectBtn')?.addEventListener('click',home);
-  document.querySelector('.brand-line')?.addEventListener('click',home);
+  // v178: a press on the signature leads back to the start (the book is saved first)
+  document.querySelector('.brand-line')?.addEventListener('click',async e=>{e.preventDefault();e.stopPropagation();
+    try{await document.getElementById('v35SheetFrame')?.contentWindow?.__ocherkiPersistNow?.();}catch(_){}(window.top||window).location.href='index.html';});
 })();
 
 

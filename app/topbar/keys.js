@@ -30,36 +30,20 @@
   document.body.appendChild(top);
   const more=top.querySelector('.more');
   // ——— where we are ———
-  const room=()=>document.querySelector('.fm-room');
-  const famOpen=()=>shell.classList.contains('is-family-room');
-  const famPart=()=>+(room()?.querySelector('.fm-part.on')?.dataset.p??-1);
-  const recOpen=()=>!!room()?.querySelector('.fm-open.on');
   const shelfOpen=()=>!!window.OcherkiBookcase?.isOpen?.();
-  const world=()=>famOpen()?'arch':'ed';
-  const current=()=>{if(famOpen()){if(recOpen())return 'record';if(famPart()===1)return 'week';const v=window.OCHERKI_HUB?.view;return ['voice','photo','note','letter'].includes(v)?v:'archive';}
-    if(shelfOpen())return 'shelf';if(shell.classList.contains('is-manuscript'))return 'manuscript';if(modal?.classList.contains('open'))return 'book';return 'write';};
+  const world=()=>'ed';
+  const current=()=>{if(shelfOpen())return 'shelf';if(shell.classList.contains('is-manuscript'))return 'manuscript';if(modal?.classList.contains('open'))return 'book';return 'write';};
   // ——— actions: the old switch still does the work underneath ———
   const sw=()=>document.querySelector('.mode-switch');
   const swClick=m=>{const b=sw()?.querySelector(`button[data-mode="${m}"]`);if(b){b.click();return true;}return false;};
   const vt=(m,fn)=>{const cur=current();if(!document.startViewTransition||cur===m||!['write','manuscript','book'].includes(cur)||matchMedia('(prefers-reduced-motion: reduce)').matches||document.documentElement.classList.contains('calm'))return fn();
     try{document.startViewTransition(()=>new Promise(r=>{fn();setTimeout(r,140);}));}catch(e){fn();}};
   const goEd=m=>vt(m,()=>goEd0(m));
-  const goEd0=m=>{if(famOpen()){if(!swClick(m))window.OCHERKI_FAMILY?.closeRoom?.();}else if(m==='write'||m==='manuscript'||m==='book'){if(!swClick(m))window.OCHERKI_SET_MODE?.(m);}};
-  const F=()=>window.OCHERKI_FAMILY;
-  const goArch=k=>{const f=F();if(!f)return;
-    const fromEd=!famOpen();
-    // the archive's rooms: open the archive (if needed), then the room inside it
-    if(['voice','photo','note','letter'].includes(k)){if(fromEd){if(!swClick('family'))f.openRoom?.(2);setTimeout(()=>f.show?.(2),60);}else{room()?.querySelector('.fm-open.on .fm-x')?.click();f.show?.(2);}
-      window.OCHERKI_HUB?.ask?.(k);setTimeout(()=>window.OCHERKI_HUB?.open?.(k),fromEd?600:80);setTimeout(sync,700);return;}
-    if(k==='archive'&&!fromEd){room()?.querySelector('.fm-open.on .fm-x')?.click();f.show?.(2);setTimeout(()=>window.OCHERKI_HUB?.open?.(),60);setTimeout(sync,200);return;}
-    if(k==='record'){if(fromEd){if(!swClick('family'))f.openRoom?.(2);setTimeout(()=>f.show?.(2),60);setTimeout(()=>f.openRecorder?.(),600);}else f.openRecorder?.();setTimeout(sync,700);return;}
-    else{const p=k==='week'?1:2;if(fromEd){if(!swClick('family'))f.openRoom?.(p);setTimeout(()=>f.show?.(p),fromEd?60:0);}else{room()?.querySelector('.fm-open.on .fm-x,.fm-open.on [data-close]')?.click();f.show?.(p);}}
-    setTimeout(sync,120);};
+  const goEd0=m=>{if(m==='write'||m==='manuscript'||m==='book'){if(!swClick(m))window.OCHERKI_SET_MODE?.(m);}};
   const act=k=>{closeMore();
     if(k==='archive'&&window.OcherkiArchive)return window.OcherkiArchive.open('desk');
     if(k==='logo'||k==='write'||k==='manuscript'||k==='book')return goEd(k==='logo'?'write':k);
-    if(k==='shelf'){if(famOpen())F()?.closeRoom?.();document.getElementById('booksBtn')?.click();return;}
-    if(['archive','week','record','voice','photo','note','letter'].includes(k))return goArch(k);
+    if(k==='shelf'){document.getElementById('booksBtn')?.click();return;}
     if(k==='more')return more.classList.contains('on')?closeMore():openMore();
     if(k==='pages')return document.getElementById('pagesBtn')?.click();};
   top.addEventListener('click',e=>{const b=e.target.closest('button[data-k],button[data-w]');if(!b)return;e.stopPropagation();
@@ -116,14 +100,14 @@
     top.querySelectorAll('.pl').forEach(p=>p.classList.toggle('on',p.dataset.w===w));
     
     top.querySelectorAll('.row .k[data-k],.k[data-k="logo"]').forEach(k=>{if(k.dataset.k==='more'&&more.classList.contains('on'))return;k.classList.toggle('glow',k.dataset.k===c);});
-    const fam=sw()?.querySelector('button[data-mode="family"]');top.querySelector('.k[data-k="archive"]')?.classList.toggle('has-new',!!fam?.classList.contains('has-new')&&w!=='arch');
+    // the archive glows while something new waits in it
+    top.querySelector('.k[data-k="archive"]')?.classList.toggle('has-new',(window.OcherkiArchive?.newCount||0)>0&&!window.OcherkiArchive?.isOpen);
     document.body.classList.toggle('oct-book',c==='book');
     {const n=(document.getElementById('pageCount')?.textContent||'').trim(),b=top.querySelector('.pgn');if(b&&b.textContent!==n)b.textContent=n;top.querySelector('.k[data-k="pages"]')?.setAttribute('aria-label',n?`Листов в книге: ${n}`:'Листы');}
     place();}
   const closeMore0=()=>more.classList.remove('on');
   new MutationObserver(()=>requestAnimationFrame(sync)).observe(shell,{attributes:true,attributeFilter:['class']});
   if(modal)new MutationObserver(()=>requestAnimationFrame(sync)).observe(modal,{attributes:true,attributeFilter:['class']});
-  const watchRoom=setInterval(()=>{const r=room();if(!r)return;clearInterval(watchRoom);new MutationObserver(()=>requestAnimationFrame(sync)).observe(r,{attributes:true,subtree:true,attributeFilter:['class']});},300);
   addEventListener('resize',()=>requestAnimationFrame(()=>{measureSheet();place(true);}));
   const settle=()=>{measureSheet();place(true);sync();};[300,1200,3000,6000,9000].forEach(t=>setTimeout(settle,t));
   setInterval(()=>{if(current()==='write'){const before=sheetLeft;measureSheet();if(before!=null&&sheetLeft!=null&&Math.abs(before-sheetLeft)>8)place(true);}},2500);

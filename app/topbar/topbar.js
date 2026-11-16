@@ -248,7 +248,7 @@ function waitPreviewReady(cb){
     if(!!d.muted!==muted){muted=!!d.muted;const t=mus.querySelector('[data-a="mute"]');if(t){t.querySelector('.c').innerHTML=S+IC[muted?'mute':'snd']+E;t.closest('.mm').querySelector('.ml').textContent=muted?'Звуки выключены':'Звуки включены';t.classList.toggle('is-off',muted);}}if(p!==playing){playing=p;const t=mus.querySelector('[data-a="toggle"]');if(t){t.querySelector('.c').innerHTML=S+IC[p?'pause':'play']+E;t.closest('.mm').querySelector('.ml').textContent=p?'Пауза':'Играть';}}
     mus.querySelector('[data-a="music"]')?.classList.toggle('glow',p);});
   draw();
-  const sync=()=>{const open=shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen');mus.classList.toggle('on',open);mus.classList.toggle('is-night',shell.classList.contains('is-night')||shell.classList.contains('is-family-room'));};
+  const sync=()=>{const open=shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen');mus.classList.toggle('on',open);mus.classList.toggle('is-night',shell.classList.contains('is-night'));};
   new MutationObserver(sync).observe(shell,{attributes:true,attributeFilter:['class']});sync();
 })();
 
