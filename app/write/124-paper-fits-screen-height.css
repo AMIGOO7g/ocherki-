@@ -1,7 +1,0 @@
-/*@block [" id=\"paper-fits-screen-height\"", ""]*/
-/* The sheet always fits the screen's height: it used to be sized by the
-   width only, and on a laptop (1440×800, 1920×1000) its top went off the
-   screen. Its top sits just under the hanging plates; the height left
-   below decides how large it may be. */
-html body .shell .editor-stage{top:112px!important;transform:translateX(-50%)!important}
-html body .shell .editor-paper-wrap{max-width:calc((100vh - 136px) * 210 / 297)!important;min-width:min(560px,calc((100vh - 136px) * 210 / 297))!important}

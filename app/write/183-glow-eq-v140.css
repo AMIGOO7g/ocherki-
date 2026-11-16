@@ -1,4 +1,0 @@
-/*@block [" id=\"glow-eq-v140\"", ""]*/
-/* v140 — «показать в книге» and «До книги» burn with the same light */
-html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before,html body .shell.oc-w .bd-rail-key[data-rail="tips"].is-active::before,html body .shell.oc-w:not(.is-book-preview) .bd-rail-key[data-rail="tips"].rd-glow::before{
-  box-shadow:inset 0 0 0 2px rgba(255,214,166,.9),0 0 0 1px rgba(255,200,140,.8),0 0 12px 2px rgba(255,150,60,.55),0 0 28px 7px rgba(255,120,40,.22)!important}

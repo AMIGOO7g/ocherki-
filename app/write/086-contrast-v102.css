@@ -1,6 +1,0 @@
-/*@block [" id=\"contrast-v102\"", ""]*/html body .shell .writing-prompt-actions{opacity:1!important}
-html body .shell .writing-prompt :is(#writingPromptCount,#writingPromptAgree,#writingPromptNext,#writingPromptHide){color:#3f2c1c!important;opacity:1!important}
-html body .shell.is-night .writing-prompt :is(#writingPromptCount,#writingPromptAgree,#writingPromptNext,#writingPromptHide){color:#ecd9b8!important}
-html body .shell .writing-prompt-why{opacity:1!important}
-html body #bookPreviewInfo{color:rgba(72,55,40,.88)!important}
-html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-night ~ #bookPreviewModal #bookPreviewInfo{color:rgba(245,226,199,.88)!important}

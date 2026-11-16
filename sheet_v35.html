@@ -5409,7 +5409,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   box.addEventListener('change',check);document.getElementById('photoModal')?.addEventListener('transitionend',check);setInterval(()=>{if(document.getElementById('photoModal')?.classList.contains('open'))check();},800);})();
 </script>
 <script id="tour-again">document.getElementById('tourAgainBtn')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('textMenu')?.classList.remove('open');window.parent.postMessage({type:'OCHERKI_TOUR_AGAIN'},'*');});</script>
-<script src="assets/keeper/sheet-light.js?v=20261107-v173"></script>
+<script src="assets/keeper/sheet-light.js?v=20261107-v174"></script>
 <script id="sheet-light-v160">
 // v160 — the sheet is laid paper; «Лампа» (default) or «Машинка», remembered
 (()=>{const sh=document.getElementById('activeSheet');if(!sh||!window.OcherkiSheetLight)return;
