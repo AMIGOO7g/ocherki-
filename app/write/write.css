@@ -810,3 +810,38 @@ html:has(.shell.is-night) .ws-flyer::after{filter:drop-shadow(-3px -3px 4px rgba
 html:has(.shell.is-night) .ws-flyer{filter:brightness(.82) sepia(.15)}
 .ws-flyer .ws-q{max-height:none!important;overflow:visible!important}
 .ws-flyer.ws-landing .ws-q,.ws-flyer.ws-landing .ws-hint{opacity:0!important;transition:opacity .18s ease!important}
+
+/* ——— v199 — «Книга» on the same desk ——— */
+/* the desk, its window by day and its lamp at night, are under the book too */
+.shell.is-book-preview:not(.is-night) .desk-day{opacity:1}
+.shell.is-book-preview.is-night .desk-shade,.shell.oc-lit.is-book-preview.is-night .desk-cone{opacity:1}
+.shell.is-book-preview.is-night .night-main,.shell.is-book-preview.is-night .night-warm{opacity:0!important}
+body.oct-book #bookPreviewModal,body.oct-book #bookPreviewModal .preview-catcher,body.oct-book .book-preview-stage,body.oct-book #bookPreviewModal::before,body.oct-book #bookPreviewModal::after{background:transparent!important}
+/* the same bar, in the same place and of the same size as in «Писать» */
+body.oct-book .bq-car{top:var(--bar-t,115px)!important;left:var(--bar-l,530px)!important;width:var(--bar-w,860px)!important;transform:none!important;height:52px!important;gap:22px!important;padding:0 28px!important;border-radius:26px!important}
+body.oct-book .bq-car .nf{border-radius:23px!important}
+body.oct-book .bq-car button{width:32px!important;height:32px!important}body.oct-book .bq-car svg{width:24px!important;height:24px!important}
+body.oct-book .bq-car .t,body.oct-book .bq-car .t b{font-size:19px!important}
+body.oct-book .bq-car .bq-cl{left:28px!important;top:calc(100% + 8px)!important;width:120px!important;font-size:13px!important}
+/* «свет дня» on the book's bar: the book in its true colours at any hour */
+.bq-car .bq-day.on svg{stroke:#9a4510;filter:drop-shadow(0 0 3px rgba(255,150,60,.7))}
+.bq-car.night .bq-day.on svg{stroke:#ffd29a;filter:drop-shadow(0 0 4px rgba(255,150,60,.85))}
+/* the book's light: at night only where the beam falls (write.js), by day the room's shade with the window's sun on its left */
+.bq-book .bq-lamp{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1),background-color 2.45s}
+.bq-book .bq-lamp::before{content:"";position:absolute;inset:0;background:var(--ws-shade) 0 0/100vw 100vh no-repeat fixed;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) body.oct-book .bq-book .bq-lamp{opacity:1}
+html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp{opacity:1;background:none!important}
+html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp::before{opacity:1}
+body.oct-book.bq-true .bq-book .bq-lamp{opacity:0!important;transition:opacity .5s ease!important}
+/* the edge of the pages (the book's «обрез»): finer, in the paper's tone; at night it is in the dusk like the book's sides */
+body.oct-book .bq-book .el,body.oct-book .bq-book .er{width:4px!important;opacity:.7;background:repeating-linear-gradient(0deg,#ece2d0 0 1px,#dccfb9 1px 2px)!important;box-shadow:none!important}
+body.oct-book .bq-book .el{left:-4px!important}body.oct-book .bq-book .er{right:-4px!important}
+html:has(.shell.is-night) body.oct-book .bq-book .el,html:has(.shell.is-night) body.oct-book .bq-book .er{filter:brightness(.45) sepia(.3)}
+html:has(.shell.is-night) body.oct-book:not(.bq-true) .preview-arc>*{filter:brightness(.62) sepia(.25)}
+/* the sheets of «Писать» pushed aside on the desk: a narrow stack at the left edge; a press brings «Писать» back */
+.ws-left{transition:transform .9s cubic-bezier(.3,.7,.2,1),opacity .6s ease}
+html:has(.shell.is-book-preview) .ws-left.ws-aside{display:block!important;pointer-events:auto;cursor:pointer;animation:none!important;transform:translateX(calc(-100% + 90px)) scale(.82);transform-origin:0 50%}
+.ws-left.ws-aside .ws-tabs,.ws-left.ws-aside .ws-nav,.ws-left.ws-aside .ws-hint{opacity:0;pointer-events:none}
+.ws-left.ws-aside:hover{transform:translateX(calc(-100% + 120px)) scale(.82)}
+html:has(.shell.is-night) .ws-left.ws-aside{filter:brightness(.42) sepia(.35)}
+.ws-left.ws-aside{transition:transform .9s cubic-bezier(.3,.7,.2,1),opacity .6s ease,filter 2.45s cubic-bezier(.37,0,.63,1)}

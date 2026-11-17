@@ -194,9 +194,10 @@
   // foot of the screen; it lights up last, a moment after the bar has come
   const cone=document.querySelector('.desk-cone'),beam=cone?.querySelector('i'),clk=document.querySelector('.master-clock');
   let lit=false;
-  const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),on=isWrite()||ms;
+  const isBookQ=()=>shell.classList.contains('is-book-preview')&&document.body.classList.contains('oct-book')&&!!document.querySelector('.bq-car');
+  const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),bk=!ms&&isBookQ(),on=isWrite()||ms||bk;
     if(!lit&&on){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),900);}
-    const bar=ms?document.querySelector('.mq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
+    const bar=ms?document.querySelector('.mq-car'):bk?document.querySelector('.bq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
     const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${x}px ${h}px`;
     {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
     // v190: bright right under the bar, a short soft edge; the light falls on all that lies under it, the screen keys too
@@ -206,6 +207,12 @@
     if(lm&&night&&shell.classList.contains('wp-on')){const q=pg.getBoundingClientRect();if(q.width){let dx=sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dy,ny=-dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x1-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
       const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
+    // v199: the book on the desk is lit by the same beam — its middle under the bar bright, both its sides beyond the beam's edges dusky
+    const bq=document.querySelector('.bq-book'),bl=bq?.querySelector('.bq-lamp');
+    if(bl&&night&&bk){const q=bq.getBoundingClientRect();if(q.width){const edge=(ex,dxs)=>{let dx=dxs,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dxs>0?dy:-dy,ny=dxs>0?-dx:dx,A=Math.atan2(nx,-ny),
+          L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((ex-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
+          return `linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(0,0,0,0) ${(t-6).toFixed(1)}%,rgba(110,76,44,.55) ${(t+8).toFixed(1)}%,rgba(40,24,10,.72) ${(t+26).toFixed(1)}%)`;};
+        const bg=edge(x1,sp)+','+edge(x0,-sp)+',linear-gradient(180deg,rgba(240,225,200,.04) 0%,rgba(225,200,165,.12) 40%,rgba(180,140,96,.32) 100%)';if(bl._bg!==bg){bl._bg=bg;bl.style.background=bg;}}}
     // v197: the clean stack on the left is lit the same way — only where the beam falls, its left edge running from the bar's
     // other end down and out (the same light as on the book's page, mirrored)
     const wl=document.querySelector('.ws-left');
@@ -550,4 +557,20 @@
   // the book's page opens by itself once the book is ready in the background (unless the hand closed it)
   setInterval(()=>{const W=window.__ocWp;if(!W||W.isOn()||!shell.classList.contains('oc-ws'))return;let off=false;try{off=localStorage.getItem('ocherkiPeekOff')==='1';}catch(_){}
     if(off||!window.__ocherkiBuiltKey||!W.usable())return;if(Date.now()-autoTried<15000)return;autoTried=Date.now();W.open();},1000);
+})();
+
+
+// ——— book-desk
+// v199 — «Книга» lies on the same desk: the same bar in the same place, the same lamp (or window), the sheets of «Писать» pushed
+// aside to the left edge (a press on them brings «Писать» back); the book lit only where the beam falls; «свет дня» shows its
+// true colours at any hour.
+(()=>{const shell=document.querySelector('.shell');if(!shell)return;
+  const IS='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>';
+  const isBook=()=>shell.classList.contains('is-book-preview')&&document.body.classList.contains('oct-book');
+  const dress=()=>{const bq=document.querySelector('.bq-book');if(bq&&!bq.querySelector('.bq-lamp')){const l=document.createElement('i');l.className='bq-lamp';bq.appendChild(l);}
+    const car=document.querySelector('.bq-car');if(car&&!car.querySelector('.bq-day')){const b=document.createElement('button');b.type='button';b.className='bq-day';b.setAttribute('aria-label','Дневной свет');b.setAttribute('aria-pressed','false');b.dataset.tip='Дневной свет — книга в настоящих цветах';b.innerHTML=IS;
+      b.addEventListener('click',e=>{e.stopPropagation();const on=document.body.classList.toggle('bq-true');b.setAttribute('aria-pressed',String(on));b.classList.toggle('on',on);});car.appendChild(b);}
+    const left=document.querySelector('.ws-left');if(left){const a=isBook();left.classList.toggle('ws-aside',a);
+      if(!left._aside){left._aside=true;left.addEventListener('click',e=>{if(!left.classList.contains('ws-aside'))return;e.stopPropagation();e.preventDefault();window.OCHERKI_SET_MODE?.('write');},true);}}};
+  setInterval(dress,400);new MutationObserver(dress).observe(shell,{attributes:true,attributeFilter:['class']});
 })();
