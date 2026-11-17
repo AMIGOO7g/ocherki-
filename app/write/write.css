@@ -796,3 +796,17 @@ html:has(.shell.is-night) .ws-left .ws-tabs .nf{opacity:1}
 html:has(.shell.is-night) .ws-left .ws-tabs button{color:#e8d2ae}
 html:has(.shell.is-night) .ws-left .ws-tabs button.on{color:#ffd29a}html:has(.shell.is-night) .ws-left .ws-tabs button.on svg{filter:drop-shadow(0 0 4px rgba(255,150,60,.85))}
 .ws-flyer .ws-q{animation:none!important;opacity:1!important;filter:none!important}
+/* v198 — a live sheet in the hand */
+.ws-flyer{transform-style:flat!important;will-change:transform}
+.ws-flyer.ws-lift{transition:transform .28s cubic-bezier(.2,.8,.3,1),box-shadow .28s ease;box-shadow:2px 4px 6px rgba(40,25,10,.25),30px 40px 60px rgba(40,25,10,.32)!important}
+.ws-flyer.ws-carry{transition:transform .12s linear,box-shadow .3s ease;box-shadow:4px 8px 10px rgba(40,25,10,.18),46px 70px 90px rgba(40,25,10,.30)!important}
+.ws-flyer.ws-landing{transition:transform .62s cubic-bezier(.3,.7,.2,1),opacity .3s ease .38s,box-shadow .5s ease!important;box-shadow:1px 2px 3px rgba(40,25,10,.3),8px 12px 20px rgba(40,25,10,.22)!important}
+/* the corner the hand holds lifts a little */
+.ws-flyer::after{content:"";position:absolute;right:0;bottom:0;width:20%;height:14%;pointer-events:none;
+  background:linear-gradient(135deg,transparent 48%,rgba(80,55,30,.18) 50%,rgba(255,252,244,.95) 52%,rgba(232,218,196,1) 72%,rgba(200,180,150,1) 100%);
+  clip-path:polygon(100% 0,100% 100%,0 100%);filter:drop-shadow(-3px -3px 4px rgba(60,40,20,.25));transition:opacity .25s}
+.ws-flyer.ws-landing::after,.ws-flyer.ws-back::after{opacity:0}
+html:has(.shell.is-night) .ws-flyer::after{filter:drop-shadow(-3px -3px 4px rgba(0,0,0,.5)) brightness(.7)}
+html:has(.shell.is-night) .ws-flyer{filter:brightness(.82) sepia(.15)}
+.ws-flyer .ws-q{max-height:none!important;overflow:visible!important}
+.ws-flyer.ws-landing .ws-q,.ws-flyer.ws-landing .ws-hint{opacity:0!important;transition:opacity .18s ease!important}

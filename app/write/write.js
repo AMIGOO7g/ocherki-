@@ -480,16 +480,25 @@
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
   let drag=null;
   top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button'))return;e.preventDefault();
-    const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it layfl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',r.width+'px');
+    const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
+    fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
-    drag={fl,r,x0:e.clientX,y0:e.clientY,moved:false};try{top.setPointerCapture(e.pointerId);}catch(_){}});
+    drag={fl,r,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,vx:0,vy:0,ly:e.clientY};try{top.setPointerCapture(e.pointerId);}catch(_){}
+    // v198 — a live sheet: taken by its corner it lifts off the stack, tilts towards the hand, its shadow grows and softens
+    fl.style.transformOrigin=`${e.clientX-r.left}px ${e.clientY-r.top}px`;fl.classList.add('ws-lift');
+    requestAnimationFrame(()=>{fl.style.transform='perspective(1100px) rotateX(9deg) rotateY(-10deg) rotateZ(-1.5deg) scale(1.04)';});});
   top.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x0,dy=e.clientY-drag.y0;if(Math.hypot(dx,dy)>5)drag.moved=true;
-    drag.fl.style.transform=`translate(${dx}px,${dy}px) rotate(${Math.max(-6,Math.min(6,dx/60))}deg) scale(1.03)`;
+    // it sways with the hand's speed: a sheet carried through the air leans into the move
+    drag.vx=drag.vx*.8+(e.clientX-drag.lx)*.2;drag.vy=drag.vy*.8+(e.clientY-drag.ly)*.2;drag.lx=e.clientX;drag.ly=e.clientY;
+    const ry=Math.max(-16,Math.min(16,-6-drag.vx*.9)),rx=Math.max(-6,Math.min(16,8+drag.vy*.6)),rz=Math.max(-5,Math.min(5,dx/90));
+    drag.fl.classList.remove('ws-lift');drag.fl.classList.add('ws-carry');
+    drag.fl.style.transform=`translate(${dx}px,${dy}px) perspective(1100px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) rotateZ(${rz.toFixed(1)}deg) scale(1.07)`;
     const w=wrapEl()?.getBoundingClientRect();const over=w&&e.clientX>w.left&&e.clientX<w.right&&e.clientY>w.top&&e.clientY<w.bottom;shell.classList.toggle('ws-over',!!over);drag.over=over;});
   const finish=e=>{if(!drag)return;const d=drag;drag=null;shell.classList.remove('ws-over');const fl=d.fl;
     const lay=d.over||!d.moved;// a plain click lays it too: one press is enough for a hand that does not like to drag
-    if(lay){const w=wrapEl().getBoundingClientRect();fl.classList.add('ws-landing');
-      fl.style.transform=`translate(${w.left-d.r.left}px,${w.top-d.r.top}px) scale(${w.width/d.r.width},${w.height/d.r.height})`;fl.style.opacity='0';
+    if(lay){const w=wrapEl().getBoundingClientRect();fl.classList.remove('ws-lift','ws-carry');fl.classList.add('ws-landing');fl.style.transformOrigin='0 0';
+      // it is laid down: it flattens as it comes to rest, its corner settles, the shadow draws in — then it is the sheet itself
+      fl.style.transform=`translate(${w.left-d.r.left}px,${w.top-d.r.top}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;fl.style.opacity='0';
       setTimeout(()=>act(kind),260);setTimeout(()=>{fl.remove();top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);},620);}
     else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
