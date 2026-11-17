@@ -772,11 +772,27 @@ html:has(.shell.oc-ws-peek) .oc-years{opacity:0!important;pointer-events:none!im
 .wk canvas{transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell:not(.is-night)) .wk canvas{filter:brightness(.34) sepia(.45) contrast(1.15)}
 /* v196 — the workshop's signature lives on the left, under the clean sheets (the book's page covered it on the right) */
-html body .shell.oc-ws .bottom-left .brand-wrap{left:var(--ws-bx,40px)!important;top:var(--ws-by,auto)!important;right:auto!important;bottom:auto!important;width:auto!important;height:auto!important;transform:translateX(-50%);transition:opacity 1.4s ease}
-html body .shell.oc-ws .bottom-left .brand-line{writing-mode:horizontal-tb!important;transform:none!important;display:flex;align-items:baseline;gap:.9em}
+html body .shell.oc-ws .bottom-left .brand-wrap{left:22px!important;right:auto!important;bottom:calc(40px + 200px*var(--oc-k,1))!important;transition:opacity 1.4s ease}
+/* (mirrored to the left: the vertical line reads the same way, from the foot up) */
 /* at night the lamp's light reaches the clean sheets from the side of the bar: their corner nearest the lamp lit, the far one in the dusk */
-.ws-lt::after{background:linear-gradient(235deg,rgba(240,225,200,.06) 0%,rgba(215,185,145,.22) 35%,rgba(160,120,80,.45) 70%,rgba(110,76,46,.62) 100%)!important}
+.ws-lt::after{background:var(--ws-nbg,linear-gradient(235deg,rgba(240,225,200,.06) 0%,rgba(215,185,145,.22) 35%,rgba(160,120,80,.45) 70%,rgba(110,76,46,.62) 100%))!important}
 html:has(.shell.is-night) .ws-tabs button{filter:brightness(.8) sepia(.2)}
 /* the clean stack keeps the screen's proportions on a small screen: its words shrink with it */
 .ws-nav,.ws-hint{font-size:clamp(10px,calc(var(--ws-w,320px)*.045),16px)}
 .ws-tabs button{font-size:clamp(10px,calc(var(--ws-w,320px)*.045),16px)}
+/* v197 — the kinds of a clean sheet: a small brass bar over the stack, of the same make as the big bar (paper face by day,
+   dark face at night — the faces cross over at the desk's pace) */
+.ws-left .ws-tabs{position:absolute;left:-6px;right:-6px;bottom:calc(100% + 16px);height:clamp(34px,calc(var(--ws-w,320px)*.14),46px);display:flex;align-items:center;justify-content:space-around;gap:0;padding:0 6px;
+  border-radius:999px;border:3px solid transparent;box-sizing:border-box;
+  background:linear-gradient(#efe3cb,#e6d5b5 46%,#d9bf98) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;
+  box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),0 6px 12px rgba(60,40,20,.28);transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+.ws-left .ws-tabs .nf{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle,#25221e,#211f1c 43%,#1d1b18 72%,#191714);box-shadow:inset 0 3px 7px rgba(0,0,0,.5);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .ws-left .ws-tabs .nf{opacity:1}
+.ws-left .ws-tabs button{all:unset;position:relative;z-index:1;display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 8px;border-radius:14px;
+  font:italic clamp(11px,calc(var(--ws-w,320px)*.05),16px) 'CormorantCy',Georgia,serif;color:#5b4633;transition:color 2.45s cubic-bezier(.37,0,.63,1);filter:none!important;background:none!important;box-shadow:none!important;margin:0!important}
+.ws-left .ws-tabs svg{width:clamp(14px,calc(var(--ws-w,320px)*.058),19px);height:auto;aspect-ratio:1;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:filter .3s}
+.ws-left .ws-tabs button:hover{color:#8a4a16}
+.ws-left .ws-tabs button.on{color:#9a4510}.ws-left .ws-tabs button.on svg{filter:drop-shadow(0 0 3px rgba(255,150,60,.7))}
+html:has(.shell.is-night) .ws-left .ws-tabs button{color:#e8d2ae}
+html:has(.shell.is-night) .ws-left .ws-tabs button.on{color:#ffd29a}html:has(.shell.is-night) .ws-left .ws-tabs button.on svg{filter:drop-shadow(0 0 4px rgba(255,150,60,.85))}
+.ws-flyer .ws-q{animation:none!important;opacity:1!important;filter:none!important}

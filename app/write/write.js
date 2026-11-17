@@ -206,6 +206,12 @@
     if(lm&&night&&shell.classList.contains('wp-on')){const q=pg.getBoundingClientRect();if(q.width){let dx=sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dy,ny=-dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x1-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
       const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
+    // v197: the clean stack on the left is lit the same way — only where the beam falls, its left edge running from the bar's
+    // other end down and out (the same light as on the book's page, mirrored)
+    const wl=document.querySelector('.ws-left');
+    if(wl&&night&&shell.classList.contains('oc-ws')){const q=wl.getBoundingClientRect();if(q.width){let dx=-sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=-dy,ny=dx,A=Math.atan2(nx,-ny),
+        L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x0-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
+      const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(wl._bg!==bg){wl._bg=bg;wl.style.setProperty('--ws-nbg',bg);}}}
     // v186: the clock keeps its own look at night (it hardly lies in the beam)
     if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
   // every frame: the light keeps to the bar and to the page while they move (no steps, no blinking)
@@ -446,9 +452,11 @@
 
   // ——— the clean stack
   const left=document.createElement('div');left.className='ws-left';left.setAttribute('aria-label','Чистые листы');
-  left.innerHTML=`<i class="ws-s ws-s3"><i class="ws-lt"></i></i><i class="ws-s ws-s2"><i class="ws-lt"></i></i>
+  const TI={page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',document:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>'};
+  // v197: the kinds of a clean sheet are chosen on a small brass bar over the stack, the same make as the big one
+  const tabs=`<div class="ws-tabs" role="tablist"><i class="nf"></i>${[['page','лист'],['episode','эпизод'],['document','документ'],['photo','фото']].map(([k,l],i)=>`<button type="button" role="tab" data-t="${k}" class="${i?'':'on'}"><svg viewBox="0 0 24 24">${TI[k]}</svg><span>${l}</span></button>`).join('')}</div>`;
+  left.innerHTML=tabs+`<i class="ws-s ws-s3"><i class="ws-lt"></i></i><i class="ws-s ws-s2"><i class="ws-lt"></i></i>
     <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"></i>
-      <div class="ws-tabs" role="tablist"><button type="button" data-t="page" class="on">лист</button><button type="button" data-t="episode">эпизод</button><button type="button" data-t="document">документ</button><button type="button" data-t="photo">фото</button></div>
       <div class="ws-nav"><span class="ws-cnt"></span><button type="button" data-q="-1">‹ назад</button><button type="button" data-q="1">дальше ›</button></div>
       <div class="ws-q"></div>
       <div class="ws-hint">потяните лист на стол</div></div>`;
@@ -456,13 +464,17 @@
   const top=left.querySelector('.ws-top'),qEl=left.querySelector('.ws-q'),cnt=left.querySelector('.ws-cnt');
   let kind='page';
   left.querySelector('.ws-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;e.stopPropagation();kind=b.dataset.t;left.querySelectorAll('.ws-tabs button').forEach(x=>x.classList.toggle('on',x===b));
-    left.dataset.kind=kind;qEl.closest('.ws-top').classList.remove('ws-turn');void top.offsetWidth;top.classList.add('ws-turn');});
+    left.dataset.kind=kind;top.classList.remove('ws-turn');void top.offsetWidth;top.classList.add('ws-turn');});
   left.querySelector('.ws-nav').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;e.stopPropagation();document.getElementById(b.dataset.q==='1'?'writingPromptNext':'writingPromptAgree')?.click();});
   // the chapter's question is written on the top clean sheet (the same question as beside the sheet, the same keys)
-  const mirror=()=>{const t=(document.getElementById('writingPromptText')?.textContent||'').trim();const c=(document.getElementById('writingPromptCount')?.textContent||'').trim();
+  // the chapter may have no questions (the family tree): the question beside the sheet is then hidden — the clean sheet is clean
+  let goneT=0;const pe=document.getElementById('writingPrompt');
+  const shown=()=>!pe||pe.classList.contains('is-visible')||pe.classList.contains('is-leaving');
+  const mirror=()=>{if(!shown()){clearTimeout(goneT);goneT=setTimeout(()=>{if(!shown()){qEl.textContent='';cnt.textContent='';left.classList.add('no-q');left.querySelector('.ws-nav').classList.add('one');}},1700);return;}
+    clearTimeout(goneT);const t=(document.getElementById('writingPromptText')?.textContent||'').trim();const c=(document.getElementById('writingPromptCount')?.textContent||'').trim();
     if(qEl.textContent!==t){qEl.classList.remove('in');void qEl.offsetWidth;qEl.textContent=t;qEl.classList.add('in');}if(cnt.textContent!==c)cnt.textContent=c;
     left.classList.toggle('no-q',!t);left.querySelector('.ws-nav').classList.toggle('one',!c);};
-  {const a=document.getElementById('writingPromptText'),b=document.getElementById('writingPromptCount');const mo=new MutationObserver(mirror);[a,b].forEach(x=>x&&mo.observe(x,{childList:true,characterData:true,subtree:true}));mirror();}
+  {const a=document.getElementById('writingPromptText'),b=document.getElementById('writingPromptCount');const mo=new MutationObserver(mirror);[a,b].forEach(x=>x&&mo.observe(x,{childList:true,characterData:true,subtree:true}));if(pe)mo.observe(pe,{attributes:true,attributeFilter:['class']});mirror();}
 
   // ——— taking a clean sheet to the desk
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
