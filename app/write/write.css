@@ -688,3 +688,5 @@ html:has(.shell.is-night) .wp-page{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34
 html body .shell.oc-w.oc-w .master-clock .clock-pivot{background:radial-gradient(circle,var(--face1),var(--face3) 70%,var(--face4))!important;
   box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35),inset 0 0 0 30px rgba(31,29,26,.97)!important;transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 1.4s ease!important}
 html body .shell.oc-w.oc-w:not(.is-night) .master-clock .clock-pivot{box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35),inset 0 0 0 30px rgba(31,29,26,0)!important}
+/* v194: the bar's shadow changes with day and night at the desk's pace, not at once */
+html body .wc.wc-w{transition:opacity .15s,box-shadow 2.45s cubic-bezier(.37,0,.63,1)!important}

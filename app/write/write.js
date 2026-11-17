@@ -195,7 +195,7 @@
   const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),on=isWrite()||ms;
     if(!lit&&on){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),900);}
     const bar=ms?document.querySelector('.mq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
-    const x0=r.left+20,x1=r.right-20,y=r.top+r.height*.9,sp=r.width*(ms?.6:.33),P=(x,h)=>`${x}px ${h}px`;
+    const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${x}px ${h}px`;
     {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
     // v190: bright right under the bar, a short soft edge; the light falls on all that lies under it, the screen keys too
     const m=`linear-gradient(180deg,transparent ${Math.round(y-8)}px,#000 ${Math.round(y+26)}px)`;if(cone._m!==m){cone._m=m;cone.style.webkitMaskImage=cone.style.maskImage=m;}
