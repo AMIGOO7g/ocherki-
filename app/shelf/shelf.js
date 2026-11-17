@@ -80,11 +80,11 @@
   // ——— the card of one book
   // the book in volume: the face is its cover (in the book's own proportions), the spine and the back in its cloth,
   // the page block as thick as the book has sheets
-  function face(b){const f=$('.mb-face'),bk=$('.mb-book'),fl=$('.mb-floor'),c=cover(b.id),[bg,ink]=cloth(b.id);const W=440,H=500;
+  function face(b){const f=$('.mb-face'),bk=$('.mb-book'),fl=$('.mb-floor'),c=cover(b.id),[bg,ink]=cloth(b.id);const W=590,H=640;
     let w,h;
     if(c&&c.html){const k=Math.min(W/c.w,H/c.h);w=Math.round(c.w*k);h=Math.round(c.h*k);f.className='mb-face';f.style.background='';f.style.color='';
       f.innerHTML=`<div class="book-preview-half right page-canvas-host ${esc(c.host||'bd-design-editorial')}" style="position:absolute;inset:0;width:100%;height:100%;margin:0;transform:none;box-shadow:none"><div class="page-canvas" style="width:${c.w}px;height:${c.h}px;transform:scale(${k})">${c.html}</div></div>`;}
-    else{w=360;h=470;f.className='mb-face cloth mb-cover';f.style.background=bg;f.style.color=ink;f.innerHTML=`<b style="font-size:24px">${esc(titleOf(b))}</b><i></i><small>${esc(c?.subtitle||'')}</small>`;}
+    else{w=470;h=610;f.className='mb-face cloth mb-cover';f.style.background=bg;f.style.color=ink;f.innerHTML=`<b style="font-size:24px">${esc(titleOf(b))}</b><i></i><small>${esc(c?.subtitle||'')}</small>`;}
     const t=Math.round(Math.max(24,Math.min(48,16+(b.pages||20)*.7)));
     bk.style.setProperty('--w',w+'px');bk.style.setProperty('--h',h+'px');bk.style.setProperty('--t',t+'px');bk.style.setProperty('--cl',c&&c.html?'#151210':bg);
     fl.style.width=Math.round(w*1.15)+'px';fl.style.top=`calc(50% + ${Math.round(h/2-14)}px)`;}

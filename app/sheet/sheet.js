@@ -3025,12 +3025,16 @@ window.addEventListener('wheel' ,e=>{
   const dir=wheelAccum>0?1:-1;
   wheelAccum=0;
 
+  // v188: the wheel turns the sheets of the chapter first; only past its last (or before its first) sheet it goes to the next section
+  const pages=currentPages(),pi=currentPageIndex();
+  if(pages.length>1&&pi+dir>=0&&pi+dir<pages.length){e.preventDefault();if(!wheelPageBusy){wheelPageBusy=true;animatePageChange(pi+dir);setTimeout(()=>{wheelPageBusy=false;},520);}return;}
   const next=activeSection+dir;
   if(next>=0&&next<sections.length){
     e.preventDefault();
     goSection(next,dir);
   }
 },{passive:false});
+let wheelPageBusy=false;
 
 document.getElementById('photoCloseX').onclick=()=>closePhoto(true); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
@@ -4206,8 +4210,8 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   ['addPageBtn','newPageBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=()=>window.addPage();});
   [['newEpisodeBtn','addEpisode'],['addDocumentBtn','addDocumentPage']].forEach(([id,n])=>{const b=document.getElementById(id);if(!b||!orig[n])return;b.removeEventListener('click',orig[n]);b.addEventListener('click',()=>window[n]());});})();
 
-// v187 — the lamp's source on the sheet: a thin warm line right under the bar's rim (the bar covers the sheet's first 33px)
+// v188 — the lamp's light: a bright line along the whole lower rim of the bar (the bar spans the sheet ±96px, its rim at the sheet's top +33px)
 (()=>{const l=document.createElement('i');l.className='lt-lip';document.body.appendChild(l);
   const put=()=>{const a=document.getElementById('activeSheet');if(!a)return;const r=a.getBoundingClientRect();if(!r.width)return;
-    l.style.left=Math.round(r.left+r.width*.07)+'px';l.style.width=Math.round(r.width*.86)+'px';l.style.top=Math.round(r.top+39)+'px';};
+    l.style.left=Math.round(r.left-74)+'px';l.style.width=Math.round(r.width+148)+'px';l.style.top=Math.round(r.top+36)+'px';};
   put();setInterval(put,300);addEventListener('resize',put);})();

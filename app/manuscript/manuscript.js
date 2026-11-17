@@ -534,9 +534,9 @@
     scr.querySelectorAll('.ms-sheet').forEach(e=>{const pp=e.querySelector('.ms-paper')||e;if(!night){if(pp.style.filter)pp.style.removeProperty('filter');return;}
       const r=e.getBoundingClientRect();if(!r.width)return;const d=Math.abs(r.left+r.width/2-W/2)/(W/2),k=Math.max(0,Math.min(1,(d-.22)/.55));
       pp.style.setProperty('filter',k>.01?`brightness(${(1-.55*k).toFixed(2)}) sepia(${(.08+.35*k).toFixed(2)})`:'','important');});
-    // v187: the chapter's name stands close under the row in front (not at the foot of the screen)
-    const c=cg(),bots=[...scr.querySelectorAll(`.ms-sheet[data-c="${c}"]:not(.is-far)`)].filter(e=>+getComputedStyle(e).opacity>.6).map(e=>e.getBoundingClientRect()).filter(r=>r.width>120&&r.bottom<innerHeight-120).map(r=>r.bottom);
-    if(bots.length){const t=Math.round(Math.min(innerHeight-130,Math.max(...bots)+30));if(Math.abs(t-(parseFloat(name.style.top)||0))>3){name.style.setProperty('top',t+'px','important');name.style.setProperty('bottom','auto','important');}}};
+    // v188: the chapter's name keeps one place, a clear step below the rows (it does not hop with each row)
+    const bots=[...scr.querySelectorAll('.ms-sheet:not(.is-far)')].filter(e=>+getComputedStyle(e).opacity>.6).map(e=>e.getBoundingClientRect()).filter(r=>r.width>120&&r.bottom<innerHeight-100).map(r=>r.bottom);
+    if(bots.length){const t=Math.round(Math.min(innerHeight-120,Math.max(...bots)+64));if(!name._top||t>name._top+40||t<name._top-40){name._top=t;name.style.setProperty('top',t+'px','important');name.style.setProperty('bottom','auto','important');}}};
   // the room follows the day and the night while it is open (it used to keep the one it opened with)
   const tick=()=>{scr.classList.toggle('is-night',shell.classList.contains('is-night'));const on=isMs();car.classList.toggle('on',on);if(on)fit();if(!on){scr.classList.remove('mq-ph','mq-list');B('photo').classList.remove('on');return;}
     car.classList.toggle('night',shell.classList.contains('is-night'));
@@ -548,10 +548,13 @@
     const bc=bin?.querySelector('.ms-bin-count');B('bin').querySelector('em').textContent=bc&&!bc.hidden?bc.textContent:'';
     const t=I.t+'|'+I.s;if(c!==lastC||t!==lastT){const first=lastC<0;lastC=c;lastT=t;
       if(first){name.querySelector('b').textContent=I.t;name.querySelector('small').textContent=I.s;}
-      else{const fwd=c>=(name._c??c);name._c=c;const o={duration:380,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'};
-        name.animate([{opacity:1,transform:'translateX(-50%) scale(1)',filter:'blur(.3px)'},{opacity:0,transform:`translateX(-50%) translateY(${fwd?-10:10}px) scale(${fwd?.9:1.08})`,filter:'blur(4px)'}],o).finished.then(()=>{
-          name.querySelector('b').textContent=I.t;name.querySelector('small').textContent=I.s;
-          name.animate([{opacity:0,transform:`translateX(-50%) translateY(${fwd?12:-12}px) scale(${fwd?1.08:.9})`,filter:'blur(4px)'},{opacity:1,transform:'translateX(-50%) scale(1)',filter:'blur(.3px)'}],{duration:520,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});});}}
+      // v188: the name goes the way the sheets go — on to the next chapter the old name comes toward you and melts away
+      // while the new one rises out of the depth, together and at the sheets' pace (1.1s); back, the other way round
+      else{const fwd=c>=(name._c??c);name._c=c;const old=name.cloneNode(true);old.classList.add('mq-name-old');old.style.pointerEvents='none';name.after(old);
+        name.querySelector('b').textContent=I.t;name.querySelector('small').textContent=I.s;
+        const E='cubic-bezier(.2,.75,.2,1)';
+        old.animate([{opacity:1,transform:'translateX(-50%) translateY(0) scale(1)',filter:'blur(.3px)'},{opacity:0,transform:`translateX(-50%) translateY(${fwd?70:-60}px) scale(${fwd?1.35:.7})`,filter:'blur(8px)'}],{duration:900,easing:E,fill:'forwards'}).finished.then(()=>old.remove(),()=>old.remove());
+        name.animate([{opacity:0,transform:`translateX(-50%) translateY(${fwd?-60:70}px) scale(${fwd?.7:1.35})`,filter:'blur(8px)'},{opacity:1,transform:'translateX(-50%) translateY(0) scale(1)',filter:'blur(.3px)'}],{duration:1100,easing:E});}}
     // the bin's list and its drop stand under the carriage's bin button
     if(bin){const r=B('bin').getBoundingClientRect();bin.style.left=r.left+'px';bin.style.top=r.top+'px';
       B('bin').classList.toggle('bin-over',bin.classList.contains('is-over'));}};
@@ -559,7 +562,7 @@
   // leaving for another screen (a key, a sheet opened): the carriage goes at once, it does not wait for the flight
   let leaving=false;
   document.addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k]');if(k&&k.dataset.k!=='manuscript'&&k.dataset.k!=='more'){leaving=true;tick();setTimeout(()=>{leaving=false;},1600);}},true);
-  new MutationObserver(tick).observe(scr,{attributes:true,attributeFilter:['class']});new MutationObserver(tick).observe(shell,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(tick).observe(scr,{attributes:true,attributeFilter:['class']});if(toc)new MutationObserver(tick).observe(toc,{attributes:true,subtree:true,attributeFilter:['class']});new MutationObserver(tick).observe(shell,{attributes:true,attributeFilter:['class']});
   const goC=c=>{const b=toc?.querySelector(`button[data-c="${c}"]`);if(b)b.click();};
   car.addEventListener('click',e=>{const b=e.target.closest('button[data-c]');if(!b||!isMs())return;e.stopPropagation();const c=b.dataset.c;
     if(b.classList.contains('off')&&c!=='page')return;

@@ -45,6 +45,10 @@
     if(b.dataset.need){const m=ok(b.dataset.need);if(m){b.animate([{translate:'-4px 0'},{translate:'4px 0'},{translate:'0 0'}],{duration:260});K&&K.talk(900);const sec=b.closest('.st');let st=sec.querySelector('.status');if(!st){st=document.createElement('div');st.className='status';sec.querySelector('.acts').before(st);}st.textContent=m;return;}}
     if(g==='guest'){try{$('startAuthGuest')?.click();sessionStorage.setItem('ocherki_auth_guest','1');}catch(_){}toBooks();return;}
     if(g==='who'||g==='new'){window.__ocherkiCreatingBook=true;try{localStorage.removeItem('ocherkiLifeProjectDraft');}catch(_){}if(g==='new'){go('who');return;}}
+    // v188: «Мои книги» is the same bookcase as in the constructor (the showcase and the one-book card), not the old leather shelf
+    if(g==='shelf'&&window.OcherkiBookcase){window.OCHERKI_SHELF_HOOKS={onOpen:id=>openBook(id),
+        onNew:()=>{window.__ocherkiCreatingBook=true;try{localStorage.removeItem('ocherkiLifeProjectDraft');}catch(_){}go('who');}};
+      window.OcherkiBookcase.open();return;}
     if(g==='open'){openBook(b.dataset.id);return;}
     if(g==='finish'){finish();return;}
     go(g);});
@@ -72,7 +76,7 @@
     const cover=id=>COVERS[[...String(id)].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7)%COVERS.length];
     box.innerHTML=rows.map(r=>`<div class="row">${r.map((b,k)=>`<div class="bk" data-id="${esc(b.id)}" style="--tilt:${[-1.2,.9,-.5][k]}deg">
         ${(()=>{const cv=cover(b.id);return `<div class="tag"><strong>${esc(b.title||'Книга без названия')}</strong><span>сохранена ${esc(when(b.savedAt)||'—')}${b.pages?` · ${b.pages} стр.`:''}</span></div>
-        <div class="cov" data-go="open" data-id="${esc(b.id)}" style="--ar:${cv.ar};--fx:${cv.fx}%;--fw:${cv.fw}%;${cv.dark?'--ink:linear-gradient(180deg,#6b4a22,#3e2a12 60%,#7a5428);--ink2:#7a5428;--sh:rgba(255,240,210,.5);':''}--fs:${(()=>{const t=String(b.title||''),w=Math.max(...t.split(/\s+/).map(x=>x.length),1);return Math.max(12,Math.min(24,Math.floor(100/(w*.7)),t.length>26?17:24));})()}px"><img src="assets/keeper/cover-${cv.n}.webp?v=20261107-v187" alt=""><div class="face"><b>книга</b><strong>${esc(b.title||'Книга без названия')}</strong></div></div>`;})()}
+        <div class="cov" data-go="open" data-id="${esc(b.id)}" style="--ar:${cv.ar};--fx:${cv.fx}%;--fw:${cv.fw}%;${cv.dark?'--ink:linear-gradient(180deg,#6b4a22,#3e2a12 60%,#7a5428);--ink2:#7a5428;--sh:rgba(255,240,210,.5);':''}--fs:${(()=>{const t=String(b.title||''),w=Math.max(...t.split(/\s+/).map(x=>x.length),1);return Math.max(12,Math.min(24,Math.floor(100/(w*.7)),t.length>26?17:24));})()}px"><img src="assets/keeper/cover-${cv.n}.webp?v=20261107-v188" alt=""><div class="face"><b>книга</b><strong>${esc(b.title||'Книга без названия')}</strong></div></div>`;})()}
         <div class="ops"><button type="button" class="op" data-go="open" data-id="${esc(b.id)}">Открыть</button><button type="button" class="op del" data-del="${esc(b.id)}">Удалить</button></div>
         <div class="ask"><span>Удалить «${esc(b.title||'книгу')}» навсегда?</span><button type="button" class="op del" data-del-yes="${esc(b.id)}">Удалить</button><button type="button" class="op" data-del-no>Оставить</button></div></div>`).join('')}</div>`).join('');}
   $('kobShelf').addEventListener('click',async e=>{const d=e.target.closest('[data-del]');if(d){e.stopPropagation();d.closest('.bk')?.classList.add('asking');return;}

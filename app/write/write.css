@@ -655,8 +655,6 @@ html body .shell.oc-w:not(.is-night) .bottom-left .brand-wrap{opacity:.55!import
   background:linear-gradient(90deg,transparent,rgba(255,214,150,.9) 10%,rgba(255,228,175,1) 50%,rgba(255,214,150,.9) 90%,transparent);
   box-shadow:0 1px 6px rgba(255,200,120,.95),0 6px 22px rgba(255,170,80,.6),0 16px 46px rgba(255,160,70,.32)}
 .desk-lip.on{opacity:1}
-/* by day the bar lies over the sheet: its soft shadow falls on the paper, away from the window */
-html body .shell:not(.is-night) ~ .wc.on,html:has(.shell:not(.is-night)) .wc.on{box-shadow:10px 14px 18px -6px rgba(60,40,20,.32)}
 /* «Как ляжет в книге» at night: the page under the lamp; «дневной свет» lifts it */
 .wp-lamp{position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity .9s ease;
   background:radial-gradient(ellipse 95% 105% at 35% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.28) 40%,rgba(150,108,68,.5) 80%,rgba(110,76,46,.62) 100%)}
@@ -665,8 +663,18 @@ html:has(.shell.is-night) .wp-pane:not(.show-day) .wp-lamp{opacity:1}
   font:italic 15px Georgia,serif;color:#e8d2ae;background:rgba(30,22,16,.85);border:1px solid #8a6a3e}
 html:has(.shell.is-night) .wp-pane .wp-day{opacity:1;pointer-events:auto}
 .wp-pane.show-day .wp-day{background:#e8d2ae;color:#2f1d10}
-/* at night the words beside the sheet stand in the room: a soft shadow falls below them (the light comes from above) */
-html:has(.shell.is-night) .oc-ttl,html:has(.shell.is-night) .write-nav,html:has(.shell.is-night) .writing-prompt .writing-prompt-text{text-shadow:0 7px 12px rgba(0,0,0,.6),0 2px 3px rgba(0,0,0,.45)}
-html:has(.shell.is-night) .ms-screen .mq-name b{text-shadow:0 8px 14px rgba(0,0,0,.65),0 2px 3px rgba(0,0,0,.5)}
-/* at night the bar's own drop shadow is shorter, so the lamp's line just under it shows */
-html:has(.shell.is-night) .wc.wc-w.on{box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),inset 0 -1px 0 rgba(255,250,240,.55),0 2px 0 rgba(62,42,29,.5),0 3px 5px rgba(0,0,0,.35)}
+
+/* v188 — the bar is one even strip of brass along its length (the round button's radial face darkened its long ends) */
+html body .wc.wc-w{background:linear-gradient(180deg,var(--face1) 0%,var(--face2) 46%,var(--face3) 100%) padding-box,
+  linear-gradient(180deg,var(--metal1) 0%,var(--metal2) 38%,var(--metal3) 72%,var(--metal4) 100%) border-box!important}
+html body .wc.wc-w .nf{background:linear-gradient(180deg,var(--night2) 0%,var(--night3) 55%,var(--night4) 100%)}
+/* by day the bar lies over the sheet: its soft shadow falls on the paper, away from the window */
+html:has(.shell:not(.is-night)) body .wc.wc-w{box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),inset 0 -1px 0 rgba(255,250,240,.55),0 2px 0 rgba(62,42,29,.5),10px 14px 18px -6px rgba(60,40,20,.34)!important}
+/* by day the words beside the sheet stand on the desk: a soft shadow falls from them, away from the window */
+html:has(.shell:not(.is-night)) .oc-ttl .n,html:has(.shell:not(.is-night)) .oc-ttl .s,html:has(.shell:not(.is-night)) .write-nav .wn-title,
+html:has(.shell:not(.is-night)) #writingPromptText,html:has(.shell:not(.is-night)) .ms-screen .mq-name b{text-shadow:5px 6px 7px rgba(60,40,20,.28)!important}
+/* the lamp's light at night: a bright line along the whole lower rim of the bar, glowing like the lit keys above */
+.desk-lip{height:2px!important;background:linear-gradient(90deg,transparent 0,#ff9a3c 3%,#ffbe6a 50%,#ff9a3c 97%,transparent 100%)!important;
+  box-shadow:0 0 3px 1px rgba(255,150,60,1),0 0 9px 2px rgba(255,130,40,.7),0 4px 20px 5px rgba(255,140,50,.32)!important}
+/* at night the bar casts no long dark shadow over the sheet — the lamp's line under its rim shows */
+html:has(.shell.is-night) body .wc.wc-w{box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),inset 0 -1px 0 rgba(255,250,240,.35),0 1px 0 rgba(62,42,29,.5)!important}

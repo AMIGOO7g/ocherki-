@@ -200,7 +200,7 @@
   const lip=document.createElement('div');lip.className='desk-lip';document.body.appendChild(lip);
   // on «Писать» the line lies on the sheet itself (sheet.css .lt-lip); here it serves «Рукопись», where no sheet lies under the bar
   const lipOn=()=>{const night=shell.classList.contains('is-night'),on=isMsQ()&&shell.classList.contains('oc-lit');lip.classList.toggle('on',night&&on);
-    const bar=isMsQ()?document.querySelector('.mq-car'):wc;const r=bar?.getBoundingClientRect();if(r&&r.width){lip.style.left=Math.round(r.left+44)+'px';lip.style.width=Math.round(r.width-88)+'px';lip.style.top=Math.round(r.bottom+3)+'px';}};
+    const bar=isMsQ()?document.querySelector('.mq-car'):wc;const r=bar?.getBoundingClientRect();if(r&&r.width){lip.style.left=Math.round(r.left+22)+'px';lip.style.width=Math.round(r.width-44)+'px';lip.style.top=Math.round(r.bottom-2)+'px';}};
   setInterval(()=>{lamp();lipOn();},400);addEventListener('resize',()=>{lamp();lipOn();});
   // what it says: where we are, «до книги», saved
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);

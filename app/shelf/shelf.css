@@ -112,3 +112,12 @@ body.mb-on .wk,body.mb-on .wk-hint{z-index:2147483250!important}
 .mb-cover i{box-shadow:0 1px 0 rgba(255,255,255,.18),0 -1px 0 rgba(0,0,0,.5)}
 
 .mb-home{z-index:3}
+/* v188 — no made-up board grain on the covers; the room is the same desk as everywhere: the toile, by day under the window,
+   at night in the dark with a warm pool where the books stand */
+.mb-face:before,.mb-cover.grain:before{content:none!important}
+.mb-bg{background:radial-gradient(ellipse 50% 46% at 50% 52%,rgba(255,190,110,.20),transparent 72%),radial-gradient(ellipse 120% 100% at 50% 50%,rgba(14,8,3,.55),rgba(8,4,2,.92) 85%),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#150c06}
+.mb.day .mb-bg{background:linear-gradient(90deg,rgba(255,251,240,.5) 0%,rgba(255,249,236,.2) 30%,transparent 55%,rgba(60,40,20,.22) 100%),linear-gradient(rgba(242,233,214,.86),rgba(242,233,214,.86)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ece0c8}
+/* the card: the book bigger on the left, its words well to the right */
+.mb-left{left:40px;width:760px}
+.mb-r{left:900px;right:64px}
+.mb-r h2{font-size:58px}
