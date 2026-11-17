@@ -203,7 +203,11 @@
     // v186: the clock keeps its own look at night (it hardly lies in the beam)
     if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
   // every frame: the light keeps to the bar and to the page while they move (no steps, no blinking)
-  requestAnimationFrame(function loop(){requestAnimationFrame(loop);lamp();});
+  // (every frame only while something moves — the bar, the page, the keys; otherwise a few times a second)
+  let busyTill=0,fr=0,lampKey='',kick=true;new MutationObserver(()=>{kick=true;}).observe(shell,{attributes:true,attributeFilter:['class']});
+  requestAnimationFrame(function loop(t){requestAnimationFrame(loop);const r=(isMsQ()?document.querySelector('.mq-car'):wc)?.getBoundingClientRect();
+    const k=r?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'';if(k!==lampKey||kick){lampKey=k;kick=false;busyTill=t+2200;}
+    if(t<busyTill||++fr%15===0)lamp();});
   // what it says: where we are, «до книги», saved
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
     const ch=(d?.querySelector('.topbar .chapter')?.textContent||'').trim(),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();

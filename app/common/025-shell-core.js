@@ -105,8 +105,10 @@
     // light has been switched on for the first time it must never reappear.
     removePowerCopy();
     if(!shell.classList.contains('ui-boot')) shell.classList.add('menus-ready');
+    // v191: the constructor opens in the light the author chose last time; the clock decides only the very first time
+    let chosen='';try{chosen=localStorage.getItem('ocherkiLight')||'';}catch(_){}
     const hour = new Date().getHours();
-    const autoMode = (hour >= 19 || hour < 7) ? 'night' : 'day';
+    const autoMode = chosen==='day'||chosen==='night'?chosen:((hour >= 19 || hour < 7) ? 'night' : 'day');
     setMode(autoMode);
     requestAnimationFrame(()=>{
       try{ window.OCHERKI_positionMap?.(); }catch(_){}
@@ -140,7 +142,7 @@
       turnOff();
     }
   });
-  dayBtn.addEventListener('click',()=>{ if(opened&&lightOn) setMode('day'); });
+  dayBtn.addEventListener('click',()=>{ if(opened&&lightOn){ setMode('day'); try{localStorage.setItem('ocherkiLight','day');}catch(_){} } });
 
   // project action buttons: visual shell behaviour for now
   document.querySelectorAll('.project-actions .key').forEach(btn=>{
@@ -232,7 +234,7 @@
   setEditorLang('ru');
 
 
-  nightBtn.addEventListener('click',()=>{ if(opened&&lightOn) setMode('night'); });
+  nightBtn.addEventListener('click',()=>{ if(opened&&lightOn){ setMode('night'); try{localStorage.setItem('ocherkiLight','night');}catch(_){} } });
 
   // Transport controls are part of the shell now.
   // Navigation/audio wiring will be attached when the editor content is connected.

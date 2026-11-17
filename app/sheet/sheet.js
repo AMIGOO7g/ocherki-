@@ -4209,8 +4209,8 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 // v190 — the lamp stands still: its light is laid on the sheets from one fixed place. A sheet that moves (a turn of the
 // page, a turn between sections, a new sheet laid down) passes under it — dark while it is far below, lighter as it comes up.
 // The place is the open sheet's place in the layout (offsets — no transform or animation moves it), so nothing flickers.
-(()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns,.section-scroll-sheet>.lt-nm,.section-scroll-sheet>.lt-ns';
-  const step=()=>{requestAnimationFrame(step);const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
+(()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns'; // the travelling copies are kept in step by CSS (sheet.css v191)
+  let n=0;const step=()=>{requestAnimationFrame(step);if(++n%6&&!document.body.classList.contains('lt-x'))return;const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
     const b=box.getBoundingClientRect(),L=b.left+box.clientLeft+a.offsetLeft,T=b.top+box.clientTop+a.offsetTop;
     document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)

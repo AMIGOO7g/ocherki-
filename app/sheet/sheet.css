@@ -1194,3 +1194,26 @@ html body.host-night .sheet.ghost.g2{box-shadow:inset 0 0 0 2000px rgba(55,30,10
 html body.host-night .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(42,22,8,.76),0 5px 12px rgba(0,0,0,.3)!important}
 /* v190 — the stack's numbers read on the darkened sheets at night */
 html body.host-night .sheet.ghost .ghost-number{color:rgba(244,222,186,.9)!important}
+/* v191 — a turn between sections: the light stays put on the compositor, in step with the sheets (no script, no lag).
+   The two travelling copies carry a light layer three sheets tall (light above, the pool, dark below) that moves the
+   other way at the same pace, so the pool keeps its place while the paper slides through it. */
+.section-scroll-viewport .section-scroll-sheet{overflow:hidden}
+.section-scroll-viewport .section-scroll-sheet>.lt{transition:none!important}
+.section-scroll-viewport .section-scroll-sheet>.lt-nm,.section-scroll-viewport .section-scroll-sheet>.lt-ns{inset:-100% 0 -100% 0!important;will-change:transform}
+.section-scroll-viewport .section-scroll-sheet>.lt-nm{background-size:100% 33.3334%!important;background-repeat:no-repeat!important;
+  background-image:linear-gradient(rgba(240,225,200,.1),rgba(240,225,200,.1)),radial-gradient(ellipse 95% 105% at 50% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.26) 38%,rgba(150,108,68,.56) 76%,rgba(105,72,42,.72) 100%),linear-gradient(rgba(105,72,42,.72),rgba(105,72,42,.72))!important;
+  background-position:0 0,0 50%,0 100%!important}
+.section-scroll-viewport .section-scroll-sheet>.lt-ns{background-size:100% 33.3334%!important;background-repeat:no-repeat!important;background-position:0 50%!important}
+.section-scroll-viewport .section-scroll-old-up>.lt{animation:ltOldUp .82s cubic-bezier(.45,0,.55,1) forwards}
+.section-scroll-viewport .section-scroll-old-down>.lt{animation:ltOldDown .82s cubic-bezier(.45,0,.55,1) forwards}
+.section-scroll-viewport .section-scroll-new-from-bottom>.lt{animation:ltNewFromBottom .82s cubic-bezier(.45,0,.55,1) both}
+.section-scroll-viewport .section-scroll-new-from-top>.lt{animation:ltNewFromTop .82s cubic-bezier(.45,0,.55,1) both}
+@keyframes ltOldUp{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,33.3334%,0)}}
+@keyframes ltOldDown{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-33.3334%,0)}}
+@keyframes ltNewFromBottom{from{transform:translate3d(0,-33.3334%,0)}to{transform:translate3d(0,0,0)}}
+@keyframes ltNewFromTop{from{transform:translate3d(0,33.3334%,0)}to{transform:translate3d(0,0,0)}}
+/* the shadow held under the sheet's place during the turn is the very same shadow the sheet casts (it used to be an older,
+   different one: the shadow changed at the start and at the end of each turn) */
+.sheet-stack.section-shadow-lock::before{min-height:0!important;box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22)!important}
+.host-night .sheet-stack.section-shadow-lock::before{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)!important}
+.sheet-stack.section-shadow-lock > .sheet.active{transition:none!important}
