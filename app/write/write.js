@@ -192,18 +192,18 @@
     if(!lit&&on){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),900);}
     const bar=ms?document.querySelector('.mq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
     const x0=r.left+20,x1=r.right-20,y=r.top+r.height*.9,sp=r.width*(ms?.6:.33),P=(x,h)=>`${x}px ${h}px`;
-    beam.style.clipPath=`polygon(${P(x0,y)},${P(x1,y)},${P(x1+sp,H*1.04)},${P(x0-sp,H*1.04)})`;
-    // v189: the light comes out from under the bar softly (no hard edge); while the screen keys are up it ends above them
-    const kb=shell.classList.contains('wc-typing')&&document.getElementById('editorKeyboardWrap')?.getBoundingClientRect(),end=kb&&kb.height?`,#000 ${Math.round(kb.top-90)}px,transparent ${Math.round(kb.top-10)}px`:'';
-    const m=`linear-gradient(180deg,transparent ${Math.round(y-4)}px,#000 ${Math.round(y+95)}px${end})`;cone.style.webkitMaskImage=cone.style.maskImage=m;
+    {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
+    // v190: bright right under the bar, a short soft edge; the light falls on all that lies under it, the screen keys too
+    const m=`linear-gradient(180deg,transparent ${Math.round(y-8)}px,#000 ${Math.round(y+26)}px)`;if(cone._m!==m){cone._m=m;cone.style.webkitMaskImage=cone.style.maskImage=m;}
     // «Как ляжет в книге»: the page is lit only where the beam falls — its right edge runs from the bar's end down and out
     const pg=document.querySelector('.wp-page'),lm=pg?.querySelector('.wp-lamp');
     if(lm&&night&&shell.classList.contains('wp-on')){const q=pg.getBoundingClientRect();if(q.width){let dx=sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dy,ny=-dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x1-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
-      lm.style.background=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;}}
+      const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
     // v186: the clock keeps its own look at night (it hardly lies in the beam)
     if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
-  setInterval(lamp,400);addEventListener('resize',lamp);
+  // every frame: the light keeps to the bar and to the page while they move (no steps, no blinking)
+  requestAnimationFrame(function loop(){requestAnimationFrame(loop);lamp();});
   // what it says: where we are, «до книги», saved
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
     const ch=(d?.querySelector('.topbar .chapter')?.textContent||'').trim(),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();

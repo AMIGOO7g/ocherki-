@@ -625,7 +625,7 @@ html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{o
   linear-gradient(rgba(242,233,214,.86),rgba(242,233,214,.86)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ece0c8}
 .desk-shade{z-index:8;background:rgba(10,5,2,.3)}
 .desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(30px)}
-.desk-cone i{position:absolute;inset:0;transition:clip-path .9s cubic-bezier(.4,0,.2,1);clip-path:polygon(28.6% 15%,71.4% 15%,87% 104%,13% 104%);/* the shape follows the bar (write.js) */
+.desk-cone i{position:absolute;inset:0;clip-path:polygon(28.6% 15%,71.4% 15%,87% 104%,13% 104%);/* the shape follows the bar (write.js) */
   background:linear-gradient(180deg,rgba(255,205,135,.8) 0%,rgba(255,185,105,.42) 30%,rgba(255,165,85,.16) 65%,rgba(255,150,70,.05) 100%)}
 /* «Писать» and (v185) «Рукопись» share it */
 .shell.oc-w:not(.is-manuscript):not(.is-book-preview):not(.is-night) .desk-day,.shell.is-manuscript:not(.is-night) .desk-day{opacity:1}

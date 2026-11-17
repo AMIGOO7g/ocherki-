@@ -3025,16 +3025,12 @@ window.addEventListener('wheel' ,e=>{
   const dir=wheelAccum>0?1:-1;
   wheelAccum=0;
 
-  // v188: the wheel turns the sheets of the chapter first; only past its last (or before its first) sheet it goes to the next section
-  const pages=currentPages(),pi=currentPageIndex();
-  if(pages.length>1&&pi+dir>=0&&pi+dir<pages.length){e.preventDefault();if(!wheelPageBusy){wheelPageBusy=true;animatePageChange(pi+dir);setTimeout(()=>{wheelPageBusy=false;},520);}return;}
   const next=activeSection+dir;
   if(next>=0&&next<sections.length){
     e.preventDefault();
     goSection(next,dir);
   }
 },{passive:false});
-let wheelPageBusy=false;
 
 document.getElementById('photoCloseX').onclick=()=>closePhoto(true); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
@@ -4210,13 +4206,13 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   ['addPageBtn','newPageBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=()=>window.addPage();});
   [['newEpisodeBtn','addEpisode'],['addDocumentBtn','addDocumentPage']].forEach(([id,n])=>{const b=document.getElementById(id);if(!b||!orig[n])return;b.removeEventListener('click',orig[n]);b.addEventListener('click',()=>window[n]());});})();
 
-// v189 — the lamp stands still: its light is laid on the sheets from one fixed place. A sheet that moves (a turn of the
+// v190 — the lamp stands still: its light is laid on the sheets from one fixed place. A sheet that moves (a turn of the
 // page, a turn between sections, a new sheet laid down) passes under it — dark while it is far below, lighter as it comes up.
-(()=>{let rest=null;const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns,.section-scroll-sheet>.lt-nm,.section-scroll-sheet>.lt-ns';
-  const step=()=>{requestAnimationFrame(step);const a=document.getElementById('activeSheet');if(!a)return;
-    const moving=document.querySelector('.section-scroll-viewport')||a.classList.contains('is-setting-back')||a.classList.contains('is-laid');
-    if(!moving||!rest){const r=a.getBoundingClientRect();if(r.width)rest={l:r.left,t:r.top};}
-    if(!rest)return;document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(rest.l-r.left),y=Math.round(rest.t-r.top),h=Math.round(r.height)+2;
-      // the pool itself, the dark below it and the light above it
-      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
+// The place is the open sheet's place in the layout (offsets — no transform or animation moves it), so nothing flickers.
+(()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns,.section-scroll-sheet>.lt-nm,.section-scroll-sheet>.lt-ns';
+  const step=()=>{requestAnimationFrame(step);const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
+    const b=box.getBoundingClientRect(),L=b.left+box.clientLeft+a.offsetLeft,T=b.top+box.clientTop+a.offsetTop;
+    document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
+      // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
+      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h-3}px,${x}px ${y-3*h+3}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
   requestAnimationFrame(step);})();
