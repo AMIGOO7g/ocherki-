@@ -684,3 +684,7 @@ html:has(.shell.is-night) .wp-page{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34
 .wp-note i{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid rgba(230,190,130,.25);border-top-color:#e2b06a;will-change:transform;animation:wpNoteSpin .9s linear infinite}
 .wp-note.on{opacity:1;transform:translate(-50%,0)}
 @keyframes wpNoteSpin{to{transform:rotate(360deg)}}
+/* v193: the clock's centre is one face; at night a dark layer lies over it (a shadow can fade, a gradient cannot) */
+html body .shell.oc-w.oc-w .master-clock .clock-pivot{background:radial-gradient(circle,var(--face1),var(--face3) 70%,var(--face4))!important;
+  box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35),inset 0 0 0 30px rgba(31,29,26,.97)!important;transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 1.4s ease!important}
+html body .shell.oc-w.oc-w:not(.is-night) .master-clock .clock-pivot{box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35),inset 0 0 0 30px rgba(31,29,26,0)!important}

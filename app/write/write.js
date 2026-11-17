@@ -303,7 +303,11 @@
       // the hands reach about 110px from the centre: the centre stands that far below the chapter's last line.
       // On a low screen everything keeps its place and the clock itself gets smaller, so it fits under the chapter whole.
       const mc=document.querySelector('.bottom-left .master-clock');
-      const nv=document.querySelector('.write-nav');if(pv&&nv&&mc&&shell.classList.contains('oc-w')){const nr=nv.getBoundingClientRect();
+      const nv=document.querySelector('.write-nav');if(pv&&nv&&mc&&shell.classList.contains('oc-w')){const nr0=nv.getBoundingClientRect();
+        // v193: the clock keeps one place whatever the chapter's heading is — a kicker above it or not, one line or two: the
+        // room for the tallest heading (the kicker and two lines) is always kept under it
+        let nr=nr0;{const wt=nv.querySelector('.wn-title');const lh=wt?parseFloat(getComputedStyle(wt).lineHeight)||0:0;
+          if(lh){const sc=(nr0.height/(nv.offsetHeight||1))||1;const res=(2*lh+37)*sc;nr={top:nr0.top,height:res,bottom:nr0.top+res};}}
         const k=Math.max(.5,Math.min(K,(innerHeight-14-nr.bottom)/375));
         const ok=+(mc.dataset.k||1),mr=mc.getBoundingClientRect(),pr=pv.getBoundingClientRect();
         if(pr.height&&nr.height&&mr.width){
