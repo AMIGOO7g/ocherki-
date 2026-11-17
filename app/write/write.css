@@ -645,3 +645,7 @@ html body .shell.oc-w.oc-w:not(.is-night) .master-clock .clock-pivot{background:
 html body .shell.oc-w.oc-w:not(.is-night) .master-clock .hand{background:#3b2a1c!important;opacity:.62!important}
 html body .shell.oc-w .master-clock .pendulum{filter:drop-shadow(0 16px 7px rgba(0,0,0,.5))}
 html body .shell.oc-w:not(.is-night) .master-clock .pendulum{filter:drop-shadow(-10px 12px 6px rgba(40,25,10,.28))}
+/* v186 — the workshop's signature reads by day too: dark ink on the light desk */
+html body .shell:not(.is-night) .bottom-left .brand-line{color:rgba(58,40,26,.85)!important}
+html body .shell:not(.is-night) .bottom-left .brand-line .brand-strong{text-shadow:0 1px 0 rgba(255,250,240,.6)!important}
+html body .shell.oc-w:not(.is-night) .bottom-left .brand-wrap{opacity:.55!important}

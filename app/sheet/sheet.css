@@ -1149,7 +1149,9 @@ body.host-night .sheet.active .paper::before,body.host-night .sheet.active .pape
 body.host-night .sheet.active .footer,body.host-night .sheet.active .footer button{color:#5e4838!important;opacity:1!important}
 .sheet.ghost::after{content:"";position:absolute;inset:0;z-index:30;pointer-events:none;mix-blend-mode:multiply}
 /* the light on the open sheet: a night pair and a day pair of layers, crossing over at the desk's pace */
-.sheet.active>.lt{position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.sheet.active>.lt{position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0}
+/* v186: the light crosses over only when the day turns to night and back; a new sheet comes already in it */
+body.lt-x .sheet.active>.lt{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .sheet.active>.lt-nm,.sheet.active>.lt-dm{mix-blend-mode:multiply}
 .sheet.active>.lt-ns,.sheet.active>.lt-ds{mix-blend-mode:screen;z-index:31}
 body.host-night .sheet.active>.lt-nm,body.host-night .sheet.active>.lt-ns,body.host-day .sheet.active>.lt-dm,body.host-day .sheet.active>.lt-ds{opacity:1}

@@ -241,7 +241,7 @@
   const promptHideEl = document.getElementById('writingPromptHide');
   const promptRestoreEl = document.getElementById('writingPromptRestore');
   let promptTimer = null;
-  let promptKey = '';
+  let promptKey = '', promptQs = null;
   let promptIndex = 0;
   const dismissedPromptKeys = new Set();
   const hiddenPromptKeys = new Set();
@@ -365,8 +365,10 @@
       requestAnimationFrame(showPromptRestoreMark);
       return;
     }
-    const qs=questionsFor(ctx);
     const key=String(ctx.section.id||'section');
+    // v186: the questions are the chapter's, not the page's — turning pages keeps the same list and the same question
+    if(key!==promptKey||!promptQs)promptQs=questionsFor(ctx);
+    const qs=promptQs;
     if(!qs.length || dismissedPromptKeys.has(key)){
       if(promptsGloballyHidden)showPromptRestoreMark();else hidePromptRestoreMark();
       return hidePrompt();
@@ -380,6 +382,9 @@
       positionPrompt();
       return;
     }
+    // the same chapter and the same question already written: it only comes back, it is not written again
+    if(samePromptContext && promptTextEl.dataset.q===String(qs[promptIndex % qs.length]) && !hiddenPromptKeys.has(key) && !promptsGloballyHidden){
+      positionPrompt();promptEl.classList.remove('is-leaving');promptEl.classList.add('is-visible');return;}
     if(hiddenPromptKeys.has(key)){
       positionPrompt();
       promptRestoreEl?.classList.add('show');
@@ -404,7 +409,7 @@
   // question follows it until it settles.
   setInterval(()=>{if(promptEl?.classList.contains('is-visible'))positionPrompt();},700);
   function writePromptText(text,index,total){
-    if(!promptTextEl)return;
+    if(!promptTextEl)return;promptTextEl.dataset.q=String(text||'');
     // Which question of the chapter's list this is: «вопрос 2 из 5».
     const count=document.getElementById('writingPromptCount');if(count)count.textContent=total>1?`вопрос ${index+1} из ${total}`:'';
     let i=0;

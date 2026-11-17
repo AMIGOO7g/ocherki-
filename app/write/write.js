@@ -183,7 +183,7 @@
       const R=document.documentElement.style;R.setProperty('--bar-l',Math.round(L-96)+'px');R.setProperty('--bar-t',Math.round(T-19)+'px');R.setProperty('--bar-w',Math.round(W+192)+'px');}};
   requestAnimationFrame(follow);
   // v183 — the lamp under the bar: its beam starts at the bar's own ends and spreads a third of the bar's width each way by the
-  // foot of the screen; it lights up last, a moment after the bar has come; at night the clock's parts outside it sink into the dark
+  // foot of the screen; it lights up last, a moment after the bar has come
   const cone=document.querySelector('.desk-cone'),beam=cone?.querySelector('i'),clk=document.querySelector('.master-clock');
   let lit=false;
   const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),on=isWrite()||ms;
@@ -192,10 +192,8 @@
     const x0=r.left+20,x1=r.right-20,y=r.top+r.height*.9,sp=r.width*(ms?.6:.33),P=(x,h)=>`${x}px ${h}px`;
     beam.style.clipPath=`polygon(${P(x0,y)},${P(x1,y)},${P(x1+sp,H*1.04)},${P(x0-sp,H*1.04)})`;
     const m=`linear-gradient(180deg,transparent ${y-20}px,#000 ${y+25}px)`;cone.style.webkitMaskImage=cone.style.maskImage=m;
-    if(!clk)return;if(!(on&&night)){clk.style.webkitMaskImage=clk.style.maskImage='';return;}
-    const c=clk.getBoundingClientRect(),dx=sp,dy=H*1.04-y,l=Math.hypot(dx,dy),nx=dy/l,ny=-dx/l,th=Math.atan2(nx,-ny);
-    const L=Math.abs(c.width*Math.sin(th))+Math.abs(c.height*Math.cos(th)),d=(c.left+c.width/2-x1)*nx+(c.top+c.height/2-y)*ny,at=50-d/L*100;
-    clk.style.webkitMaskImage=clk.style.maskImage=`linear-gradient(${th*180/Math.PI}deg,#000 ${at-6}%,rgba(0,0,0,.3) ${at+8}%)`;};
+    // v186: the clock keeps its own look at night (it hardly lies in the beam)
+    if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
   setInterval(lamp,400);addEventListener('resize',lamp);
   // what it says: where we are, «до книги», saved
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);

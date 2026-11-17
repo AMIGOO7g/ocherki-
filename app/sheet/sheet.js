@@ -987,6 +987,7 @@ function render(){
     token.setAttribute('contenteditable','false');
   });
   editor.dataset.sectionId=currentSection().id||'';
+  editor.dataset.pageUid=String(p.uid||p.id||'');
   editor.setAttribute('contenteditable',p.autoContents?'false':'true');
   editor.classList.toggle('is-auto-contents',!!p.autoContents);
 
@@ -1795,8 +1796,7 @@ function goPage(i,dir=1){
   if(i<0||i>=pages.length||i===currentPageIndex())return;
   recoverEditorInteraction();
 
-  currentPage().text=textFromEditor();
-  syncSemanticHtml(currentPage());
+  if(!editor.dataset.pageUid||editor.dataset.pageUid===String(currentPage().uid||currentPage().id||'')){currentPage().text=textFromEditor();syncSemanticHtml(currentPage());}
   closePhotoImmediate();
   animatePhotoSetChange(dir,()=>{
     currentSection().active=i;
@@ -3534,6 +3534,9 @@ window.addEventListener('message',e=>{
     try{
       const page=currentPage();
       if(!page) return;
+      // v186: only the sheet the editor really shows is written — a command from «Рукопись» (reorder, move) used to
+      // write the editor into whatever sheet was current there, and a sheet's text was lost
+      if(editor.dataset.pageUid&&editor.dataset.pageUid!==String(page.uid||page.id||''))return;
       page.text = textFromEditor();
       if(page.type==='document' && documentExplanation) page.explanation=String(documentExplanation.value||'').trim();
     }catch(_){ }
@@ -4191,3 +4194,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   box.addEventListener('change',check);document.getElementById('photoModal')?.addEventListener('transitionend',check);setInterval(()=>{if(document.getElementById('photoModal')?.classList.contains('open'))check();},800);})();
 
 /*@block [" id=\"tour-again\"", ""]*/document.getElementById('tourAgainBtn')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('textMenu')?.classList.remove('open');window.parent.postMessage({type:'OCHERKI_TOUR_AGAIN'},'*');});
+// v186 — the sheet's light crosses over slowly only while the day turns to night (and back), never when a sheet changes
+(()=>{const b=document.body;let night=b.classList.contains('host-night'),t=0;
+  new MutationObserver(()=>{const n=b.classList.contains('host-night');if(n===night)return;night=n;b.classList.add('lt-x');clearTimeout(t);t=setTimeout(()=>b.classList.remove('lt-x'),2600);})
+    .observe(b,{attributes:true,attributeFilter:['class']});})();
