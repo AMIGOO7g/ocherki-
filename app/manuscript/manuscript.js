@@ -533,7 +533,10 @@
   const fit=()=>{const night=shell.classList.contains('is-night'),W=innerWidth;
     scr.querySelectorAll('.ms-sheet').forEach(e=>{const pp=e.querySelector('.ms-paper')||e;if(!night){if(pp.style.filter)pp.style.removeProperty('filter');return;}
       const r=e.getBoundingClientRect();if(!r.width)return;const d=Math.abs(r.left+r.width/2-W/2)/(W/2),k=Math.max(0,Math.min(1,(d-.22)/.55));
-      pp.style.setProperty('filter',k>.01?`brightness(${(1-.55*k).toFixed(2)}) sepia(${(.08+.35*k).toFixed(2)})`:'','important');});};
+      pp.style.setProperty('filter',k>.01?`brightness(${(1-.55*k).toFixed(2)}) sepia(${(.08+.35*k).toFixed(2)})`:'','important');});
+    // v187: the chapter's name stands close under the row in front (not at the foot of the screen)
+    const c=cg(),bots=[...scr.querySelectorAll(`.ms-sheet[data-c="${c}"]:not(.is-far)`)].filter(e=>+getComputedStyle(e).opacity>.6).map(e=>e.getBoundingClientRect()).filter(r=>r.width>120&&r.bottom<innerHeight-120).map(r=>r.bottom);
+    if(bots.length){const t=Math.round(Math.min(innerHeight-130,Math.max(...bots)+30));if(Math.abs(t-(parseFloat(name.style.top)||0))>3){name.style.setProperty('top',t+'px','important');name.style.setProperty('bottom','auto','important');}}};
   // the room follows the day and the night while it is open (it used to keep the one it opened with)
   const tick=()=>{scr.classList.toggle('is-night',shell.classList.contains('is-night'));const on=isMs();car.classList.toggle('on',on);if(on)fit();if(!on){scr.classList.remove('mq-ph','mq-list');B('photo').classList.remove('on');return;}
     car.classList.toggle('night',shell.classList.contains('is-night'));
@@ -545,7 +548,10 @@
     const bc=bin?.querySelector('.ms-bin-count');B('bin').querySelector('em').textContent=bc&&!bc.hidden?bc.textContent:'';
     const t=I.t+'|'+I.s;if(c!==lastC||t!==lastT){const first=lastC<0;lastC=c;lastT=t;
       if(first){name.querySelector('b').textContent=I.t;name.querySelector('small').textContent=I.s;}
-      else{name.classList.add('swap');setTimeout(()=>{name.querySelector('b').textContent=I.t;name.querySelector('small').textContent=I.s;name.classList.remove('swap');},450);}}
+      else{const fwd=c>=(name._c??c);name._c=c;const o={duration:380,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'};
+        name.animate([{opacity:1,transform:'translateX(-50%) scale(1)',filter:'blur(.3px)'},{opacity:0,transform:`translateX(-50%) translateY(${fwd?-10:10}px) scale(${fwd?.9:1.08})`,filter:'blur(4px)'}],o).finished.then(()=>{
+          name.querySelector('b').textContent=I.t;name.querySelector('small').textContent=I.s;
+          name.animate([{opacity:0,transform:`translateX(-50%) translateY(${fwd?12:-12}px) scale(${fwd?1.08:.9})`,filter:'blur(4px)'},{opacity:1,transform:'translateX(-50%) scale(1)',filter:'blur(.3px)'}],{duration:520,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});});}}
     // the bin's list and its drop stand under the carriage's bin button
     if(bin){const r=B('bin').getBoundingClientRect();bin.style.left=r.left+'px';bin.style.top=r.top+'px';
       B('bin').classList.toggle('bin-over',bin.classList.contains('is-over'));}};

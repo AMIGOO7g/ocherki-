@@ -1147,24 +1147,34 @@ html body .page-context-actions button:hover{color:#a8692f!important}
 body.host-night .sheet.active{background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover!important}
 body.host-night .sheet.active .paper::before,body.host-night .sheet.active .paper::after{display:none!important}
 body.host-night .sheet.active .footer,body.host-night .sheet.active .footer button{color:#5e4838!important;opacity:1!important}
-.sheet.ghost::after{content:"";position:absolute;inset:0;z-index:30;pointer-events:none;mix-blend-mode:multiply}
 /* the light on the open sheet: a night pair and a day pair of layers, crossing over at the desk's pace */
 .sheet.active>.lt{position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0}
 /* v186: the light crosses over only when the day turns to night and back; a new sheet comes already in it */
 body.lt-x .sheet.active>.lt{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .sheet.active>.lt-nm,.sheet.active>.lt-dm{mix-blend-mode:multiply}
-.sheet.active>.lt-ns,.sheet.active>.lt-ds{mix-blend-mode:screen;z-index:31}
+.sheet.active>.lt-ns,.sheet.active>.lt-ds{background:linear-gradient(90deg,rgba(255,236,200,.32) 0%,transparent 42%)}
 body.host-night .sheet.active>.lt-nm,body.host-night .sheet.active>.lt-ns,body.host-day .sheet.active>.lt-dm,body.host-day .sheet.active>.lt-ds{opacity:1}
-.lt-nm{background:radial-gradient(ellipse 95% 105% at 50% -4%,rgba(240,225,200,.12) 0%,rgba(215,185,145,.24) 40%,rgba(160,120,80,.48) 78%,rgba(125,88,55,.6) 100%)}
+.lt-nm{background:radial-gradient(ellipse 95% 105% at 50% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.26) 38%,rgba(150,108,68,.56) 76%,rgba(105,72,42,.72) 100%)}
 .lt-ns{background:radial-gradient(ellipse 60% 26% at 50% 0%,rgba(255,190,110,.12),transparent 80%)}
 .lt-dm{background:linear-gradient(100deg,transparent 15.5%,rgba(70,50,30,.15) 17%,transparent 18.5%),linear-gradient(100deg,transparent 80%,rgba(70,50,30,.13) 81.5%,transparent 83%),linear-gradient(190deg,transparent 15%,rgba(70,50,30,.13) 16.5%,transparent 18%),linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(230,220,205,.22) 45%,rgba(175,160,140,.5) 100%);
   background-attachment:fixed,fixed,fixed,scroll;background-position:5px 6px,5px 6px,5px 6px,0 0}
 .lt-ds{background:linear-gradient(90deg,rgba(255,255,250,.22) 0%,transparent 40%)}
-body.host-night .sheet.ghost.g1::after{background:linear-gradient(90deg,rgba(60,32,10,.62),rgba(120,80,40,.5))}
-body.host-night .sheet.ghost.g2::after{background:linear-gradient(90deg,rgba(50,26,8,.7),rgba(100,64,30,.6))}
-body.host-night .sheet.ghost.g3::after{background:linear-gradient(90deg,rgba(40,20,6,.78),rgba(85,52,24,.7))}
-body.host-day .sheet.ghost.g1::after{background:rgba(150,130,105,.42)}
-body.host-day .sheet.ghost.g2::after{background:rgba(140,120,95,.5)}
-body.host-day .sheet.ghost.g3::after{background:rgba(130,110,88,.58)}
-body.host-day .sheet.active{box-shadow:12px 12px 26px rgba(40,25,10,.3)!important}
-body.host-night .sheet.active{box-shadow:0 18px 30px rgba(0,0,0,.5)!important}
+/* v187 — the stack: the shade lies on each sheet itself (the pile's own shadow used to cover the last one and light it up);
+   every sheet further from the light is darker. The open sheet touches the desk: a tight contact shade, and its cast shadow
+   falls down under the lamp at night, to the right (away from the window) by day. */
+html body.host-day .sheet.ghost.g1{box-shadow:inset 0 0 0 2000px rgba(150,130,105,.30),0 5px 12px rgba(0,0,0,.14)!important}
+html body.host-day .sheet.ghost.g2{box-shadow:inset 0 0 0 2000px rgba(140,120,95,.40),0 5px 12px rgba(0,0,0,.14)!important}
+html body.host-day .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(125,105,82,.50),0 5px 12px rgba(0,0,0,.14)!important}
+html body.host-night .sheet.ghost.g1{box-shadow:inset 0 0 0 2000px rgba(70,40,15,.5),0 5px 12px rgba(0,0,0,.3)!important}
+html body.host-night .sheet.ghost.g2{box-shadow:inset 0 0 0 2000px rgba(55,30,10,.6),0 5px 12px rgba(0,0,0,.3)!important}
+html body.host-night .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(42,22,8,.7),0 5px 12px rgba(0,0,0,.3)!important}
+html body.host-night .sheet.active{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)!important}
+html body.host-day .sheet.active{box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22)!important}
+/* a new sheet laid on top */
+@keyframes sheet-laid{0%{transform:translate(0,-34px) rotate(-1.4deg) scale(1.025);opacity:.35}60%{opacity:1}100%{transform:none;opacity:1}}
+.sheet.active.is-laid{animation:sheet-laid .75s cubic-bezier(.2,.8,.25,1) both}
+/* the lamp's source, seen on the sheet: a thin warm line right under the bar's rim, at night, its glow falling onto the paper */
+.lt-lip{position:fixed;height:3px;border-radius:2px;z-index:200;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
+  background:linear-gradient(90deg,transparent,rgba(255,220,160,1) 8%,rgba(255,236,190,1) 50%,rgba(255,220,160,1) 92%,transparent);
+  box-shadow:0 0 4px 1px rgba(255,210,140,1),0 3px 12px 2px rgba(255,190,110,.85),0 10px 30px rgba(255,170,80,.55)}
+body.host-night .lt-lip{opacity:1}

@@ -4198,3 +4198,16 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 (()=>{const b=document.body;let night=b.classList.contains('host-night'),t=0;
   new MutationObserver(()=>{const n=b.classList.contains('host-night');if(n===night)return;night=n;b.classList.add('lt-x');clearTimeout(t);t=setTimeout(()=>b.classList.remove('lt-x'),2600);})
     .observe(b,{attributes:true,attributeFilter:['class']});})();
+
+// v187 — a new sheet (or episode, or document) is laid on top of the pile: it comes in from a little above and settles
+(()=>{const lay=()=>{const a=document.getElementById('activeSheet');if(!a)return;a.classList.remove('is-laid');void a.offsetWidth;a.classList.add('is-laid');setTimeout(()=>a.classList.remove('is-laid'),900);};
+  const orig={addEpisode:window.addEpisode,addDocumentPage:window.addDocumentPage};
+  ['addPage','addEpisode','addDocumentPage','addPageFromHost'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;window[n]=function(){const r=f.apply(this,arguments);setTimeout(lay,170);return r;};});
+  ['addPageBtn','newPageBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=()=>window.addPage();});
+  [['newEpisodeBtn','addEpisode'],['addDocumentBtn','addDocumentPage']].forEach(([id,n])=>{const b=document.getElementById(id);if(!b||!orig[n])return;b.removeEventListener('click',orig[n]);b.addEventListener('click',()=>window[n]());});})();
+
+// v187 — the lamp's source on the sheet: a thin warm line right under the bar's rim (the bar covers the sheet's first 33px)
+(()=>{const l=document.createElement('i');l.className='lt-lip';document.body.appendChild(l);
+  const put=()=>{const a=document.getElementById('activeSheet');if(!a)return;const r=a.getBoundingClientRect();if(!r.width)return;
+    l.style.left=Math.round(r.left+r.width*.07)+'px';l.style.width=Math.round(r.width*.86)+'px';l.style.top=Math.round(r.top+39)+'px';};
+  put();setInterval(put,300);addEventListener('resize',put);})();

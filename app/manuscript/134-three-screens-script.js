@@ -170,8 +170,13 @@
   function render(){const cur=flat[at];if(!cur)return;
     // «Глава 1» and «лист 6 из 13» in plain type, the chapter's name in script.
     const full=String(cur.s.title||''),m=full.match(/^((?:Глава|Эпизод|Часть)\s+\d+)[.:]?\s*(.*)$/i);
-    nav.querySelector('.wn-kicker').textContent=m?m[1]:'';nav.querySelector('.wn-title').textContent=m?(m[2]||m[1]):full;
-    nav.querySelector('.wn-count').textContent=cur.n>1?`лист ${cur.i+1} из ${cur.n}`:'';
+    // v187: a new chapter or sheet comes in like the sheets: the old words go back, the new ones come forward
+    const K=m?m[1]:'',T=m?(m[2]||m[1]):full,C=cur.n>1?`лист ${cur.i+1} из ${cur.n}`:'';
+    const sw=(el,t,fwd)=>{if(el.textContent===t)return;if(!el.textContent||!nav.classList.contains('is-placed')){el.textContent=t;return;}
+      el.getAnimations().forEach(a=>a.cancel());el.animate([{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:`translateY(${fwd?-8:8}px) scale(${fwd?.92:1.06})`,filter:'blur(3px)'}],{duration:320,easing:'ease-in',fill:'forwards'}).finished.then(()=>{
+        el.textContent=t;el.animate([{opacity:0,transform:`translateY(${fwd?10:-10}px) scale(${fwd?1.06:.92})`,filter:'blur(3px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:480,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});}).catch(()=>{});};
+    const fwd=at>=(nav._at??at);nav._at=at;
+    sw(nav.querySelector('.wn-kicker'),K,fwd);sw(nav.querySelector('.wn-title'),T,fwd);sw(nav.querySelector('.wn-count'),C,fwd);
     nav.querySelector('[data-step="-1"]').disabled=at<=0;nav.querySelector('[data-step="1"]').disabled=at>=flat.length-1;place();}
   nav.addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b||b.disabled)return;const next=flat[at+Number(b.dataset.step)];if(next)send({action:'select',sectionId:next.s.id,pageUid:next.p.uid});});
   function place(){if(shell.classList.contains('wp-on')||shell.classList.contains('wp-closing'))return;const r=document.querySelector('.editor-paper')?.getBoundingClientRect();if(!r||!r.width)return;

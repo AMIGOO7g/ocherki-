@@ -61,7 +61,9 @@
   const IB='<svg viewBox="0 0 24 24"><path d="M12 6c-2.6-1.8-5.6-1.9-8.5-1.3v13.5c2.9-.6 5.9-.5 8.5 1.3 2.6-1.8 5.6-1.9 8.5-1.3V4.7C17.6 4.1 14.6 4.2 12 6zM12 6v13.5"/></svg>';
   const IX='<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
   const IR='<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>';
-  const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div></div>';
+  const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div><i class="wp-lamp"></i></div><button type="button" class="wp-day" aria-pressed="false">☀ дневной свет</button>';
+  // v187: at night the page lies under the lamp too; «дневной свет» shows the true print colours while it is pressed in
+  pane.querySelector('.wp-day').addEventListener('click',e=>{e.stopPropagation();const on=pane.classList.toggle('show-day');e.currentTarget.setAttribute('aria-pressed',String(on));});
   const keys=document.createElement('div');keys.className='wp-keys k-closed';
   keys.innerHTML=`<div class="wp-item tog"><button type="button" class="key" aria-label="Показать в книге"><span class="cap">${IB}</span></button><span class="lab">в книге</span></div>`;
   const keys2=document.createElement('div');keys2.className='wp-keys k-open';
@@ -194,7 +196,12 @@
     const m=`linear-gradient(180deg,transparent ${y-20}px,#000 ${y+25}px)`;cone.style.webkitMaskImage=cone.style.maskImage=m;
     // v186: the clock keeps its own look at night (it hardly lies in the beam)
     if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
-  setInterval(lamp,400);addEventListener('resize',lamp);
+  // v187: the lamp has a source — a thin warm line just under the bar's rim
+  const lip=document.createElement('div');lip.className='desk-lip';document.body.appendChild(lip);
+  // on «Писать» the line lies on the sheet itself (sheet.css .lt-lip); here it serves «Рукопись», where no sheet lies under the bar
+  const lipOn=()=>{const night=shell.classList.contains('is-night'),on=isMsQ()&&shell.classList.contains('oc-lit');lip.classList.toggle('on',night&&on);
+    const bar=isMsQ()?document.querySelector('.mq-car'):wc;const r=bar?.getBoundingClientRect();if(r&&r.width){lip.style.left=Math.round(r.left+44)+'px';lip.style.width=Math.round(r.width-88)+'px';lip.style.top=Math.round(r.bottom+3)+'px';}};
+  setInterval(()=>{lamp();lipOn();},400);addEventListener('resize',()=>{lamp();lipOn();});
   // what it says: where we are, «до книги», saved
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
     const ch=(d?.querySelector('.topbar .chapter')?.textContent||'').trim(),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();

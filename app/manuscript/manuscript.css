@@ -421,7 +421,7 @@ html body .mq-car .t b{font-size:19px}
 .mq-car .t u{text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px;pointer-events:auto;cursor:pointer;font:italic 19px 'CormorantCy',Georgia,serif;font-weight:500;letter-spacing:.03em;color:#6a4a2e;white-space:nowrap}
 .mq-car.night .t u{color:#cdb592}
 .mq-car .t u:hover{color:#9a4510}.mq-car.night .t u:hover{color:#ffd29a}
-html body .ms-screen .mq-name{top:auto!important;bottom:96px}
+html body .ms-screen .mq-name{bottom:96px;transition:top .6s cubic-bezier(.2,.8,.3,1)}
 html body .ms-screen.is-night .mq-name b{color:rgba(255,226,189,.92);text-shadow:0 0 18px rgba(0,0,0,.9),0 0 6px rgba(0,0,0,.8)}
 html body .ms-screen.is-night .mq-name small{color:rgba(240,210,170,.82);text-shadow:0 0 8px rgba(0,0,0,.9)}
 html body .ms-screen .ms-toc{position:fixed!important;top:calc(var(--bar-t,115px) + 62px)!important;bottom:auto!important;min-width:320px;
