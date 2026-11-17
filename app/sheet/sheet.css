@@ -1154,7 +1154,6 @@ body.lt-x .sheet.active>.lt{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .sheet.active>.lt-nm,.sheet.active>.lt-dm{mix-blend-mode:multiply}
 .sheet.active>.lt-ns,.sheet.active>.lt-ds{background:linear-gradient(90deg,rgba(255,236,200,.32) 0%,transparent 42%)}
 body.host-night .sheet.active>.lt-nm,body.host-night .sheet.active>.lt-ns,body.host-day .sheet.active>.lt-dm,body.host-day .sheet.active>.lt-ds{opacity:1}
-.lt-nm{background:radial-gradient(ellipse 95% 105% at 50% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.26) 38%,rgba(150,108,68,.56) 76%,rgba(105,72,42,.72) 100%)}
 .lt-ns{background:radial-gradient(ellipse 60% 26% at 50% 0%,rgba(255,190,110,.12),transparent 80%)}
 .lt-dm{background:linear-gradient(100deg,transparent 15.5%,rgba(70,50,30,.15) 17%,transparent 18.5%),linear-gradient(100deg,transparent 80%,rgba(70,50,30,.13) 81.5%,transparent 83%),linear-gradient(190deg,transparent 15%,rgba(70,50,30,.13) 16.5%,transparent 18%),linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(230,220,205,.22) 45%,rgba(175,160,140,.5) 100%);
   background-attachment:fixed,fixed,fixed,scroll;background-position:5px 6px,5px 6px,5px 6px,0 0}
@@ -1173,11 +1172,6 @@ html body.host-day .sheet.active{box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 
 /* a new sheet laid on top */
 @keyframes sheet-laid{0%{transform:translate(0,-34px) rotate(-1.4deg) scale(1.025);opacity:.35}60%{opacity:1}100%{transform:none;opacity:1}}
 .sheet.active.is-laid{animation:sheet-laid .75s cubic-bezier(.2,.8,.25,1) both}
-/* the lamp's source, seen on the sheet: a thin warm line right under the bar's rim, at night, its glow falling onto the paper */
-.lt-lip{position:fixed;height:2px;border-radius:2px;z-index:200;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
-  background:linear-gradient(90deg,transparent 0,#ff9a3c 3%,#ffbe6a 50%,#ff9a3c 97%,transparent 100%);
-  box-shadow:0 0 3px 1px rgba(255,150,60,1),0 0 9px 2px rgba(255,130,40,.7),0 4px 20px 5px rgba(255,140,50,.32)}
-body.host-night .lt-lip{opacity:1}
 /* v188 — the two sheets that carry a turn between sections lie in the same light as the open one (they used to come white
    and then turn yellow when the real sheet came back) */
 body.host-night .section-scroll-sheet{background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover!important}
@@ -1186,3 +1180,15 @@ body.host-night .section-scroll-sheet{background:#e9e2d8 url("../../assets/keepe
 .section-scroll-sheet>.lt-ns,.section-scroll-sheet>.lt-ds{mix-blend-mode:screen;z-index:31}
 body.host-night .section-scroll-sheet>.lt-nm,body.host-night .section-scroll-sheet>.lt-ns,body.host-day .section-scroll-sheet>.lt-dm,body.host-day .section-scroll-sheet>.lt-ds{opacity:1}
 /* the sheet's shadow on the desk turns from night to day at the desk's pace, not at once */
+/* v189 — the lamp's light keeps its place while a sheet moves (sheet.js shifts these layers); outside the pool it is the dark of the foot */
+.lt-nm{background-image:radial-gradient(ellipse 95% 105% at 50% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.26) 38%,rgba(150,108,68,.56) 76%,rgba(105,72,42,.72) 100%),
+  linear-gradient(rgba(105,72,42,.72),rgba(105,72,42,.72)),linear-gradient(rgba(240,225,200,.1),rgba(240,225,200,.1));
+  background-repeat:no-repeat;background-size:100% 100%,100% 300%,100% 300%;background-position:0 0,0 100vh,0 -300vh}
+.lt-ns{background-repeat:no-repeat;background-size:100% 100%}
+/* no light rim round the sheets at night: the shade covers the sheet's thin border too */
+.sheet.active>.lt-nm,.section-scroll-sheet>.lt-nm{inset:-1px}
+html body.host-night .sheet.ghost{border-color:rgba(48,26,9,.75)!important}
+html body.host-night .sheet.active,html body.host-night .section-scroll-sheet{border-color:rgba(105,72,42,.5)!important}
+html body.host-night .sheet.ghost.g1{box-shadow:inset 0 0 0 2000px rgba(70,40,15,.58),0 5px 12px rgba(0,0,0,.3)!important}
+html body.host-night .sheet.ghost.g2{box-shadow:inset 0 0 0 2000px rgba(55,30,10,.67),0 5px 12px rgba(0,0,0,.3)!important}
+html body.host-night .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(42,22,8,.76),0 5px 12px rgba(0,0,0,.3)!important}

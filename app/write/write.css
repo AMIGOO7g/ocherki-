@@ -624,7 +624,7 @@ html body .shell.wp-on .master-clock,html body .shell.wp-closing .master-clock{o
   linear-gradient(90deg,rgba(255,251,240,.62) 0%,rgba(255,249,236,.32) 30%,rgba(255,248,235,.06) 50%,rgba(70,48,26,.16) 72%,rgba(45,30,16,.36) 100%),
   linear-gradient(rgba(242,233,214,.86),rgba(242,233,214,.86)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ece0c8}
 .desk-shade{z-index:8;background:rgba(10,5,2,.3)}
-.desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(26px)}
+.desk-cone{z-index:9;mix-blend-mode:screen;filter:blur(30px)}
 .desk-cone i{position:absolute;inset:0;transition:clip-path .9s cubic-bezier(.4,0,.2,1);clip-path:polygon(28.6% 15%,71.4% 15%,87% 104%,13% 104%);/* the shape follows the bar (write.js) */
   background:linear-gradient(180deg,rgba(255,205,135,.8) 0%,rgba(255,185,105,.42) 30%,rgba(255,165,85,.16) 65%,rgba(255,150,70,.05) 100%)}
 /* «Писать» and (v185) «Рукопись» share it */
@@ -650,16 +650,11 @@ html body .shell:not(.is-night) .bottom-left .brand-line{color:rgba(58,40,26,.85
 html body .shell:not(.is-night) .bottom-left .brand-line .brand-strong{text-shadow:0 1px 0 rgba(255,250,240,.6)!important}
 html body .shell.oc-w:not(.is-night) .bottom-left .brand-wrap{opacity:.55!important}
 
-/* v187 — the lamp's source: a thin warm line just under the bar's rim, at night */
-.desk-lip{position:fixed;height:2px;border-radius:2px;z-index:2147483149;pointer-events:none;opacity:0;transition:opacity 1.2s ease,left .9s ease,width .9s ease,top .9s ease;
-  background:linear-gradient(90deg,transparent,rgba(255,214,150,.9) 10%,rgba(255,228,175,1) 50%,rgba(255,214,150,.9) 90%,transparent);
-  box-shadow:0 1px 6px rgba(255,200,120,.95),0 6px 22px rgba(255,170,80,.6),0 16px 46px rgba(255,160,70,.32)}
-.desk-lip.on{opacity:1}
 /* «Как ляжет в книге» at night: the page under the lamp; «дневной свет» lifts it */
 .wp-lamp{position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity .9s ease;
   background:radial-gradient(ellipse 95% 105% at 35% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.28) 40%,rgba(150,108,68,.5) 80%,rgba(110,76,46,.62) 100%)}
 html:has(.shell.is-night) .wp-pane:not(.show-day) .wp-lamp{opacity:1}
-.wp-day{position:absolute;left:50%;top:calc(100% + 96px);transform:translateX(-50%);width:170px;padding:7px 0;border-radius:16px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s ease;
+.wp-day{position:absolute;left:50%;top:calc(100% + 150px);transform:translateX(-50%);width:170px;padding:7px 0;border-radius:16px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s ease;
   font:italic 15px Georgia,serif;color:#e8d2ae;background:rgba(30,22,16,.85);border:1px solid #8a6a3e}
 html:has(.shell.is-night) .wp-pane .wp-day{opacity:1;pointer-events:auto}
 .wp-pane.show-day .wp-day{background:#e8d2ae;color:#2f1d10}
@@ -673,8 +668,8 @@ html:has(.shell:not(.is-night)) body .wc.wc-w{box-shadow:0 0 0 1px rgba(62,42,29
 /* by day the words beside the sheet stand on the desk: a soft shadow falls from them, away from the window */
 html:has(.shell:not(.is-night)) .oc-ttl .n,html:has(.shell:not(.is-night)) .oc-ttl .s,html:has(.shell:not(.is-night)) .write-nav .wn-title,
 html:has(.shell:not(.is-night)) #writingPromptText,html:has(.shell:not(.is-night)) .ms-screen .mq-name b{text-shadow:5px 6px 7px rgba(60,40,20,.28)!important}
-/* the lamp's light at night: a bright line along the whole lower rim of the bar, glowing like the lit keys above */
-.desk-lip{height:2px!important;background:linear-gradient(90deg,transparent 0,#ff9a3c 3%,#ffbe6a 50%,#ff9a3c 97%,transparent 100%)!important;
-  box-shadow:0 0 3px 1px rgba(255,150,60,1),0 0 9px 2px rgba(255,130,40,.7),0 4px 20px 5px rgba(255,140,50,.32)!important}
 /* at night the bar casts no long dark shadow over the sheet — the lamp's line under its rim shows */
 html:has(.shell.is-night) body .wc.wc-w{box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),inset 0 -1px 0 rgba(255,250,240,.35),0 1px 0 rgba(62,42,29,.5)!important}
+
+/* v189 — the page «как ляжет в книге» lies on the same desk at night: the sheets' own shadows */
+html:has(.shell.is-night) .wp-page{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)}

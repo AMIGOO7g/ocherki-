@@ -4210,8 +4210,13 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   ['addPageBtn','newPageBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=()=>window.addPage();});
   [['newEpisodeBtn','addEpisode'],['addDocumentBtn','addDocumentPage']].forEach(([id,n])=>{const b=document.getElementById(id);if(!b||!orig[n])return;b.removeEventListener('click',orig[n]);b.addEventListener('click',()=>window[n]());});})();
 
-// v188 — the lamp's light: a bright line along the whole lower rim of the bar (the bar spans the sheet ±96px, its rim at the sheet's top +33px)
-(()=>{const l=document.createElement('i');l.className='lt-lip';document.body.appendChild(l);
-  const put=()=>{const a=document.getElementById('activeSheet');if(!a)return;const r=a.getBoundingClientRect();if(!r.width)return;
-    l.style.left=Math.round(r.left-74)+'px';l.style.width=Math.round(r.width+148)+'px';l.style.top=Math.round(r.top+36)+'px';};
-  put();setInterval(put,300);addEventListener('resize',put);})();
+// v189 — the lamp stands still: its light is laid on the sheets from one fixed place. A sheet that moves (a turn of the
+// page, a turn between sections, a new sheet laid down) passes under it — dark while it is far below, lighter as it comes up.
+(()=>{let rest=null;const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns,.section-scroll-sheet>.lt-nm,.section-scroll-sheet>.lt-ns';
+  const step=()=>{requestAnimationFrame(step);const a=document.getElementById('activeSheet');if(!a)return;
+    const moving=document.querySelector('.section-scroll-viewport')||a.classList.contains('is-setting-back')||a.classList.contains('is-laid');
+    if(!moving||!rest){const r=a.getBoundingClientRect();if(r.width)rest={l:r.left,t:r.top};}
+    if(!rest)return;document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(rest.l-r.left),y=Math.round(rest.t-r.top),h=Math.round(r.height)+2;
+      // the pool itself, the dark below it and the light above it
+      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
+  requestAnimationFrame(step);})();
