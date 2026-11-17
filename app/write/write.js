@@ -430,7 +430,7 @@
   const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book','oc-card'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
   // the place of the clean stack: as tall as the book's page, centred in the free room left of the sheet
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
-    let h=r.height*.62,ww=h*RATIO;const avail=L-2*Math.max(36,L*.09);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<220)return null;
+    let h=r.height*.62,ww=h*RATIO;const avail=L-2*Math.max(20,L*.09);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
     return {left:Math.round((L-ww)/2),top:Math.round(r.top+(r.height-h)/2+14),w:Math.round(ww),h:Math.round(h)};};
   window.__ocWsRoom=()=>shell.classList.contains('oc-w')&&!!leftBox();
 
@@ -468,7 +468,7 @@
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
   let drag=null;
   top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button'))return;e.preventDefault();
-    const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');fl.querySelectorAll('.ws-tabs,.ws-nav').forEach(x=>x.remove());fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',r.width+'px');
+    const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it layfl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',r.width+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
     drag={fl,r,x0:e.clientX,y0:e.clientY,moved:false};try{top.setPointerCapture(e.pointerId);}catch(_){}});
   top.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x0,dy=e.clientY-drag.y0;if(Math.hypot(dx,dy)>5)drag.moved=true;
@@ -499,7 +499,7 @@
     const b=leftBox();const pg=document.querySelector('.wp-page')?.getBoundingClientRect();const k2=W?.keys2?.getBoundingClientRect();
     const k=[b.left,b.top,b.w,b.h,peek?1:0,pg?Math.round(pg.left)+','+Math.round(pg.top)+','+Math.round(pg.width)+','+Math.round(pg.height):'',k2?Math.round(k2.bottom):''].join('|');
     if(k===lastK)return;lastK=k;
-    Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');
+    Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
     // the book's name above the page, the clock below its keys — the signature stays where it always is
     const t=ttl(),c=clock();
     if(peek&&pg&&pg.width&&t){const tr={width:t.offsetWidth,height:t.offsetHeight};const bx=t.offsetLeft,by=t.offsetTop;// its place in the layout (no translate, no scale)
