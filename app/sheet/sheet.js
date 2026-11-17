@@ -4215,7 +4215,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
     {const k=Math.round(L)+','+Math.round(T)+','+a.offsetHeight;if(put._k!==k){put._k=k;const st=document.body.style;st.setProperty('--sh-l',Math.round(L)+'px');st.setProperty('--sh-t',Math.round(T)+'px');st.setProperty('--sh-h',a.offsetHeight+'px');}}
     document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
-      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h-3}px,${x}px ${y-3*h+3}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
+      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
   // v192: a sheet put in or swapped gets its light before it is painted, not a frame later
   {const mo=new MutationObserver(put),hook=()=>{const st=document.getElementById('activeSheet')?.parentElement;if(!st)return setTimeout(hook,500);mo.observe(st,{childList:true,attributes:true,attributeFilter:['class','id'],subtree:false});[...st.children].forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class','id','style']}));};hook();}
   requestAnimationFrame(step);})();

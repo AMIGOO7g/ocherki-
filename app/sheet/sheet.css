@@ -1243,8 +1243,9 @@ html body.host-day .sheet.ghost{border-color:rgba(120,96,70,.55)!important}
   linear-gradient(180deg,rgba(240,225,200,.04) 0%,rgba(232,212,180,.10) 22%,rgba(210,180,140,.24) 45%,rgba(175,135,92,.42) 68%,rgba(140,100,62,.58) 86%,rgba(112,78,46,.68) 100%),
   linear-gradient(rgba(112,78,46,.68),rgba(112,78,46,.68))!important}
 /* a warm glow right under the bar, across the whole width */
-body.host-night .sheet.active>.lt-ns{background-image:linear-gradient(180deg,rgba(255,205,140,.10) 0%,rgba(255,205,140,0) 30%);mix-blend-mode:screen}
-body.host-night .section-scroll-viewport .section-scroll-sheet>.lt-ns{background-image:linear-gradient(180deg,rgba(255,205,140,.10) 0%,rgba(255,205,140,0) 30%)!important;mix-blend-mode:screen!important}
+/* (the night layer keeps one picture by day too — it only fades; a picture switched at the turn of day showed as a jump) */
+html body .sheet.active>.lt-ns{background-image:linear-gradient(180deg,rgba(255,205,140,.10) 0%,rgba(255,205,140,0) 30%)!important;mix-blend-mode:screen!important}
+html body .section-scroll-viewport .section-scroll-sheet>.lt-ns{background-image:linear-gradient(180deg,rgba(255,205,140,.10) 0%,rgba(255,205,140,0) 30%)!important;mix-blend-mode:screen!important}
 /* every light layer covers the sheet's thin border as well (it showed a light rim at the foot) */
 .sheet.active>.lt{inset:-1px}
 /* the stack at night lies in the same band: each sheet lightest at its top, nearest the lamp, darker down; a sheet deeper in the
@@ -1253,6 +1254,25 @@ html body.host-night .sheet.ghost{border-color:rgba(60,34,14,.6)!important}
 html body.host-night .sheet.ghost.g1{box-shadow:inset 0 0 0 2000px rgba(70,40,15,.10),0 5px 12px rgba(0,0,0,.3)!important}
 html body.host-night .sheet.ghost.g2{box-shadow:inset 0 0 0 2000px rgba(60,34,12,.20),0 5px 12px rgba(0,0,0,.3)!important}
 html body.host-night .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(50,28,10,.30),0 5px 12px rgba(0,0,0,.3)!important}
-html body .sheet.ghost::before{content:"";position:absolute;inset:-1px;pointer-events:none;mix-blend-mode:multiply;z-index:30;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
+html body .sheet.ghost::before{content:"";position:absolute;inset:-1px;pointer-events:none;mix-blend-mode:multiply;z-index:30;opacity:0;
   background:linear-gradient(180deg,rgba(240,225,200,.04) 0%,rgba(225,200,165,.16) 25%,rgba(190,150,105,.36) 50%,rgba(150,108,66,.56) 75%,rgba(115,80,46,.70) 100%)!important}
 html body.host-night .sheet.ghost::before{opacity:1}
+html body.lt-x .sheet.ghost::before{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+/* v195: the open sheet has no drawn rim — its edge is the paper itself (the thin border showed as a lighter line under the light) */
+html body .sheet.active,html body.host-night .sheet.active,html body.host-day .sheet.active{border-color:transparent!important;background-clip:padding-box!important}
+/* v195: the open sheet's paper turns from the day's to the night's smoothly: the day paper stays underneath, the night paper is a
+   layer over it that fades in and out at the desk's pace (two backgrounds swapped at once showed as a jump of the light) */
+html body.host-night .sheet.active,html body.host-day .sheet.active{background:radial-gradient(120% 90% at 18% 6%,rgba(255,255,255,.68),rgba(0,0,0,0) 44%),linear-gradient(100deg,#f7efe2 0%,#f8efe2 68%,#efe0ca 100%)!important;background-clip:padding-box!important}
+html body .sheet.active::before{content:"";display:block;position:absolute;inset:0;z-index:1;pointer-events:none;background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;opacity:0}
+html body.lt-x .sheet.active::before{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+html body.host-night .sheet.active::before{opacity:1}
+/* v195: under the sheets the lamp's light does not pass — the desk below their foot lies in shade */
+html body.host-night .sheet.active{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)!important}
+/* v195 — by day the window's sun lies on the open sheet's left edge, the frame's shade between its panes; the rest of the sheet
+   is in the room's light (the shade is multiplied: the ink stays dark). Laid from the screen's corner (--sun-* from the host). */
+html body.host-day .sheet.active>.lt-dm{background:var(--ws-shade) var(--sun-x,0) var(--sun-y,0)/var(--sun-w,100vw) var(--sun-h,100vh) no-repeat fixed,
+  linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(214,202,184,.6) 100%) scroll!important;mix-blend-mode:multiply!important}
+html body .sheet.active>.lt-ds{display:none!important}
+.section-scroll-viewport .section-scroll-sheet>.lt-dm{background:var(--ws-shade) calc(var(--sun-x,0px) - var(--sh-l,0px)) calc(var(--sun-y,0px) - var(--sh-t,0px) + var(--sh-h,0px))/var(--sun-w,100vw) var(--sun-h,100vh) no-repeat scroll,
+  linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(214,202,184,.6) 100%) 0 50%/100% 33.3334% no-repeat scroll!important;mix-blend-mode:multiply!important}
+.section-scroll-viewport .section-scroll-sheet>.lt-ds{display:none!important}

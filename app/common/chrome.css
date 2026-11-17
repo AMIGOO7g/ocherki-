@@ -504,3 +504,8 @@ html body .rc2 .rc2-th{right:auto;left:calc(50% + 420px);top:calc(41% - 100px)}
 @keyframes rcUnder{0%{transform:translate(-50%,-50%)}45%{transform:translate(calc(-50% - 520px),-46%) rotate(-11deg) scale(.94);z-index:3}55%{z-index:0}100%{transform:translate(calc(-50% - 8px),calc(-50% + 12px)) rotate(-3deg) scale(.98);opacity:0;z-index:0}}
 .rc2-card.rc-up{animation:rcUp .9s cubic-bezier(.2,.8,.3,1)}
 @keyframes rcUp{from{transform:translate(calc(-50% - 8px),calc(-50% + 12px)) rotate(-3deg) scale(.97)}to{transform:translate(-50%,-50%)}}
+/* v195: the hanging keys turn with day and night at the desk's pace: the thread is one colour faded by a mask (a gradient cannot
+   fade from day to night), the ink of the icons and of the names changes smoothly */
+.oct .th{background:var(--th1)!important;-webkit-mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.42));mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.42));transition:background-color 2.45s cubic-bezier(.37,0,.63,1)!important}
+.oct .k,.oct .k *,.oct .lb,.oct .lbx,.oct .lbx *,.oct [class*="lab"]{transition:color 2.45s cubic-bezier(.37,0,.63,1),stroke 2.45s cubic-bezier(.37,0,.63,1),fill 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 2.45s cubic-bezier(.37,0,.63,1),filter .6s}
+.oct .k .gl{transition:opacity .9s cubic-bezier(.4,0,.2,1)!important}
