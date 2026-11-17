@@ -436,3 +436,7 @@ html body .ms-screen.is-night .ms-toc .mq-secs{color:#e7b56a!important}
 html body .ms-screen.mq-list .mq-name small{opacity:1!important}
 /* by day the row lies in one window light: the sheets next to the open one only a touch dimmer, not grey */
 html body .ms-screen:not(.is-night) .ms-sheet:not(.is-active):not(.is-far):not(.is-ghost) .ms-paper{filter:brightness(.97) saturate(.97)!important}
+/* v192: by day the tilted sheets showed a thin light rim (the edge of a turned layer is smoothed against the paper's own light tone);
+   a sheet's cut edge sits a touch darker than its face — a hairline inside the edge, over the paper texture */
+html body .ms-screen:not(.is-night) .ms-sheet:not(.is-ghost):not(.is-new) .ms-paper::before{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(110,80,50,.22),inset 0 0 3px rgba(110,80,50,.12)}
+html body .ms-screen .ms-sheet .ms-float,html body .ms-screen .ms-sheet .ms-paper{outline:1px solid transparent;-webkit-backface-visibility:hidden;backface-visibility:hidden}

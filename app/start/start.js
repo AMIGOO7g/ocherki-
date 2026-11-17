@@ -97,5 +97,8 @@
   window.OCHERKI_KEEPER={open,close};
   document.addEventListener('click',e=>{const m=e.target.closest?.('.oct .more [data-m="tour"]');if(m){e.stopImmediatePropagation();e.preventDefault();document.querySelector('.oct .more')?.classList.remove('on');open();}},true);
   // once the constructor has settled, the Keeper is fetched quietly so he never arrives to an empty dark screen
-  const settle=setInterval(()=>{if(shell.classList.contains('oc-ready')){clearInterval(settle);setTimeout(()=>OcherkiTour.warm(),2500);}},700);
+  const settle=setInterval(()=>{if(shell.classList.contains('oc-ready')){clearInterval(settle);{/* v192: the Keeper's 3D warm-up holds the page a moment — only once the hands have been off the mouse and keys for a while */
+    let last=performance.now();const t=()=>{last=performance.now();};const W=[window];try{const fw=document.getElementById('v35SheetFrame')?.contentWindow;if(fw)W.push(fw);}catch(_){}
+    W.forEach(w=>['pointerdown','pointermove','keydown','wheel'].forEach(e=>w.addEventListener(e,t,{passive:true,capture:true})));
+    const go=()=>{if(performance.now()-last<5000)return setTimeout(go,1500);W.forEach(w=>['pointerdown','pointermove','keydown','wheel'].forEach(e=>w.removeEventListener(e,t,{capture:true})));OcherkiTour.warm();};setTimeout(go,4000);}}},700);
 })();

@@ -528,9 +528,10 @@ html body .shell.oc-w .writing-prompt.is-beside #writingPromptHide{order:5;justi
 .oc-qk{display:none;position:relative;width:56px;height:56px;border-radius:50%;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(0 7px 10px rgba(0,0,0,.3))}
 html body .shell.oc-w .writing-prompt.is-beside .oc-qk{display:block}
 .oc-qk::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324);transition:box-shadow .4s}
-.oc-qk::after{content:"";position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle,#25221e,#211f1c 43%,#1d1b18 72%,#191714);box-shadow:inset 0 4px 5px rgba(0,0,0,.46)}
-.shell:not(.is-night) .oc-qk::after{background:radial-gradient(circle,#efe3cb,#e6d5b5 43%,#d9bf98 72%,#cba777);box-shadow:inset 0 3px 5px rgba(0,0,0,.2)}
-.oc-qk span{position:absolute;inset:0;z-index:2;display:grid;place-items:center;font:500 28px/1 'CormorantCy',Georgia,serif;color:#f2e0c2}
+/* v192: one face; at night a dark layer lies over it (a shadow can fade, a gradient cannot) — day↔night goes smoothly */
+.oc-qk::after{content:"";position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle,#efe3cb,#e6d5b5 43%,#d9bf98 72%,#cba777);box-shadow:inset 0 4px 5px rgba(0,0,0,.46),inset 0 0 0 40px rgba(31,29,26,.97);transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+.shell:not(.is-night) .oc-qk::after{box-shadow:inset 0 3px 5px rgba(0,0,0,.2),inset 0 0 0 40px rgba(31,29,26,0)}
+.oc-qk span{position:absolute;inset:0;z-index:2;display:grid;place-items:center;font:500 28px/1 'CormorantCy',Georgia,serif;color:#f2e0c2;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
 .shell:not(.is-night) .oc-qk span{color:#3b2a1c}
 .oc-qk:hover::before{box-shadow:0 0 0 1.5px rgba(255,200,140,.95),0 0 14px 3px rgba(255,150,60,.7),0 0 34px 8px rgba(255,120,40,.3)}
 html body .shell.oc-w.wp-on .writing-prompt,html body .shell.oc-w.wp-on~.oc-ttl,html body .shell.oc-w.wp-on .write-nav,html body .shell.oc-w.wp-on .bottom-left{opacity:0!important;pointer-events:none!important}
@@ -543,7 +544,7 @@ html body .shell.oc-w .wp-keys.k-closed{left:var(--oc-k1x)!important;top:var(--o
 html body .shell.oc-w .wp-keys.k-closed .key,html body .shell.oc-w:not(.is-book-preview) .bd-rail-key[data-rail="tips"]{--size:46px!important;width:46px!important;height:46px!important}
 html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before{box-shadow:0 0 0 1.5px rgba(255,200,140,.95),0 0 14px 3px rgba(255,150,60,.75),0 0 38px 10px rgba(255,120,40,.35)!important;transition:box-shadow .9s ease}
 .master-clock .hand,.master-clock .clock-pivot{transition:background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 1.4s ease}
-.master-clock .pendulum{transition:transform 2.25s cubic-bezier(.45,.05,.55,.95),background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1)!important}
+.master-clock .pendulum{transition:filter 2.45s cubic-bezier(.37,0,.63,1),transform 2.25s cubic-bezier(.45,.05,.55,.95),background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1)!important}
 .shell:not(.is-night) .master-clock .hand,.shell:not(.is-night) .master-clock .clock-pivot,.shell:not(.is-night) .master-clock .pendulum{background:#3b2a1c!important;box-shadow:none!important}
 .master-clock .logo-bob img{display:none!important}
 .oc-bob{position:relative;display:block;width:40px;height:40px;border-radius:50%}
@@ -643,8 +644,9 @@ html body .shell.oc-w.oc-w .master-clock .clock-pivot{opacity:1!important;z-inde
   background:radial-gradient(circle,var(--night1),var(--night3) 70%,var(--night4))!important;box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35)!important}
 html body .shell.oc-w.oc-w:not(.is-night) .master-clock .clock-pivot{background:radial-gradient(circle,var(--face1),var(--face3) 70%,var(--face4))!important}
 html body .shell.oc-w.oc-w:not(.is-night) .master-clock .hand{background:#3b2a1c!important;opacity:.62!important}
-html body .shell.oc-w .master-clock .pendulum{filter:drop-shadow(0 16px 7px rgba(0,0,0,.5))}
-html body .shell.oc-w:not(.is-night) .master-clock .pendulum{filter:drop-shadow(-10px 12px 6px rgba(40,25,10,.28))}
+/* v192: at night the lamp is above it — no shadow to see; by day the window is on the left, so it falls to the right */
+html body .shell.oc-w .master-clock .pendulum{filter:drop-shadow(0 12px 6px rgba(40,25,10,0))}
+html body .shell.oc-w:not(.is-night) .master-clock .pendulum{filter:drop-shadow(10px 12px 6px rgba(40,25,10,.28))}
 /* v186 — the workshop's signature reads by day too: dark ink on the light desk */
 html body .shell:not(.is-night) .bottom-left .brand-line{color:rgba(58,40,26,.85)!important}
 html body .shell:not(.is-night) .bottom-left .brand-line .brand-strong{text-shadow:0 1px 0 rgba(255,250,240,.6)!important}
@@ -673,3 +675,12 @@ html:has(.shell.is-night) body .wc.wc-w{box-shadow:0 0 0 1px rgba(62,42,29,.7),i
 
 /* v189 — the page «как ляжет в книге» lies on the same desk at night: the sheets' own shadows */
 html:has(.shell.is-night) .wp-page{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)}
+/* v192: the first «как ляжет в книге» takes a few seconds — say so at once, where the page will come out (the ring turns on
+   the compositor, so it keeps turning while the page is being laid out) */
+.wp-note{position:fixed;z-index:2147483300;display:flex;align-items:center;gap:10px;white-space:nowrap;pointer-events:none;opacity:0;transform:translate(-50%,-6px);transition:opacity .3s ease,transform .3s ease;
+  padding:8px 16px 8px 12px;border-radius:18px;background:rgba(46,32,22,.92);box-shadow:0 8px 22px rgba(30,15,5,.35),inset 0 0 0 1px rgba(200,150,90,.35);
+  font:italic 17px/1.2 'CormorantCy',Georgia,serif;color:#f0dcc0}
+.wp-note small{font-size:14px;opacity:.7;margin-left:4px}
+.wp-note i{flex:none;width:16px;height:16px;border-radius:50%;border:2px solid rgba(230,190,130,.25);border-top-color:#e2b06a;will-change:transform;animation:wpNoteSpin .9s linear infinite}
+.wp-note.on{opacity:1;transform:translate(-50%,0)}
+@keyframes wpNoteSpin{to{transform:rotate(360deg)}}

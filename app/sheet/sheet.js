@@ -4210,9 +4210,11 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 // page, a turn between sections, a new sheet laid down) passes under it — dark while it is far below, lighter as it comes up.
 // The place is the open sheet's place in the layout (offsets — no transform or animation moves it), so nothing flickers.
 (()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns'; // the travelling copies are kept in step by CSS (sheet.css v191)
-  let n=0;const step=()=>{requestAnimationFrame(step);if(++n%6&&!document.body.classList.contains('lt-x'))return;const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
+  const step=()=>{requestAnimationFrame(step);put();},put=()=>{const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
     const b=box.getBoundingClientRect(),L=b.left+box.clientLeft+a.offsetLeft,T=b.top+box.clientTop+a.offsetTop;
     document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
       const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h-3}px,${x}px ${y-3*h+3}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
+  // v192: a sheet put in or swapped gets its light before it is painted, not a frame later
+  {const mo=new MutationObserver(put),hook=()=>{const st=document.getElementById('activeSheet')?.parentElement;if(!st)return setTimeout(hook,500);mo.observe(st,{childList:true,attributes:true,attributeFilter:['class','id'],subtree:false});[...st.children].forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class','id','style']}));};hook();}
   requestAnimationFrame(step);})();

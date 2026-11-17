@@ -2400,8 +2400,15 @@
   const bookFresh=()=>built&&bookSpreads.length&&!bookOutdated&&window.__ocherkiBuiltKey===bookKey();
   let prebuildT=0;
   function schedulePrebuild(delay=2600){clearTimeout(prebuildT);prebuildT=setTimeout(prebuild,delay);}
+  // v192: the quiet layout holds the page for a few seconds on a slower computer — it waits until the hands are off the mouse
+  // and keys for a while (the first seconds after opening are the busiest, so it never runs then)
+  let lastInput=performance.now();const touch=()=>{lastInput=performance.now();};
+  const hookInput=w=>{try{if(!w||w.__ocPbHook)return;w.__ocPbHook=true;['pointerdown','pointermove','keydown','wheel','input'].forEach(t=>w.addEventListener(t,touch,{passive:true,capture:true}));}catch(_){}};
+  hookInput(window);
   function prebuild(){
     if(!structure||buildBtn?.disabled||bookFresh()||document.hidden)return;
+    hookInput(document.getElementById('v35SheetFrame')?.contentWindow);
+    {const quiet=performance.now()-lastInput;if(quiet<5000){schedulePrebuild(5200-quiet);return;}}
     const sh=document.querySelector('.shell');
     if(previewModal?.classList.contains('open')||sh?.classList.contains('is-manuscript')||sh?.classList.contains('is-ms-to-book')||sh?.classList.contains('is-book-preview')){schedulePrebuild(4000);return;}
     const run=()=>{if(buildBtn?.disabled||previewModal?.classList.contains('open')||bookFresh())return;
@@ -2926,7 +2933,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v191"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v192"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

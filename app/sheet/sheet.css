@@ -1217,3 +1217,7 @@ html body.host-night .sheet.ghost .ghost-number{color:rgba(244,222,186,.9)!impor
 .sheet-stack.section-shadow-lock::before{min-height:0!important;box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22)!important}
 .host-night .sheet-stack.section-shadow-lock::before{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)!important}
 .sheet-stack.section-shadow-lock > .sheet.active{transition:none!important}
+/* v192: the travelling copy wears the very same side light as the open sheet (it had the old glow from the top — the sheet
+   jumped lighter on the left the moment the copy was swapped for it) */
+.section-scroll-viewport .section-scroll-sheet>.lt-ns,.section-scroll-viewport .section-scroll-sheet>.lt-ds{background-image:linear-gradient(90deg,rgba(255,236,200,.32) 0%,transparent 42%)!important;mix-blend-mode:normal!important}
+.section-scroll-viewport .section-scroll-sheet>.lt-dm{background-image:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(230,220,205,.22) 45%,rgba(175,160,140,.5) 100%)!important;background-attachment:scroll!important;background-position:0 0!important;background-size:auto!important}

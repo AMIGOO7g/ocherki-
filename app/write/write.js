@@ -70,7 +70,8 @@
   keys2.innerHTML=`<div class="wp-item back"><button type="button" class="key" aria-label="Вернуть один лист"><span class="cap">${IX}</span></button><span class="lab">вернуть</span></div>
     <div class="wp-pg"><button type="button" data-pg="-1" aria-label="Предыдущая страница листа">‹</button><span></span><button type="button" data-pg="1" aria-label="Следующая страница листа">›</button></div>
     <div class="wp-item ref"><button type="button" class="key" aria-label="Обновить страницу"><span class="cap">${IR}</span></button><span class="lab">обновить</span></div>`;
-  shell.append(pane,keys,keys2);
+  const note=document.createElement('div');note.className='wp-note';note.setAttribute('role','status');note.innerHTML='<i></i><span>Собираю страницу книги… <small>несколько секунд</small></span>';
+  shell.append(pane,keys,keys2,note);
   const wrap=()=>document.getElementById('editorPaperWrap');
   // where the sheet begins on screen: its top line in sight (the author reads the sheet from there)
   const topRatio=()=>{try{const d=document.getElementById('v35SheetFrame').contentDocument,ed=d.getElementById('editor');if(!ed)return 0;const total=ed.textContent.length;if(!total)return 0;
@@ -100,7 +101,7 @@
   function setOpen(v){const w=wrap();if(!w)return;
     if(v){const g=geo();if(!g||!g.ok){window.OCHERKI_SAY?.('Окно узковато для двух листов — откройте «Книгу»','открыть',()=>window.OCHERKI_SET_MODE?.('book'));return;}
       // the page is laid out first, while nothing moves — then everything glides without a stall
-      if(!setOpen.ready){tog.classList.add('is-busy');try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'flush'},'*');}catch(_){}const t0=Date.now();setTimeout(()=>{pick=null;try{paint(true);}catch(_){}setOpen.ready=true;setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{tog.classList.remove('is-busy');setOpen(true);setOpen.ready=false;})),Math.max(0,900-(Date.now()-t0)));},260);return;}}
+      if(!setOpen.ready){tog.classList.add('is-busy');{const k=document.querySelector('.wc.on [data-c="peek"]'),r=(k||w).getBoundingClientRect();note.style.left=Math.round(r.left+r.width/2)+'px';note.style.top=Math.round(r.bottom+(k?22:-60))+'px';}note.classList.add('on');try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'flush'},'*');}catch(_){}const t0=Date.now();setTimeout(()=>{pick=null;try{paint(true);}catch(_){}setOpen.ready=true;setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{tog.classList.remove('is-busy');note.classList.remove('on');setOpen(true);setOpen.ready=false;})),Math.max(0,900-(Date.now()-t0)));},260);return;}}
     on=v;const g=geo();w.style.translate=on&&g?`${-g.d}px 0`:'';shell.classList.toggle('wp-on',on);
     clearTimeout(setOpen.u);shell.classList.remove('wp-up');if(on)setOpen.u=setTimeout(()=>{if(on)shell.classList.add('wp-up');},1600);
     clearTimeout(setOpen.c);if(!on){shell.classList.add('wp-closing');setOpen.c=setTimeout(()=>shell.classList.remove('wp-closing'),1500);}else shell.classList.remove('wp-closing');
@@ -180,7 +181,10 @@
   let lastKey='';
   const follow=()=>{requestAnimationFrame(follow);const on=isWrite();wc.classList.toggle('on',on);if(!on){add.classList.remove('on');return;}
     const f=F(),d=FD();if(!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;dress();
-    const fr=f.getBoundingClientRect(),r=sh.getBoundingClientRect();const L=fr.left+r.left,T=fr.top+r.top,W=r.width;
+    const fr=f.getBoundingClientRect();
+    // v192: the sheet's place in the layout, not its animated box — a sheet that is being laid or swapped must not drag the bar
+    let x=sh.offsetLeft,y=sh.offsetTop,e=sh.offsetParent;while(e&&e!==d.body){x+=e.offsetLeft+e.clientLeft-e.scrollLeft;y+=e.offsetTop+e.clientTop-e.scrollTop;e=e.offsetParent;}
+    const L=fr.left+f.clientLeft+x,T=fr.top+f.clientTop+y,W=sh.offsetWidth;
     const k=[L,T,W].map(Math.round).join();if(k!==lastKey){lastKey=k;wc.style.left=Math.round(L-96)+'px';wc.style.top=Math.round(T-19)+'px';wc.style.width=Math.round(W+192)+'px';
       const R=document.documentElement.style;R.setProperty('--bar-l',Math.round(L-96)+'px');R.setProperty('--bar-t',Math.round(T-19)+'px');R.setProperty('--bar-w',Math.round(W+192)+'px');}};
   requestAnimationFrame(follow);
