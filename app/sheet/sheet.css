@@ -1301,3 +1301,7 @@ html body.host-night .sheet-stack.section-shadow-lock::before{box-shadow:0 2px 3
 /* v207 — the travelling copies are the very paper of the open sheet (they were a yellower paper: the window's light on them
    turned yellow while the sections turned, and white again at rest) */
 html body .section-scroll-viewport .section-scroll-sheet{background:radial-gradient(120% 90% at 18% 6%,rgba(255,255,255,.68),rgba(0,0,0,0) 44%),linear-gradient(100deg,#f7efe2 0%,#f8efe2 68%,#efe0ca 100%)!important;background-clip:padding-box!important;border-color:transparent!important}
+/* v208 — at night the travelling copies lie on the same night paper as the open sheet (they showed the day paper under the
+   lamp's light: a sheet turning down went a shade darker, then back) */
+html body .section-scroll-viewport .section-scroll-sheet::before{content:"";display:block;position:absolute;inset:0;z-index:1;pointer-events:none;background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;opacity:0}
+html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opacity:1}

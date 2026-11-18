@@ -753,7 +753,7 @@ html body .shell.oc-w .wp-day{display:none!important}
 html:has(.shell.oc-w:not(.is-night)) .wp-page::after{opacity:1}
 
 /* by day: the window's sun on the desk (panes of light, the frame's shade between them), the room beyond it calmer */
-.shell:not(.is-night) .desk-day{background:var(--ws-sun) 0 0/100% 100% no-repeat,
+html body .shell .desk-day{background:var(--ws-sun) 0 0/100% 100% no-repeat,
   linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 55%,rgba(90,60,30,.12) 100%),
   linear-gradient(rgba(214,198,172,.80),rgba(214,198,172,.80)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#e4d3b6!important;
   background-blend-mode:screen,normal,normal,normal!important}
@@ -890,7 +890,7 @@ html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp{background:linea
 html:has(.shell.is-night) body.oct-book .bq-book .bq-lamp{background:radial-gradient(ellipse 70% 95% at 50% 0%,rgba(20,10,2,0) 0%,rgba(20,10,2,.12) 45%,rgba(20,10,2,.42) 100%)}
 .bq-book.single .bq-lamp{left:50%}
 /* «так ляжет» by day: no film over the page — only a soft shade to the right */
-html:has(.shell.oc-w:not(.is-night)) .wp-page::after{background:linear-gradient(90deg,rgba(40,25,10,0) 0%,rgba(40,25,10,0) 50%,rgba(40,25,10,.1) 100%);mix-blend-mode:normal}
+html body .wp-page::after{background:linear-gradient(90deg,rgba(40,25,10,0) 0%,rgba(40,25,10,0) 50%,rgba(40,25,10,.1) 100%);mix-blend-mode:normal}
 /* the cover alone in the middle: no pale ghost of a left page beside it */
 body.oct-book #bookPreviewModal .book-preview-spread.is-cover .book-preview-half.is-ghost{opacity:0!important;visibility:hidden!important}
 /* the cover alone, in the middle of the desk */
@@ -938,7 +938,7 @@ html body .shell.oc-ws:not(.oc-ws-peek)~.oc-ttl{opacity:0!important}
 /* the night's light: bright under the bar, fading to dusk at the desk's foot; the toile reads in it */
 html body .desk-cone i{background:linear-gradient(180deg,rgba(255,180,86,1) 0%,rgba(250,152,58,.85) 18%,rgba(232,128,44,.6) 45%,rgba(205,105,30,.34) 75%,rgba(170,85,20,.16) 100%)!important}
 /* the toile shows through the light: a little contrast in it */
-html body .shell.is-night .desk-shade{filter:contrast(1.15)}
+html body .shell .desk-shade{filter:contrast(1.15)}
 html body .desk-cone{mix-blend-mode:screen!important;filter:blur(30px)!important}
 /* under the clean stack the lamp lays its own warm pool, as under the open sheet */
 .ws-left::before{content:"";position:absolute;left:-30%;right:-30%;top:-18%;bottom:-12%;z-index:-1;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
@@ -1031,3 +1031,6 @@ html body .ws-left :is(.ws-nav,.ws-hint){font-size:clamp(11px,calc(var(--ws-w,32
 html body .ws-flyer.ws-carry{transition:box-shadow .3s ease!important}
 html body .ws-flyer .ws-q,html body .ws-flyer .ws-hint{transition:opacity .25s ease}
 html body .ws-flyer.ws-near .ws-q,html body .ws-flyer.ws-near .ws-hint{opacity:0!important}
+/* v208 — the sheet coming down gives up its own shadow as it lands: the open sheet under it already casts the very shadow
+   it will have (two shadows darkened the desk, then one went — the shadow «blinked») */
+html body .ws-flyer.ws-landing{box-shadow:none!important;transition:transform .62s cubic-bezier(.3,.7,.2,1),box-shadow .45s ease!important}

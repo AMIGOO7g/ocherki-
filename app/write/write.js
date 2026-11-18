@@ -237,7 +237,7 @@
     const m=`linear-gradient(180deg,transparent ${Math.round(y-8)}px,#000 ${Math.round(y+26)}px)`;if(cone._m!==m){cone._m=m;cone.style.webkitMaskImage=cone.style.maskImage=m;}
     // «Как ляжет в книге»: the page is lit only where the beam falls — its right edge runs from the bar's end down and out
     const pg=document.querySelector('.wp-page'),lm=pg?.querySelector('.wp-lamp');
-    if(lm&&night&&shell.classList.contains('wp-on')){const q=pg.getBoundingClientRect();if(q.width){let dx=sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dy,ny=-dx,A=Math.atan2(nx,-ny),
+    if(lm&&shell.classList.contains('wp-on')){const q=pg.getBoundingClientRect();if(q.width){let dx=sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dy,ny=-dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x1-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
       const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(150,100,50,.14) ${(t-4).toFixed(1)}%,rgba(110,74,42,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.66) ${(t+38).toFixed(1)}%),linear-gradient(180deg,rgba(160,105,50,.06) 0%,rgba(140,90,42,.26) 50%,rgba(95,60,28,.52) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
     // v199: the book on the desk is lit by the same beam — its middle under the bar bright, both its sides beyond the beam's edges dusky
@@ -250,7 +250,7 @@
     // v197: the clean stack on the left is lit the same way — only where the beam falls, its left edge running from the bar's
     // other end down and out (the same light as on the book's page, mirrored)
     const wl=document.querySelector('.ws-left');
-    if(wl&&night&&shell.classList.contains('oc-ws')){const q=wl.getBoundingClientRect();if(q.width){let dx=-sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=-dy,ny=dx,A=Math.atan2(nx,-ny),
+    if(wl&&shell.classList.contains('oc-ws')){const q=wl.getBoundingClientRect();if(q.width){let dx=-sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=-dy,ny=dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x0-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
       const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(150,100,50,.14) ${(t-4).toFixed(1)}%,rgba(110,74,42,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.66) ${(t+38).toFixed(1)}%),linear-gradient(180deg,rgba(160,105,50,.06) 0%,rgba(140,90,42,.26) 50%,rgba(95,60,28,.52) 100%)`;if(wl._bg!==bg){wl._bg=bg;wl.style.setProperty('--ws-nbg',bg);}}}
     // v186: the clock keeps its own look at night (it hardly lies in the beam)
@@ -559,7 +559,7 @@
       top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
       // v207: the new sheet is not laid a second time (it is the one in the hand): it is there, still, when the hand lets go
       try{FW().__ocNoLay=Date.now();}catch(_){}
-      setTimeout(()=>act(kind),200);setTimeout(()=>{fl.style.transition='opacity .22s ease';fl.style.opacity='0';setTimeout(()=>fl.remove(),260);},700);}
+      setTimeout(()=>act(kind),200);setTimeout(()=>{fl.style.setProperty('transition','opacity .3s ease','important');fl.style.opacity='0';setTimeout(()=>fl.remove(),340);},680);}
     else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
 
