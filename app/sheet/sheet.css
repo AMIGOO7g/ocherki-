@@ -1,3 +1,4 @@
+@font-face{font-family:"SignThatS";src:url("../../assets/fonts/SignThatS.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
 /*@block ["", ""]*/
 :root{
  --paper:#f7efe2; --paper2:#efe0ca; --ink:#3b2a20; --muted:#8e7a69;
@@ -222,12 +223,17 @@ body{
 .photo-stack.switch-down{transform:translateX(calc(-50% - 26px)) translateY(14px);opacity:.42}
 .photo-stack.enter-up{transform:translateX(calc(-50% - 26px)) translateY(14px);opacity:.42}
 .photo-stack.enter-down{transform:translateX(calc(-50% - 26px)) translateY(-14px);opacity:.42}
-.photo-card{position:absolute;left:-86px;width:186px;height:138px;padding:7px 7px 24px;background:#f4eee4;border:1px solid rgba(90,70,55,.18);box-shadow:0 16px 28px rgba(0,0,0,.26),0 3px 7px rgba(0,0,0,.14);transform-origin:25% 50%;transition:transform .56s cubic-bezier(.22,.7,.2,1),box-shadow .42s ease,filter .36s ease;cursor:pointer;pointer-events:auto;overflow:hidden}
+.photo-card{position:absolute;left:-86px;width:186px;height:138px;padding:7px 7px 24px;background:#f4eee4;border:1px solid rgba(90,70,55,.18);box-shadow:0 16px 28px rgba(0,0,0,.26),0 3px 7px rgba(0,0,0,.14);transform-origin:25% 50%;pointer-events:auto;cursor:pointer;pointer-events:auto;overflow:hidden}
 .photo-card img{width:100%;height:100%;object-fit:cover;display:block;filter:none;transition:filter .38s ease}
 .photo-card .note{position:absolute;left:10px;right:10px;bottom:3px;font:15px/1 "Brush Script MT", cursive;color:rgba(76,56,39,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.photo-card.p1{top:10px;left:-54px;transform:rotate(-5deg)}
-.photo-card.p2{top:136px;left:-62px;transform:rotate(3deg)}
-.photo-card.p3{top:262px;left:-58px;transform:rotate(-4deg)}
+/* v210: the prints lie in a pile under the sheet's left edge (the first on top); the hand near them fans them out */
+.photo-card.p1{top:10px;left:-54px;transform:rotate(-5deg);z-index:3}
+.photo-card.p2{top:22px;left:-46px;transform:rotate(5deg);z-index:2}
+.photo-card.p3{top:34px;left:-60px;transform:rotate(-8deg);z-index:1}
+.photo-stack:hover .photo-card.p2{top:136px;left:-62px;transform:rotate(3deg)}
+.photo-stack:hover .photo-card.p3{top:262px;left:-58px;transform:rotate(-4deg)}
+.pf-more{position:absolute;left:-74px;top:2px;z-index:4;pointer-events:none;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3);transition:opacity .3s}
+.photo-stack:hover .pf-more{opacity:0}
 .photo-card:hover{z-index:10;box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}
 .photo-card.p1:hover{transform:translateX(-12px) translateY(-1px) rotate(-3deg) scale(1.016)}
 .photo-card.p2:hover{transform:translateX(-12px) rotate(1.5deg) scale(1.016)}
@@ -340,6 +346,8 @@ body{
 }
 .photo-card{
   transition:
+    top .5s cubic-bezier(.2,.8,.3,1),
+    left .5s cubic-bezier(.2,.8,.3,1),
     transform .48s cubic-bezier(.22,.72,.2,1),
     opacity .34s ease,
     box-shadow .42s ease,
@@ -1305,3 +1313,24 @@ html body .section-scroll-viewport .section-scroll-sheet{background:radial-gradi
    lamp's light: a sheet turning down went a shade darker, then back) */
 html body .section-scroll-viewport .section-scroll-sheet::before{content:"";display:block;position:absolute;inset:0;z-index:1;pointer-events:none;background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;opacity:0}
 html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opacity:1}
+/* the card: a real print that turns over — its face the photograph, its back the hand-written lines */
+.pf-bg{position:fixed;inset:0;z-index:2147483000;background:rgba(30,18,8,0);transition:background .5s ease}
+.pf-bg.on{background:rgba(30,18,8,.18)}
+.pf{position:fixed;z-index:2147483001;perspective:1600px;transform-origin:0 0}
+.pf.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1)}
+.pf.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
+.pf-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
+.pf.flip .pf-in{transform:rotateY(180deg)}
+.pf-front,.pf-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;box-shadow:0 2px 4px rgba(40,25,10,.3),0 26px 50px -10px rgba(40,25,10,.45)}
+.pf-front{background:#fbf7ef;padding:14px;box-sizing:border-box;cursor:pointer}.pf-front img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-back{transform:rotateY(180deg);background:#fbf5e8 url("../../assets/keeper/sheet-paper.jpg") center/cover;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;color:#4a3324;overflow:auto}
+.pf-h{display:flex;justify-content:space-between;align-items:baseline;font:italic 15px 'CormorantCy',Georgia,serif;margin-bottom:18px;opacity:.85}
+.pf-h button,.pf-act button,.pf-sure button{all:unset;cursor:pointer;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
+.pf-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);margin-bottom:14px;cursor:text}
+.pf-back label span{flex:none;font:italic 14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px;min-width:86px}
+.pf-back input,.pf-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.25 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:2px 0}
+.pf-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.pf-back textarea{font-size:23px;line-height:1.35;resize:none}
+.pf-act{margin-top:auto;display:flex;justify-content:space-between;padding-top:12px}
+.pf-sure{margin-top:10px;display:flex;gap:14px;align-items:baseline;font:italic 15px 'CormorantCy',Georgia,serif}.pf-sure[hidden]{display:none}
+.pf-sure .pf-yes{color:#9a3a1c;border-color:rgba(154,58,28,.45)}
+body.host-night .pf-back,body.host-night .pf-front{filter:brightness(.93) sepia(.08)}
