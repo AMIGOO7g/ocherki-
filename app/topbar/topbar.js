@@ -201,7 +201,7 @@ function waitPreviewReady(cb){
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const T=()=>window.OCHERKI_TOPBAR;
   // ——— calm loading: the side texts appear once they stand where they belong ———
-  let readyT=0;const arm=()=>{if(!shell.classList.contains('oc-w')){if(shell.classList.contains('oc-ready'))shell.classList.remove('oc-ready');clearTimeout(readyT);readyT=0;return;}
+  let readyT=0;const arm=()=>{if(!shell.classList.contains('oc-w')){if(document.documentElement.classList.contains('rk-on'))return;if(shell.classList.contains('oc-ready'))shell.classList.remove('oc-ready');clearTimeout(readyT);readyT=0;return;}
     if(shell.classList.contains('ui-boot'))return;
     if(!shell.classList.contains('oc-ready')&&!readyT){dispatchEvent(new Event('resize'));readyT=setTimeout(()=>{dispatchEvent(new Event('resize'));requestAnimationFrame(()=>{shell.classList.add('oc-ready');readyT=0;});},450);}};
   new MutationObserver(arm).observe(shell,{attributes:true,attributeFilter:['class']});arm();

@@ -142,7 +142,7 @@
       else if(on&&!busy){stale=true;ref.classList.add('is-stale');}}});
   const sync=()=>{const ok=usable();shell.classList.toggle('wp-ready',ok);
     // v202: leaving for the book the page, its keys, the book's name and the clock slide off to the left with the sheets
-    if(!ok&&on){on=false;const w=wrap();if(w){w.style.setProperty('transition','none','important');w.style.translate='';void w.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>w.style.removeProperty('transition')));}
+    if(!ok&&on&&!document.documentElement.classList.contains('rk-on')){on=false;const w=wrap();if(w){w.style.setProperty('transition','none','important');w.style.translate='';void w.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>w.style.removeProperty('transition')));}
       shell.classList.remove('wp-on','wp-up','wp-closing');}
     if(ok)place();};
   new MutationObserver(sync).observe(shell,{attributes:true,attributeFilter:['class']});
@@ -198,7 +198,7 @@
     d.addEventListener('keydown',e=>{if(e.key.length===1||e.key==='Enter'||e.key==='Backspace')typing(true);},true);
     d.addEventListener('input',()=>feed());d.addEventListener('selectionchange',()=>feed());};
   wc.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;e.stopPropagation();const c=b.dataset.c,d=FD();
-    if(c==='back')d?.getElementById('backBtn')?.click();
+    if(c==='back'){if(document.documentElement.classList.contains('rk-on'))window.OCHERKI_SET_MODE?.('write');else d?.getElementById('backBtn')?.click();}
     else if(c==='mic')d?.getElementById('voiceBtn')?.click();
     else if(c==='aa')d?.getElementById('textBtn')?.click();
     else if(c==='tips')document.querySelector('.bd-rail-key[data-rail="tips"]')?.click();
@@ -211,7 +211,8 @@
   document.addEventListener('click',e=>{if(!add.contains(e.target)&&!wc.contains(e.target))add.classList.remove('on');});
   // it rides on the head of the sheet, wherever the sheet goes
   let lastKey='';
-  const follow=()=>{requestAnimationFrame(follow);const on=isWrite();wc.classList.toggle('on',on);if(!on){add.classList.remove('on');return;}
+  // v220: in «Рукопись» the bar stays where it is (the sheet under it has gone off the screen; the bar does not follow it)
+  const follow=()=>{requestAnimationFrame(follow);const rk=document.documentElement.classList.contains('rk-on');const on=isWrite()||rk;wc.classList.toggle('on',on);if(rk){add.classList.remove('on');return;}if(!on){add.classList.remove('on');return;}
     const f=F(),d=FD();if(!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;dress();if(shell.classList.contains('ws-off'))return;
     const fr=f.getBoundingClientRect();
     // v192: the sheet's place in the layout, not its animated box — a sheet that is being laid or swapped must not drag the bar
@@ -413,6 +414,8 @@
   const pt=document.getElementById('projectTitle');if(pt)new MutationObserver(kick).observe(pt,{childList:true,characterData:true,subtree:true});
   const pc=document.getElementById('pageCount');if(pc)new MutationObserver(kick).observe(pc,{childList:true,characterData:true,subtree:true});
   addEventListener('resize',kick);setInterval(layout,1500);[400,1500,3500,7000].forEach(t=>setTimeout(layout,t));
+  new MutationObserver(()=>{const m=shell.classList.contains('is-manuscript');if(m!==layout._m){layout._m=m;layout();}}).observe(shell,{attributes:true,attributeFilter:['class']});// v220: back from «Рукопись» the desk is laid out at once
+
 })();
 
 
@@ -722,13 +725,13 @@
 // v206 — for now only the editor works: «Рукопись», «Книга», «Архив семьи», «Мои книги», the Keeper's tour and the return to
 // the start are «скоро». Their keys stay in their places (the design is kept); a press only says so. The book is still made
 // in the background for «Так ляжет».
-(()=>{const SOON=['manuscript','book','archive','shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
+(()=>{const SOON=['archive','book','shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
   let tip=null,tT=0;const say=k=>{const r=k.getBoundingClientRect();if(!tip){tip=document.createElement('div');tip.className='oc-soon-tip';document.body.appendChild(tip);}
     tip.textContent='скоро';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+30)+'px';tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),1300);};
   const stop=e=>{const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};
   ['pointerdown','mousedown','click'].forEach(t=>document.addEventListener(t,stop,true));
   const mark=()=>document.querySelectorAll(sel).forEach(k=>k.classList.add('oc-soon'));mark();setInterval(mark,1500);
-  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const g=t=>t==='write'?f(t):undefined;g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
+  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const g=t=>t==='write'||t==='manuscript'?f(t):undefined;g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
 
 // v207 — at night the desk comes in dark: until the lamp is lit everything on it (the sheets, the stack, the page) lies in the
 // dusk, and as the lamp lights up the dusk lifts with it, slowly

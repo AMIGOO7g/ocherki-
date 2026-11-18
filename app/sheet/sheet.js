@@ -3988,7 +3988,7 @@ window.OC_SHEET={
     setTimeout(()=>{after&&after();o.card.classList.add('fade');},800+900);
     setTimeout(()=>{o.card.remove();o.bg.remove();},800+900+480);};
   const openCard=(p,from,opts)=>{if(!p||open)return;const g=place();
-    const bg=HD.createElement('div');bg.className='ph-bg';HD.body.appendChild(bg);
+    const bg=HD.createElement('div');bg.className='ph-bg'+(opts.noVeil?' ph-bg-clear':'');HD.body.appendChild(bg);
     const card=HD.createElement('div');card.className='ph';Object.assign(card.style,{left:g.L+'px',top:g.T+'px',width:g.W+'px',height:g.H+'px'});
     card.style.setProperty('--phx',(-g.L)+'px');card.style.setProperty('--phy',(-g.T)+'px');
     const doc=!opts.album&&currentPage()?.type==='document';
@@ -4040,6 +4040,36 @@ window.OC_SHEET={
       card.querySelector('.ph-yes').addEventListener('click',()=>{const o=open;if(!o)return;open=null;const ph=currentPhotos(),i=ph.indexOf(o.p);if(i>=0)ph.splice(i,1);
         currentPage().photoOffset=Math.min(currentPage().photoOffset||0,Math.max(0,ph.length-1));o.card.classList.add('gone');o.bg.classList.remove('on');tellHost(false);
         setTimeout(()=>{o.card.remove();o.bg.remove();renderPhotos();persist();window.__OCHERKI_EMIT_STRUCTURE?.();},520);});}};
+  // v220 — the solitaire: all the photographs of the sheet laid out over the desk in rows (the pile keeps the last three and
+  // «+N»). A press on a print opens its card over the solitaire (it comes back there); a print dragged to another place
+  // changes the order; «собрать в стопку» (or a press beside the prints) gathers them back into the pile
+  let sol=null;
+  const solitaire=()=>{if(sol)return;const ph=currentPhotos();if(!ph.length)return;const pg=currentPage();
+    const veil=HD.createElement('div');veil.className='sol-veil';const box=HD.createElement('div');box.className='sol';
+    const a=document.getElementById('activeSheet').getBoundingClientRect(),o=off(),VW=(HD.defaultView||window).innerWidth;const W=Math.min(1100,VW-160),L=Math.max(80,o.x+a.left+a.width/2-W/2);
+    Object.assign(box.style,{left:L+'px',width:W+'px'});
+    const draw=()=>{const list=currentPhotos();box.querySelector('.sol-grid').innerHTML=list.map((p,i)=>`<div class="sol-pr" data-i="${i}" style="--r:${(((i*5)%7)-3)*.6}deg"><i style="background-image:url('${String(p.src).replace(/'/g,'%27')}')"></i>${p.caption?`<b>${String(p.caption).replace(/[&<>]/g,'')}</b>`:''}</div>`).join('');
+      box.querySelector('.sol-h span').textContent=`${list.length} ${list.length%10===1&&list.length%100!==11?'снимок':list.length%10>=2&&list.length%10<=4&&(list.length%100<12||list.length%100>14)?'снимка':'снимков'}`;};
+    box.innerHTML='<div class="sol-h"><b>фото этого листа</b><span></span></div><div class="sol-grid"></div><div class="sol-bar"><button type="button" class="sol-close">собрать в стопку</button><button type="button" class="sol-add">+ добавить фото</button></div>';
+    HD.body.append(veil,box);draw();sol={veil,box,draw};tellHost(true);requestAnimationFrame(()=>{veil.classList.add('on');box.classList.add('on');});
+    const shut=()=>{if(!sol||open)return;const S=sol;sol=null;S.veil.classList.remove('on');S.box.classList.remove('on');tellHost(false);setTimeout(()=>{S.veil.remove();S.box.remove();},450);try{renderPhotos();}catch(_){}};
+    veil.addEventListener('click',shut);box.querySelector('.sol-close').addEventListener('click',shut);
+    box.querySelector('.sol-add').addEventListener('click',()=>{shut();document.getElementById('addPhotoBtn')?.click();});
+    box.addEventListener('pointerdown',e=>{const c=e.target.closest('.sol-pr');if(!c||e.button!==0)return;e.preventDefault();const r=c.getBoundingClientRect(),x0=e.clientX,y0=e.clientY;let fl=null,to=-1;
+      try{c.setPointerCapture(e.pointerId);}catch(_){}
+      const mv=ev=>{const dx=ev.clientX-x0,dy=ev.clientY-y0;if(!fl&&Math.hypot(dx,dy)<6)return;
+        if(!fl){fl=c.cloneNode(true);fl.classList.add('sol-fly');Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});HD.body.appendChild(fl);c.classList.add('sol-gap');}
+        fl.style.transform=`translate(${dx}px,${dy}px) rotate(3deg) scale(1.1)`;fl.style.visibility='hidden';const el=HD.elementFromPoint(ev.clientX,ev.clientY);fl.style.visibility='';
+        box.querySelectorAll('.sol-before').forEach(x=>x.classList.remove('sol-before'));const t=el?.closest?.('.sol-pr');to=t&&t!==c?+t.dataset.i:-1;if(t&&t!==c)t.classList.add('sol-before');};
+      const up=ev=>{c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);box.querySelectorAll('.sol-before').forEach(x=>x.classList.remove('sol-before'));
+        const i=+c.dataset.i;if(!fl){if(ev.type==='pointerup')fromSolitaire(c,i);return;}fl.remove();c.classList.remove('sol-gap');
+        if(to>=0&&to!==i){const list=currentPhotos();const [m]=list.splice(i,1);list.splice(to>i?to-1:to,0,m);pg.photoOffset=Math.min(pg.photoOffset||0,list.length-1);persist();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}draw();}};
+      c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);});};
+  // a print of the solitaire opens its card (laid over the solitaire) and comes back to its place there
+  const hostPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);const o=off();return poseAt({left:r.left-o.x,top:r.top-o.y,width:r.width,height:r.height},Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);};
+  const fromSolitaire=(c,i)=>{const p=currentPhotos()[i];if(!p)return;
+    openCard(p,g=>hostPose(c,g),{noVeil:true,taken:()=>{c.style.visibility='hidden';},back:()=>{c.style.visibility='';try{updatePhotoStatus(p);}catch(_){}persist();sol?.draw();setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);}});};
+  window.__ocSolitaire=solitaire;
   // from the pile
   window.__ocTakePhoto=(c,idx)=>{c=c||stack.querySelector(`.photo-card[data-index="${idx}"]`)||stack.querySelector('.photo-card');if(!c)return;const p=currentPhotos()[idx];
     openCard(p,g=>printPose(c,g),{taken:()=>{c.style.visibility='hidden';},back:()=>{c.style.visibility='';try{updatePhotoStatus(p);}catch(_){}persist();setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);}});};
@@ -4060,6 +4090,6 @@ window.OC_SHEET={
   {let acc=0,last=0,idleT=0;stack.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(currentPhotos().length<=3)return;
       const d=e.deltaMode===1?e.deltaY*33:e.deltaY;acc+=d;clearTimeout(idleT);idleT=setTimeout(()=>{acc=0;},220);
       const now=performance.now();if(Math.abs(acc)<36||photoAnimating||now-last<460)return;last=now;const dir=acc>0?1:-1;acc=0;animatePhotoCarousel(dir);},{passive:false});
-    stack.addEventListener('click',e=>{if(!e.target.closest('.ph-more'))return;e.stopPropagation();animatePhotoCarousel(1);});}
+    stack.addEventListener('click',e=>{if(!e.target.closest('.ph-more'))return;e.stopPropagation();solitaire();});}
   window.__ocBadge=badge;
   window.__ocPhotoCardOpen=()=>!!open;})();

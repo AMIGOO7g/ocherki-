@@ -1,0 +1,46 @@
+/* «Рукопись» (v220) — the book's sheets in rows on the desk; see rukopis.js */
+.rk-board{position:fixed;inset:0;z-index:2147483080;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s linear .5s;
+  clip-path:inset(var(--rk-top,120px) 0 0 0)}
+html.rk-shown .rk-board{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .55s ease .05s}
+.rk-rows{position:absolute;left:0;right:0;top:0;width:max-content;margin:0 auto;will-change:transform}
+.rk-row{display:flex;align-items:flex-start;margin:0 0 34px}
+.rk-lab{flex:none;width:250px;padding:26px 18px 0 0;box-sizing:border-box}
+.rk-lab b{display:block;font:500 15px 'CormorantCy',Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:#6a4a2e}
+.rk-lab i{display:block;font:400 29px/1.2 'SignThatS','CormorantCy',Georgia,serif;font-style:normal;color:#3a2614;margin:6px 0 2px;padding:0 4px 4px 0}
+.rk-lab span{display:block;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;opacity:.85;margin-top:4px}
+.rk-cards{display:flex;flex-wrap:wrap;max-width:min(1100px,calc(100vw - 420px));gap:22px;padding:4px 0 8px}
+.rk-card{position:relative;flex:none;width:118px;height:160px;box-sizing:border-box;padding:12px 11px;border-radius:1px;cursor:grab;transform:rotate(var(--r,0deg));
+  background:linear-gradient(100deg,#f8f1e4,#f3e8d6);box-shadow:1px 2px 3px rgba(60,40,20,.28),8px 12px 18px -6px rgba(60,40,20,.3);
+  transition:filter 2.45s cubic-bezier(.37,0,.63,1),box-shadow .3s ease,translate .3s ease}
+.rk-card:hover{translate:0 -3px;box-shadow:1px 2px 3px rgba(60,40,20,.28),12px 18px 24px -6px rgba(60,40,20,.38)}
+.rk-card .rk-l{display:block;height:3px;margin:0 0 6.5px;background:rgba(90,63,38,.32);border-radius:2px}
+.rk-card .rk-ep{font:10px 'CormorantCy',Georgia,serif;color:#5a3f26;text-align:center;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid rgba(90,63,38,.3);padding-bottom:3px}
+.rk-card .rk-ph{position:absolute;left:-9px;top:56px;width:54px;height:42px;background:#ddd center/cover;border:3px solid #fbf7ef;box-shadow:1px 2px 4px rgba(40,25,10,.35);transform:rotate(-6deg)}
+.rk-card.doc{background:linear-gradient(100deg,#efe4cf,#e6d7bc)}.rk-card .rk-scan{height:60px;background:center/cover;margin:0 0 8px;filter:sepia(.5)}
+.rk-card .rk-rib{position:absolute;right:12px;top:-4px;width:9px;height:26px;background:#9a4b2a;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%)}
+.rk-card.cur{box-shadow:0 0 0 2px rgba(196,140,70,.9),0 0 18px 4px rgba(255,170,80,.35),8px 12px 18px -6px rgba(60,40,20,.3)}
+.rk-card.rk-gap{opacity:.25}
+.rk-card.rk-before{box-shadow:-14px 0 0 -11px rgba(154,69,16,.85),1px 2px 3px rgba(60,40,20,.28)}
+.rk-cards.rk-end{outline:1.5px dashed rgba(154,69,16,.45);outline-offset:6px}
+.rk-fly{position:fixed;z-index:2147483200;pointer-events:none;margin:0;transform-origin:50% 50%;box-shadow:3px 6px 8px rgba(60,40,20,.25),26px 40px 50px -10px rgba(60,40,20,.4)!important}
+.rk-add{all:unset;flex:none;width:118px;height:160px;box-sizing:border-box;border:1.5px dashed rgba(90,63,38,.45);display:flex;align-items:center;justify-content:center;
+  font:17px 'CormorantCy',Georgia,serif;color:#5a3f26;cursor:pointer;transition:background .3s}
+.rk-add:hover{background:rgba(255,250,240,.35)}
+/* the shadow under the bar, only as long as the bar: the rows go under its lower edge */
+.rk-shade{position:fixed;z-index:2147483081;height:22px;pointer-events:none;opacity:0;transition:opacity .5s ease;
+  background:linear-gradient(180deg,rgba(40,20,6,.26),rgba(40,20,6,0));border-radius:0 0 50% 50%/0 0 100% 100%}
+html.rk-shown .rk-shade{opacity:1}
+.rk-hint{position:fixed;left:0;right:0;bottom:18px;z-index:2147483081;text-align:center;font:16px 'CormorantCy',Georgia,serif;color:#5a3f26;opacity:0;pointer-events:none;transition:opacity .6s ease}
+html.rk-shown .rk-hint{opacity:.8}
+/* night: the words glow — the chapter's word upright, its name in handwriting, like the Keeper's ink on the start screen */
+html:has(.shell.is-night) .rk-lab b{color:#f0cfa0;text-shadow:0 0 6px rgba(255,150,60,.45)}
+html:has(.shell.is-night) .rk-lab i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.9),0 0 14px rgba(255,150,60,.55),0 0 28px rgba(255,120,40,.3)}
+html:has(.shell.is-night) .rk-lab span,html:has(.shell.is-night) .rk-hint{color:#e0c8a2}
+html:has(.shell.is-night) .rk-shade{background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0))}
+html:has(.shell.is-night) .rk-add{color:#e0c8a2;border-color:rgba(230,200,160,.45)}
+.rk-lab b,.rk-lab i,.rk-lab span{transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+/* while «Рукопись» is open: the bar keeps only what belongs here */
+html.rk-on .wc [data-c="mic"],html.rk-on .wc [data-c="aa"],html.rk-on .wc [data-c="add"],html.rk-on .wc .t b .ed{visibility:hidden}
+/* the paper that flies between the screens (from the book into the editor) */
+.ms-flyer{position:fixed;z-index:2147483150;pointer-events:none;border-radius:2px;background:linear-gradient(160deg,#fffaf1 0,#f6ecdc 55%,#eddcc2 100%);box-shadow:0 30px 60px rgba(40,22,8,.35);overflow:hidden}
+html.oc-to-room .ms-flyer{display:none!important}
