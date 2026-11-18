@@ -890,7 +890,8 @@ html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp{background:linea
 html:has(.shell.is-night) body.oct-book .bq-book .bq-lamp{background:radial-gradient(ellipse 70% 95% at 50% 0%,rgba(20,10,2,0) 0%,rgba(20,10,2,.12) 45%,rgba(20,10,2,.42) 100%)}
 .bq-book.single .bq-lamp{left:50%}
 /* «так ляжет» by day: no film over the page — only a soft shade to the right */
-html body .wp-page::after{background:linear-gradient(90deg,rgba(40,25,10,0) 0%,rgba(40,25,10,0) 50%,rgba(40,25,10,.1) 100%);mix-blend-mode:normal}
+/* v211: by day the page lies in the room's light like the desk around it — a cream tone, a little shade away from the window */
+html body .wp-page::after{background:linear-gradient(90deg,rgba(120,88,52,.04) 0%,rgba(110,80,48,.11) 55%,rgba(90,64,38,.2) 100%),linear-gradient(rgba(232,216,188,.26),rgba(232,216,188,.26));mix-blend-mode:normal}
 /* the cover alone in the middle: no pale ghost of a left page beside it */
 body.oct-book #bookPreviewModal .book-preview-spread.is-cover .book-preview-half.is-ghost{opacity:0!important;visibility:hidden!important}
 /* the cover alone, in the middle of the desk */
@@ -982,12 +983,13 @@ html body .oct .k.oc-soon{cursor:default}
    same 2.45 s as the desk, nothing jumps as day turns to night and back */
 html:has(.shell:not(.is-night)) :is(.wc .t,.wc .t *,.oct .lb,.oct .lbx,.oct .lbx *,.wp-cap,.wp-item .lab,.wk-hint,.okh-dot span,.bottom-left .brand-line .brand-strong,.ws-tabs button,.ws-ttl b,.ws-ttl span,.ws-q,.ws-nav,.ws-hint){text-shadow:none!important}
 html body :is(.wc .t,.wc .t *,.oct .lb,.oct .lbx,.oct .lbx *,.wp-cap,.wp-item .lab,.wk-hint,.okh-dot span,.ws-q,.ws-nav,.ws-hint){transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity .6s ease!important}
-/* v206 — the page's keys stand centred under it on its middle (laid from the middle, whatever their width); «свет дня» comes
-   with the night and goes with it over the same 2.45 s: it fades and gives back its room, «обновить» glides to the middle */
-html body .wp-keys.k-open{translate:-50% 0}
-.wp-keys .wp-item.dl{display:flex;max-width:0;margin-left:-22px;opacity:0;overflow:hidden;pointer-events:none;
-  transition:opacity 2.45s cubic-bezier(.37,0,.63,1),max-width 2.45s cubic-bezier(.37,0,.63,1),margin-left 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .wp-keys .wp-item.dl{max-width:120px;margin-left:0;opacity:1;pointer-events:auto;overflow:visible}
+/* v206/v211 — the page's keys stand centred under it on its middle. «свет дня» comes with the night and goes with it: it stands
+   beside «обновить» (taking no room), fades in and out, and the pair glides as one so that it is centred — no width animates */
+html body .shell.shell.shell .wp-keys.k-open.k-open{translate:-50% 0;transition:opacity .7s ease 1.25s,transform .8s ease 1.25s,translate 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) body .shell.shell.shell .wp-keys.k-open.k-open{translate:calc(-50% - 46px) 0}
+html body .wp-keys .wp-pg{transition:translate 2.45s cubic-bezier(.37,0,.63,1)}html:has(.shell.is-night) .wp-keys .wp-pg{translate:46px 0}
+.wp-keys .wp-item.dl{position:absolute;left:calc(100% + 22px);top:0;opacity:0;pointer-events:none;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .wp-keys .wp-item.dl{opacity:1;pointer-events:auto}
 /* v206 — the book's plate: the very size of the stack's tabs plate and in the same letters (no script, no dash between) */
 html body .ws-ttl{gap:14px}
 html body .ws-ttl b{font:italic 500 clamp(10px,calc(var(--ws-w,320px)*.045),16px)/1 'CormorantCy',Georgia,serif!important;margin:0!important;letter-spacing:.02em}
@@ -1042,8 +1044,8 @@ html body .ws-flyer.ws-landing{box-shadow:none!important;transition:transform .6
 .ws-fs{font:italic clamp(11px,calc(var(--ws-w,320px)*.04),15px) 'CormorantCy',Georgia,serif;text-align:center;opacity:.75;margin:3% 0 7%}
 .ws-face label{display:flex;align-items:flex-end;gap:10px;margin:0 0 5%;border-bottom:1px solid rgba(90,63,38,.35);cursor:text}
 .ws-face label span{flex:none;font:italic clamp(10px,calc(var(--ws-w,320px)*.036),14px) 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:4px}
-.ws-face input,.ws-face textarea{all:unset;flex:1;min-width:0;font:400 calc(var(--ws-w,320px)*.062)/1.2 'SignThatS','CormorantCy',Georgia,serif;color:#3b2716;padding:2px 0;cursor:text}
-.ws-face label.tx{flex-direction:column;align-items:stretch;gap:2px}.ws-face textarea{resize:none;line-height:1.3;font-size:calc(var(--ws-w,320px)*.052)}
+.ws-face input,.ws-face textarea{all:unset;flex:1;min-width:0;font:400 calc(var(--ws-w,320px)*.062)/1.7 'SignThatS','CormorantCy',Georgia,serif;color:#3b2716;padding:3px 0 1px;cursor:text}
+.ws-face label.tx{flex-direction:column;align-items:stretch;gap:2px}.ws-face textarea{resize:none;line-height:1.6;font-size:calc(var(--ws-w,320px)*.052)}
 .ws-fh{margin-top:auto;text-align:center;font:italic clamp(10px,calc(var(--ws-w,320px)*.04),15px) 'CormorantCy',Georgia,serif;opacity:.75}
 .ws-scan{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:24%;margin:0 0 6%;border:1.5px dashed rgba(90,63,38,.45);border-radius:3px;cursor:pointer;text-align:center;padding:0 8%;
   font:italic clamp(10px,calc(var(--ws-w,320px)*.038),14px)/1.3 'CormorantCy',Georgia,serif;background:center/contain no-repeat;transition:background-color .3s}
@@ -1063,3 +1065,16 @@ html body .ws-flyer.ws-near .ws-face{opacity:0;transition:opacity .25s ease}
 .ws-print.over{box-shadow:2px 4px 8px rgba(40,25,10,.35)}
 .ws-print.laid{transition:opacity .4s ease,transform .4s ease;opacity:0}
 .ws-print.back{transition:transform .36s cubic-bezier(.2,.8,.3,1)}
+/* v211 — the contact sheet turned: the top sheet goes off to the side, the next one lies under it */
+.ws-turnoff{position:fixed;z-index:2147483095;pointer-events:none;transform-origin:20% 90%;transition:transform .6s cubic-bezier(.4,0,.2,1),opacity .6s ease;box-shadow:2px 4px 8px rgba(40,25,10,.25)}
+.ws-turnoff.go.fwd{transform:translate(-46px,-14px) rotate(-7deg);opacity:0}
+.ws-turnoff.go.back{transform:translate(46px,-10px) rotate(6deg);opacity:0}
+.ws-turnoff .ws-f-photo{display:flex}.ws-turnoff>:is(.ws-q,.ws-nav,.ws-hint){visibility:hidden}
+html:has(.shell.is-night) .ws-turnoff{filter:brightness(.62) sepia(.2)}
+/* v211 — while a photograph's card is open the desk around it goes softly out of focus (one blur strength for all, eased) */
+@property --oc-blur{syntax:'<length>';inherits:true;initial-value:0px}
+html{transition:--oc-blur .5s ease}
+html:has(.shell.is-photo-card-open){--oc-blur:3px}
+html body :is(.ws-left,.ws-ttl,.wp-pane,.wp-keys,.wc,.oct,.oc-mus){filter:blur(var(--oc-blur))}
+.oc-focus{position:fixed;inset:0;z-index:11;pointer-events:none;-webkit-backdrop-filter:blur(var(--oc-blur));backdrop-filter:blur(var(--oc-blur));background:rgba(30,18,8,0);transition:background .5s ease}
+.shell.is-photo-card-open .oc-focus{background:rgba(30,18,8,.12)}

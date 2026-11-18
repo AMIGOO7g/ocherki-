@@ -232,9 +232,11 @@ body{
 .photo-card.p3{top:34px;left:-60px;transform:rotate(-8deg);z-index:1}
 .photo-stack:hover .photo-card.p2{top:136px;left:-62px;transform:rotate(3deg)}
 .photo-stack:hover .photo-card.p3{top:262px;left:-58px;transform:rotate(-4deg)}
-.pf-more{position:absolute;left:-74px;top:2px;z-index:4;pointer-events:none;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3);transition:opacity .3s}
-.photo-stack:hover .pf-more{opacity:0}
-.photo-card:hover{z-index:10;box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}
+.pf-more{all:unset;position:absolute;left:-74px;top:2px;z-index:4;pointer-events:auto;cursor:pointer;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3)}
+.pf-more:hover{color:#2f1d10}
+.photo-card.pf-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
+.photo-stack.pf-bump .photo-card{animation:pfBump .5s cubic-bezier(.3,.7,.2,1)}@keyframes pfBump{40%{scale:.985;filter:brightness(.97)}}
+.photo-card:hover{box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}
 .photo-card.p1:hover{transform:translateX(-12px) translateY(-1px) rotate(-3deg) scale(1.016)}
 .photo-card.p2:hover{transform:translateX(-12px) rotate(1.5deg) scale(1.016)}
 .photo-card.p3:hover{transform:translateX(-12px) translateY(2px) rotate(-2deg) scale(1.016)}
@@ -1298,7 +1300,7 @@ html body.host-day .sheet.ghost.g2{box-shadow:inset 0 0 0 2000px rgba(118,94,68,
 html body.host-day .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(96,74,52,.70),3px 3px 8px rgba(60,40,20,.18)!important}
 /* v205 — a sheet drawn from the pile into the open place is already in the room's light: no ghost dimming on it, and by day
    the window's shade lies on it from the same place on the screen as on the open sheet (kept in place per frame by put()) */
-html body .sheet.ghost.is-pulling{box-shadow:0 5px 12px rgba(0,0,0,.14)!important}
+html body:is(.host-day,.host-night) .sheet.ghost.is-pulling.is-pulling.is-pulling{box-shadow:0 5px 12px rgba(0,0,0,.14)!important;border-color:transparent!important;background:radial-gradient(120% 90% at 18% 6%,rgba(255,255,255,.68),rgba(0,0,0,0) 44%),linear-gradient(100deg,#f7efe2 0%,#f8efe2 68%,#efe0ca 100%)!important}
 html body.host-day .sheet.ghost.is-pulling::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:31;mix-blend-mode:multiply;
   background:var(--ws-shade) var(--gx,0px) var(--gy,0px)/var(--sun-w,100vw) var(--sun-h,100vh) no-repeat,
   linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(214,202,184,.6) 100%)}
@@ -1314,9 +1316,10 @@ html body .section-scroll-viewport .section-scroll-sheet{background:radial-gradi
 html body .section-scroll-viewport .section-scroll-sheet::before{content:"";display:block;position:absolute;inset:0;z-index:1;pointer-events:none;background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;opacity:0}
 html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opacity:1}
 /* the card: a real print that turns over — its face the photograph, its back the hand-written lines */
-.pf-bg{position:fixed;inset:0;z-index:2147483000;background:rgba(30,18,8,0);transition:background .5s ease}
-.pf-bg.on{background:rgba(30,18,8,.18)}
-.pf{position:fixed;z-index:2147483001;perspective:1600px;transform-origin:0 0}
+.pf-bg{position:fixed;inset:0;z-index:2147483000;-webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease}
+.pf-bg.on{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.pf.fly.home{transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .2s ease .38s;opacity:0}
+.pf{position:fixed;z-index:2147483001;perspective:1600px;transform-origin:50% 50%}
 .pf.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1)}
 .pf.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
 .pf-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
@@ -1328,9 +1331,12 @@ html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opac
 .pf-h button,.pf-act button,.pf-sure button{all:unset;cursor:pointer;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
 .pf-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);margin-bottom:14px;cursor:text}
 .pf-back label span{flex:none;font:italic 14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px;min-width:86px}
-.pf-back input,.pf-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.25 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:2px 0}
-.pf-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.pf-back textarea{font-size:23px;line-height:1.35;resize:none}
+.pf-back input,.pf-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.7 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:4px 0 2px;overflow:visible}
+.pf-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.pf-back textarea{font-size:23px;line-height:1.6;resize:none}
 .pf-act{margin-top:auto;display:flex;justify-content:space-between;padding-top:12px}
 .pf-sure{margin-top:10px;display:flex;gap:14px;align-items:baseline;font:italic 15px 'CormorantCy',Georgia,serif}.pf-sure[hidden]{display:none}
 .pf-sure .pf-yes{color:#9a3a1c;border-color:rgba(154,58,28,.45)}
 body.host-night .pf-back,body.host-night .pf-front{filter:brightness(.93) sepia(.08)}
+/* v211 — the episode's «когда · где» under its name on the sheet */
+.episode-sub{text-align:center;font:italic 15px/1.2 'CormorantCy',Georgia,serif;color:rgba(76,56,39,.7);margin:-4px 0 8px;min-height:0}
+.episode-sub:empty{display:none}

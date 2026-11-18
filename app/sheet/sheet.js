@@ -961,6 +961,9 @@ function render(){
   episodeLabel.setAttribute('spellcheck','false');
   episodeLabel.title=isChapter?'Нажмите и измените название эпизода':'';
   if(isChapter)episodeLabel.textContent=p.episode||'';
+  // v211: under an episode's name, its «когда · где» (the line the book prints under it)
+  {let el=episodeLabel.nextElementSibling;if(!el||!el.classList.contains('episode-sub')){el=document.createElement('div');el.className='episode-sub';episodeLabel.after(el);}
+    el.textContent=isChapter&&p.isEpisodeStart?String(p.episodeLine||'').trim():'';}
 
   const showIncludeToggle=optionalAuto();
   const paperEl=activeSheet.querySelector('.paper');
@@ -2670,19 +2673,29 @@ function visiblePhotoIndices(){
   return res;
 }
 
+// v211: riffling through the prints — the one on top slips out to the side, the rest glide to their new places, the next one
+// comes up from beneath (it was an instant redraw)
 function animatePhotoCarousel(direction){
   const photos=currentPhotos();
   if(photoAnimating||photos.length<=3)return;
   photoAnimating=true;
-  try{
-    const p=currentPage();
-    if(!p) return;
-    p.photoOffset=((p.photoOffset||0)+direction+photos.length)%photos.length;
-    renderPhotos();
-  }finally{
-    photoAnimating=false;
-    armInteractionWatchdog();
-  }
+  const p=currentPage();
+  const before=new Map([...photoStack.querySelectorAll('.photo-card')].map(c=>[c.dataset.index,c.getBoundingClientRect()]));
+  const leaving=photoStack.querySelector(direction>0?'.photo-card.p1':'.photo-card.p3');
+  if(leaving){leaving.style.transition='left .3s ease,opacity .3s ease';leaving.style.left='-170px';leaving.style.opacity='0';}
+  try{(window.parent?.parent?.OcherkiFX||window.parent?.OcherkiFX)?.play?.('page',.25);}catch(_){}
+  setTimeout(()=>{
+    try{
+      if(p){
+        p.photoOffset=((p.photoOffset||0)+direction+photos.length)%photos.length;
+        renderPhotos();
+        photoStack.querySelectorAll('.photo-card').forEach(c=>{const r0=before.get(c.dataset.index);
+          if(c.dataset.index===leaving?.dataset.index||!r0){c.classList.add('pf-rise');return;}
+          const r1=c.getBoundingClientRect();c.style.translate=`${(r0.left-r1.left).toFixed(1)}px ${(r0.top-r1.top).toFixed(1)}px`;void c.offsetWidth;
+          c.style.transition='translate .38s cubic-bezier(.2,.8,.3,1)';c.style.translate='0px 0px';setTimeout(()=>{c.style.removeProperty('transition');c.style.removeProperty('translate');},420);});
+      }
+    }finally{photoAnimating=false;armInteractionWatchdog();}
+  },290);
 }
 
 function renderPhotos(){
@@ -2719,6 +2732,7 @@ function renderPhotos(){
   });
 
   // v210: no arrows beside the prints any more — the pile fans out under the hand, and «+N» tells how many lie beneath
+  window.__ocBadge?.();
 }
 
 function positionPhotoModal(){
@@ -4207,7 +4221,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
       const q=[L,T,ar.left,ar.top,ar.width,ar.height,a.offsetHeight,bs.getPropertyValue('--sun-x'),bs.getPropertyValue('--sun-y'),a.className].join('|');
       if(!mv&&put._q===q)return;put._q=mv?'':q;}
     {const k=Math.round(L)+','+Math.round(T)+','+a.offsetHeight;if(put._k!==k){put._k=k;const st=document.body.style;st.setProperty('--sh-l',Math.round(L)+'px');st.setProperty('--sh-t',Math.round(T)+'px');st.setProperty('--sh-h',a.offsetHeight+'px');st.setProperty('--sh-bl',a.clientLeft+'px');st.setProperty('--sh-bt',a.clientTop+'px');st.setProperty('--sh-ph',a.clientHeight+'px');}}
-    document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
+    document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=0,y=Math.round(T-r.top),h=Math.round(r.height);// v211: across, the light goes with the sheet (it was held still and bared a white strip as the sheet slid aside); up and down it stays
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
       const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});
     {const st=document.body.style,sx=parseFloat(st.getPropertyValue('--sun-x'))||0,sy=parseFloat(st.getPropertyValue('--sun-y'))||0;
@@ -4224,11 +4238,14 @@ window.OC_SHEET={
   canPhoto(){const p=currentPage();return !!p&&canHavePhotos(p);},
   addPhotoCopy(rec){const p=currentPage();if(!p||!canHavePhotos(p)||!rec)return false;
     const n=Object.assign({},rec,{id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),_newEntry:true});
-    if(!Array.isArray(p.photos))p.photos=[];p.photos.push(n);try{window.LifeBookPageBlocks?.addPhoto(p,n);window.LifeBookCompositionEngine?.update(p);}catch(_){}
-    updateContextActions();renderPhotos();window.__OCHERKI_EMIT_STRUCTURE?.();return true;},
+    if(!Array.isArray(p.photos))p.photos=[];const before=p.photos.length;p.photos.push(n);try{window.LifeBookPageBlocks?.addPhoto(p,n);window.LifeBookCompositionEngine?.update(p);}catch(_){}
+    // v211: a print slid under a pile that already shows three: the pile is not laid out again — it settles, its «+N» grows
+    updateContextActions();if(before>=3&&window.__ocPileBump){delete n._newEntry;window.__ocPileBump();}else renderPhotos();persistSoon();window.__OCHERKI_EMIT_STRUCTURE?.();return true;},
   setEpisode(o){const p=currentPage();if(!p||!o)return;const t=(o.title||'').trim();
     if(t){p.title=t;p.episode=String(p.episode||'Эпизод 1.').replace(/^(Эпизод\s*\d+\.).*$/,'$1 '+t);}
     if((o.when||'').trim())p.episodeWhen=o.when.trim();if((o.where||'').trim())p.episodeWhere=o.where.trim();
+    // v211: «когда · где» is the episode's line — the book already prints it under the episode's name on its opening page
+    {const line=[p.episodeWhen,p.episodeWhere].filter(Boolean).join(' · ');if(line&&!String(p.episodeLine||'').trim())p.episodeLine=line;}
     render();window.__OCHERKI_EMIT_STRUCTURE?.();},
   setDocument(o){const p=currentPage();if(!p||p.type!=='document'||!o)return;const t=(o.title||'').trim(),x=(o.text||'').trim();
     if(t)p.title=t;if(x)p.text=x;
@@ -4242,15 +4259,16 @@ window.OC_SHEET={
 // on it, when, where and its story (the very fields the book prints, as the old card had them); «вернуть в стопку» turns
 // it face up again and lays it back; «удалить из главы» asks first.
 (()=>{const stack=document.getElementById('photoStack')||document.querySelector('.photo-stack');if(!stack)return;
-  const base=window.renderPhotos;window.renderPhotos=function(){const r=base.apply(this,arguments);try{const ph=currentPhotos(),n=ph.length-stack.querySelectorAll('.photo-card').length;
-      let m=stack.querySelector('.pf-more');if(n>0){if(!m){m=document.createElement('span');m.className='pf-more';stack.appendChild(m);}m.textContent='+'+n;}else m?.remove();
-      }catch(_){}return r;};
   let open=null;const K=[['people','кто на фото'],['year','когда'],['place','где']];
   const persist=()=>{try{persistSoon();}catch(_){}};
+  // where the print lies, as a pose of the card: its centre on the print's centre, one scale (no stretching), the print's tilt
+  const printPose=(c,L,T,W,H)=>{const r=c.getBoundingClientRect(),m=new DOMMatrix(getComputedStyle(c).transform==='none'?undefined:getComputedStyle(c).transform),ang=Math.atan2(m.b,m.a)*180/Math.PI;
+    const w=c.offsetWidth||r.width,k=w/W;return `translate(${(r.left+r.width/2-(L+W/2)).toFixed(1)}px,${(r.top+r.height/2-(T+H/2)).toFixed(1)}px) rotate(${ang.toFixed(2)}deg) scale(${k.toFixed(4)})`;};
   const shut=(cb)=>{if(!open)return;const o=open;open=null;o.card.classList.remove('flip');o.bg.classList.remove('on');
     try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:false},'*');}catch(_){}
-    setTimeout(()=>{o.card.classList.add('fly');o.card.style.transform=o.from;},620);
-    setTimeout(()=>{o.card.remove();o.bg.remove();if(o.print)o.print.style.visibility='';try{updatePhotoStatus(o.p);}catch(_){}renderPhotos();persist();setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);cb&&cb();},620+560);};
+    // it turns face up first, all the way, and only then goes back to its place in the pile, fading into the print there
+    setTimeout(()=>{const r=o.card.getBoundingClientRect();o.card.classList.add('fly','home');o.card.style.transform=o.print?printPose(o.print,parseFloat(o.card.style.left),parseFloat(o.card.style.top),parseFloat(o.card.style.width),parseFloat(o.card.style.height)):o.from;},800);
+    setTimeout(()=>{o.card.remove();o.bg.remove();if(o.print)o.print.style.visibility='';try{updatePhotoStatus(o.p);}catch(_){}renderPhotos();persist();setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);cb&&cb();},800+560);};
   const take=(c,idx)=>{const p=currentPhotos()[idx];if(!p||open)return;const a=document.getElementById('activeSheet');if(!a)return;
     const s=a.getBoundingClientRect(),r=c.getBoundingClientRect();const W=Math.min(s.width*.8,560),H=Math.round(W*1.2),L=s.left+(s.width-W)/2,T=s.top+Math.max(40,s.height*.1);
     const bg=document.createElement('div');bg.className='pf-bg';document.body.appendChild(bg);
@@ -4261,7 +4279,7 @@ window.OC_SHEET={
       <div class="pf-act"><button type="button" class="pf-ret">вернуть в стопку</button><button type="button" class="pf-del">удалить из главы</button></div>
       <div class="pf-sure" hidden><span>Удалить это фото из главы?</span><button type="button" class="pf-yes">да, удалить</button><button type="button" class="pf-no">нет</button></div></div></div>`;
     card.querySelector('.pf-front img').src=p.src;card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';x.addEventListener('input',()=>{p[x.dataset.k]=x.value.trim();persist();});});{const pg=currentPage(),x=card.querySelector('[data-x="explanation"]');if(x&&pg){x.value=pg.explanation||p.explanation||'';x.addEventListener('input',()=>{pg.explanation=x.value.trim();persist();});}}
-    const from=`translate(${(r.left-L).toFixed(1)}px,${(r.top-T).toFixed(1)}px) scale(${(r.width/W).toFixed(4)},${(r.height/H).toFixed(4)}) rotate(-4deg)`;
+    const from=printPose(c,L,T,W,H);
     card.style.transform=from;document.body.appendChild(card);c.style.visibility='hidden';open={card,bg,p,idx,print:c,from};
     try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:true},'*');}catch(_){}
     requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
@@ -4276,4 +4294,10 @@ window.OC_SHEET={
     bg.addEventListener('click',()=>shut());};
   window.__ocTakePhoto=(c,idx)=>{c=c||stack.querySelector(`.photo-card[data-index="${idx}"]`)||stack.querySelector('.photo-card');if(c)take(c,idx);};
   addEventListener('keydown',e=>{if(e.key==='Escape'&&open)shut();});
+  const badge=()=>{const n=currentPhotos().length-stack.querySelectorAll('.photo-card').length;let m=stack.querySelector('.pf-more');
+    if(n>0){if(!m){m=document.createElement('button');m.type='button';m.className='pf-more';stack.appendChild(m);}m.textContent='+'+n;}else m?.remove();};
+  // the wheel over the prints riffles through them; so does a press on «+N»
+  {let last=0;stack.addEventListener('wheel',e=>{if(currentPhotos().length<=3)return;e.preventDefault();e.stopPropagation();const t=performance.now();if(t-last<420)return;last=t;animatePhotoCarousel(e.deltaY>0?1:-1);},{passive:false});
+    stack.addEventListener('click',e=>{if(!e.target.closest('.pf-more'))return;e.stopPropagation();animatePhotoCarousel(1);});}
+  window.__ocBadge=badge;window.__ocPileBump=()=>{badge();stack.classList.remove('pf-bump');void stack.offsetWidth;stack.classList.add('pf-bump');setTimeout(()=>stack.classList.remove('pf-bump'),520);};
   window.__ocPhotoCardOpen=()=>!!open;})();

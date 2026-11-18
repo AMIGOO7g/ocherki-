@@ -262,8 +262,14 @@
     const k=r?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'';if(k!==lampKey||kick){lampKey=k;kick=false;busyTill=t+2200;}
     if(t<busyTill||++fr%15===0)lamp();});
   // what it says: where we are, «до книги», saved
+  // v211: the name over the sheet — the name written for a document or an episode; without one, «Эпизод N · документ» (the
+  // empty «Архивный документ» / «Новый эпизод» read as mistakes)
+  const barName=d=>{const raw=(d?.querySelector('.topbar .chapter')?.textContent||'').trim();try{const W=F()?.contentWindow,pg=W?.currentPage?.();if(!pg)return raw;
+      const ep=String(pg.episode||'').match(/^Эпизод\s*\d+/)?.[0]||'',t=String(pg.title||'').trim();
+      if(pg.type==='document')return t&&t!=='Архивный документ'?t:[ep,'документ'].filter(Boolean).join(' · ');
+      if(t==='Новый эпизод')return ep||raw;}catch(_){}return raw;};
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
-    const ch=(d?.querySelector('.topbar .chapter')?.textContent||'').trim(),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
+    const ch=barName(d),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
     const t=[ch,n&&all?`лист ${n} из ${all}`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te.textContent!==t)te.textContent=t;
     const tk=document.querySelector('.bd-rail-key[data-rail="tips"]');const m=(tk?.getAttribute('aria-label')||'').match(/(\d+)/);const em=wc.querySelector('[data-c="tips"] em');em.textContent=m?m[1]:'';wc.querySelector('[data-c="tips"]').classList.toggle('on',!!m);
     const ss=(d?.getElementById('saveState')?.textContent||'');const dot=wc.querySelector('.sv');dot.classList.toggle('busy',/Сохраня/i.test(ss));dot.title=ss||'Черновик сохранён';};
@@ -535,12 +541,19 @@
     act(k);};
   // the contact sheet: eight photographs a page and a cell to bring more from the computer
   const grid=left.querySelector('.ws-grid'),pc=left.querySelector('.ws-pc');let pgN=0,lastSig='';
-  const fillGrid=()=>{const o=OC();const all=o?o.allPhotos():[];const per=8,pages=Math.max(1,Math.ceil((all.length+1)/(per+1)));pgN=Math.min(pgN,pages-1);
+  // v211: nine photographs a sheet; «+ добавить фото» only on the last sheet (a new sheet holds it when the last one is full)
+  const fillGrid=()=>{const o=OC();const all=o?o.allPhotos():[];const per=9,pages=Math.max(1,Math.ceil((all.length+1)/per));pgN=Math.min(pgN,pages-1);
     const sig=all.length+'|'+pgN+'|'+(all[0]?.id||'');if(sig===lastSig)return;lastSig=sig;
     const part=all.slice(pgN*per,pgN*per+per);
-    grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+'<button type="button" class="ws-add">+ добавить<br>фото</button>';
-    pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;};
-  left.querySelector('.ws-pnav').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;e.stopPropagation();pgN=Math.max(0,pgN+(+b.dataset.p));lastSig='';fillGrid();});
+    grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+(pgN===pages-1&&part.length<per?'<button type="button" class="ws-add">+ добавить<br>фото</button>':'');
+    pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;grid._pages=pages;};
+  // turning to another sheet of the contact prints: the top sheet is taken off to the side, the next lies under it (with the
+  // rustle of paper)
+  const turnGrid=d=>{const pages=grid._pages||1,n=Math.max(0,Math.min(pages-1,pgN+d));if(n===pgN)return;
+    const r=top.getBoundingClientRect(),fl=top.cloneNode(true);fl.classList.add('ws-turnoff');fl.querySelectorAll('.ws-tabs,.ws-lt,input,textarea').forEach(x=>x.remove());
+    Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);paperFx(.4);
+    pgN=n;lastSig='';fillGrid();requestAnimationFrame(()=>requestAnimationFrame(()=>fl.classList.add('go',d>0?'fwd':'back')));setTimeout(()=>fl.remove(),700);};
+  left.querySelector('.ws-pnav').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;e.stopPropagation();turnGrid(+b.dataset.p);});
   grid.addEventListener('click',e=>{if(e.target.closest('.ws-add')){e.stopPropagation();try{FW2().document.getElementById('addPhotoBtn')?.click();}catch(_){}}});
   setInterval(()=>{if(kind==='photo')fillGrid();},1500);
   left.querySelector('.ws-tabs').addEventListener('click',()=>{if(kind==='photo'){lastSig='';fillGrid();}});
@@ -700,5 +713,5 @@
 
 // v207 — at night the desk comes in dark: until the lamp is lit everything on it (the sheets, the stack, the page) lies in the
 // dusk, and as the lamp lights up the dusk lifts with it, slowly
-(()=>{const sh=document.querySelector('.shell');if(!sh)return;const d=document.createElement('div');d.className='oc-dusk';document.body.appendChild(d);
+(()=>{const sh=document.querySelector('.shell');if(!sh)return;const d=document.createElement('div');d.className='oc-dusk';document.body.appendChild(d);{const f=document.createElement('div');f.className='oc-focus';sh.prepend(f);}
   const up=()=>d.classList.toggle('on',sh.classList.contains('is-night')&&!sh.classList.contains('oc-lit'));new MutationObserver(up).observe(sh,{attributes:true,attributeFilter:['class']});up();})();
