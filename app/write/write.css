@@ -845,3 +845,32 @@ html:has(.shell.is-book-preview) .ws-left.ws-aside{display:block!important;point
 .ws-left.ws-aside:hover{transform:translateX(calc(-100% + 120px)) scale(.82)}
 html:has(.shell.is-night) .ws-left.ws-aside{filter:brightness(.42) sepia(.35)}
 .ws-left.ws-aside{transition:transform .9s cubic-bezier(.3,.7,.2,1),opacity .6s ease,filter 2.45s cubic-bezier(.37,0,.63,1)}
+
+/* ——— v200 — «Писать» ↔ «Книга»: a real move on the desk ———
+   the sheets set off slowly, gather speed and slide away to the left turning a little, as paper pushed across a desk does;
+   the book slides in from the right, slows down on the desk's cloth and settles with the last small give; back the same way */
+.shell.is-open.is-book-preview .editor-paper-wrap{transform:translateX(calc(-100vw - 180px)) rotate(-3deg)!important;transition:transform 1.3s cubic-bezier(.62,.02,.32,1)!important}
+.shell.is-open:not(.is-book-preview) .editor-paper-wrap{transition-timing-function:cubic-bezier(.2,.75,.25,1)!important}
+html:has(.shell.is-book-preview) .ws-left.ws-aside{transform:translateX(calc(-100% + 90px)) rotate(-2.5deg) scale(.82)!important;transition:transform 1.25s cubic-bezier(.62,.02,.32,1),filter 2.45s cubic-bezier(.37,0,.63,1)!important}
+@keyframes bkArrive{0%{translate:64vw 0;rotate:1.8deg}62%{translate:-.7vw 0;rotate:-.25deg}82%{translate:.2vw 0;rotate:.05deg}100%{translate:0 0;rotate:0deg}}
+@keyframes bkArriveArc{0%{translate:40vw 0;opacity:0}40%{opacity:0}100%{translate:0 0;opacity:1}}
+@keyframes bkDepart{0%{translate:0 0;rotate:0deg}18%{translate:-.5vw 0;rotate:-.1deg}100%{translate:66vw 0;rotate:2deg}}
+/* it starts the moment the desk turns to the book (the old «is-entering» came a second late — the book stood there already) */
+/* the book is laid out first (the page stands still while it is), hidden; only then it slides in — a move that is not
+   interrupted by the layout half way */
+#bookPreviewModal.is-preparing .book-preview-stage,html:has(#bookPreviewModal.is-preparing) :is(.bq-book,.bq-name){opacity:0!important;animation:none!important}
+html:has(#bookPreviewModal.is-entering) :is(.bq-book,.bq-name),#bookPreviewModal.is-entering .book-preview-stage{animation:bkArrive 1.35s cubic-bezier(.16,.8,.3,1) both!important}
+html:has(#bookPreviewModal.is-entering) .bq-book{transition:opacity .15s ease!important}
+#bookPreviewModal.is-entering .preview-arc{animation:bkArriveArc 1.6s cubic-bezier(.2,.8,.3,1) both}
+/* leaving: the book does not fade on the spot — it is pushed off to the right, then the modal closes */
+#bookPreviewModal.book-preview-modal.is-closing .book-preview-stage{opacity:1!important;transition:none!important}
+html:has(#bookPreviewModal.is-closing) :is(.bq-book,.bq-name),#bookPreviewModal.is-closing .book-preview-stage{animation:bkDepart 1.05s cubic-bezier(.6,0,.75,.35) both!important}
+html:has(#bookPreviewModal.is-closing) .bq-book{opacity:1!important}
+#bookPreviewModal.is-closing .preview-arc{opacity:0!important;transition:opacity .35s ease!important}
+/* v200 — the lamp's pool on the desk as in the reference: no beam with edges — a warm round pool under the bar, hot orange
+   right below it, the wood (the toile) warm and rich in it, the room's corners almost black */
+html body .desk-cone{filter:blur(24px)}
+html body .desk-cone i{clip-path:none!important;background:
+  radial-gradient(ellipse calc(var(--bar-w,860px)*.34) 120px at calc(var(--bar-l,530px) + var(--bar-w,860px)/2) calc(var(--bar-t,115px) + 58px),rgba(255,170,70,.9) 0%,rgba(255,150,50,.45) 55%,rgba(255,140,40,0) 100%),
+  radial-gradient(ellipse calc(var(--bar-w,860px)*.78) 78vh at calc(var(--bar-l,530px) + var(--bar-w,860px)/2) calc(var(--bar-t,115px) + 40px),rgba(255,165,75,1) 0%,rgba(240,130,40,.8) 32%,rgba(200,95,20,.42) 64%,rgba(150,70,15,0) 100%)!important}
+html body .desk-shade{background:radial-gradient(ellipse 72% 92% at 50% 22%,rgba(10,5,2,0) 0%,rgba(10,5,2,.3) 50%,rgba(6,3,1,.82) 100%)}

@@ -212,7 +212,7 @@
     if(bl&&night&&bk){const q=bq.getBoundingClientRect();if(q.width){const edge=(ex,dxs)=>{let dx=dxs,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dxs>0?dy:-dy,ny=dxs>0?-dx:dx,A=Math.atan2(nx,-ny),
           L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((ex-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
           return `linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(0,0,0,0) ${(t-6).toFixed(1)}%,rgba(110,76,44,.55) ${(t+8).toFixed(1)}%,rgba(40,24,10,.72) ${(t+26).toFixed(1)}%)`;};
-        const bg=edge(x1,sp)+','+edge(x0,-sp)+',linear-gradient(180deg,rgba(240,225,200,.04) 0%,rgba(225,200,165,.12) 40%,rgba(180,140,96,.32) 100%)';if(bl._bg!==bg){bl._bg=bg;bl.style.background=bg;}}}
+        const bg='radial-gradient(ellipse 62% 92% at 50% 0%,rgba(255,250,242,0) 0%,rgba(244,222,196,.16) 34%,rgba(222,186,152,.36) 68%,rgba(186,148,116,.56) 100%)';void edge;if(bl._bg!==bg){bl._bg=bg;bl.style.background=bg;}}}
     // v197: the clean stack on the left is lit the same way — only where the beam falls, its left edge running from the bar's
     // other end down and out (the same light as on the book's page, mirrored)
     const wl=document.querySelector('.ws-left');
