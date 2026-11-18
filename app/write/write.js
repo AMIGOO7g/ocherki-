@@ -603,7 +603,7 @@
   let drag=null;
   top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo'||turning)return;e.preventDefault();
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
-    fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
+    fl.querySelectorAll(shell.classList.contains('is-night')?'.ws-tabs,.ws-nav':'.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());{const nb=left.style.getPropertyValue('--ws-nbg');if(nb)fl.style.setProperty('--ws-nbg',nb);}// v213: at night the sheet in the hand stays in the lamp's half-light (it went bright white)fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
     // v207: everything the move needs is measured once, here: where the open sheet lies and where it can be dropped
     const sr=sheetRect(),wr=wrapEl()?.getBoundingClientRect();

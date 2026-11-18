@@ -1918,6 +1918,10 @@ function makeSiblingPage(src,blank=true,options={}){
   };
 }
 
+// v213: a new sheet (a page, an episode, a document) is ready to be written on: once it has come, the caret stands in its text,
+// blinking — there is nothing to guess about where to click
+function caretInNewSheet(){setTimeout(()=>{try{if(window.__ocPhotoCardOpen?.())return;try{window.focus();}catch(_){}editor.focus({preventScroll:true});
+  const r=document.createRange();r.selectNodeContents(editor);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);}catch(_){}},760);}
 function addPage(){
   currentPage().text=textFromEditor();
   const sec=currentSection();
@@ -1925,6 +1929,7 @@ function addPage(){
   sec.pages.splice(at,0,makeSiblingPage(currentPage(),true,{userCreated:true}));
   render();
   animatePageChange(at);
+  caretInNewSheet();
 }
 
 document.getElementById('addPageBtn').onclick=addPage;
@@ -2542,7 +2547,7 @@ function addDocumentPage(opts){
   sec.pages.splice(at,0,{uid,id:uid,type:'document',bookRole:'document',title:String(opts?.title||'').trim()||'Архивный документ',episode:currentPage()?.episode||'Эпизод 1. Новый эпизод',text:String(opts?.text||'').trim(),explanation:'',photos:opts?.src?[{id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:opts.src,caption:String(opts?.title||'').trim(),year:'',place:'',people:'',source:'',story:'',photoMode:'auto',layoutPreference:'auto',isDocument:true,status:'uploaded',_newEntry:true}]:[],photoOffset:0,included:true,isEpisodeStart:false,userCreated:true});
   sec.included=true;
   sec.active=at;
-  closeMoreMenu(); render(); animatePageChange(at);
+  closeMoreMenu(); render(); animatePageChange(at); caretInNewSheet();
   window.__OCHERKI_EMIT_STRUCTURE?.();
 }
 function addEpisode(opts){
@@ -2561,7 +2566,7 @@ function addEpisode(opts){
     ...(wh[0]?{episodeWhen:wh[0]}:{}),...(wh[1]?{episodeWhere:wh[1]}:{}),...(wh[0]||wh[1]?{episodeLine:wh.filter(Boolean).join(' · ')}:{})});
   sec.included=true;
   sec.active=at;
-  closeMoreMenu(); render(); animatePageChange(at);
+  closeMoreMenu(); render(); animatePageChange(at); caretInNewSheet();
   window.__OCHERKI_EMIT_STRUCTURE?.();
 }
 document.getElementById('addDocumentBtn')?.addEventListener('click',addDocumentPage);

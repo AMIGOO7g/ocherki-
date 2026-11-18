@@ -62,6 +62,10 @@
   const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj || {}, key);
   const clean = value => String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   const cleanText = value => clean(value).replace(/([.!?…»”])(?=[А-ЯЁа-яё])/g, '$1 ');
+  // v213: a document's transcription keeps its paragraphs: each new paragraph begins on a new line with an indent (as one writes
+  // on ruled paper), the spaces inside a line are tidied as before
+  const paragraphs = value => String(value == null ? '' : value).replace(/\r/g, '').split(/\n+/).map(line => line.replace(/[ \t\u00a0]+/g, ' ').trim()).filter(Boolean).join('\n');
+  const paragraphsHtml = (value, escape, tidy = x => x) => paragraphs(value).split('\n').filter(Boolean).map(line => escape(tidy(line))).join('\n&emsp;&emsp;');
   const cleanEpisode = value => clean(value).replace(/^Эпизод\s+\d+[.:]?\s*/i, '').trim();
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -1029,7 +1033,7 @@
       const documentImage = ctx.image ? ctx.image(source, page.photoIndex || 0) : '';
       const documentCaption = caption(page.photoIndex || 0);
       if (documentImage) return article('D01-DOCUMENT', `<figure class="dpk-document-scan">${image(page.photoIndex || 0)}</figure>${documentCaption ? `<div class="dpk-caption">${documentCaption}</div>` : ''}${folio}`, 'dpk-document-image');
-      return article('D01-DOCUMENT', `<div class="dpk-document-transcript"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p>${text}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
+      return article('D01-DOCUMENT', `<div class="dpk-document-transcript"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p style="white-space:pre-line">${paragraphsHtml(own(page, 'text') ? page.text : source.text || '', esc, cleanText)}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
     }
     if (role === 'document-comment') {
       const documentDate=esc([inferred.place,inferred.date].filter(Boolean).join(', '));
@@ -1039,9 +1043,9 @@
       // note below. Without a transcription the explanation is the hand text.
       // handChunk/handSize come from the engine when a long text continues on
       // further ruled sheets (only the first sheet carries the note).
-      const transcript=clean(page.transcript||''),hand=page.handChunk!=null?String(page.handChunk):transcript||clean(page.text||''),note=transcript&&!page.handContinuation?clean(page.note||''):'';
+      const transcript=paragraphs(page.transcript||''),hand=page.handChunk!=null?paragraphs(page.handChunk):transcript||paragraphs(page.text||''),note=transcript&&!page.handContinuation?clean(page.note||''):'';
       const size=Array.isArray(page.handSize)?page.handSize:hand.length<=250?[30,46]:hand.length<=550?[26,40]:[22,34];
-      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate&&!page.handContinuation?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${esc(hand)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource&&!page.handContinuation?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
+      return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate&&!page.handContinuation?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${paragraphsHtml(hand,esc)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource&&!page.handContinuation?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
     }
     if (role === 'timeline') {
       const items = (page.items || []).map(item => `<div class="dpk-timeline-row"><b>${esc(item.year || '')}</b><i></i><span>${esc(item.text || '')}</span></div>`).join('');
