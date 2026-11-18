@@ -91,7 +91,7 @@
     let H=base.height*.8,W=H*pw/ph;if(base.width+G+W>room){W=Math.max(0,room-base.width-G);H=W*ph/pw;}
     let d=(W+G)/2;
     // v119: the sheet stays where it is — the book's page comes out on its right.
-    if(shell.classList.contains('oc-w')){const r2=innerWidth-(base.left+base.width)-G-40;H=base.height*(window.__ocWsRoom?.()?.62:.8);W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;}
+    if(shell.classList.contains('oc-w')){const r2=innerWidth-(base.left+base.width)-G-40;H=base.height*(window.__ocWsRoom?.()?.52:.8);W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;}
     return {base,W,H,G,d,extra,ok:W>=260};}
   function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G;
     const css=on?`left:${L}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`:`left:${b.left+b.width+g.extra-g.W*.7}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
@@ -114,6 +114,11 @@
     if(res){host.innerHTML=res.html;shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
     else{host.innerHTML='<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>';pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
     place();window.__ocherkiScalePages?.();ref.classList.remove('is-stale');stale=false;}
+  // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
+  // made the desk stall); the picture of the old page stays meanwhile
+  let lastHand=0;['pointerdown','pointermove','keydown'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
+  const quietRefresh=()=>{const q=performance.now()-lastHand;if(q<1100){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,1150-q);return;}
+    (window.requestIdleCallback||(f=>setTimeout(f,0)))(()=>refresh(false),{timeout:900});};
   function refresh(first){if(!on||busy)return;busy=true;pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
     ref.classList.remove('is-spin');void ref.offsetWidth;ref.classList.add('is-spin');clearTimeout(refresh.s);refresh.s=setTimeout(()=>ref.classList.remove('is-spin'),950);
     setTimeout(()=>{paint();requestAnimationFrame(()=>window.__ocherkiScalePages?.());
@@ -122,11 +127,12 @@
   ref.querySelector('button').addEventListener('click',()=>{pick=null;refresh(false);});
   pg.addEventListener('click',e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;pick=Math.max(0,Math.min(count-1,(pick||0)+(+b.dataset.pg)));refresh(false);});
   addEventListener('message',e=>{const d=e.data||{};
-    if(d.type==='OCHERKI_ACTIVE_STATE'&&d.payload?.pageUid){const u=d.payload.pageUid;if(u!==uid){uid=u;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(()=>refresh(false),450);}}}
+    if(d.type==='OCHERKI_ACTIVE_STATE'&&d.payload?.pageUid){const u=d.payload.pageUid;if(u!==uid){uid=u;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}}
     else if(d.type==='OCHERKI_STRUCTURE_STATE'){let a='';(d.payload?.sections||[]).forEach(s=>(s.pages||[]).forEach(p=>{if(p.active)a=p.uid||p.id||'';}));
-      if(a&&a!==uid){uid=a;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(()=>refresh(false),450);}}
+      if(a&&a!==uid){uid=a;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}
       else if(on&&!busy){stale=true;ref.classList.add('is-stale');}}});
   const sync=()=>{const ok=usable();shell.classList.toggle('wp-ready',ok);
+    // v202: leaving for the book the page, its keys, the book's name and the clock slide off to the left with the sheets
     if(!ok&&on){on=false;const w=wrap();if(w){w.style.setProperty('transition','none','important');w.style.translate='';void w.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>w.style.removeProperty('transition')));}
       shell.classList.remove('wp-on','wp-up','wp-closing');}
     if(ok)place();};
@@ -134,6 +140,17 @@
   const modal=document.getElementById('bookPreviewModal');if(modal)new MutationObserver(sync).observe(modal,{attributes:true,attributeFilter:['class']});
   addEventListener('resize',()=>{if(on){const w=wrap(),g=geo();if(w&&g)w.style.translate=`${-g.d}px 0`;}place();requestAnimationFrame(()=>window.__ocherkiScalePages?.());});
   [1200,2600,4500].forEach(t=>setTimeout(sync,t));
+  // v202: leaving for the book the page, its keys, the book's name and the clock slide off to the left with the sheets
+  // The book is laid out in one go and holds the page for about a second: were it started at once, the move had no frames and
+  // everything seemed to vanish. So the desk is cleared first — the sheets, the page, its keys go off to the left — and only
+  // then the book is opened and slides in.
+  let leaving=false;
+  document.addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k="book"]');if(!k||k.__go||leaving||!shell.classList.contains('oc-ws'))return;
+    e.stopImmediatePropagation();e.preventDefault();leaving=true;
+    {const l=document.querySelector('.ws-left');if(l){l.style.animation='none';void l.offsetWidth;}}// its entrance holds no transform any more: the move starts from where it lies
+    shell.classList.add('ws-leaving','ws-off');
+    setTimeout(()=>{k.__go=true;k.click();k.__go=false;},1000);
+    setTimeout(()=>{shell.classList.remove('ws-leaving','ws-off');leaving=false;const l=document.querySelector('.ws-left');if(l)l.style.animation='';},2600);},true);
   // v195: the desk of three sheets reaches the page from outside
   window.__ocWp={open:()=>{if(!on)setOpen(true);},isOn:()=>on,geo,place,pane,keys2,usable};
 })();
@@ -209,10 +226,11 @@
       const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
     // v199: the book on the desk is lit by the same beam — its middle under the bar bright, both its sides beyond the beam's edges dusky
     const bq=document.querySelector('.bq-book'),bl=bq?.querySelector('.bq-lamp');
-    if(bl&&night&&bk){const q=bq.getBoundingClientRect();if(q.width){const edge=(ex,dxs)=>{let dx=dxs,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dxs>0?dy:-dy,ny=dxs>0?-dx:dx,A=Math.atan2(nx,-ny),
+    if(bl&&night&&bk&&!bq.classList.contains('is-curling')){const q=bq.getBoundingClientRect();if(q.width){const edge=(ex,dxs)=>{let dx=dxs,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dxs>0?dy:-dy,ny=dxs>0?-dx:dx,A=Math.atan2(nx,-ny),
           L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((ex-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
           return `linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(0,0,0,0) ${(t-6).toFixed(1)}%,rgba(110,76,44,.55) ${(t+8).toFixed(1)}%,rgba(40,24,10,.72) ${(t+26).toFixed(1)}%)`;};
-        const bg='radial-gradient(ellipse 62% 92% at 50% 0%,rgba(255,250,242,0) 0%,rgba(244,222,196,.16) 34%,rgba(222,186,152,.36) 68%,rgba(186,148,116,.56) 100%)';void edge;if(bl._bg!==bg){bl._bg=bg;bl.style.background=bg;}}}
+        const bg=edge(x1,sp)+','+edge(x0,-sp)+',radial-gradient(ellipse 62% 92% at 50% 0%,rgba(255,250,242,0) 0%,rgba(244,222,196,.12) 40%,rgba(210,172,138,.34) 100%)';// the book lit by the beam itself: the sides beyond its diagonal edges in the dusk, the foot a little dimmer
+       if(bl._bg!==bg){bl._bg=bg;bl.style.background=bg;}}}
     // v197: the clean stack on the left is lit the same way — only where the beam falls, its left edge running from the bar's
     // other end down and out (the same light as on the book's page, mirrored)
     const wl=document.querySelector('.ws-left');
@@ -505,8 +523,12 @@
     const lay=d.over||!d.moved;// a plain click lays it too: one press is enough for a hand that does not like to drag
     if(lay){const w=wrapEl().getBoundingClientRect();fl.classList.remove('ws-lift','ws-carry');fl.classList.add('ws-landing');fl.style.transformOrigin='0 0';
       // it is laid down: it flattens as it comes to rest, its corner settles, the shadow draws in — then it is the sheet itself
+      // v202: as it comes down the window's shade falls on it where it falls on the desk (no later jump when the sheet itself shows)
+      if(!shell.classList.contains('is-night')){const sx=w.width/d.r.width,sy=w.height/d.r.height,sh=document.createElement('i');sh.className='ws-land-shade';
+        Object.assign(sh.style,{left:(-w.left/sx)+'px',top:(-w.top/sy)+'px',width:(innerWidth/sx)+'px',height:(innerHeight/sy)+'px'});fl.style.overflow='hidden';fl.appendChild(sh);requestAnimationFrame(()=>sh.classList.add('on'));}
       fl.style.transform=`translate(${w.left-d.r.left}px,${w.top-d.r.top}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;fl.style.opacity='0';
-      setTimeout(()=>act(kind),260);setTimeout(()=>{fl.remove();top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);},620);}
+      top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
+      setTimeout(()=>act(kind),260);setTimeout(()=>fl.remove(),700);}
     else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
 
@@ -530,14 +552,12 @@
     Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
     // the book's name above the page, the clock below its keys — the signature stays where it always is
     const t=ttl(),c=clock();
-    if(peek&&pg&&pg.width&&t){const tr={width:t.offsetWidth,height:t.offsetHeight};const bx=t.offsetLeft,by=t.offsetTop;// its place in the layout (no translate, no scale)
-      const cap=document.querySelector('.wp-cap')?.getBoundingClientRect();const capTop=cap&&cap.height?cap.top:pg.top-34;
-      // it fits between the bar and the page's caption: a little smaller when the room is short
-      const bar=document.querySelector('.wc.on')?.getBoundingClientRect();const top0=(bar?bar.bottom:0)+34;const room=capTop-10-top0;
-      // its «left» is its centre (translateX -50%); scaled about its centre's foot it keeps the centre and the foot in place
-      const ok=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-k'))||1;const h0=t.offsetHeight*ok;
-      const k=Math.max(.55,Math.min(1,room/h0));t.style.scale=(ok*k).toFixed(3);t.style.transformOrigin='0 100%';
-      t.style.translate=`${Math.round(pg.left+pg.width/2-bx)}px ${Math.round(capTop-10-(by+t.offsetHeight))}px`;}
+    if(peek&&W.pane.style.width&&t){const bx=t.offsetLeft,by=t.offsetTop;// its place in the layout (no translate, no scale)
+      // v202: the book's name stands still, high under the bar, over where the page comes to rest (not riding on the page as it
+      // slides out), and in its full size
+      const px=parseFloat(W.pane.style.left)+parseFloat(W.pane.style.width)/2;const bar=document.querySelector('.wc.on')?.getBoundingClientRect();
+      const ok=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--oc-k"))||1;t.style.scale=ok.toFixed(3);t.style.transformOrigin="0 0";
+      t.style.translate=`${Math.round(px-bx)}px ${Math.round((bar?bar.bottom:150)+10-by)}px`;}
     else if(t){t.style.removeProperty('translate');t.style.removeProperty('scale');t.style.removeProperty('transform-origin');}
     if(peek&&c&&k2&&k2.height){const pv=c.querySelector('.clock-pivot');
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
