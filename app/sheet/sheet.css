@@ -230,9 +230,9 @@ body{
 .photo-card.p1{top:10px;left:-54px;transform:rotate(-5deg);z-index:3}
 .photo-card.p2{top:22px;left:-46px;transform:rotate(5deg);z-index:2}
 .photo-card.p3{top:34px;left:-60px;transform:rotate(-8deg);z-index:1}
-.photo-stack:hover .photo-card.p1{transform:translateX(-7px) rotate(-4deg)}
-.photo-stack:hover .photo-card.p2{top:136px;left:-62px;transform:translateX(-7px) rotate(3deg)}
-.photo-stack:hover .photo-card.p3{top:262px;left:-58px;transform:translateX(-7px) rotate(-4deg)}
+/* v213: the fan opens straight down (the prints keep their side and their tilt: no shake) */
+.photo-stack:hover .photo-card.p2{top:136px}
+.photo-stack:hover .photo-card.p3{top:262px}
 .ph-more{all:unset;position:absolute;left:-74px;top:2px;z-index:4;pointer-events:auto;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3)}
 .ph-more:hover{color:#2f1d10}
 .photo-card.ph-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
@@ -1315,31 +1315,14 @@ html body .section-scroll-viewport .section-scroll-sheet{background:radial-gradi
    lamp's light: a sheet turning down went a shade darker, then back) */
 html body .section-scroll-viewport .section-scroll-sheet::before{content:"";display:block;position:absolute;inset:0;z-index:1;pointer-events:none;background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;opacity:0}
 html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opacity:1}
-/* the card: a real print that turns over — its face the photograph, its back the hand-written lines */
-.ph-bg{position:fixed;inset:0;z-index:2147483000;-webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease}
-.ph-bg.on{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-.ph.fly.home{transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .2s ease .38s;opacity:0}
-.ph{position:fixed;z-index:2147483001;perspective:1600px;transform-origin:50% 50%}
-.ph.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1)}
-.ph.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
-.ph-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
-.ph.flip .ph-in{transform:rotateY(180deg)}
-.ph-front,.ph-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;box-shadow:0 2px 4px rgba(40,25,10,.3),0 26px 50px -10px rgba(40,25,10,.45)}
-.ph-front{background:#fbf7ef;padding:14px;box-sizing:border-box;cursor:pointer}.ph-front img{width:100%;height:100%;object-fit:cover;display:block}
-.ph-back{transform:rotateY(180deg);background:#fbf5e8 url("../../assets/keeper/sheet-paper.jpg") center/cover;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;color:#4a3324;overflow:auto}
-.ph-h{display:flex;justify-content:space-between;align-items:baseline;font:15px 'CormorantCy',Georgia,serif;margin-bottom:18px;opacity:.85}
-.ph-h button,.ph-act button,.ph-sure button{all:unset;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
-.ph-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);margin-bottom:14px;cursor:text}
-.ph-back label span{flex:none;font:14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px;min-width:86px}
-.ph-back input,.ph-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.7 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:4px 0 2px;overflow:visible}
-.ph-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.ph-back textarea{font-size:23px;line-height:1.6;resize:none}
-.ph-act{margin-top:auto;display:flex;justify-content:space-between;padding-top:12px}
-.ph-sure{margin-top:10px;display:flex;gap:14px;align-items:baseline;font:15px 'CormorantCy',Georgia,serif}.ph-sure[hidden]{display:none}
-.ph-sure .ph-yes{color:#9a3a1c;border-color:rgba(154,58,28,.45)}
-body.host-night .ph-back,body.host-night .ph-front{filter:brightness(.93) sepia(.08)}
 /* v211 — the episode's «когда · где» under its name on the sheet */
 .episode-sub{text-align:center;font:15px/1.2 'CormorantCy',Georgia,serif;color:rgba(76,56,39,.7);margin:-4px 0 8px;min-height:0}
 .episode-sub:empty{display:none}
 /* v212 — the episode's name on the sheet can be changed: it shows so under the hand */
 .episode[contenteditable="true"]{cursor:text;border-bottom:1px dashed transparent;transition:border-color .3s}
 .episode[contenteditable="true"]:hover,.episode[contenteditable="true"]:focus{border-bottom-color:rgba(106,74,46,.45);outline:none}
+
+/* v213 — the ladder of letter sizes in «Аа»: each step in its own size, the one in use marked */
+#textMenu .sz-cap{font:13px 'CormorantCy',Georgia,serif;opacity:.6;padding:8px 12px 2px}
+#textMenu [data-size]{font-family:Georgia,'Times New Roman',serif;line-height:1.2;padding:7px 12px}
+#textMenu [data-size].is-on{background:rgba(131,96,63,.12);box-shadow:inset 3px 0 0 #c78a43}

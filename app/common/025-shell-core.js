@@ -135,7 +135,7 @@
   });
 
   powerBtn.addEventListener('click',()=>{
-    sendAudioCommand('fx',{name:'light',volume:.72});
+    if(!window.__OCHERKI_BOOT_POWER)sendAudioCommand('fx',{name:'light',volume:.72});// v213: the desk comes on silently at entry
     if(!opened || !lightOn){
       turnOn();
     }else{

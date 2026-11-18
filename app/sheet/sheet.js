@@ -1988,14 +1988,17 @@ document.getElementById('backBtn').onclick=()=>{
   if(pages.length>1)animatePageChange((currentPageIndex()-1+pages.length)%pages.length);
 };
 
-document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{fontSize=+b.dataset.size;render();persistSoon();});
-document.getElementById('tightBtn').onclick=()=>{lineHeight=1.32;render();persistSoon();};
+// v213: the letters' size on the sheet is chosen on a ladder, each step written in its own size (it was «плотнее/свободнее» besides,
+// which read as nothing); the one in use is marked. Only the sheet changes — the book keeps its own type.
+const markSize=()=>document.querySelectorAll('#textMenu [data-size]').forEach(b=>b.classList.toggle('is-on',+b.dataset.size===fontSize));
+document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{fontSize=+b.dataset.size;render();markSize();persistSoon();});
+document.getElementById('textBtn').addEventListener('click',markSize);
 // «Крупный интерфейс»: larger text on the sheet and larger controls around
 // it, here and in the constructor around the sheet (shared choice).
 function applyLargeUi(on,fromUser){
   document.documentElement.classList.toggle('large-ui',on);
   document.getElementById('largeUiBtn')?.classList.toggle('is-on',on);
-  if(fromUser){fontSize=on?Math.max(fontSize,18):15;try{localStorage.setItem('ocherkiLargeUI',on?'1':'0');}catch(e){}render();persistSoon();}
+  if(fromUser){fontSize=on?Math.max(fontSize,18):14;try{localStorage.setItem('ocherkiLargeUI',on?'1':'0');}catch(e){}render();persistSoon();}
   try{window.parent.postMessage({type:'OCHERKI_LARGE_UI',on},'*');}catch(e){}
 }
 document.getElementById('largeUiBtn').onclick=()=>applyLargeUi(!document.documentElement.classList.contains('large-ui'),true);
@@ -2054,7 +2057,6 @@ try{if(localStorage.getItem('ocherkiLargeUI')==='1')applyLargeUi(true,false);}ca
     try{rec.start();listening=true;btn.classList.add('is-listening');say('<b>●</b>Слушаю… говорите спокойно. Нажмите микрофон ещё раз, чтобы закончить.');}catch(err){say('Не удалось включить микрофон.',5000);}
   });
 })();
-document.getElementById('looseBtn').onclick=()=>{lineHeight=1.7;render();persistSoon();};
 function closeMoreMenu(){
   document.getElementById('moreMenu')?.classList.remove('open');
 }
@@ -2943,13 +2945,11 @@ function lockSectionPhotos(){
   photoStack.querySelectorAll('.section-photo-cascade-in').forEach(el=>el.classList.remove('section-photo-cascade-in'));
 }
 
+// v213: the prints of the sheet slide out from under its left edge one after another (the lowest first), ~0.4 s in all
 function revealSectionPhotosCascade(){
-  const cards=[...photoStack.querySelectorAll('.photo-card')];
-  const sw=photoStack.querySelector('.photo-switch');
   photoStack.classList.remove('section-photo-hidden');
-  [...cards, sw].filter(Boolean).forEach(el=>{
-    el.classList.remove('section-photo-cascade-in');
-  });
+  const cards=[...photoStack.querySelectorAll('.photo-card')].sort((a,b)=>(+getComputedStyle(a).zIndex||0)-(+getComputedStyle(b).zIndex||0));
+  cards.forEach((el,i)=>{try{el.animate([{translate:'64px 0',opacity:0},{translate:'0px 0',opacity:1}],{duration:420,delay:i*130,easing:'cubic-bezier(.2,.8,.3,1)',fill:'backwards'});}catch(_){}});
 }
 
 function goSection(nextIndex,dir){
@@ -4249,19 +4249,26 @@ window.OC_SHEET={
 // prints). From the pile: «вернуть в стопку» / «удалить из главы»; from the album: «вернуть в альбом» / «положить на лист».
 (()=>{const stack=document.getElementById('photoStack')||document.querySelector('.photo-stack');if(!stack)return;
   let open=null;const K=[['people','кто на фото'],['year','когда'],['place','где']];
+  // v213: the card lies in the screen's own top layer (over the desk, the album and the stack), so it flies from and back to the
+  // very place of its print; the places measured in this sheet are moved by where the sheet's frame lies on the screen
+  const HD=(()=>{try{return window.parent!==window&&window.frameElement?window.parent.document:document;}catch(_){return document;}})();
+  const off=()=>{try{const r=window.frameElement&&HD!==document?window.frameElement.getBoundingClientRect():null;return r?{x:r.left,y:r.top}:{x:0,y:0};}catch(_){return {x:0,y:0};}};
   const persist=()=>{try{persistSoon();}catch(_){}};
   const tellHost=on=>{try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:on},'*');}catch(_){}};
   // a place on the desk as a pose of the card: its centre on the place's centre, one scale (no stretching), the place's tilt
-  const poseAt=(r,ang,w,g)=>`translate(${(r.left+r.width/2-(g.L+g.W/2)).toFixed(1)}px,${(r.top+r.height/2-(g.T+g.H/2)).toFixed(1)}px) rotate(${ang.toFixed(2)}deg) scale(${(w/g.W).toFixed(4)})`;
+  const poseAt=(r,ang,w,g)=>{const o=off();return `translate(${(r.left+o.x+r.width/2-(g.L+g.W/2)).toFixed(1)}px,${(r.top+o.y+r.height/2-(g.T+g.H/2)).toFixed(1)}px) rotate(${ang.toFixed(2)}deg) scale(${(w/g.W).toFixed(4)})`;};
   const printPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);return poseAt(r,Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);};
-  const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect();const W=Math.min(s.width*.8,560),H=Math.round(W*1.2);return {W,H,L:s.left+(s.width-W)/2,T:s.top+Math.max(40,s.height*.1)};};
+  const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect(),o=off();const VH=(HD.defaultView||window).innerHeight;const W=Math.round(Math.min(s.width*.9,560)),H=Math.round(Math.min(VH*.84,W*1.5));return {W,H,L:o.x+s.left+(s.width-W)/2,T:Math.round((VH-H)/2+16)};};
   // the card leaves: face up first, all the way; then to where it goes (its pose given by «to»), fading into the print there
+  // v213: it comes down slowly onto its place, settles, and only then fades into the print there (the print shows again under it)
   const close=(to,after)=>{if(!open)return;const o=open;open=null;o.card.classList.remove('flip');o.bg.classList.remove('on');tellHost(false);
     setTimeout(()=>{o.card.classList.add('fly','home');o.card.style.transform=to?to(o.g):o.from;},800);
-    setTimeout(()=>{o.card.remove();o.bg.remove();after&&after();},800+560);};
+    setTimeout(()=>{after&&after();o.card.classList.add('fade');},800+900);
+    setTimeout(()=>{o.card.remove();o.bg.remove();},800+900+480);};
   const openCard=(p,from,opts)=>{if(!p||open)return;const g=place();
-    const bg=document.createElement('div');bg.className='ph-bg';document.body.appendChild(bg);
-    const card=document.createElement('div');card.className='ph';Object.assign(card.style,{left:g.L+'px',top:g.T+'px',width:g.W+'px',height:g.H+'px'});
+    const bg=HD.createElement('div');bg.className='ph-bg';HD.body.appendChild(bg);
+    const card=HD.createElement('div');card.className='ph';Object.assign(card.style,{left:g.L+'px',top:g.T+'px',width:g.W+'px',height:g.H+'px'});
+    card.style.setProperty('--phx',(-g.L)+'px');card.style.setProperty('--phy',(-g.T)+'px');
     const doc=!opts.album&&currentPage()?.type==='document';
     card.innerHTML=`<div class="ph-in"><div class="ph-front"><img alt=""></div><div class="ph-back"><div class="ph-h"><span>оборот фотографии</span><button type="button" class="ph-ret2">↺ лицом</button></div>
       ${K.map(([k,l])=>`<label><span>${l}</span><input data-k="${k}" autocomplete="off"></label>`).join('')}
@@ -4271,7 +4278,7 @@ window.OC_SHEET={
     card.querySelector('.ph-front img').src=p.src;
     card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';x.addEventListener('input',()=>{p[x.dataset.k]=x.value.trim();persist();});});
     {const pg=currentPage(),x=card.querySelector('[data-x="explanation"]');if(x&&pg){x.value=pg.explanation||p.explanation||'';x.addEventListener('input',()=>{pg.explanation=x.value.trim();persist();});}}
-    const fromPose=from(g);card.style.transform=fromPose;document.body.appendChild(card);open={card,bg,p,g,from:fromPose};tellHost(true);opts.taken?.();
+    const fromPose=from(g);card.style.transform=fromPose;HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,back:opts.back};tellHost(true);opts.taken?.();
     requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
     card.addEventListener('click',e=>e.stopPropagation());
     card.querySelector('.ph-ret2').addEventListener('click',()=>card.classList.toggle('flip'));card.querySelector('.ph-front').addEventListener('click',()=>card.classList.add('flip'));
@@ -4289,7 +4296,7 @@ window.OC_SHEET={
     openCard(p,g=>printPose(c,g),{taken:()=>{c.style.visibility='hidden';},back:()=>{c.style.visibility='';try{updatePhotoStatus(p);}catch(_){}persist();setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);}});};
   // from the album on the desk (the cell's place is given in this sheet's own coordinates)
   window.__ocAlbumCard=(p,r,done)=>openCard(p,g=>poseAt(r,0,r.width,g),{album:true,back:()=>{persist();done&&done('back');},laid:()=>{done&&done('laid');}});
-  addEventListener('keydown',e=>{if(e.key==='Escape'&&open)close(null,()=>{});});
+  const esc=e=>{if(e.key==='Escape'&&open)close(null,open.back);};addEventListener('keydown',esc);if(HD!==document)HD.defaultView.addEventListener('keydown',esc);
   const badge=()=>{const n=currentPhotos().length-stack.querySelectorAll('.photo-card').length;let m=stack.querySelector('.ph-more');
     if(n>0){if(!m){m=document.createElement('button');m.type='button';m.className='ph-more';stack.appendChild(m);}m.textContent='+'+n;}else m?.remove();};
   // the pile laid out again without a jump: the prints that stay glide to their new places, a new one comes up from beneath
@@ -4299,8 +4306,11 @@ window.OC_SHEET={
       c.style.transition='translate .5s cubic-bezier(.2,.8,.3,1)';c.style.translate='0px 0px';setTimeout(()=>{c.style.removeProperty('transition');c.style.removeProperty('translate');},540);});};
   // the wheel over the prints riffles through them, one print for one turn of the wheel (a trackpad's run of events is one turn);
   // a press on «+N» does the same
-  {let locked=false,idleT=0;stack.addEventListener('wheel',e=>{if(currentPhotos().length<=3)return;e.preventDefault();e.stopPropagation();clearTimeout(idleT);idleT=setTimeout(()=>{locked=false;},280);
-      if(locked)return;locked=true;animatePhotoCarousel(e.deltaY>0?1:-1);},{passive:false});
+  // v213: the turns are counted (a mouse's notch is one, a trackpad's run of small steps adds up to one), and one print goes for
+  // each as soon as the one before has settled — nothing stays locked between gestures
+  {let acc=0,last=0,idleT=0;stack.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();if(currentPhotos().length<=3)return;
+      const d=e.deltaMode===1?e.deltaY*33:e.deltaY;acc+=d;clearTimeout(idleT);idleT=setTimeout(()=>{acc=0;},220);
+      const now=performance.now();if(Math.abs(acc)<36||photoAnimating||now-last<460)return;last=now;const dir=acc>0?1:-1;acc=0;animatePhotoCarousel(dir);},{passive:false});
     stack.addEventListener('click',e=>{if(!e.target.closest('.ph-more'))return;e.stopPropagation();animatePhotoCarousel(1);});}
   window.__ocBadge=badge;
   window.__ocPhotoCardOpen=()=>!!open;})();

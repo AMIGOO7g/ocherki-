@@ -552,7 +552,6 @@
       later(()=>{if(shell.classList.contains('map-data-ready'))revealMenus();else window.addEventListener('OCHERKI_MAP_READY',revealMenus,{once:true});},520);
       later(revealMenus,820);
       later(()=>{
-        try{window.parent?.postMessage({type:'OCHERKI_AUDIO_COMMAND',action:'fx',name:'page',volume:1},'*');}catch(_){}
         positionPrompt();
         shell.classList.add('boot-paper');
       },900);

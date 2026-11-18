@@ -223,7 +223,7 @@
   let lit=false;
   const isBookQ=()=>shell.classList.contains('is-book-preview')&&document.body.classList.contains('oct-book')&&!!document.querySelector('.bq-car');
   const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),bk=!ms&&isBookQ(),on=isWrite()||ms||bk;
-    if(!lit&&on&&shell.classList.contains('oc-ready')){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),500);}
+    if(!lit&&on&&shell.classList.contains('oc-ready')&&document.documentElement.classList.contains('oc-shown')){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),1300);}// v213: the lamp lights last, once the things on the desk have come
     const bar=ms?document.querySelector('.mq-car'):bk?document.querySelector('.bq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
     const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${x}px ${h}px`;
     {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
@@ -272,13 +272,18 @@
     const ch=barName(d),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
     // v212: names in italic, the rest upright — «Глава 5 · Какой он был человек · лист 3 из 36»
     const esc=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const cm=ch.match(/^(Глава\s+\d+)\.?\s*(.*)$/);
-    const nm=cm?`<span class="up">${esc(cm[1])}</span>${cm[2]?` · <i>${esc(cm[2])}</i>`:''}`:(/·/.test(ch)?`<span class="up">${esc(ch)}</span>`:(ch?`<i>${esc(ch)}</i>`:''));
+    const ED='<button type="button" class="ed" aria-label="Изменить название" data-tip="изменить название"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg></button>';
+    const nm=cm?`<span class="up">${esc(cm[1])}</span>${cm[2]?` · <i>${esc(cm[2])}</i>${ED}`:''}`:(/·/.test(ch)?`<span class="up">${esc(ch)}</span>`:(ch?`<i>${esc(ch)}</i>${ED}`:''));
     const t=[nm,n&&all?`<span class="up">лист ${n} из ${all}</span>`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te._h!==t&&!te.querySelector('[contenteditable]')){te._h=t;te.innerHTML=t;}
     const tk=document.querySelector('.bd-rail-key[data-rail="tips"]');const m=(tk?.getAttribute('aria-label')||'').match(/(\d+)/);const em=wc.querySelector('[data-c="tips"] em');em.textContent=m?m[1]:'';wc.querySelector('[data-c="tips"]').classList.toggle('on',!!m);
     const ss=(d?.getElementById('saveState')?.textContent||'');const dot=wc.querySelector('.sv');dot.classList.toggle('busy',/Сохраня/i.test(ss));dot.title=ss||'Черновик сохранён';};
   setInterval(tick,500);
+  // v213: the name lies between «назад» and the keys, never under them; too long, it ends in «…»
+  {const room=()=>{const r=wc.getBoundingClientRect();if(!r.width)return;const bk=wc.querySelector('[data-c="back"]').getBoundingClientRect(),mic=wc.querySelector('[data-c="mic"]').getBoundingClientRect();
+      const L=Math.round(bk.right-r.left+10)+'px',R=Math.round(r.right-mic.left+10)+'px',pad=L+R;const t=wc.querySelector('.t');if(t._p!==pad){t._p=pad;t.style.setProperty('left',L,'important');t.style.setProperty('right',R,'important');}};
+    addEventListener('resize',room);setInterval(room,1000);room();}
   // v212: the name of the chapter (or of the sheet) is changed right in the bar — a press on it, Enter to keep, Esc to leave
-  wc.querySelector('.t b').addEventListener('click',e=>{const i=e.target.closest('i');if(!i||i.isContentEditable)return;e.stopPropagation();
+  wc.querySelector('.t b').addEventListener('click',e=>{const ed=e.target.closest('.ed');const i=ed?ed.previousElementSibling:e.target.closest('i');if(!i||i.tagName!=='I'||i.isContentEditable)return;e.stopPropagation();
     i.contentEditable='true';i.spellcheck=false;i.focus();const r=document.createRange();r.selectNodeContents(i);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
     const done=keep=>{i.removeEventListener('blur',onBlur);i.contentEditable='false';const v=i.textContent.trim();wc.querySelector('.t b')._h='';if(keep&&v)try{F()?.contentWindow?.OC_SHEET?.renameChapter(v);}catch(_){}tick();};
     const onBlur=()=>done(true);i.addEventListener('blur',onBlur);
@@ -511,6 +516,8 @@
   const SHADE=col=>svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs><filter id="b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter><mask id="m"><rect width="1920" height="1080" fill="#fff"/><g filter="url(#b)" fill="#000" transform="${SKEW}">${PANES()}</g></mask></defs><rect width="1920" height="1080" fill="${col}" mask="url(#m)"/></svg>`);
   const SHADE_PAPER=SHADE('rgb(238,230,218)');
   document.documentElement.style.setProperty('--ws-sun',SUN);document.documentElement.style.setProperty('--ws-shade',SHADE_PAPER);
+  // v213: the same shade as a veil (for what lies in its own 3D layer, where a multiplied shade cannot reach: the photograph's card)
+  document.documentElement.style.setProperty('--ws-shade-a',SHADE('rgba(96,66,36,.16)'));
 
   // ——— the clean stack
   const left=document.createElement('div');left.className='ws-left';left.setAttribute('aria-label','Чистые листы');
@@ -521,7 +528,7 @@
     <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"></i>
       <div class="ws-nav"><span class="ws-cnt"></span><button type="button" data-q="-1">‹ назад</button><button type="button" data-q="1">дальше ›</button></div>
       <div class="ws-q"></div>
-      <div class="ws-hint">потяните лист на стол</div><i class="ws-corner" title="перевернуть лист"></i>
+      <div class="ws-hint">потяните лист на стол</div>
       <div class="ws-face ws-f-episode"><div class="ws-ft">Новый эпизод</div><div class="ws-fs">заполните — или потяните на стол</div>
         <label><span>название</span><input data-f="title" autocomplete="off" placeholder="например, Лето у бабушки"></label><label><span>когда</span><input data-f="when" autocomplete="off" placeholder="например, 1960-е"></label><label><span>где</span><input data-f="where" autocomplete="off" placeholder="например, у бабушки в деревне"></label>
         <div class="ws-fh">потяните на стол — начнётся новый эпизод</div></div>
@@ -534,8 +541,7 @@
   document.body.appendChild(left);
   const top=left.querySelector('.ws-top'),qEl=left.querySelector('.ws-q'),cnt=left.querySelector('.ws-cnt');
   let kind='page';
-  // v212: the kind is chosen on the tabs — the top sheet turns over (the leaf goes over to the left, its back showing) and the
-  // sheet of the chosen kind lies under it; or by hand, taken by its corner (see below)
+  // the kind is chosen on the tabs
   left.querySelector('.ws-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;e.stopPropagation();if(b.dataset.t!==kind)turnTo(b.dataset.t);});
   // v209 — each kind of clean sheet has its own face on the stack: an episode's name / when / where, a document's scan and
   // transcript, the book's photographs as a contact sheet (taken one by one onto the open sheet)
@@ -558,27 +564,12 @@
     const part=all.slice(pgN*per,pgN*per+per);
     grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+(pgN===pages-1&&part.length<per?'<button type="button" class="ws-add">+ добавить<br>фото</button>':'');
     pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;grid._pages=pages;};
-  // a leaf: the top sheet as it is now, with its back (plain paper), laid over the stack to be turned over
+  // v213: a new clean sheet slides onto the stack and settles (as the open sheets in the middle do); the contact sheet's pages the same
   const KINDS=['page','episode','document','photo'];let turning=false;
   const setKind=k=>{kind=k;left.querySelectorAll('.ws-tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===k));left.dataset.kind=k;if(k==='photo'){lastSig='';fillGrid();}};
-  const makeLeaf=()=>{const r=top.getBoundingClientRect(),lf=document.createElement('div');lf.className='ws-leaf';lf.dataset.kind=kind;
-    const fr=top.cloneNode(true);fr.classList.add('lf-front');fr.classList.remove('ws-away','ws-next');fr.dataset.kind=kind;fr.querySelectorAll('.ws-corner').forEach(x=>x.remove());
-    const src=top.querySelectorAll('input,textarea'),dst=fr.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});
-    const bk=document.createElement('i');bk.className='lf-back';lf.append(fr,bk);Object.assign(lf.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(lf);return lf;};
-  const leafTo=(lf,a,ms)=>{lf.style.transition=ms?`transform ${ms}ms cubic-bezier(.45,.05,.25,1)`:'none';lf.style.transform=`perspective(1400px) rotateY(${(-178*a).toFixed(1)}deg)`;lf.style.setProperty('--a',a.toFixed(3));};
-  const turnTo=(k,after)=>{if(turning)return;turning=true;const lf=makeLeaf();paperFx(.4);(after||setKind)(k);
-    requestAnimationFrame(()=>requestAnimationFrame(()=>leafTo(lf,1,780)));setTimeout(()=>{lf.remove();turning=false;},840);};
+  const turnTo=(k,after)=>{if(turning)return;turning=true;(after||setKind)(k);top.classList.remove('ws-settle');void top.offsetWidth;top.classList.add('ws-settle');
+    setTimeout(()=>{top.classList.remove('ws-settle');turning=false;},560);};
   const turnGrid=d=>{const pages=grid._pages||1,n=Math.max(0,Math.min(pages-1,pgN+d));if(n===pgN||turning)return;turnTo(kind,()=>{pgN=n;lastSig='';fillGrid();});};
-  // by hand: the corner lifts under the hand; pulled to the left, the leaf turns as far as it is pulled; let go past the middle,
-  // it turns over; before it, it lies back
-  {const cn=top.querySelector('.ws-corner');cn.addEventListener('pointerdown',e=>{if(e.button!==0||turning)return;e.preventDefault();e.stopPropagation();turning=true;
-      const prev=kind,next=KINDS[(KINDS.indexOf(kind)+1)%KINDS.length],lf=makeLeaf(),w=top.getBoundingClientRect().width,x0=e.clientX;let a=0;setKind(next);paperFx(.3);
-      try{cn.setPointerCapture(e.pointerId);}catch(_){}
-      const mv=ev=>{a=Math.max(0,Math.min(1,(x0-ev.clientX)/(w*.85)));leafTo(lf,a,0);};
-      const up=()=>{cn.removeEventListener('pointermove',mv);cn.removeEventListener('pointerup',up);cn.removeEventListener('pointercancel',up);
-        if(a>.5){leafTo(lf,1,Math.round(420*(1-a))+180);setTimeout(()=>{lf.remove();turning=false;},Math.round(420*(1-a))+220);}
-        else{leafTo(lf,0,Math.round(420*a)+160);setTimeout(()=>{setKind(prev);lf.remove();turning=false;},Math.round(420*a)+200);}};
-      cn.addEventListener('pointermove',mv);cn.addEventListener('pointerup',up);cn.addEventListener('pointercancel',up);});}
   left.querySelector('.ws-pnav').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;e.stopPropagation();turnGrid(+b.dataset.p);});
   grid.addEventListener('click',e=>{if(e.target.closest('.ws-add')){e.stopPropagation();try{FW2().document.getElementById('addPhotoBtn')?.click();}catch(_){}}});
   setInterval(()=>{if(kind==='photo')fillGrid();},1500);
@@ -610,9 +601,9 @@
   // ——— taking a clean sheet to the desk
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
   let drag=null;
-  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid,.ws-corner')||kind==='photo'||turning)return;e.preventDefault();
+  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo'||turning)return;e.preventDefault();
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
-    fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt,.ws-corner').forEach(x=>x.remove());fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
+    fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
     // v207: everything the move needs is measured once, here: where the open sheet lies and where it can be dropped
     const sr=sheetRect(),wr=wrapEl()?.getBoundingClientRect();
@@ -742,11 +733,13 @@
 
 // v207 — at night the desk comes in dark: until the lamp is lit everything on it (the sheets, the stack, the page) lies in the
 // dusk, and as the lamp lights up the dusk lifts with it, slowly
-(()=>{const sh=document.querySelector('.shell');if(!sh)return;const d=document.createElement('div');d.className='oc-dusk';document.body.appendChild(d);{const f=document.createElement('div');f.className='oc-focus';sh.prepend(f);}
+(()=>{const sh=document.querySelector('.shell');if(!sh)return;const d=document.createElement('div');d.className='oc-dusk';document.body.appendChild(d);
   const up=()=>d.classList.toggle('on',sh.classList.contains('is-night')&&!sh.classList.contains('oc-lit'));new MutationObserver(up).observe(sh,{attributes:true,attributeFilter:['class']});up();})();
 
 // v212 — the desk comes into view when it lies in its place: the stack, the page and the clock laid out (or after 6 s at most)
 (()=>{const H=document.documentElement,sh=document.querySelector('.shell');let t0=performance.now();
-  {let night=false;try{night=localStorage.getItem('ocherkiLight')==='night';}catch(_){}H.style.background=night?'#0d0704':'#e6d8bf';}
+  {let night=false;try{night=localStorage.getItem('ocherkiLight')==='night';}catch(_){}}
+  {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
+    const veil=()=>{if(H.classList.contains('oc-desk'))return;if((img&&getComputedStyle(document.body,'::after').zIndex==='2147483647')||performance.now()-t1>4000){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&sh.classList.contains('oc-ws-peek')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
-  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>6000){setTimeout(()=>H.classList.add('oc-shown'),350);return;}requestAnimationFrame(go);};go();})();
+  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>6000){setTimeout(()=>H.classList.add('oc-shown'),900);return;}requestAnimationFrame(go);};go();})();
