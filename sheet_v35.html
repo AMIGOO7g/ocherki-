@@ -8,33 +8,13 @@
 <script src="book-renderer/project-store.js"></script>
 <script src="book-renderer/tree-editor.js"></script>
 <script src="book-renderer/people-marker.js"></script>
-<link rel="stylesheet" href="app/sheet/sheet.css?v=20261107-v214" data-inline-from="style">
+<link rel="stylesheet" href="app/sheet/sheet.css?v=20261107-v215" data-inline-from="style">
 
 </head>
 <body>
 <div class="stage"><div class="workspace" id="workspace">
   <div class="stack-indicator" id="stackIndicator"><div class="stack-tip" aria-hidden="true"></div></div>
   <div class="photo-stack" id="photoStack"></div>
-  <div class="photo-modal" id="photoModal">
-    <div class="photo-modal-head"><span>ФОТОГРАФИЯ</span><button type="button" id="photoCloseX">×</button></div>
-    <div class="photo-modal-top"><img id="photoPreview" alt=""></div><div class="photo-inline-actions"><button type="button" id="photoReplace">заменить</button><button type="button" id="photoDelete">удалить</button></div><div class="photo-inline-actions photo-inline-actions--book"><button type="button" id="photoMarkPeople">кто на фото</button><button type="button" id="photoPair">было — стало</button></div>
-    <div class="photo-fields">
-      <div class="photo-field wide"><label>ПОДПИСЬ</label><input id="photoCaption" placeholder="Например: Лето у бабушки"><div class="photo-hint">Печатается мелко под фото: коротко — кто, где, когда.</div></div>
-      <div class="photo-field"><label>ГОД</label><input id="photoYear" placeholder="1987"><div class="photo-hint">Фото с годом может попасть в «Хронологию».</div></div>
-      <div class="photo-field"><label>МЕСТО</label><input id="photoPlace" placeholder="Город, деревня…"><div class="photo-hint">Город — и фото может появиться на карте «География семьи».</div></div>
-      <div class="photo-field wide"><label>КТО НА ФОТО</label><input id="photoPeople" placeholder="Имена"><div class="photo-hint">Имена пригодятся для подписи портрета.</div></div>
-      <div class="photo-field wide"><label>ИСТОРИЯ ФОТОГРАФИИ</label><textarea id="photoStory" placeholder="Почему этот снимок важен..."></textarea><div class="photo-hint">Несколько предложений — и фото может получить разворот с рассказом рядом.</div></div><div class="photo-field wide"><label>ИСТОЧНИК</label><input id="photoSource" placeholder="Семейный архив…"></div>
-      <div class="photo-field wide photo-hero-field"><label class="photo-hero-toggle"><input type="checkbox" id="photoPortraitHero"> ПОРТРЕТ ГЕРОЯ КНИГИ</label><div class="photo-hero-hint">Книга выделит этот портрет отдельным разворотом. Имя берётся из поля «Кто на фото».</div></div>
-      <div class="photo-field" id="photoHeroYearsField" hidden><label>ГОДЫ ЖИЗНИ</label><input id="photoHeroYears" placeholder="1901 – 1982"></div>
-      <div class="photo-field" id="photoHeroRoleField" hidden><label>КТО ОН ДЛЯ СЕМЬИ</label><input id="photoHeroRole" placeholder="Хранительница дома"></div>
-      <div class="photo-field"><label>ТОН ФОТО</label><select id="photoModePreference"><option value="auto">Автоматически</option><option value="color">Цветная</option><option value="bw">Чёрно-белая</option></select></div>
-      <!-- Макет разворота выбирается в предпросмотре выбранного листа.  В
-           карточке фотографии оставляем только свойства самой фотографии. -->
-      <div class="photo-field wide" id="documentExplanationField" hidden><label>ПОЯСНЕНИЕ К ДОКУМЕНТУ</label><textarea id="documentExplanation" placeholder="Что это за документ, откуда он и почему важен…"></textarea></div>
-      <div class="photo-field wide"><div id="photoObjectMeta" class="photo-object-meta"></div></div>
-    </div>
-    <div class="photo-actions"><button id="photoCancel">Отмена</button><button id="photoDone">Готово</button></div>
-  </div>
   <div class="sheet-stack">
     <div class="sheet ghost g3" id="ghost3"><div class="ghost-number" id="ghost3No"></div></div>
     <div class="sheet ghost g2" id="ghost2"><div class="ghost-number" id="ghost2No"></div></div>
@@ -98,7 +78,7 @@
 <input id="photoInput" type="file" accept="image/*" multiple hidden>
 <input id="photoReplaceInput" type="file" accept="image/*" hidden>
 
-<script src="app/sheet/sheet.js?v=20261107-v214" data-inline-from="script"></script>
+<script src="app/sheet/sheet.js?v=20261107-v215" data-inline-from="script"></script>
 </body>
 </html>
 

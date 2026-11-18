@@ -446,13 +446,6 @@
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   // threads that belong to the keys
   const thr=()=>{let ok=0;[document.querySelector('.wp-keys.k-closed .key'),document.querySelector('.bd-rail-key[data-rail="tips"]')].forEach(k=>{if(k){ok++;if(!k.querySelector('.oc-thr')){const t=document.createElement('i');t.className='oc-thr';k.prepend(t);}}});if(ok<2)setTimeout(thr,700);};thr();
-  // the photo card on the sheet: the question steps aside, the card stays clear of the keys above
-  const watch=()=>{const f=document.getElementById('v35SheetFrame');let d=null;try{d=f?.contentDocument;}catch(_){}const m=d?.getElementById('photoModal');if(!m){setTimeout(watch,900);return;}
-    const sync=()=>{const open=m.classList.contains('open');shell.classList.toggle('oc-card',open);
-      if(open)requestAnimationFrame(()=>{const fr=f.getBoundingClientRect(),r=m.getBoundingClientRect(),topLimit=170;const y=fr.top+r.top;if(y<topLimit){const cur=parseFloat(m.style.top)||m.offsetTop||0;m.style.top=Math.round(cur+(topLimit-y))+'px';}});};
-    new MutationObserver(sync).observe(m,{attributes:true,attributeFilter:['class','style']});sync();
-    f.addEventListener('load',()=>setTimeout(watch,900),{once:true});};
-  watch();
   // the first opening: one turn of the second hand backwards, the years dissolving behind it
   // v141: the years come out from under the second hand. Ahead of the hand there is nothing; as it passes a place,
   // a year shows through there, brightens, and fades again as the hand moves on — one full turn, the first time only.
@@ -500,7 +493,7 @@
   const sheetRect=()=>{try{const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect(),a=f.contentDocument.getElementById('activeSheet'),q=a&&a.getBoundingClientRect();
       if(q&&q.width)return {left:fr.left+q.left,top:fr.top+q.top,width:q.width,height:q.height,right:fr.left+q.right,bottom:fr.top+q.bottom};}catch(_){}return wrapEl().getBoundingClientRect();};
   const RATIO=667/944;
-  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book','oc-card'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
+  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book','is-photo-card-open'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
   // the place of the clean stack: as tall as the book's page, centred in the free room left of the sheet
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
     let h=r.height*.62,ww=h*RATIO;const avail=L-2*Math.max(20,L*.09);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;

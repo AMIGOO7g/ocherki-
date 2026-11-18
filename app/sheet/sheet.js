@@ -246,7 +246,7 @@ sections.forEach(s=>{
   (s.pages||[]).forEach(page=>{ if(typeof page.included!=='boolean') page.included=s.included; });
 });
 let activeSection=0;
-let activePhoto=-1, fontSize=14, lineHeight=1.42, photoAnimating=false, photoSwitching=false;
+let fontSize=14, lineHeight=1.42, photoAnimating=false, photoSwitching=false;
 // Tone is stored on each photo card. Keep this compatibility value for older
 // parent shells, but do not expose a page-wide black-and-white switch.
 let photoRenderMode='color';
@@ -260,27 +260,9 @@ const saveState=document.getElementById('saveState');
 const activeSheet=document.getElementById('activeSheet');
 const stackIndicator=document.getElementById('stackIndicator');
 const photoStack=document.getElementById('photoStack');
-const photoModal=document.getElementById('photoModal');
 const photoInput=document.getElementById('photoInput');
 const photoReplaceInput=document.getElementById('photoReplaceInput');
-const photoReplaceBtn=document.getElementById('photoReplace');
-const photoDeleteBtn=document.getElementById('photoDelete');
-const photoPreview=document.getElementById('photoPreview');
-const photoCaption=document.getElementById('photoCaption');
-const photoYear=document.getElementById('photoYear');
-const photoPlace=document.getElementById('photoPlace');
-const photoPeople=document.getElementById('photoPeople');
-const photoSource=document.getElementById('photoSource');
-const photoStory=document.getElementById('photoStory');
-const photoModePreference=document.getElementById('photoModePreference');
-const photoPortraitHero=document.getElementById('photoPortraitHero');
-const photoHeroYears=document.getElementById('photoHeroYears');
-const photoHeroRole=document.getElementById('photoHeroRole');
-const syncHeroFields=()=>{const on=Boolean(photoPortraitHero?.checked);['photoHeroYearsField','photoHeroRoleField'].forEach(id=>{const field=document.getElementById(id);if(field)field.hidden=!on;});};
-photoPortraitHero?.addEventListener('change',syncHeroFields);
 const photoToneBtn=document.getElementById('photoToneBtn');
-const documentExplanation=document.getElementById('documentExplanation');
-const documentExplanationField=document.getElementById('documentExplanationField');
 const pageNo=document.getElementById('pageNo');
 
 // v53: book hierarchy model: chapter -> episodes -> physical pages
@@ -340,7 +322,7 @@ let interactionWatchdog=0;
 function armInteractionWatchdog(){
   clearTimeout(interactionWatchdog);
   interactionWatchdog=setTimeout(()=>{
-    if(photoSwitching && !photoModal.classList.contains('open')) photoSwitching=false;
+    if(photoSwitching) photoSwitching=false;
     if(photoAnimating) photoAnimating=false;
     if(!sectionAnimating && !document.querySelector('.section-scroll-viewport')){
       activeSheet.classList.remove('is-setting-back','page-content-leaving');
@@ -1753,31 +1735,15 @@ editor.addEventListener('input',ev=>{
   },120);
 });
 
+// navigation resets the pile's state (the photograph's card cannot be open then: it covers the desk)
 function closePhotoImmediate(){
-  try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:false},'*');}catch(_){}
-  photoModal.classList.remove('open','reveal','hide','preload-hide');
-  workspace.classList.remove('photo-modal-visible');
-  document.documentElement.classList.remove('photo-modal-root-open');
-  workspace.style.removeProperty('overflow');
-  workspace.style.removeProperty('overflow-x');
-  workspace.style.removeProperty('overflow-y');
-  activePhoto=-1;
   photoSwitching=false;
   photoAnimating=false;
   photoStack.classList.remove('section-photo-hidden');
 }
 
 function foldPhotoStack(after,{revealAfter=true}={}){
-  const oldCards=[...photoStack.querySelectorAll('.photo-card')];
-  const oldSwitch=photoStack.querySelector('.photo-switch');
-  // Navigation must not wait for a decorative thumbnail cascade. Detach the
-  // old cards immediately, render the next page, then reveal its photos in
-  // their final opaque state. The physical paper motion remains independent.
-  [...oldCards,oldSwitch].filter(Boolean).forEach(el=>{
-    el.style.animationDelay='';
-    el.classList.remove('section-photo-cascade-in','page-photo-cascade-out');
-  });
-  // Ordinary page navigation swaps cards immediately.  Only the physical
+  // the next page is rendered at once; its prints come out from under it (revealSectionPhotosCascade). Ordinary page navigation swaps cards immediately.  Only the physical
   // section transition uses the folded state; a missed frame can therefore
   // never leave the incoming photos transparent.
   if(revealAfter){
@@ -1865,16 +1831,10 @@ photoToneBtn?.addEventListener('click',e=>{
 });
 // A press that starts inside the card (selecting text and letting go
 // outside it) never closes the card.
-let pressStartedInCard=false;
-document.addEventListener('pointerdown',e=>{pressStartedInCard=!!e.target.closest?.('.photo-modal');},true);
 document.addEventListener('click',e=>{
   const inPopover=e.target.closest('.popover');
-  const inPhotoModal=e.target.closest('.photo-modal');
-  if(!inPopover&&!inPhotoModal){
+  if(!inPopover){
     document.querySelectorAll('.popover').forEach(x=>x.classList.remove('open'));
-  }
-  if(photoModal?.classList.contains('open') && !inPhotoModal && !pressStartedInCard && !e.target.closest('.photo-card') && !e.target.closest('.photo-switch')){
-    closePhoto(true);
   }
 });
 document.querySelectorAll('.popover').forEach(x=>x.onclick=e=>e.stopPropagation());
@@ -2607,16 +2567,10 @@ photoInput.addEventListener('change',e=>{
   e.target.value='';
 });
 
+// v213: «заменить фото» from the photograph's card: the new file takes the old one's place everywhere it stands; the card is told
 let pendingPhotoReplaceTarget=null;
-photoReplaceBtn?.addEventListener('click',e=>{
-  e.stopPropagation();
-  const page=currentPage();
-  const photo=currentPhotos()[activePhoto];
-  if(!page||!photo)return;
-  pendingPhotoReplaceTarget={page,photo,pageUid:page.uid,photoId:photo.id};
-  if(photoReplaceInput) photoReplaceInput.value='';
-  photoReplaceInput?.click();
-});
+function replacePhotoFile(page,photo,done){if(!page||!photo)return;pendingPhotoReplaceTarget={page,photo,pageUid:page.uid,photoId:photo.id,done};
+  if(photoReplaceInput)photoReplaceInput.value='';photoReplaceInput?.click();}
 photoReplaceInput?.addEventListener('change',e=>{
   const f=e.target.files?.[0];
   const target=pendingPhotoReplaceTarget;
@@ -2638,14 +2592,8 @@ photoReplaceInput?.addEventListener('change',e=>{
       });
       if(window.LifeBookCompositionEngine) window.LifeBookCompositionEngine.update(target.page);
       updatePhotoStatus(rec);
-      photoPreview.removeAttribute('src');
-      photoPreview.src=rec.src;
-      if(currentPage()===target.page){
-        const idx=(target.page.photos||[]).indexOf(rec);
-        if(idx>=0)activePhoto=idx;
-        fillPhotoInfo(rec);
-        renderPhotos();
-      }
+      if(currentPage()===target.page)renderPhotos();
+      try{target.done?.(rec);}catch(_){}
       render();
       updateSave();
       window.__OCHERKI_EMIT_STRUCTURE?.();
@@ -2665,19 +2613,6 @@ photoReplaceInput?.addEventListener('change',e=>{
   r.readAsDataURL(f);
   e.target.value='';
 });
-photoDeleteBtn?.addEventListener('click',e=>{
-  e.stopPropagation();
-  const photos=currentPhotos();
-  if(activePhoto<0||!photos[activePhoto])return;
-  photos.splice(activePhoto,1);
-  currentPage().photoOffset=Math.min(currentPage().photoOffset||0,Math.max(0,photos.length-1));
-  window.__OCHERKI_EMIT_STRUCTURE?.();
-  // The photo is gone: nothing of the card is written anywhere.
-  activePhoto=-1;photoSnapshot=null;photoEdited=false;
-  closePhoto(true,true);
-  renderPhotos();
-});
-
 function visiblePhotoIndices(){
   const photos=currentPhotos();
   const offset=currentPage().photoOffset||0;
@@ -2739,180 +2674,6 @@ function renderPhotos(){
   window.__ocBadge?.();
 }
 
-function positionPhotoModal(){
-  const wr=workspace.getBoundingClientRect();
-  const sheetRect=activeSheet.getBoundingClientRect();
-  const modalWidth=332;
-  const fixedGap=42;
-  const switchEl=photoStack.querySelector('.photo-switch');
-  const switchRect=switchEl?.getBoundingClientRect();
-  const arrowLeft=switchRect ? (switchRect.left-wr.left) : (sheetRect.left-wr.left)-170;
-  const desiredLeft=arrowLeft-fixedGap-modalWidth;
-  const left=Math.max(22,desiredLeft);
-  // The card starts level with the sheet and always ends inside the
-  // window; when the window is short its fields scroll inside the card.
-  const fields=photoModal.querySelector('.photo-fields');
-  if(fields)fields.style.maxHeight='none';
-  // The editor frame can be larger than the screen and shifted; the part
-  // the person actually sees is measured from the page that holds it.
-  // Opened from a file, the browser hides the outer page: the sheet itself,
-  // which always fits the screen, then gives the bounds.
-  let viewTop=sheetRect.top,viewBottom=sheetRect.bottom+40,viewLeft=0;
-  try{
-    const frame=window.frameElement,rect=frame?.getBoundingClientRect(),scale=rect&&rect.height?rect.height/innerHeight:1;
-    if(rect){viewTop=Math.max(0,-rect.top/scale);viewBottom=Math.min(innerHeight,(window.parent.innerHeight-rect.top)/scale);viewLeft=Math.max(0,-rect.left/scale);}
-  }catch(_){}
-  photoModal.style.left=Math.round(Math.max(left,viewLeft+16-wr.left))+'px';
-  // The top row of brass keys stays clear: the card starts below it.
-  const topClear=viewTop+108;
-  const fullHeight=photoModal.offsetHeight||0,room=viewBottom-topClear-16;
-  if(fields&&fullHeight>room)fields.style.maxHeight=Math.max(160,fields.offsetHeight-(fullHeight-room))+'px';
-  const height=Math.min(fullHeight,room);
-  const top=Math.max(topClear-wr.top,Math.min(sheetRect.top-wr.top,viewBottom-16-height-wr.top));
-  photoModal.style.top=Math.round(top)+'px';
-  photoModal.dataset.fixedLeft='1';
-}
-
-function fillPhotoInfo(p){
-  photoSnapshot=Object.fromEntries(PHOTO_FIELDS.map(key=>[key,p?.[key]]));photoSnapshot.__explanation=currentPage()?.explanation;photoEdited=false;
-  try{updateMarkButton(p);updatePairButton(p);}catch(_){}
-  photoPreview.src=p.src;
-  photoCaption.value=p.caption||'';
-  photoYear.value=p.year||'';
-  photoPlace.value=p.place||'';
-  photoPeople.value=p.people||'';
-  photoSource.value=p.source||'';
-  photoStory.value=p.story||'';
-  if(photoModePreference) photoModePreference.value=p.photoMode||'auto';
-  if(photoPortraitHero) photoPortraitHero.checked=p.portraitHero===true;
-  if(photoHeroYears) photoHeroYears.value=p.heroYears||'';
-  if(photoHeroRole) photoHeroRole.value=p.heroRole||'';
-  syncHeroFields();
-  const isDocument=currentPage()?.type==='document';
-  if(documentExplanationField) documentExplanationField.hidden=!isDocument;
-  if(documentExplanation) documentExplanation.value=currentPage()?.explanation||p.explanation||'';
-  const meta=document.getElementById('photoObjectMeta');
-  if(meta) meta.innerHTML=`<span>состояние</span><span class="ready">${photoStatusLabel(p)}</span>`;
-}
-
-function openPhoto(idx){
-  const photos=currentPhotos();
-  const p=photos[idx];
-  if(!p||photoSwitching)return;
-
-  // v161: release the actual clipping node, not only its CSS class. Several
-  // legacy rules set overflow:hidden!important on #workspace; inline values
-  // plus the state class make the modal shadow deterministic.
-  workspace.classList.add('photo-modal-visible');
-  document.documentElement.classList.add('photo-modal-root-open');
-  workspace.style.setProperty('overflow','visible','important');
-  workspace.style.setProperty('overflow-x','visible','important');
-  workspace.style.setProperty('overflow-y','visible','important');
-
-  if(photoModal.classList.contains('open')&&activePhoto===idx)return;
-
-  if(photoModal.classList.contains('open')&&activePhoto!==idx){
-    photoSwitching=true;
-    photoModal.classList.remove('reveal');
-    photoModal.classList.add('hide');
-
-    setTimeout(()=>{
-      photoModal.classList.remove('open','hide','preload-hide');
-      activePhoto=idx;
-      fillPhotoInfo(p);
-
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        photoModal.classList.add('open','reveal');
-        setTimeout(()=>{
-          photoModal.classList.remove('reveal');
-          photoSwitching=false;
-        },450);
-      }));
-    },380);
-    return;
-  }
-
-  activePhoto=idx;
-  fillPhotoInfo(p);
-  // The constructor hides the book map and the clock under the card.
-  try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:true},'*');}catch(_){}
-
-  positionPhotoModal();
-
-  photoModal.classList.remove('hide','preload-hide');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    photoModal.classList.add('open','reveal');
-    setTimeout(()=>photoModal.classList.remove('reveal'),450);
-  }));
-}
-
-// The card's fields are written to the photo as they are typed, so nothing
-// is lost however the card is closed; only «Отмена» puts back what the photo
-// had when the card opened.
-const PHOTO_FIELDS=['caption','year','place','people','source','story','photoMode','portraitHero','heroYears','heroRole'];
-let photoSnapshot=null,photoEdited=false;
-function applyPhotoFields(p){
-  if(!p)return;
-  p.caption=photoCaption.value.trim();
-  p.year=photoYear.value.trim();
-  p.place=photoPlace.value.trim();
-  p.people=photoPeople.value.trim();
-  p.source=photoSource.value.trim();
-  p.story=photoStory.value.trim();
-  p.photoMode=photoModePreference?.value||'auto';
-  p.portraitHero=Boolean(photoPortraitHero?.checked);
-  p.heroYears=photoHeroYears?.value.trim()||'';
-  p.heroRole=photoHeroRole?.value.trim()||'';
-  if(currentPage()?.type==='document') currentPage().explanation=documentExplanation?.value.trim()||'';
-}
-photoModal.addEventListener('input',()=>{const p=currentPhotos()[activePhoto];if(p){applyPhotoFields(p);photoEdited=true;persistSoon();}});
-photoModal.addEventListener('change',()=>{const p=currentPhotos()[activePhoto];if(p){applyPhotoFields(p);photoEdited=true;persistSoon();}});
-function closePhoto(save=true,force=false){
-  const photos=currentPhotos();
-  const p=activePhoto>=0?photos[activePhoto]:null;
-
-  if(p&&save){
-    applyPhotoFields(p);
-  }else if(p&&photoSnapshot){
-    PHOTO_FIELDS.forEach(key=>{if(photoSnapshot[key]===undefined)delete p[key];else p[key]=photoSnapshot[key];});
-    if(currentPage()?.type==='document')currentPage().explanation=photoSnapshot.__explanation;
-  }
-  if(p&&(photoEdited||!save)){
-    updatePhotoStatus(p);
-    renderPhotos();
-    persistSoon();
-    // The book is told after the card has closed, so the closing motion is
-    // never held up by the rebuild.
-    setTimeout(()=>window.__OCHERKI_EMIT_STRUCTURE?.(),460);
-  }
-  photoSnapshot=null;photoEdited=false;
-
-  if(force){
-    closePhotoImmediate();
-    return;
-  }
-
-  if(!photoModal.classList.contains('open')){
-    activePhoto=-1;
-    return;
-  }
-
-  photoModal.classList.remove('reveal');
-  photoModal.classList.add('hide');
-  setTimeout(()=>{
-    workspace.classList.remove('photo-modal-visible');
-    workspace.style.removeProperty('overflow');
-    workspace.style.removeProperty('overflow-x');
-    workspace.style.removeProperty('overflow-y');
-  },430);
-
-  setTimeout(()=>{
-    photoModal.classList.remove('open','hide');
-    activePhoto=-1;
-  },380);
-  try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:false},'*');}catch(_){}
-}
-
 /* Section navigation by vertical wheel.
    The physical page stack is not used for sections. */
 function stripCloneIds(root){
@@ -2947,7 +2708,6 @@ function revealSectionStackCascade(){
 
 function lockSectionPhotos(){
   photoStack.classList.add('section-photo-hidden');
-  photoStack.querySelectorAll('.section-photo-cascade-in').forEach(el=>el.classList.remove('section-photo-cascade-in'));
 }
 
 // v213: the prints of the sheet slide out from under its left edge one after another (the lowest first), ~0.4 s in all
@@ -3037,7 +2797,6 @@ window.addEventListener('wheel' ,e=>{
   }
 },{passive:false});
 
-document.getElementById('photoCloseX').onclick=()=>closePhoto(true); document.getElementById('photoCancel').onclick=()=>closePhoto(false); document.getElementById('photoDone').onclick=()=>closePhoto(true);
 window.addEventListener('resize',()=>render());
 window.addEventListener('resize',()=>{try{updatePrompts();}catch(_){}});
 // Family tree form (book-renderer/tree-editor.js).
@@ -3297,33 +3056,18 @@ document.getElementById('treeLaunch')?.addEventListener('click',()=>{
     try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
   }});
 });
-// «Кто на фото» (book-renderer/people-marker.js) from the photo card.
-document.getElementById('photoMarkPeople')?.addEventListener('click',()=>{
-  const photo=currentPhotos()[activePhoto];if(!photo||!window.OcherkiPeopleMarker)return;
+// «Кто на фото» (book-renderer/people-marker.js) and «было — стало», from the photograph's card (v213: they take the photograph
+// itself; the card says on its buttons what is done)
+function markPeopleLabel(photo){const n=(photo?.peopleMarks||[]).filter(mark=>mark&&mark.name).length;return n?`кто на фото: ${n}`:'отметить людей';}
+function markPeoplePhoto(photo,done){if(!photo||!window.OcherkiPeopleMarker)return done?.();
   window.OcherkiPeopleMarker.open({src:photo.src,marks:photo.peopleMarks||[],onDone:marks=>{
-    photo.peopleMarks=marks;
-    const people=document.getElementById('photoPeople'),names=marks.map(mark=>mark.name).filter(Boolean).join(', ');
-    if(people&&!people.value.trim()&&names){people.value=names;photo.people=names;}
-    updateMarkButton(photo);persistSoon();
-    try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
-  }});
-});
-function updateMarkButton(target){
-  const button=document.getElementById('photoMarkPeople'),photo=target||currentPhotos()[activePhoto];
-  if(!button)return;
-  const count=(photo?.peopleMarks||[]).filter(mark=>mark&&mark.name).length;
-  button.textContent=count?`кто на фото: ${count}`:'кто на фото';
-}
-// «Было — стало»: pair this photo with another one of the same chapter.
+    photo.peopleMarks=marks;const names=marks.map(mark=>mark.name).filter(Boolean).join(', ');
+    if(!String(photo.people||'').trim()&&names)photo.people=names;
+    persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}done?.();},onCancel:()=>done?.()});}
 function chapterPhotos(){return (currentSection().pages||[]).flatMap(page=>page.photos||[]).filter(photo=>photo&&photo.src&&!photo.isDocument);}
-function updatePairButton(target){
-  const button=document.getElementById('photoPair'),photo=target||currentPhotos()[activePhoto];if(!button)return;
-  const other=photo&&chapterPhotos().find(item=>String(item.id)===String(photo.pairWith||'')&&String(item.pairWith||'')===String(photo.id));
-  button.textContent=other?(photo.pairRole==='now'?'«стало» ✓':'«было» ✓'):'было — стало';
-  button.title=other?'Это фото в паре «было — стало». Нажмите, чтобы изменить':'';
-}
-document.getElementById('photoPair')?.addEventListener('click',()=>{
-  const photo=currentPhotos()[activePhoto];if(!photo)return;
+function pairLabel(photo){const other=photo&&chapterPhotos().find(item=>String(item.id)===String(photo.pairWith||'')&&String(item.pairWith||'')===String(photo.id));
+  return other?(photo.pairRole==='now'?'«стало» ✓':'«было» ✓'):'было — стало';}
+function pairPhoto(photo,done){if(!photo)return done?.();
   const others=chapterPhotos().filter(item=>item!==photo);
   const current=others.find(item=>String(item.id)===String(photo.pairWith||''));
   const box=document.createElement('div');box.className='pair-picker';
@@ -3334,15 +3078,15 @@ document.getElementById('photoPair')?.addEventListener('click',()=>{
   // Clicks here must not reach the sheet, which would close the photo card.
   ['pointerdown','mousedown','mouseup','click'].forEach(type=>box.addEventListener(type,event=>event.stopPropagation()));
   const unpair=item=>{if(!item)return;const partner=chapterPhotos().find(other=>String(other.id)===String(item.pairWith||''));if(partner&&String(partner.pairWith||'')===String(item.id)){delete partner.pairWith;delete partner.pairRole;}delete item.pairWith;delete item.pairRole;};
-  const done=()=>{box.remove();updatePairButton(photo);persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}};
+  const finish=()=>{box.remove();persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}done?.();};
   box.addEventListener('click',event=>{
     const pick=event.target.closest('[data-index]'),act=event.target.closest('[data-act]')?.dataset.act;
-    if(pick){const other=others[Number(pick.dataset.index)];unpair(photo);unpair(other);photo.pairWith=other.id;other.pairWith=photo.id;photo.pairRole='then';other.pairRole='now';done();return;}
-    if(act==='swap'&&current){const role=photo.pairRole==='now'?'then':'now';photo.pairRole=role;current.pairRole=role==='now'?'then':'now';done();return;}
-    if(act==='clear'){unpair(photo);done();return;}
-    if(act==='close'||event.target===box)box.remove();
+    if(pick){const other=others[Number(pick.dataset.index)];unpair(photo);unpair(other);photo.pairWith=other.id;other.pairWith=photo.id;photo.pairRole='then';other.pairRole='now';finish();return;}
+    if(act==='swap'&&current){const role=photo.pairRole==='now'?'then':'now';photo.pairRole=role;current.pairRole=role==='now'?'then':'now';finish();return;}
+    if(act==='clear'){unpair(photo);finish();return;}
+    if(act==='close'||event.target===box){box.remove();done?.();}
   });
-});
+}
 const renderWithoutTree=render;
 render=function(){const result=renderWithoutTree.apply(this,arguments);updateTreeUi();return result;};
 render(); restoreProject();
@@ -3543,7 +3287,6 @@ window.addEventListener('message',e=>{
       // write the editor into whatever sheet was current there, and a sheet's text was lost
       if(editor.dataset.pageUid&&editor.dataset.pageUid!==String(page.uid||page.id||''))return;
       page.text = textFromEditor();
-      if(page.type==='document' && documentExplanation) page.explanation=String(documentExplanation.value||'').trim();
     }catch(_){ }
   }
 
@@ -4042,26 +3785,6 @@ window.LifeBookPageBlocks = {
   addDate(page,content){return this.add(page,'date',{content:String(content||''),mode:'watermark'});}
 };
 
-/*@block [" id=\"photo-card-two-levels-js\"", ""]*/
-(()=>{
-  const modal=document.getElementById('photoModal');if(!modal)return;
-  const field=id=>document.getElementById(id)?.closest('.photo-field');
-  const tag=(id,cls)=>field(id)?.classList.add(cls);
-  tag('photoPeople','pf-who');tag('photoYear','pf-year');tag('photoPlace','pf-place');tag('photoStory','pf-story');
-  ['photoCaption','photoSource','photoPortraitHero','photoHeroYears','photoHeroRole','photoModePreference','documentExplanation'].forEach(id=>tag(id,'pf-extra'));
-  document.getElementById('photoObjectMeta')?.closest('.photo-field')?.classList.add('pf-meta','pf-extra');
-  const peopleField=field('photoPeople');if(peopleField){const label=peopleField.querySelector('label');if(label)label.textContent='КТО НА ФОТО';}
-  const more=document.createElement('div');more.className='pf-more';
-  more.innerHTML='<button type="button" data-more="story">Рассказать историю этого снимка</button><button type="button" data-more="more">Ещё: подпись, портрет героя, тон</button>';
-  modal.querySelector('.photo-fields')?.appendChild(more);
-  more.addEventListener('click',event=>{const b=event.target.closest('[data-more]');if(!b)return;modal.classList.add(b.dataset.more==='story'?'show-story':'show-more');(b.dataset.more==='story'?document.getElementById('photoStory'):document.getElementById('photoCaption'))?.focus();try{positionPhotoModal();}catch(_){}});
-  // A card whose hidden fields already hold something opens them at once.
-  const sync=()=>{const has=id=>{const el=document.getElementById(id);return el&&(el.type==='checkbox'?el.checked:String(el.value||'').trim()&&el.value!=='auto');};
-    modal.classList.toggle('show-story',Boolean(has('photoStory')));
-    modal.classList.toggle('show-more',['photoCaption','photoSource','photoPortraitHero','photoModePreference'].some(has));};
-  new MutationObserver(()=>{if(modal.classList.contains('open')&&!modal.dataset.levelSynced){modal.dataset.levelSynced='1';sync();try{positionPhotoModal();}catch(_){}}if(!modal.classList.contains('open'))delete modal.dataset.levelSynced;}).observe(modal,{attributes:true,attributeFilter:['class']});
-})();
-
 /*@block [" id=\"sheet-keys-script\"", ""]*/
 (()=>{const box=document.getElementById('sheetKeys');if(!box)return;
   const click=id=>document.getElementById(id)?.click();
@@ -4189,14 +3912,6 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   if(hit){try{persistSoon();}catch(_){}try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}}});
 
 /*@block ["", ""]*/
-(()=>{const lab=document.querySelector('.photo-modal .photo-hero-toggle');if(!lab)return;const box=lab.querySelector('input');
-  lab.textContent='';lab.append(box,document.createTextNode('Это портрет героя книги'));
-  const hint=document.querySelector('.photo-modal .photo-hero-hint');const BASE='Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот; имя — из поля «Кто на фото».';
-  if(hint)hint.textContent=BASE;
-  // A wide picture (a landscape, a group) cannot open the chapter as the hero's portrait: say so at once.
-  const check=()=>{try{const im=document.getElementById('photoPreview');const w=im?.naturalWidth||0,h=im?.naturalHeight||0;const wide=w&&h&&w/h>1.15;
-    if(hint){hint.textContent=box.checked&&wide?'Снимок горизонтальный: книга обрежет его по высоте страницы. Если на нём один человек — в книге сдвиньте фото, чтобы он оказался в центре.':BASE;hint.style.color=box.checked&&wide?'#a4472f':'';}}catch(_){}};
-  box.addEventListener('change',check);document.getElementById('photoModal')?.addEventListener('transitionend',check);setInterval(()=>{if(document.getElementById('photoModal')?.classList.contains('open'))check();},800);})();
 
 /* v212: «Показать знакомство» is gone from the «Аа» menu (the old tour; a new one comes later) */
 // v186 — the sheet's light crosses over slowly only while the day turns to night (and back), never when a sheet changes
@@ -4253,7 +3968,7 @@ window.OC_SHEET={
 // and turns over: on its back are written who is on it, when, where, its story and its caption (the very fields the book
 // prints). From the pile: «вернуть в стопку» / «удалить из главы»; from the album: «вернуть в альбом» / «положить на лист».
 (()=>{const stack=document.getElementById('photoStack')||document.querySelector('.photo-stack');if(!stack)return;
-  let open=null;const K=[['people','кто на фото'],['year','когда'],['place','где']];
+  let open=null;
   // v213: the card lies in the screen's own top layer (over the desk, the album and the stack), so it flies from and back to the
   // very place of its print; the places measured in this sheet are moved by where the sheet's frame lies on the screen
   const HD=(()=>{try{return window.parent!==window&&window.frameElement?window.parent.document:document;}catch(_){return document;}})();
@@ -4276,13 +3991,35 @@ window.OC_SHEET={
     card.style.setProperty('--phx',(-g.L)+'px');card.style.setProperty('--phy',(-g.T)+'px');
     const doc=!opts.album&&currentPage()?.type==='document';
     card.innerHTML=`<div class="ph-in"><div class="ph-front"><img alt=""></div><div class="ph-back"><div class="ph-h"><span>оборот фотографии</span><button type="button" class="ph-ret2">↺ лицом</button></div>
-      ${K.map(([k,l])=>`<label><span>${l}</span><input data-k="${k}" autocomplete="off"></label>`).join('')}
-      <label class="tx"><span>история</span><textarea data-k="story" rows="4"></textarea></label><label><span>подпись в книге</span><input data-k="caption" autocomplete="off"></label>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
+      <label><span>кто на фото</span><input data-k="people" autocomplete="off"></label>
+      <div class="ph-two"><label><span>когда</span><input data-k="year" autocomplete="off"></label><label><span>где</span><input data-k="place" autocomplete="off"></label></div>
+      <label class="tx"><span>история</span><textarea data-k="story" rows="3"></textarea></label><label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
+      <label><span>источник</span><input data-k="source" autocomplete="off" placeholder="семейный архив, альбом бабушки…"></label>
+      <div class="ph-row"><label class="ph-chk"><input type="checkbox" data-b="portraitHero"><span>портрет героя книги</span></label><label class="ph-tone"><span>тон</span><select data-s="photoMode"><option value="auto">как есть</option><option value="color">цветная</option><option value="bw">чёрно-белая</option></select></label></div>
+      <div class="ph-hero" hidden><label><span>годы жизни</span><input data-k="heroYears" autocomplete="off" placeholder="1901 – 1982"></label><label><span>кто для семьи</span><input data-k="heroRole" autocomplete="off" placeholder="хранительница дома"></label><div class="ph-hint"></div></div>
+      <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}<span class="ph-st"></span></div>
       <div class="ph-act">${opts.album?'<button type="button" class="ph-ret">вернуть в альбом</button><button type="button" class="ph-lay">положить на лист</button>':'<button type="button" class="ph-ret">вернуть в стопку</button><button type="button" class="ph-del">удалить из главы</button>'}</div>
       <div class="ph-sure" hidden><span>Удалить это фото из главы?</span><button type="button" class="ph-yes">да, удалить</button><button type="button" class="ph-no">нет</button></div></div></div>`;
     card.querySelector('.ph-front img').src=p.src;
     card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';x.addEventListener('input',()=>{p[x.dataset.k]=x.value.trim();persist();});});
     {const pg=currentPage(),x=card.querySelector('[data-x="explanation"]');if(x&&pg){x.value=pg.explanation||p.explanation||'';x.addEventListener('input',()=>{pg.explanation=x.value.trim();persist();});}}
+    // v213 — all that the old card held: the source, the tone, the hero's portrait (years, who for the family), the photograph
+    // replaced, the people marked, «было — стало», its state. The marker and the pair picker open over the sheet: the card steps
+    // aside meanwhile and comes back with what was done
+    const pageOf=currentPage();
+    const hero=card.querySelector('.ph-hero'),hint=card.querySelector('.ph-hint'),chk=card.querySelector('[data-b="portraitHero"]'),tone=card.querySelector('[data-s="photoMode"]');
+    const HINT='Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот; имя — из «кто на фото».';
+    const heroSync=()=>{hero.hidden=!chk.checked;const im=card.querySelector('.ph-front img'),w=im.naturalWidth||0,h=im.naturalHeight||0,wide=w&&h&&w/h>1.15;
+      hint.textContent=chk.checked&&wide?'Снимок горизонтальный: книга обрежет его по высоте страницы. Если на нём один человек — в книге сдвиньте фото, чтобы он оказался в центре.':HINT;hint.classList.toggle('warn',!!(chk.checked&&wide));};
+    chk.checked=p.portraitHero===true;chk.addEventListener('change',()=>{p.portraitHero=chk.checked;heroSync();persist();});card.querySelector('.ph-front img').addEventListener('load',heroSync);heroSync();
+    tone.value=p.photoMode||'auto';tone.addEventListener('change',()=>{p.photoMode=tone.value;persist();});
+    const tools=()=>{const m=card.querySelector('.ph-mark'),pr=card.querySelector('.ph-pair');if(m)m.textContent=markPeopleLabel(p);if(pr)pr.textContent=pairLabel(p);
+      card.querySelector('.ph-st').textContent='состояние: '+photoStatusLabel(p);};tools();
+    const aside=run=>{card.style.visibility='hidden';bg.style.visibility='hidden';run(()=>{card.style.visibility='';bg.style.visibility='';
+      card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';});tools();});};
+    card.querySelector('.ph-mark').addEventListener('click',()=>aside(back=>markPeoplePhoto(p,back)));
+    card.querySelector('.ph-pair')?.addEventListener('click',()=>aside(back=>pairPhoto(p,back)));
+    card.querySelector('.ph-rep')?.addEventListener('click',()=>replacePhotoFile(pageOf,p,rec=>{card.querySelector('.ph-front img').src=rec.src;tools();}));
     const fromPose=from(g);card.style.transform=fromPose;HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,back:opts.back};tellHost(true);opts.taken?.();
     requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
     card.addEventListener('click',e=>e.stopPropagation());

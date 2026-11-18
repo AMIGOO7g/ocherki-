@@ -78,30 +78,12 @@ body{
 
 /* v9 — photo thumbnails stay folded/hidden during section scroll and only
    fan out after the incoming sheet has settled, matching the paper stack. */
-.photo-stack.section-photo-hidden .photo-card,
-.photo-stack.section-photo-hidden .photo-switch{
+.photo-stack.section-photo-hidden .photo-card{
   opacity:0!important;
   pointer-events:none!important;
   translate:58px 0;
 }
-.photo-card.section-photo-cascade-in{
-  animation:sectionPhotoCascadeIn .52s cubic-bezier(.22,.78,.22,1) both!important;
-}
-.photo-switch.section-photo-cascade-in{
-  animation:sectionPhotoSwitchIn .46s cubic-bezier(.22,.78,.22,1) both!important;
-}
-@keyframes sectionPhotoCascadeIn{
-  0%{opacity:0;translate:58px 0;box-shadow:0 8px 18px rgba(0,0,0,.04)}
-  45%{opacity:.5}
-  100%{opacity:1;translate:0 0;box-shadow:0 16px 28px rgba(0,0,0,.26),0 3px 7px rgba(0,0,0,.14)}
-}
-@keyframes sectionPhotoSwitchIn{
-  0%{opacity:0;translate:34px 0}
-  45%{opacity:.5}
-  100%{opacity:1;translate:0 0}
-}
-  100%{opacity:1;translate:0 0}
-}
+
 .ghost-number{z-index:50;position:absolute;right:16px;top:6px;font:16px/1 Georgia,"Times New Roman",serif;letter-spacing:0;color:#8d755e;opacity:1;transition:opacity .25s ease}
 .stack-indicator{position:absolute;right:calc(50% - min(345px,31vw) - 30px);top:144px;z-index:16;display:none;pointer-events:none}
 .stack-indicator.show{display:block}
@@ -111,9 +93,7 @@ body{
 .tl,.tr{display:flex;align-items:center;gap:17px}.tl{justify-self:start}.tr{justify-self:end;padding-right:0;position:static}.page-no{position:absolute;right:16px;top:8px;font:12px Arial,sans-serif;letter-spacing:.12em;color:#927b69;min-width:12px;text-align:right;z-index:50}
 .icon{appearance:none;border:0;background:transparent;padding:4px;color:#745f50;font:inherit;cursor:pointer;transition:transform .22s ease,color .22s ease,opacity .22s ease}
 .icon:hover{transform:translateY(-1px) scale(1.06);color:#3c2b22}
-.photo-tone-toggle{position:relative;min-width:24px;color:#8b6d50}
-.photo-tone-toggle::before{content:"";position:absolute;left:50%;top:-10px;width:1px;height:8px;background:currentColor;opacity:.45}
-.photo-tone-toggle[aria-pressed="true"]{color:#5d4633}
+
 .chapter{text-align:center;font-size:14px;letter-spacing:.005em;justify-self:center}
 .divider{display:none}
 .episode-row{margin:0 0 14px;display:flex;align-items:center;justify-content:center;gap:18px;color:#5b4434}
@@ -219,10 +199,7 @@ body{
 .bookmark .leaf:after{transform:rotate(35deg);box-shadow:-4px 7px 0 #d89a44,1px 14px 0 #d89a44}
 .photo-stack{position:absolute;left:50%;top:196px;width:var(--sheetW);height:420px;transform:translateX(calc(-50% - 26px));z-index:6;pointer-events:none;display:none;transition:transform .3s ease,opacity .3s ease}
 .photo-stack.show{display:block}
-.photo-stack.switch-up{transform:translateX(calc(-50% - 26px)) translateY(-14px);opacity:.42}
-.photo-stack.switch-down{transform:translateX(calc(-50% - 26px)) translateY(14px);opacity:.42}
-.photo-stack.enter-up{transform:translateX(calc(-50% - 26px)) translateY(14px);opacity:.42}
-.photo-stack.enter-down{transform:translateX(calc(-50% - 26px)) translateY(-14px);opacity:.42}
+
 .photo-card{position:absolute;left:-86px;width:186px;height:138px;padding:7px 7px 24px;background:#f4eee4;border:1px solid rgba(90,70,55,.18);box-shadow:0 16px 28px rgba(0,0,0,.26),0 3px 7px rgba(0,0,0,.14);transform-origin:25% 50%;pointer-events:auto;cursor:pointer;pointer-events:auto;overflow:hidden}
 .photo-card img{width:100%;height:100%;object-fit:cover;display:block;filter:none;transition:filter .38s ease}
 .photo-card .note{position:absolute;left:10px;right:10px;bottom:3px;font:15px/1 "Brush Script MT", cursive;color:rgba(76,56,39,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -241,25 +218,7 @@ body{
 .photo-stack .photo-card.p2:hover{transform:translateX(-18px) rotate(1.5deg) scale(1.016)}
 .photo-stack .photo-card.p3:hover{transform:translateX(-18px) translateY(2px) rotate(-2deg) scale(1.016)}
 .photo-card:hover img{filter:none}
-.photo-mode-bw .photo-card img,.photo-mode-bw .photo-modal-top img{filter:grayscale(1) sepia(.08) contrast(1.04) brightness(.98)}
-.photo-switch{position:absolute;left:-170px;top:4px;height:398px;width:62px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;color:rgba(242,218,186,.96);pointer-events:auto;z-index:9}.photo-switch button{appearance:none;border:0;background:transparent;color:inherit;font:24px Georgia,serif;cursor:pointer;padding:0 4px;transition:transform .24s ease,opacity .24s ease}.photo-switch button:hover{transform:translateY(-1px) scale(1.06)}.photo-switch .meta{font:12px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.92;min-width:44px;text-align:center;line-height:1.5}
-.photo-modal.preload-hide{opacity:0!important;pointer-events:none!important;}
-.photo-modal{position:absolute;left:0;top:0;z-index:5;width:332px;padding:18px 18px 16px;border-radius:30px;background:linear-gradient(180deg,#f8eddb,#efe0c9);border:1px solid rgba(100,68,42,.18);box-shadow:0 26px 68px rgba(28,17,10,.30);color:#4b3527;font-family:Georgia,"Times New Roman",serif;opacity:0;pointer-events:none;transform:translateX(26px) scale(.985);transition:opacity .26s ease,transform .34s cubic-bezier(.2,.8,.2,1);overflow:visible}
-.photo-modal.open{opacity:1;pointer-events:auto;transform:translateX(0) scale(1)}
-.photo-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font:600 9px/1 Arial,sans-serif;letter-spacing:.15em;color:rgba(93,62,39,.58)}
-.photo-modal-head button{border:0;background:none;color:#825a39;font-size:24px;line-height:1;cursor:pointer}
-.photo-modal-top{height:182px;border-radius:18px;overflow:hidden;background:rgba(98,74,51,.06);display:grid;place-items:center}
-.photo-modal-top img{width:100%;height:100%;object-fit:cover;display:block}
-.photo-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:14px}
-.photo-field{display:flex;flex-direction:column;gap:5px;min-width:0}.photo-field.wide{grid-column:1/-1}
-.photo-field label{font:600 9px/1 Arial,sans-serif;letter-spacing:.13em;color:rgba(93,62,39,.58)}
-.photo-field input,.photo-field textarea{width:100%;border:0;border-bottom:1px solid rgba(112,77,48,.18);background:transparent;padding:4px 0 7px;font:15px Georgia,serif;color:#4c3628;outline:none;resize:none;min-height:44px}
-.photo-field select{appearance:none;-webkit-appearance:none;width:100%;border:0;border-bottom:1px solid rgba(112,77,48,.20);border-radius:0;background:transparent;padding:8px 28px 8px 0;font:italic 15px/1.35 Georgia,"Times New Roman",serif;color:#4c3628;outline:none;cursor:pointer}
-.photo-field select optgroup{font:600 11px Arial,sans-serif;color:#9b6d43}
-.photo-layout-hint{margin-top:7px;color:rgba(93,62,39,.58);font:italic 11px/1.35 Georgia,"Times New Roman",serif}
-.photo-field select:focus{border-bottom-color:rgba(139,104,73,.58)}
-.photo-field select option{background:#f6ead7;color:#4c3628;font-style:normal}
-.photo-actions{display:flex;justify-content:flex-end;gap:18px;margin-top:18px}.photo-actions button{border:0;background:none;color:#765036;font:600 11px Arial,sans-serif;cursor:pointer}.photo-actions button:hover{color:#a0642d}.photo-inline-actions{display:flex;justify-content:center;gap:20px;margin-top:9px}.photo-inline-actions button{appearance:none;border:0;background:none;padding:0;color:#7f614a;font:italic 400 13px/1.2 Georgia,"Times New Roman",serif;cursor:pointer;opacity:.78;transition:opacity .2s ease,transform .2s ease}.photo-inline-actions button:hover{opacity:1;transform:translateY(-1px)}
+.photo-mode-bw .photo-card img{filter:grayscale(1) sepia(.08) contrast(1.04) brightness(.98)}
 
 .semantic-modal{
   position:absolute;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
@@ -314,38 +273,9 @@ body{
  .workspace{width:96vw}
  .sheet{width:min(680px,72vw)}
  .photo-card{width:142px;height:104px}
- .photo-modal{width:320px}
+ 
 }
 
-.ghost-page:hover{z-index:30!important;transform:translateX(-10px) translateY(-8px)!important;}
-.ghost-page:hover ~ .ghost-page{transform:translateX(18px)!important;}
-
-.photo-card.switch-up{
-  animation:photoCardUp .35s ease;
-}
-.photo-card.switch-down{
-  animation:photoCardDown .35s ease;
-}
-@keyframes photoCardUp{
- from{transform:translateY(0) translateX(0)}
- to{transform:translateY(-18px) translateX(-12px);opacity:.3}
-}
-@keyframes photoCardDown{
- from{transform:translateY(0) translateX(0)}
- to{transform:translateY(18px) translateX(12px);opacity:.3}
-}
-.photo-switch{
-  transform:none!important;
-}
-
-.photo-card.card-enter-up{
-  opacity:.22;
-  transform:translateY(18px) translateX(8px) scale(.985)!important;
-}
-.photo-card.card-enter-down{
-  opacity:.22;
-  transform:translateY(-18px) translateX(8px) scale(.985)!important;
-}
 .photo-card{
   transition:
     top .5s cubic-bezier(.2,.8,.3,1),
@@ -354,49 +284,6 @@ body{
     opacity .34s ease,
     box-shadow .42s ease,
     filter .36s ease!important;
-}
-
-
-.photo-modal.reveal{
-  animation:photoInfoReveal .45s cubic-bezier(.22,.8,.22,1) forwards;
-}
-.photo-modal.hide{
-  animation:photoInfoHide .38s cubic-bezier(.22,.8,.22,1) forwards;
-}
-@keyframes photoInfoReveal{
-  from{
-    opacity:0;
-    transform:translateX(120px) scale(.98);
-  }
-  to{
-    opacity:1;
-    transform:translateX(0) scale(1);
-  }
-}
-@keyframes photoInfoHide{
-  from{
-    opacity:1;
-    transform:translateX(0) scale(1);
-  }
-  to{
-    opacity:0;
-    transform:translateX(120px) scale(.98);
-  }
-}
-
-.photo-modal.preload-hide{
- opacity:0!important;
- pointer-events:none!important;
-}
-
-.photo-modal.switching{
-  animation:photoInfoSwitch .36s cubic-bezier(.22,.8,.22,1);
-}
-@keyframes photoInfoSwitch{
-  0%{opacity:1;transform:translateX(0)}
-  45%{opacity:0;transform:translateX(35px)}
-  55%{opacity:0;transform:translateX(35px)}
-  100%{opacity:1;transform:translateX(0)}
 }
 
 /* Questions for a prompted chapter (start wizard), beside the sheet. */
@@ -478,7 +365,7 @@ html.large-ui .page-sample{font-size:17px}
 .pf-input:focus,.pf-text:focus{border-color:#a35f1d;box-shadow:0 1px 0 #a35f1d}
 .pf-input::placeholder,.pf-text::placeholder{color:#b3a090;font-style:italic}
 .pf-row{display:flex;gap:10px;align-items:flex-end}
-.pf-row .pf-year{flex:0 0 92px}.pf-row .pf-place{flex:0 0 32%}.pf-row .pf-what{flex:1 1 auto}
+.pf-row .pf-what{flex:1 1 auto}
 .pf-item{display:flex;gap:8px;align-items:center}
 .pf-item::before{content:'—';color:#a88a6c}
 .pf-add{display:inline-flex;align-items:center;gap:8px;margin:4px 0 0;border:0;border-radius:20px;padding:9px 18px;background:#a8692f;color:#fff8ee;font:16px Georgia,serif;cursor:pointer}
@@ -552,10 +439,6 @@ body:before,body:after{display:none!important}
 
 /* Page-to-page photo physics: retract the old thumbnails, then fan the
    destination thumbnails out exactly like section scrolling. */
-.photo-card.page-photo-cascade-out{animation:pagePhotoCascadeOut .38s cubic-bezier(.35,0,.22,1) both!important;pointer-events:none!important}
-.photo-switch.page-photo-cascade-out{animation:pagePhotoSwitchOut .34s cubic-bezier(.35,0,.22,1) both!important;pointer-events:none!important}
-@keyframes pagePhotoCascadeOut{0%{opacity:1;translate:0 0}55%{opacity:.52}100%{opacity:0;translate:58px 0}}100%{opacity:0;translate:0 10px}}
-@keyframes pagePhotoSwitchOut{0%{opacity:1;translate:0 0}55%{opacity:.52}100%{opacity:0;translate:34px 0}}100%{opacity:0;translate:12px 0}}
 
 /* Section-to-section scrolling: the paper itself changes vertically. */
 .sheet.section-out-next{animation:v44SectionOutNext .28s cubic-bezier(.4,0,.2,1) forwards}
@@ -570,39 +453,16 @@ body:before,body:after{display:none!important}
 /* Important: photo transitions use CSS translate, not transform.
    This keeps the original p1/p2/p3 rotations and hover behavior unchanged
    after leaving and returning to a page. */
-.photo-card.v44-photo-out-next{animation:v44PhotoOutNext .22s ease forwards!important}
-.photo-card.v44-photo-out-prev{animation:v44PhotoOutPrev .22s ease forwards!important}
-.photo-card.v44-photo-in-next{animation:v44PhotoInNext .36s cubic-bezier(.22,.8,.22,1) both!important}
-.photo-card.v44-photo-in-prev{animation:v44PhotoInPrev .36s cubic-bezier(.22,.8,.22,1) both!important}
-@keyframes v44PhotoOutNext{from{opacity:1;translate:0 0}to{opacity:0;translate:-28px 0}}
-@keyframes v44PhotoOutPrev{from{opacity:1;translate:0 0}to{opacity:0;translate:28px 0}}
-@keyframes v44PhotoInNext{from{opacity:0;translate:28px 0}to{opacity:1;translate:0 0}}
-@keyframes v44PhotoInPrev{from{opacity:0;translate:-28px 0}to{opacity:1;translate:0 0}}
 
 /* Keep hover exactly like the accepted v35 regardless of page history. */
 .photo-card{translate:0 0}
 
 /*@block [" id=\"v46-only-fixes\"", "\n"]*/
 /* Real section scroll: old physical sheet leaves, new physical sheet arrives. */
-.v46-section-clone{
-  position:absolute!important;
-  z-index:40!important;
-  pointer-events:none!important;
-  transition:none!important;
-}
-.v46-old-up{animation:v46OldUp .52s cubic-bezier(.42,0,.24,1) forwards!important}
-.v46-old-down{animation:v46OldDown .52s cubic-bezier(.42,0,.24,1) forwards!important}
+
 .sheet.active.v46-new-from-bottom{animation:v46NewFromBottom .52s cubic-bezier(.22,.8,.22,1) both!important}
 .sheet.active.v46-new-from-top{animation:v46NewFromTop .52s cubic-bezier(.22,.8,.22,1) both!important}
 
-@keyframes v46OldUp{
-  from{transform:translateY(0);opacity:1}
-  to{transform:translateY(calc(-100% - 80px));opacity:.96}
-}
-@keyframes v46OldDown{
-  from{transform:translateY(0);opacity:1}
-  to{transform:translateY(calc(100% + 80px));opacity:.96}
-}
 @keyframes v46NewFromBottom{
   from{transform:translateY(calc(100% + 80px));opacity:.98}
   to{transform:translateY(0);opacity:1}
@@ -614,46 +474,21 @@ body:before,body:after{display:none!important}
 
 /* Photo carousel controls stay readable in both lighting modes.
    Color crossfades with the same slow lighting feel. */
-.photo-switch{
-  transition:color 2.45s cubic-bezier(.37,0,.63,1)!important;
-}
-body.host-night .photo-switch{
-  color:rgba(242,218,186,.96)!important;
-}
-body.host-day .photo-switch{
-  color:rgba(72,50,36,.88)!important;
-}
 
 /*@block [" id=\"v47-scroll-fix\"", "\n"]*/
 html,body{overflow:hidden!important}
 #workspace,.workspace,.editor-wrap{overflow:hidden!important}
-
-.v46-section-clone{
-  position:absolute!important;
-  inset:0!important;
-  margin:auto!important;
-  pointer-events:none!important;
-  z-index:20!important;
-}
 
 .activeSheet,
 #activeSheet{
   overflow:hidden!important;
 }
 
-.v46-old-up,.v46-old-down,
+
 .v46-new-from-bottom,.v46-new-from-top{
   will-change:transform,opacity;
 }
 
-@keyframes v46OldUp{
- from{transform:translate3d(0,0,0);opacity:1}
- to{transform:translate3d(0,-110%,0);opacity:0}
-}
-@keyframes v46OldDown{
- from{transform:translate3d(0,0,0);opacity:1}
- to{transform:translate3d(0,110%,0);opacity:0}
-}
 @keyframes v46NewFromBottom{
  from{transform:translate3d(0,110%,0);opacity:0}
  to{transform:translate3d(0,0,0);opacity:1}
@@ -750,7 +585,7 @@ html,body{overflow:hidden!important}
 
 /*@block [" id=\"book-map-smooth-v10\"", "\n"]*/
 .book-map-row,.book-map-page{transition:transform .32s cubic-bezier(.2,.8,.3,1),opacity .32s ease,color .32s ease;}
-.episodes,.book-map-pages{transition:grid-template-rows .45s cubic-bezier(.2,.8,.3,1),opacity .35s ease,transform .45s cubic-bezier(.2,.8,.3,1);}
+.episodes{transition:grid-template-rows .45s cubic-bezier(.2,.8,.3,1),opacity .35s ease,transform .45s cubic-bezier(.2,.8,.3,1);}
 .book-map-dot{transition:background-color .55s ease,box-shadow .7s cubic-bezier(.3,.66,.24,1),transform .35s ease;}
 
 /*@block [" id=\"v11-sheet-heading-edit\"", "\n"]*/
@@ -761,22 +596,6 @@ html,body{overflow:hidden!important}
 .host-night .chapter[contenteditable="true"]:focus,.host-night .episode[contenteditable="true"]:focus{background:rgba(240,175,105,.08);box-shadow:0 0 0 1px rgba(240,175,105,.18);}
 
 /*@block [" id=\"v45-photo-entry-sync\"", "\n"]*/
-.photo-card.section-photo-cascade-in{
-  animation:sectionPhotoCascadeInSync .38s cubic-bezier(.35,0,.22,1) both!important;
-}
-.photo-switch.section-photo-cascade-in{
-  animation:sectionPhotoSwitchInSync .34s cubic-bezier(.35,0,.22,1) both!important;
-}
-@keyframes sectionPhotoCascadeInSync{
-  0%{opacity:0;translate:58px 0}
-  55%{opacity:.52}
-  100%{opacity:1;translate:0 0}
-}
-@keyframes sectionPhotoSwitchInSync{
-  0%{opacity:0;translate:34px 0}
-  55%{opacity:.52}
-  100%{opacity:1;translate:0 0}
-}
 
 /*@block [" id=\"v40-new-photo-entry\"", "\n"]*/
 .photo-card.photo-new-entry{
@@ -788,25 +607,8 @@ html,body{overflow:hidden!important}
   100%{opacity:1;translate:0 0;filter:brightness(1)}
 }
 /* Let the photo information card cast its shadow outside the left side. */
-#workspace.photo-modal-visible{overflow:visible!important}
-#workspace.photo-modal-visible .photo-modal{overflow:visible!important}
-#workspace.photo-modal-visible .photo-modal-top{overflow:hidden}
 
 /*@block [" id=\"v43-photo-object\"", "\n"]*/
-.photo-object-meta{
- margin-top:12px;
- padding-top:10px;
- border-top:1px solid rgba(90,70,55,.12);
- font:11px/1.55 Georgia,serif;
- color:rgba(90,70,55,.55);
-}
-.photo-object-meta span{
- display:inline-block;
- margin-right:12px;
-}
-.photo-object-meta .ready{
- color:rgba(90,70,55,.75);
-}
 
 /*@block [" id=\"v49-auto-page-quality\"", "\n"]*/
 /* Automatic pages: book typography, without adding new UI chrome. */
@@ -884,30 +686,20 @@ html,body{overflow:hidden!important}
 /*@block [" id=\"v160-photo-shadow-fix\"", "\n"]*/
 /* The photo information panel intentionally sits outside the sheet area.
    Its parent must not clip the soft shadow while the panel is open. */
-#workspace.photo-modal-visible,
-.workspace.photo-modal-visible{overflow:visible!important;}
-#workspace.photo-modal-visible .photo-modal{overflow:visible!important;}
-#workspace.photo-modal-visible .photo-modal-top{overflow:hidden!important;}
-.photo-layout-hint{color:rgba(93,62,39,.64)!important}
 
 /*@block [" id=\"v161-photo-shadow-release\"", "\n"]*/
-#workspace.photo-modal-visible{overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important;}
-#workspace.photo-modal-visible .photo-modal{overflow:visible!important;}
-#workspace.photo-modal-visible .photo-modal-top{overflow:hidden!important;}
 
 /*@block [" id=\"v162-photo-shadow-root-paint\"", "\n"]*/
 /* The iframe itself now has extra symmetric paint room. Keep document roots unclipped while the photo card is open. */
-html.photo-modal-root-open{overflow:hidden!important;}
-html.photo-modal-root-open body{overflow:visible!important;}
 
 /*@block [" id=\"v163-photo-card-tone\"", "\n"]*/
 /* Monochrome is a property of the selected photo, not of the whole sheet. */
 .photo-card.photo-card-bw img{filter:grayscale(1) sepia(.08) contrast(1.04) brightness(.98)!important;}
-  .photo-hero-toggle{display:flex;align-items:center;gap:10px;cursor:pointer}
-  .photo-hero-toggle input{width:20px;height:20px;accent-color:#8a6a45}
-  .photo-hero-hint{margin-top:4px;font-size:12px;opacity:.7}
-  .photo-inline-actions{position:relative;z-index:60;flex-wrap:wrap;row-gap:4px}
-  .photo-inline-actions--book{margin-top:4px!important}
+  
+  
+  
+  
+  
   .pair-picker{position:fixed;inset:0;z-index:5200;background:rgba(30,22,16,.55);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;color:#3b2a20}
   .pair-picker__box{background:#f8f0e3;border-radius:12px;padding:22px 24px;max-width:760px;max-height:82vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
   .pair-picker__box h3{margin:0 0 6px;font-weight:400;font-size:24px}
@@ -920,21 +712,21 @@ html.photo-modal-root-open body{overflow:visible!important;}
   .pair-picker__actions button{border:0;background:none;color:#8f5a2e;text-decoration:underline;font:15px Georgia,serif;cursor:pointer}
   /* The photo switch strip only reacts on its arrows, so it never swallows
      clicks on the photo card fields under it. */
-  .photo-switch{pointer-events:none!important}
-  .photo-switch button{pointer-events:auto!important}
+  
+  
   /* A field's explanation shows while that field is being filled, so the
      card stays compact; placeholders and hints are dark enough to read on
      the card's warm paper. */
-  .photo-hint{display:none;margin-top:5px;font:italic 13px/1.35 Georgia,serif;color:rgba(78,52,32,.82)}
-  .photo-field:focus-within .photo-hint,.photo-hero-field .photo-hint{display:block}
-  .photo-fields{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  
+  
+  
   /* Fields shown only for a portrait hero or a document stay hidden otherwise. */
-  .photo-field[hidden]{display:none!important}
+  
   /* The card lies above the sheet when a narrow screen brings them together. */
-  #workspace .photo-modal{z-index:60!important}
-  .photo-field input::placeholder,.photo-field textarea::placeholder{color:rgba(92,64,42,.58);font-style:italic;opacity:1}
-  .photo-field label{color:rgba(84,56,34,.78)!important}
-  .host-night .photo-hint{color:rgba(236,220,198,.62)}
+  
+  
+  
+  
 
 /*@block [" id=\"night-lamp\"", "\n"]*/
 /* Night: the lamp stands to the upper left. The sheet casts a deep shadow
@@ -1047,8 +839,6 @@ html body .footer #saveState{position:relative;top:3px}
 .footer{grid-template-columns:1.55fr 1fr auto!important;column-gap:14px!important;}
 .project-stats{white-space:pre!important;font-size:10px!important;letter-spacing:.01em!important;color:#9a8878!important;opacity:.78!important;}
 .project-stats .fill-track{display:none!important;}
-.photo-modal{overflow:visible!important;}
-.photo-modal-top{overflow:hidden!important;}
 
 /*@block [" id=\"sheet-controls-contrast\"", "\n"]*/
 /* The sheet is paper in both modes: its controls and labels are dark ink,
@@ -1067,33 +857,12 @@ html body .page-context-actions button:hover{color:#a8692f!important}
 /* The photo card in two levels: first who is in the picture and when and
    where it was taken; the story behind one button; everything else under
    «Ещё». */
-.photo-fields .pf-who{order:1}.photo-fields .pf-year{order:2}.photo-fields .pf-place{order:3}
-.photo-fields .pf-story{order:5}.photo-fields .pf-extra{order:7}.photo-fields .pf-more{order:4}.photo-fields .pf-meta{order:9}
-.photo-fields .pf-story,.photo-fields .pf-extra{display:none}
-.photo-modal.show-story .pf-story{display:flex}
-.photo-modal.show-more .pf-extra{display:flex}
-.photo-modal.show-more .pf-extra[hidden]{display:none!important}
-.pf-more{grid-column:1/-1;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:2px 0 4px}
-.pf-more button{border:0;background:none;padding:4px 2px;font:italic 15px Georgia,serif;color:#8a5a2e;cursor:pointer;border-bottom:1px solid rgba(138,90,46,.35)}
-.pf-more button:hover{color:#5c3a1c}
-.photo-modal.show-story .pf-more [data-more="story"],.photo-modal.show-more .pf-more [data-more="more"]{display:none}
 
 /*@block [" id=\"photo-card-all-open\"", "\n"]*/
 /* The photo card opens with every field at once (no «Рассказать историю…»
    / «Ещё…» steps), and the hero switch is the same as in «Рукопись». */
-.photo-modal .pf-more{display:none!important}
-.photo-modal .pf-story,.photo-modal .pf-extra{display:flex!important}
-.photo-modal .pf-extra[hidden],.photo-modal #photoHeroYearsField[hidden],.photo-modal #photoHeroRoleField[hidden]{display:none!important}
-.photo-modal .photo-hero-field{border:1px solid rgba(90,61,38,.18);border-radius:16px;background:rgba(255,250,240,.6);padding:12px 14px!important;display:block!important}
-.photo-modal .photo-hero-toggle{display:flex!important;align-items:center;gap:12px;font:15px/1.3 Georgia,serif!important;text-transform:none!important;letter-spacing:0!important;color:#2c1f14!important;cursor:pointer}
-#photoModal #photoPortraitHero,.photo-modal .photo-hero-toggle input[type=checkbox]{appearance:none!important;-webkit-appearance:none!important;width:40px!important;height:22px!important;min-width:40px!important;min-height:22px!important;max-height:22px!important;border-radius:11px!important;border:0!important;background:rgba(90,61,38,.25)!important;position:relative;transition:background .3s;flex:0 0 auto;margin:0!important;padding:0!important;cursor:pointer;box-shadow:none!important}
-#photoModal #photoPortraitHero::before{display:none!important}
-#photoModal #photoPortraitHero::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .3s}
-#photoModal #photoPortraitHero:checked,.photo-modal .photo-hero-toggle input[type=checkbox]:checked{background:#8a5a2e!important}
-#photoModal #photoPortraitHero:checked::after{left:20px}
-.photo-modal .photo-hero-hint{margin:4px 0 0 52px;font:italic 12.5px/1.35 Georgia,serif!important;color:#7a5a3a!important}
 
-/*@block ["", "\n"]*/.page-fill-indicator{display:none!important}
+/*@block ["", "\n"]*/
 /*@block [" id=\"v31-fast-page-render\"", "\n"]*/
 /* A sheet change is a content swap, not a fade. Keep the paper gesture but
    paint the incoming copy and its thumbnails at full opacity immediately. */
@@ -1105,18 +874,12 @@ html body .page-context-actions button:hover{color:#a8692f!important}
 }
 .photo-stack{transition:none!important}
 .photo-card img{opacity:1!important;transition:none!important}
-.photo-card.section-photo-cascade-in,
-.photo-switch.section-photo-cascade-in,
-.photo-card.photo-new-entry,
-.photo-card.page-photo-cascade-out,
-.photo-switch.page-photo-cascade-out{
+
+.photo-card.photo-new-entry{
   animation:none!important;
 }
 .photo-card.photo-new-entry{opacity:1!important;translate:0 0!important}
-.photo-card.v44-photo-in-next,.photo-card.v44-photo-in-prev,
-.photo-card.v44-photo-out-next,.photo-card.v44-photo-out-prev{
-  animation-duration:.01ms!important;
-}
+
 .editor{
   hyphens:auto;
   -webkit-hyphens:auto;
@@ -1146,7 +909,7 @@ html body .page-context-actions button:hover{color:#a8692f!important}
 .host-night .page-no,
 .host-night .footer,
 .host-night .footer .cloud svg{color:#d8c19f!important;stroke:#d8c19f!important}
-.host-night .photo-switch{color:#f2d8b5!important}
+
 
 /* v183 — one light on the sheet and its stack (no «Машинка», no old lamp), changing at the same pace as the desk.
    At night the bar's lamp: the sheet's head lit warm but not glaring, the foot in a warm half-shade (the ink keeps 5:1 and more);
@@ -1179,7 +942,7 @@ html body.host-night .sheet.ghost.g3{box-shadow:inset 0 0 0 2000px rgba(42,22,8,
 html body.host-night .sheet.active{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)!important}
 html body.host-day .sheet.active{box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22)!important}
 /* a new sheet laid on top */
-@keyframes sheet-laid{0%{transform:translate(0,-34px) rotate(-1.4deg) scale(1.025);opacity:.35}60%{opacity:1}100%{transform:none;opacity:1}}
+
 /* v194: a new sheet simply appears on top (it no longer drops in from above — the sheet jumped under the bar) */
 /* v188 — the two sheets that carry a turn between sections lie in the same light as the open one (they used to come white
    and then turn yellow when the real sheet came back) */
