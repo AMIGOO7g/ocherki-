@@ -84,7 +84,6 @@ body{
   translate:58px 0;
 }
 
-.ghost-number{z-index:50;position:absolute;right:16px;top:6px;font:16px/1 Georgia,"Times New Roman",serif;letter-spacing:0;color:#8d755e;opacity:1;transition:opacity .25s ease}
 .stack-indicator{position:absolute;right:calc(50% - min(345px,31vw) - 30px);top:144px;z-index:16;display:none;pointer-events:none}
 .stack-indicator.show{display:block}
 .stack-tip{font:11px Arial,sans-serif;color:rgba(233,217,198,.84);letter-spacing:.1em;text-transform:uppercase;text-shadow:0 1px 10px rgba(0,0,0,.28)}
@@ -441,7 +440,6 @@ body:before,body:after{display:none!important}
    destination thumbnails out exactly like section scrolling. */
 
 /* Section-to-section scrolling: the paper itself changes vertically. */
-.sheet.section-out-next{animation:v44SectionOutNext .28s cubic-bezier(.4,0,.2,1) forwards}
 .sheet.section-out-prev{animation:v44SectionOutPrev .28s cubic-bezier(.4,0,.2,1) forwards}
 .sheet.section-in-next{animation:v44SectionInNext .42s cubic-bezier(.22,.8,.22,1) both}
 .sheet.section-in-prev{animation:v44SectionInPrev .42s cubic-bezier(.22,.8,.22,1) both}

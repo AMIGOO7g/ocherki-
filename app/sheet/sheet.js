@@ -679,21 +679,10 @@ function untokenise(tokens){
     .replace(/\s+¶\s+/g,'\n\n')
     .trim();
 }
+// v217: a sheet is filled to its last line and the rest goes on to the next one, cut between words (it used to step back to the
+// last full stop, and with a long sentence next half the sheet stayed empty); the book joins the sheets of a chapter anyway
 function smartCutTokens(tokens,maxIndex){
   let cut=Math.min(maxIndex,tokens.length);
-  let text=untokenise(tokens.slice(0,cut));
-
-  const matches=[...text.matchAll(/[.!?](?=\s+[А-ЯA-ZЁ])/g)];
-  const point=matches.length ? matches[matches.length-1].index : -1;
-
-  if(point>text.length*.55){
-    let count=0;
-    for(let i=0;i<tokens.length;i++){
-      count+=tokens[i].length;
-      if(count>=point+1) return i+1;
-    }
-  }
-
   while(cut>1 && !/\s/.test(tokens[cut-1])) cut--;
   return cut;
 }
@@ -718,7 +707,7 @@ function mergeText(a,b){
 function pageCanFlow(page){
   const sid=currentSection()?.id;
   if(['title','dedication','epigraph','contents','sources','colophon','back-cover'].includes(sid))return false;
-  return ['chapter','intro','text','inside-back-cover'].includes(page.type);
+  return ['chapter','intro','text','inside-back-cover','document'].includes(page.type);
 }
 function canHavePhotos(page){
   const sid=currentSection()?.id;
@@ -1245,7 +1234,13 @@ function measuredTextHeight(text){
   probe.style.whiteSpace='normal';
   probe.style.wordBreak=cs.wordBreak;
   probe.style.overflowWrap=cs.overflowWrap;
+  // v217: the same hyphenation, alignment and spacing as the sheet (without them the probe's lines were longer)
+  probe.style.hyphens=cs.hyphens;probe.style.webkitHyphens=cs.webkitHyphens||cs.hyphens;probe.style.textAlign=cs.textAlign;probe.style.wordSpacing=cs.wordSpacing;probe.style.textIndent=cs.textIndent;probe.style.fontFeatureSettings=cs.fontFeatureSettings;probe.style.fontKerning=cs.fontKerning;probe.lang=editor.lang||document.documentElement.lang||'ru';
   probe.innerHTML=htmlFromText(text);
+  // v217: the probe's paragraphs are spaced as the sheet's own (it measured them with the browser's wider margins, so a sheet
+  // with many short paragraphs — a dialogue — was thought full while lines were still free at its foot)
+  {const sp=editor.querySelector('p');const pm=sp?getComputedStyle(sp):null;const m=pm?`${pm.marginTop} 0px ${pm.marginBottom}`:`0px 0px ${(parseFloat(cs.fontSize)*.72).toFixed(2)}px`;
+    probe.querySelectorAll('p').forEach(x=>{x.style.margin=m;});}
 
   document.body.appendChild(probe);
   const h=probe.getBoundingClientRect().height;
@@ -1359,8 +1354,13 @@ function flowCurrentPageOverflow(expectedPage){
 // of a website or a Word file (large fonts, colours) never reaches the page.
 editor.addEventListener('paste',event=>{
   const plain=event.clipboardData?.getData('text/plain');
-  if(plain!=null&&plain!==''){event.preventDefault();document.execCommand('insertText',false,plain.replace(/\r\n?/g,'\n'));}
+  if(plain!=null&&plain!==''){event.preventDefault();document.execCommand('insertText',false,plain.replace(/\r\n?/g,'\n'));
+    // v217: what does not fit goes on to the next sheets at once — the sheet is not scrolled up to the caret meanwhile (it jumped)
+    keepSheetStill();const p=currentPage();try{flowCurrentPageOverflow(p);}catch(_){}keepSheetStill();}
 },true);
+// the sheet itself never scrolls: whatever the browser does to bring the caret into view is undone before it is painted
+function keepSheetStill(){let n=editor;while(n&&n!==document.body){if(n.scrollTop)n.scrollTop=0;if(n.scrollLeft)n.scrollLeft=0;n=n.parentElement;}}
+editor.addEventListener('scroll',keepSheetStill);document.querySelector('.editor-wrap')?.addEventListener('scroll',keepSheetStill);
 editor.addEventListener('paste',()=>{
   const p=currentPage();
   setTimeout(()=>{
@@ -1858,6 +1858,8 @@ function siblingType(src){
 }
 function makeSiblingPage(src,blank=true,options={}){
   const uid='page_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+  // v217: a document's text that runs over its sheet goes on to a sheet of the same document (the book joins them)
+  if(src?.type==='document'&&options.continuation)return {uid,id:uid,type:'document',bookRole:'document',title:src.title,episode:src.episode,text:'',photos:[],photoOffset:0,included:true,isEpisodeStart:false,autoCreated:true,continuation:true,continuationOf:src.uid||src.id||null,explanation:''};
   const plain=!['chapter','intro','text','inside-back-cover'].includes(src?.type);
   return {
     uid,

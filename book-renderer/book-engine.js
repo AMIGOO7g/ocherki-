@@ -3,6 +3,18 @@
 
   const wordList = text => String(text || '').trim().split(/\s+/).filter(Boolean);
   const wordCount = text => wordList(text).length;
+  // v217: a long document written on the desk runs on over sheets of its own (continuation: true); for the book they are one
+  // document — the continuation's words are joined to the document they go on from (a document is never split into two)
+  const joinDocumentContinuations = list => {
+    const out = [];
+    (list || []).forEach(page => {
+      const prev = out[out.length - 1];
+      if (page && page.continuation && prev && (prev.type === 'document' || prev.bookRole === 'document')) {
+        out[out.length - 1] = Object.assign({}, prev, { text: [String(prev.text || '').trim(), String(page.text || '').trim()].filter(Boolean).join('\n\n') });
+      } else out.push(page);
+    });
+    return out;
+  };
   const normalizeProse = value => String(value || '').replace(/\s+/g, ' ').replace(/([.!?…»”])(?=[А-ЯЁа-яё])/g, '$1 ').trim();
   const endpaperPhotoOf = section => { const photo=(section?.pages||[]).flatMap(page=>page?.photos||[]).find(item=>String(item?.src||item?.dataUrl||item?.url||'').trim()); return photo?String(photo.src||photo.dataUrl||photo.url).trim():''; };
   const imageSource = photo => String(photo?.src || photo?.dataUrl || photo?.dataURL || photo?.url || photo?.preview || photo?.objectUrl || '').trim();
@@ -388,7 +400,7 @@
     // chapter-by-chapter scheduling from repeating the same rare composition
     // at every chapter boundary.
     const compositionPlan = [];
-    const documents = pages.filter(page => page.type === 'document' || page.bookRole === 'document').map(page => Object.assign({}, page, {
+    const documents = joinDocumentContinuations(pages.filter(page => page.type === 'document' || page.bookRole === 'document')).map(page => Object.assign({}, page, {
       explanation: String(page.explanation || page.comment || page.story || page.photos?.[0]?.story || '').trim(),
       photos: (page.photos || []).filter(photo => imageSource(photo))
     })).filter(document=>document.photos.length || wordCount(document.text) || wordCount(document.explanation));
@@ -454,7 +466,7 @@
         current = chapters.find(chapter => chapter.sectionId === section.id) || current;
         return;
       }
-      const docs = (section.pages || []).filter(page => page && page.included !== false && (page.type === 'document' || page.bookRole === 'document'));
+      const docs = joinDocumentContinuations((section.pages || []).filter(page => page && page.included !== false && (page.type === 'document' || page.bookRole === 'document')));
       if (current && docs.length) current.documents.push(...docs);
     });
   }
@@ -683,7 +695,7 @@
         whoPhotos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(isWhoPhoto),
         // «Было — стало»: two photos paired with each other in this chapter.
         pairs: thenNowPairs(pages.flatMap(page => page.photos || [])),
-        documents: pages.filter(page => page.type === 'document' || page.bookRole === 'document'),
+        documents: joinDocumentContinuations(pages.filter(page => page.type === 'document' || page.bookRole === 'document')),
         text: runs.map(run => run.text).join(''),
         openingLeftVariant: section.openingLeftVariant || first.openingLeftVariant || first.chapterOpeningVariant || '',
         openingInitialText: section.openingInitialText || first.openingInitialText || first.initialText || '',
