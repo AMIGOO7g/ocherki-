@@ -4232,3 +4232,23 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
   // v192: a sheet put in or swapped gets its light before it is painted, not a frame later
   {const mo=new MutationObserver(put),hook=()=>{const st=document.getElementById('activeSheet')?.parentElement;if(!st)return setTimeout(hook,500);mo.observe(st,{childList:true,attributes:true,attributeFilter:['class','id'],subtree:false});[...st.children].forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class','id','style']}));};hook();}
   window.__ltPut=put;requestAnimationFrame(step);})();
+
+// v209 — what the desk's clean stack asks of the open sheet: the book's photographs (for the contact sheet), a copy of one
+// laid on the open sheet, the new episode's name / when / where, the new document's name, transcript and scan
+window.OC_SHEET={
+  allPhotos(){const out=[],seen=new Set();sections.forEach(s=>(s.pages||[]).forEach(p=>(p.photos||[]).forEach(r=>{if(r&&r.src&&!seen.has(r.src)){seen.add(r.src);out.push(r);}})));return out;},
+  canPhoto(){const p=currentPage();return !!p&&canHavePhotos(p);},
+  addPhotoCopy(rec){const p=currentPage();if(!p||!canHavePhotos(p)||!rec)return false;
+    const n=Object.assign({},rec,{id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),_newEntry:true});
+    if(!Array.isArray(p.photos))p.photos=[];p.photos.push(n);try{window.LifeBookPageBlocks?.addPhoto(p,n);window.LifeBookCompositionEngine?.update(p);}catch(_){}
+    updateContextActions();renderPhotos();window.__OCHERKI_EMIT_STRUCTURE?.();return true;},
+  setEpisode(o){const p=currentPage();if(!p||!o)return;const t=(o.title||'').trim();
+    if(t){p.title=t;p.episode=String(p.episode||'Эпизод 1.').replace(/^(Эпизод\s*\d+\.).*$/,'$1 '+t);}
+    if((o.when||'').trim())p.episodeWhen=o.when.trim();if((o.where||'').trim())p.episodeWhere=o.where.trim();
+    render();window.__OCHERKI_EMIT_STRUCTURE?.();},
+  setDocument(o){const p=currentPage();if(!p||p.type!=='document'||!o)return;const t=(o.title||'').trim(),x=(o.text||'').trim();
+    if(t)p.title=t;if(x)p.text=x;
+    if(o.src){const rec={id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:o.src,caption:t,year:'',place:'',people:'',source:'',story:'',photoMode:'auto',layoutPreference:'auto',isDocument:true,status:'uploaded',_newEntry:true};
+      if(!Array.isArray(p.photos))p.photos=[];p.photos.push(rec);try{window.LifeBookPageBlocks?.addPhoto(p,rec);window.LifeBookCompositionEngine?.update(p);}catch(_){}}
+    render();renderPhotos();window.__OCHERKI_EMIT_STRUCTURE?.();}
+};

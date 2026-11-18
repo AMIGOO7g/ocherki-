@@ -506,12 +506,55 @@
     <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"></i>
       <div class="ws-nav"><span class="ws-cnt"></span><button type="button" data-q="-1">‹ назад</button><button type="button" data-q="1">дальше ›</button></div>
       <div class="ws-q"></div>
-      <div class="ws-hint">потяните лист на стол</div></div>`;
+      <div class="ws-hint">потяните лист на стол</div>
+      <div class="ws-face ws-f-episode"><div class="ws-ft">Новый эпизод</div><div class="ws-fs">заполните — или потяните на стол</div>
+        <label><span>название</span><input data-f="title" autocomplete="off"></label><label><span>когда</span><input data-f="when" autocomplete="off"></label><label><span>где</span><input data-f="where" autocomplete="off"></label>
+        <div class="ws-fh">потяните на стол — начнётся новый эпизод</div></div>
+      <div class="ws-face ws-f-document"><div class="ws-ft">Документ</div><div class="ws-fs">письмо, справка, грамота, билет…</div>
+        <button type="button" class="ws-scan"><b>положите сюда скан или фото документа</b><small>с компьютера</small></button>
+        <label><span>что это</span><input data-f="dtitle" autocomplete="off"></label><label class="tx"><span>расшифровка</span><textarea data-f="dtext" rows="2"></textarea></label>
+        <div class="ws-fh">потяните на стол — в главе появится страница документа</div></div>
+      <div class="ws-face ws-f-photo"><div class="ws-pnav"><span class="ws-pc"></span><button type="button" data-p="-1">‹ назад</button><button type="button" data-p="1">дальше ›</button></div>
+        <div class="ws-grid"></div><div class="ws-fh">потяните фото на лист</div></div></div>`;
   document.body.appendChild(left);
   const top=left.querySelector('.ws-top'),qEl=left.querySelector('.ws-q'),cnt=left.querySelector('.ws-cnt');
   let kind='page';
   left.querySelector('.ws-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;e.stopPropagation();kind=b.dataset.t;left.querySelectorAll('.ws-tabs button').forEach(x=>x.classList.toggle('on',x===b));
     left.dataset.kind=kind;top.classList.remove('ws-turn');void top.offsetWidth;top.classList.add('ws-turn');});
+  // v209 — each kind of clean sheet has its own face on the stack: an episode's name / when / where, a document's scan and
+  // transcript, the book's photographs as a contact sheet (taken one by one onto the open sheet)
+  const OC=()=>{try{return FW2()?.OC_SHEET;}catch(_){return null;}};const FW2=()=>document.getElementById('v35SheetFrame')?.contentWindow;
+  const fv=n=>left.querySelector(`[data-f="${n}"]`);let docSrc='';
+  const scan=left.querySelector('.ws-scan');{const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.hidden=true;left.appendChild(inp);
+    scan.addEventListener('click',e=>{e.stopPropagation();inp.click();});
+    inp.addEventListener('change',()=>{const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{docSrc=r.result;scan.style.backgroundImage=`url("${docSrc}")`;scan.classList.add('has');};r.readAsDataURL(f);inp.value='';});}
+  left.querySelectorAll('.ws-face input,.ws-face textarea').forEach(x=>{['pointerdown','keydown','keyup','input'].forEach(t=>x.addEventListener(t,e=>e.stopPropagation()));});
+  const layKind=k=>{const o=OC();
+    if(k==='episode'){act('episode');const v={title:fv('title').value,when:fv('when').value,where:fv('where').value};setTimeout(()=>{OC()?.setEpisode(v);},420);['title','when','where'].forEach(n=>fv(n).value='');return;}
+    if(k==='document'){act('document');const v={title:fv('dtitle').value,text:fv('dtext').value,src:docSrc};setTimeout(()=>{OC()?.setDocument(v);},420);fv('dtitle').value='';fv('dtext').value='';docSrc='';scan.style.backgroundImage='';scan.classList.remove('has');return;}
+    act(k);};
+  // the contact sheet: eight photographs a page and a cell to bring more from the computer
+  const grid=left.querySelector('.ws-grid'),pc=left.querySelector('.ws-pc');let pgN=0,lastSig='';
+  const fillGrid=()=>{const o=OC();const all=o?o.allPhotos():[];const per=8,pages=Math.max(1,Math.ceil((all.length+1)/(per+1)));pgN=Math.min(pgN,pages-1);
+    const sig=all.length+'|'+pgN+'|'+(all[0]?.id||'');if(sig===lastSig)return;lastSig=sig;
+    const part=all.slice(pgN*per,pgN*per+per);
+    grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+'<button type="button" class="ws-add">+ добавить<br>фото</button>';
+    pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;};
+  left.querySelector('.ws-pnav').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;e.stopPropagation();pgN=Math.max(0,pgN+(+b.dataset.p));lastSig='';fillGrid();});
+  grid.addEventListener('click',e=>{if(e.target.closest('.ws-add')){e.stopPropagation();try{FW2().document.getElementById('addPhotoBtn')?.click();}catch(_){}}});
+  setInterval(()=>{if(kind==='photo')fillGrid();},1500);
+  left.querySelector('.ws-tabs').addEventListener('click',()=>{if(kind==='photo'){lastSig='';fillGrid();}});
+  // a photograph taken from the contact sheet: a small print in the hand, laid on the open sheet
+  grid.addEventListener('pointerdown',e=>{const c=e.target.closest('.ws-ph');if(!c||e.button!==0)return;e.preventDefault();e.stopPropagation();
+    const rec=grid._all?.[+c.dataset.i];if(!rec)return;const r=c.getBoundingClientRect();const pr=document.createElement('div');pr.className='ws-print';pr.style.backgroundImage=c.style.backgroundImage;
+    Object.assign(pr.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(pr);paperFx(.35);
+    const wr=wrapEl()?.getBoundingClientRect();let tx=0,ty=0,cx=0,cy=0,on=true,over=false;const x0=e.clientX,y0=e.clientY;
+    const fr=()=>{if(!on)return;requestAnimationFrame(fr);cx+=(tx-cx)*.45;cy+=(ty-cy)*.45;pr.style.transform=`translate(${cx.toFixed(1)}px,${cy.toFixed(1)}px) rotate(${Math.max(-6,Math.min(6,(tx-cx)/12)).toFixed(2)}deg) scale(1.6)`;};requestAnimationFrame(fr);
+    const mv=ev=>{tx=ev.clientX-x0;ty=ev.clientY-y0;over=!!wr&&ev.clientX>wr.left&&ev.clientX<wr.right&&ev.clientY>wr.top&&ev.clientY<wr.bottom;pr.classList.toggle('over',over);};
+    const up=()=>{on=false;c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);
+      if(over&&OC()?.addPhotoCopy(rec)){pr.classList.add('laid');paperFx(.25);setTimeout(()=>pr.remove(),420);}
+      else{pr.classList.add('back');pr.style.transform='none';setTimeout(()=>pr.remove(),380);}};
+    try{c.setPointerCapture(e.pointerId);}catch(_){}c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);});
   left.querySelector('.ws-nav').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;e.stopPropagation();document.getElementById(b.dataset.q==='1'?'writingPromptNext':'writingPromptAgree')?.click();});
   // the chapter's question is written on the top clean sheet (the same question as beside the sheet, the same keys)
   // the chapter may have no questions (the family tree): the question beside the sheet is then hidden — the clean sheet is clean
@@ -526,7 +569,7 @@
   // ——— taking a clean sheet to the desk
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
   let drag=null;
-  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button'))return;e.preventDefault();
+  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo')return;e.preventDefault();
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
     fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
@@ -559,7 +602,7 @@
       top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
       // v207: the new sheet is not laid a second time (it is the one in the hand): it is there, still, when the hand lets go
       try{FW().__ocNoLay=Date.now();}catch(_){}
-      setTimeout(()=>act(kind),200);setTimeout(()=>{fl.style.setProperty('transition','opacity .3s ease','important');fl.style.opacity='0';setTimeout(()=>fl.remove(),340);},680);}
+      setTimeout(()=>layKind(kind),200);setTimeout(()=>{fl.style.setProperty('transition','opacity .3s ease','important');fl.style.opacity='0';setTimeout(()=>fl.remove(),340);},680);}
     else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
 
