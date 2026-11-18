@@ -91,7 +91,7 @@
     let H=base.height*.8,W=H*pw/ph;if(base.width+G+W>room){W=Math.max(0,room-base.width-G);H=W*ph/pw;}
     let d=(W+G)/2;
     // v119: the sheet stays where it is — the book's page comes out on its right.
-    if(shell.classList.contains('oc-w')){const r2=innerWidth-(base.left+base.width)-G-40;H=base.height*(window.__ocWsRoom?.()?.7:.8);W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;}
+    if(shell.classList.contains('oc-w')){const ws=window.__ocWsRoom?.();const G2=ws?44:G;const r2=innerWidth-(base.left+base.width)-G2-(ws?28:40);H=base.height*(ws?.72:.8);W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}if(ws&&H>base.height*.72){H=base.height*.72;W=H*pw/ph;}d=0;if(ws)return {base,W,H,G:G2,d,extra:0,ok:W>=200};}
     return {base,W,H,G,d,extra,ok:W>=260};}
   function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G;
     const css=on?`left:${L}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`:`left:${b.left+b.width+g.extra-g.W*.7}px;top:${b.top+(b.height-g.H)/2-10}px;width:${g.W}px;height:${g.H}px`;
@@ -163,7 +163,7 @@
   const IC={back:'<path d="M15 5l-7 7 7 7"/>',book:'<path d="M12 6c-2.6-1.8-5.6-1.9-8.5-1.3v13.5c2.9-.6 5.9-.5 8.5 1.3 2.6-1.8 5.6-1.9 8.5-1.3V4.7C17.6 4.1 14.6 4.2 12 6zM12 6v13.5"/>',
     mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',aa:'<path d="M3 18l5-12 5 12M5 14h6M15 18l3-7 3 7M16 16h4"/>',plus:'<path d="M12 5v14M5 12h14"/>',
     bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>',
-    photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',
+    play:'<path d="M8 5l11 7-11 7z"/>',pause:'<path d="M9 5v14M15 5v14"/>',photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',
     document:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',quote:'<path d="M5 17c2.5-1 4-3 4-6V7H5v4h3M13 17c2.5-1 4-3 4-6V7h-4v4h3"/>',
     date:'<rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M4 10h16M8 3v4M16 3v4"/>',page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>'};
   const sv=n=>S+IC[n]+E;
@@ -171,8 +171,11 @@
   const bt=(c,ic,tip,cls='')=>`<button class="${cls}" data-c="${c}" aria-label="${tip}" data-tip="${tip}">${sv(ic)}${c==='tips'?'<em></em>':''}</button>`;
   wc.innerHTML=`<i class="nf"></i>`+bt('back','back','Назад')
     +`<span class="grow"></span><span class="t"><b></b><span class="sv"></span></span>`
-    +bt('mic','mic','Говорить вместо печати')+bt('aa','aa','Шрифт и размер')+bt('add','plus','Добавить')+bt('peek','book','Как ляжет в книге')+bt('tips','bulb','До книги — что улучшить');
+    +bt('mic','mic','Говорить вместо печати')+bt('aa','aa','Шрифт и размер')+bt('add','plus','Добавить')+bt('music','play','Музыка: играть / пауза')+bt('tips','bulb','До книги — что улучшить');
   document.body.appendChild(wc);
+  // v204: the music's key on the bar: play ▸ / pause ‖ as the music goes
+  addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_AUDIO_STATE')return;const on=d.state==='playing'&&!d.muted;const k=wc.querySelector('[data-c="music"]');if(!k)return;
+    k.classList.toggle('on',on);k.innerHTML=sv(on?'pause':'play');k.setAttribute('aria-label',on?'Музыка: пауза':'Музыка: играть');k.dataset.tip=k.getAttribute('aria-label');});
   const add=document.createElement('div');add.className='wc-add';
   add.innerHTML=[['photo','фото'],['episode','эпизод'],['document','документ'],['quote','цитата'],['date','дата'],['page','новый лист']].map(([a,l])=>`<button data-a="${a}">${sv(a)}${l}</button>`).join('');
   document.body.appendChild(add);
@@ -191,6 +194,7 @@
     else if(c==='aa')d?.getElementById('textBtn')?.click();
     else if(c==='tips')document.querySelector('.bd-rail-key[data-rail="tips"]')?.click();
     // v180: the page as it will lie in the book slides out from under the sheet (and back)
+    else if(c==='music'){try{(window.parent!==window?window.parent:window).postMessage({type:'OCHERKI_AUDIO_COMMAND',action:'toggle'},'*');}catch(_){}}
     else if(c==='peek'){if(shell.classList.contains('wp-on'))document.querySelector('.wp-keys.k-open .back button')?.click();else document.querySelector('.wp-keys.k-closed .tog button')?.click();}
     else if(c==='add'){const r=b.getBoundingClientRect();add.style.left=Math.round(r.left-60)+'px';add.style.top=Math.round(r.bottom+10)+'px';add.classList.toggle('on');}});
   add.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.stopPropagation();add.classList.remove('on');
@@ -526,9 +530,9 @@
       // v202: as it comes down the window's shade falls on it where it falls on the desk (no later jump when the sheet itself shows)
       if(!shell.classList.contains('is-night')){const sx=w.width/d.r.width,sy=w.height/d.r.height,sh=document.createElement('i');sh.className='ws-land-shade';
         Object.assign(sh.style,{left:(-w.left/sx)+'px',top:(-w.top/sy)+'px',width:(innerWidth/sx)+'px',height:(innerHeight/sy)+'px'});fl.style.overflow='hidden';fl.appendChild(sh);requestAnimationFrame(()=>sh.classList.add('on'));}
-      fl.style.transform=`translate(${w.left-d.r.left}px,${w.top-d.r.top}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;fl.style.opacity='0';
+      fl.style.transform=`translate(${w.left-d.r.left}px,${w.top-d.r.top}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;
       top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
-      setTimeout(()=>act(kind),260);setTimeout(()=>fl.remove(),700);}
+      setTimeout(()=>act(kind),260);setTimeout(()=>{fl.style.transition='opacity .35s ease';fl.style.opacity='0';setTimeout(()=>fl.remove(),380);},1250);}
     else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
 
@@ -559,14 +563,14 @@
       // slides out), and in its full size
       const px=parseFloat(W.pane.style.left)+parseFloat(W.pane.style.width)/2;const bar=document.querySelector('.wc.on')?.getBoundingClientRect();
       const ok=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--oc-k"))||1;t.style.scale=ok.toFixed(3);t.style.transformOrigin="0 0";
-      t.style.translate=`${Math.round(px-bx)}px ${Math.round((bar?bar.bottom:150)+10-by)}px`;}
+      t.style.translate=`${Math.round(px-bx)}px ${Math.round(16-by)}px`;}
     else if(t){t.style.removeProperty('translate');t.style.removeProperty('scale');t.style.removeProperty('transform-origin');}
     if(peek&&c&&k2&&k2.height){const pv=c.querySelector('.clock-pivot');
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
       c.style.setProperty('transition','none','important');
       if(!c.style.transform)c._B=new DOMMatrix(getComputedStyle(c).transform==='none'?undefined:getComputedStyle(c).transform).a||1;const B=c._B||1,k0=parseFloat(getComputedStyle(c).scale)||1;
       c.style.transform=`scale(${B})`;const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
-      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const hand=Math.max(40,p0.top-(c.querySelector('.minute-hand')?.getBoundingClientRect().top??p0.top-90));const room=innerHeight-k2.bottom-14;const sc=Math.max(.72,Math.min(1,room/(reach+hand+10)));
+      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const hand=Math.max(40,p0.top-(c.querySelector('.minute-hand')?.getBoundingClientRect().top??p0.top-90));const room=innerHeight-k2.bottom-14;const sc=Math.max(.55,Math.min(1,room/(reach+hand+10)));
       c.style.transform=`scale(${(B*sc).toFixed(3)})`;const p1=pv.getBoundingClientRect();
       const tx=pg.left+pg.width/2,ty=k2.bottom+6+hand*sc;
       c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${(B*sc).toFixed(3)})`;

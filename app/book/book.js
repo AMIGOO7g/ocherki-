@@ -409,10 +409,10 @@ document.addEventListener('click',e=>{
       const up=e=>{removeEventListener('pointermove',move);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);hand=null;
         const fast=performance.now()-h.t0<260,dx=e.clientX-h.x;
         const ok=!h.moved||(forward?(M[0]<S+W*.35||(fast&&dx<-20)):(M[0]>S-W*.4||(fast&&dx>20)));
-        const to=finish(ok);fly(M,to,ok?(h.moved?460:760):380,()=>{if(!ok)o.back();end();});};
+        const to=finish(ok);fly(M,to,ok?(h.moved?620:1000):480,()=>{if(!ok)o.back();end();});};
       addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);draw(M);return true;}
     // a press on a key or an arrow: the leaf is taken by its lower corner and turned
-    if(forward)fly(C.slice(),[S-W,C[1]],820,end);else fly([S-W,C[1]],C.slice(),820,end);
+    if(forward)fly(C.slice(),[S-W,C[1]],1150,end);else fly([S-W,C[1]],C.slice(),1150,end);
     draw(forward?C.slice():[S-W,C[1]]);return true;};
   // the corners of the open book are taken by the hand
   const take=(dir,e)=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();hand={dir,x:e.clientX,y:e.clientY,t0:performance.now(),moved:false};

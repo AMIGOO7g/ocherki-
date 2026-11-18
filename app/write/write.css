@@ -870,7 +870,7 @@ html body .desk-cone i{background:linear-gradient(180deg,rgba(255,175,80,.95) 0%
 html body .desk-shade{background:linear-gradient(rgba(60,26,4,.42),rgba(60,26,4,.42)),radial-gradient(ellipse 75% 95% at 50% 20%,rgba(10,5,2,0) 0%,rgba(10,5,2,.3) 55%,rgba(5,2,0,.8) 100%)}
 .ws-land-shade{position:absolute;z-index:6;pointer-events:none;background:var(--ws-shade) 0 0/100% 100% no-repeat;mix-blend-mode:multiply;opacity:0;transition:opacity .45s ease .1s}
 .ws-land-shade.on{opacity:1}
-.ws-flyer.ws-landing{transition:transform .62s cubic-bezier(.3,.7,.2,1),opacity .25s ease .55s,box-shadow .5s ease!important}
+.ws-flyer.ws-landing{transition:transform .62s cubic-bezier(.3,.7,.2,1),box-shadow .5s ease!important}
 /* v202 — leaving for «Книга»: what stood on the right of the desk slides away to the left with the sheets, nothing just vanishes */
 @keyframes wsLeave{from{translate:0 0;rotate:0deg;opacity:1}to{translate:-125vw 0;rotate:-2.5deg;opacity:1}}
 html body .shell.ws-leaving .wp-pane{opacity:1!important;transform:none!important;transition:none!important;animation:wsLeave 1.3s cubic-bezier(.62,.02,.32,1) both}
@@ -929,3 +929,23 @@ html.bk-out .ws-left.ws-aside{opacity:0!important;transition:opacity .3s ease!im
 html:has(.shell.is-night) .ws-flyer{filter:none!important}
 .ws-flyer.ws-carry{transition:transform .08s linear!important}
 .ws-flyer{contain:layout paint}
+
+/* ——— v204 ——— */
+/* the book's name stands in the top right corner over the page from the start (no stop in the middle on the way) */
+html body .shell.oc-ws:not(.oc-ws-peek)~.oc-ttl{opacity:0!important}
+.oc-ttl{transition:opacity .9s ease,color 2.45s cubic-bezier(.37,0,.63,1)!important}
+/* the old question beside the sheet never shows on the wide desk (it is written on the clean sheet) */
+@media (min-width:1200px){html body .shell.oc-w #writingPrompt,html body .shell.oc-w .writing-prompt-restore{opacity:0!important;pointer-events:none!important;transition:none!important}}
+/* «обновить» right under the page's middle: the pager takes no room when there is one page only */
+.wp-keys .wp-pg:not(.on){display:none!important}
+/* the night's light: bright under the bar, fading to dusk at the desk's foot; the toile reads in it */
+html body .desk-cone i{background:linear-gradient(180deg,rgba(255,180,86,1) 0%,rgba(250,152,58,.85) 18%,rgba(232,128,44,.6) 45%,rgba(205,105,30,.34) 75%,rgba(170,85,20,.16) 100%)!important}
+/* the toile shows through the light: a little contrast in it */
+html body .shell.is-night .desk-shade{filter:contrast(1.15)}
+html body .desk-cone{mix-blend-mode:screen!important;filter:blur(30px)!important}
+/* under the clean stack the lamp lays its own warm pool, as under the open sheet */
+.ws-left::before{content:"";position:absolute;left:-30%;right:-30%;top:-18%;bottom:-12%;z-index:-1;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
+  background:radial-gradient(ellipse 50% 55% at 50% 30%,rgba(255,170,80,.42) 0%,rgba(230,130,50,.18) 55%,rgba(200,100,30,0) 100%);filter:blur(12px)}
+html:has(.shell.is-night) .ws-left::before{opacity:1}
+/* the book's dress (its shade, its spine) follows the pages' own boxes: it must not be moved a second time by an animation */
+html:has(#bookPreviewModal.is-entering) :is(.bq-book,.bq-name),html.bk-out :is(.bq-book,.bq-name),html:has(#bookPreviewModal.is-closing) :is(.bq-book,.bq-name){animation:none!important}
