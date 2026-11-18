@@ -1087,25 +1087,26 @@ html.oc-desk body{opacity:1;transition:opacity .7s ease}
 .ph-front::before,.ph-back::before{opacity:0;background:radial-gradient(ellipse 100% 85% at 50% -6%,rgba(24,14,6,0) 0%,rgba(24,14,6,.08) 45%,rgba(18,10,4,.3) 100%)}
 html:has(.shell.is-night) .ph-front::after,html:has(.shell.is-night) .ph-back::after{opacity:0}
 html:has(.shell.is-night) .ph-front::before,html:has(.shell.is-night) .ph-back::before{opacity:1}
-/* v215 — the card's back in two pages, each written on lines like the top ones: the photograph's words (who, when, where, its
-   story, its caption) and «ещё о снимке» (the source, the tone, the hero's portrait, the tools); service words upright, small */
-.ph-back .ph-p{display:flex;flex-direction:column;min-height:0}
-.ph-back .ph-p2{display:none}.ph-back.more .ph-p1{display:none}.ph-back.more .ph-p2{display:flex}
-.ph-back .ph-p{animation:ph-page .45s ease both}@keyframes ph-page{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
-.ph-back .ph-go{all:unset;cursor:pointer;align-self:flex-start;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35);margin:6px 0 4px}
-.ph-back .ph-p1 .ph-go{align-self:flex-end;margin-top:14px}.ph-back .ph-p2 .ph-go{margin:0 0 18px}
-.ph-back .ph-go:hover{color:#2f1d10;border-color:currentColor}
-.ph-back .ph-line{justify-content:space-between;align-items:flex-end;min-height:46px;padding-bottom:4px}
-.ph-back .ph-line select{all:unset;cursor:pointer;font:400 24px/1.6 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:0 18px 0 4px;
+/* v216 — the card's back on one page, all of it in sight, each field on its own line like a card filled in by hand: who, when
+   and where, the story, the caption, the source, the tone, the hero's portrait; the tools centred; the photograph's state
+   between «вернуть» and «удалить». A quiet hint under a field says what it gives the book, while the caret is in it */
+.ph-back input,.ph-back textarea{font-size:22px!important;line-height:1.55!important}
+.ph-back label{margin-bottom:6px}
+.ph-back .ph-tip{display:none}
+.ph-back .ph-tipbar{min-height:2.7em;margin:2px 0 0;text-align:center;font:italic 13px/1.35 'CormorantCy',Georgia,serif;color:rgba(90,63,38,.62)}
+.ph-back .ph-line{justify-content:space-between;align-items:flex-end;min-height:38px;padding-bottom:3px}
+.ph-back .ph-line select{all:unset;cursor:pointer;font:400 21px/1.5 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:0 18px 0 4px;
   background:linear-gradient(45deg,transparent 50%,#6a4a2e 50%) right 6px center/5px 5px no-repeat,linear-gradient(-45deg,transparent 50%,#6a4a2e 50%) right 1px center/5px 5px no-repeat}
-.ph-back .ph-chk input{all:revert;flex:none;width:17px;height:17px;accent-color:#9a4510;margin:0 0 8px;cursor:pointer}
+.ph-back .ph-line select option{background:#f3ead9;color:#3b2a1c;font:17px 'CormorantCy',Georgia,serif}
+.ph-back .ph-chk input{all:revert;flex:none;width:17px;height:17px;accent-color:#9a4510;margin:0 0 7px;cursor:pointer}
 .ph-back .ph-hero[hidden]{display:none}
-.ph-back .ph-hint{font:13px/1.4 'CormorantCy',Georgia,serif;opacity:.7;margin:-4px 0 12px}.ph-back .ph-hint.warn{color:#a4472f;opacity:1}
-.ph-back .ph-tools{display:flex;flex-wrap:wrap;gap:12px 22px;margin:18px 0 8px}
+.ph-back .ph-hint{font:13px/1.4 'CormorantCy',Georgia,serif;opacity:.7;margin:-2px 0 8px}.ph-back .ph-hint.warn{color:#a4472f;opacity:1}
+.ph-back .ph-tools{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;margin:14px 0 6px}
 .ph-back .ph-tools button{all:unset;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
 .ph-back .ph-tools button:hover{color:#2f1d10;border-color:currentColor}
-.ph-back .ph-st{font:13px 'CormorantCy',Georgia,serif;opacity:.6}
-.ph-back input::placeholder,.ph-back textarea::placeholder{font:italic 17px 'CormorantCy',Georgia,serif;color:rgba(90,63,38,.42)}
+.ph-back .ph-act{align-items:baseline}
+.ph-back .ph-st{font:13px 'CormorantCy',Georgia,serif;opacity:.55;text-align:center}
+.ph-back input::placeholder,.ph-back textarea::placeholder{font:italic 16px 'CormorantCy',Georgia,serif;color:rgba(90,63,38,.42)}
 .ph-back .ph-two{display:flex;gap:22px}.ph-back .ph-two label{flex:1;min-width:0}
 .ph-back label{margin-bottom:12px}.ph-back .ph-h{margin-bottom:12px}.ph-back{padding:24px 30px}
 .ph-back label span{min-width:0}

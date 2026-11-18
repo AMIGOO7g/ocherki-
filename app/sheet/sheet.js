@@ -3978,7 +3978,7 @@ window.OC_SHEET={
   // a place on the desk as a pose of the card: its centre on the place's centre, one scale (no stretching), the place's tilt
   const poseAt=(r,ang,w,g)=>{const o=off();return `translate(${(r.left+o.x+r.width/2-(g.L+g.W/2)).toFixed(1)}px,${(r.top+o.y+r.height/2-(g.T+g.H/2)).toFixed(1)}px) rotate(${ang.toFixed(2)}deg) scale(${(w/g.W).toFixed(4)})`;};
   const printPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);return poseAt(r,Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);};
-  const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect(),o=off();const VH=(HD.defaultView||window).innerHeight;const W=Math.round(Math.min(s.width*.9,560)),H=Math.round(Math.min(VH*.84,W*1.5));return {W,H,L:o.x+s.left+(s.width-W)/2,T:Math.round((VH-H)/2+16)};};
+  const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect(),o=off();const VH=(HD.defaultView||window).innerHeight;const W=Math.round(Math.min(s.width*.9,560)),H=Math.round(Math.min(VH*.88,W*1.62));return {W,H,L:o.x+s.left+(s.width-W)/2,T:Math.round((VH-H)/2+12)};};
   // the card leaves: face up first, all the way; then to where it goes (its pose given by «to»), fading into the print there
   // v213: it comes down slowly onto its place, settles, and only then fades into the print there (the print shows again under it)
   const close=(to,after)=>{if(!open)return;const o=open;open=null;o.card.classList.remove('flip');o.bg.classList.remove('on');tellHost(false);
@@ -3991,21 +3991,17 @@ window.OC_SHEET={
     card.style.setProperty('--phx',(-g.L)+'px');card.style.setProperty('--phy',(-g.T)+'px');
     const doc=!opts.album&&currentPage()?.type==='document';
     card.innerHTML=`<div class="ph-in"><div class="ph-front"><img alt=""></div><div class="ph-back"><div class="ph-h"><span>оборот фотографии</span><button type="button" class="ph-ret2">↺ лицом</button></div>
-      <div class="ph-p ph-p1">
-      <label><span>кто на фото</span><input data-k="people" autocomplete="off"></label>
-      <div class="ph-two"><label><span>когда</span><input data-k="year" autocomplete="off"></label><label><span>где</span><input data-k="place" autocomplete="off"></label></div>
-      <label class="tx"><span>история</span><textarea data-k="story" rows="3"></textarea></label>
-      <label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
-      <button type="button" class="ph-go" data-go="2">ещё о снимке: источник, тон, портрет героя ›</button></div>
-      <div class="ph-p ph-p2">
-      <button type="button" class="ph-go" data-go="1">‹ к подписи</button>
-      <label><span>источник</span><input data-k="source" autocomplete="off" placeholder="семейный архив, альбом бабушки…"></label>
+      <label><span>кто на фото</span><input data-k="people" autocomplete="off"></label><i class="ph-tip">Имена пригодятся для подписи портрета и для «Кто на фото».</i>
+      <div class="ph-two"><label><span>когда</span><input data-k="year" autocomplete="off"></label><label><span>где</span><input data-k="place" autocomplete="off"></label></div><i class="ph-tip">С годом фото может попасть в «Хронологию», с городом — на карту «География семьи».</i>
+      <label class="tx"><span>история</span><textarea data-k="story" rows="2"></textarea></label><i class="ph-tip">Несколько предложений — и фото может получить разворот с рассказом рядом.</i>
+      <label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label><i class="ph-tip">Печатается мелко под фото.</i>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
+      <label><span>источник</span><input data-k="source" autocomplete="off" placeholder="семейный архив, альбом бабушки…"></label><i class="ph-tip">Откуда снимок — печатается в конце книги, в «Источниках».</i>
       <label class="ph-line"><span>тон фото</span><select data-s="photoMode"><option value="auto">как есть</option><option value="color">цветная</option><option value="bw">чёрно-белая</option></select></label>
       <label class="ph-line ph-chk"><span>портрет героя книги</span><input type="checkbox" data-b="portraitHero"></label>
-      <div class="ph-hero" hidden><label><span>годы жизни</span><input data-k="heroYears" autocomplete="off" placeholder="1901 – 1982"></label><label><span>кто для семьи</span><input data-k="heroRole" autocomplete="off" placeholder="хранительница дома"></label><div class="ph-hint"></div></div>
+      <div class="ph-hero" hidden><div class="ph-two"><label><span>годы жизни</span><input data-k="heroYears" autocomplete="off" placeholder="1901 – 1982"></label><label><span>кто для семьи</span><input data-k="heroRole" autocomplete="off" placeholder="хранительница дома"></label></div><div class="ph-hint"></div></div>
       <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}</div>
-      <div class="ph-st"></div></div>
-      <div class="ph-act">${opts.album?'<button type="button" class="ph-ret">вернуть в альбом</button><button type="button" class="ph-lay">положить на лист</button>':'<button type="button" class="ph-ret">вернуть в стопку</button><button type="button" class="ph-del">удалить из главы</button>'}</div>
+      <div class="ph-tipbar" aria-live="polite"></div>
+      <div class="ph-act">${opts.album?'<button type="button" class="ph-ret">вернуть в альбом</button><span class="ph-st"></span><button type="button" class="ph-lay">положить на лист</button>':'<button type="button" class="ph-ret">вернуть в стопку</button><span class="ph-st"></span><button type="button" class="ph-del">удалить из главы</button>'}</div>
       <div class="ph-sure" hidden><span>Удалить это фото из главы?</span><button type="button" class="ph-yes">да, удалить</button><button type="button" class="ph-no">нет</button></div></div></div>`;
     card.querySelector('.ph-front img').src=p.src;
     card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';x.addEventListener('input',()=>{p[x.dataset.k]=x.value.trim();persist();});});
@@ -4021,7 +4017,7 @@ window.OC_SHEET={
     chk.checked=p.portraitHero===true;chk.addEventListener('change',()=>{p.portraitHero=chk.checked;heroSync();persist();});card.querySelector('.ph-front img').addEventListener('load',heroSync);heroSync();
     tone.value=p.photoMode||'auto';tone.addEventListener('change',()=>{p.photoMode=tone.value;persist();});
     const tools=()=>{const m=card.querySelector('.ph-mark'),pr=card.querySelector('.ph-pair');if(m)m.textContent=markPeopleLabel(p);if(pr)pr.textContent=pairLabel(p);
-      card.querySelector('.ph-st').textContent='состояние: '+photoStatusLabel(p);};tools();
+      card.querySelector('.ph-st').textContent=photoStatusLabel(p);};tools();
     const aside=run=>{card.style.visibility='hidden';bg.style.visibility='hidden';run(()=>{card.style.visibility='';bg.style.visibility='';
       card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';});tools();});};
     card.querySelector('.ph-mark').addEventListener('click',()=>aside(back=>markPeoplePhoto(p,back)));
@@ -4030,7 +4026,8 @@ window.OC_SHEET={
     const fromPose=from(g);card.style.transform=fromPose;HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,back:opts.back};tellHost(true);opts.taken?.();
     requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
     card.addEventListener('click',e=>e.stopPropagation());
-    card.querySelectorAll('.ph-go').forEach(b=>b.addEventListener('click',()=>card.querySelector('.ph-back').classList.toggle('more',b.dataset.go==='2')));
+    // the hint of the field being written in shows in one quiet line kept for it (nothing above it moves)
+    {const bar=card.querySelector('.ph-tipbar');card.querySelector('.ph-back').addEventListener('focusin',e=>{const row=e.target.closest('label,.ph-two');const t=row?.closest('.ph-hero')?null:(row?.parentElement?.closest('.ph-two')||row)?.nextElementSibling;bar.textContent=t?.classList.contains('ph-tip')?t.textContent:'';});}
     card.querySelector('.ph-ret2').addEventListener('click',()=>card.classList.toggle('flip'));card.querySelector('.ph-front').addEventListener('click',()=>card.classList.add('flip'));
     card.querySelector('.ph-ret').addEventListener('click',()=>close(null,opts.back));bg.addEventListener('click',()=>close(null,opts.back));
     if(opts.album){card.querySelector('.ph-lay').addEventListener('click',()=>{if(!OC_SHEET.canPhoto())return close(null,opts.back);

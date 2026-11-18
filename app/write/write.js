@@ -496,7 +496,7 @@
   const sheetRect=()=>{try{const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect(),a=f.contentDocument.getElementById('activeSheet'),q=a&&a.getBoundingClientRect();
       if(q&&q.width)return {left:fr.left+q.left,top:fr.top+q.top,width:q.width,height:q.height,right:fr.left+q.right,bottom:fr.top+q.bottom};}catch(_){}return wrapEl().getBoundingClientRect();};
   const RATIO=667/944;
-  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book','is-photo-card-open'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
+  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
   // the place of the clean stack: as tall as the book's page, centred in the free room left of the sheet
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
     let h=r.height*.62,ww=h*RATIO;const avail=L-2*Math.max(20,L*.09);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
