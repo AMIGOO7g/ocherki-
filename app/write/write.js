@@ -223,7 +223,7 @@
   let lit=false;
   const isBookQ=()=>shell.classList.contains('is-book-preview')&&document.body.classList.contains('oct-book')&&!!document.querySelector('.bq-car');
   const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),bk=!ms&&isBookQ(),on=isWrite()||ms||bk;
-    if(!lit&&on){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),900);}
+    if(!lit&&on&&shell.classList.contains('oc-ready')){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),500);}
     const bar=ms?document.querySelector('.mq-car'):bk?document.querySelector('.bq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
     const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${x}px ${h}px`;
     {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
@@ -239,7 +239,7 @@
     const pg=document.querySelector('.wp-page'),lm=pg?.querySelector('.wp-lamp');
     if(lm&&night&&shell.classList.contains('wp-on')){const q=pg.getBoundingClientRect();if(q.width){let dx=sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dy,ny=-dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x1-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
-      const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
+      const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(150,100,50,.14) ${(t-4).toFixed(1)}%,rgba(110,74,42,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.66) ${(t+38).toFixed(1)}%),linear-gradient(180deg,rgba(160,105,50,.06) 0%,rgba(140,90,42,.26) 50%,rgba(95,60,28,.52) 100%)`;if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
     // v199: the book on the desk is lit by the same beam — its middle under the bar bright, both its sides beyond the beam's edges dusky
     const bq=document.querySelector('.bq-book'),bl=bq?.querySelector('.bq-lamp');
     if(bl&&night&&bk&&!bq.classList.contains('is-curling')){const q=bq.getBoundingClientRect();if(q.width){const edge=(ex,dxs)=>{let dx=dxs,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=dxs>0?dy:-dy,ny=dxs>0?-dx:dx,A=Math.atan2(nx,-ny),
@@ -252,7 +252,7 @@
     const wl=document.querySelector('.ws-left');
     if(wl&&night&&shell.classList.contains('oc-ws')){const q=wl.getBoundingClientRect();if(q.width){let dx=-sp,dy=H*1.04-y;const l=Math.hypot(dx,dy);dx/=l;dy/=l;const nx=-dy,ny=dx,A=Math.atan2(nx,-ny),
         L=Math.abs(q.width*Math.sin(A))+Math.abs(q.height*Math.cos(A)),t=50+((x0-(q.left+q.width/2))*nx+(y-(q.top+q.height/2))*ny)/L*100;
-      const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(240,225,200,.08) ${(t-4).toFixed(1)}%,rgba(120,84,50,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.64) ${(t+38).toFixed(1)}%),linear-gradient(180deg,transparent 30%,rgba(110,76,46,.4) 100%)`;if(wl._bg!==bg){wl._bg=bg;wl.style.setProperty('--ws-nbg',bg);}}}
+      const bg=`linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(150,100,50,.14) ${(t-4).toFixed(1)}%,rgba(110,74,42,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.66) ${(t+38).toFixed(1)}%),linear-gradient(180deg,rgba(160,105,50,.06) 0%,rgba(140,90,42,.26) 50%,rgba(95,60,28,.52) 100%)`;if(wl._bg!==bg){wl._bg=bg;wl.style.setProperty('--ws-nbg',bg);}}}
     // v186: the clock keeps its own look at night (it hardly lies in the beam)
     if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
   // every frame: the light keeps to the bar and to the page while they move (no steps, no blinking)
@@ -269,7 +269,7 @@
     const ss=(d?.getElementById('saveState')?.textContent||'');const dot=wc.querySelector('.sv');dot.classList.toggle('busy',/Сохраня/i.test(ss));dot.title=ss||'Черновик сохранён';};
   setInterval(tick,500);
   // the keyboard: it comes up with the first key, the sheet steps up to make room, then all goes back after a pause
-  const typing=on=>{if(on&&!isWrite())return;shell.classList.toggle('wc-typing',on);if(on)lift();};
+  const typing=on=>{if(on&&!isWrite())return;if(on&&!shell.classList.contains('wc-typing')){lift();requestAnimationFrame(()=>{if(isWrite())shell.classList.add('wc-typing');});return;}shell.classList.toggle('wc-typing',on);if(on)lift();};
   const lift=()=>{const kb=document.getElementById('editorKeyboardWrap'),f=F(),d=FD();if(!kb||!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;
     const R=document.documentElement.style;
     const s=Math.max(.5,Math.min(1,(innerWidth*.72)/(kb.offsetWidth||1080),(innerHeight*.34)/(kb.offsetHeight||258)));R.setProperty('--wkb',s.toFixed(3));
@@ -473,6 +473,9 @@
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const F=()=>document.getElementById('v35SheetFrame');const FW=()=>F()?.contentWindow;const FD=()=>{try{return F()?.contentDocument;}catch(_){return null;}};
   const wrapEl=()=>document.getElementById('editorPaperWrap');
+  // v207: a sheet taken from the stack rustles, and again, softly, as it is laid down (the start page's sound of paper, which
+  // knows whether sounds are on; on its own the constructor plays the same file)
+  const paperFx=v=>{try{const P=window.parent!==window?window.parent.OcherkiFX:null;if(P){P.play('page',v);return;}const a=new Audio('assets/audio/page.mp3');a.volume=v;a.play().catch(()=>{});}catch(_){}};
   // v205: where a sheet laid down comes to rest — the open sheet's own box (it lies under the bar's edge), not its wrapper's
   const sheetRect=()=>{try{const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect(),a=f.contentDocument.getElementById('activeSheet'),q=a&&a.getBoundingClientRect();
       if(q&&q.width)return {left:fr.left+q.left,top:fr.top+q.top,width:q.width,height:q.height,right:fr.left+q.right,bottom:fr.top+q.bottom};}catch(_){}return wrapEl().getBoundingClientRect();};
@@ -527,27 +530,36 @@
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
     fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
-    drag={fl,r,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,vx:0,vy:0,ly:e.clientY};try{top.setPointerCapture(e.pointerId);}catch(_){}
-    // v198 — a live sheet: taken by its corner it lifts off the stack, tilts towards the hand, its shadow grows and softens
-    fl.style.transformOrigin=`${e.clientX-r.left}px ${e.clientY-r.top}px`;fl.classList.add('ws-lift');
-    requestAnimationFrame(()=>{fl.style.transform='perspective(1100px) rotateX(9deg) rotateY(-10deg) rotateZ(-1.5deg) scale(1.04)';});});
+    // v207: everything the move needs is measured once, here: where the open sheet lies and where it can be dropped
+    const sr=sheetRect(),wr=wrapEl()?.getBoundingClientRect();
+    drag={fl,r,sr,wr,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,ly:e.clientY,tx:0,ty:0,cx:0,cy:0,vx:0,vy:0,svx:0,svy:0,k:0,carry:false};try{top.setPointerCapture(e.pointerId);}catch(_){}
+    // v198 — a live sheet: it lifts off the stack, tilts towards the hand, its shadow grows and softens
+    fl.style.transformOrigin='50% 50%';fl.classList.add('ws-lift');paperFx(.5);
+    requestAnimationFrame(()=>{fl.style.transform='perspective(1100px) rotateX(9deg) rotateY(-10deg) rotateZ(-1.5deg) scale(1.04)';});
+    // v207: it follows the hand frame by frame (not from one mouse event to the next): a short easing, so it glides
+    const d0=drag;const frame=()=>{if(drag!==d0)return;requestAnimationFrame(frame);if(!d0.carry)return;
+      d0.cx+=(d0.tx-d0.cx)*.42;d0.cy+=(d0.ty-d0.cy)*.42;d0.svx+=(d0.vx-d0.svx)*.18;d0.svy+=(d0.vy-d0.svy)*.18;d0.vx*=.85;d0.vy*=.85;
+      // over the open sheet it takes the open sheet's shape (so it lands in its very size, with nothing to change at the end)
+      d0.k+=((d0.over?1:0)-d0.k)*.16;const S=1.06,sx=S+(d0.sr.width/d0.r.width-S)*d0.k,sy=S+(d0.sr.height/d0.r.height-S)*d0.k;
+      const ry=Math.max(-16,Math.min(16,-6-d0.svx*.9))*(1-d0.k*.6),rx=Math.max(-6,Math.min(16,8+d0.svy*.6))*(1-d0.k*.6),rz=Math.max(-5,Math.min(5,d0.cx/90))*(1-d0.k);
+      d0.fl.style.transform=`translate(${d0.cx.toFixed(1)}px,${d0.cy.toFixed(1)}px) perspective(1100px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;};
+    requestAnimationFrame(frame);});
   top.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x0,dy=e.clientY-drag.y0;if(Math.hypot(dx,dy)>5)drag.moved=true;
-    // it sways with the hand's speed: a sheet carried through the air leans into the move
-    drag.vx=drag.vx*.8+(e.clientX-drag.lx)*.2;drag.vy=drag.vy*.8+(e.clientY-drag.ly)*.2;drag.lx=e.clientX;drag.ly=e.clientY;
-    const ry=Math.max(-16,Math.min(16,-6-drag.vx*.9)),rx=Math.max(-6,Math.min(16,8+drag.vy*.6)),rz=Math.max(-5,Math.min(5,dx/90));
-    drag.fl.classList.remove('ws-lift');drag.fl.classList.add('ws-carry');
-    drag.fl.style.transform=`translate(${dx}px,${dy}px) perspective(1100px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) rotateZ(${rz.toFixed(1)}deg) scale(1.07)`;
-    const w=wrapEl()?.getBoundingClientRect();const over=w&&e.clientX>w.left&&e.clientX<w.right&&e.clientY>w.top&&e.clientY<w.bottom;shell.classList.toggle('ws-over',!!over);drag.over=over;});
+    drag.vx=drag.vx*.6+(e.clientX-drag.lx)*.4;drag.vy=drag.vy*.6+(e.clientY-drag.ly)*.4;drag.lx=e.clientX;drag.ly=e.clientY;drag.tx=dx;drag.ty=dy;
+    if(!drag.carry&&drag.moved){drag.carry=true;drag.fl.classList.remove('ws-lift');drag.fl.classList.add('ws-carry');}
+    const w=drag.wr;const over=!!w&&e.clientX>w.left&&e.clientX<w.right&&e.clientY>w.top&&e.clientY<w.bottom;if(over!==drag.over){drag.over=over;shell.classList.toggle('ws-over',over);drag.fl.classList.toggle('ws-near',over);}});
   const finish=e=>{if(!drag)return;const d=drag;drag=null;shell.classList.remove('ws-over');const fl=d.fl;
     const lay=d.over||!d.moved;// a plain click lays it too: one press is enough for a hand that does not like to drag
-    if(lay){const w=sheetRect();fl.classList.remove('ws-lift','ws-carry');fl.classList.add('ws-landing');fl.style.transformOrigin='0 0';
-      // it is laid down: it flattens as it comes to rest, its corner settles, the shadow draws in — then it is the sheet itself
+    if(lay){const w=sheetRect();fl.classList.remove('ws-lift','ws-carry');fl.classList.add('ws-landing');paperFx(.28);
+      // it is laid down: it flattens as it comes to rest in the open sheet's very place and size
       // v202: as it comes down the window's shade falls on it where it falls on the desk (no later jump when the sheet itself shows)
       if(!shell.classList.contains('is-night')){const sx=w.width/d.r.width,sy=w.height/d.r.height,sh=document.createElement('i');sh.className='ws-land-shade';
         Object.assign(sh.style,{left:(-w.left/sx)+'px',top:(-w.top/sy)+'px',width:(innerWidth/sx)+'px',height:(innerHeight/sy)+'px'});fl.style.overflow='hidden';fl.appendChild(sh);requestAnimationFrame(()=>sh.classList.add('on'));}
-      fl.style.transform=`translate(${w.left-d.r.left}px,${w.top-d.r.top}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;
+      fl.style.transform=`translate(${(w.left+w.width/2)-(d.r.left+d.r.width/2)}px,${(w.top+w.height/2)-(d.r.top+d.r.height/2)}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;
       top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
-      setTimeout(()=>act(kind),260);setTimeout(()=>{fl.style.transition='opacity .35s ease';fl.style.opacity='0';setTimeout(()=>fl.remove(),380);},1250);}
+      // v207: the new sheet is not laid a second time (it is the one in the hand): it is there, still, when the hand lets go
+      try{FW().__ocNoLay=Date.now();}catch(_){}
+      setTimeout(()=>act(kind),200);setTimeout(()=>{fl.style.transition='opacity .22s ease';fl.style.opacity='0';setTimeout(()=>fl.remove(),260);},700);}
     else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
 
@@ -586,10 +598,13 @@
       c.style.setProperty('transition','none','important');
       if(!c.style.transform)c._B=new DOMMatrix(getComputedStyle(c).transform==='none'?undefined:getComputedStyle(c).transform).a||1;const B=c._B||1,k0=parseFloat(getComputedStyle(c).scale)||1;
       c.style.transform=`scale(${B})`;const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
-      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const hand=Math.max(40,p0.top-(c.querySelector('.minute-hand')?.getBoundingClientRect().top??p0.top-90));const sb=b.top+b.h+34,room=innerHeight-sb-10;const sc=Math.max(.55,Math.min(1,room/(reach+hand+10)));
+      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const mh=c.querySelector('.minute-hand'),hr=mh?.getBoundingClientRect();const hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);const sb=b.top+b.h+34,room=innerHeight-sb-14;const sc=Math.max(.45,Math.min(1,room/(reach+hand+6)));
       c.style.transform=`scale(${(B*sc).toFixed(3)})`;const p1=pv.getBoundingClientRect();
-      const tx=b.left+b.w/2,ty=sb+hand*sc;
+      const tx=b.left+b.w/2,ty=Math.max(sb+hand*sc,innerHeight-46-reach*sc);
       c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${(B*sc).toFixed(3)})`;
+      {const q=c.getBoundingClientRect(),lim=innerHeight-10;if(q.bottom>lim&&q.height>0){const s2=Math.max(.35,sc*(lim-sb)/(q.bottom-sb));
+        c.style.transform=`scale(${(B*s2).toFixed(3)})`;const p2=pv.getBoundingClientRect(),ty2=sb+(ty-sb)*s2/sc;
+        c.style.transform=`translate(${((tx-(p2.left+p2.width/2))/k0).toFixed(1)}px,${((ty2-(p2.top+p2.height/2))/k0).toFixed(1)}px) scale(${(B*s2).toFixed(3)})`;}}
       void c.offsetWidth;c.style.removeProperty('transition');}
     else if(c)c.style.removeProperty('transform');};
   requestAnimationFrame(tick);
@@ -639,3 +654,8 @@
   ['pointerdown','mousedown','click'].forEach(t=>document.addEventListener(t,stop,true));
   const mark=()=>document.querySelectorAll(sel).forEach(k=>k.classList.add('oc-soon'));mark();setInterval(mark,1500);
   const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const g=t=>t==='write'?f(t):undefined;g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
+
+// v207 — at night the desk comes in dark: until the lamp is lit everything on it (the sheets, the stack, the page) lies in the
+// dusk, and as the lamp lights up the dusk lifts with it, slowly
+(()=>{const sh=document.querySelector('.shell');if(!sh)return;const d=document.createElement('div');d.className='oc-dusk';document.body.appendChild(d);
+  const up=()=>d.classList.toggle('on',sh.classList.contains('is-night')&&!sh.classList.contains('oc-lit'));new MutationObserver(up).observe(sh,{attributes:true,attributeFilter:['class']});up();})();

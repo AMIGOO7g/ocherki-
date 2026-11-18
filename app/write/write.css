@@ -963,7 +963,7 @@ html:has(.shell.is-night) .ws-ttl b,html:has(.shell.is-night) .ws-ttl span{color
 /* v205 — the night's light shows the desk itself: under the beam the toile is seen, warm, strongest under the bar and fading
    to dusk at the foot of the screen (its shape is the beam's, softened — write.js lamp()); the glow over it is gentler */
 .desk-lit{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
-  background:linear-gradient(rgba(214,128,52,1),rgba(214,128,52,1)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ead9bc;background-blend-mode:multiply;filter:brightness(.78) saturate(.85);
+  background:linear-gradient(rgb(166,104,50),rgb(166,104,50)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#ead9bc;background-blend-mode:multiply;will-change:opacity;
   -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .shell.oc-w.oc-lit.is-night:not(.is-manuscript):not(.is-book-preview) .desk-lit,.shell.oc-lit.is-manuscript.is-night .desk-lit{opacity:1}
 .shell:not(.oc-lit) .desk-lit{transition:none}
@@ -976,7 +976,6 @@ html body .ws-flyer.ws-landing{z-index:2147483100!important}
 @media (min-width:1200px){html body .shell #writingPrompt,html body .shell .writing-prompt,html body .shell .writing-prompt-restore{display:none!important}}
 /* v206 — the keys of the rooms that come later: in their places, a little quieter; a press says «скоро» */
 html body .oct .k.oc-soon{cursor:default}
-html body .oct .k.oc-soon .c{opacity:.55}
 .oc-soon-tip{position:fixed;z-index:2147483600;transform:translate(-50%,0);padding:3px 10px;border-radius:10px;font:italic 14px 'CormorantCy',Georgia,serif;color:#f2e2c6;background:rgba(40,26,14,.82);opacity:0;pointer-events:none;transition:opacity .35s ease}
 .oc-soon-tip.on{opacity:1}
 /* v206 — no white glow under any label by day (it read as an embossed white rim); the labels change with the light over the
@@ -996,3 +995,39 @@ html body .ws-ttl span{font:italic clamp(10px,calc(var(--ws-w,320px)*.045),16px)
 /* «так ляжет в книге» under the page, the keys below it */
 html body .shell.oc-ws .wp-cap{bottom:auto!important;top:100%;margin:14px 0 0!important;text-align:center!important}
 html:has(.shell.is-night) .shell.oc-ws .wp-cap,html:has(.shell.is-night) .wp-cap{color:#e6c995!important;opacity:.85}
+/* v207 — the hanging keys turn with the light as slowly as the desk: their night face, threads, icons and labels used to
+   flip at once while the room changed over 2.45 s (it read as a blink round the edges of the screen) */
+html body :is(.oct,.oc-mus) :is(.nf,.th){transition:opacity 2.45s cubic-bezier(.37,0,.63,1),background-color 2.45s cubic-bezier(.37,0,.63,1),background 2.45s cubic-bezier(.37,0,.63,1)!important}
+html body :is(.oct,.oc-mus) :is(.k .c,.k .c svg,.k .c svg *,.lb,.lbx,.lbx *,.ml){transition:color 2.45s cubic-bezier(.37,0,.63,1),stroke 2.45s cubic-bezier(.37,0,.63,1),fill 2.45s cubic-bezier(.37,0,.63,1),opacity .6s ease!important}
+/* v207 — nothing animates where it cannot be seen (the manuscript's dust ran all the time behind the desk; the «busy»
+   breathing and the spinner only while they show) */
+html body .ms-dust i{animation:none!important}
+html body .wp-pane:not(.is-busy) .wp-wait span,html body .wp-note:not(.on) i{animation-play-state:paused!important}
+/* v207 — the dusk before the lamp is lit (night only) and the lamp lighting up slowly over it */
+.oc-dusk{position:fixed;inset:0;z-index:2147483100;pointer-events:none;background:#0d0704;opacity:0;transition:opacity 3.2s cubic-bezier(.4,0,.2,1)}
+.oc-dusk.on{opacity:.78;transition:none}
+html body .shell.oc-lit .desk-cone,html body .shell.oc-lit .desk-lit{transition:opacity 3.2s cubic-bezier(.4,0,.2,1)}
+/* v207 — the big title is not used on the desk any more (the plate says the book's name); the clock shows once it hangs in
+   its place under the stack */
+html body .oc-ttl{display:none!important}
+html body .shell.oc-w:not(.oc-ws) .bottom-left .master-clock{opacity:0!important}
+/* the book's name a little larger: it is the heading; the tabs read a touch larger too */
+html body .ws-ttl b{font-size:clamp(13px,calc(var(--ws-w,320px)*.052),20px)!important}
+html body .ws-left .ws-tabs button{font-size:clamp(11px,calc(var(--ws-w,320px)*.044),17px)!important}
+/* v207 — «так ляжет в книге · страница N» reads in the dark: light, a size larger, in front; the pages of a long sheet
+   («‹ 1 из 2 ›») under the keys, on the page's middle */
+html body .shell.oc-ws .wp-cap{font:600 13px 'CormorantCy',Georgia,serif!important;letter-spacing:.24em!important;z-index:20;position:absolute}
+html:has(.shell.is-night) .shell.oc-ws .wp-cap{color:#fbf1df!important;opacity:1!important;text-shadow:0 1px 3px rgba(0,0,0,.85)!important}
+html:has(.shell:not(.is-night)) .shell.oc-ws .wp-cap{color:#2f1f14!important;opacity:1!important}
+html body .shell.oc-ws .wp-keys.k-open{flex-wrap:wrap;justify-content:center;width:max-content;max-width:260px}
+html body .shell.oc-ws .wp-keys.k-open .wp-pg{order:9;flex-basis:100%;justify-content:center;height:30px;margin-top:-4px}
+/* v207 — at night the stack lies at the beam's edge: its small words (the question's number, ‹ назад, дальше ›, the hint)
+   are darker ink and a size larger, so they read in its dusk */
+html:has(.shell.is-night) .ws-left :is(.ws-nav,.ws-hint){color:#3a2513!important;opacity:1!important;font-weight:500}
+html:has(.shell.is-night) .ws-left .ws-nav button{color:#2a180a!important;border-bottom-color:rgba(42,24,10,.45)!important}
+html body .ws-left :is(.ws-nav,.ws-hint){font-size:clamp(11px,calc(var(--ws-w,320px)*.048),17px)!important}
+/* v207 — the sheet in the hand is moved frame by frame by write.js (no transition of its own to stutter against); over the
+   open sheet its question fades: it is a clean sheet about to be laid */
+html body .ws-flyer.ws-carry{transition:box-shadow .3s ease!important}
+html body .ws-flyer .ws-q,html body .ws-flyer .ws-hint{transition:opacity .25s ease}
+html body .ws-flyer.ws-near .ws-q,html body .ws-flyer.ws-near .ws-hint{opacity:0!important}

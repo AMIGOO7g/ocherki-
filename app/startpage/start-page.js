@@ -966,7 +966,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v206";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v207";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -1341,5 +1341,6 @@
     entry.classList.add("is-visible");
     entry.setAttribute("aria-hidden", "false");
   };
-  if (document.readyState === "complete") setTimeout(go, 0); else window.addEventListener("load", () => setTimeout(go, 0), { once:true });
+  const tryGo = () => { if (!window.OCHERKI_PRELOAD_SHELL) return setTimeout(tryGo, 30); go(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(tryGo, 0), { once:true }); else setTimeout(tryGo, 0);
 })();

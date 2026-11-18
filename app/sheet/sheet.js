@@ -4205,7 +4205,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
     .observe(b,{attributes:true,attributeFilter:['class']});})();
 
 // v187 — a new sheet (or episode, or document) is laid on top of the pile: it comes in from a little above and settles
-(()=>{const lay=()=>{const a=document.getElementById('activeSheet');if(!a)return;a.classList.remove('is-laid');void a.offsetWidth;a.classList.add('is-laid');setTimeout(()=>a.classList.remove('is-laid'),900);};
+(()=>{const lay=()=>{const a=document.getElementById('activeSheet');if(!a)return;if(Date.now()-(window.__ocNoLay||0)<2000)return;a.classList.remove('is-laid');void a.offsetWidth;a.classList.add('is-laid');setTimeout(()=>a.classList.remove('is-laid'),900);};
   const orig={addEpisode:window.addEpisode,addDocumentPage:window.addDocumentPage};
   ['addPage','addEpisode','addDocumentPage','addPageFromHost'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;window[n]=function(){const r=f.apply(this,arguments);setTimeout(lay,170);return r;};});
   ['addPageBtn','newPageBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=()=>window.addPage();});
@@ -4217,6 +4217,11 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 (()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns'; // the travelling copies are kept in step by CSS (sheet.css v191)
   const step=()=>{requestAnimationFrame(step);put();},put=()=>{const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
     const b=box.getBoundingClientRect(),L=b.left+box.clientLeft+a.offsetLeft,T=b.top+box.clientTop+a.offsetTop;
+    // v207: nothing to lay again while the sheet lies still and nothing travels (it was measured every frame: a quarter of
+    // each frame went on it, and the change of day and night stalled)
+    {const ar=a.getBoundingClientRect(),bs=document.body.style,mv=document.querySelector('.section-scroll-viewport,.sheet.ghost.is-pulling');
+      const q=[L,T,ar.left,ar.top,ar.width,ar.height,a.offsetHeight,bs.getPropertyValue('--sun-x'),bs.getPropertyValue('--sun-y'),a.className].join('|');
+      if(!mv&&put._q===q)return;put._q=mv?'':q;}
     {const k=Math.round(L)+','+Math.round(T)+','+a.offsetHeight;if(put._k!==k){put._k=k;const st=document.body.style;st.setProperty('--sh-l',Math.round(L)+'px');st.setProperty('--sh-t',Math.round(T)+'px');st.setProperty('--sh-h',a.offsetHeight+'px');st.setProperty('--sh-bl',a.clientLeft+'px');st.setProperty('--sh-bt',a.clientTop+'px');st.setProperty('--sh-ph',a.clientHeight+'px');}}
     document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
