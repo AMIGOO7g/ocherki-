@@ -20,7 +20,7 @@ must(shell, /built&&hadStructure&&contentChanged/, 'skip rebuild on navigation-o
 if(/id="zoom(?:Out|In)Btn"/.test(shell)||/function setZoom\(/.test(shell)) throw new Error('removed zoom controls still present');
 must(shell, /\.bm-episodes\{padding-left:0!important\}/, 'single marker axis');
 must(shell, /\.bd-spread-rows\.is-revealing-spreads \.bd-spread-row\{animation:none!important/, 'no spread reveal delay');
-must(sheet, /Navigation must not wait for a decorative thumbnail cascade/, 'instant page thumbnail swap');
+must(sheet, /the next page is rendered at once; its prints come out from under it/, 'instant page thumbnail swap');
 must(sheet, /function revealSectionPhotosCascade\(\)[\s\S]*?photoStack\.classList\.remove\('section-photo-hidden'\)/, 'opaque incoming photos');
 must(sheet, /\.sheet\.active \.page-content-fade,[\s\S]*?transition:none!important/, 'no page content fade');
 must(sheet, /hyphens:auto/, 'Russian hyphenation support');
