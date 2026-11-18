@@ -36,7 +36,7 @@ body{min-height:100svh}
 }
 .shell.is-light-on .start-light{opacity:1}
 .shell.is-light-on.is-night .start-light{opacity:0;filter:brightness(.62) saturate(.90) sepia(.10)}
-.screen-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 0 48%,rgba(0,0,0,.05) 64%,rgba(0,0,0,.30) 100%)}
+.screen-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);background:radial-gradient(ellipse at center,transparent 0 48%,rgba(0,0,0,.05) 64%,rgba(0,0,0,.30) 100%)}
 
 /* NIGHT WORKSHOP — based on the original shell light system */
 .night-base,.night-artwork,.night-main,.night-warm,.night-shadow,.night-artwork-ink,.night-vignette{

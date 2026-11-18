@@ -2975,6 +2975,10 @@ function goSection(nextIndex,dir){
     const activeRect=activeSheet.getBoundingClientRect();
     const stackRect=stack.getBoundingClientRect();
 
+    // v205: the shadow held under the sheet's place is laid exactly on the sheet's own box (it was a box of the stack's own
+    // size: at night its foot showed as a line below the sheet, and the shadow changed as the turn began and ended)
+    stack.style.setProperty('--lkL',(activeRect.left-stackRect.left-stack.clientLeft)+'px');stack.style.setProperty('--lkT',(activeRect.top-stackRect.top-stack.clientTop)+'px');
+    stack.style.setProperty('--lkW',activeRect.width+'px');stack.style.setProperty('--lkH',activeRect.height+'px');
     const viewport=document.createElement('div');
     viewport.className='section-scroll-viewport';
     viewport.style.left=(activeRect.left-stackRect.left)+'px';
@@ -4212,10 +4216,13 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 (()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns'; // the travelling copies are kept in step by CSS (sheet.css v191)
   const step=()=>{requestAnimationFrame(step);put();},put=()=>{const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
     const b=box.getBoundingClientRect(),L=b.left+box.clientLeft+a.offsetLeft,T=b.top+box.clientTop+a.offsetTop;
-    {const k=Math.round(L)+','+Math.round(T)+','+a.offsetHeight;if(put._k!==k){put._k=k;const st=document.body.style;st.setProperty('--sh-l',Math.round(L)+'px');st.setProperty('--sh-t',Math.round(T)+'px');st.setProperty('--sh-h',a.offsetHeight+'px');}}
+    {const k=Math.round(L)+','+Math.round(T)+','+a.offsetHeight;if(put._k!==k){put._k=k;const st=document.body.style;st.setProperty('--sh-l',Math.round(L)+'px');st.setProperty('--sh-t',Math.round(T)+'px');st.setProperty('--sh-h',a.offsetHeight+'px');st.setProperty('--sh-bl',a.clientLeft+'px');st.setProperty('--sh-bt',a.clientTop+'px');st.setProperty('--sh-ph',a.clientHeight+'px');}}
     document.querySelectorAll(SEL).forEach(el=>{const r=el.parentElement.getBoundingClientRect(),x=Math.round(L-r.left),y=Math.round(T-r.top),h=Math.round(r.height);
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
-      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});};
+      const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});
+    {const st=document.body.style,sx=parseFloat(st.getPropertyValue('--sun-x'))||0,sy=parseFloat(st.getPropertyValue('--sun-y'))||0;
+      document.querySelectorAll('.sheet.active>.lt-dm').forEach(el=>{const r=el.getBoundingClientRect(),v=`${Math.round(sx-r.left)}px ${Math.round(sy-r.top)}px,0 0`;if(el._bp!==v){el._bp=v;el.style.setProperty('background-position',v,'important');}});
+      document.querySelectorAll('.sheet.ghost.is-pulling').forEach(el=>{const r=el.getBoundingClientRect();el.style.setProperty('--gx',Math.round(sx-r.left)+'px');el.style.setProperty('--gy',Math.round(sy-r.top)+'px');});}};
   // v192: a sheet put in or swapped gets its light before it is painted, not a frame later
   {const mo=new MutationObserver(put),hook=()=>{const st=document.getElementById('activeSheet')?.parentElement;if(!st)return setTimeout(hook,500);mo.observe(st,{childList:true,attributes:true,attributeFilter:['class','id'],subtree:false});[...st.children].forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class','id','style']}));};hook();}
   requestAnimationFrame(step);})();
