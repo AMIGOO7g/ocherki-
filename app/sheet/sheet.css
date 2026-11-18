@@ -230,16 +230,16 @@ body{
 .photo-card.p1{top:10px;left:-54px;transform:rotate(-5deg);z-index:3}
 .photo-card.p2{top:22px;left:-46px;transform:rotate(5deg);z-index:2}
 .photo-card.p3{top:34px;left:-60px;transform:rotate(-8deg);z-index:1}
-.photo-stack:hover .photo-card.p2{top:136px;left:-62px;transform:rotate(3deg)}
-.photo-stack:hover .photo-card.p3{top:262px;left:-58px;transform:rotate(-4deg)}
-.pf-more{all:unset;position:absolute;left:-74px;top:2px;z-index:4;pointer-events:auto;cursor:pointer;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3)}
-.pf-more:hover{color:#2f1d10}
-.photo-card.pf-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
-.photo-stack.pf-bump .photo-card{animation:pfBump .5s cubic-bezier(.3,.7,.2,1)}@keyframes pfBump{40%{scale:.985;filter:brightness(.97)}}
+.photo-stack:hover .photo-card.p1{transform:translateX(-7px) rotate(-4deg)}
+.photo-stack:hover .photo-card.p2{top:136px;left:-62px;transform:translateX(-7px) rotate(3deg)}
+.photo-stack:hover .photo-card.p3{top:262px;left:-58px;transform:translateX(-7px) rotate(-4deg)}
+.ph-more{all:unset;position:absolute;left:-74px;top:2px;z-index:4;pointer-events:auto;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3)}
+.ph-more:hover{color:#2f1d10}
+.photo-card.ph-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
 .photo-card:hover{box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}
-.photo-card.p1:hover{transform:translateX(-12px) translateY(-1px) rotate(-3deg) scale(1.016)}
-.photo-card.p2:hover{transform:translateX(-12px) rotate(1.5deg) scale(1.016)}
-.photo-card.p3:hover{transform:translateX(-12px) translateY(2px) rotate(-2deg) scale(1.016)}
+.photo-stack .photo-card.p1:hover{transform:translateX(-18px) translateY(-1px) rotate(-3deg) scale(1.016)}
+.photo-stack .photo-card.p2:hover{transform:translateX(-18px) rotate(1.5deg) scale(1.016)}
+.photo-stack .photo-card.p3:hover{transform:translateX(-18px) translateY(2px) rotate(-2deg) scale(1.016)}
 .photo-card:hover img{filter:none}
 .photo-mode-bw .photo-card img,.photo-mode-bw .photo-modal-top img{filter:grayscale(1) sepia(.08) contrast(1.04) brightness(.98)}
 .photo-switch{position:absolute;left:-170px;top:4px;height:398px;width:62px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;color:rgba(242,218,186,.96);pointer-events:auto;z-index:9}.photo-switch button{appearance:none;border:0;background:transparent;color:inherit;font:24px Georgia,serif;cursor:pointer;padding:0 4px;transition:transform .24s ease,opacity .24s ease}.photo-switch button:hover{transform:translateY(-1px) scale(1.06)}.photo-switch .meta{font:12px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.92;min-width:44px;text-align:center;line-height:1.5}
@@ -1009,7 +1009,7 @@ html body .sheet.ghost{box-shadow:0 5px 12px rgba(0,0,0,.14),inset 0 1px rgba(25
 .next-step .ns-dot{width:7px;height:7px;border-radius:50%;background:#c8924f;align-self:center;box-shadow:0 0 0 0 rgba(200,146,79,.5);animation:nsPulse 2.8s ease-in-out infinite}
 @keyframes nsPulse{0%,100%{box-shadow:0 0 0 0 rgba(200,146,79,.45)}50%{box-shadow:0 0 0 6px rgba(200,146,79,0)}}
 .next-step .ns-label{font:600 10px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#a07a52;white-space:nowrap}
-.next-step .ns-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:italic 14px Georgia,serif;color:#5a3d26;border-bottom:1px solid rgba(90,61,38,.25);transition:color .3s,border-color .3s}
+.next-step .ns-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:14px Georgia,serif;color:#5a3d26;border-bottom:1px solid rgba(90,61,38,.25);transition:color .3s,border-color .3s}
 .next-step:hover .ns-text{color:#8a4b2a;border-bottom-color:rgba(138,75,42,.6)}
 .next-step.is-new .ns-text{animation:nsIn .7s cubic-bezier(.2,.8,.3,1) both}
 @keyframes nsIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
@@ -1025,7 +1025,7 @@ html body .sheet.ghost{box-shadow:0 5px 12px rgba(0,0,0,.14),inset 0 1px rgba(25
 .footer .next-step .ns-text{font-size:15px!important}
 .footer .next-step .ns-text{color:#3e2a1b!important;opacity:1!important;border-bottom-color:rgba(62,42,27,.35)!important}
 .footer .next-step .ns-label{color:#9a6a35!important;opacity:1!important}
-.ns-book{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);appearance:none;border:0;background:none;cursor:pointer;font:italic 14px Georgia,serif;color:#9a6a35;border-bottom:1px solid rgba(154,106,53,.35);padding:0 0 1px;z-index:41;transition:color .3s}
+.ns-book{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);appearance:none;border:0;background:none;cursor:pointer;font:14px Georgia,serif;color:#9a6a35;border-bottom:1px solid rgba(154,106,53,.35);padding:0 0 1px;z-index:41;transition:color .3s}
 .ns-book:hover{color:#6b3f1a}
 .host-night .footer .next-step .ns-text{color:#ead8bd!important}
 
@@ -1316,27 +1316,30 @@ html body .section-scroll-viewport .section-scroll-sheet{background:radial-gradi
 html body .section-scroll-viewport .section-scroll-sheet::before{content:"";display:block;position:absolute;inset:0;z-index:1;pointer-events:none;background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;opacity:0}
 html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opacity:1}
 /* the card: a real print that turns over — its face the photograph, its back the hand-written lines */
-.pf-bg{position:fixed;inset:0;z-index:2147483000;-webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease}
-.pf-bg.on{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-.pf.fly.home{transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .2s ease .38s;opacity:0}
-.pf{position:fixed;z-index:2147483001;perspective:1600px;transform-origin:50% 50%}
-.pf.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1)}
-.pf.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
-.pf-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
-.pf.flip .pf-in{transform:rotateY(180deg)}
-.pf-front,.pf-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;box-shadow:0 2px 4px rgba(40,25,10,.3),0 26px 50px -10px rgba(40,25,10,.45)}
-.pf-front{background:#fbf7ef;padding:14px;box-sizing:border-box;cursor:pointer}.pf-front img{width:100%;height:100%;object-fit:cover;display:block}
-.pf-back{transform:rotateY(180deg);background:#fbf5e8 url("../../assets/keeper/sheet-paper.jpg") center/cover;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;color:#4a3324;overflow:auto}
-.pf-h{display:flex;justify-content:space-between;align-items:baseline;font:italic 15px 'CormorantCy',Georgia,serif;margin-bottom:18px;opacity:.85}
-.pf-h button,.pf-act button,.pf-sure button{all:unset;cursor:pointer;font:italic 15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
-.pf-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);margin-bottom:14px;cursor:text}
-.pf-back label span{flex:none;font:italic 14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px;min-width:86px}
-.pf-back input,.pf-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.7 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:4px 0 2px;overflow:visible}
-.pf-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.pf-back textarea{font-size:23px;line-height:1.6;resize:none}
-.pf-act{margin-top:auto;display:flex;justify-content:space-between;padding-top:12px}
-.pf-sure{margin-top:10px;display:flex;gap:14px;align-items:baseline;font:italic 15px 'CormorantCy',Georgia,serif}.pf-sure[hidden]{display:none}
-.pf-sure .pf-yes{color:#9a3a1c;border-color:rgba(154,58,28,.45)}
-body.host-night .pf-back,body.host-night .pf-front{filter:brightness(.93) sepia(.08)}
+.ph-bg{position:fixed;inset:0;z-index:2147483000;-webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease}
+.ph-bg.on{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.ph.fly.home{transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .2s ease .38s;opacity:0}
+.ph{position:fixed;z-index:2147483001;perspective:1600px;transform-origin:50% 50%}
+.ph.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1)}
+.ph.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
+.ph-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
+.ph.flip .ph-in{transform:rotateY(180deg)}
+.ph-front,.ph-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;box-shadow:0 2px 4px rgba(40,25,10,.3),0 26px 50px -10px rgba(40,25,10,.45)}
+.ph-front{background:#fbf7ef;padding:14px;box-sizing:border-box;cursor:pointer}.ph-front img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-back{transform:rotateY(180deg);background:#fbf5e8 url("../../assets/keeper/sheet-paper.jpg") center/cover;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;color:#4a3324;overflow:auto}
+.ph-h{display:flex;justify-content:space-between;align-items:baseline;font:15px 'CormorantCy',Georgia,serif;margin-bottom:18px;opacity:.85}
+.ph-h button,.ph-act button,.ph-sure button{all:unset;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
+.ph-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);margin-bottom:14px;cursor:text}
+.ph-back label span{flex:none;font:14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px;min-width:86px}
+.ph-back input,.ph-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.7 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:4px 0 2px;overflow:visible}
+.ph-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.ph-back textarea{font-size:23px;line-height:1.6;resize:none}
+.ph-act{margin-top:auto;display:flex;justify-content:space-between;padding-top:12px}
+.ph-sure{margin-top:10px;display:flex;gap:14px;align-items:baseline;font:15px 'CormorantCy',Georgia,serif}.ph-sure[hidden]{display:none}
+.ph-sure .ph-yes{color:#9a3a1c;border-color:rgba(154,58,28,.45)}
+body.host-night .ph-back,body.host-night .ph-front{filter:brightness(.93) sepia(.08)}
 /* v211 — the episode's «когда · где» under its name on the sheet */
-.episode-sub{text-align:center;font:italic 15px/1.2 'CormorantCy',Georgia,serif;color:rgba(76,56,39,.7);margin:-4px 0 8px;min-height:0}
+.episode-sub{text-align:center;font:15px/1.2 'CormorantCy',Georgia,serif;color:rgba(76,56,39,.7);margin:-4px 0 8px;min-height:0}
 .episode-sub:empty{display:none}
+/* v212 — the episode's name on the sheet can be changed: it shows so under the hand */
+.episode[contenteditable="true"]{cursor:text;border-bottom:1px dashed transparent;transition:border-color .3s}
+.episode[contenteditable="true"]:hover,.episode[contenteditable="true"]:focus{border-bottom-color:rgba(106,74,46,.45);outline:none}

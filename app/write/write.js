@@ -270,10 +270,19 @@
       if(t==='Новый эпизод')return ep||raw;}catch(_){}return raw;};
   const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
     const ch=barName(d),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
-    const t=[ch,n&&all?`лист ${n} из ${all}`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te.textContent!==t)te.textContent=t;
+    // v212: names in italic, the rest upright — «Глава 5 · Какой он был человек · лист 3 из 36»
+    const esc=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const cm=ch.match(/^(Глава\s+\d+)\.?\s*(.*)$/);
+    const nm=cm?`<span class="up">${esc(cm[1])}</span>${cm[2]?` · <i>${esc(cm[2])}</i>`:''}`:(/·/.test(ch)?`<span class="up">${esc(ch)}</span>`:(ch?`<i>${esc(ch)}</i>`:''));
+    const t=[nm,n&&all?`<span class="up">лист ${n} из ${all}</span>`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te._h!==t&&!te.querySelector('[contenteditable]')){te._h=t;te.innerHTML=t;}
     const tk=document.querySelector('.bd-rail-key[data-rail="tips"]');const m=(tk?.getAttribute('aria-label')||'').match(/(\d+)/);const em=wc.querySelector('[data-c="tips"] em');em.textContent=m?m[1]:'';wc.querySelector('[data-c="tips"]').classList.toggle('on',!!m);
     const ss=(d?.getElementById('saveState')?.textContent||'');const dot=wc.querySelector('.sv');dot.classList.toggle('busy',/Сохраня/i.test(ss));dot.title=ss||'Черновик сохранён';};
   setInterval(tick,500);
+  // v212: the name of the chapter (or of the sheet) is changed right in the bar — a press on it, Enter to keep, Esc to leave
+  wc.querySelector('.t b').addEventListener('click',e=>{const i=e.target.closest('i');if(!i||i.isContentEditable)return;e.stopPropagation();
+    i.contentEditable='true';i.spellcheck=false;i.focus();const r=document.createRange();r.selectNodeContents(i);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+    const done=keep=>{i.removeEventListener('blur',onBlur);i.contentEditable='false';const v=i.textContent.trim();wc.querySelector('.t b')._h='';if(keep&&v)try{F()?.contentWindow?.OC_SHEET?.renameChapter(v);}catch(_){}tick();};
+    const onBlur=()=>done(true);i.addEventListener('blur',onBlur);
+    i.addEventListener('keydown',k=>{k.stopPropagation();if(k.key==='Enter'){k.preventDefault();i.blur();}if(k.key==='Escape'){k.preventDefault();i.removeEventListener('blur',onBlur);done(false);}});});
   // the keyboard: it comes up with the first key, the sheet steps up to make room, then all goes back after a pause
   const typing=on=>{if(on&&!isWrite())return;if(on&&!shell.classList.contains('wc-typing')){lift();requestAnimationFrame(()=>{if(isWrite())shell.classList.add('wc-typing');});return;}shell.classList.toggle('wc-typing',on);if(on)lift();};
   const lift=()=>{const kb=document.getElementById('editorKeyboardWrap'),f=F(),d=FD();if(!kb||!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;
@@ -512,21 +521,22 @@
     <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"></i>
       <div class="ws-nav"><span class="ws-cnt"></span><button type="button" data-q="-1">‹ назад</button><button type="button" data-q="1">дальше ›</button></div>
       <div class="ws-q"></div>
-      <div class="ws-hint">потяните лист на стол</div>
+      <div class="ws-hint">потяните лист на стол</div><i class="ws-corner" title="перевернуть лист"></i>
       <div class="ws-face ws-f-episode"><div class="ws-ft">Новый эпизод</div><div class="ws-fs">заполните — или потяните на стол</div>
-        <label><span>название</span><input data-f="title" autocomplete="off"></label><label><span>когда</span><input data-f="when" autocomplete="off"></label><label><span>где</span><input data-f="where" autocomplete="off"></label>
+        <label><span>название</span><input data-f="title" autocomplete="off" placeholder="например, Лето у бабушки"></label><label><span>когда</span><input data-f="when" autocomplete="off" placeholder="например, 1960-е"></label><label><span>где</span><input data-f="where" autocomplete="off" placeholder="например, у бабушки в деревне"></label>
         <div class="ws-fh">потяните на стол — начнётся новый эпизод</div></div>
       <div class="ws-face ws-f-document"><div class="ws-ft">Документ</div><div class="ws-fs">письмо, справка, грамота, билет…</div>
         <button type="button" class="ws-scan"><b>положите сюда скан или фото документа</b><small>с компьютера</small></button>
-        <label><span>что это</span><input data-f="dtitle" autocomplete="off"></label><label class="tx"><span>расшифровка</span><textarea data-f="dtext" rows="2"></textarea></label>
+        <label><span>что это</span><input data-f="dtitle" autocomplete="off" placeholder="например, письмо отца"></label><label class="tx"><span>расшифровка</span><textarea data-f="dtext" rows="2" placeholder="что написано в документе"></textarea></label>
         <div class="ws-fh">потяните на стол — в главе появится страница документа</div></div>
       <div class="ws-face ws-f-photo"><div class="ws-pnav"><span class="ws-pc"></span><button type="button" data-p="-1">‹ назад</button><button type="button" data-p="1">дальше ›</button></div>
         <div class="ws-grid"></div><div class="ws-fh">потяните фото на лист</div></div></div>`;
   document.body.appendChild(left);
   const top=left.querySelector('.ws-top'),qEl=left.querySelector('.ws-q'),cnt=left.querySelector('.ws-cnt');
   let kind='page';
-  left.querySelector('.ws-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;e.stopPropagation();kind=b.dataset.t;left.querySelectorAll('.ws-tabs button').forEach(x=>x.classList.toggle('on',x===b));
-    left.dataset.kind=kind;top.classList.remove('ws-turn');void top.offsetWidth;top.classList.add('ws-turn');});
+  // v212: the kind is chosen on the tabs — the top sheet turns over (the leaf goes over to the left, its back showing) and the
+  // sheet of the chosen kind lies under it; or by hand, taken by its corner (see below)
+  left.querySelector('.ws-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;e.stopPropagation();if(b.dataset.t!==kind)turnTo(b.dataset.t);});
   // v209 — each kind of clean sheet has its own face on the stack: an episode's name / when / where, a document's scan and
   // transcript, the book's photographs as a contact sheet (taken one by one onto the open sheet)
   const OC=()=>{try{return FW2()?.OC_SHEET;}catch(_){return null;}};const FW2=()=>document.getElementById('v35SheetFrame')?.contentWindow;
@@ -536,8 +546,9 @@
     inp.addEventListener('change',()=>{const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{docSrc=r.result;scan.style.backgroundImage=`url("${docSrc}")`;scan.classList.add('has');};r.readAsDataURL(f);inp.value='';});}
   left.querySelectorAll('.ws-face input,.ws-face textarea').forEach(x=>{['pointerdown','keydown','keyup','input'].forEach(t=>x.addEventListener(t,e=>e.stopPropagation()));});
   const layKind=k=>{const o=OC();
-    if(k==='episode'){act('episode');const v={title:fv('title').value,when:fv('when').value,where:fv('where').value};setTimeout(()=>{OC()?.setEpisode(v);},420);['title','when','where'].forEach(n=>fv(n).value='');return;}
-    if(k==='document'){act('document');const v={title:fv('dtitle').value,text:fv('dtext').value,src:docSrc};setTimeout(()=>{OC()?.setDocument(v);},420);fv('dtitle').value='';fv('dtext').value='';docSrc='';scan.style.backgroundImage='';scan.classList.remove('has');return;}
+    // v212: the episode and the document are made with what was written on the stack, in one step
+    if(k==='episode'){o?.newEpisode({title:fv('title').value,when:fv('when').value,where:fv('where').value});['title','when','where'].forEach(n=>fv(n).value='');return;}
+    if(k==='document'){o?.newDocument({title:fv('dtitle').value,text:fv('dtext').value,src:docSrc});fv('dtitle').value='';fv('dtext').value='';docSrc='';scan.style.backgroundImage='';scan.classList.remove('has');return;}
     act(k);};
   // the contact sheet: eight photographs a page and a cell to bring more from the computer
   const grid=left.querySelector('.ws-grid'),pc=left.querySelector('.ws-pc');let pgN=0,lastSig='';
@@ -547,16 +558,30 @@
     const part=all.slice(pgN*per,pgN*per+per);
     grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+(pgN===pages-1&&part.length<per?'<button type="button" class="ws-add">+ добавить<br>фото</button>':'');
     pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;grid._pages=pages;};
-  // turning to another sheet of the contact prints: the top sheet is taken off to the side, the next lies under it (with the
-  // rustle of paper)
-  const turnGrid=d=>{const pages=grid._pages||1,n=Math.max(0,Math.min(pages-1,pgN+d));if(n===pgN)return;
-    const r=top.getBoundingClientRect(),fl=top.cloneNode(true);fl.classList.add('ws-turnoff');fl.querySelectorAll('.ws-tabs,.ws-lt,input,textarea').forEach(x=>x.remove());
-    Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);paperFx(.4);
-    pgN=n;lastSig='';fillGrid();requestAnimationFrame(()=>requestAnimationFrame(()=>fl.classList.add('go',d>0?'fwd':'back')));setTimeout(()=>fl.remove(),700);};
+  // a leaf: the top sheet as it is now, with its back (plain paper), laid over the stack to be turned over
+  const KINDS=['page','episode','document','photo'];let turning=false;
+  const setKind=k=>{kind=k;left.querySelectorAll('.ws-tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===k));left.dataset.kind=k;if(k==='photo'){lastSig='';fillGrid();}};
+  const makeLeaf=()=>{const r=top.getBoundingClientRect(),lf=document.createElement('div');lf.className='ws-leaf';lf.dataset.kind=kind;
+    const fr=top.cloneNode(true);fr.classList.add('lf-front');fr.classList.remove('ws-away','ws-next');fr.dataset.kind=kind;fr.querySelectorAll('.ws-corner').forEach(x=>x.remove());
+    const src=top.querySelectorAll('input,textarea'),dst=fr.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});
+    const bk=document.createElement('i');bk.className='lf-back';lf.append(fr,bk);Object.assign(lf.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(lf);return lf;};
+  const leafTo=(lf,a,ms)=>{lf.style.transition=ms?`transform ${ms}ms cubic-bezier(.45,.05,.25,1)`:'none';lf.style.transform=`perspective(1400px) rotateY(${(-178*a).toFixed(1)}deg)`;lf.style.setProperty('--a',a.toFixed(3));};
+  const turnTo=(k,after)=>{if(turning)return;turning=true;const lf=makeLeaf();paperFx(.4);(after||setKind)(k);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>leafTo(lf,1,780)));setTimeout(()=>{lf.remove();turning=false;},840);};
+  const turnGrid=d=>{const pages=grid._pages||1,n=Math.max(0,Math.min(pages-1,pgN+d));if(n===pgN||turning)return;turnTo(kind,()=>{pgN=n;lastSig='';fillGrid();});};
+  // by hand: the corner lifts under the hand; pulled to the left, the leaf turns as far as it is pulled; let go past the middle,
+  // it turns over; before it, it lies back
+  {const cn=top.querySelector('.ws-corner');cn.addEventListener('pointerdown',e=>{if(e.button!==0||turning)return;e.preventDefault();e.stopPropagation();turning=true;
+      const prev=kind,next=KINDS[(KINDS.indexOf(kind)+1)%KINDS.length],lf=makeLeaf(),w=top.getBoundingClientRect().width,x0=e.clientX;let a=0;setKind(next);paperFx(.3);
+      try{cn.setPointerCapture(e.pointerId);}catch(_){}
+      const mv=ev=>{a=Math.max(0,Math.min(1,(x0-ev.clientX)/(w*.85)));leafTo(lf,a,0);};
+      const up=()=>{cn.removeEventListener('pointermove',mv);cn.removeEventListener('pointerup',up);cn.removeEventListener('pointercancel',up);
+        if(a>.5){leafTo(lf,1,Math.round(420*(1-a))+180);setTimeout(()=>{lf.remove();turning=false;},Math.round(420*(1-a))+220);}
+        else{leafTo(lf,0,Math.round(420*a)+160);setTimeout(()=>{setKind(prev);lf.remove();turning=false;},Math.round(420*a)+200);}};
+      cn.addEventListener('pointermove',mv);cn.addEventListener('pointerup',up);cn.addEventListener('pointercancel',up);});}
   left.querySelector('.ws-pnav').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;e.stopPropagation();turnGrid(+b.dataset.p);});
   grid.addEventListener('click',e=>{if(e.target.closest('.ws-add')){e.stopPropagation();try{FW2().document.getElementById('addPhotoBtn')?.click();}catch(_){}}});
   setInterval(()=>{if(kind==='photo')fillGrid();},1500);
-  left.querySelector('.ws-tabs').addEventListener('click',()=>{if(kind==='photo'){lastSig='';fillGrid();}});
   // a photograph taken from the contact sheet: a small print in the hand, laid on the open sheet
   grid.addEventListener('pointerdown',e=>{const c=e.target.closest('.ws-ph');if(!c||e.button!==0)return;e.preventDefault();e.stopPropagation();
     const rec=grid._all?.[+c.dataset.i];if(!rec)return;const r=c.getBoundingClientRect();const pr=document.createElement('div');pr.className='ws-print';pr.style.backgroundImage=c.style.backgroundImage;
@@ -564,7 +589,10 @@
     const wr=wrapEl()?.getBoundingClientRect();let tx=0,ty=0,cx=0,cy=0,on=true,over=false;const x0=e.clientX,y0=e.clientY;
     const fr=()=>{if(!on)return;requestAnimationFrame(fr);cx+=(tx-cx)*.45;cy+=(ty-cy)*.45;pr.style.transform=`translate(${cx.toFixed(1)}px,${cy.toFixed(1)}px) rotate(${Math.max(-6,Math.min(6,(tx-cx)/12)).toFixed(2)}deg) scale(1.6)`;};requestAnimationFrame(fr);
     const mv=ev=>{tx=ev.clientX-x0;ty=ev.clientY-y0;over=!!wr&&ev.clientX>wr.left&&ev.clientX<wr.right&&ev.clientY>wr.top&&ev.clientY<wr.bottom;pr.classList.toggle('over',over);};
-    const up=()=>{on=false;c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);
+    const up=ev=>{on=false;c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);
+      // v212: a press without a pull opens the photograph's card (it turns over: its back to be written; back to the album or onto the sheet)
+      if(ev&&ev.type==='pointerup'&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<6){pr.remove();const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect(),cr=c.getBoundingClientRect();
+        const W=f.contentWindow;if(W?.__ocAlbumCard){c.style.visibility='hidden';paperFx(.3);W.__ocAlbumCard(rec,{left:cr.left-fr.left,top:cr.top-fr.top,width:cr.width,height:cr.height},()=>{c.style.visibility='';lastSig='';fillGrid();});}return;}
       if(over&&OC()?.addPhotoCopy(rec)){pr.classList.add('laid');paperFx(.25);setTimeout(()=>pr.remove(),420);}
       else{pr.classList.add('back');pr.style.transform='none';setTimeout(()=>pr.remove(),380);}};
     try{c.setPointerCapture(e.pointerId);}catch(_){}c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);});
@@ -575,48 +603,49 @@
   const shown=()=>!pe||pe.classList.contains('is-visible')||pe.classList.contains('is-leaving');
   const mirror=()=>{if(!shown()){clearTimeout(goneT);goneT=setTimeout(()=>{if(!shown()){qEl.textContent='';cnt.textContent='';left.classList.add('no-q');left.querySelector('.ws-nav').classList.add('one');}},1700);return;}
     clearTimeout(goneT);const t=(document.getElementById('writingPromptText')?.textContent||'').trim();const c=(document.getElementById('writingPromptCount')?.textContent||'').trim();
-    if(qEl.textContent!==t){qEl.classList.remove('in');void qEl.offsetWidth;qEl.textContent=t;qEl.classList.add('in');}if(cnt.textContent!==c)cnt.textContent=c;
+    if(qEl.textContent!==t){qEl.classList.remove('in');void qEl.offsetWidth;qEl.textContent=t;qEl.style.setProperty('--qk',t.length<50?'.095':t.length<80?'.082':t.length<110?'.07':'.06');qEl.classList.add('in');}if(cnt.textContent!==c)cnt.textContent=c;
     left.classList.toggle('no-q',!t);left.querySelector('.ws-nav').classList.toggle('one',!c);};
   {const a=document.getElementById('writingPromptText'),b=document.getElementById('writingPromptCount');const mo=new MutationObserver(mirror);[a,b].forEach(x=>x&&mo.observe(x,{childList:true,characterData:true,subtree:true}));if(pe)mo.observe(pe,{attributes:true,attributeFilter:['class']});mirror();}
 
   // ——— taking a clean sheet to the desk
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
   let drag=null;
-  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo')return;e.preventDefault();
+  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid,.ws-corner')||kind==='photo'||turning)return;e.preventDefault();
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
-    fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
+    fl.querySelectorAll('.ws-tabs,.ws-nav,.ws-lt,.ws-corner').forEach(x=>x.remove());fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
     // v207: everything the move needs is measured once, here: where the open sheet lies and where it can be dropped
     const sr=sheetRect(),wr=wrapEl()?.getBoundingClientRect();
-    drag={fl,r,sr,wr,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,ly:e.clientY,tx:0,ty:0,cx:0,cy:0,vx:0,vy:0,svx:0,svy:0,k:0,carry:false};try{top.setPointerCapture(e.pointerId);}catch(_){}
+    // v212: the plate — a clean sheet in the open sheet's very size. Over the open sheet the small sheet in the hand gives way
+    // to it: it is never stretched, it only moves (left/top), and the window's shade on it stays where it is on the screen
+    const pl=document.createElement('div');pl.className='ws-plate';Object.assign(pl.style,{width:sr.width+'px',height:sr.height+'px',left:(r.left+r.width/2-sr.width/2)+'px',top:(r.top+r.height/2-sr.height/2)+'px'});document.body.appendChild(pl);
+    drag={fl,pl,r,sr,wr,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,ly:e.clientY,tx:0,ty:0,cx:0,cy:0,vx:0,vy:0,svx:0,svy:0,k:0,carry:false};try{top.setPointerCapture(e.pointerId);}catch(_){}
     // v198 — a live sheet: it lifts off the stack, tilts towards the hand, its shadow grows and softens
     fl.style.transformOrigin='50% 50%';fl.classList.add('ws-lift');paperFx(.5);
     requestAnimationFrame(()=>{fl.style.transform='perspective(1100px) rotateX(9deg) rotateY(-10deg) rotateZ(-1.5deg) scale(1.04)';});
     // v207: it follows the hand frame by frame (not from one mouse event to the next): a short easing, so it glides
     const d0=drag;const frame=()=>{if(drag!==d0)return;requestAnimationFrame(frame);if(!d0.carry)return;
       d0.cx+=(d0.tx-d0.cx)*.42;d0.cy+=(d0.ty-d0.cy)*.42;d0.svx+=(d0.vx-d0.svx)*.18;d0.svy+=(d0.vy-d0.svy)*.18;d0.vx*=.85;d0.vy*=.85;
-      // over the open sheet it takes the open sheet's shape (so it lands in its very size, with nothing to change at the end)
-      d0.k+=((d0.over?1:0)-d0.k)*.16;const S=1.06,sx=S+(d0.sr.width/d0.r.width-S)*d0.k,sy=S+(d0.sr.height/d0.r.height-S)*d0.k;
-      const ry=Math.max(-16,Math.min(16,-6-d0.svx*.9))*(1-d0.k*.6),rx=Math.max(-6,Math.min(16,8+d0.svy*.6))*(1-d0.k*.6),rz=Math.max(-5,Math.min(5,d0.cx/90))*(1-d0.k);
-      d0.fl.style.transform=`translate(${d0.cx.toFixed(1)}px,${d0.cy.toFixed(1)}px) perspective(1100px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;};
+      d0.k+=((d0.over?1:0)-d0.k)*.18;const k=d0.k;
+      const ry=Math.max(-16,Math.min(16,-6-d0.svx*.9)),rx=Math.max(-6,Math.min(16,8+d0.svy*.6)),rz=Math.max(-5,Math.min(5,d0.cx/90));
+      d0.fl.style.transform=`translate(${d0.cx.toFixed(1)}px,${d0.cy.toFixed(1)}px) perspective(1100px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(1.06)`;d0.fl.style.opacity=(1-k).toFixed(3);
+      const ccx=d0.r.left+d0.r.width/2+d0.cx,ccy=d0.r.top+d0.r.height/2+d0.cy;d0.pl.style.left=(ccx-d0.sr.width/2).toFixed(1)+'px';d0.pl.style.top=(ccy-d0.sr.height/2).toFixed(1)+'px';d0.pl.style.opacity=k.toFixed(3);};
     requestAnimationFrame(frame);});
   top.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x0,dy=e.clientY-drag.y0;if(Math.hypot(dx,dy)>5)drag.moved=true;
     drag.vx=drag.vx*.6+(e.clientX-drag.lx)*.4;drag.vy=drag.vy*.6+(e.clientY-drag.ly)*.4;drag.lx=e.clientX;drag.ly=e.clientY;drag.tx=dx;drag.ty=dy;
     if(!drag.carry&&drag.moved){drag.carry=true;drag.fl.classList.remove('ws-lift');drag.fl.classList.add('ws-carry');}
-    const w=drag.wr;const over=!!w&&e.clientX>w.left&&e.clientX<w.right&&e.clientY>w.top&&e.clientY<w.bottom;if(over!==drag.over){drag.over=over;shell.classList.toggle('ws-over',over);drag.fl.classList.toggle('ws-near',over);}});
-  const finish=e=>{if(!drag)return;const d=drag;drag=null;shell.classList.remove('ws-over');const fl=d.fl;
+    const w=drag.wr;const over=!!w&&e.clientX>w.left&&e.clientX<w.right&&e.clientY>w.top&&e.clientY<w.bottom;if(over!==drag.over){drag.over=over;shell.classList.toggle('ws-over',over);}});
+  const finish=e=>{if(!drag)return;const d=drag;drag=null;shell.classList.remove('ws-over');const fl=d.fl,pl=d.pl;
     const lay=d.over||!d.moved;// a plain click lays it too: one press is enough for a hand that does not like to drag
-    if(lay){const w=sheetRect();fl.classList.remove('ws-lift','ws-carry');fl.classList.add('ws-landing');paperFx(.28);
-      // it is laid down: it flattens as it comes to rest in the open sheet's very place and size
-      // v202: as it comes down the window's shade falls on it where it falls on the desk (no later jump when the sheet itself shows)
-      if(!shell.classList.contains('is-night')){const sx=w.width/d.r.width,sy=w.height/d.r.height,sh=document.createElement('i');sh.className='ws-land-shade';
-        Object.assign(sh.style,{left:(-w.left/sx)+'px',top:(-w.top/sy)+'px',width:(innerWidth/sx)+'px',height:(innerHeight/sy)+'px'});fl.style.overflow='hidden';fl.appendChild(sh);requestAnimationFrame(()=>sh.classList.add('on'));}
-      fl.style.transform=`translate(${(w.left+w.width/2)-(d.r.left+d.r.width/2)}px,${(w.top+w.height/2)-(d.r.top+d.r.height/2)}px) perspective(1600px) rotateX(0deg) scale(${w.width/d.r.width},${w.height/d.r.height})`;
+    if(lay){const w=sheetRect();paperFx(.28);
+      // it is laid down: the plate (the open sheet's very size) comes to rest exactly on the open sheet; the small sheet is gone
+      fl.style.transition='opacity .2s ease';fl.style.opacity='0';setTimeout(()=>fl.remove(),240);
+      pl.classList.add('landing');pl.style.opacity='1';requestAnimationFrame(()=>{pl.style.left=w.left+'px';pl.style.top=w.top+'px';});
       top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
       // v207: the new sheet is not laid a second time (it is the one in the hand): it is there, still, when the hand lets go
       try{FW().__ocNoLay=Date.now();}catch(_){}
-      setTimeout(()=>layKind(kind),200);setTimeout(()=>{fl.style.setProperty('transition','opacity .3s ease','important');fl.style.opacity='0';setTimeout(()=>fl.remove(),340);},680);}
-    else{fl.classList.add('ws-back');fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
+      setTimeout(()=>layKind(kind),200);setTimeout(()=>{pl.classList.add('gone');setTimeout(()=>pl.remove(),340);},640);}
+    else{pl.remove();fl.classList.add('ws-back');fl.style.opacity='1';fl.style.transform='none';setTimeout(()=>{fl.remove();top.classList.remove('ws-away');},420);}};
   top.addEventListener('pointerup',finish);top.addEventListener('pointercancel',finish);
 
   // ——— the day's icon among the page's keys (in place of the long «дневной свет» button)
@@ -715,3 +744,9 @@
 // dusk, and as the lamp lights up the dusk lifts with it, slowly
 (()=>{const sh=document.querySelector('.shell');if(!sh)return;const d=document.createElement('div');d.className='oc-dusk';document.body.appendChild(d);{const f=document.createElement('div');f.className='oc-focus';sh.prepend(f);}
   const up=()=>d.classList.toggle('on',sh.classList.contains('is-night')&&!sh.classList.contains('oc-lit'));new MutationObserver(up).observe(sh,{attributes:true,attributeFilter:['class']});up();})();
+
+// v212 — the desk comes into view when it lies in its place: the stack, the page and the clock laid out (or after 6 s at most)
+(()=>{const H=document.documentElement,sh=document.querySelector('.shell');let t0=performance.now();
+  {let night=false;try{night=localStorage.getItem('ocherkiLight')==='night';}catch(_){}H.style.background=night?'#0d0704':'#e6d8bf';}
+  const ready=()=>sh&&sh.classList.contains('oc-ready')&&sh.classList.contains('oc-ws-peek')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
+  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>6000){setTimeout(()=>H.classList.add('oc-shown'),350);return;}requestAnimationFrame(go);};go();})();
