@@ -884,3 +884,48 @@ html body .shell.ws-off .writing-prompt,html body .shell.ws-off .write-nav{opaci
 /* v202: the light layers are kept on their own layers, so a leaf turning under them is not repainted with them each frame */
 .bq-book .bq-lamp,.desk-cone,.desk-day,.desk-shade{will-change:opacity;contain:strict}
 .bq-book.is-curling .bq-lamp{transition:none!important}
+
+/* ——— v203 ——— */
+/* the book's light is a plain veil of shade over it (it lies in another layer than the book's pages, so a multiplied colour
+   came out as a beige film); by day only a soft shade towards the right, away from the window */
+html body.oct-book .bq-book .bq-lamp{mix-blend-mode:normal!important;contain:none!important}
+html body.oct-book .bq-book .bq-lamp::before{display:none!important}
+html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp{background:linear-gradient(90deg,rgba(40,25,10,0) 0%,rgba(40,25,10,0) 45%,rgba(40,25,10,.12) 100%)!important}
+html:has(.shell.is-night) body.oct-book .bq-book .bq-lamp{background:radial-gradient(ellipse 70% 95% at 50% 0%,rgba(20,10,2,0) 0%,rgba(20,10,2,.12) 45%,rgba(20,10,2,.42) 100%)}
+.bq-book.single .bq-lamp{left:50%}
+/* «так ляжет» by day: no film over the page — only a soft shade to the right */
+html:has(.shell.oc-w:not(.is-night)) .wp-page::after{background:linear-gradient(90deg,rgba(40,25,10,0) 0%,rgba(40,25,10,0) 50%,rgba(40,25,10,.1) 100%);mix-blend-mode:normal}
+/* the cover alone in the middle: no pale ghost of a left page beside it */
+body.oct-book #bookPreviewModal .book-preview-spread.is-cover .book-preview-half.is-ghost{opacity:0!important;visibility:hidden!important}
+/* the cover alone, in the middle of the desk */
+body.oct-book #bookPreviewModal .book-preview-spread.is-cover{translate:-25% 0}
+/* v203 — the words on the desk read by day: dark ink, like the book's name on the start screen (light at night as before) */
+html:has(.shell:not(.is-night)) .bq-name b{color:#3b2a1c!important;text-shadow:0 1px 0 rgba(255,250,240,.75),0 0 12px rgba(255,248,236,.85)!important}
+html:has(.shell:not(.is-night)) body.oct-book .bq-car .bq-cl{color:#3b2a1c!important;text-shadow:0 0 8px rgba(255,248,236,.95)!important;opacity:1}
+html:has(.shell:not(.is-night)) .wp-cap{color:#3b2a1c!important;text-shadow:0 0 8px rgba(255,248,236,.9)}
+html:has(.shell:not(.is-night)) .wp-item .lab{color:#3b2a1c!important;text-shadow:0 0 8px rgba(255,248,236,.9)}
+html:has(.shell:not(.is-night)) .oct .lb,html:has(.shell:not(.is-night)) .oct .lbx,html:has(.shell:not(.is-night)) .oct .lbx *{color:#2f1f14!important;text-shadow:0 0 8px rgba(255,248,236,.95),0 1px 0 rgba(255,250,240,.8)!important}
+html:has(.shell:not(.is-night)) #bookPreviewModal .preview-arc :is(.pa-tip,.pa-tip *,small,b){color:#3b2a1c!important;text-shadow:0 0 8px rgba(255,248,236,.95)!important}
+html:has(.shell:not(.is-night)) .oc-ttl .n,html:has(.shell:not(.is-night)) .oc-ttl .s{color:#2f1f14!important}
+html:has(.shell:not(.is-night)) .oc-ttl .s{font-size:22px!important;opacity:1!important}
+/* v203: the book's page is always on the desk — no key to put it away */
+html body .shell.oc-ws .wp-keys.k-open .wp-item.back{display:none!important}
+/* the workshop's signature: vertical, on the left, in the middle of the screen's height */
+html body .shell.oc-ws .bottom-left .brand-wrap{left:22px!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+/* the old big clock in the right column never shows beside the clock under the page */
+html body .shell.oc-ws .bottom-left .master-clock{transition:opacity .6s ease!important}
+/* v203: the window's shade on the clean sheets is the very picture on the desk (a «fixed» background inside a turned sheet
+   does not stay fixed — it is laid from the screen's corner by hand instead) */
+.ws-lt::before{background:var(--ws-shade) var(--ox,0) var(--oy,0)/100vw 100vh no-repeat scroll!important}
+/* v203: the beam reaches the foot of the screen again */
+html body .desk-cone i{background:linear-gradient(180deg,rgba(255,175,80,.95) 0%,rgba(250,150,55,.72) 22%,rgba(230,125,40,.52) 58%,rgba(205,105,30,.42) 100%)!important}
+html body .desk-shade{background:linear-gradient(rgba(60,26,4,.4),rgba(60,26,4,.4)),radial-gradient(ellipse 72% 130% at 50% 30%,rgba(10,5,2,0) 0%,rgba(10,5,2,.25) 55%,rgba(5,2,0,.78) 100%)}
+/* v203 — leaving the book: it slides off to the right and stays gone while the desk turns back to the sheets */
+@keyframes bkGone{0%{translate:0 0;rotate:0deg}15%{translate:-.4vw 0;rotate:-.1deg}100%{translate:70vw 0;rotate:2deg}}
+html.bk-out :is(.bq-book,.bq-name),html.bk-out #bookPreviewModal .book-preview-stage{animation:bkGone .85s cubic-bezier(.6,0,.75,.35) forwards!important;opacity:1!important}
+html.bk-out #bookPreviewModal .preview-arc{opacity:0!important;transition:opacity .4s ease!important}
+html.bk-out .ws-left.ws-aside{opacity:0!important;transition:opacity .3s ease!important}
+/* v203: a sheet in the hand is cheap to draw: no filter on it, its shadow does not animate while it is carried */
+html:has(.shell.is-night) .ws-flyer{filter:none!important}
+.ws-flyer.ws-carry{transition:transform .08s linear!important}
+.ws-flyer{contain:layout paint}

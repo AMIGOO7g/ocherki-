@@ -327,7 +327,7 @@ document.addEventListener('click',e=>{
     Object.entries(COMP).forEach(([c,id])=>{const b=$(id),btn=car.querySelector(`[data-c="${c}"]`);const off=!b||b.disabled;btn.classList.toggle('off',off);btn.dataset.tip=off&&b?.title?b.title:btn.getAttribute('aria-label');});
     // the dress follows the spread (it opens and grows first)
     const L=modal.querySelector('.book-preview-half.left'),R=modal.querySelector('.book-preview-half.right');
-    const rs=[L,R].map(e=>e&&e.getBoundingClientRect()).filter(r=>r&&r.width>20&&r.height>20);
+    const rs=[L,R].filter(e=>e&&!e.classList.contains('is-ghost')).map(e=>e.getBoundingClientRect()).filter(r=>r&&r.width>20&&r.height>20);// (the cover stands alone: an empty ghost page is no part of the book)
     // while a panel (design, format, photo) is open, the book steps back under its blur: no dress, no name
     if(!rs.length||document.querySelector('.bd-rail-key.is-active')){book.classList.remove('on');name.classList.remove('on');return;}
     const x0=Math.min(...rs.map(r=>r.left)),x1=Math.max(...rs.map(r=>r.right)),y0=Math.min(...rs.map(r=>r.top)),y1=Math.max(...rs.map(r=>r.bottom));
