@@ -126,9 +126,6 @@
 .shell.is-night .project-key,.shell.is-night .pages-child .key{color:var(--ink-night) !important}
 .editor-paper::after{display:none !important;opacity:0 !important;content:none !important;background:none !important}
 .editor-paper-shadow{display:none !important;opacity:0 !important;background:none !important}
-@media (max-width:1400px){.project-top{right:520px !important;}.editor-paper-wrap{width:min(60vw,880px) !important;min-width:660px !important;}.editor-keyboard{transform:scale(.75) !important;}}
-@media (max-width:1200px){.project-top{right:400px !important;}.mode-controls .transport-first{margin-left:58px !important;}.editor-paper-wrap{width:min(62vw,760px) !important;min-width:560px !important;}.editor-keyboard-wrap{width:min(82vw,860px) !important;min-width:0 !important;}.editor-keyboard{transform:scale(.73) !important;}}
-@media (max-width:900px){.project-top{right:220px !important;top:34px !important;}.project-key{width:250px !important;min-width:250px !important;}.editor-stage{top:51.8% !important;}.editor-paper-wrap{width:min(78vw,620px) !important;min-width:0 !important;}.editor-keyboard-wrap{width:min(96vw,780px) !important;min-width:0 !important;}.editor-keyboard{transform:scale(.70) !important;}}
 .project-top{left:auto !important;transform:none !important}
 .project-hanger,.pages-child{will-change:transform;transform-origin:50% -24px !important}
 .project-key,.pages-child .key{transform:none !important}
@@ -143,9 +140,9 @@
 .editor-paper::before{opacity:1 !important;background:radial-gradient(ellipse 122% 90% at 18% 12%, rgba(255,241,201,.42) 0%, rgba(255,236,190,.26) 18%, rgba(255,232,183,.12) 38%, rgba(255,226,176,.04) 56%, rgba(255,223,172,0) 72%),linear-gradient(112deg, rgba(255,244,221,.18) 0%, rgba(255,238,205,.08) 22%, rgba(255,232,196,0) 50%) !important}
 .shell.is-night .editor-paper{background:linear-gradient(108deg,rgba(255,250,242,.985) 0%,rgba(251,243,231,.97) 16%,rgba(246,235,218,.955) 42%,rgba(237,223,203,.945) 72%,rgba(229,212,188,.935) 100%) !important}
 .shell.is-night .editor-paper::before{opacity:1 !important;background:radial-gradient(ellipse 132% 96% at 18% 10%, rgba(255,230,172,.46) 0%, rgba(255,223,158,.26) 20%, rgba(255,214,144,.12) 40%, rgba(255,205,132,.04) 58%, rgba(255,205,132,0) 73%),linear-gradient(112deg, rgba(255,234,183,.10) 0%, rgba(255,229,176,.04) 26%, rgba(255,223,172,0) 54%) !important}
-@media (max-width:1400px){.project-top{right:640px !important;}.editor-paper-wrap{width:min(56vw,820px) !important;min-width:640px !important;}.editor-keyboard{transform:scale(.73) !important;}}
-@media (max-width:1200px){.project-top{right:520px !important;}.mode-controls .transport-first{margin-left:58px !important;}.editor-stage{top:52.6% !important;}.editor-paper-wrap{width:min(60vw,720px) !important;min-width:520px !important;}.editor-keyboard-wrap{width:min(82vw,840px) !important;min-width:0 !important;}.editor-keyboard{transform:scale(.71) !important;}}
-@media (max-width:900px){.project-top{right:280px !important;top:34px !important;}.project-key{width:250px !important;min-width:250px !important;}.editor-stage{top:53.1% !important;}.editor-paper-wrap{width:min(78vw,600px) !important;min-width:0 !important;}.editor-keyboard-wrap{width:min(96vw,760px) !important;min-width:0 !important;}.editor-keyboard{transform:scale(.68) !important;}}
+@media (max-width:1400px){.project-top{right:640px !important;}}
+@media (max-width:1200px){.project-top{right:520px !important;}.mode-controls .transport-first{margin-left:58px !important;}}
+@media (max-width:900px){.project-top{right:280px !important;top:34px !important;}.project-key{width:250px !important;min-width:250px !important;}}
 
 .hanging::before,.project-hanger::before,.pages-child::before{width:1.2px !important;background:linear-gradient(to bottom,rgba(93,70,50,.78),rgba(122,92,62,.44)) !important}
 .shell.is-night .hanging::before,.shell.is-night .project-hanger::before,.shell.is-night .pages-child::before{background:linear-gradient(to bottom,rgba(245,225,198,.46),rgba(245,225,198,.20)) !important}
@@ -164,9 +161,6 @@
 .editor-paper::after,.editor-paper-shadow{display:none !important;opacity:0 !important;content:none !important;background:none !important}
 .editor-paper{box-shadow:34px 22px 50px rgba(61,42,24,.22),16px 12px 22px rgba(61,42,24,.12),0 1px 0 rgba(255,255,255,.86) inset,0 0 0 1px rgba(110,88,64,.05) !important}
 .shell.is-night .editor-paper{box-shadow:38px 25px 62px rgba(0,0,0,.36),17px 12px 26px rgba(86,54,26,.20),0 1px 0 rgba(255,246,228,.16) inset,0 0 0 1px rgba(91,64,37,.08) !important}
-@media (max-width:1400px){.editor-paper-wrap{width:min(55vw,800px) !important;min-width:620px !important;}.editor-keyboard{transform:scale(.73) !important;}}
-@media (max-width:1200px){.editor-stage{top:52.6% !important;gap:18px !important;}.editor-paper-wrap{width:min(59vw,700px) !important;min-width:500px !important;}.editor-keyboard-wrap{width:min(82vw,840px) !important;min-width:0 !important;}.editor-keyboard{transform:scale(.71) !important;}}
-@media (max-width:900px){.editor-stage{top:53.1% !important;gap:16px !important;}.editor-paper-wrap{width:min(77vw,590px) !important;min-width:0 !important;}.editor-keyboard-wrap{width:min(96vw,760px) !important;min-width:0 !important;}.editor-keyboard{transform:scale(.68) !important;}}
 .project-key,.pages-child .key,.project-name,.page-number,.project-cap::before,.pages-child .cap::before,.project-key::before,.project-key::after,.pages-child .key::before,.pages-child .key::after{transition:color 2.15s cubic-bezier(.37,0,.63,1) !important,
     background 2.15s cubic-bezier(.37,0,.63,1) !important,
     box-shadow 2.15s cubic-bezier(.37,0,.63,1) !important,
@@ -178,57 +172,6 @@
 .project-cap::before,.pages-child .cap::before{opacity:0 !important}
 .shell.is-night .project-cap::before,.shell.is-night .pages-child .cap::before{opacity:1 !important}
 .shell.is-night .project-name,.shell.is-night .page-number{color:var(--ink-night) !important}
-@media (max-width:1400px){.editor-keyboard{transform:scale(.75) !important;}.editor-stage{gap:20px !important;}}
-@media (max-width:1200px){.editor-keyboard{transform:scale(.73) !important;}.editor-stage{gap:18px !important;}.editor-keyboard-wrap{width:min(84vw,860px) !important;min-width:0 !important;}}
-@media (max-width:900px){.editor-keyboard{transform:scale(.70) !important;}.editor-stage{gap:16px !important;}.editor-keyboard-wrap{width:min(97vw,780px) !important;min-width:0 !important;}}
-@media (max-width:1400px){
-  .editor-stage{top:52.0% !important;gap:26px !important;}
-  .editor-keyboard{transform:scale(.78) !important;}
-}
-@media (max-width:1200px){
-  .editor-stage{top:52.4% !important;gap:23px !important;}
-  .editor-paper-wrap{width:min(59vw,700px) !important;min-width:500px !important;}
-  .editor-keyboard-wrap{width:min(86vw,880px) !important;min-width:0 !important;}
-  .editor-keyboard{transform:scale(.75) !important;}
-}
-@media (max-width:900px){
-  .editor-stage{top:52.9% !important;gap:18px !important;}
-  .editor-paper-wrap{width:min(77vw,590px) !important;min-width:0 !important;}
-  .editor-keyboard-wrap{width:min(98vw,790px) !important;min-width:0 !important;}
-  .editor-keyboard{transform:scale(.71) !important;}
-}
-@media (max-width:1400px){
-  .editor-stage{top:53.1% !important;gap:22px !important;}
-  .editor-keyboard-wrap{width:min(76vw,930px) !important;min-width:640px !important;}
-  .editor-keyboard{transform:scale(.78) !important;}
-}
-@media (max-width:1200px){
-  .editor-stage{top:53.4% !important;gap:20px !important;}
-  .editor-paper-wrap{width:min(58vw,710px) !important;min-width:500px !important;}
-  .editor-keyboard-wrap{width:min(86vw,880px) !important;min-width:0 !important;}
-  .editor-keyboard{transform:scale(.75) !important;}
-}
-@media (max-width:900px){
-  .editor-stage{top:53.8% !important;gap:17px !important;}
-  .editor-paper-wrap{width:min(77vw,590px) !important;min-width:0 !important;}
-  .editor-keyboard-wrap{width:min(98vw,790px) !important;min-width:0 !important;}
-  .editor-keyboard{transform:scale(.71) !important;}
-}
-@media (max-width:1400px){
-  .editor-stage{top:53.2% !important;gap:21px !important;}
-  .editor-keyboard-wrap{width:min(78vw,950px) !important;min-width:660px !important;}
-  .editor-keyboard{transform:scale(.80) !important;}
-}
-@media (max-width:1200px){
-  .editor-stage{top:53.5% !important;gap:19px !important;}
-  .editor-keyboard-wrap{width:min(88vw,900px) !important;min-width:0 !important;}
-  .editor-keyboard{transform:scale(.77) !important;}
-}
-@media (max-width:900px){
-  .editor-stage{top:54.0% !important;gap:16px !important;}
-  .editor-keyboard-wrap{width:min(99vw,810px) !important;min-width:0 !important;}
-  .editor-keyboard{transform:scale(.72) !important;}
-}
 .editor-stage{top:53.2% !important;gap:24px !important}
 .editor-paper-wrap{width:min(52.5vw,830px) !important;min-width:670px !important}
 .editor-keyboard-wrap{width:min(86vw,1080px) !important;min-width:760px !important}
@@ -329,7 +272,7 @@ html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-nigh
 .wp-wait span{animation:wpBreath 1.6s ease-in-out infinite}
 @keyframes wpBreath{0%,100%{opacity:.45}50%{opacity:1}}
 .shell.wp-up .wp-pane{z-index:17}
-.wp-cap{position:absolute;left:0;right:0;bottom:100%;margin-bottom:16px;text-align:center;transition:padding .3s;font:600 12px 'CormorantCy',Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#d9b47e;white-space:nowrap}
+.wp-cap{position:absolute;left:0;right:0;bottom:100%;margin-bottom:16px;text-align:center;font:600 12px 'CormorantCy',Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#d9b47e;white-space:nowrap}
 .shell:not(.is-night) .wp-cap{color:#8f5f28}
 .wp-keys{position:fixed;z-index:18;display:flex;gap:22px;align-items:flex-start;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .35s ease,transform .45s ease}
 .shell.wp-ready:not(.wp-on):not(.wp-closing) .wp-keys.k-closed{opacity:1;pointer-events:auto;transform:none;transition:opacity .7s ease .15s,transform .8s ease .15s}
@@ -458,7 +401,7 @@ html body .shell .writing-prompt{transition-property:opacity,filter,visibility,c
 .write-nav .wn-kicker:empty{display:none}
 html body .shell.prompt-wait .writing-prompt{opacity:0!important;transition:none!important}
 html body .shell.oct-on .project-top,html body .shell.oct-on .project-actions,html body .shell.oct-on #pagesHanger{visibility:hidden!important;opacity:0!important;pointer-events:none!important;transition:none!important}
-.oc-ttl{position:fixed;z-index:2147483200;transform:translateX(-50%);text-align:center;color:#f2e0c2;opacity:0;pointer-events:none;transition:opacity .7s ease,color 2.4s ease;font-family:'CormorantCy',Georgia,serif;white-space:nowrap}
+.oc-ttl{position:fixed;z-index:2147483200;transform:translateX(-50%);text-align:center;color:#f2e0c2;opacity:0;pointer-events:none;font-family:'CormorantCy',Georgia,serif;white-space:nowrap}
 .shell:not(.is-night)~.oc-ttl{color:#3b2a1c}
 .oc-ttl.on{opacity:.62;pointer-events:auto}
 .oc-ttl .k{font:500 13px/1 'CormorantCy',Georgia,serif;letter-spacing:.34em;text-transform:uppercase}
@@ -477,7 +420,6 @@ html body .shell.oc-w .master-clock .pendulum{opacity:1!important;background:rgb
 html body .shell.oc-w:not(.is-night) .master-clock .pendulum{background:rgba(59,42,28,.32)!important}
 html body .shell.oc-w .bottom-left .brand-wrap{opacity:.28!important}
 html body .shell.oc-w .bottom-left{z-index:12!important}
-html body .shell.oc-w.oc-ready.wp-on .bottom-left,html body .shell.oc-w.oc-ready.wp-closing .bottom-left{opacity:0!important;pointer-events:none!important}
 html body .shell.oc-w .bottom-left .brand-wrap{position:fixed!important;right:22px;bottom:40px}
 html body .shell.oc-w .writing-prompt,html body .shell.oc-w .write-nav,html body .shell.oc-w .writing-prompt-restore{z-index:2147483200!important}
 html body .shell.oc-w .write-nav.is-placed{pointer-events:auto}
@@ -613,8 +555,7 @@ html:has(.shell.is-night) .wk-hint{color:#f3e2c6!important;text-shadow:0 0 12px 
 html:has(.shell:not(.is-night)) .wk-hint{color:#4a3020!important;text-shadow:0 0 10px rgba(255,250,240,.95),0 0 3px rgba(255,250,240,.9)!important}
 /* v183 — the clock: its centre a small brass cap like the bob; by day the hands in dark bronze; the pendulum casts its shadow
    down (at night under the lamp, by day away from the window); at night its parts outside the beam sink into the dark (write.js) */
-html body .shell.oc-w.oc-w .master-clock .clock-pivot{opacity:1!important;z-index:5!important;border-radius:50%!important;
-  background:radial-gradient(circle,var(--night1),var(--night3) 70%,var(--night4))!important;box-shadow:0 0 0 1.4px var(--metal3),0 1px 3px rgba(0,0,0,.35)!important}
+html body .shell.oc-w.oc-w .master-clock .clock-pivot{opacity:1!important;z-index:5!important;border-radius:50%!important}
 html body .shell.oc-w.oc-w:not(.is-night) .master-clock .clock-pivot{background:radial-gradient(circle,var(--face1),var(--face3) 70%,var(--face4))!important}
 html body .shell.oc-w.oc-w:not(.is-night) .master-clock .hand{background:#3b2a1c!important;opacity:.62!important}
 /* v192: at night the lamp is above it — no shadow to see; by day the window is on the left, so it falls to the right */
@@ -626,7 +567,7 @@ html body .shell:not(.is-night) .bottom-left .brand-line .brand-strong{text-shad
 html body .shell.oc-w:not(.is-night) .bottom-left .brand-wrap{opacity:.55!important}
 
 /* «Как ляжет в книге» at night: the page under the lamp; «дневной свет» lifts it */
-.wp-lamp{position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity .9s ease;
+.wp-lamp{position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:multiply;opacity:0;
   background:radial-gradient(ellipse 95% 105% at 35% -4%,rgba(240,225,200,.1) 0%,rgba(215,185,145,.28) 40%,rgba(150,108,68,.5) 80%,rgba(110,76,46,.62) 100%)}
 html:has(.shell.is-night) .wp-pane:not(.show-day) .wp-lamp{opacity:1}
 .wp-day{position:absolute;left:50%;top:calc(100% + 150px);transform:translateX(-50%);width:170px;padding:7px 0;border-radius:16px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s ease;
@@ -647,7 +588,6 @@ html:has(.shell:not(.is-night)) #writingPromptText,html:has(.shell:not(.is-night
 html:has(.shell.is-night) body .wc.wc-w{box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),inset 0 -1px 0 rgba(255,250,240,.35),0 1px 0 rgba(62,42,29,.5)!important}
 
 /* v189 — the page «как ляжет в книге» lies on the same desk at night: the sheets' own shadows */
-html:has(.shell.is-night) .wp-page{box-shadow:0 2px 3px rgba(0,0,0,.6),0 26px 34px -8px rgba(0,0,0,.6),0 60px 70px -30px rgba(0,0,0,.5)}
 /* v192: the first «как ляжет в книге» takes a few seconds — say so at once, where the page will come out (the ring turns on
    the compositor, so it keeps turning while the page is being laid out) */
 .wp-note{position:fixed;z-index:2147483300;display:flex;align-items:center;gap:10px;white-space:nowrap;pointer-events:none;opacity:0;transform:translate(-50%,-6px);transition:opacity .3s ease,transform .3s ease;
@@ -697,8 +637,7 @@ html body .shell.oc-ws~.ws-left,html:has(.shell.oc-ws) .ws-left{display:block;po
 /* the light on the clean sheets: by day the window's sun (and its frame's shade) falls on them; at night they lie in the lamp's half-light */
 .ws-lt{position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:3;mix-blend-mode:multiply}
 .ws-lt::before,.ws-lt::after{content:"";position:absolute;inset:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-.ws-lt::before{background:var(--ws-shade) 0 0/100vw 100vh no-repeat fixed}
-.ws-lt::after{opacity:0;background:linear-gradient(180deg,rgba(150,112,72,.55) 0%,rgba(118,82,48,.68) 50%,rgba(90,60,34,.80) 100%)}
+.ws-lt::after{opacity:0}
 html:has(.shell.is-night) .ws-lt::before{opacity:0}
 html:has(.shell.is-night) .ws-lt::after{opacity:1}
 html:has(.shell.is-night) .ws-s{box-shadow:0 2px 3px rgba(0,0,0,.6),0 30px 30px -8px rgba(0,0,0,.65)}
@@ -712,7 +651,6 @@ html body .shell.oc-w.oc-ready.wp-on .bottom-left,html body .shell.oc-w.oc-ready
 html body .shell.oc-w.wp-on:not(.oc-ws-peek) .bottom-left .master-clock{opacity:0!important}
 /* the book's name above the page and the clock under its keys */
 /* v205: on the desk the book's name is the brass plate (.ws-ttl); the big title stays hidden */
-.oc-ttl{transition:opacity 1.4s cubic-bezier(.4,0,.2,1),translate 1.1s cubic-bezier(.3,.7,.2,1),color 2.45s cubic-bezier(.37,0,.63,1)!important}
 html body .shell.oc-w .bottom-left .master-clock{transition:opacity 1.4s cubic-bezier(.4,0,.2,1),translate 1.4s cubic-bezier(.2,.8,.3,1),transform 1.1s cubic-bezier(.3,.7,.2,1)}
 /* «дневной свет» is a key beside «вернуть» and «обновить», and only at night */
 html body .shell.oc-w .wp-day{display:none!important}
@@ -737,7 +675,7 @@ html:has(.shell.oc-ws-peek) .oc-years{opacity:0!important;pointer-events:none!im
 .wk canvas{transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell:not(.is-night)) .wk canvas{filter:brightness(.34) sepia(.45) contrast(1.15)}
 /* v196 — the workshop's signature lives on the left, under the clean sheets (the book's page covered it on the right) */
-html body .shell.oc-ws .bottom-left .brand-wrap{left:22px!important;right:auto!important;bottom:calc(40px + 200px*var(--oc-k,1))!important;transition:opacity 1.4s ease}
+html body .shell.oc-ws .bottom-left .brand-wrap{transition:opacity 1.4s ease}
 /* (mirrored to the left: the vertical line reads the same way, from the foot up) */
 /* at night the lamp's light reaches the clean sheets from the side of the bar: their corner nearest the lamp lit, the far one in the dusk */
 .ws-lt::after{background:var(--ws-nbg,linear-gradient(235deg,rgba(240,225,200,.06) 0%,rgba(215,185,145,.22) 35%,rgba(160,120,80,.45) 70%,rgba(110,76,46,.62) 100%))!important}
@@ -762,10 +700,9 @@ html:has(.shell.is-night) .ws-left .ws-tabs button.on{color:#ffd29a}html:has(.sh
 /* v198 — a live sheet in the hand */
 .ws-flyer{transform-style:flat!important;will-change:transform}
 .ws-flyer.ws-lift{transition:transform .28s cubic-bezier(.2,.8,.3,1),box-shadow .28s ease;box-shadow:2px 4px 6px rgba(40,25,10,.25),30px 40px 60px rgba(40,25,10,.32)!important}
-.ws-flyer.ws-carry{transition:transform .12s linear,box-shadow .3s ease;box-shadow:4px 8px 10px rgba(40,25,10,.18),46px 70px 90px rgba(40,25,10,.30)!important}
+.ws-flyer.ws-carry{box-shadow:4px 8px 10px rgba(40,25,10,.18),46px 70px 90px rgba(40,25,10,.30)!important}
 /* v202: no turned-up corner on the sheet in the hand */
 .ws-flyer::after{content:none!important}
-html:has(.shell.is-night) .ws-flyer{filter:brightness(.82) sepia(.15)}
 
 /* ——— v199 — «Книга» on the same desk ——— */
 /* the desk, its window by day and its lamp at night, are under the book too */
@@ -786,7 +723,7 @@ body.oct-book .bq-car .bq-cl{left:28px!important;top:calc(100% + 8px)!important;
 .bq-book .bq-lamp{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1),background-color 2.45s}
 .bq-book .bq-lamp::before{content:"";position:absolute;inset:0;background:var(--ws-shade) 0 0/100vw 100vh no-repeat fixed;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) body.oct-book .bq-book .bq-lamp{opacity:1}
-html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp{opacity:1;background:none!important}
+html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp{opacity:1}
 html:has(.shell:not(.is-night)) body.oct-book .bq-book .bq-lamp::before{opacity:1}
 body.oct-book.bq-true .bq-book .bq-lamp{opacity:0!important;transition:opacity .5s ease!important}
 /* the edge of the pages (the book's «обрез»): finer, in the paper's tone; at night it is in the dusk like the book's sides */
@@ -796,7 +733,7 @@ html:has(.shell.is-night) body.oct-book .bq-book .el,html:has(.shell.is-night) b
 html:has(.shell.is-night) body.oct-book:not(.bq-true) .preview-arc>*{filter:brightness(.62) sepia(.25)}
 /* the sheets of «Писать» pushed aside on the desk: a narrow stack at the left edge; a press brings «Писать» back */
 .ws-left{transition:transform .9s cubic-bezier(.3,.7,.2,1),opacity .6s ease}
-html:has(.shell.is-book-preview) .ws-left.ws-aside{display:block!important;pointer-events:auto;cursor:pointer;animation:none!important;transform:translateX(calc(-100% + 90px)) scale(.82);transform-origin:0 50%}
+html:has(.shell.is-book-preview) .ws-left.ws-aside{display:block!important;pointer-events:auto;cursor:pointer;animation:none!important;transform-origin:0 50%}
 .ws-left.ws-aside .ws-tabs,.ws-left.ws-aside .ws-nav,.ws-left.ws-aside .ws-hint{opacity:0;pointer-events:none}
 .ws-left.ws-aside:hover{transform:translateX(calc(-100% + 120px)) scale(.82)}
 html:has(.shell.is-night) .ws-left.ws-aside{filter:brightness(.42) sepia(.35)}
@@ -825,9 +762,6 @@ html:has(#bookPreviewModal.is-closing) .bq-book{opacity:1!important}
 #bookPreviewModal.is-closing .preview-arc{opacity:0!important;transition:opacity .35s ease!important}
 /* v201 — the lamp's beam as it was: straight from the bar's two ends, down and out on the diagonal (the shape is set by
    write.js), soft-edged, warmest right under the bar; the toile at night is warm brown in the room's dusk, amber in the beam */
-html body .desk-cone{filter:blur(34px)}
-html body .desk-cone i{background:linear-gradient(180deg,rgba(255,175,80,.95) 0%,rgba(250,150,55,.7) 22%,rgba(225,120,35,.42) 58%,rgba(180,90,20,.22) 100%)!important}
-html body .desk-shade{background:linear-gradient(rgba(60,26,4,.42),rgba(60,26,4,.42)),radial-gradient(ellipse 75% 95% at 50% 20%,rgba(10,5,2,0) 0%,rgba(10,5,2,.3) 55%,rgba(5,2,0,.8) 100%)}
 /* v202 — leaving for «Книга»: what stood on the right of the desk slides away to the left with the sheets, nothing just vanishes */
 @keyframes wsLeave{from{translate:0 0;rotate:0deg;opacity:1}to{translate:-125vw 0;rotate:-2.5deg;opacity:1}}
 html body .shell.ws-leaving .wp-pane{opacity:1!important;transform:none!important;transition:none!important;animation:wsLeave 1.3s cubic-bezier(.62,.02,.32,1) both}
@@ -878,7 +812,6 @@ html body .shell.oc-ws .bottom-left .master-clock{transition:opacity .6s ease!im
    does not stay fixed — it is laid from the screen's corner by hand instead) */
 .ws-lt::before{background:var(--ws-shade) var(--ox,0) var(--oy,0)/100vw 100vh no-repeat scroll!important}
 /* v203: the beam reaches the foot of the screen again */
-html body .desk-cone i{background:linear-gradient(180deg,rgba(255,175,80,.95) 0%,rgba(250,150,55,.72) 22%,rgba(230,125,40,.52) 58%,rgba(205,105,30,.42) 100%)!important}
 html body .desk-shade{background:linear-gradient(rgba(60,26,4,.4),rgba(60,26,4,.4)),radial-gradient(ellipse 72% 130% at 50% 30%,rgba(10,5,2,0) 0%,rgba(10,5,2,.25) 55%,rgba(5,2,0,.78) 100%)}
 /* v203 — leaving the book: it slides off to the right and stays gone while the desk turns back to the sheets */
 @keyframes bkGone{0%{translate:0 0;rotate:0deg}15%{translate:-.4vw 0;rotate:-.1deg}100%{translate:70vw 0;rotate:2deg}}
@@ -899,7 +832,6 @@ html body .shell.oc-ws:not(.oc-ws-peek)~.oc-ttl{opacity:0!important}
 /* «обновить» right under the page's middle: the pager takes no room when there is one page only */
 .wp-keys .wp-pg:not(.on){display:none!important}
 /* the night's light: bright under the bar, fading to dusk at the desk's foot; the toile reads in it */
-html body .desk-cone i{background:linear-gradient(180deg,rgba(255,180,86,1) 0%,rgba(250,152,58,.85) 18%,rgba(232,128,44,.6) 45%,rgba(205,105,30,.34) 75%,rgba(170,85,20,.16) 100%)!important}
 /* the toile shows through the light: a little contrast in it */
 html body .shell .desk-shade{filter:contrast(1.15)}
 html body .desk-cone{mix-blend-mode:screen!important;filter:blur(30px)!important}
@@ -1070,11 +1002,11 @@ html.oc-desk body{opacity:1;transition:opacity .7s ease}
 .ph.flip .ph-in{transform:rotateY(180deg)}
 .ph-front,.ph-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px;box-shadow:0 2px 4px rgba(40,25,10,.3),0 26px 50px -10px rgba(40,25,10,.45)}
 .ph-front{background:#fbf7ef;padding:14px;box-sizing:border-box;cursor:pointer}.ph-front img{width:100%;height:100%;object-fit:cover;display:block}
-.ph-back{transform:rotateY(180deg);background:#fbf5e8 url("../../assets/keeper/sheet-paper.jpg") center/cover;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;color:#4a3324;overflow:auto}
+.ph-back{transform:rotateY(180deg);background:#fbf5e8 url("../../assets/keeper/sheet-paper.jpg") center/cover;box-sizing:border-box;display:flex;flex-direction:column;color:#4a3324;overflow:auto}
 .ph-h{display:flex;justify-content:space-between;align-items:baseline;font:15px 'CormorantCy',Georgia,serif;margin-bottom:18px;opacity:.85}
 .ph-h button,.ph-act button,.ph-sure button{all:unset;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
-.ph-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);margin-bottom:14px;cursor:text}
-.ph-back label span{flex:none;font:14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px;min-width:86px}
+.ph-back label{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid rgba(90,63,38,.32);cursor:text}
+.ph-back label span{flex:none;font:14px 'CormorantCy',Georgia,serif;opacity:.7;padding-bottom:5px}
 .ph-back input,.ph-back textarea{all:unset;flex:1;min-width:0;font:400 26px/1.7 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:4px 0 2px;overflow:visible}
 .ph-back label.tx{flex-direction:column;align-items:stretch;gap:2px}.ph-back textarea{font-size:23px;line-height:1.6;resize:none}
 .ph-act{margin-top:auto;display:flex;justify-content:space-between;padding-top:12px}
@@ -1091,7 +1023,6 @@ html:has(.shell.is-night) .ph-front::before,html:has(.shell.is-night) .ph-back::
    and where, the story, the caption, the source, the tone, the hero's portrait; the tools centred; the photograph's state
    between «вернуть» and «удалить». A quiet hint under a field says what it gives the book, while the caret is in it */
 .ph-back input,.ph-back textarea{font-size:22px!important;line-height:1.55!important}
-.ph-back label{margin-bottom:6px}
 .ph-back .ph-tip{display:none}
 .ph-back .ph-tipbar{min-height:2.7em;margin:2px 0 0;text-align:center;font:italic 13px/1.35 'CormorantCy',Georgia,serif;color:rgba(90,63,38,.62)}
 .ph-back .ph-line{justify-content:space-between;align-items:flex-end;min-height:38px;padding-bottom:3px}
