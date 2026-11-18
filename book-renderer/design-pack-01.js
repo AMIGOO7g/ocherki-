@@ -65,7 +65,7 @@
   // v213: a document's transcription keeps its paragraphs: each new paragraph begins on a new line with an indent (as one writes
   // on ruled paper), the spaces inside a line are tidied as before
   const paragraphs = value => String(value == null ? '' : value).replace(/\r/g, '').split(/\n+/).map(line => line.replace(/[ \t\u00a0]+/g, ' ').trim()).filter(Boolean).join('\n');
-  const paragraphsHtml = (value, escape, tidy = x => x) => paragraphs(value).split('\n').filter(Boolean).map(line => escape(tidy(line))).join('\n&emsp;&emsp;');
+  const paragraphsHtml = (value, escape, tidy = x => x) => paragraphs(value).split('\n').filter(Boolean).map(line => escape(tidy(line))).join('<br>&emsp;&emsp;');
   const cleanEpisode = value => clean(value).replace(/^Эпизод\s+\d+[.:]?\s*/i, '').trim();
   const escapeHtml = value => clean(value).replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -1033,7 +1033,7 @@
       const documentImage = ctx.image ? ctx.image(source, page.photoIndex || 0) : '';
       const documentCaption = caption(page.photoIndex || 0);
       if (documentImage) return article('D01-DOCUMENT', `<figure class="dpk-document-scan">${image(page.photoIndex || 0)}</figure>${documentCaption ? `<div class="dpk-caption">${documentCaption}</div>` : ''}${folio}`, 'dpk-document-image');
-      return article('D01-DOCUMENT', `<div class="dpk-document-transcript"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p style="white-space:pre-line">${paragraphsHtml(own(page, 'text') ? page.text : source.text || '', esc, cleanText)}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
+      return article('D01-DOCUMENT', `<div class="dpk-document-transcript"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p>${paragraphsHtml(own(page, 'text') ? page.text : source.text || '', esc, cleanText)}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
     }
     if (role === 'document-comment') {
       const documentDate=esc([inferred.place,inferred.date].filter(Boolean).join(', '));

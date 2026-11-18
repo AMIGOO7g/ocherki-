@@ -119,6 +119,9 @@
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
     if(res){host.innerHTML=res.html;shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
     else{host.innerHTML='<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>';pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
+    // v215: right after loading the book's structure may not have come yet: the page is asked for again a few times (it stayed
+    // empty until «обновить» was pressed)
+    clearTimeout(paint.r);if(res)paint.n=0;else if((paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(()=>{if(on)refresh(false);},1500);
     place();window.__ocherkiScalePages?.();ref.classList.remove('is-stale');stale=false;}
   // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
   // made the desk stall); the picture of the old page stays meanwhile
@@ -576,7 +579,7 @@
     const up=ev=>{on=false;c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);
       // v212: a press without a pull opens the photograph's card (it turns over: its back to be written; back to the album or onto the sheet)
       if(ev&&ev.type==='pointerup'&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<6){pr.remove();const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect(),cr=c.getBoundingClientRect();
-        const W=f.contentWindow;if(W?.__ocAlbumCard){c.style.visibility='hidden';paperFx(.3);W.__ocAlbumCard(rec,{left:cr.left-fr.left,top:cr.top-fr.top,width:cr.width,height:cr.height},()=>{c.style.visibility='';lastSig='';fillGrid();});}return;}
+        const W=f.contentWindow;if(W?.__ocAlbumCard){c.style.visibility='hidden';paperFx(.3);W.__ocAlbumCard(rec,{left:cr.left-fr.left,top:cr.top-fr.top,width:cr.width,height:cr.height},how=>{c.style.visibility='';if(how==='laid'){lastSig='';fillGrid();}});}return;}
       if(over&&OC()?.addPhotoCopy(rec)){pr.classList.add('laid');paperFx(.25);setTimeout(()=>pr.remove(),420);}
       else{pr.classList.add('back');pr.style.transform='none';setTimeout(()=>pr.remove(),380);}};
     try{c.setPointerCapture(e.pointerId);}catch(_){}c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);});
@@ -596,14 +599,14 @@
   let drag=null;
   top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo'||turning)return;e.preventDefault();
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
-    fl.querySelectorAll(shell.classList.contains('is-night')?'.ws-tabs,.ws-nav':'.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());{const nb=left.style.getPropertyValue('--ws-nbg');if(nb)fl.style.setProperty('--ws-nbg',nb);}// v213: at night the sheet in the hand stays in the lamp's half-light (it went bright white)fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
+    fl.querySelectorAll(shell.classList.contains('is-night')?'.ws-tabs,.ws-nav':'.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());{const nb=left.style.getPropertyValue('--ws-nbg');if(nb)fl.style.setProperty('--ws-nbg',nb);}fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');
     // v207: everything the move needs is measured once, here: where the open sheet lies and where it can be dropped
     const sr=sheetRect(),wr=wrapEl()?.getBoundingClientRect();
     // v212: the plate — a clean sheet in the open sheet's very size. Over the open sheet the small sheet in the hand gives way
     // to it: it is never stretched, it only moves (left/top), and the window's shade on it stays where it is on the screen
     const pl=document.createElement('div');pl.className='ws-plate';Object.assign(pl.style,{width:sr.width+'px',height:sr.height+'px',left:(r.left+r.width/2-sr.width/2)+'px',top:(r.top+r.height/2-sr.height/2)+'px'});document.body.appendChild(pl);
-    drag={fl,pl,r,sr,wr,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,ly:e.clientY,tx:0,ty:0,cx:0,cy:0,vx:0,vy:0,svx:0,svy:0,k:0,carry:false};try{top.setPointerCapture(e.pointerId);}catch(_){}
+    drag={night:shell.classList.contains('is-night'),fl,pl,r,sr,wr,x0:e.clientX,y0:e.clientY,moved:false,lx:e.clientX,ly:e.clientY,tx:0,ty:0,cx:0,cy:0,vx:0,vy:0,svx:0,svy:0,k:0,carry:false};try{top.setPointerCapture(e.pointerId);}catch(_){}
     // v198 — a live sheet: it lifts off the stack, tilts towards the hand, its shadow grows and softens
     fl.style.transformOrigin='50% 50%';fl.classList.add('ws-lift');paperFx(.5);
     requestAnimationFrame(()=>{fl.style.transform='perspective(1100px) rotateX(9deg) rotateY(-10deg) rotateZ(-1.5deg) scale(1.04)';});
@@ -613,7 +616,9 @@
       d0.k+=((d0.over?1:0)-d0.k)*.18;const k=d0.k;
       const ry=Math.max(-16,Math.min(16,-6-d0.svx*.9)),rx=Math.max(-6,Math.min(16,8+d0.svy*.6)),rz=Math.max(-5,Math.min(5,d0.cx/90));
       d0.fl.style.transform=`translate(${d0.cx.toFixed(1)}px,${d0.cy.toFixed(1)}px) perspective(1100px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(1.06)`;d0.fl.style.opacity=(1-k).toFixed(3);
-      const ccx=d0.r.left+d0.r.width/2+d0.cx,ccy=d0.r.top+d0.r.height/2+d0.cy;d0.pl.style.left=(ccx-d0.sr.width/2).toFixed(1)+'px';d0.pl.style.top=(ccy-d0.sr.height/2).toFixed(1)+'px';d0.pl.style.opacity=k.toFixed(3);};
+      const ccx=d0.r.left+d0.r.width/2+d0.cx,ccy=d0.r.top+d0.r.height/2+d0.cy;d0.pl.style.left=(ccx-d0.sr.width/2).toFixed(1)+'px';d0.pl.style.top=(ccy-d0.sr.height/2).toFixed(1)+'px';d0.pl.style.opacity=k.toFixed(3);
+      // v215: at night the sheet is brought under the beam little by little: it brightens as it comes over the open sheet
+      if(d0.night)d0.pl.style.filter=`brightness(${(.6+.4*k*k).toFixed(3)})`;};
     requestAnimationFrame(frame);});
   top.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x0,dy=e.clientY-drag.y0;if(Math.hypot(dx,dy)>5)drag.moved=true;
     drag.vx=drag.vx*.6+(e.clientX-drag.lx)*.4;drag.vy=drag.vy*.6+(e.clientY-drag.ly)*.4;drag.lx=e.clientX;drag.ly=e.clientY;drag.tx=dx;drag.ty=dy;
@@ -624,7 +629,7 @@
     if(lay){const w=sheetRect();paperFx(.28);
       // it is laid down: the plate (the open sheet's very size) comes to rest exactly on the open sheet; the small sheet is gone
       fl.style.transition='opacity .2s ease';fl.style.opacity='0';setTimeout(()=>fl.remove(),240);
-      pl.classList.add('landing');pl.style.opacity='1';requestAnimationFrame(()=>{pl.style.left=w.left+'px';pl.style.top=w.top+'px';});
+      pl.classList.add('landing');pl.style.opacity='1';pl.style.filter='';requestAnimationFrame(()=>{pl.style.left=w.left+'px';pl.style.top=w.top+'px';});
       top.classList.remove('ws-away');top.classList.add('ws-next');setTimeout(()=>top.classList.remove('ws-next'),700);// the next clean sheet lies there at once
       // v207: the new sheet is not laid a second time (it is the one in the hand): it is there, still, when the hand lets go
       try{FW().__ocNoLay=Date.now();}catch(_){}
@@ -735,4 +740,4 @@
   {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
     const veil=()=>{if(H.classList.contains('oc-desk'))return;if((img&&getComputedStyle(document.body,'::after').zIndex==='2147483647')||performance.now()-t1>4000){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&sh.classList.contains('oc-ws-peek')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
-  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>6000){setTimeout(()=>H.classList.add('oc-shown'),900);return;}requestAnimationFrame(go);};go();})();
+  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>3500){setTimeout(()=>H.classList.add('oc-shown'),300);return;}requestAnimationFrame(go);};go();})();

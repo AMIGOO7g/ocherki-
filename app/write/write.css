@@ -437,7 +437,6 @@ html body .mode-switch.is-night{color:#f3e7d6!important}
 html body .mode-switch button,html body .mode-switch:not(.is-night) button{color:inherit!important}
 .mode-switch{transform-origin:50% -24px!important;translate:0 0;transition:opacity .9s cubic-bezier(.18,.78,.24,1),filter .9s cubic-bezier(.18,.78,.24,1),translate 1.46s cubic-bezier(.22,.72,.18,1),color 2.45s cubic-bezier(.37,0,.63,1)!important}
 .write-nav{transition:opacity .5s ease,color 2.45s cubic-bezier(.37,0,.63,1)!important}
-.shell.is-photo-card-open .write-nav{opacity:0!important}
 .shell.ui-boot:not(.boot-icons) ~ .mode-switch{translate:0 calc(-100% - 260px)}
 .mode-switch:not([data-mode="write"]) button.is-hint{animation:none}
 #bookPreviewModal.is-to-ms{opacity:0!important;pointer-events:none!important;transition:opacity .75s ease!important}
@@ -978,7 +977,7 @@ html body .ws-left .ws-tabs button{font-size:clamp(11px,calc(var(--ws-w,320px)*.
 /* v207 — «так ляжет в книге · страница N» reads in the dark: light, a size larger, in front; the pages of a long sheet
    («‹ 1 из 2 ›») under the keys, on the page's middle */
 html body .shell.oc-ws .wp-cap{font:600 13px 'CormorantCy',Georgia,serif!important;letter-spacing:.24em!important;z-index:20;position:absolute}
-html:has(.shell.is-night) .shell.oc-ws .wp-cap{color:#fbf1df!important;opacity:1!important;text-shadow:0 1px 3px rgba(0,0,0,.85)!important}
+html:has(.shell.is-night) .shell.oc-ws .wp-cap{color:#d9b47e!important;opacity:1!important;text-shadow:0 1px 3px rgba(0,0,0,.6)!important}/* v215: the caption under «Так ляжет» in the same warm tone as «обновить · свет дня» */
 html:has(.shell:not(.is-night)) .shell.oc-ws .wp-cap{color:#2f1f14!important;opacity:1!important}
 html body .shell.oc-ws .wp-keys.k-open{flex-wrap:wrap;justify-content:center;width:max-content;max-width:260px}
 html body .shell.oc-ws .wp-keys.k-open .wp-pg{order:9;flex-basis:100%;justify-content:center;height:30px;margin-top:-4px}
@@ -1046,7 +1045,7 @@ html:has(.shell.is-night) .ws-face :is(input,textarea)::placeholder{color:rgba(5
   background:var(--ws-shade) 0 0/100vw 100vh no-repeat fixed,linear-gradient(90deg,rgba(255,255,255,0) 50%,rgba(214,202,184,.6) 100%),radial-gradient(120% 90% at 18% 6%,rgba(255,255,255,.68),rgba(0,0,0,0) 44%),linear-gradient(100deg,#f7efe2 0%,#f8efe2 68%,#efe0ca 100%);
   background-blend-mode:multiply,multiply,normal,normal;box-shadow:1px 2px 3px rgba(60,40,20,.3),18px 22px 34px -8px rgba(60,40,20,.3)}
 html:has(.shell.is-night) .ws-plate{background:radial-gradient(ellipse 78% 74% at 50% 0%,rgba(255,250,242,0),rgba(186,148,116,.5) 100%),#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover;background-blend-mode:multiply,normal;box-shadow:0 2px 3px rgba(0,0,0,.6),0 30px 30px -8px rgba(0,0,0,.6)}
-.ws-plate.landing{transition:left .55s cubic-bezier(.3,.7,.2,1),top .55s cubic-bezier(.3,.7,.2,1),opacity .2s ease,box-shadow .5s ease;box-shadow:none}
+.ws-plate.landing{transition:left .55s cubic-bezier(.3,.7,.2,1),top .55s cubic-bezier(.3,.7,.2,1),opacity .2s ease,box-shadow .5s ease,filter .55s ease;box-shadow:none}
 .ws-plate.gone{transition:opacity .3s ease;opacity:0!important}
 /* v213 — the desk comes first (its toile and the window, or the dusk), the things on it once they lie in their places (a veil
    in the desk's own look lifts off them), the lamp last; the boot's sliding in and the first layout are not seen */
@@ -1054,7 +1053,7 @@ html body::after{content:"";position:fixed;inset:0;z-index:2147483647;pointer-ev
   background:var(--ws-sun,none) 0 0/100% 100% no-repeat,linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 55%,rgba(90,60,30,.12) 100%),
   linear-gradient(rgba(214,198,172,.80),rgba(214,198,172,.80)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#e4d3b6;
   background-blend-mode:screen,normal,normal,normal}
-html.oc-night0 body::after{background:linear-gradient(rgba(13,7,4,.86),rgba(13,7,4,.86)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#0d0704;background-blend-mode:normal}
+html.oc-night0 body::after{background:radial-gradient(ellipse 70% 80% at 50% 10%,#1d1006 0%,#120904 55%,#0b0603 100%);background-blend-mode:normal}/* v215: the night desk comes in as the warm dusk itself (the light toile showed through, cold) */
 html.oc-shown body::after{opacity:0}
 html.oc-desk body{opacity:1;transition:opacity .7s ease}
 
@@ -1083,27 +1082,33 @@ html.oc-desk body{opacity:1;transition:opacity .7s ease}
 .ph-sure .ph-yes{color:#9a3a1c;border-color:rgba(154,58,28,.45)}
 /* v213 — the card lies in the desk's light: by day the window's panes and their shade fall on it (from the screen, as on the
    stack), at night the lamp lights its top and it falls to dusk at its foot */
-.ph-front::after,.ph-back::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;border-radius:inherit;
-  background:var(--ws-shade-a) var(--phx,0) var(--phy,0)/100vw 100vh no-repeat}
-html:has(.shell.is-night) .ph-front::after,html:has(.shell.is-night) .ph-back::after{background:radial-gradient(ellipse 95% 85% at 50% -6%,rgba(60,34,12,0) 0%,rgba(60,34,12,.2) 50%,rgba(34,18,6,.5) 100%)}
-/* v213 — «Так ляжет» at night lies in the same warm half-light as the sheets on the desk (under the beam it shone bright white);
-   «свет дня» still shows the true print */
-html:has(.shell.is-night) .wp-pane:not(.show-day) .wp-page::after{opacity:1;background:linear-gradient(90deg,rgb(140,112,84) 0%,rgb(198,170,134) 7%,rgb(208,182,146) 45%,rgb(184,154,118) 100%)}
-/* v213 — the rest of the card's back: the source, the hero's portrait and the tone in one line, the hero's years and role, the
-   tools (replace, mark the people, «было — стало») and the photograph's state; service words upright, small */
-.ph-back .ph-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:4px 0 12px}
-.ph-back .ph-row label{border:0;margin:0;cursor:pointer;align-items:center;gap:8px}
-.ph-back .ph-row label span{min-width:0;padding:0;opacity:.85}
-.ph-back .ph-chk input{all:revert;flex:none;width:15px;height:15px;accent-color:#9a4510;margin:0;cursor:pointer}
-.ph-back .ph-tone select{all:unset;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#4a3324;border-bottom:1px solid rgba(90,63,38,.32);padding:0 16px 2px 2px;
-  background:linear-gradient(45deg,transparent 50%,#6a4a2e 50%) right 4px center/5px 5px no-repeat,linear-gradient(-45deg,transparent 50%,#6a4a2e 50%) right 0 center/5px 5px no-repeat}
-.ph-back .ph-hero{margin:0 0 6px}.ph-back .ph-hero[hidden]{display:none}
-.ph-back .ph-hint{font:13px/1.4 'CormorantCy',Georgia,serif;opacity:.7;margin:-6px 0 10px}.ph-back .ph-hint.warn{color:#a4472f;opacity:1}
-.ph-back .ph-tools{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin:2px 0 4px}
+.ph-front::before,.ph-back::before,.ph-front::after,.ph-back::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;border-radius:inherit;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.ph-front::after,.ph-back::after{background:var(--ws-shade-a) var(--phx,0) var(--phy,0)/100vw 100vh no-repeat}
+.ph-front::before,.ph-back::before{opacity:0;background:radial-gradient(ellipse 100% 85% at 50% -6%,rgba(24,14,6,0) 0%,rgba(24,14,6,.08) 45%,rgba(18,10,4,.3) 100%)}
+html:has(.shell.is-night) .ph-front::after,html:has(.shell.is-night) .ph-back::after{opacity:0}
+html:has(.shell.is-night) .ph-front::before,html:has(.shell.is-night) .ph-back::before{opacity:1}
+/* v215 — the card's back in two pages, each written on lines like the top ones: the photograph's words (who, when, where, its
+   story, its caption) and «ещё о снимке» (the source, the tone, the hero's portrait, the tools); service words upright, small */
+.ph-back .ph-p{display:flex;flex-direction:column;min-height:0}
+.ph-back .ph-p2{display:none}.ph-back.more .ph-p1{display:none}.ph-back.more .ph-p2{display:flex}
+.ph-back .ph-p{animation:ph-page .45s ease both}@keyframes ph-page{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+.ph-back .ph-go{all:unset;cursor:pointer;align-self:flex-start;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35);margin:6px 0 4px}
+.ph-back .ph-p1 .ph-go{align-self:flex-end;margin-top:14px}.ph-back .ph-p2 .ph-go{margin:0 0 18px}
+.ph-back .ph-go:hover{color:#2f1d10;border-color:currentColor}
+.ph-back .ph-line{justify-content:space-between;align-items:flex-end;min-height:46px;padding-bottom:4px}
+.ph-back .ph-line select{all:unset;cursor:pointer;font:400 24px/1.6 'SignThatS','CormorantCy',Georgia,serif;color:#2f1f12;padding:0 18px 0 4px;
+  background:linear-gradient(45deg,transparent 50%,#6a4a2e 50%) right 6px center/5px 5px no-repeat,linear-gradient(-45deg,transparent 50%,#6a4a2e 50%) right 1px center/5px 5px no-repeat}
+.ph-back .ph-chk input{all:revert;flex:none;width:17px;height:17px;accent-color:#9a4510;margin:0 0 8px;cursor:pointer}
+.ph-back .ph-hero[hidden]{display:none}
+.ph-back .ph-hint{font:13px/1.4 'CormorantCy',Georgia,serif;opacity:.7;margin:-4px 0 12px}.ph-back .ph-hint.warn{color:#a4472f;opacity:1}
+.ph-back .ph-tools{display:flex;flex-wrap:wrap;gap:12px 22px;margin:18px 0 8px}
 .ph-back .ph-tools button{all:unset;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;border-bottom:1px solid rgba(106,74,46,.35)}
 .ph-back .ph-tools button:hover{color:#2f1d10;border-color:currentColor}
-.ph-back .ph-st{margin-left:auto;font:13px 'CormorantCy',Georgia,serif;opacity:.6}
+.ph-back .ph-st{font:13px 'CormorantCy',Georgia,serif;opacity:.6}
 .ph-back input::placeholder,.ph-back textarea::placeholder{font:italic 17px 'CormorantCy',Georgia,serif;color:rgba(90,63,38,.42)}
 .ph-back .ph-two{display:flex;gap:22px}.ph-back .ph-two label{flex:1;min-width:0}
-.ph-back label{margin-bottom:9px}.ph-back .ph-h{margin-bottom:10px}.ph-back{padding:22px 28px}
+.ph-back label{margin-bottom:12px}.ph-back .ph-h{margin-bottom:12px}.ph-back{padding:24px 30px}
 .ph-back label span{min-width:0}
+/* v215 — the album's photographs on the stack lie in the lamp's half-light at night (they shone bright) */
+.ws-grid .ws-ph{transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .ws-grid .ws-ph{filter:brightness(.72) sepia(.16)}

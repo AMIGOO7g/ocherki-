@@ -971,7 +971,6 @@ body.is-framing-photo,body.is-framing-photo .book-preview-spread img[data-frame-
 .editor-key.is-latched{color:var(--gold,#b56e27)!important}
 .editor-key.is-latched .editor-cap{text-shadow:0 0 8px rgba(214,150,70,.55)}
 .book-map-shell,.bottom-left{transition-property:opacity,transform,left,top,bottom!important}
-html body .shell.is-photo-card-open.is-photo-card-open .book-map-shell,html body .shell.is-photo-card-open.is-photo-card-open .bottom-left{opacity:0!important;pointer-events:none!important}
 .bd-build-book.is-outdated{box-shadow:0 0 0 1px rgba(232,186,120,.9),0 0 14px rgba(232,170,90,.35)!important}
 .bd-build-empty strong{display:block;white-space:normal;overflow-wrap:anywhere;max-width:100%}
 .bd-build-report-note{margin:10px 0 12px;font:13px/1.45 Georgia,serif;opacity:.82;white-space:normal}

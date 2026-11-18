@@ -1880,7 +1880,7 @@ function makeSiblingPage(src,blank=true,options={}){
 
 // v213: a new sheet (a page, an episode, a document) is ready to be written on: once it has come, the caret stands in its text,
 // blinking — there is nothing to guess about where to click
-function caretInNewSheet(){setTimeout(()=>{try{if(window.__ocPhotoCardOpen?.())return;try{window.focus();}catch(_){}editor.focus({preventScroll:true});
+function caretInNewSheet(){setTimeout(()=>{try{if(window.__ocPhotoCardOpen?.())return;try{window.parent?.focus();window.frameElement?.focus({preventScroll:true});window.focus();}catch(_){}editor.focus({preventScroll:true});
   const r=document.createRange();r.selectNodeContents(editor);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);}catch(_){}},760);}
 function addPage(){
   currentPage().text=textFromEditor();
@@ -3991,13 +3991,20 @@ window.OC_SHEET={
     card.style.setProperty('--phx',(-g.L)+'px');card.style.setProperty('--phy',(-g.T)+'px');
     const doc=!opts.album&&currentPage()?.type==='document';
     card.innerHTML=`<div class="ph-in"><div class="ph-front"><img alt=""></div><div class="ph-back"><div class="ph-h"><span>оборот фотографии</span><button type="button" class="ph-ret2">↺ лицом</button></div>
+      <div class="ph-p ph-p1">
       <label><span>кто на фото</span><input data-k="people" autocomplete="off"></label>
       <div class="ph-two"><label><span>когда</span><input data-k="year" autocomplete="off"></label><label><span>где</span><input data-k="place" autocomplete="off"></label></div>
-      <label class="tx"><span>история</span><textarea data-k="story" rows="3"></textarea></label><label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
+      <label class="tx"><span>история</span><textarea data-k="story" rows="3"></textarea></label>
+      <label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
+      <button type="button" class="ph-go" data-go="2">ещё о снимке: источник, тон, портрет героя ›</button></div>
+      <div class="ph-p ph-p2">
+      <button type="button" class="ph-go" data-go="1">‹ к подписи</button>
       <label><span>источник</span><input data-k="source" autocomplete="off" placeholder="семейный архив, альбом бабушки…"></label>
-      <div class="ph-row"><label class="ph-chk"><input type="checkbox" data-b="portraitHero"><span>портрет героя книги</span></label><label class="ph-tone"><span>тон</span><select data-s="photoMode"><option value="auto">как есть</option><option value="color">цветная</option><option value="bw">чёрно-белая</option></select></label></div>
+      <label class="ph-line"><span>тон фото</span><select data-s="photoMode"><option value="auto">как есть</option><option value="color">цветная</option><option value="bw">чёрно-белая</option></select></label>
+      <label class="ph-line ph-chk"><span>портрет героя книги</span><input type="checkbox" data-b="portraitHero"></label>
       <div class="ph-hero" hidden><label><span>годы жизни</span><input data-k="heroYears" autocomplete="off" placeholder="1901 – 1982"></label><label><span>кто для семьи</span><input data-k="heroRole" autocomplete="off" placeholder="хранительница дома"></label><div class="ph-hint"></div></div>
-      <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}<span class="ph-st"></span></div>
+      <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}</div>
+      <div class="ph-st"></div></div>
       <div class="ph-act">${opts.album?'<button type="button" class="ph-ret">вернуть в альбом</button><button type="button" class="ph-lay">положить на лист</button>':'<button type="button" class="ph-ret">вернуть в стопку</button><button type="button" class="ph-del">удалить из главы</button>'}</div>
       <div class="ph-sure" hidden><span>Удалить это фото из главы?</span><button type="button" class="ph-yes">да, удалить</button><button type="button" class="ph-no">нет</button></div></div></div>`;
     card.querySelector('.ph-front img').src=p.src;
@@ -4023,6 +4030,7 @@ window.OC_SHEET={
     const fromPose=from(g);card.style.transform=fromPose;HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,back:opts.back};tellHost(true);opts.taken?.();
     requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
     card.addEventListener('click',e=>e.stopPropagation());
+    card.querySelectorAll('.ph-go').forEach(b=>b.addEventListener('click',()=>card.querySelector('.ph-back').classList.toggle('more',b.dataset.go==='2')));
     card.querySelector('.ph-ret2').addEventListener('click',()=>card.classList.toggle('flip'));card.querySelector('.ph-front').addEventListener('click',()=>card.classList.add('flip'));
     card.querySelector('.ph-ret').addEventListener('click',()=>close(null,opts.back));bg.addEventListener('click',()=>close(null,opts.back));
     if(opts.album){card.querySelector('.ph-lay').addEventListener('click',()=>{if(!OC_SHEET.canPhoto())return close(null,opts.back);
