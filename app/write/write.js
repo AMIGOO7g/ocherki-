@@ -498,8 +498,10 @@
   const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
   // the place of the clean stack: as tall as the book's page, centred in the free room left of the sheet
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
-    let h=r.height*.62,ww=h*RATIO;const avail=L-2*Math.max(20,L*.09);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
-    return {left:Math.round((L-ww)/2),top:Math.round(r.top+(r.height-h)/2+14),w:Math.round(ww),h:Math.round(h)};};
+    // v220: the stack lies as far from the sheet as the book's page does on the other side (it used to sit in the middle of the
+    // free room: on a wide screen it went out of the lamp's beam); the clock stands under it, centred
+    const GAP=108;let h=r.height*.62,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
+    return {left:Math.round(L-GAP-ww),top:Math.round(r.top+(r.height-h)/2+14),w:Math.round(ww),h:Math.round(h)};};
   window.__ocWsRoom=()=>shell.classList.contains('oc-w')&&!!leftBox();
 
   // ——— the window's sun: one picture of the panes (the frame between them simply gets no sun — one even shade, no darker crossings)
