@@ -95,14 +95,14 @@
       // v205: on the desk the page keeps clear of the chapter's sheets fanned out behind the open one (room for all three of them,
       // so it never moves when a sheet is added) and stands under the book's plate, level with the stack's tabs
       const G2=ws?84+24:G;const r2=innerWidth-(base.left+base.width)-G2-(ws?20:40);
-      const tb=ws?document.querySelector('.ws-tabs')?.getBoundingClientRect():null,top0=tb&&tb.height?tb.bottom+40:0,bot0=innerHeight-96;
+      const tb=ws?document.querySelector('.ws-tabs')?.getBoundingClientRect():null,top0=tb&&tb.height?tb.bottom+16:0,bot0=innerHeight-150;
       const hMax=ws&&top0?Math.min(base.height*.8,bot0-top0):base.height*.8;H=hMax;W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;
       if(ws)return {base,W,H,G:G2,d,extra:0,top0,ok:W>=200};}
     return {base,W,H,G,d,extra,ok:W>=260};}
-  function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G,T=g.top0?Math.max(g.top0,b.top+(b.height-g.H)/2-10):b.top+(b.height-g.H)/2-10;
+  function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G,T=g.top0?g.top0:b.top+(b.height-g.H)/2-10;
     const css=on?`left:${L}px;top:${T}px;width:${g.W}px;height:${g.H}px`:`left:${b.left+b.width+g.extra-g.W*.7}px;top:${T}px;width:${g.W}px;height:${g.H}px`;
     if((on||!shell.classList.contains('wp-closing'))&&pane._css!==css){pane._css=css;pane.style.cssText=css;}
-    keys2.style.left=(L+g.W/2-keys2.offsetWidth/2)+'px';keys2.style.top=(T+g.H+22)+'px';
+    keys2.style.left=(L+g.W/2)+'px';keys2.style.top=(T+g.H+(g.top0?50:22))+'px';
     keys.style.left=(b.left+b.width+g.extra+30)+'px';keys.style.top=(b.top+b.height-96)+'px';}
   function setOpen(v){const w=wrap();if(!w)return;
     if(v){const g=geo();if(!g||!g.ok){window.OCHERKI_SAY?.('Окно узковато для двух листов — откройте «Книгу»','открыть',()=>window.OCHERKI_SET_MODE?.('book'));return;}
@@ -228,10 +228,10 @@
     const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${x}px ${h}px`;
     {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
     // v205: under the beam the desk's own toile is seen, warm, fading to dusk at the foot: a soft (blurred) mask of the beam's shape
-    {const dl=document.querySelector('.desk-lit');if(dl){const pts=[[x0,y],[x1,y],[x1+sp,H*1.04],[x0-sp,H*1.04]].map(([a,b])=>Math.round(a)+','+Math.round(b)).join(' ');const pools=[];if(!ms&&!bk&&shell.classList.contains('oc-ws')){const sl=document.querySelector('.ws-left');if(sl&&!sl.classList.contains('ws-aside')){const q=sl.getBoundingClientRect();if(q.width)pools.push([q.left,q.top,q.width,q.height,.5]);}
+    {const dl=document.querySelector('.desk-lit');if(dl){const pts=[[x0,y],[x1,y],[x1+sp,H*1.04],[x0-sp,H*1.04]].map(([a,b])=>Math.round(a)+','+Math.round(b)).join(' ');const pools=[];if(false){const sl=document.querySelector('.ws-left');if(sl&&!sl.classList.contains('ws-aside')){const q=sl.getBoundingClientRect();if(q.width)pools.push([q.left,q.top,q.width,q.height,.5]);}
         const ps=window.__ocWp?.pane?.style;if(ps&&ps.width&&shell.classList.contains('wp-on'))pools.push([parseFloat(ps.left),parseFloat(ps.top),parseFloat(ps.width),parseFloat(ps.height),.42]);}
       const pk=pools.map(a=>a.map(v=>Math.round(v*100)/100).join(',')).join(';');const k=pts+'|'+W+'x'+H+'|'+pk;
-      if(dl._k!==k){dl._k=k;const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'><defs><filter id='b' x='-10%' y='-10%' width='120%' height='120%'><feGaussianBlur stdDeviation='26'/></filter><filter id='c' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='34'/></filter><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='${(y/H).toFixed(3)}' stop-color='#fff' stop-opacity='.95'/><stop offset='.55' stop-color='#fff' stop-opacity='.62'/><stop offset='.85' stop-color='#fff' stop-opacity='.22'/><stop offset='1' stop-color='#fff' stop-opacity='.04'/></linearGradient></defs><polygon points='${pts}' fill='url(#g)' filter='url(#b)'/>${pools.map(([l,t,w,h,o])=>`<rect x='${Math.round(l-46)}' y='${Math.round(t-60)}' width='${Math.round(w+92)}' height='${Math.round(h+90)}' rx='60' fill='#fff' fill-opacity='${o}' filter='url(#c)'/>`).join('')}</svg>`;
+      if(dl._k!==k){dl._k=k;const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'><defs><filter id='b' x='-10%' y='-10%' width='120%' height='120%'><feGaussianBlur stdDeviation='26'/></filter><filter id='c' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='34'/></filter><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='${(y/H).toFixed(3)}' stop-color='#fff' stop-opacity='.95'/><stop offset='.5' stop-color='#fff' stop-opacity='.55'/><stop offset='.78' stop-color='#fff' stop-opacity='.14'/><stop offset='1' stop-color='#fff' stop-opacity='0'/></linearGradient></defs><polygon points='${pts}' fill='url(#g)' filter='url(#b)'/>${pools.map(([l,t,w,h,o])=>`<rect x='${Math.round(l-46)}' y='${Math.round(t-60)}' width='${Math.round(w+92)}' height='${Math.round(h+90)}' rx='60' fill='#fff' fill-opacity='${o}' filter='url(#c)'/>`).join('')}</svg>`;
         const u=`url("data:image/svg+xml,${encodeURIComponent(svg)}")`;dl.style.webkitMaskImage=dl.style.maskImage=u;}}}
     // v190: bright right under the bar, a short soft edge; the light falls on all that lies under it, the screen keys too
     const m=`linear-gradient(180deg,transparent ${Math.round(y-8)}px,#000 ${Math.round(y+26)}px)`;if(cone._m!==m){cone._m=m;cone.style.webkitMaskImage=cone.style.maskImage=m;}
@@ -579,14 +579,14 @@
     {let pl=document.querySelector('.ws-ttl');if(!pl){pl=document.createElement('div');pl.className='ws-ttl';pl.innerHTML='<i class="nf"></i><b>Очерки жизни</b><span>история семьи</span>';shell.after(pl);}
       const tb=left.querySelector('.ws-tabs')?.getBoundingClientRect();
       {const n=t?.querySelector('.n')?.textContent.trim()||'Очерки жизни',bb=pl.querySelector('b');if(bb.textContent!==n)bb.textContent=n;}
-      if(peek&&pg&&tb&&tb.width){const w=Math.round(Math.min(tb.width,pg.width));Object.assign(pl.style,{left:Math.round(pg.left+pg.width/2-w/2)+'px',top:Math.round(tb.top)+'px',width:w+'px',height:Math.round(tb.height)+'px'});pl.classList.add('on');}
+      pl.style.setProperty('--ws-w',b.w+'px');if(peek&&pg&&tb&&tb.width){const w=Math.round(Math.min(tb.width,pg.width));Object.assign(pl.style,{left:Math.round(pg.left+pg.width/2-w/2)+'px',top:Math.round(tb.top)+'px',width:w+'px',height:Math.round(tb.height)+'px'});pl.classList.add('on');}
       else pl.classList.remove('on');}
     if(peek&&c&&k2&&k2.height){const pv=c.querySelector('.clock-pivot');
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
       c.style.setProperty('transition','none','important');
       if(!c.style.transform)c._B=new DOMMatrix(getComputedStyle(c).transform==='none'?undefined:getComputedStyle(c).transform).a||1;const B=c._B||1,k0=parseFloat(getComputedStyle(c).scale)||1;
       c.style.transform=`scale(${B})`;const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
-      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const hand=Math.max(40,p0.top-(c.querySelector('.minute-hand')?.getBoundingClientRect().top??p0.top-90));const sb=b.top+b.h+8,room=innerHeight-sb-10;const sc=Math.max(.55,Math.min(1,room/(reach+hand+10)));
+      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const hand=Math.max(40,p0.top-(c.querySelector('.minute-hand')?.getBoundingClientRect().top??p0.top-90));const sb=b.top+b.h+34,room=innerHeight-sb-10;const sc=Math.max(.55,Math.min(1,room/(reach+hand+10)));
       c.style.transform=`scale(${(B*sc).toFixed(3)})`;const p1=pv.getBoundingClientRect();
       const tx=b.left+b.w/2,ty=sb+hand*sc;
       c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${(B*sc).toFixed(3)})`;
@@ -628,3 +628,14 @@
   document.addEventListener('click',e=>{const k=e.target.closest?.('.oct .k');if(!k||k.__go||!inBook()||k.dataset.k==='book')return;
     e.stopImmediatePropagation();e.preventDefault();window.__ocLeaveBook(()=>{k.__go=true;k.click();k.__go=false;});},true);
 })();
+
+// v206 — for now only the editor works: «Рукопись», «Книга», «Архив семьи», «Мои книги», the Keeper's tour and the return to
+// the start are «скоро». Their keys stay in their places (the design is kept); a press only says so. The book is still made
+// in the background for «Так ляжет».
+(()=>{const SOON=['manuscript','book','archive','shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
+  let tip=null,tT=0;const say=k=>{const r=k.getBoundingClientRect();if(!tip){tip=document.createElement('div');tip.className='oc-soon-tip';document.body.appendChild(tip);}
+    tip.textContent='скоро';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+30)+'px';tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),1300);};
+  const stop=e=>{const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};
+  ['pointerdown','mousedown','click'].forEach(t=>document.addEventListener(t,stop,true));
+  const mark=()=>document.querySelectorAll(sel).forEach(k=>k.classList.add('oc-soon'));mark();setInterval(mark,1500);
+  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const g=t=>t==='write'?f(t):undefined;g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();

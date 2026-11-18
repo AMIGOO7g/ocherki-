@@ -966,7 +966,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v205";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v206";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
@@ -1329,3 +1329,17 @@
       if (openProjectsButton) enableOriginalSwing(openProjectsButton);
     })();
   
+// v206 — for now the constructor opens straight away: no sign-in screen, no greeting, no start steps. The book on the
+// desk is the one last worked on (or a new empty one). The start steps come back later, laid on the desk itself.
+(() => {
+  const go = () => {
+    const entry = document.getElementById("constructorEntry");
+    if (!entry || entry.classList.contains("is-visible")) return;
+    try { sessionStorage.setItem("ocherki_auth_guest", "1"); } catch (_) {}
+    document.documentElement.classList.add("oc-direct");
+    window.OCHERKI_PRELOAD_SHELL?.();
+    entry.classList.add("is-visible");
+    entry.setAttribute("aria-hidden", "false");
+  };
+  if (document.readyState === "complete") setTimeout(go, 0); else window.addEventListener("load", () => setTimeout(go, 0), { once:true });
+})();

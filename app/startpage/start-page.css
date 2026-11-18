@@ -2492,3 +2492,5 @@
 .kob .shelf .empty{font:italic 22px "Iowan Old Style",Georgia,serif;color:#e7cfaa;text-align:center;padding:40px 0}
 @media (max-width:760px){.kob .shelf .row{gap:14px;flex-wrap:wrap}.kob .shelf .bk{width:150px}.kob .shelf .cov{height:150px}.kob .shelf .row::after{top:146px}.kob .shelf .ops{opacity:1}}
 
+/* v206 — the start screens are not shown for now: the constructor opens straight away */
+html.oc-direct #lbStart{visibility:hidden!important}

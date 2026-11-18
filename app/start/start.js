@@ -23,7 +23,7 @@
   const th=(x,y1,y2)=>`<i class="th" style="left:${x}px;top:${y1}px;height:${y2-y1}px"></i>`;
   const kb=(id,ic)=>`<button type="button" class="k" data-a="${id}" style="--s:44px"><i class="gl"></i><i class="nf"></i><span class="c">${S}${IC[ic]}${E}</span></button>`;
   const draw=()=>{const night=shell.classList.contains('is-night'),big=shell.classList.contains('is-large-ui');
-    const L=[['light',night?'sun':'moon',night?'Дневной свет':'Ночной свет'],['big','big',big?'Обычный интерфейс':'Крупный интерфейс'],['tour','tour','Знакомство с Хранителем'],['mail','mail','Написать нам']];
+    const L=[['light',night?'sun':'moon',night?'Дневной свет':'Ночной свет'],['big','big',big?'Обычный интерфейс':'Крупный интерфейс'],['mail','mail','Написать нам']];
     box.innerHTML=`<div class="sw hg" style="left:0;top:0;width:44px;height:84px">${th(22,0,40)}${kb('more','more')}</div><span class="lbx" style="left:22px;top:91px">Ещё</span>`
       +L.map((m,i)=>`<div class="mm" style="transition-delay:${i*60}ms"><div class="sw hg" style="left:0;top:${110+i*58-14}px;width:44px;height:58px">${th(22,0,14)}${kb(m[0],m[1])}</div><span class="ml" style="top:${110+i*58+22}px">${m[2]}</span></div>`).join('');
     box.querySelectorAll('.sw').forEach(x=>T()?.attach?.(x));};

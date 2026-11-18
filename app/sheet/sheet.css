@@ -1297,6 +1297,4 @@ html body.host-day .sheet.ghost.is-pulling::after{content:"";position:absolute;i
 /* v205 — the shadow kept under the sheet's place while sections turn: on the sheet's own box, and the very shadow it casts */
 html body .sheet-stack.section-shadow-lock::before{left:var(--lkL,50%)!important;top:var(--lkT,50%)!important;width:var(--lkW,var(--sheetW))!important;height:var(--lkH,var(--sheetH))!important;transform:none!important;min-height:0!important}
 html body.host-night .sheet-stack.section-shadow-lock::before{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)!important}
-/* v205 — by day the travelling copies wear the window's shade from exactly the place it lies on the open sheet (inside the
-   sheet's border, the copy's light layer a padding box tall): no shift of a few pixels as a section turns */
-html body .section-scroll-viewport .section-scroll-sheet>.lt-dm{background-position:calc(var(--sun-x,0px) - var(--sh-l,0px) - var(--sh-bl,0px)) calc(var(--sun-y,0px) - var(--sh-t,0px) - var(--sh-bt,0px) + var(--sh-ph,0px)),0 50%!important}
+/* v206: the travelling copies' window shade is laid per frame by put() (sheet.js), from the screen */

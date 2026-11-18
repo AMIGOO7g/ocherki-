@@ -3004,6 +3004,7 @@ function goSection(nextIndex,dir){
     viewport.appendChild(newClone);
 
     stack.appendChild(viewport);
+    window.__ltPut?.();// v206: the copies get their light from the screen before they are painted
     activeSheet.style.visibility='hidden';
 
     setTimeout(()=>{
@@ -4221,8 +4222,8 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
       const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});
     {const st=document.body.style,sx=parseFloat(st.getPropertyValue('--sun-x'))||0,sy=parseFloat(st.getPropertyValue('--sun-y'))||0;
-      document.querySelectorAll('.sheet.active>.lt-dm').forEach(el=>{const r=el.getBoundingClientRect(),v=`${Math.round(sx-r.left)}px ${Math.round(sy-r.top)}px,0 0`;if(el._bp!==v){el._bp=v;el.style.setProperty('background-position',v,'important');}});
+      document.querySelectorAll('.sheet.active>.lt-dm,.section-scroll-viewport .section-scroll-sheet>.lt-dm').forEach(el=>{const r=el.getBoundingClientRect(),v=`${(sx-r.left).toFixed(1)}px ${(sy-r.top).toFixed(1)}px,`+(el.parentElement.classList.contains('section-scroll-sheet')?'0 50%':'0 0');if(el._bp!==v){el._bp=v;el.style.setProperty('background-position',v,'important');}});
       document.querySelectorAll('.sheet.ghost.is-pulling').forEach(el=>{const r=el.getBoundingClientRect();el.style.setProperty('--gx',Math.round(sx-r.left)+'px');el.style.setProperty('--gy',Math.round(sy-r.top)+'px');});}};
   // v192: a sheet put in or swapped gets its light before it is painted, not a frame later
   {const mo=new MutationObserver(put),hook=()=>{const st=document.getElementById('activeSheet')?.parentElement;if(!st)return setTimeout(hook,500);mo.observe(st,{childList:true,attributes:true,attributeFilter:['class','id'],subtree:false});[...st.children].forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class','id','style']}));};hook();}
-  requestAnimationFrame(step);})();
+  window.__ltPut=put;requestAnimationFrame(step);})();
