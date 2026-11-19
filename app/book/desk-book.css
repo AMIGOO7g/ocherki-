@@ -24,23 +24,27 @@ html:has(.shell.is-night) .bk-cmenu{background:radial-gradient(circle,#25221e,#1
 html:has(.shell.is-night) .bk-cmenu b{color:#c9b08a}
 
 /* the open book: the writing sheet's shadows, by day and at night */
-.bk-spread{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22);
-  position:absolute;display:flex;box-shadow:var(--shd);transition:opacity .2s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1);perspective:2600px}
-html:has(.shell.is-night) .bk-spread{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)}
+.bk-pg{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22);
+  box-shadow:var(--shd);transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+.bk-spread{position:absolute;display:flex;transition:opacity .2s ease}
+html:has(.shell.is-night) .bk-pg{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)}
 .bk-spread.bk-fade{opacity:.15}
 .bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
+.bk-in{position:absolute;inset:0}
+.bk-pg.blank{background:none;--shd:0 0 0 transparent,0 0 0 transparent,0 0 0 transparent}
+.bk-pg.blank .bk-lt,.bk-spread.single .bk-gutter{display:none}
 .bk-l{transform-origin:100% 50%}.bk-r{transform-origin:0 50%}
 .bk-host{position:absolute;inset:0}
 .bk-host>*{width:100%;height:100%}
 .bk-empty{position:absolute;inset:0;background:linear-gradient(100deg,#f7f0e3,#efe4d0)}
 /* the fold in the middle: the pages curve down into it — the very shade the turning leaf draws there, so it does not change when a
    leaf is taken; a faint light on each page's rise beside it */
-.bk-gutter{position:absolute;top:0;bottom:0;left:50%;width:32%;translate:-50% 0;pointer-events:none;z-index:7;
+.bk-gutter{position:absolute;top:0;bottom:0;left:50%;width:16%;translate:-50% 0;pointer-events:none;z-index:7;
   background:linear-gradient(90deg,rgba(30,18,8,0) 0%,rgba(30,18,8,.07) 38%,rgba(30,18,8,.2) 47%,rgba(30,18,8,.3) 50%,rgba(30,18,8,.2) 53%,rgba(30,18,8,.07) 62%,rgba(30,18,8,0) 100%),
     linear-gradient(90deg,transparent 22%,rgba(255,250,240,.16) 32%,transparent 42%,transparent 58%,rgba(255,250,240,.16) 68%,transparent 78%)}
 /* the desk's light over the open book: one layer, the desk's pictures laid from where the book lies; it does not move while the
    leaves turn (the turning leaf has the same layer over it) */
-.bk-lt{position:absolute;inset:0;pointer-events:none;z-index:8;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat}
+.bk-lt{position:absolute;inset:-2px;pointer-events:none;z-index:8;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat}
 .bk-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .bk-sun{background-image:var(--ws-shade)}
 .bk-beam{background-image:var(--rk-beam);opacity:0}
@@ -52,7 +56,7 @@ html:has(.shell.is-night) .bk-beam{opacity:1}
   text-shadow:0 0 6px rgba(250,242,228,.95),0 0 14px rgba(250,242,228,.8);transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) .bk-cap{color:#ecd6b0;text-shadow:0 0 6px rgba(20,12,6,.9),0 0 14px rgba(20,12,6,.7)}
 /* the strip of all the spreads: each in little as it lies in the book; the open one stands in the middle */
-.bk-stripv{position:absolute;height:136px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.bk-stripv{position:absolute;height:170px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
 .bk-strip{position:absolute;left:0;top:10px;display:flex;gap:16px;align-items:center;transition:translate .5s cubic-bezier(.3,.1,.2,1)}
 .bk-board .bk-th{position:relative;flex:none;display:flex!important;width:var(--tw,172px);height:86px;background:#fbf7ef;box-shadow:1px 2px 4px rgba(60,40,20,.3);opacity:.85;transition:opacity .3s ease,translate .3s ease;cursor:pointer}
 .bk-board .bk-th .bk-tl,.bk-board .bk-th .bk-tr{position:relative;flex:1;height:100%;overflow:hidden}
@@ -81,7 +85,19 @@ html:has(.shell.is-night) .bk-board .bk-k b,html:has(.shell.is-night) .bk-board 
 .bk-board .bk-th .bd-page-mini .page-canvas{position:absolute;transform-origin:0 0}
 
 /* under each little spread: its pages, and a chapter's name where it begins */
-.bk-board .bk-th em{position:absolute;left:0;right:0;top:calc(100% + 6px);font:12px/1.2 'CormorantCy',serif;font-style:normal;color:#3a2614;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+.bk-board .bk-th em{position:absolute;left:-12px;right:-12px;top:calc(100% + 8px);font-style:normal;text-align:center;line-height:1.2;color:#3a2614;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+.bk-board .bk-th em b{display:block;font:600 15px 'CormorantCy',serif;letter-spacing:.06em}
+.bk-board .bk-th em span{display:block;font:15px 'CormorantCy',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-board .bk-th em small{display:block;font:14px 'CormorantCy',serif;color:#5a3f26;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .bk-board .bk-th em small{color:#c9b08a}
 html:has(.shell.is-night) .bk-board .bk-th em{color:#e0c8a2}
 .bk-board .bk-th{overflow:visible}
+
+/* the turning leaf stays within the book's height (a part above or below it lay out of the light) */
+.bq-curl.bk-curl{clip-path:inset(0 -100vw 0 -100vw)}
+/* a lone cover's little picture: its one page */
+.bk-board .bk-th.single{background:none;box-shadow:none}
+.bk-board .bk-th.single :is(.bk-tl,.bk-tr):empty{visibility:hidden}
+.bk-board .bk-th.single :is(.bk-tl,.bk-tr):not(:empty){box-shadow:1px 2px 4px rgba(60,40,20,.3)}
+/* the print window over the book */
+#pdfExportModal{z-index:2147483099!important}

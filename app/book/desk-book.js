@@ -17,11 +17,11 @@
   let isOpen=false,busy=false,cur=0,n=0,geo=null,flipping=false;
 
   const board=document.createElement('div');board.className='bk-board';
-  board.innerHTML='<div class="bk-cap"></div><div class="bk-spread"><div class="bk-pg bk-l"></div><div class="bk-pg bk-r"></div><i class="bk-gutter"></i>'+
-    '<i class="bk-lt"><b class="bk-sun"></b><b class="bk-beam"></b></i></div>'+
+  const LT='<i class="bk-lt"><b class="bk-sun"></b><b class="bk-beam"></b></i>';
+  board.innerHTML=`<div class="bk-cap"></div><div class="bk-spread"><div class="bk-pg bk-l"><div class="bk-in"></div>${LT}</div><div class="bk-pg bk-r"><div class="bk-in"></div>${LT}</div><i class="bk-gutter"></i></div>`+
     '<div class="bk-stripv"><div class="bk-strip"></div></div><div class="bk-keys bk-kl"></div><div class="bk-keys bk-kr"></div>';
   document.body.append(board);
-  const $=s=>board.querySelector(s),spreadEl=$('.bk-spread'),L=$('.bk-l'),R=$('.bk-r'),cap=$('.bk-cap'),strip=$('.bk-strip'),kl=$('.bk-kl'),kr=$('.bk-kr'),lt=$('.bk-lt');
+  const $=s=>board.querySelector(s),spreadEl=$('.bk-spread'),L=$('.bk-l'),R=$('.bk-r'),cap=$('.bk-cap'),strip=$('.bk-strip'),kl=$('.bk-kl'),kr=$('.bk-kr');
 
   // ——— where everything lies: a page of the book is «Так ляжет»'s page (its size, its height on the desk); the spread stands in
   // the middle, the plates at its sides, the strip under it
@@ -36,10 +36,12 @@
     Object.assign(kl.style,{left:Math.max(16,left-40-180)+'px',top:top+'px'});Object.assign(kr.style,{left:(left+2*w+40)+'px',top:top+'px'});
     // the light: the desk's own pictures (the window's, the lamp's) laid over the open book from where it lies; it never moves
     try{board.style.setProperty('--rk-beam',window.OCHERKI_DESK_LIGHT?.beam()||'none');}catch(_){}
-    lt.style.backgroundPosition=`${-left}px ${-top}px`;}
+    // each page's light: the desk's picture from where the page lies (a page that moves carries the opposite move in its light)
+    L.querySelector('.bk-lt').style.backgroundPosition=`${-left}px ${-top}px`;R.querySelector('.bk-lt').style.backgroundPosition=`${-(left+w)}px ${-top}px`;}
   // a page as the director draws it, fitted to its place
-  const fill=(el,html)=>{el.innerHTML=html?`<div class="bk-host">${html}</div>`:'<div class="bk-empty"></div>';el.classList.toggle('blank',!html);};
-  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left);fill(R,sp.right);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
+  const fill=(el,html)=>{el.querySelector('.bk-in').innerHTML=html?`<div class="bk-host">${html}</div>`:'';el.classList.toggle('blank',!html);};
+  // the cover and the back cover lie alone: no page beside them, no fold
+  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left);fill(R,sp.right);spreadEl.classList.toggle('single',!!sp.single);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
   function caption(sp){sp=sp||BK()?.spread(cur);const t=String(sp?.title||'').replace(/^Глава\s*(\d+)\.?\s*/i,'Глава $1 · ');
     cap.textContent=`${t?t+' · ':''}разворот ${cur+1} из ${n}`;}
 
@@ -52,10 +54,10 @@
     strip.innerHTML=h;paintStrip();}
   function fillSome(){if(window.cancelIdleCallback)cancelIdleCallback(fillT);const order=[...Array(n).keys()].filter(k=>!filled.has(k)).sort((a,b)=>Math.abs(a-cur)-Math.abs(b-cur));if(!order.length)return;
     const step=dl=>{let done=0;while(order.length&&(done<2||dl.timeRemaining()>8)){const k=order.shift(),t=BK()?.thumb(k),el=strip.children[k];if(!t||!el)continue;
-        el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;
-        // under it: its pages, and where a chapter begins, the chapter's name
-        const prev=k>0?BK()?.thumb(k-1):null,ch=t.title&&(!prev||prev.title!==t.title)?String(t.title).replace(/^Глава\s*(\d+)\.?\s*/i,'Гл. $1 · '):'';
-        el.children[2].textContent=`${ch?ch+' · ':''}${t.label?'с. '+t.label:''}`;filled.add(k);done++;}
+        el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;el.classList.toggle('single',!!t.single);
+        // under it: where a chapter begins, «Глава N» and its name; then its pages
+        const prev=k>0?BK()?.thumb(k-1):null,m=t.title&&(!prev||prev.title!==t.title)?String(t.title).match(/^(Глава\s*\d+)\.?\s*(.*)$/i):null;
+        el.children[2].innerHTML=(m?`<b>${esc(m[1])}</b>${m[2]?`<span>${esc(m[2])}</span>`:''}`:'')+(t.label?`<small>с. ${esc(t.label)}</small>`:'');filled.add(k);done++;}
       BK()?.scale?.();if(order.length&&isOpen)fillT=idle(step,400);};
     fillT=idle(step,200);}
   function paintStrip(){[...strip.children].forEach((el,k)=>el.classList.toggle('cur',k===cur));const el=strip.children[cur],v=$('.bk-stripv');
@@ -70,7 +72,8 @@
     const pages=B.pages();
     kr.innerHTML=`<div class="bk-k" aria-disabled="true"><b>в книге</b>${pages} ${plural(pages,'страница','страницы','страниц')}</div>`+
       `<div class="bk-k bk-soon" aria-disabled="true"><b>заказ</b>напечатать<span>скоро</span></div>`+
-      `<div class="bk-k bk-soon" aria-disabled="true"><b>файл</b>PDF<span>скоро</span></div>`;}
+      `<button type="button" class="bk-k" data-act="pdf"><b>файл</b>PDF<span>сохранить</span></button>`;}
+  kr.addEventListener('click',e=>{if(e.target.closest('[data-act="pdf"]'))BK()?.pdf?.();});
   kl.addEventListener('click',e=>{const b=e.target.closest('[data-set]');if(!b||busy||flipping)return;const B=BK();
     const next=(list,now)=>{const i=list.findIndex(x=>x.key===now);return list[(i+1)%list.length].key;};
     // the sheet of the open spread stays open: the book is laid out anew and opens on it again
@@ -82,11 +85,11 @@
   // ——— turning the page: the paper bends as the old book's did (the copies of the pages lie over the new spread, already drawn
   // beneath, so nothing blinks); the desk's light stays where it is over it
   function turnTo(to){if(!isOpen||flipping||busy)return;to=Math.max(0,Math.min(n-1,to));if(to===cur)return;const from=cur,fwd=to>from;
-    const clone=el=>el.querySelector('.bk-host')?.cloneNode(true)||null;
+    const clone=el=>el.querySelector('.bk-host')?.cloneNode(true)||null;if(spreadEl.classList.contains('single')||BK().spread(to)?.single){show(to);rustle();return;}
     const oldL=clone(L),oldR=clone(R);flipping=true;rustle();show(to);
     const newL=clone(L),newR=clone(R);
-    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.06,back:()=>show(from),done:()=>{flipping=false;}});}catch(_){ok=false;}
-    if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));c.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-lt-curl" style="background-position:${-geo.left}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);}}
+    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.03,back:()=>show(from),done:()=>{flipping=false;}});}catch(_){ok=false;}
+    if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.classList.add('bk-curl');c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));c.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-lt-curl" style="background-position:${-geo.left}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);}}
     else flipping=false;}
   const turn=dir=>turnTo(cur+dir);
   board.addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();if(flipping||Math.abs(e.deltaY)<20)return;turn(e.deltaY>0?1:-1);},{passive:false});
@@ -121,9 +124,10 @@
     else{aside(true,760);
       const pageEl=side==='left'?L:R,other=side==='left'?R:L,cover=!(side==='left'?BK().spread(cur)?.right:BK().spread(cur)?.left);
       if(from){// «Так ляжет» keeps its size and slides to its place in the book; the other page opens out from the gutter
-        const to=pageEl.getBoundingClientRect();pageEl.animate([{translate:`${from.left-to.left}px ${from.top-to.top}px`},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.45,.05,.3,1)'});
+        const to=pageEl.getBoundingClientRect(),dx=from.left-to.left,dy=from.top-to.top,E={duration:760,easing:'cubic-bezier(.45,.05,.3,1)'};
+        pageEl.animate([{translate:`${dx}px ${dy}px`},{translate:'0px 0px'}],E);pageEl.querySelector('.bk-lt').animate([{translate:`${-dx}px ${-dy}px`},{translate:'0px 0px'}],E);
         if(pane())pane().style.visibility='hidden';
-        if(!cover)other.animate([{transform:`perspective(2200px) rotateY(${side==='left'?-90:90}deg)`,opacity:0},{transform:`perspective(2200px) rotateY(${side==='left'?-90:90}deg)`,opacity:0,offset:.55},{transform:'none',opacity:1}],{duration:1300,easing:'cubic-bezier(.25,.1,.25,1)'});}
+        if(!cover&&!BK().spread(cur)?.single)other.animate([{transform:`perspective(2200px) rotateY(${side==='left'?-90:90}deg)`,opacity:0},{transform:`perspective(2200px) rotateY(${side==='left'?-90:90}deg)`,opacity:0,offset:.55},{transform:'none',opacity:1}],{duration:1300,easing:'cubic-bezier(.25,.1,.25,1)'});}
       else spreadEl.animate([{opacity:0},{opacity:1}],{duration:500,easing:'ease-out'});}
     setTimeout(()=>{busy=false;},1300);}
   // to: 'write' — the page goes back into «Так ляжет», the desk comes back from the left; 'manuscript' — the book goes off to the
