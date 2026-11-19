@@ -1,0 +1,56 @@
+/* The entry: the padlock on its ring over the desk in the dark (see lock.js) */
+html.ol-on body{visibility:visible!important}
+.ol{position:fixed;inset:0;z-index:2147483646;overflow:hidden;font-family:'CormorantCy',Georgia,serif;opacity:0;transition:opacity .6s ease}
+.ol.ol-in{opacity:1}
+/* the desk's own toile, in the dark; by day dimmed, at night all but the lamp's pool */
+.ol-room{position:absolute;inset:0;background:#efe3cb url("../../assets/toile/desk-toile.png") center/cover}
+.ol-dark{position:absolute;inset:0;background:radial-gradient(ellipse 46% 52% at 50% 36%,rgba(40,26,14,.28),rgba(18,12,7,.88) 72%,rgba(10,7,4,.95))}
+.ol-night .ol-dark{background:radial-gradient(ellipse 36% 44% at 50% 32%,rgba(60,34,12,.42),rgba(8,5,3,.96) 66%,#050302)}
+.ol-glow{position:absolute;left:50%;top:30%;width:760px;height:760px;translate:-50% -50%;pointer-events:none;background:radial-gradient(circle,rgba(255,240,215,.14),transparent 62%)}
+.ol-night .ol-glow{background:radial-gradient(circle,rgba(255,200,130,.16),transparent 62%)}
+.ol-room,.ol-dark,.ol-glow{transition:opacity 1.4s cubic-bezier(.37,0,.63,1)}
+
+/* the lock comes down from above and sways on its ring, a little less each time, until it hangs still */
+.ol-hang{position:absolute;left:50%;top:0;width:min(300px,26vh);translate:-50% -110%;transition:translate 1.5s cubic-bezier(.22,.9,.3,1) .25s}
+.ol.ol-in .ol-hang{translate:-50% 0}
+.ol-svg{display:block;width:100%;height:auto;overflow:visible}
+.ol-swing{transform-box:view-box;transform-origin:150px 70px;animation:olSway 4.6s cubic-bezier(.37,0,.63,1) .9s both}
+@keyframes olSway{0%{rotate:0deg}14%{rotate:5deg}32%{rotate:-3.4deg}50%{rotate:2.1deg}68%{rotate:-1.2deg}84%{rotate:.5deg}100%{rotate:0deg}}
+/* a wrong code: a short jerk of the lock */
+.ol-lock{transform-box:view-box;transform-origin:150px 150px}
+.ol-lock.ol-jerk{animation:olJerk .5s cubic-bezier(.36,.07,.19,.97)}
+@keyframes olJerk{15%{rotate:-4deg}35%{rotate:3.5deg}55%{rotate:-2deg}75%{rotate:1deg}100%{rotate:0deg}}
+/* the right code: the shackle clicks up out of the body; then the lock goes up and away, the plate sinks, the dark lifts */
+.ol-shackle{transition:translate .32s cubic-bezier(.2,.9,.3,1.4)}
+.ol.ol-click .ol-shackle{translate:0 -22px}
+.ol.ol-open .ol-hang{translate:-50% -120%;transition:translate 1.1s cubic-bezier(.55,0,.4,1)}
+.ol.ol-open .ol-plate{translate:-50% 40px;opacity:0;transition:translate .9s cubic-bezier(.55,0,.4,1),opacity .7s ease}
+.ol.ol-open .ol-room,.ol.ol-open .ol-dark,.ol.ol-open .ol-glow{opacity:0;transition-delay:.35s}
+
+/* the plate: dark, in brass (as the plates of the desk at night), by day and at night alike */
+.ol-plate{position:absolute;left:50%;top:calc(min(300px,26vh) * 1.5 + 24px);translate:-50% 0;width:min(440px,90vw);box-sizing:border-box;padding:22px 34px 20px;text-align:center;border-radius:22px;border:3px solid transparent;
+  background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;
+  box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(0,0,0,.5),0 22px 44px rgba(0,0,0,.55);opacity:0;transition:opacity .9s ease 1.2s}
+.ol.ol-in .ol-plate{opacity:1}
+.ol-plate h1{margin:0 0 10px;font:400 40px/1.6 'SignThatS','CormorantCy',serif;color:#ffe2b0;text-shadow:0 0 6px rgba(255,190,110,.55)}
+.ol-kick{margin:0 0 6px;font:500 13px 'CormorantCy',serif;letter-spacing:.2em;text-transform:uppercase;color:#c9b08a}
+.ol-lead{margin:0 0 14px;font:16px/1.4 'CormorantCy',serif;color:#d9c3a0}
+.ol-f{display:block;width:100%;box-sizing:border-box;margin:0 0 10px;padding:11px 16px;border-radius:10px;border:1px solid rgba(232,207,166,.35);background:rgba(255,230,190,.06);
+  font:19px 'CormorantCy',Georgia,serif;color:#f0dcbc;outline:none;transition:border-color .3s ease,background .3s ease}
+.ol-f::placeholder{color:rgba(232,207,166,.45)}
+.ol-f:focus{border-color:rgba(232,190,130,.75);background:rgba(255,230,190,.1)}
+.ol-f[hidden]{display:none}
+.ol-code{letter-spacing:.5em;text-align:center}
+.ol-consent{display:flex;gap:8px;align-items:center;justify-content:center;margin:2px 0 12px;font:14px 'CormorantCy',serif;color:#c9b08a}
+.ol-consent[hidden]{display:none}
+.ol-consent a{color:#e8cfa6}
+.ol-consent input{accent-color:#c59664;width:15px;height:15px}
+.ol-go{margin:2px 0 4px;padding:10px 36px;border:0;border-radius:999px;cursor:pointer;font:18px 'CormorantCy',Georgia,serif;color:#f5e6cc;background:linear-gradient(#8e6242,#5e3f26);
+  box-shadow:inset 0 1px 0 rgba(255,230,190,.4),0 4px 10px rgba(0,0,0,.35);transition:filter .3s ease}
+.ol-go:hover{filter:brightness(1.12)}
+.ol-say{min-height:22px;margin-top:6px;font:15px 'CormorantCy',serif;color:#e8cfa6}
+.ol-more{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+.ol-more button{border:0;background:none;padding:2px 0;cursor:pointer;font:14px 'CormorantCy',serif;color:#c9b08a;border-bottom:1px solid rgba(201,176,138,.4)}
+.ol-more button[hidden]{display:none}
+.ol-more button:disabled{opacity:.55;cursor:default}
+@media (prefers-reduced-motion:reduce){.ol-swing{animation:none}.ol-hang{transition-duration:.01s}}
