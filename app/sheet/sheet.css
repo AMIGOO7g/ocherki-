@@ -217,9 +217,8 @@ body{
 .photo-stack.section-photo-hidden::before{pointer-events:none}
 /* «ещё N ›» — a slip of paper of its own, always below the lowest print (never on it), with its own shadow; it opens all the
    prints as a solitaire, and goes down with the fan */
-.ph-more{all:unset;position:absolute;left:-36px;top:128px;z-index:4;pointer-events:auto;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#2f1d10;
+.ph-more{all:unset;position:absolute;left:-36px;top:128px;/* its top is set in sheet.js under the lowest print */z-index:4;pointer-events:auto;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#2f1d10;
   background:linear-gradient(100deg,#fbf6ec,#f1e6d3);padding:5px 12px 6px;box-shadow:1px 2px 3px rgba(40,25,10,.28),3px 7px 12px -4px rgba(40,25,10,.3);transform:rotate(-2deg);transition:top .5s cubic-bezier(.2,.8,.3,1)}
-.photo-stack[data-n="2"]:hover .ph-more{top:234px}.photo-stack[data-n="3"]:hover .ph-more{top:340px}
 .ph-more:hover{color:#2f1d10}
 .photo-card.ph-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
 .photo-card:hover{box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}

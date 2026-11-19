@@ -287,7 +287,8 @@
   setInterval(tick,500);
   // v213: the name lies between «назад» and the keys, never under them; too long, it ends in «…»
   {const room=()=>{const r=wc.getBoundingClientRect();if(!r.width)return;const bk=wc.querySelector('[data-c="back"]').getBoundingClientRect(),mic=wc.querySelector('[data-c="mic"]').getBoundingClientRect();
-      const L=Math.round(bk.right-r.left+10)+'px',R=Math.round(r.right-mic.left+10)+'px',pad=L+R;const t=wc.querySelector('.t');if(t._p!==pad){t._p=pad;t.style.setProperty('left',L,'important');t.style.setProperty('right',R,'important');}};
+      const m=Math.round(Math.max(bk.right-r.left,r.right-mic.left)+10),L=m+'px',R=m+'px',pad=L+R;// v228: the same room on both sides — the title stands in the bar's middle (it stood left of it)
+      const t=wc.querySelector('.t');if(t._p!==pad){t._p=pad;t.style.setProperty('left',L,'important');t.style.setProperty('right',R,'important');}};
     addEventListener('resize',room);setInterval(room,1000);room();}
   // v212: the name of the chapter (or of the sheet) is changed right in the bar — a press on it, Enter to keep, Esc to leave
   wc.querySelector('.t b').addEventListener('click',e=>{const ed=e.target.closest('.ed');const i=ed?ed.previousElementSibling:e.target.closest('i');if(!i||i.tagName!=='I'||i.isContentEditable)return;e.stopPropagation();
@@ -348,7 +349,8 @@
   const qk=document.createElement('button');qk.type='button';qk.className='oc-qk';qk.setAttribute('aria-label','Другой вопрос');qk.innerHTML='<span>?</span>';
   const acts=document.querySelector('#writingPrompt .writing-prompt-actions');if(acts)acts.appendChild(qk);
   qk.addEventListener('click',e=>{e.stopPropagation();document.getElementById('writingPromptNext')?.click();});
-  const isWrite=()=>shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen')&&!shell.classList.contains('is-manuscript')&&!modal?.classList.contains('open');
+  // v228: «Рукопись» lies on the same desk — the desk keeps its places (the clock, the signature) while it is open
+  const isWrite=()=>shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen')&&(!shell.classList.contains('is-manuscript')||document.documentElement.classList.contains('rk-on'))&&!modal?.classList.contains('open');
   const root=document.documentElement.style;
   let last='';
   function layout(){const on=isWrite();shell.classList.toggle('oc-w',on);if(!on)return;
@@ -465,7 +467,7 @@
   const sheetRect=()=>{try{const f=document.getElementById('v35SheetFrame'),fr=f.getBoundingClientRect(),a=f.contentDocument.getElementById('activeSheet'),q=a&&a.getBoundingClientRect();
       if(q&&q.width)return {left:fr.left+q.left,top:fr.top+q.top,width:q.width,height:q.height,right:fr.left+q.right,bottom:fr.top+q.bottom};}catch(_){}return wrapEl().getBoundingClientRect();};
   const RATIO=667/944;
-  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&!['is-manuscript','is-book-preview','is-start-screen','is-ms-to-book'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
+  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&shell.classList.contains('oc-ready')&&(!shell.classList.contains('is-manuscript')||document.documentElement.classList.contains('rk-on'))&&!['is-book-preview','is-start-screen','is-ms-to-book'].some(c=>shell.classList.contains(c))&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
   // the place of the clean stack: as tall as the book's page, centred in the free room left of the sheet
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
     // v220: the stack lies as far from the sheet as the book's page does on the other side (it used to sit in the middle of the

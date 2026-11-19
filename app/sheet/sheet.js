@@ -4123,7 +4123,15 @@ window.OC_SHEET={
   const esc=e=>{if(e.key==='Escape'&&open)close(null,open.back);};addEventListener('keydown',esc);if(HD!==document)HD.defaultView.addEventListener('keydown',esc);
   const badge=()=>{const n=currentPhotos().length-stack.querySelectorAll('.photo-card').length;let m=stack.querySelector('.ph-more');
     stack.dataset.n=stack.querySelectorAll('.photo-card').length;
-    if(n>0){if(!m){m=document.createElement('button');m.type='button';m.className='ph-more';stack.appendChild(m);}m.textContent=`ещё ${n} ›`;}else m?.remove();};
+    if(n>0){if(!m){m=document.createElement('button');m.type='button';m.className='ph-more';stack.appendChild(m);}m.textContent=`ещё ${n} ›`;placeTag(stack.matches(':hover'));}else m?.remove();};
+  // v228: «ещё N» goes 14px under the lowest edge of the lowest print — reckoned from the prints' own size and tilt and where they
+  // will lie (folded, or fanned under the hand), so it never lies on a print, in any browser
+  const FAN=[0,104,208],REST=[0,-2,2];
+  const placeTag=open=>{const m=stack.querySelector('.ph-more');if(!m)return;let low=0;
+    stack.querySelectorAll('.photo-card').forEach((c,i)=>{const w=c.offsetWidth,h=c.offsetHeight,t=new DOMMatrix(getComputedStyle(c).transform),sn=t.b,cs=t.a,ox=w*.3;
+      const bottom=Math.max(...[[0,h],[w,h]].map(([x,y])=>(x-ox)*sn+y*cs));low=Math.max(low,(open?FAN[i]:REST[i])+bottom);});
+    m.style.top=Math.round(low+14)+'px';};
+  stack.addEventListener('mouseenter',()=>placeTag(true));stack.addEventListener('mouseleave',()=>placeTag(false));
   // v222: the pile hangs from the bar over the sheet — its prints' top edges 14px under the bar's lower edge
   const hang=()=>{try{const bar=HD.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),par=stack.offsetParent?.getBoundingClientRect();if(!bar||!bar.height||!par)return;
     const t=Math.round(bar.bottom-14-off().y-par.top);if(stack._top!==t){stack._top=t;stack.style.top=t+'px';}}catch(_){}};setInterval(hang,400);hang();
