@@ -632,7 +632,9 @@
     const k2=ks&&ks.style.top?{bottom:parseFloat(ks.style.top)+ks.offsetHeight,height:ks.offsetHeight}:null;
     const k=[b.left,b.top,b.w,b.h,peek?1:0,pg?Math.round(pg.left)+','+Math.round(pg.top)+','+Math.round(pg.width)+','+Math.round(pg.height):'',k2?Math.round(k2.bottom):''].join('|');
     if(k===lastK)return;lastK=k;
-    Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');left.querySelectorAll('.ws-lt').forEach(l=>{const r=l.getBoundingClientRect();l.style.setProperty('--ox',(-r.left).toFixed(1)+'px');l.style.setProperty('--oy',(-r.top).toFixed(1)+'px');});document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
+    Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');// v227: the window's picture is laid from the stack's place on the desk, not from where it is seen this moment (coming back from
+    // «Рукопись» it was measured while the stack was still off the screen, and the picture stayed off its place)
+    {const base=left.getBoundingClientRect();left.querySelectorAll('.ws-lt').forEach(l=>{const r=l.getBoundingClientRect();l.style.setProperty('--ox',(-(b.left+r.left-base.left)).toFixed(1)+'px');l.style.setProperty('--oy',(-(b.top+r.top-base.top)).toFixed(1)+'px');});}document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
     // the book's name above the page, the clock below its keys — the signature stays where it always is
     const c=clock();
     // v205: the book's name is a brass plate like the stack's tabs, level with them, over the page that is laid in the book;

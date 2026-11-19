@@ -518,8 +518,8 @@ html body .master-clock .logo-bob .oc-bob{width:28px;height:28px}
 /* v226: the cats on the pendulum's weight (they swing with it): by day one hangs by its paws from the weight's top edge, at night
    another sleeps curled on top of it; they change places slowly with the light */
 html body .master-clock .logo-bob .oc-cat{position:absolute;left:50%;pointer-events:none;user-select:none;max-width:none;max-height:none;filter:drop-shadow(1px 2px 2px rgba(40,25,10,.25));transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-html body .master-clock .logo-bob .oc-cat.day{width:30px;top:6px;translate:-50% 0;z-index:3;opacity:.92}
-html body .master-clock .logo-bob .oc-cat.night{width:50px;top:-15px;translate:-52% 0;z-index:3;opacity:0}
+html body .master-clock .logo-bob .oc-cat.day{width:30px;top:9px;translate:-41% 0;z-index:3;opacity:.92}
+html body .master-clock .logo-bob .oc-cat.night{width:50px;top:-9px;translate:-52% 0;z-index:3;opacity:0}
 html:has(.shell.is-night) body .master-clock .logo-bob .oc-cat.day{opacity:0}
 html:has(.shell.is-night) body .master-clock .logo-bob .oc-cat.night{opacity:.9}
 @keyframes rdRim{0%,100%{box-shadow:0 0 0 1px rgba(214,150,96,.35),0 0 0 0 rgba(255,150,60,0)}50%{box-shadow:0 0 0 1.5px rgba(255,206,150,.95),0 0 14px 3px rgba(255,150,60,.65)}}
@@ -1090,3 +1090,7 @@ html body .shell.oc-ws .bottom-left .master-clock{scale:1!important}
    stands in its place under the stack */
 
 html body .shell.oc-w:not(.oc-ws) .bottom-left .master-clock{opacity:0!important;transition:none!important}
+
+/* v227: the clock's pendulum swings by itself on the screen's own clock (see 025-shell-core.js) */
+@keyframes ocSwing{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+.master-clock .pendulum.oc-swing{animation:ocSwing 2.4s cubic-bezier(.37,0,.63,1) infinite alternate}

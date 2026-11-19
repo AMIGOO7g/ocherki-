@@ -283,26 +283,19 @@
   const masterClock=document.querySelector('.master-clock');
 
   // Pendulum keeps the current calm visual speed independently of the original clock sound cadence.
+  // v227: it swings by a CSS animation (the screen's own, unbroken by anything the page is doing) — a timer stepped it, and
+  // when the page was busy it hung at the end of its swing for a second
   const clockPendulum = document.getElementById('pendulum');
-  let clockPendulumSide = -1;
-  let clockPendulumTimer = null;
-  const stepClockPendulum=()=>{
-    if(!clockPendulum)return;
-    clockPendulumSide *= -1;
-    clockPendulum.style.transition='transform 2.25s cubic-bezier(.45,.05,.55,.95)';
-    clockPendulum.style.transform=`rotate(${clockPendulumSide*14}deg)`;
-  };
   const ensureClockPendulum=()=>{
-    if(clockPendulumTimer)return;
-    stepClockPendulum();
-    clockPendulumTimer=setInterval(stepClockPendulum,2400);
+    if(!clockPendulum||clockPendulum.classList.contains('oc-swing'))return;
+    clockPendulum.style.transition='';clockPendulum.style.transform='';clockPendulum.classList.add('oc-swing');
   };
   const stopClockPendulum=()=>{
-    if(clockPendulumTimer){clearInterval(clockPendulumTimer);clockPendulumTimer=null;}
-    if(clockPendulum){
-      clockPendulum.style.transition='transform .65s ease-out';
-      clockPendulum.style.transform='rotate(0deg)';
-    }
+    if(!clockPendulum)return;
+    // it comes to rest from where it is in its swing
+    const now=getComputedStyle(clockPendulum).transform;clockPendulum.classList.remove('oc-swing');
+    clockPendulum.style.transition='none';clockPendulum.style.transform=now==='none'?'':now;void clockPendulum.offsetWidth;
+    clockPendulum.style.transition='transform .65s ease-out';clockPendulum.style.transform='rotate(0deg)';
   };
   window.addEventListener('message', e=>{
     const d=e.data||{};
