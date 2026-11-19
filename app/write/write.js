@@ -319,12 +319,13 @@
   // v170: the same Keeper says one thing on «Писать» and one on «Рукопись», each once
   const isMsQ=()=>shell.classList.contains('is-manuscript')&&!!document.querySelector('.ms-screen.on');
   const where=()=>isWrite()&&!shell.classList.contains('wc-typing')?'w':isMsQ()?'m':window.OcherkiBookcase?.isOpen?.()?'b':'';
-  const HKS={w:'ocherkiWriteHints',m:'ocherkiMsHints',b:'ocherkiShelfHints'},HINTS={w:'Пишите, как говорите — книга сложится сама',m:'Крутите колёсико — пойдёте по главам дальше. Фото — на кнопке с фотоаппаратом',b:'Нажмите на книгу — откроется её карточка. Колёсико — листать полку'};
+  const HKS={w:'ocherkiWriteHints',m:'ocherkiMsHints',b:'ocherkiShelfHints'},HINTS={w:'',m:'Крутите колёсико — пойдёте по главам дальше. Фото — на кнопке с фотоаппаратом',b:'Нажмите на книгу — откроется её карточка. Колёсико — листать полку'};
   let HK=HKS.w,HINT=HINTS.w;
   const wk=document.createElement('div');wk.className='wk';wk.innerHTML='<canvas></canvas>';document.body.appendChild(wk);
   const hint=document.createElement('div');hint.className='wk-hint';document.body.appendChild(hint);
   let K=null,ht=0;
-  const say=force=>{let m={};try{m=JSON.parse(localStorage.getItem(HK)||'{}');}catch(_){}if(!force&&(m.off||m.seen))return;m.seen=1;try{localStorage.setItem(HK,JSON.stringify(m));}catch(_){}
+  // v221: on «Писать» the Keeper says nothing (its line in the corner was in the way of the clock)
+  const say=force=>{if(!HINT){rest();return;}let m={};try{m=JSON.parse(localStorage.getItem(HK)||'{}');}catch(_){}if(!force&&(m.off||m.seen))return;m.seen=1;try{localStorage.setItem(HK,JSON.stringify(m));}catch(_){}
     hint.innerHTML=HINT.split(' ').map((w,i)=>`<span style="--i:${i}">${w}</span>`).join(' ')+'<u data-off>больше не показывать</u>';hint.classList.remove('on');void hint.offsetWidth;hint.classList.add('on');
     try{K?.setMode('idle');setTimeout(()=>{K?.talk(2400);K?.mood?.('joy',2000);},400);}catch(_){}clearTimeout(ht);ht=setTimeout(()=>{hint.classList.remove('on');rest();},9000);};
   const rest=()=>{try{K?.flyAway(0,-.15);}catch(_){}};
@@ -536,7 +537,10 @@
     setTimeout(()=>{top.classList.remove('ws-settle');turning=false;},560);};
   const turnGrid=d=>{const pages=grid._pages||1,n=Math.max(0,Math.min(pages-1,pgN+d));if(n===pgN||turning)return;turnTo(kind,()=>{pgN=n;lastSig='';fillGrid();});};
   left.querySelector('.ws-pnav').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;e.stopPropagation();turnGrid(+b.dataset.p);});
-  grid.addEventListener('click',e=>{if(e.target.closest('.ws-add')){e.stopPropagation();try{FW2().document.getElementById('addPhotoBtn')?.click();}catch(_){}}});
+  // «+ добавить фото» brings photographs into the album only — onto a sheet they go when taken there (v221: they went straight into the open chapter)
+  {const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.hidden=true;left.appendChild(inp);
+    inp.addEventListener('change',()=>{OC()?.addAlbumFiles?.(inp.files);inp.value='';});
+    grid.addEventListener('click',e=>{if(e.target.closest('.ws-add')){e.stopPropagation();inp.click();}});}
   setInterval(()=>{if(kind==='photo')fillGrid();},1500);
   // a photograph taken from the contact sheet: a small print in the hand, laid on the open sheet
   grid.addEventListener('pointerdown',e=>{const c=e.target.closest('.ws-ph');if(!c||e.button!==0)return;e.preventDefault();e.stopPropagation();

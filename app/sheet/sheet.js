@@ -782,7 +782,9 @@ function bookSummary(){
   const titleLines=firstLine('title').length?firstLine('title'):firstLine('cover');
   return {title:titleLines[0]||'',author:titleLines[2]||titleLines[1]||'',pages:sections.reduce((sum,section)=>sum+(section.pages||[]).length,0)};
 }
-function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,sections,book:bookSummary()};}
+// v221: the book's album — photographs brought in with «+ добавить фото» on the desk's album, not yet laid on any sheet
+let albumPhotos=[];
+function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,sections,album:albumPhotos,book:bookSummary()};}
 function persistSoon(){clearTimeout(persistTimer);persistTimer=setTimeout(persistNow,700);}
 function persistNow(){
   clearTimeout(persistTimer);
@@ -812,6 +814,7 @@ function restoreProject(){
       activeSection=Math.max(0,Math.min(sections.length-1,Number(record.activeSection)||0));
       if(Number(record.fontSize))fontSize=Number(record.fontSize);
       if(Number(record.lineHeight))lineHeight=Number(record.lineHeight);
+      if(Array.isArray(record.album))albumPhotos=record.album.filter(r=>r&&r.src);
       render();
       try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}
       showSaved(true);
@@ -2083,14 +2086,15 @@ function caretRectInsideEditor(){
   if(!editor.contains(range.startContainer)) return null;
 
   let rect=range.getBoundingClientRect();
-  if((!rect || (!rect.width && !rect.height))){
-    const marker=document.createElement('span');
-    marker.textContent='\u200b';
-    range.insertNode(marker);
-    rect=marker.getBoundingClientRect();
-    marker.remove();
-    sel.removeAllRanges();
-    sel.addRange(range);
+  // v221: a collapsed caret has no box: it is measured by the letter beside it (or its line), never by putting a marker into
+  // the text — that moved the selection, which asked for a new measure, and so on thousands of times a second (the caret
+  // never blinked)
+  if(!rect || (!rect.width && !rect.height)){
+    const n=range.startContainer,o=range.startOffset,r=document.createRange();
+    if(n.nodeType===3&&o<n.length){r.setStart(n,o);r.setEnd(n,o+1);const q=r.getClientRects()[0];if(q)return new DOMRect(q.left,q.top,0,q.height);}
+    if(n.nodeType===3&&o>0){r.setStart(n,o-1);r.setEnd(n,o);const q=r.getClientRects()[0];if(q)return new DOMRect(q.right,q.top,0,q.height);}
+    const el=n.nodeType===1?(n.childNodes[o]||n):n.parentElement;const q=el?.getBoundingClientRect?.();
+    if(q)return new DOMRect(q.left,q.top,0,parseFloat(getComputedStyle(el.nodeType===1?el:editor).lineHeight)||q.height);
   }
   return rect;
 }
@@ -3954,7 +3958,12 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 // v209 — what the desk's clean stack asks of the open sheet: the book's photographs (for the contact sheet), a copy of one
 // laid on the open sheet, the new episode's name / when / where, the new document's name, transcript and scan
 window.OC_SHEET={
-  allPhotos(){const out=[],seen=new Set();sections.forEach(s=>(s.pages||[]).forEach(p=>(p.photos||[]).forEach(r=>{if(r&&r.src&&!seen.has(r.src)){seen.add(r.src);out.push(r);}})));return out;},
+  allPhotos(){const out=[],seen=new Set(),add=r=>{if(r&&r.src&&!seen.has(r.src)){seen.add(r.src);out.push(r);}};sections.forEach(s=>(s.pages||[]).forEach(p=>(p.photos||[]).forEach(add)));albumPhotos.forEach(add);return out;},
+  // files from the computer into the album only (no sheet gets them until one is laid there)
+  addAlbumFiles(files){[...(files||[])].forEach(f=>{const r=new FileReader();r.onload=()=>{
+      const rec={id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:r.result,caption:'',year:'',place:'',people:'',source:'',story:'',photoMode:'auto',layoutPreference:'auto',status:'uploaded'};
+      const probe=new Image();probe.onload=probe.onerror=()=>{rec.width=probe.naturalWidth||0;rec.height=probe.naturalHeight||0;rec.orientation=rec.width>rec.height?'landscape':rec.height>rec.width?'portrait':'square';
+        albumPhotos.push(rec);persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}};probe.src=rec.src;};r.readAsDataURL(f);});},
   canPhoto(){const p=currentPage();return !!p&&canHavePhotos(p);},
   addPhotoCopy(rec,opt){const p=currentPage();if(!p||!canHavePhotos(p)||!rec)return false;
     const n=Object.assign({},rec,{id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),_newEntry:true});

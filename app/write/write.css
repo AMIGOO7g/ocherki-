@@ -879,9 +879,10 @@ html body :is(.wc .t,.wc .t *,.oct .lb,.oct .lbx,.oct .lbx *,.wp-cap,.wp-item .l
 /* v206/v211 — the page's keys stand centred under it on its middle. «свет дня» comes with the night and goes with it: it stands
    beside «обновить» (taking no room), fades in and out, and the pair glides as one so that it is centred — no width animates */
 html body .shell.shell.shell .wp-keys.k-open.k-open{translate:-50% 0;transition:opacity .7s ease 1.25s,transform .8s ease 1.25s,translate 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) body .shell.shell.shell .wp-keys.k-open.k-open{translate:calc(-50% - 46px) 0}
+/* at night «свет дня» stands beside «обновить» (60px + the 22px gap): the pair as a whole is centred under the page */
+html:has(.shell.is-night) body .shell.shell.shell .wp-keys.k-open.k-open{translate:calc(-50% - 41px) 0}
 html body .wp-keys .wp-pg{transition:translate 2.45s cubic-bezier(.37,0,.63,1)}html:has(.shell.is-night) .wp-keys .wp-pg{translate:46px 0}
-.wp-keys .wp-item.dl{position:absolute;left:calc(100% + 22px);top:0;opacity:0;pointer-events:none;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.wp-keys .wp-item.dl{position:absolute;left:calc(100% + 22px);top:0;width:60px;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) .wp-keys .wp-item.dl{opacity:1;pointer-events:auto}
 /* v206 — the book's plate: the very size of the stack's tabs plate and in the same letters (no script, no dash between) */
 /* «так ляжет в книге» under the page, the keys below it */
