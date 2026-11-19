@@ -4134,7 +4134,8 @@ window.OC_SHEET={
   const placeTag=open=>{const m=stack.querySelector('.ph-more');if(!m)return;let low=0;
     stack.querySelectorAll('.photo-card').forEach((c,i)=>{const w=c.offsetWidth,h=c.offsetHeight,t=new DOMMatrix(getComputedStyle(c).transform),sn=t.b,cs=t.a,ox=w*.3;
       const bottom=Math.max(...[[0,h],[w,h]].map(([x,y])=>(x-ox)*sn+y*cs));low=Math.max(low,(open?FAN[i]:REST[i])+bottom);});
-    m.style.top=Math.round(low+14)+'px';};
+    // (fanned, the prints' tilt grows as they open: the tag keeps a wider margin then)
+    m.style.top=Math.round(low+(open?40:14))+'px';};
   stack.addEventListener('mouseenter',()=>placeTag(true));stack.addEventListener('mouseleave',()=>placeTag(false));
   // v222: the pile hangs from the bar over the sheet — its prints' top edges 14px under the bar's lower edge
   const hang=()=>{try{const bar=HD.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),par=stack.offsetParent?.getBoundingClientRect();if(!bar||!bar.height||!par)return;

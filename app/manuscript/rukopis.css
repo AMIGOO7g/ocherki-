@@ -181,25 +181,16 @@ html.oc-to-room .ms-flyer{display:none!important}
 /* the stack's own plate lies under «Рукопись»'s board, so the chapter's name on it is seen */
 html.rk-on .ws-left{z-index:2147483070!important}
 
-/* the middle sheet lies in the writing sheet's own light (the editor's layers, read off its sheet); the others in the desk's light.
-   The two cross as a sheet comes to the middle or leaves it */
-.rk-el{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0;transition:opacity .5s ease}
-.rk-sh .rk-lt{transition:opacity .5s ease,background-position .55s cubic-bezier(.2,.8,.3,1),background-size .55s cubic-bezier(.2,.8,.3,1)}
-
-html:has(.shell:not(.is-night)) .rk-sh.mid :is(.rk-lt-dm,.rk-lt-ds),html:has(.shell.is-night) .rk-sh.mid :is(.rk-lt-nm,.rk-lt-ns){opacity:1}
-.rk-lt-ns,.rk-lt-ds{mix-blend-mode:screen}
-.rk-sh.mid .rk-el{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+/* (measured against the writing sheet: the desk's light alone gives its colour by day; at night a touch warmer and lighter) */
 html:has(.shell.is-night) .rk-board .rk-in{background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover!important}
 /* all the chapters: the stack's own plate goes too */
 html.rk-all-on .ws-left .ws-tabs{opacity:0!important;transition:opacity .3s ease}
 /* the stacks' sheets: at night their shadow is the lamp's dark, not brown */
 html:has(.shell.is-night) .rk-ly{box-shadow:0 1px 3px rgba(0,0,0,.55)}
-/* (on the middle sheet the desk's light lies only partly over the editor's own: so the editor's sheet measures, day and night) */
-.rk-sh.mid .rk-lt{opacity:.6}
-html:has(.shell.is-night) .rk-sh.mid .rk-lt{opacity:.45}
+html:has(.shell.is-night) .rk-sh .rk-lt{opacity:.9}
 /* at night the editor's sheet is a shade warmer under the lamp */
-.rk-sh .rk-in::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:7;mix-blend-mode:multiply;background:rgb(255,250,236);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .rk-sh.mid .rk-in::after{opacity:1}
+.rk-sh .rk-in::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:7;mix-blend-mode:multiply;background:rgb(255,247,235);opacity:0;transition:opacity .5s ease}
+html:has(.shell.is-night) .rk-sh .rk-in::after{opacity:1}
 /* the stacks' lower sheets lie deeper, each a little darker than the one above it (as the editor's stack): no pale edges */
 .rk-ly{background-color:#e9dcc5;box-shadow:inset 0 0 0 2000px rgba(140,118,92,calc(.1 + var(--k)*.05)),1px 2px 3px rgba(60,40,20,.25)}
 html:has(.shell.is-night) .rk-ly{box-shadow:inset 0 0 0 2000px rgba(55,30,10,calc(.3 + var(--k)*.06)),0 1px 3px rgba(0,0,0,.55)}

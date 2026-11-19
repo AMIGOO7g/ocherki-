@@ -40,8 +40,7 @@ html:has(.shell.is-night) .bk-pg{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px
 /* the fold in the middle: the pages curve down into it — the very shade the turning leaf draws there, so it does not change when a
    leaf is taken; a faint light on each page's rise beside it */
 .bk-gutter{position:absolute;top:0;bottom:0;left:50%;width:16%;translate:-50% 0;pointer-events:none;z-index:7;
-  background:linear-gradient(90deg,rgba(30,18,8,0) 0%,rgba(30,18,8,.07) 38%,rgba(30,18,8,.2) 47%,rgba(30,18,8,.3) 50%,rgba(30,18,8,.2) 53%,rgba(30,18,8,.07) 62%,rgba(30,18,8,0) 100%),
-    linear-gradient(90deg,transparent 22%,rgba(255,250,240,.16) 32%,transparent 42%,transparent 58%,rgba(255,250,240,.16) 68%,transparent 78%)}
+  background:linear-gradient(90deg,rgba(30,18,8,0) 0%,rgba(30,18,8,.07) 38%,rgba(30,18,8,.2) 47%,rgba(30,18,8,.3) 50%,rgba(30,18,8,.2) 53%,rgba(30,18,8,.07) 62%,rgba(30,18,8,0) 100%)}
 /* the desk's light over the open book: one layer, the desk's pictures laid from where the book lies; it does not move while the
    leaves turn (the turning leaf has the same layer over it) */
 .bk-lt{position:absolute;inset:-2px;pointer-events:none;z-index:8;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat}
@@ -52,7 +51,7 @@ html:has(.shell.is-night) .bk-sun{opacity:0}
 html:has(.shell.is-night) .bk-beam{opacity:1}
 .bq-curl .bk-lt-curl{z-index:30;width:100%;height:100%}
 
-.bk-cap{position:absolute;left:50%;translate:-50% 0;font:500 13px 'CormorantCy',serif;letter-spacing:.22em;text-transform:uppercase;color:#4a3020;white-space:nowrap;
+.bk-cap{display:none;position:absolute;left:50%;translate:-50% 0;font:500 13px 'CormorantCy',serif;letter-spacing:.22em;text-transform:uppercase;color:#4a3020;white-space:nowrap;
   text-shadow:0 0 6px rgba(250,242,228,.95),0 0 14px rgba(250,242,228,.8);transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) .bk-cap{color:#ecd6b0;text-shadow:0 0 6px rgba(20,12,6,.9),0 0 14px rgba(20,12,6,.7)}
 /* the strip of all the spreads: each in little as it lies in the book; the open one stands in the middle */
@@ -94,7 +93,9 @@ html:has(.shell.is-night) .bk-board .bk-th em{color:#e0c8a2}
 .bk-board .bk-th{overflow:visible}
 
 /* the turning leaf stays within the book's height (a part above or below it lay out of the light) */
-.bq-curl.bk-curl{clip-path:inset(0 -100vw 0 -100vw)}
+.bq-curl.bk-curl .bk-lt{inset:0}
+/* while a leaf turns, the fold beneath is the turning leaf's own */
+.bk-spread.curling .bk-gutter{opacity:0}
 /* a lone cover's little picture: its one page */
 .bk-board .bk-th.single{background:none;box-shadow:none}
 .bk-board .bk-th.single :is(.bk-tl,.bk-tr):empty{visibility:hidden}

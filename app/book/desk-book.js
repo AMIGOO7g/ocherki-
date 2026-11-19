@@ -42,8 +42,9 @@
   const fill=(el,html)=>{el.querySelector('.bk-in').innerHTML=html?`<div class="bk-host">${html}</div>`:'';el.classList.toggle('blank',!html);};
   // the cover and the back cover lie alone: no page beside them, no fold
   function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left);fill(R,sp.right);spreadEl.classList.toggle('single',!!sp.single);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
-  function caption(sp){sp=sp||BK()?.spread(cur);const t=String(sp?.title||'').replace(/^Глава\s*(\d+)\.?\s*/i,'Глава $1 · ');
-    cap.textContent=`${t?t+' · ':''}разворот ${cur+1} из ${n}`;}
+  function caption(sp){sp=sp||BK()?.spread(cur);const m=String(sp?.title||'').match(/^(Глава\s*\d+)\.?\s*(.*)$/i);
+    capText=m?`${m[1]}${m[2]?' · <i>'+esc(m[2])+'</i>':''} · ${cur+1}/${n}`:`${cur+1} из ${n}`;setTitle();}
+  let capText='';
 
   // ——— the strip: every spread in little, as it lies in the book (the director's own pages, as on the old book's strip); the open
   // one stands in the middle; a press turns the book to it. They are drawn nearest first, the rest while the hands rest
@@ -85,12 +86,12 @@
   // ——— turning the page: the paper bends as the old book's did (the copies of the pages lie over the new spread, already drawn
   // beneath, so nothing blinks); the desk's light stays where it is over it
   function turnTo(to){if(!isOpen||flipping||busy)return;to=Math.max(0,Math.min(n-1,to));if(to===cur)return;const from=cur,fwd=to>from;
-    const clone=el=>el.querySelector('.bk-host')?.cloneNode(true)||null;if(spreadEl.classList.contains('single')||BK().spread(to)?.single){show(to);rustle();return;}
-    const oldL=clone(L),oldR=clone(R);flipping=true;rustle();show(to);
-    const newL=clone(L),newR=clone(R);
-    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.03,back:()=>show(from),done:()=>{flipping=false;}});}catch(_){ok=false;}
-    if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.classList.add('bk-curl');c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));c.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-lt-curl" style="background-position:${-geo.left}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);}}
-    else flipping=false;}
+    const clone=(el,i)=>{const h=el.querySelector('.bk-host')?.cloneNode(true);if(!h)return null;h.insertAdjacentHTML('beforeend',`<i class="bk-lt" style="background-position:${-(geo.left+i*geo.w)}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);return h;};
+    const oldL=clone(L,0),oldR=clone(R,1);flipping=true;rustle();show(to);
+    const newL=clone(L,0),newR=clone(R,1);spreadEl.classList.add('curling');
+    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.08,back:()=>show(from),done:()=>{flipping=false;spreadEl.classList.remove('curling');}});}catch(_){ok=false;}
+    if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.classList.add('bk-curl');c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));}}
+    else{flipping=false;spreadEl.classList.remove('curling');}}
   const turn=dir=>turnTo(cur+dir);
   board.addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();if(flipping||Math.abs(e.deltaY)<20)return;turn(e.deltaY>0?1:-1);},{passive:false});
   addEventListener('keydown',e=>{if(!isOpen)return;if(e.key==='ArrowRight'||e.key==='PageDown')turn(1);else if(e.key==='ArrowLeft'||e.key==='PageUp')turn(-1);else if(e.key==='Escape')window.OCHERKI_SET_MODE?.('write');});
@@ -105,10 +106,11 @@
       try{anims.push(el.animate(mv,Object.assign({composite:'add'},o)),el.animate(op,o));}catch(_){}}));}
   const pane=()=>document.querySelector('.wp-pane');
   function setTitle(){const t=bar()?.querySelector('.t b');if(!t)return;t._h='';const name=String(window.OCHERKI_BOOK_META?.title||'').trim();
-    const h=`<span class="up">Книга</span>${name?` · <i>${esc(name)}</i>`:''}`;if(t.innerHTML!==h)t.innerHTML=h;}
+    const h=/^Глава/.test(capText)?capText:`<span class="up">Книга</span> · ${capText||(name?`<i>${esc(name)}</i>`:'')}`;if(t.innerHTML!==h)t.innerHTML=h;}
   // the open spread's sheet becomes the sheet being written (for the editor and «Рукопись»)
   function syncSheet(){const s=window.__ocherkiSheetForSpread?.(cur);if(s?.pageUid){send({action:'select',sectionId:s.sectionId,pageUid:s.pageUid});window.OCHERKI_MANUSCRIPT?.preset?.(s.pageUid);}}
-  function open(){if(isOpen||busy)return;
+  function open(){if(isOpen||busy)return;try{open0();}catch(err){console.warn('book open',err);H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;}}
+  function open0(){
     const B=BK();n=B?.ready?.()||0;if(!n){window.OCHERKI_SAY?.('В книге пока нечего показать — напишите хотя бы несколько строк');return;}
     const fromMs=H.classList.contains('rk-on');busy=true;isOpen=true;
     // the spread of the sheet being written — or of the one in the middle of «Рукопись» (and on which side its page lies)
@@ -132,8 +134,8 @@
     setTimeout(()=>{busy=false;},1300);}
   // to: 'write' — the page goes back into «Так ляжет», the desk comes back from the left; 'manuscript' — the book goes off to the
   // right whole and «Рукопись» opens on the open spread's sheet under it
-  function close(to,after){if(!isOpen){after?.();return;}if(busy||flipping){setTimeout(()=>close(to,after),200);return;}busy=true;syncSheet();
-    const p=pane(),end=ms=>setTimeout(()=>{H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;L.innerHTML='';R.innerHTML='';board.getAnimations().forEach(a=>a.cancel());},ms);
+  function close(to,after,tries=0){if(!isOpen){after?.();return;}if((busy||flipping)&&tries<15){setTimeout(()=>close(to,after,tries+1),200);return;}busy=true;syncSheet();
+    const p=pane(),end=ms=>setTimeout(()=>{H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;fill(L,'');fill(R,'');board.getAnimations().forEach(a=>a.cancel());},ms);
     if(to==='manuscript'){board.animate([{translate:'0px 0px'},{translate:'100vw 0px'}],{duration:700,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
       // the desk is put back in its place under the book at once (where «Рукопись» measures the writing sheet), and «Рукопись» opens
       // over it in the same moment — its middle sheet lies on the writing sheet, the book goes off over both
@@ -146,7 +148,7 @@
   const cmenu=document.createElement('div');cmenu.className='bk-cmenu';cmenu.hidden=true;document.body.appendChild(cmenu);
   function syncComp(){const c=BK()?.compositions?.(cur),w=bar();if(!w)return;w.querySelectorAll('.bkc').forEach(b=>b.classList.toggle('off',!c||!c.list.length));}
   function compose(id){if(!id||busy||flipping)return;busy=true;rustle();const at=BK().compose(cur,id);n=BK().ready();cur=Math.max(0,Math.min(n-1,at));
-    buildStrip();show(cur);plates();busy=false;
+    buildStrip();show(cur);plates();busy=false;spreadEl.animate([{opacity:.35},{opacity:1}],{duration:420,easing:'ease-out'});
     const lab=BK().compositions(cur)?.list.find(x=>x.id===id)?.label;if(lab)window.OCHERKI_SHOW_TOAST?.(lab);}
   function step(dir){const c=BK()?.compositions?.(cur);if(!c||!c.list.length)return;const i=c.list.findIndex(x=>x.id===c.now);compose(c.list[((i<0?(dir>0?-1:0):i)+dir+c.list.length)%c.list.length].id);}
   addEventListener('click',e=>{if(!isOpen)return;const b=e.target.closest?.('.wc .bkc');if(!b){if(!cmenu.hidden&&!cmenu.contains(e.target))cmenu.hidden=true;return;}

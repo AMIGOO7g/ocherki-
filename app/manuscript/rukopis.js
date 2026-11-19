@@ -87,9 +87,6 @@
     {const r=rel(ed);if(r)css+=`.rk-board .rk-txt{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;bottom:auto;${font(cs(ed))}}`;
       const pp=ed?.querySelector('p');if(pp){const c=cs(pp);css+=`.rk-board .rk-txt p{margin:${c.marginTop} 0 ${c.marginBottom};text-indent:${c.textIndent}}`;}}
     {const r=rel(ep);if(r&&en){const lc=W.getComputedStyle(ep,'::before');css+=`.rk-board .rk-epr{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;gap:${cs(ep).columnGap};${font(cs(en))};text-align:center}.rk-board .rk-epr::before,.rk-board .rk-epr::after{background:${lc.backgroundColor};max-width:${lc.width}}`;}}
-    // the writing sheet's own light (its night and day layers), laid on the middle sheet as they are on the editor's
-    a.querySelectorAll(':scope>.lt').forEach(l=>{const c=cs(l),k=[...l.classList].find(x=>/^lt-[nd][ms]$/.test(x));if(!k)return;
-      css+=`.rk-board .rk-sh .rk-${k}{background-image:${c.backgroundImage};background-position:${c.backgroundPosition};background-size:${c.backgroundSize};background-repeat:${c.backgroundRepeat};mix-blend-mode:${c.mixBlendMode};inset:${c.inset}}`;});
     {const r=rel(pn);if(r)css+=`.rk-board .rk-pno{left:${r.l}px;top:${r.t}px;right:auto;${font(cs(pn))}}`;}
     {const img=d.querySelector('.photo-stack img'),r=rel(img);if(r)css+=`.rk-board .rk-ph{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px}`;}
     if(lookEl.textContent!==css){lookEl.textContent=css;try{localStorage.setItem(lookKey(),css);}catch(_){}}}catch(_){}}
@@ -112,7 +109,7 @@
     // over the text: the episode's name in a chapter; elsewhere the sheet's own name (Обложка, От автора…), so each is known
     const ep=x.s.type==='chapter'?String(p.episode||'').trim():String(p.title||x.s.title||'').trim();
     return `${p.isEpisodeStart||doc?'<i class="rk-rib"></i>':''}<div class="rk-in"><i class="rk-paper"></i><div class="rk-pno">${k+1}</div>${ep?`<div class="rk-epr"><span>${esc(ep)}</span></div>`:''}`+
-      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-beam"></b></i><i class="rk-el rk-lt-nm"></i><i class="rk-el rk-lt-ns"></i><i class="rk-el rk-lt-dm"></i><i class="rk-el rk-lt-ds"></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
+      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-beam"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
   // the sheet's text as the editor sets it: its own marked-up text when it has one, else paragraph by paragraph (an empty line
   // between them), the editor's space after each
   const textHtml=p=>{if(p.semanticHtml)return String(p.semanticHtml).replace(/\scontenteditable="[^"]*"/g,'');
@@ -149,7 +146,7 @@
     fan.style.setProperty('--w',desk.paper.width+'px');fan.style.setProperty('--h',desk.paper.height+'px');
     const have=new Map(live().map(el=>[el.dataset.u,el]));let fresh=false;
     G.sheets.forEach((x,k)=>{let el=have.get(x.p.uid);have.delete(x.p.uid);
-      if(!el){el=document.createElement('div');el.className='rk-sh';el.dataset.u=x.p.uid;fan.appendChild(el);fresh=true;
+      if(!el){el=document.createElement('div');el.className='rk-sh'+(k===center&&!keepCenter?' mid':'');el.dataset.u=x.p.uid;fan.appendChild(el);fresh=true;
         // new sheets come out from under the middle sheet (or in from the right edge), fading in; only on the way in from the
         // editor is the middle one there at once (it lies over the writing sheet)
         // (from all the chapters they come out of the chapter's stack, its top sheet growing into the middle one)
@@ -192,7 +189,9 @@
   let gl=0;const glide=()=>{if(gl)return;const step=()=>{const d=want-scroll;if(Math.abs(d)<.5){scroll=want;gl=0;glideAll();lightAll();return;}scroll+=d*.18;glideAll();lightAll();gl=requestAnimationFrame(step);};gl=requestAnimationFrame(step);};
   function lightAll(){all.querySelectorAll('.rk-st:not(.rk-new)').forEach(el=>{const r=el.getBoundingClientRect();if(!r.width)return;
     const t=parseFloat(el.style.translate?.split(' ')[1])||0;el.style.setProperty('--ox',(-r.left).toFixed(1)+'px');el.style.setProperty('--oy',(-(r.top-t)).toFixed(1)+'px');el.style.setProperty('--sc',1);});}
-  new MutationObserver(()=>{if(isOpen&&G)layFan();}).observe(shell,{attributes:true,attributeFilter:['class']});
+  // the day turning to night (and back): the light crosses over slowly, as on the desk
+  let wasNight=shell.classList.contains('is-night'),ltxT=0;
+  new MutationObserver(()=>{const nt=shell.classList.contains('is-night');if(nt!==wasNight){wasNight=nt;H.classList.add('rk-ltx');clearTimeout(ltxT);ltxT=setTimeout(()=>H.classList.remove('rk-ltx'),2700);}if(isOpen&&G)layFan();}).observe(shell,{attributes:true,attributeFilter:['class']});
 
   setInterval(()=>H.classList.toggle('rk-all-on',isOpen&&!view),250);
   function render(){if(view?.key==='__newch'){const gs=groups().filter(g=>g.kind==='chapter');const g=gs[gs.length-1];view=g?{key:g.key}:null;}
@@ -211,7 +210,7 @@
     setTimeout(()=>{st.classList.remove('rk-wait');busy=false;},600);}
   function back(){if(!isOpen||busy)return false;if(!view)return false;busy=true;const key=G?.key;
     // the sheets lie down on the pile one after another, the pile goes to its chapter's place among the stacks and becomes its stack
-    const els=live(),c=center;els.forEach(el=>{const k=+el.dataset.k;el.style.transitionDelay=Math.min(Math.abs(k-c),6)*40+'ms';const p=slot(Math.min(-1,k-c-1));el.style.transform=tr(p);el.style.opacity=p.o;el.style.zIndex=30-Math.abs(k-c);lightSheet(el,p);});
+    const els=live(),c=center;els.forEach(el=>{el.classList.remove('mid');const k=+el.dataset.k;el.style.transitionDelay=Math.min(Math.abs(k-c),6)*40+'ms';const p=slot(Math.min(-1,k-c-1));el.style.transform=tr(p);el.style.opacity=p.o;el.style.zIndex=30-Math.abs(k-c);lightSheet(el,p);});
     blank.style.opacity=0;chEl.classList.add('folding');rustle();
     setTimeout(()=>{view=null;G=null;renderAll();const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key||'')}"]`);
       if(st){glideTo(st);st.classList.add('rk-wait');}
