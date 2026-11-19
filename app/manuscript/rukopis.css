@@ -1,4 +1,4 @@
-/* «Рукопись» (v233) — the chapter on the same desk; see rukopis.js */
+/* «Рукопись» (v236) — the chapter on the same desk; see rukopis.js */
 /* where the light's picture lies under a sheet: registered, so it moves with the sheet frame by frame and never arrives first */
 @property --ox{syntax:'<length>';inherits:true;initial-value:0px}
 @property --oy{syntax:'<length>';inherits:true;initial-value:0px}
@@ -31,11 +31,11 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
    (measured on the editor's own sheet when «Рукопись» opens, rukopis.js, #rkLook); what is drawn here is only the fallback */
 .rk-in{position:absolute;inset:0;overflow:hidden;background:linear-gradient(100deg,#f7f0e3,#efe4d0)}
 .rk-paper{position:absolute;inset:1px;pointer-events:none}
-.rk-pno{position:absolute;right:17px;top:9px;font:12px Georgia,serif;color:#6a4a2e}
-.rk-epr{position:absolute;left:59px;top:63px;width:549px;display:flex;align-items:center;justify-content:center;gap:18px;font:14px Georgia,serif;color:#2f2118}
+.rk-pno{position:absolute;right:2.6%;top:1%;font:12px Georgia,serif;color:#6a4a2e}
+.rk-epr{position:absolute;left:8.85%;top:6.7%;width:82.3%;display:flex;align-items:center;justify-content:center;gap:18px;font:14px Georgia,serif;color:#2f2118}
 .rk-epr::before,.rk-epr::after{content:"";height:1px;flex:1;max-width:160px;background:var(--rk-line,rgba(110,80,50,.3))}
 .rk-epr span{white-space:nowrap}
-.rk-txt{position:absolute;left:59px;top:109px;width:549px;bottom:90px;overflow:hidden;white-space:pre-wrap;hyphens:auto;font:14px/19.88px Georgia,serif;color:#3b2a20}
+.rk-txt{position:absolute;left:8.85%;top:11.55%;width:82.3%;bottom:9.5%;overflow:hidden;white-space:pre-wrap;hyphens:auto;font:14px/19.88px Georgia,serif;color:#3b2a20}
 .rk-sh.doc .rk-in::after{content:"";position:absolute;inset:0;background:rgba(150,110,60,.07);pointer-events:none}
 /* the photographs of the sheet lie at its left edge, as the editor's little pile does */
 .rk-ph{position:absolute;left:-67px;top:22px;width:113px;height:74px;object-fit:cover;box-sizing:border-box;border:4px solid #fbf7ef;rotate:-4deg;z-index:8;pointer-events:none;
@@ -44,23 +44,23 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
    its number, its photographs and its ribbon) */
 .rk-big{position:absolute;right:7%;bottom:4%;font:calc(var(--h,940px)*.075)/1 'CormorantCy',Georgia,serif;color:#6a4a2e;opacity:0;transition:opacity .45s ease;z-index:6;pointer-events:none}
 .rk-sh:not(.mid) .rk-big{opacity:.8}
-/* an episode's first sheet: the silk ribbon (the constructor's own) hangs from the sheet's upper edge; it grows and shrinks with
-   the sheet */
-.rk-rib{position:absolute;left:calc(var(--w,660px)*.1);top:0;width:calc(var(--w,660px)*.036);height:calc(var(--h,940px)*.16);z-index:7;pointer-events:none;
+/* an episode's first sheet: the silk ribbon (the constructor's own) hangs from the sheet's upper edge in the left margin, clear of the
+   text; it grows and shrinks with the sheet */
+.rk-rib{position:absolute;left:calc(var(--w,660px)*.03);top:0;width:calc(var(--w,660px)*.036);height:calc(var(--h,940px)*.16);z-index:7;pointer-events:none;
   background:url("../../assets/keeper/ribbon-red.webp") center bottom/100% auto no-repeat;filter:drop-shadow(1px 2px 1.5px rgba(40,15,5,.4))}
 .rk-sh.rk-carried{transition:none;z-index:200!important;opacity:1!important}
-/* the light: one picture of the whole desk (the window's by day, the lamp's at night) laid under the sheet from where the sheet lies,
-   moved as one layer with the sheet (no repainting on the way, so it glides) */
-.rk-lt{position:absolute;left:0;top:0;width:100vw;height:100vh;transform-origin:0 0;pointer-events:none;z-index:5;mix-blend-mode:multiply;
-  transition:transform .55s cubic-bezier(.2,.8,.3,1),translate .25s ease}
-.rk-lt b{position:absolute;inset:0;background-size:100vw 100vh;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+/* the light: the desk's picture of light (the window's by day, the lamp's at night) laid on the sheet from where the sheet lies, in a
+   layer the sheet's own size; the picture slides inside it by the same time and curve as the sheet moves (only the sheet's area is
+   drawn again — the whole screen never is, and day and night pass without the screen blinking) */
+.rk-lt{position:absolute;inset:0;pointer-events:none;z-index:5;mix-blend-mode:multiply;
+  transition:background-position .55s cubic-bezier(.2,.8,.3,1),background-size .55s cubic-bezier(.2,.8,.3,1)}
+.rk-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-sun{background-image:var(--ws-shade)}
 .rk-beam{background-image:var(--rk-beam);opacity:0}
 html:has(.shell.is-night) .rk-sun{opacity:0}
 html:has(.shell.is-night) .rk-beam{opacity:1}
-/* a sheet of the fan rises a little under the hand; its light stays where it is on the desk */
+/* a sheet of the fan rises a little under the hand */
 .rk-sh:not(.mid):not(.past):not(.rk-carried):hover{translate:0 -18px}
-.rk-sh:not(.mid):not(.past):not(.rk-carried):hover .rk-lt{translate:0 calc(18px / var(--sc,1))}
 /* the stacks of all the chapters: the window's picture and the lamp's beam laid by their place (they move little) */
 .rk-top::after{content:"";position:absolute;inset:-2px;pointer-events:none;z-index:5;mix-blend-mode:multiply;
   background-image:var(--ws-shade);background-position:calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px);background-size:100vw 100vh;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}

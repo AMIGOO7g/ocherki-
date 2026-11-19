@@ -710,7 +710,7 @@
   const stop=e=>{const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};
   ['pointerdown','mousedown','click'].forEach(t=>document.addEventListener(t,stop,true));
   const mark=()=>document.querySelectorAll(sel).forEach(k=>k.classList.add('oc-soon'));mark();setInterval(mark,1500);
-  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const B=()=>window.OCHERKI_DESKBOOK;const g=t=>{if(t==='book')return B()?.open();if(t!=='write'&&t!=='manuscript')return undefined;if(B()?.isOpen())return B().close(()=>{if(t==='manuscript')f(t);});return f(t);};g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
+  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const B=()=>window.OCHERKI_DESKBOOK;const g=t=>{if(t==='book')return B()?.open();if(t!=='write'&&t!=='manuscript')return undefined;if(B()?.isOpen())return B().close(t,()=>{if(t==='manuscript')f(t);});return f(t);};g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
 
 // v207 — at night the desk comes in dark: until the lamp is lit everything on it (the sheets, the stack, the page) lies in the
 // dusk, and as the lamp lights up the dusk lifts with it, slowly

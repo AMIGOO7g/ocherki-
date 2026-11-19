@@ -1,4 +1,4 @@
-// «Рукопись» (v233) — the chapter's sheets on the same desk, as little changed as can be.
+// «Рукопись» (v236) — the chapter's sheets on the same desk, as little changed as can be.
 // The writing sheet stays where it is: the sheet in the middle IS it (its size, its place, its shadow). The clean stack at the left
 // becomes the pile of the sheets already passed (the one just before on top); its plate names the chapter — «Глава 1 · Карс · 3 из 9»
 // (a press on it shows all the chapters). «Так ляжет» goes off to the right and the sheets still to come fan out there from under the
@@ -61,7 +61,7 @@
       pile:box(L),plate:box(T),bar:b&&b.width?{left:b.left,right:b.right,top:b.top,bottom:b.bottom,height:b.height,width:b.width}:null};
     const P=desk.paper;if(!desk.pile){const w=P.width*.52;desk.pile={left:P.left-w-108,top:P.top+P.height*.22,width:w,height:w/.707};}
     if(!desk.plate){const pl=desk.pile;desk.plate={left:pl.left-10,top:pl.top-62,width:pl.width+20,height:46};}
-    readLook();
+    try{if(!lookEl.textContent)lookEl.textContent=localStorage.getItem(lookKey())||'';}catch(_){}readLook();
     // the plates' column at the right edge, and how much of the fan fits before it
     const tw=Math.round(Math.max(130,Math.min(190,innerWidth*.09)));desk.tabs={left:innerWidth-tw-18,width:tw};
     // the sheets go under the bar's lower edge, as the writing sheet does
@@ -73,17 +73,21 @@
   // the writing sheet's own look (its paper, episode line, text, number, its photographs' place), read off the editor's sheet and
   // given to the sheets here, so that the middle sheet is the writing sheet to the pixel, on any screen
   const lookEl=document.createElement('style');lookEl.id='rkLook';document.head.appendChild(lookEl);
+  // (kept for this screen's size, so it is there before a chapter's sheet has been open this time)
+  const lookKey=()=>'ocherkiRkLook:'+innerWidth+'x'+innerHeight;try{lookEl.textContent=localStorage.getItem(lookKey())||'';}catch(_){}
+  // it is read off a chapter's sheet only (a cover or a title sheet is set otherwise), and kept till the next one
   function readLook(){try{const d=frame()?.contentDocument,a=d?.getElementById('activeSheet');if(!a)return;const W=d.defaultView,cs=e=>W.getComputedStyle(e),R=a.getBoundingClientRect();
+    const sec=W.currentSection?.(),pg=W.currentPage?.();if(!sec||sec.type!=='chapter'||pg?.type==='document'||pg?.bookRole==='document')return;
     const rel=e=>{const r=e?.getBoundingClientRect();return r&&r.width?{l:r.left-R.left,t:r.top-R.top,w:r.width,h:r.height}:null;};
     const font=c=>`font-family:${c.fontFamily};font-size:${c.fontSize};line-height:${c.lineHeight};font-weight:${c.fontWeight};color:${c.color};letter-spacing:${c.letterSpacing};word-spacing:${c.wordSpacing};text-align:${c.textAlign};text-indent:${c.textIndent};hyphens:${c.hyphens}`;
     const S=cs(a),pa=a.querySelector('.paper'),ed=a.querySelector('.editor'),ep=a.querySelector('.episode-row'),en=a.querySelector('.episode'),pn=a.querySelector('.page-no');let css='';
-    css+=`.rk-in{background-image:${S.backgroundImage};background-color:${S.backgroundColor}}`;
-    if(pa){const c=cs(pa),r=rel(pa);if(r)css+=`.rk-paper{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;inset:auto;background-image:${c.backgroundImage};background-color:${c.backgroundColor};border:${c.border};box-shadow:${c.boxShadow}}`;}
-    {const r=rel(ed);if(r)css+=`.rk-txt{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;bottom:auto;${font(cs(ed))}}`;}
-    {const r=rel(ep);if(r&&en){const lc=W.getComputedStyle(ep,'::before');css+=`.rk-epr{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;gap:${cs(ep).columnGap};${font(cs(en))};text-align:center}.rk-epr::before,.rk-epr::after{background:${lc.backgroundColor};max-width:${lc.width}}`;}}
-    {const r=rel(pn);if(r)css+=`.rk-pno{left:${r.l}px;top:${r.t}px;right:auto;${font(cs(pn))}}`;}
-    {const img=d.querySelector('.photo-stack img'),r=rel(img);if(r)css+=`.rk-ph{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px}`;}
-    if(lookEl.textContent!==css)lookEl.textContent=css;}catch(_){}}
+    css+=`.rk-board .rk-in{background-image:${S.backgroundImage};background-color:${S.backgroundColor}}`;
+    if(pa){const c=cs(pa),r=rel(pa);if(r)css+=`.rk-board .rk-paper{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;inset:auto;background-image:${c.backgroundImage};background-color:${c.backgroundColor};border:${c.border};box-shadow:${c.boxShadow}}`;}
+    {const r=rel(ed);if(r)css+=`.rk-board .rk-txt{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;bottom:auto;${font(cs(ed))}}`;}
+    {const r=rel(ep);if(r&&en){const lc=W.getComputedStyle(ep,'::before');css+=`.rk-board .rk-epr{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;gap:${cs(ep).columnGap};${font(cs(en))};text-align:center}.rk-board .rk-epr::before,.rk-board .rk-epr::after{background:${lc.backgroundColor};max-width:${lc.width}}`;}}
+    {const r=rel(pn);if(r)css+=`.rk-board .rk-pno{left:${r.l}px;top:${r.t}px;right:auto;${font(cs(pn))}}`;}
+    {const img=d.querySelector('.photo-stack img'),r=rel(img);if(r)css+=`.rk-board .rk-ph{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px}`;}
+    if(lookEl.textContent!==css){lookEl.textContent=css;try{localStorage.setItem(lookKey(),css);}catch(_){}}}catch(_){}}
 
   // ——— a sheet's place: d steps from the middle (0 the middle; below 0 — on the pile; above — the fan, each smaller and deeper)
   const SC=[1,.86,.75,.66,.58,.52],VIS=[0,.225,.177,.138,.108,.09],PILE=[[0,0,-.5],[-12,9,-2.2],[7,4,1.5]];
@@ -118,11 +122,12 @@
     // the lamp's falling off downwards, from the writing sheet's top to its foot
     const v=q=>((ref.y+ref.h*q-r.y)/r.h*100).toFixed(2)+'%';
     return edge(x1,sp)+','+edge(x0,-sp)+`,linear-gradient(180deg,rgba(160,105,50,.04) ${v(0)},rgba(140,90,42,.2) ${v(.55)},rgba(95,60,28,.46) ${v(1)})`;}
-  // the light layer is placed so that the desk's picture of light lies on the sheet from where the sheet lies; it moves by the same
-  // time and curve as the sheet (now — at once, for a sheet just made)
+  // the light layer shows the desk's picture of light from where the sheet lies; on the way it slides by the same time and curve as the
+  // sheet (now — at once, for a sheet just made). A sheet not seen draws no light
   function lightSheet(el,p,now){el.style.setProperty('--sc',p.s);el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);
-    const lt=el.querySelector('.rk-lt');if(!lt)return;if(now)lt.style.transition='none';
-    lt.style.transform=`translate(${(-p.x/p.s).toFixed(1)}px,${(-p.y/p.s).toFixed(1)}px) scale(${(1/p.s).toFixed(4)})`;if(now){lt.getBoundingClientRect();lt.style.transition='';}}
+    const lt=el.querySelector('.rk-lt');if(!lt)return;lt.style.display=p.o?'':'none';if(now)lt.style.transition='none';
+    lt.style.backgroundPosition=`${(-p.x/p.s).toFixed(1)}px ${(-p.y/p.s).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/p.s).toFixed(1)}px ${(innerHeight/p.s).toFixed(1)}px`;
+    if(now){lt.getBoundingClientRect();lt.style.transition='';}}
 
   // ——— the open chapter
   let G=null,center=0,order=[];
@@ -201,7 +206,7 @@
       if(st){glideTo(st);st.classList.add('rk-wait');}
       const q=st?.getBoundingClientRect();chEl.classList.remove('on');all.classList.add('on');
       const E='.85s cubic-bezier(.45,0,.2,1)';
-      els.forEach(el=>{el.style.transitionDelay='';el.style.transition=`transform ${E},opacity .45s ease .4s`;const lt=el.querySelector('.rk-lt');if(lt)lt.style.transition=`transform ${E}`;if(q){el.style.transform=tr(stackSlot(q));lightSheet(el,stackSlot(q));}el.style.opacity=q&&el.classList.contains('mid')?1:0;});
+      els.forEach(el=>{el.style.transitionDelay='';el.style.transition=`transform ${E},opacity .45s ease .4s`;const lt=el.querySelector('.rk-lt');if(lt)lt.style.transition=`background-position ${E},background-size ${E}`;if(q){el.style.transform=tr(stackSlot(q));lightSheet(el,stackSlot(q));}el.style.opacity=q&&el.classList.contains('mid')?1:0;});
       setTimeout(()=>{els.forEach(el=>el.remove());st?.classList.remove('rk-wait');chEl.classList.remove('folding');busy=false;},880);},520);return true;}
   // the stacks' view scrolls (at once) so that the chapter's stack stands in sight
   function glideTo(st){const t=desk.bar?desk.bar.bottom:120,r=st.getBoundingClientRect(),y=r.top-(t+34);if(r.bottom>innerHeight-40||r.top<t){want=scroll+y-40;glideAll(true);}}
@@ -326,6 +331,8 @@
     send({action:'flush'});send({action:'requestState'});
     // the sheet being written is asked of the editor itself (the message about it may not have come yet)
     try{const u=frame()?.contentWindow?.currentPage?.()?.uid;if(u)activeUid=u;}catch(_){}
+    // (or the sheet the book was open on, given just before)
+    if(preset){activeUid=preset;preset='';}
     const g=gOf(activeUid);view=g?{key:g.key,focus:activeUid}:null;
     H.classList.add('rk-on');aside(true,760);
     if(view){chEl.classList.add('on');all.classList.remove('on');fanHold=true;renderFan(false,true,true);setTimeout(()=>{fanHold=false;if(isOpen&&G)layFan();},620);}else{chEl.classList.remove('on');all.classList.add('on');renderAll();}
@@ -342,6 +349,7 @@
   // the desk's light for the other screens on it (the book): the lamp's beam over the whole desk, its edges as soft as on the writing
   // sheet, and the writing sheet's place
   window.OCHERKI_DESK_LIGHT={beam:()=>{measureDesk();const P=desk.paper;return beamOf({x:0,y:0,w:innerWidth,h:innerHeight},{x:P.left,y:P.top,w:P.width,h:P.height});},paper:()=>{measureDesk();return Object.assign({},desk.paper);}};
-  window.OCHERKI_MANUSCRIPT={open,close,back,isOpen:()=>isOpen,freeze:()=>{},activeUid:()=>activeUid,
+  let preset='';
+  window.OCHERKI_MANUSCRIPT={open,close,back,preset:u=>{preset=String(u||'');activeUid=preset||activeUid;},centerUid:()=>view&&G?order[center]||'':'',isOpen:()=>isOpen,freeze:()=>{},activeUid:()=>activeUid,
     frontPick:()=>activeUid?{pageUid:activeUid}:null,flyToEditor:()=>false,sheetOf:()=>null};
 })();
