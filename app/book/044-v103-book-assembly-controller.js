@@ -2457,13 +2457,17 @@
     size:()=>currentPageSize(),
     spread(i){const sp=bookSpreads[i];if(!sp)return null;const host=(pg,side)=>pg?pageCanvasHost(pg,side,'preview',true):'';
       return {left:host(sp.left,'left'),right:host(sp.right,'right'),leftNo:sp.left?.pageNo||'',rightNo:sp.right?.pageNo||'',title:sectionTitleOf(sp.right?.sectionId||sp.left?.sectionId)};},
+    // a spread in little, as the old book's strip drew it (the same director's pages, the strip's size)
+    thumb(i){const sp=bookSpreads[i];if(!sp)return null;const m=(pg,side)=>pg?pageCanvasHost(pg,side,'mini'):'';
+      return {left:m(sp.left,'left'),right:m(sp.right,'right'),label:`${sp.left?.pageNo||''}${sp.left&&sp.right?'–':''}${sp.right?.pageNo||''}`,title:sectionTitleOf(sp.right?.sectionId||sp.left?.sectionId)};},
     pages:()=>bookSpreads.reduce((a,sp)=>a+(sp.left?1:0)+(sp.right?1:0),0),
     format:()=>activeFormat,formats:()=>formats.map(([key,name,dims])=>({key,name,dims})),
     setFormat(key){if(key===activeFormat||!FORMAT_SIZES[key])return false;activeFormat=key;applyActiveFormat();return quietAssemble();},
     photoMode:()=>window.OCHERKI_BOOK_META?.bookPhotoMode||'as-is',photoModes:()=>photoModes.map(([key,label])=>({key,label})),
     setPhotoMode(key){window.OCHERKI_BOOK_META.bookPhotoMode=key;try{localStorage.setItem('ocherki_book_photo_mode',key);}catch(_){}window.__ocherkiPeekSig='';return quietAssemble();},
     design:()=>({key:activeDesign,name:(designs.find(d=>d[0]===activeDesign)||[])[1]||''}),
-    scale:()=>scaleAllPageCanvases()};
+    // pages just put on the desk are drawn (a little page is drawn when it comes in sight) and fitted to their places
+    scale:()=>{observePageCanvasHosts();scaleAllPageCanvases();}};
   function performBuild(after){
     if(!structure) return false;
     hideBookNotice();
@@ -2950,7 +2954,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v234"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v235"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

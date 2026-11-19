@@ -40,13 +40,15 @@ html:has(.shell.is-night) .bk-cap{color:#e0c8a2}
   background:linear-gradient(#efe3cb,#d9bf98);box-shadow:0 0 0 1px rgba(62,42,29,.6),0 4px 8px rgba(60,40,20,.3);transition:filter .3s ease}
 .bk-board .bk-arrow:hover{filter:brightness(1.08)}
 html:has(.shell.is-night) .bk-board .bk-arrow{background:radial-gradient(circle,#25221e,#191714);color:#e8d2ae}
-/* the strip of all the spreads */
-.bk-strip{position:absolute;left:50%;translate:-50% 0;display:flex;gap:14px;align-items:center}
-.bk-board .bk-th{position:relative;width:76px;height:38px;background:#fbf7ef;box-shadow:1px 2px 3px rgba(60,40,20,.3);opacity:.8;transition:opacity .3s ease,width .3s ease,height .3s ease}
-.bk-board .bk-th i{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(60,40,20,.25)}
-.bk-board .bk-th:hover{opacity:1}
-.bk-board .bk-th.cur{width:96px;height:48px;opacity:1;outline:1.5px solid rgba(110,80,50,.55);outline-offset:3px}
-html:has(.shell.is-night) .bk-board .bk-th{filter:brightness(.55) sepia(.15)}html:has(.shell.is-night) .bk-board .bk-th.cur{filter:brightness(.85)}
+/* the strip of all the spreads: each in little as it lies in the book; the open one stands in the middle */
+.bk-stripv{position:absolute;height:92px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.bk-strip{position:absolute;left:0;top:10px;display:flex;gap:16px;align-items:center;transition:translate .5s cubic-bezier(.3,.1,.2,1)}
+.bk-board .bk-th{position:relative;flex:none;display:flex!important;width:var(--tw,128px);height:64px;background:#fbf7ef;box-shadow:1px 2px 4px rgba(60,40,20,.3);opacity:.72;transition:opacity .3s ease,translate .3s ease;cursor:pointer}
+.bk-board .bk-th .bk-tl,.bk-board .bk-th .bk-tr{position:relative;flex:1;height:100%;overflow:hidden}
+.bk-board .bk-th .bk-tl{box-shadow:inset -6px 0 8px -6px rgba(40,25,10,.35)}.bk-board .bk-th .bk-tr{box-shadow:inset 6px 0 8px -6px rgba(40,25,10,.35)}
+.bk-board .bk-th:hover{opacity:1;translate:0 -3px}
+.bk-board .bk-th.cur{opacity:1;outline:1.5px solid rgba(110,80,50,.6);outline-offset:4px}
+html:has(.shell.is-night) .bk-board .bk-th{filter:brightness(.6) sepia(.15)}html:has(.shell.is-night) .bk-board .bk-th.cur,html:has(.shell.is-night) .bk-board .bk-th:hover{filter:brightness(.88) sepia(.08)}
 /* the brass plates at the sides */
 .bk-board .bk-keys{position:absolute;display:flex;flex-direction:column;gap:12px;width:170px}
 .bk-board .bk-k{display:block!important;box-sizing:border-box;padding:7px 14px 7px!important;text-align:center;border-radius:16px;border:3px solid transparent!important;font:17px 'CormorantCy',serif;color:#3a2614;
@@ -58,3 +60,6 @@ html:has(.shell.is-night) .bk-board .bk-th{filter:brightness(.55) sepia(.15)}htm
 .bk-board .bk-k.bk-soon{opacity:.7}
 html:has(.shell.is-night) .bk-board .bk-k{background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box!important;color:#e8d2ae}
 html:has(.shell.is-night) .bk-board .bk-k b,html:has(.shell.is-night) .bk-board .bk-k span{color:#c9b08a}
+/* a little page fills its half of the little spread (the director fits its page to it) */
+.bk-board .bk-th .bd-page-mini{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#fbf7ef}
+.bk-board .bk-th .bd-page-mini .page-canvas{position:absolute;transform-origin:0 0}

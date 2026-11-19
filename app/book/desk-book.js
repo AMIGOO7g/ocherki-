@@ -17,7 +17,7 @@
   const board=document.createElement('div');board.className='bk-board';
   board.innerHTML='<div class="bk-cap"></div><div class="bk-spread"><div class="bk-pg bk-l"></div><div class="bk-pg bk-r"></div><i class="bk-gutter"></i></div>'+
     '<button type="button" class="bk-arrow bk-prev" aria-label="Предыдущий разворот">‹</button><button type="button" class="bk-arrow bk-next" aria-label="Следующий разворот">›</button>'+
-    '<div class="bk-strip"></div><div class="bk-keys bk-kl"></div><div class="bk-keys bk-kr"></div>';
+    '<div class="bk-stripv"><div class="bk-strip"></div></div><div class="bk-keys bk-kl"></div><div class="bk-keys bk-kr"></div>';
   document.body.append(board);
   const $=s=>board.querySelector(s),spreadEl=$('.bk-spread'),L=$('.bk-l'),R=$('.bk-r'),cap=$('.bk-cap'),strip=$('.bk-strip'),kl=$('.bk-kl'),kr=$('.bk-kr');
 
@@ -25,7 +25,8 @@
   function measure(){const b=bar()?.getBoundingClientRect(),[pw,ph]=BK()?.size?.()||[280,280];const W=innerWidth,Hh=innerHeight,top=(b?b.bottom:110)+44;
     const h=Math.max(240,Math.min(Hh-top-150,(W-2*250-160)/2*ph/pw)),w=h*pw/ph,left=(W-2*w)/2;
     geo={left,top,w,h};Object.assign(spreadEl.style,{left:left+'px',top:top+'px',width:2*w+'px',height:h+'px'});
-    cap.style.top=(top-30)+'px';strip.style.top=(top+h+34)+'px';
+    cap.style.top=(top-30)+'px';Object.assign($('.bk-stripv').style,{left:left+'px',top:(top+h+30)+'px',width:2*w+'px'});
+    strip.style.setProperty('--tw',Math.round(2*TH*pw/ph)+'px');
     $('.bk-prev').style.cssText=`left:${left-70}px;top:${top+h/2}px`;$('.bk-next').style.cssText=`left:${left+2*w+24}px;top:${top+h/2}px`;
     Object.assign(kl.style,{left:Math.max(16,left-80-190)+'px',top:top+'px'});Object.assign(kr.style,{left:(left+2*w+90)+'px',top:top+'px'});
     // the light: the desk's own picture of the lamp, laid under each page from where it lies
@@ -38,10 +39,19 @@
   function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left,'left');fill(R,sp.right,'right');BK()?.scale?.();caption(sp);paintStrip();}
   function caption(sp){sp=sp||BK()?.spread(cur);const t=String(sp?.title||'').replace(/^Глава\s*(\d+)\.?\s*/i,'Глава $1 · ');
     cap.textContent=`${t?t+' · ':''}разворот ${cur+1} из ${n}`;}
-  // the strip: every spread as a little open book, the open one larger; a press goes to it
-  function paintStrip(){const MAX=15,a=Math.max(0,Math.min(n-MAX,cur-Math.floor(MAX/2))),b=Math.min(n,a+MAX);let h='';
-    for(let k=a;k<b;k++)h+=`<button type="button" class="bk-th${k===cur?' cur':''}" data-k="${k}" aria-label="Разворот ${k+1}"><i></i></button>`;
-    strip.innerHTML=h;}
+  // the strip: every spread in little, as it lies in the book (the director's own pages, as on the old book's strip); the open one
+  // stands in the middle; a press goes to it. They are drawn nearest first, the rest while the hands rest (turning never waits)
+  const TH=64;let filled=new Set(),fillT=0;
+  function buildStrip(){filled=new Set();let h='';
+    for(let k=0;k<n;k++)h+=`<button type="button" class="bk-th" data-k="${k}"><i class="bk-tl"></i><i class="bk-tr"></i></button>`;
+    strip.innerHTML=h;paintStrip();}
+  function fillSome(){cancelIdleCallback?.(fillT);const order=[...Array(n).keys()].filter(k=>!filled.has(k)).sort((a,b)=>Math.abs(a-cur)-Math.abs(b-cur));if(!order.length)return;
+    const step=dl=>{let done=0;while(order.length&&(done<2||dl.timeRemaining()>8)){const k=order.shift(),t=BK()?.thumb(k),el=strip.children[k];if(!t||!el)continue;
+        el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;el.title=`${t.title?t.title+' · ':''}с. ${t.label}`;filled.add(k);done++;}
+      BK()?.scale?.();if(order.length&&isOpen)fillT=(window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>10}),60)))(step,{timeout:400});};
+    fillT=(window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>10}),60)))(step,{timeout:200});}
+  function paintStrip(){[...strip.children].forEach((el,k)=>el.classList.toggle('cur',k===cur));const el=strip.children[cur],v=$('.bk-stripv');
+    if(el&&v)strip.style.translate=`${Math.round(v.clientWidth/2-(el.offsetLeft+el.offsetWidth/2))}px 0`;fillSome();}
   strip.addEventListener('click',e=>{const t=e.target.closest('[data-k]');if(!t||flipping)return;const k=+t.dataset.k;if(k===cur)return;spreadEl.classList.add('bk-fade');rustle();
     setTimeout(()=>{show(k);spreadEl.classList.remove('bk-fade');},180);});
 
@@ -59,7 +69,7 @@
     // the book steps back a little, is laid out anew, and comes forward again
     busy=true;spreadEl.classList.add('bk-fade');rustle();
     setTimeout(()=>{if(b.dataset.set==='format')B.setFormat(next(B.formats(),B.format()));else B.setPhotoMode(next(B.photoModes(),B.photoMode()));
-      n=B.ready();cur=Math.min(cur,n-1);measure();show(cur);plates();requestAnimationFrame(()=>{spreadEl.classList.remove('bk-fade');busy=false;});},260);});
+      n=B.ready();cur=Math.min(cur,n-1);measure();buildStrip();show(cur);plates();requestAnimationFrame(()=>{spreadEl.classList.remove('bk-fade');busy=false;});},260);});
 
   // ——— turning the page: the leaf lifts and turns over the gutter (crisp, no slow tail); under it the next spread is already there
   function turn(dir){if(!isOpen||flipping||busy)return;const to=cur+dir;if(to<0||to>=n)return;const now=BK().spread(cur),nx=BK().spread(to);if(!now||!nx)return;
@@ -97,7 +107,7 @@
     // the spread of the sheet being written (and on which side its page lies)
     let uid='';try{uid=frame()?.contentWindow?.currentPage?.()?.uid||'';}catch(_){}
     let side='right';try{const pk=window.__ocherkiPeekPage?.(uid,window.__ocherkiEditorRatio?.()??-1);if(pk){cur=Math.max(0,Math.min(n-1,pk.spread));side=pk.side;}}catch(_){cur=0;}
-    H.classList.add('bk-on');measure();show(cur);plates();setTitle();
+    H.classList.add('bk-on');measure();buildStrip();show(cur);plates();setTitle();
     const from=paneRect(),pageEl=side==='left'?L:R,other=side==='left'?R:L,to=pageEl.getBoundingClientRect();
     board.classList.add('on');aside(true,760);
     if(from){// «Так ляжет» grows into its page: the page starts where the pane's page lies and comes to its place
