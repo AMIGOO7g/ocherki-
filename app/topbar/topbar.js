@@ -213,7 +213,9 @@ function waitPreviewReady(cb){
   hang();
 
   // ——— the angel on the pendulum ———
-  const bob=document.querySelector('.master-clock .logo-bob');if(bob&&!bob.querySelector('.oc-bob')){const k=document.createElement('span');k.className='oc-bob';k.innerHTML='<i class="nf"></i>';bob.appendChild(k);}
+  const bob=document.querySelector('.master-clock .logo-bob');if(bob&&!bob.querySelector('.oc-bob')){const k=document.createElement('span');k.className='oc-bob';k.innerHTML='<i class="nf"></i>';bob.appendChild(k);
+    // v226: the clock's cats swing with the pendulum — by day one hangs from the weight by its paws, at night one sleeps curled on it
+    bob.insertAdjacentHTML('beforeend','<img class="oc-cat day" src="assets/clock/cat-day.png" alt="" draggable="false"><img class="oc-cat night" src="assets/clock/cat-night.png" alt="" draggable="false">');}
   // ——— music in the corner ———
   const S='<svg viewBox="0 0 24 24">',E='</svg>';
   const IC={note:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',next:'<path d="M6 6l8 6-8 6z"/><path d="M17 6v12"/>',prev:'<path d="M18 6l-8 6 8 6z"/><path d="M7 6v12"/>',play:'<path d="M8 5l11 7-11 7z"/>',pause:'<path d="M9 5v14M15 5v14"/>',mute:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6"/>',snd:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>'};

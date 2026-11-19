@@ -272,6 +272,8 @@ html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-nigh
 .wp-wait span{animation:wpBreath 1.6s ease-in-out infinite}
 @keyframes wpBreath{0%,100%{opacity:.45}50%{opacity:1}}
 .shell.wp-up .wp-pane{z-index:17}
+/* once the page has come out: a new size or place after it is laid again (another page's format) is glided to, not jumped to */
+.shell.wp-up .wp-pane{transition:transform 1.15s cubic-bezier(.55,.05,.3,1),opacity .6s ease,left .45s ease,top .45s ease,width .45s ease,height .45s ease}
 .wp-cap{position:absolute;left:0;right:0;bottom:100%;margin-bottom:16px;text-align:center;font:600 12px 'CormorantCy',Georgia,serif;letter-spacing:.28em;text-transform:uppercase;color:#d9b47e;white-space:nowrap}
 .shell:not(.is-night) .wp-cap{color:#8f5f28}
 .wp-keys{position:fixed;z-index:18;display:flex;gap:22px;align-items:flex-start;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .35s ease,transform .45s ease}
@@ -462,7 +464,7 @@ html body .shell.oc-w.wp-on .wp-keys.k-closed .key::before{box-shadow:0 0 0 1.5p
 .master-clock .hand,.master-clock .clock-pivot{transition:background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 1.4s ease}
 .master-clock .pendulum{transition:filter 2.45s cubic-bezier(.37,0,.63,1),transform 2.25s cubic-bezier(.45,.05,.55,.95),background 2.45s cubic-bezier(.37,0,.63,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1)!important}
 .shell:not(.is-night) .master-clock .hand,.shell:not(.is-night) .master-clock .clock-pivot,.shell:not(.is-night) .master-clock .pendulum{background:#3b2a1c!important;box-shadow:none!important}
-.master-clock .logo-bob img{display:none!important}
+.master-clock .logo-bob img:not(.oc-cat){display:none!important}
 .oc-bob{position:relative;display:block;width:40px;height:40px;border-radius:50%}
 .oc-bob::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(145deg,var(--metal1),var(--metal2) 24%,var(--metal3) 62%,var(--metal4));box-shadow:0 4px 8px rgba(0,0,0,.25)}
 .oc-bob::after{content:"";position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle at 50% 53%,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 24%,transparent 47%),radial-gradient(circle,var(--face1),var(--face2) 43%,var(--face3) 72%,var(--face4));box-shadow:inset 0 4px 5px rgba(0,0,0,.28),inset 0 1px 1px rgba(0,0,0,.34),inset 0 0 0 1px rgba(73,52,35,.34)}
@@ -513,6 +515,13 @@ html body .shell.oc-ktight .wp-keys.k-closed .wp-item,html body .shell.oc-ktight
 html body .shell.oc-ktight .wp-keys.k-closed .lab,html body .shell.oc-ktight.oc-w:not(.is-book-preview) .book-design-shell.is-rail .bd-rail-item:has([data-rail="tips"]) .oc-klab,html body .shell.oc-ktight .oc-add2 .it.main .lab{position:absolute!important;left:50%!important;top:100%!important;transform:none!important;translate:-50% 5px!important;margin:0!important;text-align:center;white-space:nowrap}
 html body .oc-add2 .it.main .key{--size:46px}
 html body .master-clock .logo-bob .oc-bob{width:28px;height:28px}
+/* v226: the cats on the pendulum's weight (they swing with it): by day one hangs by its paws from the weight's top edge, at night
+   another sleeps curled on top of it; they change places slowly with the light */
+html body .master-clock .logo-bob .oc-cat{position:absolute;left:50%;pointer-events:none;user-select:none;max-width:none;max-height:none;filter:drop-shadow(1px 2px 2px rgba(40,25,10,.25));transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+html body .master-clock .logo-bob .oc-cat.day{width:30px;top:6px;translate:-50% 0;z-index:3;opacity:.92}
+html body .master-clock .logo-bob .oc-cat.night{width:50px;top:-15px;translate:-52% 0;z-index:3;opacity:0}
+html:has(.shell.is-night) body .master-clock .logo-bob .oc-cat.day{opacity:0}
+html:has(.shell.is-night) body .master-clock .logo-bob .oc-cat.night{opacity:.9}
 @keyframes rdRim{0%,100%{box-shadow:0 0 0 1px rgba(214,150,96,.35),0 0 0 0 rgba(255,150,60,0)}50%{box-shadow:0 0 0 1.5px rgba(255,206,150,.95),0 0 14px 3px rgba(255,150,60,.65)}}
 html body .bd-rail-key[data-rail="tips"].rd-glow{border-radius:50%;animation:rdRim 1.5s ease-in-out infinite}
 .oc-mus:not(.open) .mm{transition-duration:.22s,.3s!important;transition-delay:0s!important}

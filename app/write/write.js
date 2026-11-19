@@ -199,7 +199,8 @@
     d.addEventListener('keydown',e=>{if(e.key.length===1||e.key==='Enter'||e.key==='Backspace')typing(true);},true);
     d.addEventListener('input',()=>feed());d.addEventListener('selectionchange',()=>feed());};
   wc.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;e.stopPropagation();const c=b.dataset.c,d=FD();
-    if(c==='back'){if(document.documentElement.classList.contains('rk-on'))window.OCHERKI_SET_MODE?.('write');else d?.getElementById('backBtn')?.click();}
+    // in «Рукопись» the back key goes from an opened chapter to all the chapters, and from there back to writing
+    if(c==='back'){if(document.documentElement.classList.contains('rk-on')){if(!window.OCHERKI_MANUSCRIPT?.back?.())window.OCHERKI_SET_MODE?.('write');}else d?.getElementById('backBtn')?.click();}
     else if(c==='mic')d?.getElementById('voiceBtn')?.click();
     else if(c==='aa')d?.getElementById('textBtn')?.click();
     else if(c==='tips')document.querySelector('.bd-rail-key[data-rail="tips"]')?.click();
@@ -658,9 +659,10 @@
       void c.offsetWidth;c.style.removeProperty('transition');}
     else if(c)c.style.removeProperty('transform');};
   requestAnimationFrame(tick);
-  // the iframe learns where the screen's window lies over it (its sun and shade are laid from the screen's corner)
-  setInterval(()=>{const f=F(),d=FD();if(!f||!d?.body)return;const r=f.getBoundingClientRect();const st=d.body.style;const v=[-r.left,-r.top,innerWidth,innerHeight].map(Math.round).join();if(st._ws===v)return;st._ws=v;
-    st.setProperty('--sun-x',Math.round(-r.left)+'px');st.setProperty('--sun-y',Math.round(-r.top)+'px');st.setProperty('--sun-w',innerWidth+'px');st.setProperty('--sun-h',innerHeight+'px');st.setProperty('--ws-shade',SHADE_PAPER);},500);
+  // the iframe learns where the screen's window lies over it (its sun and shade are laid from the screen's corner) — every
+  // frame, only written when it changed (twice a second, the light on the sheet caught up with a jump after the sheet moved)
+  requestAnimationFrame(function sun(){requestAnimationFrame(sun);const f=F(),d=FD();if(!f||!d?.body)return;const r=f.getBoundingClientRect();const st=d.body.style;const v=[-r.left,-r.top,innerWidth,innerHeight].map(Math.round).join();if(st._ws===v)return;st._ws=v;
+    st.setProperty('--sun-x',Math.round(-r.left)+'px');st.setProperty('--sun-y',Math.round(-r.top)+'px');st.setProperty('--sun-w',innerWidth+'px');st.setProperty('--sun-h',innerHeight+'px');st.setProperty('--ws-shade',SHADE_PAPER);});
   // the book's page opens by itself once the book is ready in the background (unless the hand closed it)
   setInterval(()=>{const W=window.__ocWp;if(!W||W.isOn()||!shell.classList.contains('oc-ws'))return;let off=false;try{off=localStorage.getItem('ocherkiPeekOff')==='1';}catch(_){}
     if(!W.usable())return;void off;if(Date.now()-autoTried<4000)return;autoTried=Date.now();W.open();},1000);
