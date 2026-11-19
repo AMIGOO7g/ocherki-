@@ -10,7 +10,11 @@ html.rk-shown .rk-board{opacity:1;visibility:visible;transition:opacity .3s ease
 /* the desk's own sheet and clean stack are put away while the middle sheet and the pile lie over them (they come back first on
    the way out); «Так ляжет» goes aside (rukopis.js), the clock and the signature stay */
 #editorPaperWrap .editor-paper,.ws-left,#writingPrompt{transition:opacity .3s ease}
-html.rk-hide #editorPaperWrap .editor-paper,html.rk-hide .ws-left,html.rk-hide #writingPrompt{opacity:0!important;pointer-events:none!important}
+html.rk-hide #editorPaperWrap .editor-paper,html.rk-hide .ws-left>:not(.ws-tabs),html.rk-hide #writingPrompt{opacity:0!important;pointer-events:none!important}
+html.rk-hide .ws-left{pointer-events:none!important}
+/* the plate over the stack stays (no blink, no change of its shadow): only its words give way to the chapter's */
+.ws-left .ws-tabs button{transition:opacity .3s ease}
+html.rk-on .ws-left .ws-tabs button{opacity:0!important;pointer-events:none!important}
 html.rk-on .wc [data-c="mic"],html.rk-on .wc [data-c="aa"],html.rk-on .wc [data-c="add"],html.rk-on .wc .t b .ed{visibility:hidden}
 
 /* ——— the open chapter */
@@ -35,11 +39,14 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
 .rk-epr{position:absolute;left:8.85%;top:6.7%;width:82.3%;display:flex;align-items:center;justify-content:center;gap:18px;font:14px Georgia,serif;color:#2f2118}
 .rk-epr::before,.rk-epr::after{content:"";height:1px;flex:1;max-width:160px;background:var(--rk-line,rgba(110,80,50,.3))}
 .rk-epr span{white-space:nowrap}
-.rk-txt{position:absolute;left:8.85%;top:11.55%;width:82.3%;bottom:9.5%;overflow:hidden;white-space:pre-wrap;hyphens:auto;font:14px/19.88px Georgia,serif;color:#3b2a20}
+.rk-txt{position:absolute;left:8.85%;top:11.55%;width:82.3%;bottom:9.5%;overflow:hidden;hyphens:auto;font:14px/19.88px Georgia,serif;color:#3b2a20}
 .rk-sh.doc .rk-in::after{content:"";position:absolute;inset:0;background:rgba(150,110,60,.07);pointer-events:none}
-/* the photographs of the sheet lie at its left edge, as the editor's little pile does */
+.rk-txt p{margin:0 0 .72em}
+/* the photographs of the sheet lie at its left edge, as the editor's little pile does; in the same light as the sheet (by night
+   dimmed under the lamp, on the pile and in the fan as dim as their sheet) */
 .rk-ph{position:absolute;left:-67px;top:22px;width:113px;height:74px;object-fit:cover;box-sizing:border-box;border:4px solid #fbf7ef;rotate:-4deg;z-index:8;pointer-events:none;
-  box-shadow:1px 2px 4px rgba(40,25,10,.3);filter:sepia(.55) saturate(.75) contrast(.96)}
+  box-shadow:1px 2px 4px rgba(40,25,10,.3);filter:sepia(.55) saturate(.75) contrast(.96) brightness(var(--phb,.97));transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .rk-ph{--phb:.6}
 /* on the pile and in the fan the sheet's number shows large in its corner (the text is not to be read there, the sheet is known by
    its number, its photographs and its ribbon) */
 .rk-big{position:absolute;right:7%;bottom:4%;font:calc(var(--h,940px)*.075)/1 'CormorantCy',Georgia,serif;color:#6a4a2e;opacity:0;transition:opacity .45s ease;z-index:6;pointer-events:none}
@@ -52,7 +59,7 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
 /* the light: the desk's picture of light (the window's by day, the lamp's at night) laid on the sheet from where the sheet lies, in a
    layer the sheet's own size; the picture slides inside it by the same time and curve as the sheet moves (only the sheet's area is
    drawn again — the whole screen never is, and day and night pass without the screen blinking) */
-.rk-lt{position:absolute;inset:0;pointer-events:none;z-index:5;mix-blend-mode:multiply;
+.rk-lt{position:absolute;inset:-2px;pointer-events:none;z-index:5;mix-blend-mode:multiply;
   transition:background-position .55s cubic-bezier(.2,.8,.3,1),background-size .55s cubic-bezier(.2,.8,.3,1)}
 .rk-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-sun{background-image:var(--ws-shade)}
@@ -91,11 +98,8 @@ html:has(.shell.is-night) .rk-blank button span{color:#e8cfa6}
 /* the plate over the pile: the chapter and where we are in it (a press shows all the chapters). The name is written in the script,
    with room above and below for its tall letters */
 .rk-plate{position:absolute;display:flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;cursor:pointer;border-radius:999px;border:3px solid transparent;
-  background:linear-gradient(#efe3cb,#e6d5b5 46%,#d9bf98) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;
-  box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.45),0 6px 12px rgba(60,40,20,.28);white-space:nowrap;overflow:hidden;padding:0 16px}
-.rk-plate::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);box-shadow:inset 0 3px 7px rgba(0,0,0,.5);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .rk-plate::before{opacity:1}
-.rk-plate>*{position:relative;transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+  background:none;white-space:nowrap;overflow:hidden;padding:0 16px}
+html:has(.shell.is-night) .rk-plate>*{position:relative;transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-plate b{font:500 12px 'CormorantCy',serif;letter-spacing:.18em;text-transform:uppercase;color:#6a4a2e;flex:none}
 .rk-plate i{font:400 23px/1.6 'SignThatS','CormorantCy',serif;font-style:normal;color:#2f1d10;padding:0 .2em;min-width:0;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 0 rgba(255,190,110,0)}
 .rk-plate span{font:14px 'CormorantCy',serif;color:#6a4a2e;flex:none}
@@ -126,6 +130,9 @@ html:has(.shell.is-night) .rk-tab.over i,html:has(.shell.is-night) .rk-tab.lit i
 .rk-tabs.sorting .rk-tab:not(.held){transition:box-shadow .3s ease}
 .rk-tab.rk-tabnew{background:none;border:1.5px dashed rgba(90,63,38,.5);box-shadow:none;font:15px/1.9 'CormorantCy',serif;color:#5a3f26;transition:color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),transform .4s ease}
 .rk-tab.rk-tabnew::before{display:none}
+/* «все главы» heads the column: all the chapters as stacks */
+.rk-tab.rk-taball{padding:7px 14px 6px}
+.rk-tab.rk-taball b{font-size:11px;letter-spacing:.2em}
 html:has(.shell.is-night) .rk-tab b{color:#c9b08a}
 html:has(.shell.is-night) .rk-tab i{color:#e8d2ae}
 html:has(.shell.is-night) .rk-tab.cur i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
@@ -171,3 +178,5 @@ html.oc-to-room .ms-flyer{display:none!important}
 .rk-ch.folding{opacity:1}
 .rk-ch.folding>:not(.rk-fan),.rk-ch:not(.on)>:not(.rk-fan){opacity:0;transition:opacity .3s ease}
 .rk-all.flipping .rk-st{transition:translate .3s ease,--ox .32s cubic-bezier(.2,.8,.3,1),--oy .32s cubic-bezier(.2,.8,.3,1)}
+/* the stack's own plate lies under «Рукопись»'s board, so the chapter's name on it is seen */
+html.rk-on .ws-left{z-index:2147483070!important}

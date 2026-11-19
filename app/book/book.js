@@ -397,7 +397,8 @@ document.addEventListener('click',e=>{
     const at=e=>[e.clientX-o.X0,e.clientY-o.Y0];
     const end=()=>{root.remove();document.querySelector('.bq-book')?.classList.remove('is-curling');window.__bqCurling=0;o.done();if(window.__bqArcLater){window.__bqArcLater=0;window.__ocherkiArcSync?.(true);}};
     // from where the leaf lies to where it goes; a lift through the middle of the way
-    const fly=(from,to,ms,then)=>{const t0=performance.now(),lift=H*.16*(to[0]<from[0]?1:-1)*(C[1]===Y?-1:1);
+    // the corner rises a little on its way (o.lift of the page's height), the same way up whichever way the leaf turns
+    const fly=(from,to,ms,then)=>{const t0=performance.now(),lift=H*(o.lift??.16)*(C[1]===Y?-1:1);
       const step=now=>{const k=Math.min(1,(now-t0)/ms),e=ease(k);draw([from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e-Math.sin(Math.PI*e)*lift]);if(k<1)requestAnimationFrame(step);else then();};requestAnimationFrame(step);};
     const flat=[S-W,0];// the leaf lying on the left
     const finish=ok=>{const target=forward?(ok?[S-W,C[1]]:C.slice()):(ok?C.slice():[S-W,C[1]]);return target;};

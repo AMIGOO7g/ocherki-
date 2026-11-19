@@ -1,10 +1,27 @@
 /* «Книга» (v236) — the book on the same desk; see desk-book.js */
 .bk-board{position:fixed;inset:0;z-index:2147483080;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s;font-family:'CormorantCy',Georgia,serif}
 .bk-board.on{opacity:1;visibility:visible;transition:opacity .45s ease}
+/* (coming from the editor the book is there at once: «Так ляжет» is seen going to its place, nothing fades) */
+.bk-board.on.bk-now{transition:none}
 .bk-board.on>*{pointer-events:auto}
 .bk-board button{all:unset;cursor:pointer}
 /* while the book is open the bar is the book's: no writing keys */
-html.bk-on .wc [data-c="mic"],html.bk-on .wc [data-c="aa"],html.bk-on .wc [data-c="add"],html.bk-on .wc .t b .ed{visibility:hidden}
+html.bk-on .wc [data-c="mic"],html.bk-on .wc .t b .ed{visibility:hidden}
+html.bk-on .wc [data-c="aa"],html.bk-on .wc [data-c="add"]{display:none!important}
+/* the spread's composition, on the bar while the book is open: ‹ the list › */
+.wc .bkc{display:none!important}
+html.bk-on .wc .bkc{display:grid!important}
+html.bk-on .wc .bkc.off{opacity:.3;pointer-events:none}
+.wc .bkc.bkn svg{transform:scaleX(-1)}
+.bk-cmenu{position:fixed;z-index:2147483095;min-width:240px;padding:8px;border-radius:14px;border:3px solid transparent;font:16px 'CormorantCy',serif;color:#3a2614;
+  background:linear-gradient(#f3e9d6,#ead9bc) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;box-shadow:0 0 0 1px rgba(62,42,29,.7),0 14px 30px rgba(40,25,10,.4)}
+.bk-cmenu[hidden]{display:none}
+.bk-cmenu b{display:block;padding:4px 10px 8px;font:500 11px 'CormorantCy',serif;letter-spacing:.18em;text-transform:uppercase;color:#6a4a2e}
+.bk-cmenu button{all:unset;display:block;cursor:pointer;padding:6px 10px;border-radius:8px}
+.bk-cmenu button:hover{background:rgba(196,150,100,.18)}
+.bk-cmenu button.cur{background:rgba(196,150,100,.28)}
+html:has(.shell.is-night) .bk-cmenu{background:radial-gradient(circle,#25221e,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#e8d2ae}
+html:has(.shell.is-night) .bk-cmenu b{color:#c9b08a}
 
 /* the open book: the writing sheet's shadows, by day and at night */
 .bk-spread{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22);
@@ -16,9 +33,11 @@ html:has(.shell.is-night) .bk-spread{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px 
 .bk-host{position:absolute;inset:0}
 .bk-host>*{width:100%;height:100%}
 .bk-empty{position:absolute;inset:0;background:linear-gradient(100deg,#f7f0e3,#efe4d0)}
-/* the fold in the middle */
-.bk-gutter{position:absolute;top:0;bottom:0;left:50%;width:76px;translate:-50% 0;pointer-events:none;z-index:7;
-  background:linear-gradient(90deg,transparent,rgba(60,40,20,.08) 38%,rgba(40,25,10,.26) 50%,rgba(60,40,20,.08) 62%,transparent)}
+/* the fold in the middle: the pages curve down into it — the very shade the turning leaf draws there, so it does not change when a
+   leaf is taken; a faint light on each page's rise beside it */
+.bk-gutter{position:absolute;top:0;bottom:0;left:50%;width:32%;translate:-50% 0;pointer-events:none;z-index:7;
+  background:linear-gradient(90deg,rgba(30,18,8,0) 0%,rgba(30,18,8,.07) 38%,rgba(30,18,8,.2) 47%,rgba(30,18,8,.3) 50%,rgba(30,18,8,.2) 53%,rgba(30,18,8,.07) 62%,rgba(30,18,8,0) 100%),
+    linear-gradient(90deg,transparent 22%,rgba(255,250,240,.16) 32%,transparent 42%,transparent 58%,rgba(255,250,240,.16) 68%,transparent 78%)}
 /* the desk's light over the open book: one layer, the desk's pictures laid from where the book lies; it does not move while the
    leaves turn (the turning leaf has the same layer over it) */
 .bk-lt{position:absolute;inset:0;pointer-events:none;z-index:8;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat}
@@ -33,14 +52,16 @@ html:has(.shell.is-night) .bk-beam{opacity:1}
   text-shadow:0 0 6px rgba(250,242,228,.95),0 0 14px rgba(250,242,228,.8);transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) .bk-cap{color:#ecd6b0;text-shadow:0 0 6px rgba(20,12,6,.9),0 0 14px rgba(20,12,6,.7)}
 /* the strip of all the spreads: each in little as it lies in the book; the open one stands in the middle */
-.bk-stripv{position:absolute;height:116px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.bk-stripv{position:absolute;height:136px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
 .bk-strip{position:absolute;left:0;top:10px;display:flex;gap:16px;align-items:center;transition:translate .5s cubic-bezier(.3,.1,.2,1)}
-.bk-board .bk-th{position:relative;flex:none;display:flex!important;width:var(--tw,172px);height:86px;background:#fbf7ef;box-shadow:1px 2px 4px rgba(60,40,20,.3);opacity:.78;transition:opacity .3s ease,translate .3s ease,filter 2.45s cubic-bezier(.37,0,.63,1);cursor:pointer}
+.bk-board .bk-th{position:relative;flex:none;display:flex!important;width:var(--tw,172px);height:86px;background:#fbf7ef;box-shadow:1px 2px 4px rgba(60,40,20,.3);opacity:.85;transition:opacity .3s ease,translate .3s ease;cursor:pointer}
 .bk-board .bk-th .bk-tl,.bk-board .bk-th .bk-tr{position:relative;flex:1;height:100%;overflow:hidden}
 .bk-board .bk-th .bk-tl{box-shadow:inset -6px 0 8px -6px rgba(40,25,10,.35)}.bk-board .bk-th .bk-tr{box-shadow:inset 6px 0 8px -6px rgba(40,25,10,.35)}
 .bk-board .bk-th:hover{opacity:1;translate:0 -3px}
 .bk-board .bk-th.cur{opacity:1;outline:1.5px solid rgba(110,80,50,.6);outline-offset:4px}
-html:has(.shell.is-night) .bk-board .bk-th{filter:brightness(.6) sepia(.15)}html:has(.shell.is-night) .bk-board .bk-th.cur,html:has(.shell.is-night) .bk-board .bk-th:hover{filter:brightness(.88) sepia(.08)}
+/* at night the little pages lie in the lamp's half-light (their captions stay readable) */
+.bk-board .bk-th .bk-tl,.bk-board .bk-th .bk-tr{transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .bk-board .bk-th :is(.bk-tl,.bk-tr){filter:brightness(.6) sepia(.15)}html:has(.shell.is-night) .bk-board .bk-th:is(.cur,:hover) :is(.bk-tl,.bk-tr){filter:brightness(.88) sepia(.08)}
 /* the brass plates at the sides */
 .bk-board .bk-keys{position:absolute;display:flex;flex-direction:column;gap:12px;width:170px}
 .bk-board .bk-k{display:block!important;box-sizing:border-box;padding:7px 14px 7px!important;text-align:center;border-radius:16px;border:3px solid transparent!important;font:17px 'CormorantCy',serif;color:#3a2614;
@@ -58,3 +79,9 @@ html:has(.shell.is-night) .bk-board .bk-k b,html:has(.shell.is-night) .bk-board 
 /* a little page fills its half of the little spread (the director fits its page to it) */
 .bk-board .bk-th .bd-page-mini{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#fbf7ef}
 .bk-board .bk-th .bd-page-mini .page-canvas{position:absolute;transform-origin:0 0}
+
+/* under each little spread: its pages, and a chapter's name where it begins */
+.bk-board .bk-th em{position:absolute;left:0;right:0;top:calc(100% + 6px);font:12px/1.2 'CormorantCy',serif;font-style:normal;color:#3a2614;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .bk-board .bk-th em{color:#e0c8a2}
+.bk-board .bk-th{overflow:visible}

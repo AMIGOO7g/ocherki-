@@ -175,13 +175,13 @@
     bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>',
     play:'<path d="M8 5l11 7-11 7z"/>',pause:'<path d="M9 5v14M15 5v14"/>',photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',
     document:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',quote:'<path d="M5 17c2.5-1 4-3 4-6V7H5v4h3M13 17c2.5-1 4-3 4-6V7h-4v4h3"/>',
-    date:'<rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M4 10h16M8 3v4M16 3v4"/>',page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>'};
+    date:'<rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M4 10h16M8 3v4M16 3v4"/>',page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>',layout:'<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M12 5v14M14.5 9h4M14.5 12h4M14.5 15h3"/><rect x="5" y="8" width="5" height="6"/>'};
   const sv=n=>S+IC[n]+E;
   const wc=document.createElement('div');wc.className='wc wc-w';
   const bt=(c,ic,tip,cls='')=>`<button class="${cls}" data-c="${c}" aria-label="${tip}" data-tip="${tip}">${sv(ic)}${c==='tips'?'<em></em>':''}</button>`;
   wc.innerHTML=`<i class="nf"></i>`+bt('back','back','Назад')
     +`<span class="grow"></span><span class="t"><b></b><span class="sv"></span></span>`
-    +bt('mic','mic','Говорить вместо печати')+bt('aa','aa','Шрифт и размер')+bt('add','plus','Добавить')+bt('music','play','Музыка: играть / пауза')+bt('tips','bulb','До книги — что улучшить');
+    +bt('mic','mic','Говорить вместо печати')+bt('aa','aa','Шрифт и размер')+bt('add','plus','Добавить')+bt('cprev','back','Предыдущая композиция','bkc')+bt('comp','layout','Композиция разворота','bkc')+bt('cnext','back','Следующая композиция','bkc bkn')+bt('music','play','Музыка: играть / пауза')+bt('tips','bulb','До книги — что улучшить');
   document.body.appendChild(wc);
   // v204: the music's key on the bar: play ▸ / pause ‖ as the music goes
   addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_AUDIO_STATE')return;const on=d.state==='playing'&&!d.muted;const k=wc.querySelector('[data-c="music"]');if(!k)return;

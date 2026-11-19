@@ -39,7 +39,7 @@
     lt.style.backgroundPosition=`${-left}px ${-top}px`;}
   // a page as the director draws it, fitted to its place
   const fill=(el,html)=>{el.innerHTML=html?`<div class="bk-host">${html}</div>`:'<div class="bk-empty"></div>';el.classList.toggle('blank',!html);};
-  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left);fill(R,sp.right);BK()?.scale?.();caption(sp);paintStrip();}
+  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left);fill(R,sp.right);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
   function caption(sp){sp=sp||BK()?.spread(cur);const t=String(sp?.title||'').replace(/^Глава\s*(\d+)\.?\s*/i,'Глава $1 · ');
     cap.textContent=`${t?t+' · ':''}разворот ${cur+1} из ${n}`;}
 
@@ -48,11 +48,14 @@
   let filled=new Set(),fillT=0;
   const idle=(f,t)=>(window.requestIdleCallback||(g=>setTimeout(()=>g({timeRemaining:()=>10}),60)))(f,{timeout:t});
   function buildStrip(){filled=new Set();let h='';
-    for(let k=0;k<n;k++)h+=`<button type="button" class="bk-th" data-k="${k}"><i class="bk-tl"></i><i class="bk-tr"></i></button>`;
+    for(let k=0;k<n;k++)h+=`<button type="button" class="bk-th" data-k="${k}"><i class="bk-tl"></i><i class="bk-tr"></i><em></em></button>`;
     strip.innerHTML=h;paintStrip();}
   function fillSome(){if(window.cancelIdleCallback)cancelIdleCallback(fillT);const order=[...Array(n).keys()].filter(k=>!filled.has(k)).sort((a,b)=>Math.abs(a-cur)-Math.abs(b-cur));if(!order.length)return;
     const step=dl=>{let done=0;while(order.length&&(done<2||dl.timeRemaining()>8)){const k=order.shift(),t=BK()?.thumb(k),el=strip.children[k];if(!t||!el)continue;
-        el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;el.title=`${t.title?t.title+' · ':''}с. ${t.label}`;filled.add(k);done++;}
+        el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;
+        // under it: its pages, and where a chapter begins, the chapter's name
+        const prev=k>0?BK()?.thumb(k-1):null,ch=t.title&&(!prev||prev.title!==t.title)?String(t.title).replace(/^Глава\s*(\d+)\.?\s*/i,'Гл. $1 · '):'';
+        el.children[2].textContent=`${ch?ch+' · ':''}${t.label?'с. '+t.label:''}`;filled.add(k);done++;}
       BK()?.scale?.();if(order.length&&isOpen)fillT=idle(step,400);};
     fillT=idle(step,200);}
   function paintStrip(){[...strip.children].forEach((el,k)=>el.classList.toggle('cur',k===cur));const el=strip.children[cur],v=$('.bk-stripv');
@@ -82,8 +85,8 @@
     const clone=el=>el.querySelector('.bk-host')?.cloneNode(true)||null;
     const oldL=clone(L),oldR=clone(R);flipping=true;rustle();show(to);
     const newL=clone(L),newR=clone(R);
-    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,back:()=>show(from),done:()=>{flipping=false;}});}catch(_){ok=false;}
-    if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-lt-curl" style="background-position:${-geo.left}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);}}
+    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.06,back:()=>show(from),done:()=>{flipping=false;}});}catch(_){ok=false;}
+    if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));c.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-lt-curl" style="background-position:${-geo.left}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);}}
     else flipping=false;}
   const turn=dir=>turnTo(cur+dir);
   board.addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();if(flipping||Math.abs(e.deltaY)<20)return;turn(e.deltaY>0?1:-1);},{passive:false});
@@ -110,7 +113,8 @@
     let side='right';cur=0;try{const pk=window.__ocherkiPeekPage?.(uid,fromMs?-1:(window.__ocherkiEditorRatio?.()??-1));if(pk){cur=Math.max(0,Math.min(n-1,pk.spread));side=pk.side;}}catch(_){}
     const from=fromMs?null:paneRect();
     H.classList.add('bk-on');measure();buildStrip();show(cur);plates();setTitle();
-    board.classList.add('on');
+    board.classList.add('on','bk-now');requestAnimationFrame(()=>requestAnimationFrame(()=>board.classList.remove('bk-now')));
+    [cap,$('.bk-stripv'),kl,kr].forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:600,delay:fromMs?300:520,easing:'ease-out',fill:'backwards'}));
     if(fromMs){// from «Рукопись»: the whole book comes in from the right, «Рукопись» goes under it
       aside(true,0);if(pane())pane().style.visibility='hidden';window.OCHERKI_MANUSCRIPT?.close?.();
       board.animate([{translate:'100vw 0px'},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.2,.75,.25,1)'});}
@@ -133,6 +137,22 @@
     board.classList.remove('on');aside(false,760);if(p)p.style.visibility='';
     const tr=paneRect();if(tr){const r=R.getBoundingClientRect();document.querySelector('.wp-pane .wp-page')?.animate([{translate:`${r.left-tr.left}px ${r.top-tr.top}px`},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.45,.05,.3,1)'});}
     end(780);setTimeout(()=>after?.(),790);}
+  // ——— the spread's composition on the bar: ‹ › go through the ones that fit, the middle key lists them; the book is laid out anew
+  // where it lies and stays on the spread of that photo
+  const cmenu=document.createElement('div');cmenu.className='bk-cmenu';cmenu.hidden=true;document.body.appendChild(cmenu);
+  function syncComp(){const c=BK()?.compositions?.(cur),w=bar();if(!w)return;w.querySelectorAll('.bkc').forEach(b=>b.classList.toggle('off',!c||!c.list.length));}
+  function compose(id){if(!id||busy||flipping)return;busy=true;rustle();const at=BK().compose(cur,id);n=BK().ready();cur=Math.max(0,Math.min(n-1,at));
+    buildStrip();show(cur);plates();busy=false;
+    const lab=BK().compositions(cur)?.list.find(x=>x.id===id)?.label;if(lab)window.OCHERKI_SHOW_TOAST?.(lab);}
+  function step(dir){const c=BK()?.compositions?.(cur);if(!c||!c.list.length)return;const i=c.list.findIndex(x=>x.id===c.now);compose(c.list[((i<0?(dir>0?-1:0):i)+dir+c.list.length)%c.list.length].id);}
+  addEventListener('click',e=>{if(!isOpen)return;const b=e.target.closest?.('.wc .bkc');if(!b){if(!cmenu.hidden&&!cmenu.contains(e.target))cmenu.hidden=true;return;}
+    e.preventDefault();e.stopImmediatePropagation();const k=b.dataset.c;
+    if(k==='cprev')step(-1);else if(k==='cnext')step(1);
+    else{if(!cmenu.hidden){cmenu.hidden=true;return;}const c=BK()?.compositions?.(cur);if(!c)return;
+      cmenu.innerHTML='<b>Композиция разворота</b>'+c.list.map(x=>`<button type="button" data-id="${esc(x.id)}"${x.id===c.now?' class="cur"':''}>${esc(x.label)}</button>`).join('');
+      const r=b.getBoundingClientRect();Object.assign(cmenu.style,{left:Math.round(Math.min(innerWidth-260,r.left-110))+'px',top:Math.round(r.bottom+16)+'px'});cmenu.hidden=false;}},true);
+  cmenu.addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;cmenu.hidden=true;compose(b.dataset.id);});
+
   // «Книга» on the bar's keys opens the book on the desk (before the old ways under it hear the press)
   addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k="book"]');if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(!isOpen)open();},true);
   setInterval(()=>{if(isOpen&&!busy)setTitle();},800);

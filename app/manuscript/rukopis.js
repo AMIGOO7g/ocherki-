@@ -83,7 +83,8 @@
     const S=cs(a),pa=a.querySelector('.paper'),ed=a.querySelector('.editor'),ep=a.querySelector('.episode-row'),en=a.querySelector('.episode'),pn=a.querySelector('.page-no');let css='';
     css+=`.rk-board .rk-in{background-image:${S.backgroundImage};background-color:${S.backgroundColor}}`;
     if(pa){const c=cs(pa),r=rel(pa);if(r)css+=`.rk-board .rk-paper{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;inset:auto;background-image:${c.backgroundImage};background-color:${c.backgroundColor};border:${c.border};box-shadow:${c.boxShadow}}`;}
-    {const r=rel(ed);if(r)css+=`.rk-board .rk-txt{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;bottom:auto;${font(cs(ed))}}`;}
+    {const r=rel(ed);if(r)css+=`.rk-board .rk-txt{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;bottom:auto;${font(cs(ed))}}`;
+      const pp=ed?.querySelector('p');if(pp){const c=cs(pp);css+=`.rk-board .rk-txt p{margin:${c.marginTop} 0 ${c.marginBottom};text-indent:${c.textIndent}}`;}}
     {const r=rel(ep);if(r&&en){const lc=W.getComputedStyle(ep,'::before');css+=`.rk-board .rk-epr{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;gap:${cs(ep).columnGap};${font(cs(en))};text-align:center}.rk-board .rk-epr::before,.rk-board .rk-epr::after{background:${lc.backgroundColor};max-width:${lc.width}}`;}}
     {const r=rel(pn);if(r)css+=`.rk-board .rk-pno{left:${r.l}px;top:${r.t}px;right:auto;${font(cs(pn))}}`;}
     {const img=d.querySelector('.photo-stack img'),r=rel(img);if(r)css+=`.rk-board .rk-ph{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px}`;}
@@ -104,9 +105,14 @@
   // a sheet as the editor draws it: its paper, the episode line (in a chapter), the text with its own line breaks, the little number;
   // its first photograph at its left edge; the large number for the pile and the fan; the light as a layer of its own
   const sheetHtml=(x,k)=>{const p=x.p,doc=p.type==='document'||p.bookRole==='document',ph=(p.photos||[]).find(q=>q&&q.src);
-    const ep=x.s.type==='chapter'?String(p.episode||'').trim():'';
+    // over the text: the episode's name in a chapter; elsewhere the sheet's own name (Обложка, От автора…), so each is known
+    const ep=x.s.type==='chapter'?String(p.episode||'').trim():String(p.title||x.s.title||'').trim();
     return `${p.isEpisodeStart||doc?'<i class="rk-rib"></i>':''}<div class="rk-in"><i class="rk-paper"></i><div class="rk-pno">${k+1}</div>${ep?`<div class="rk-epr"><span>${esc(ep)}</span></div>`:''}`+
-      `<div class="rk-txt">${esc(String(p.text||'').slice(0,4000))}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-beam"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
+      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-beam"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
+  // the sheet's text as the editor sets it: its own marked-up text when it has one, else paragraph by paragraph (an empty line
+  // between them), the editor's space after each
+  const textHtml=p=>{if(p.semanticHtml)return String(p.semanticHtml).replace(/\scontenteditable="[^"]*"/g,'');
+    const parts=String(p.text||'').split(/\n{2,}/).map(x=>x.trim()).filter(Boolean).slice(0,40);return parts.map(t=>`<p>${esc(t)}</p>`).join('');};
   // a sheet that is no longer of the view fades where it lies, then goes
   const retire=el=>{el.dataset.u='';el.classList.add('gone');el.style.opacity=0;el.style.pointerEvents='none';setTimeout(()=>el.remove(),520);};
   const live=()=>[...fan.children].filter(el=>el.dataset.u);
@@ -126,7 +132,7 @@
   // sheet (now — at once, for a sheet just made). A sheet not seen draws no light
   function lightSheet(el,p,now){el.style.setProperty('--sc',p.s);el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);
     const lt=el.querySelector('.rk-lt');if(!lt)return;lt.style.display=p.o?'':'none';if(now)lt.style.transition='none';
-    lt.style.backgroundPosition=`${(-p.x/p.s).toFixed(1)}px ${(-p.y/p.s).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/p.s).toFixed(1)}px ${(innerHeight/p.s).toFixed(1)}px`;
+    lt.style.backgroundPosition=`${(-p.x/p.s+2).toFixed(1)}px ${(-p.y/p.s+2).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/p.s).toFixed(1)}px ${(innerHeight/p.s).toFixed(1)}px`;
     if(now){lt.getBoundingClientRect();lt.style.transition='';}}
 
   // ——— the open chapter
@@ -163,7 +169,7 @@
   function renderPlate(){if(!G)return;const pl=desk.plate;Object.assign(plate.style,{left:pl.left+'px',top:pl.top+'px',width:pl.width+'px',height:pl.height+'px'});
     const h=`<b>${esc(G.word)}</b>${G.name?`<i>${esc(G.name)}</i>`:''}<span>${center+1} из ${order.length}</span>`;if(plate._h!==h){plate._h=h;plate.innerHTML=h;}}
   function renderTabs(){const gs=groups();Object.assign(tabs.style,{left:desk.tabs.left+'px',width:desk.tabs.width+'px',top:(desk.bar?desk.bar.bottom+24:140)+'px'});
-    tabs.innerHTML=gs.map(g=>`<div class="rk-tab${g.key===G?.key?' cur':''}${g.kind==='chapter'?' ch':''}${g.key===litTab?' lit':''}" data-g="${esc(g.key)}"><b>${esc(g.word)}<span> · ${g.sheets.length}</span></b>${g.name?`<i>${esc(g.name)}</i>`:''}</div>`).join('')+'<div class="rk-tab rk-tabnew" role="button">+ глава</div>';}
+    tabs.innerHTML='<div class="rk-tab rk-taball" role="button"><b>все главы</b></div>'+gs.map(g=>`<div class="rk-tab${g.key===G?.key?' cur':''}${g.kind==='chapter'?' ch':''}${g.key===litTab?' lit':''}" data-g="${esc(g.key)}"><b>${esc(g.word)}<span> · ${g.sheets.length}</span></b>${g.name?`<i>${esc(g.name)}</i>`:''}</div>`).join('')+'<div class="rk-tab rk-tabnew" role="button">+ глава</div>';}
 
   // ——— all the chapters as stacks (the bar's back key, or the plate)
   const PH=[[16,6,-5],[92,12,4],[50,44,-2]];
@@ -297,6 +303,7 @@
   // ——— the chapters' plates: a press opens the chapter; a plate carried up or down puts its chapter there
   tabs.addEventListener('pointerdown',e=>{if(e.button!==0||busy||drag)return;const t=e.target.closest('.rk-tab');if(!t)return;e.preventDefault();
     if(t.classList.contains('rk-tabnew')){view={key:'__newch'};send({action:'addChapter'});return;}
+    if(t.classList.contains('rk-taball')){back();return;}
     tabDrag={t,y0:e.clientY,grab:e.clientY-t.getBoundingClientRect().top,moved:false,keys:[...tabs.querySelectorAll('.rk-tab.ch')].map(x=>x.dataset.g)};
     const mv=ev=>{const d=tabDrag;if(!d||d.dead)return;if(!d.moved){if(Math.abs(ev.clientY-d.y0)<6)return;if(!t.classList.contains('ch')){d.dead=true;return;}d.moved=true;t.classList.add('held');tabs.classList.add('sorting');}
       d.ev=ev;if(!d.raf)d.raf=requestAnimationFrame(()=>{d.raf=0;if(tabDrag===d)sortTab(d.ev);});};

@@ -2466,6 +2466,18 @@
     photoMode:()=>window.OCHERKI_BOOK_META?.bookPhotoMode||'as-is',photoModes:()=>photoModes.map(([key,label])=>({key,label})),
     setPhotoMode(key){window.OCHERKI_BOOK_META.bookPhotoMode=key;try{localStorage.setItem('ocherki_book_photo_mode',key);}catch(_){}window.__ocherkiPeekSig='';return quietAssemble();},
     design:()=>({key:activeDesign,name:(designs.find(d=>d[0]===activeDesign)||[])[1]||''}),
+    // the spread's compositions (as the old book offered them): those that fit, and the one it has now; none — the spread has no photo
+    compositions(i){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);if(!ref)return null;const own=String(ref.photo.layoutPreference||'auto').toLowerCase();
+      return {now:own!=='auto'?own:String(sp.beat||'auto'),list:compositionChoices(sp).filter(x=>x.ok&&x.id!=='auto').map(x=>({id:x.id,label:x.label}))};},
+    // a spread laid out in another composition: its photo keeps the choice (the sheet is told too), the book is laid out anew; the
+    // spread that holds the photo now is given back
+    compose(i,id){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);if(!ref)return i;const {page,photo,photoIndex}=ref;
+      updateLocalPhotoLayout(page,photo,photoIndex,id);
+      send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:photo._sourcePageUid||page.sourcePageUid||'',photoId:photo.id||'',layoutPreference:id});
+      spreadPhotoRefs(sp).forEach(o=>{if(o.photo===photo||!o.photo.id||String(o.photo.layoutPreference||'auto')==='auto')return;updateLocalPhotoLayout(o.page,o.photo,o.photoIndex,'auto');
+        send({action:'setPhotoLayout',sectionId:o.page.sectionId,pageUid:o.photo._sourcePageUid||o.page.sourcePageUid||'',photoId:o.photo.id||'',layoutPreference:'auto'});});
+      window.__ocherkiPeekSig='';if(!quietAssemble())return i;const pid=String(photo.id||'');
+      const at=bookSpreads.findIndex(x=>spreadPhotoRefs(x).some(r=>String(r.photo.id||'')===pid));return at>=0?at:Math.min(i,bookSpreads.length-1);},
     // pages just put on the desk are drawn (a little page is drawn when it comes in sight) and fitted to their places
     scale:()=>{observePageCanvasHosts();scaleAllPageCanvases();}};
   function performBuild(after){
@@ -2954,7 +2966,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v236"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v237"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
