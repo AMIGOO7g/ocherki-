@@ -339,6 +339,9 @@
     shell.classList.remove('is-manuscript');H.classList.remove('rk-hide');
     setTimeout(()=>{H.classList.remove('rk-shown');aside(false,700);setTimeout(()=>{H.classList.remove('rk-on');live().forEach(el=>el.remove());view=null;G=null;},520);},260);}
   setInterval(()=>{if(isOpen&&!busy)setBarTitle();},800);
+  // the desk's light for the other screens on it (the book): the lamp's beam over the whole desk, its edges as soft as on the writing
+  // sheet, and the writing sheet's place
+  window.OCHERKI_DESK_LIGHT={beam:()=>{measureDesk();const P=desk.paper;return beamOf({x:0,y:0,w:innerWidth,h:innerHeight},{x:P.left,y:P.top,w:P.width,h:P.height});},paper:()=>{measureDesk();return Object.assign({},desk.paper);}};
   window.OCHERKI_MANUSCRIPT={open,close,back,isOpen:()=>isOpen,freeze:()=>{},activeUid:()=>activeUid,
     frontPick:()=>activeUid?{pageUid:activeUid}:null,flyToEditor:()=>false,sheetOf:()=>null};
 })();

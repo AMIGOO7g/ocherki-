@@ -190,7 +190,7 @@
   add.innerHTML=[['photo','фото'],['episode','эпизод'],['document','документ'],['quote','цитата'],['date','дата'],['page','новый лист']].map(([a,l])=>`<button data-a="${a}">${sv(a)}${l}</button>`).join('');
   document.body.appendChild(add);
   const F=()=>document.getElementById('v35SheetFrame');const FD=()=>{try{return F()?.contentDocument;}catch(_){return null;}};const FW=()=>F()?.contentWindow;
-  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&!shell.classList.contains('is-manuscript')&&!shell.classList.contains('is-book-preview')&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
+  const isWrite=()=>shell.classList.contains('oc-w')&&shell.classList.contains('is-open')&&!shell.classList.contains('is-manuscript')&&!shell.classList.contains('is-book-preview')&&!document.documentElement.classList.contains('bk-on')&&!document.getElementById('bookPreviewModal')?.classList.contains('open')&&!window.OcherkiBookcase?.isOpen?.()&&!window.OcherkiArchive?.isOpen;
   // inside the sheet: its own top line and the light keys give way to the carriage; the foot reads in our italic
   const dress=()=>{const d=FD();if(!d||d.getElementById('wc-css'))return;const st=d.createElement('style');st.id='wc-css';
     st.textContent=`.topbar .tl>button,.topbar .tr>button,.topbar .chapter,.page-no{visibility:hidden!important;pointer-events:none!important}
@@ -214,7 +214,7 @@
   // it rides on the head of the sheet, wherever the sheet goes
   let lastKey='';
   // v220: in «Рукопись» the bar stays where it is (the sheet under it has gone off the screen; the bar does not follow it)
-  const follow=()=>{requestAnimationFrame(follow);const rk=document.documentElement.classList.contains('rk-on');const on=isWrite()||rk;wc.classList.toggle('on',on);if(rk){add.classList.remove('on');return;}if(!on){add.classList.remove('on');return;}
+  const follow=()=>{requestAnimationFrame(follow);const rk=document.documentElement.classList.contains('rk-on')||document.documentElement.classList.contains('bk-on');const on=isWrite()||rk;wc.classList.toggle('on',on);if(rk){add.classList.remove('on');return;}if(!on){add.classList.remove('on');return;}
     const f=F(),d=FD();if(!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;dress();if(shell.classList.contains('ws-off'))return;
     const fr=f.getBoundingClientRect();
     // v192: the sheet's place in the layout, not its animated box — a sheet that is being laid or swapped must not drag the bar
@@ -701,16 +701,16 @@
     e.stopImmediatePropagation();e.preventDefault();window.__ocLeaveBook(()=>{k.__go=true;k.click();k.__go=false;});},true);
 })();
 
-// v206 — for now only the editor works: «Рукопись», «Книга», «Архив семьи», «Мои книги», the Keeper's tour and the return to
+// v206 — for now only the editor, «Рукопись» and (v234) «Книга» work: «Архив семьи», «Мои книги», the Keeper's tour and the return to
 // the start are «скоро». Their keys stay in their places (the design is kept); a press only says so. The book is still made
 // in the background for «Так ляжет».
-(()=>{const SOON=['archive','book','shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
+(()=>{const SOON=['archive','shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
   let tip=null,tT=0;const say=k=>{const r=k.getBoundingClientRect();if(!tip){tip=document.createElement('div');tip.className='oc-soon-tip';document.body.appendChild(tip);}
     tip.textContent='скоро';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+30)+'px';tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),1300);};
   const stop=e=>{const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};
   ['pointerdown','mousedown','click'].forEach(t=>document.addEventListener(t,stop,true));
   const mark=()=>document.querySelectorAll(sel).forEach(k=>k.classList.add('oc-soon'));mark();setInterval(mark,1500);
-  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const g=t=>t==='write'||t==='manuscript'?f(t):undefined;g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
+  const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const B=()=>window.OCHERKI_DESKBOOK;const g=t=>{if(t==='book')return B()?.open();if(t!=='write'&&t!=='manuscript')return undefined;if(B()?.isOpen())return B().close(()=>{if(t==='manuscript')f(t);});return f(t);};g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();
 
 // v207 — at night the desk comes in dark: until the lamp is lit everything on it (the sheets, the stack, the page) lies in the
 // dusk, and as the lamp lights up the dusk lifts with it, slowly

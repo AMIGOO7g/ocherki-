@@ -1,0 +1,60 @@
+/* «Книга» (v234) — the book on the same desk; see desk-book.js */
+.bk-board{position:fixed;inset:0;z-index:2147483080;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s;font-family:'CormorantCy',Georgia,serif}
+.bk-board.on{opacity:1;visibility:visible;transition:opacity .45s ease}
+.bk-board.on>*{pointer-events:auto}
+.bk-board button{all:unset;cursor:pointer}
+/* while the book is open the bar is the book's: no writing keys */
+html.bk-on .wc [data-c="mic"],html.bk-on .wc [data-c="aa"],html.bk-on .wc [data-c="add"],html.bk-on .wc .t b .ed{visibility:hidden}
+
+/* the open book: the writing sheet's shadows, by day and at night */
+.bk-spread{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22);
+  position:absolute;display:flex;box-shadow:var(--shd);transition:opacity .2s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1);perspective:2600px}
+html:has(.shell.is-night) .bk-spread{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)}
+.bk-spread.bk-fade{opacity:.15}
+.bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
+.bk-l{transform-origin:100% 50%}.bk-r{transform-origin:0 50%}
+.bk-host,.bk-face .bk-host{position:absolute;inset:0}
+.bk-host>*{width:100%;height:100%}
+.bk-empty{position:absolute;inset:0;background:linear-gradient(100deg,#f7f0e3,#efe4d0)}
+/* the fold in the middle */
+.bk-gutter{position:absolute;top:0;bottom:0;left:50%;width:76px;translate:-50% 0;pointer-events:none;z-index:7;
+  background:linear-gradient(90deg,transparent,rgba(60,40,20,.08) 38%,rgba(40,25,10,.26) 50%,rgba(60,40,20,.08) 62%,transparent)}
+/* the desk's light over the pages: the window's picture by day, the lamp's beam at night */
+.bk-lt{position:absolute;left:0;top:0;width:100vw;height:100vh;transform-origin:0 0;pointer-events:none;z-index:6;mix-blend-mode:multiply}
+.bk-lt b{position:absolute;inset:0;background-size:100vw 100vh;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+.bk-sun{background-image:var(--ws-shade)}
+.bk-beam{background-image:var(--rk-beam);opacity:0}
+html:has(.shell.is-night) .bk-sun{opacity:0}
+html:has(.shell.is-night) .bk-beam{opacity:1}
+/* the turning leaf: lifts over the gutter and lays down on the other side, crisp */
+.bk-leaf{position:absolute;top:0;width:50%;height:100%;z-index:9;transform-style:preserve-3d;transition:transform .54s cubic-bezier(.45,.05,.4,1)}
+.bk-leaf.fwd{left:50%;transform-origin:0 50%}.bk-leaf.back{left:0;transform-origin:100% 50%}
+.bk-leaf.fwd.go{transform:rotateY(-180deg)}.bk-leaf.back.go{transform:rotateY(180deg)}
+.bk-face{position:absolute;inset:0;overflow:hidden;background:#fbf7ef;backface-visibility:hidden;box-shadow:0 0 18px rgba(40,25,10,.25)}
+.bk-face.backf{transform:rotateY(180deg)}
+html:has(.shell.is-night) .bk-face{filter:brightness(.82) sepia(.08)}
+
+.bk-cap{position:absolute;left:50%;translate:-50% 0;font:500 13px 'CormorantCy',serif;letter-spacing:.22em;text-transform:uppercase;color:#6a4a2e;white-space:nowrap;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-night) .bk-cap{color:#e0c8a2}
+.bk-board .bk-arrow{position:absolute;translate:0 -50%;width:46px;height:46px;border-radius:50%;display:grid!important;place-items:center;font:26px 'CormorantCy',serif;color:#6a4a2e;
+  background:linear-gradient(#efe3cb,#d9bf98);box-shadow:0 0 0 1px rgba(62,42,29,.6),0 4px 8px rgba(60,40,20,.3);transition:filter .3s ease}
+.bk-board .bk-arrow:hover{filter:brightness(1.08)}
+html:has(.shell.is-night) .bk-board .bk-arrow{background:radial-gradient(circle,#25221e,#191714);color:#e8d2ae}
+/* the strip of all the spreads */
+.bk-strip{position:absolute;left:50%;translate:-50% 0;display:flex;gap:14px;align-items:center}
+.bk-board .bk-th{position:relative;width:76px;height:38px;background:#fbf7ef;box-shadow:1px 2px 3px rgba(60,40,20,.3);opacity:.8;transition:opacity .3s ease,width .3s ease,height .3s ease}
+.bk-board .bk-th i{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(60,40,20,.25)}
+.bk-board .bk-th:hover{opacity:1}
+.bk-board .bk-th.cur{width:96px;height:48px;opacity:1;outline:1.5px solid rgba(110,80,50,.55);outline-offset:3px}
+html:has(.shell.is-night) .bk-board .bk-th{filter:brightness(.55) sepia(.15)}html:has(.shell.is-night) .bk-board .bk-th.cur{filter:brightness(.85)}
+/* the brass plates at the sides */
+.bk-board .bk-keys{position:absolute;display:flex;flex-direction:column;gap:12px;width:170px}
+.bk-board .bk-k{display:block!important;box-sizing:border-box;padding:7px 14px 7px!important;text-align:center;border-radius:16px;border:3px solid transparent!important;font:17px 'CormorantCy',serif;color:#3a2614;
+  background:linear-gradient(#efe3cb,#e6d5b5 46%,#d9bf98) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box!important;
+  box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 5px 10px rgba(60,40,20,.26)!important;transition:translate .3s ease}
+.bk-board .bk-k b{display:block;font:500 10px 'CormorantCy',serif;letter-spacing:.16em;text-transform:uppercase;color:#6a4a2e}
+.bk-board .bk-k span{display:block;font:12px 'CormorantCy',serif;color:#7a5a3a}
+.bk-board button.bk-k:hover{translate:0 -2px}
+.bk-board .bk-k.bk-soon{opacity:.7}
+html:has(.shell.is-night) .bk-board .bk-k{background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box!important;color:#e8d2ae}
+html:has(.shell.is-night) .bk-board .bk-k b,html:has(.shell.is-night) .bk-board .bk-k span{color:#c9b08a}

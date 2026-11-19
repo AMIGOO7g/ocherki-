@@ -32,13 +32,13 @@
   // ——— where we are ———
   const shelfOpen=()=>!!window.OcherkiBookcase?.isOpen?.();
   const world=()=>'ed';
-  const current=()=>{if(shelfOpen())return 'shelf';if(shell.classList.contains('is-manuscript'))return 'manuscript';if(modal?.classList.contains('open'))return 'book';return 'write';};
+  const current=()=>{if(shelfOpen())return 'shelf';if(document.documentElement.classList.contains('bk-on'))return 'book';if(shell.classList.contains('is-manuscript'))return 'manuscript';if(modal?.classList.contains('open'))return 'book';return 'write';};
   // ——— actions: the old switch still does the work underneath ———
   const sw=()=>document.querySelector('.mode-switch');
   const swClick=m=>{const b=sw()?.querySelector(`button[data-mode="${m}"]`);if(b){b.click();return true;}return false;};
-  // the browser's cross-fade between screens is not used to and from «Рукопись»: it has its own motion (the sheets stay, «Так ляжет»
+  // the browser's cross-fade between screens is not used to and from «Рукопись» and «Книга»: they have their own motion (the sheets stay, «Так ляжет»
   // goes off whole) and the cross-fade made «Так ляжет» seem to melt away
-  const vt=(m,fn)=>{const cur=current();if(!document.startViewTransition||cur===m||m==='manuscript'||cur==='manuscript'||!['write','manuscript','book'].includes(cur)||matchMedia('(prefers-reduced-motion: reduce)').matches||document.documentElement.classList.contains('calm'))return fn();
+  const vt=(m,fn)=>{const cur=current();if(!document.startViewTransition||cur===m||m==='manuscript'||cur==='manuscript'||m==='book'||cur==='book'||!['write','manuscript','book'].includes(cur)||matchMedia('(prefers-reduced-motion: reduce)').matches||document.documentElement.classList.contains('calm'))return fn();
     try{document.startViewTransition(()=>new Promise(r=>{fn();setTimeout(r,140);}));}catch(e){fn();}};
   const goEd=m=>vt(m,()=>goEd0(m));
   const goEd0=m=>{if(m==='write'||m==='manuscript'||m==='book'){if(!swClick(m))window.OCHERKI_SET_MODE?.(m);}};
@@ -110,6 +110,8 @@
   const closeMore0=()=>more.classList.remove('on');
   new MutationObserver(()=>requestAnimationFrame(sync)).observe(shell,{attributes:true,attributeFilter:['class']});
   if(modal)new MutationObserver(()=>requestAnimationFrame(sync)).observe(modal,{attributes:true,attributeFilter:['class']});
+  // the book on the desk opens and closes on the page's root (html.bk-on)
+  new MutationObserver(()=>requestAnimationFrame(sync)).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
   addEventListener('resize',()=>requestAnimationFrame(()=>{measureSheet();place(true);}));
   const settle=()=>{measureSheet();place(true);sync();};[300,1200,3000,6000,9000].forEach(t=>setTimeout(settle,t));
   setInterval(()=>{if(current()==='write'){const before=sheetLeft;measureSheet();if(before!=null&&sheetLeft!=null&&Math.abs(before-sheetLeft)>8)place(true);}},2500);
