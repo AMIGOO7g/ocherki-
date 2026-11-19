@@ -785,6 +785,10 @@ function bookSummary(){
 // v221: the book's album — photographs brought in with «+ добавить фото» on the desk's album, not yet laid on any sheet
 let albumPhotos=[];
 function projectSnapshot(){return {version:1,activeSection,fontSize,lineHeight,sections,album:albumPhotos,book:bookSummary()};}
+const samePhoto=(a,b)=>a===b||(!!a&&!!b&&a.src===b.src);
+function inBook(p){return sections.some(s=>(s.pages||[]).some(pg=>(pg.photos||[]).some(r=>samePhoto(r,p))));}
+function dropEverywhere(p){albumPhotos=albumPhotos.filter(r=>!samePhoto(r,p));
+  sections.forEach(s=>(s.pages||[]).forEach(pg=>{if(!Array.isArray(pg.photos))return;const n=pg.photos.length;pg.photos=pg.photos.filter(r=>!samePhoto(r,p));if(pg.photos.length!==n)pg.photoOffset=Math.min(pg.photoOffset||0,Math.max(0,pg.photos.length-1));}));}
 function persistSoon(){clearTimeout(persistTimer);persistTimer=setTimeout(persistNow,700);}
 function persistNow(){
   clearTimeout(persistTimer);
@@ -2691,9 +2695,19 @@ function stripCloneIds(root){
 function lockSectionStack(){
   ghostEls.forEach(({el})=>{
     el.classList.remove('stack-cascade-in');
-    el.classList.add('stack-hidden-for-section');
+    // v222: a sheet still folding back under the open one is hidden when its fold ends (foldSectionStack)
+    if(!el._folding)el.classList.add('stack-hidden-for-section');
   });
   stackIndicator.classList.remove('show');
+}
+// v222: before the chapter scrolls away its sheets fanned at the right slide back under the open sheet (they vanished at once)
+function foldSectionStack(){
+  ghostEls.forEach(({el})=>{
+    if(el.style.display==='none'||el.classList.contains('stack-hidden-for-section'))return;
+    const from=getComputedStyle(el).transform;el._folding=true;
+    const a=el.animate([{transform:from},{transform:'translate(0px,0px) scale(1)'}],{duration:340,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
+    a.onfinish=()=>{el._folding=false;el.classList.add('stack-hidden-for-section');a.cancel();};
+  });
 }
 
 function revealSectionStackCascade(){
@@ -2733,6 +2747,7 @@ function goSection(nextIndex,dir){
 
   // Use exactly the same thumbnail folding physics as page/menu navigation.
   // Once the old thumbnails have fully retracted, the physical sheet scroll begins.
+  foldSectionStack();
   foldPhotoStack(()=>{
     lockSectionStack();
 
@@ -4014,7 +4029,8 @@ window.OC_SHEET={
       <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}</div>
       <div class="ph-tipbar" aria-live="polite"></div>
       <div class="ph-act">${opts.album?'<button type="button" class="ph-ret">вернуть в альбом</button><span class="ph-st"></span><button type="button" class="ph-lay">положить на лист</button>':'<button type="button" class="ph-ret">вернуть в стопку</button><span class="ph-st"></span><button type="button" class="ph-del">удалить из главы</button>'}</div>
-      <div class="ph-sure" hidden><span>Удалить это фото из главы?</span><button type="button" class="ph-yes">да, удалить</button><button type="button" class="ph-no">нет</button></div></div></div>`;
+      ${opts.album?'<div class="ph-act ph-act2"><button type="button" class="ph-del">удалить из альбома</button></div>':''}
+      <div class="ph-sure" hidden><span>${opts.album?(inBook(p)?'Удалить это фото из альбома? Оно уйдёт и с листов книги.':'Удалить это фото из альбома?'):'Удалить это фото из главы?'}</span><button type="button" class="ph-yes">да, удалить</button><button type="button" class="ph-no">нет, оставить</button></div></div></div>`;
     card.querySelector('.ph-front img').src=p.src;
     card.querySelectorAll('[data-k]').forEach(x=>{x.value=p[x.dataset.k]||'';x.addEventListener('input',()=>{p[x.dataset.k]=x.value.trim();persist();});});
     {const pg=currentPage(),x=card.querySelector('[data-x="explanation"]');if(x&&pg){x.value=pg.explanation||p.explanation||'';x.addEventListener('input',()=>{pg.explanation=x.value.trim();persist();});}}
@@ -4046,10 +4062,12 @@ window.OC_SHEET={
         // laid on the sheet: it goes on top of the pile (made there first, unseen), and the card comes down onto it
         const rec=OC_SHEET.addPhotoCopy(p,{quiet:true});const top=stack.querySelector('.photo-card.p1');if(top)top.style.visibility='hidden';
         close(top?gg=>printPose(top,gg):null,()=>{if(top)top.style.visibility='';opts.laid?.();});});}
-    else{const sure=card.querySelector('.ph-sure');card.querySelector('.ph-del').addEventListener('click',()=>{sure.hidden=false;});card.querySelector('.ph-no').addEventListener('click',()=>{sure.hidden=true;});
-      card.querySelector('.ph-yes').addEventListener('click',()=>{const o=open;if(!o)return;open=null;const ph=currentPhotos(),i=ph.indexOf(o.p);if(i>=0)ph.splice(i,1);
-        currentPage().photoOffset=Math.min(currentPage().photoOffset||0,Math.max(0,ph.length-1));o.card.classList.add('gone');o.bg.classList.remove('on');tellHost(false);
-        setTimeout(()=>{o.card.remove();o.bg.remove();renderPhotos();persist();window.__OCHERKI_EMIT_STRUCTURE?.();},520);});}};
+    // «удалить»: from the pile — off this sheet; from the album — out of the album and off every sheet that holds it
+    {const sure=card.querySelector('.ph-sure');card.querySelector('.ph-del').addEventListener('click',()=>{sure.hidden=false;});card.querySelector('.ph-no').addEventListener('click',()=>{sure.hidden=true;});
+      card.querySelector('.ph-yes').addEventListener('click',()=>{const o=open;if(!o)return;open=null;
+        if(opts.album)dropEverywhere(o.p);else{const ph=currentPhotos(),i=ph.indexOf(o.p);if(i>=0)ph.splice(i,1);currentPage().photoOffset=Math.min(currentPage().photoOffset||0,Math.max(0,ph.length-1));}
+        o.card.classList.add('gone');o.bg.classList.remove('on');tellHost(false);
+        setTimeout(()=>{o.card.remove();o.bg.remove();renderPhotos();persist();window.__OCHERKI_EMIT_STRUCTURE?.();if(opts.album)opts.laid?.();},520);});}};
   // v220 — the solitaire: all the photographs of the sheet laid out over the desk in rows (the pile keeps the last three and
   // «+N»). A press on a print opens its card over the solitaire (it comes back there); a print dragged to another place
   // changes the order; «собрать в стопку» (or a press beside the prints) gathers them back into the pile
@@ -4097,7 +4115,11 @@ window.OC_SHEET={
   window.__ocAlbumCard=(p,r,done)=>openCard(p,g=>poseAt(r,0,r.width,g),{album:true,back:()=>{persist();done&&done('back');},laid:()=>{done&&done('laid');}});
   const esc=e=>{if(e.key==='Escape'&&open)close(null,open.back);};addEventListener('keydown',esc);if(HD!==document)HD.defaultView.addEventListener('keydown',esc);
   const badge=()=>{const n=currentPhotos().length-stack.querySelectorAll('.photo-card').length;let m=stack.querySelector('.ph-more');
-    if(n>0){if(!m){m=document.createElement('button');m.type='button';m.className='ph-more';stack.appendChild(m);}m.textContent='+'+n;}else m?.remove();};
+    stack.dataset.n=stack.querySelectorAll('.photo-card').length;
+    if(n>0){if(!m){m=document.createElement('button');m.type='button';m.className='ph-more';stack.appendChild(m);}m.textContent=`ещё ${n} ›`;}else m?.remove();};
+  // v222: the pile hangs from the bar over the sheet — its prints' top edges 14px under the bar's lower edge
+  const hang=()=>{try{const bar=HD.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),par=stack.offsetParent?.getBoundingClientRect();if(!bar||!bar.height||!par)return;
+    const t=Math.round(bar.bottom-14-off().y-par.top);if(stack._top!==t){stack._top=t;stack.style.top=t+'px';}}catch(_){}};setInterval(hang,400);hang();
   // the pile laid out again without a jump: the prints that stay glide to their new places, a new one comes up from beneath
   window.__ocRelayPile=(mutate,riseIndex)=>{const before=new Map([...stack.querySelectorAll('.photo-card')].map(c=>[c.dataset.index,c.getBoundingClientRect()]));mutate();renderPhotos();
     stack.querySelectorAll('.photo-card').forEach(c=>{const r0=before.get(c.dataset.index);if(String(riseIndex)===c.dataset.index||!r0){c.classList.add('ph-rise');return;}

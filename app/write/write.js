@@ -469,8 +469,10 @@
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
     // v220: the stack lies as far from the sheet as the book's page does on the other side (it used to sit in the middle of the
     // free room: on a wide screen it went out of the lamp's beam); the clock stands under it, centred
-    const GAP=108;let h=r.height*.58,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
-    return {left:Math.round(L-GAP-ww),top:Math.round(r.top+(r.height-h)/2+14),w:Math.round(ww),h:Math.round(h)};};
+    // v222: the stack stands high, its tabs level with the bar over the sheet — the room under it is the clock's
+    const GAP=108;let h=r.height*.46,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
+    const bar=document.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),top=bar&&bar.height?bar.bottom+24:r.top+78;
+    return {left:Math.round(L-GAP-ww),top:Math.round(top),w:Math.round(ww),h:Math.round(h)};};
   window.__ocWsRoom=()=>shell.classList.contains('oc-w')&&!!leftBox();
 
   // ——— the window's sun: one picture of the panes (the frame between them simply gets no sun — one even shade, no darker crossings)
@@ -643,17 +645,15 @@
     if(c){const pv=c.querySelector('.clock-pivot');
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
       c.style.setProperty('transition','none','important');
-      // v221: one fixed base (it was read from the clock's transform in the middle of its own transition — after «Рукопись»
-      // it came out smaller each time)
-      const B=1,k0=parseFloat(getComputedStyle(c).scale)||1;
-      c.style.transform=`scale(${B})`;const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
-      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const mh=c.querySelector('.minute-hand'),hr=mh?.getBoundingClientRect();const hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);const sb=b.top+b.h+18,room=innerHeight-sb-10;const sc=Math.max(.5,Math.min(1.45,1.2*Math.min(room,170)/Math.max(1,(c.offsetHeight||130)*k0)));
-      c.style.transform=`scale(${(B*sc).toFixed(3)})`;const p1=pv.getBoundingClientRect();
-      const tx=b.left+b.w/2,ty=Math.max(sb+hand*sc,innerHeight-46-reach*sc);
-      c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${(B*sc).toFixed(3)})`;
-      {const q=c.getBoundingClientRect(),lim=innerHeight-10;if(q.bottom>lim&&q.height>0){const s2=Math.max(.35,sc*(lim-sb)/(q.bottom-sb));
-        c.style.transform=`scale(${(B*s2).toFixed(3)})`;const p2=pv.getBoundingClientRect(),ty2=sb+(ty-sb)*s2/sc;
-        c.style.transform=`translate(${((tx-(p2.left+p2.width/2))/k0).toFixed(1)}px,${((ty2-(p2.top+p2.height/2))/k0).toFixed(1)}px) scale(${(B*s2).toFixed(3)})`;}}
+      // v222: the clock is measured at its own size (scale 1: the hand's length above the pivot, the pendulum's reach below it),
+      // then made as large as the room under the stack allows — about two fifths of the screen's height — and hung there, centred
+      const k0=parseFloat(getComputedStyle(c).scale)||1;
+      c.style.transform='scale(1)';const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
+      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top),hr=c.querySelector('.minute-hand')?.getBoundingClientRect(),hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);
+      const sb=b.top+b.h+18,room=innerHeight-sb-12,sc=Math.max(.5,Math.min(room,innerHeight*.42)/(hand+reach));
+      c.style.transform=`scale(${sc.toFixed(3)})`;const p1=pv.getBoundingClientRect();
+      const tx=b.left+b.w/2,ty=sb+hand*sc;
+      c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${sc.toFixed(3)})`;
       void c.offsetWidth;c.style.removeProperty('transition');}
     else if(c)c.style.removeProperty('transform');};
   requestAnimationFrame(tick);
@@ -714,10 +714,22 @@
   {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
     const veil=()=>{if(H.classList.contains('oc-desk'))return;if((img&&getComputedStyle(document.body,'::after').zIndex==='2147483647')||performance.now()-t1>4000){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
-  // v221: when the desk is slow to come (past 1.5 s), the Keeper greets on the veil — in its ink, as on the start screen
-  let hi=null;const greet=()=>{if(hi||H.classList.contains('oc-shown'))return;let back=false;try{back=localStorage.getItem('ocherkiSeen')==='1';}catch(_){}
-    hi=document.createElement('div');hi.className='oc-hi';hi.innerHTML=`<b>${back?'С возвращением':'Добро пожаловать'}</b><span></span>`;
-    const n=(document.getElementById('projectTitle')?.textContent||'').trim();if(n&&back)hi.querySelector('span').textContent=n;H.appendChild(hi);hi._t=performance.now();requestAnimationFrame(()=>hi.classList.add('on'));};
-  // once the greeting has begun it is let to be read (a second) before the desk comes in over it
-  const show=()=>{const wait=hi?1000-(performance.now()-hi._t):0;if(wait>0){setTimeout(show,wait);return;}H.classList.add('oc-shown');try{localStorage.setItem('ocherkiSeen','1');}catch(_){}if(hi){hi.classList.remove('on');setTimeout(()=>hi.remove(),900);}};
-  const go=()=>{if(H.classList.contains('oc-shown'))return;if(performance.now()>1500)greet();if(ready()||performance.now()-t0>3500){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();
+  // v222: the Keeper greets on the veil while the desk is laid: he flies in and writes «С возвращением» quickly with his pen;
+  // when the desk is ready he finishes the word, gathers into a spark in the middle, and the desk comes in as the spark fades.
+  // At night in his own light; by day in dark ink (his canvas inverted over the cream veil).
+  const night=H.classList.contains('oc-night0');let K=null,cv=null,wrote=0,leaving=false;
+  // (tour.js comes after this file: the Keeper is called for as soon as it is there)
+  const call=()=>{if(leaving||H.classList.contains('oc-shown'))return;if(!window.OcherkiTour?.loadKeeper)return setTimeout(call,30);
+  window.OcherkiTour.loadKeeper().then(()=>{if(H.classList.contains('oc-shown')||leaving||!window.OcherkiKeeper3D)return;
+    cv=document.createElement('canvas');cv.className='oc-hi'+(night?'':' day');H.appendChild(cv);
+    K=OcherkiKeeper3D.create(cv,{size:.3,dust:16,quick:2.6,writeSpeed:3.2,wordsScale:1.6});if(!K){cv.remove();cv=null;return;}K.start();K.resize?.();K.placeSparkAt(-.45,.05);
+    let back=false;try{back=localStorage.getItem('ocherkiSeen')==='1';}catch(_){}
+    K.write(back?'С возвращением':'Добро пожаловать',{at:[0,.05],px:Math.round(84*Math.min(1,innerHeight/1080)),hold:true});wrote=performance.now();}).catch(()=>{});};call();
+  const bye=()=>{if(!cv)return;const c=cv,k=K;c.classList.add('out');setTimeout(()=>{try{k?.destroy();}catch(_){}c.remove();},1200);K=null;cv=null;};
+  const show=()=>{if(leaving)return;leaving=true;
+    const open=()=>{H.classList.add('oc-shown');try{localStorage.setItem('ocherkiSeen','1');}catch(_){}bye();};
+    if(!K||!wrote)return open();
+    // the word is finished, read for a moment, then he goes into the spark and the desk comes
+    // (the pen needs about a second to lie down and begin; then the rest of the word is written at once)
+    setTimeout(()=>{K?.hurry?.();setTimeout(()=>{try{K.clearWords();K.flyAway(0,0);}catch(_){}setTimeout(open,650);},700);},Math.max(0,2200-(performance.now()-wrote)));};
+  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>3500){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();

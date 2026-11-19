@@ -69,8 +69,7 @@ body{
 .sheet.ghost.g2.stack-cascade-in{animation-delay:.09s!important}
 .sheet.ghost.g3.stack-cascade-in{animation-delay:.18s!important}
 @keyframes v8StackCascadeIn{
-  0%{opacity:0;transform:translate(0,0) scale(1);box-shadow:0 8px 18px rgba(0,0,0,.04)}
-  45%{opacity:.5}
+  0%{opacity:1;transform:translate(0,0) scale(1);box-shadow:0 8px 18px rgba(0,0,0,.04)}
   100%{opacity:1;transform:translate(var(--stack-x),var(--stack-y)) scale(var(--stack-scale));box-shadow:0 18px 38px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.4)}
 }
 .sheet.ghost.g2.stack-cascade-in{--stack-end-opacity:.95}
@@ -196,26 +195,31 @@ body{
 
 .footer .cloud svg{width:22px;height:22px;stroke:#7f6b5b;stroke-width:1.5;fill:none;vertical-align:bottom}
 .bookmark .leaf:after{transform:rotate(35deg);box-shadow:-4px 7px 0 #d89a44,1px 14px 0 #d89a44}
-.photo-stack{position:absolute;left:50%;top:196px;width:var(--sheetW);height:420px;transform:translateX(calc(-50% - 26px));z-index:6;pointer-events:none;display:none;transition:transform .3s ease,opacity .3s ease}
+.photo-stack{position:absolute;left:50%;top:196px;width:var(--sheetW);height:420px;transform:translateX(calc(-50% - 26px));z-index:60;pointer-events:none;display:none;transition:transform .3s ease,opacity .3s ease}
 .photo-stack.show{display:block}
 
 .photo-card{position:absolute;left:-86px;width:186px;height:138px;padding:7px 7px 24px;background:#f4eee4;border:1px solid rgba(90,70,55,.18);box-shadow:0 16px 28px rgba(0,0,0,.26),0 3px 7px rgba(0,0,0,.14);transform-origin:25% 50%;pointer-events:auto;cursor:pointer;pointer-events:auto;overflow:hidden}
 .photo-card img{width:100%;height:100%;object-fit:cover;display:block;filter:none;transition:filter .38s ease}
 .photo-card .note{position:absolute;left:10px;right:10px;bottom:3px;font:15px/1 "Brush Script MT", cursive;color:rgba(76,56,39,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* v210: the prints lie in a pile under the sheet's left edge (the first on top); the hand near them fans them out */
-.photo-card.p1{top:10px;left:-54px;transform:rotate(-5deg);z-index:3}
-.photo-card.p2{top:22px;left:-46px;transform:rotate(5deg);z-index:2}
-.photo-card.p3{top:34px;left:-60px;transform:rotate(-8deg);z-index:1}
-/* v213: the fan opens straight down (the prints keep their side and their tilt: no shake) */
-.photo-stack:hover .photo-card.p2{top:136px}
-.photo-stack:hover .photo-card.p3{top:262px}
-.ph-more{all:unset;position:absolute;left:-74px;top:2px;z-index:4;pointer-events:auto;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#6a4a2e;background:#fbf6ec;border-radius:10px;padding:1px 8px;box-shadow:0 1px 3px rgba(40,25,10,.3)}
+/* v222: the prints are tucked by their top edge under the bar over the sheet, at the sheet's left corner (the pile's top is set
+   from the bar in sheet.js); the hand near them fans them straight down the sheet's margin, clear of the title and the text */
+.photo-stack .photo-card{width:124px;height:96px;padding:6px 6px 20px;transform-origin:30% 0}
+.photo-stack .photo-card .note{font-size:12px}
+.photo-card.p1{top:0;left:-48px;transform:rotate(-3deg);z-index:3}
+.photo-card.p2{top:-2px;left:-38px;transform:rotate(4deg);z-index:2}
+.photo-card.p3{top:2px;left:-54px;transform:rotate(-7deg);z-index:1}
+.photo-stack:hover .photo-card.p2{top:104px}
+.photo-stack:hover .photo-card.p3{top:208px}
+/* «ещё N ›» — a paper tag under the prints (it opens them all as a solitaire); it goes down with the fan */
+.ph-more{all:unset;position:absolute;left:-42px;top:100px;z-index:4;pointer-events:auto;cursor:pointer;font:16px 'CormorantCy',Georgia,serif;color:#2f1d10;background:#fbf6ec;
+  padding:4px 11px 5px;box-shadow:1px 2px 4px rgba(40,25,10,.3);transform:rotate(-2deg);transition:top .5s cubic-bezier(.2,.8,.3,1)}
+.photo-stack[data-n="2"]:hover .ph-more{top:204px}.photo-stack[data-n="3"]:hover .ph-more{top:308px}
 .ph-more:hover{color:#2f1d10}
 .photo-card.ph-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
 .photo-card:hover{box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}
-.photo-stack .photo-card.p1:hover{transform:translateX(-18px) translateY(-1px) rotate(-3deg) scale(1.016)}
-.photo-stack .photo-card.p2:hover{transform:translateX(-18px) rotate(1.5deg) scale(1.016)}
-.photo-stack .photo-card.p3:hover{transform:translateX(-18px) translateY(2px) rotate(-2deg) scale(1.016)}
+.photo-stack .photo-card.p1:hover{transform:translateX(-8px) rotate(-2deg) scale(1.03)}
+.photo-stack .photo-card.p2:hover{transform:translateX(-8px) rotate(2deg) scale(1.03)}
+.photo-stack .photo-card.p3:hover{transform:translateX(-8px) rotate(-3deg) scale(1.03)}
 .photo-card:hover img{filter:none}
 .photo-mode-bw .photo-card img{filter:grayscale(1) sepia(.08) contrast(1.04) brightness(.98)}
 
