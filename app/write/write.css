@@ -878,9 +878,10 @@ html:has(.shell:not(.is-night)) :is(.wc .t,.wc .t *,.oct .lb,.oct .lbx,.oct .lbx
 html body :is(.wc .t,.wc .t *,.oct .lb,.oct .lbx,.oct .lbx *,.wp-cap,.wp-item .lab,.wk-hint,.okh-dot span,.ws-q,.ws-nav,.ws-hint){transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity .6s ease!important}
 /* v206/v211 — the page's keys stand centred under it on its middle. «свет дня» comes with the night and goes with it: it stands
    beside «обновить» (taking no room), fades in and out, and the pair glides as one so that it is centred — no width animates */
-html body .shell.shell.shell .wp-keys.k-open.k-open{translate:-50% 0;transition:opacity .7s ease 1.25s,transform .8s ease 1.25s,translate 2.45s cubic-bezier(.37,0,.63,1)}
+html body .shell.shell.shell .wp-keys.k-open.k-open{will-change:translate;translate:-50% 0;transition:opacity .7s ease 1.25s,transform .8s ease 1.25s,translate 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) body .shell.shell.shell .wp-keys.k-open.k-open{translate:calc(-50% - 46px) 0}
-html body .wp-keys .wp-pg{transition:translate 2.45s cubic-bezier(.37,0,.63,1)}html:has(.shell.is-night) .wp-keys .wp-pg{translate:38px 0}
+/* the keys glide between day and night on their own layer (on the page they stepped a pixel at a time) */
+html body .wp-keys .wp-pg{will-change:translate;transition:translate 2.45s cubic-bezier(.37,0,.63,1)}html:has(.shell.is-night) .wp-keys .wp-pg{translate:38px 0}
 /* «свет дня» beside «обновить» (half its 60px and the 22px gap from the middle) — measured from «обновить», not from the box, which the page counter widens */
 .wp-keys .wp-item.dl{position:absolute;left:calc(50% + 52px);top:0;opacity:0;pointer-events:none;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-night) .wp-keys .wp-item.dl{opacity:1;pointer-events:auto}
@@ -991,7 +992,7 @@ html.oc-night0 body::after{background:radial-gradient(ellipse 70% 80% at 50% 10%
 html.oc-shown body::after{opacity:0}
 /* v222: the Keeper's greeting on the veil (write.js) — his canvas is a sibling of body, so above the veil; black is see-through
    with «screen»; by day the canvas is inverted (white is see-through with «multiply», his light turns to dark ink) */
-.oc-hi{position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483647;pointer-events:none;mix-blend-mode:screen;transition:opacity 1.1s ease}
+.oc-hi{position:fixed;left:50%;top:50%;width:min(1200px,94vw);height:460px;translate:-50% -50%;z-index:2147483647;pointer-events:none;mix-blend-mode:screen;transition:opacity 1.1s ease}
 .oc-hi.day{mix-blend-mode:multiply;filter:invert(1) hue-rotate(180deg)}
 .oc-hi.out{opacity:0}
 html.oc-desk body{opacity:1;transition:opacity .7s ease}

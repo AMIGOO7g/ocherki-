@@ -646,11 +646,12 @@
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
       c.style.setProperty('transition','none','important');
       // v223: the clock is measured at its own size (scale 1: the hand's length above the pivot, the pendulum's reach below it),
-      // then fills the room under the stack with an equal margin above and below it, centred under the stack
+      // then made in proportion to the stack (a little under half its height: on a tall screen it grew huge), hung in the middle of the
+      // room under the stack, centred under it
       const k0=parseFloat(getComputedStyle(c).scale)||1;
       c.style.transform='scale(1)';const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
       const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top),hr=c.querySelector('.minute-hand')?.getBoundingClientRect(),hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);
-      const room=innerHeight-(b.top+b.h),gap=room*.07,sb=b.top+b.h+gap,sc=Math.max(.5,(room-2*gap)/(hand+reach));
+      const room=innerHeight-(b.top+b.h),T=Math.min(room*.86,b.h*.46),gap=(room-T)/2,sb=b.top+b.h+gap,sc=Math.max(.35,T/(hand+reach));
       c.style.transform=`scale(${sc.toFixed(3)})`;const p1=pv.getBoundingClientRect();
       const tx=b.left+b.w/2,ty=sb+hand*sc;
       c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${sc.toFixed(3)})`;
@@ -716,15 +717,16 @@
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
   // v222: the Keeper greets on the veil while the desk is laid: he flies in and writes «С возвращением» quickly with his pen;
   // when the desk is ready he finishes the word, gathers into a spark in the middle, and the desk comes in as the spark fades.
-  // At night in his own light; by day in dark ink (his canvas inverted over the cream veil).
+  // At night in his own light; by day in dark ink (his canvas inverted over the cream veil). He is drawn whole from the start (not
+  // as a spark) on a canvas only as large as the word, at the screen's own pixel density — on the whole retina screen he stepped
   const night=H.classList.contains('oc-night0');let K=null,cv=null,wrote=0,leaving=false;
   // (tour.js comes after this file: the Keeper is called for as soon as it is there)
   const call=()=>{if(leaving||H.classList.contains('oc-shown'))return;if(!window.OcherkiTour?.loadKeeper)return setTimeout(call,30);
   window.OcherkiTour.loadKeeper().then(()=>{if(H.classList.contains('oc-shown')||leaving||!window.OcherkiKeeper3D)return;
     cv=document.createElement('canvas');cv.className='oc-hi'+(night?'':' day');H.appendChild(cv);
-    K=OcherkiKeeper3D.create(cv,{size:.3,dust:16,quick:2.6,writeSpeed:3.2,wordsScale:1.6});if(!K){cv.remove();cv=null;return;}K.start();K.resize?.();K.placeSparkAt(-.45,.05);
+    K=OcherkiKeeper3D.create(cv,{size:.62,dust:10,quick:2.6,writeSpeed:3.2,wordsScale:1.6,minRatio:1});if(!K){cv.remove();cv=null;return;}K.start();K.resize?.();K.moveTo(-.62,0,.8);
     let back=false;try{back=localStorage.getItem('ocherkiSeen')==='1';}catch(_){}
-    K.write(back?'С возвращением':'Добро пожаловать',{at:[0,.05],px:Math.round(84*Math.min(1,innerHeight/1080)),hold:true});wrote=performance.now();}).catch(()=>{});};call();
+    K.write(back?'С возвращением':'Добро пожаловать',{at:[.1,0],px:Math.round(84*Math.min(1,innerHeight/1080)),hold:true});wrote=performance.now();}).catch(()=>{});};call();
   const bye=()=>{if(!cv)return;const c=cv,k=K;c.classList.add('out');setTimeout(()=>{try{k?.destroy();}catch(_){}c.remove();},1200);K=null;cv=null;};
   const show=()=>{if(leaving)return;leaving=true;
     const open=()=>{H.classList.add('oc-shown');try{localStorage.setItem('ocherkiSeen','1');}catch(_){}bye();};

@@ -1,6 +1,7 @@
 /*@block ["", ""]*/
 // Marks the lowest visible sheet of the pile (it carries the night shadow).
-setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')].filter(el=>el.offsetParent!==null&&getComputedStyle(el).display!=='none'&&!el.classList.contains('stack-hidden-for-section'));const bottom=all[0];document.querySelectorAll('.sheet.is-pile-bottom').forEach(el=>{if(el!==bottom)el.classList.remove('is-pile-bottom');});bottom?.classList.add('is-pile-bottom');},400);
+// the long shadow lies under the lowest sheet of the pile (a sheet folding back under the open one no longer counts)
+setInterval(()=>{const all=[...document.querySelectorAll('.sheet-stack .sheet')].filter(el=>el.offsetParent!==null&&getComputedStyle(el).display!=='none'&&!el.classList.contains('stack-hidden-for-section')&&!el._folding);const bottom=all[0];document.querySelectorAll('.sheet.is-pile-bottom').forEach(el=>{if(el!==bottom)el.classList.remove('is-pile-bottom');});bottom?.classList.add('is-pile-bottom');},400);
 
 /*@block ["", ""]*/
 window.LifeBookFlowEngine={
@@ -2705,13 +2706,17 @@ function foldSectionStack(done){
   const vis=ghostEls.filter(({el})=>el.style.display!=='none'&&!el.classList.contains('stack-hidden-for-section')&&getComputedStyle(el).display!=='none').reverse();
   if(!vis.length)return done();
   let left=vis.length;
+  // the pile's long shadow goes over to the open sheet as the fold begins (it waited for the sheets to vanish, then jumped)
+  vis.forEach(({el})=>{el._folding=true;el.classList.remove('is-pile-bottom');});activeSheet.classList.add('is-pile-bottom');
   vis.forEach(({el},k)=>{const from=getComputedStyle(el).transform;
     const a=el.animate([{transform:from},{transform:'translate(0px,0px) scale(1)'}],{duration:300,delay:k*90,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
-    a.onfinish=()=>{el.classList.add('stack-hidden-for-section');a.cancel();if(--left===0)done();};});
+    a.onfinish=()=>{el._folding=false;el.classList.add('stack-hidden-for-section');a.cancel();if(--left===0)done();};});
 }
 
 function revealSectionStackCascade(){
   const visible=ghostEls.filter(({el})=>el.style.display!=='none' && el.dataset.target!==undefined);
+  // the long shadow goes to the lowest sheet as the cascade begins, and fades across while they slide out
+  if(visible.length){document.querySelectorAll('.sheet.is-pile-bottom').forEach(x=>x.classList.remove('is-pile-bottom'));visible[visible.length-1].el.classList.add('is-pile-bottom');}
   visible.forEach(({el},slot)=>{
     el.classList.remove('stack-cascade-in');
     // Force the folded state to paint before the cascade starts.

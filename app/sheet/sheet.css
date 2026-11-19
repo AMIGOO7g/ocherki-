@@ -213,12 +213,13 @@ body{
 /* one hover zone under the whole fan: the hand passing a gap between two prints keeps it open (it closed and opened again —
    the prints jerked) */
 .photo-stack::before{content:"";position:absolute;left:-62px;top:-16px;width:146px;height:128px;pointer-events:auto}
-.photo-stack[data-n="2"]:hover::before{height:236px}.photo-stack[data-n="3"]:hover::before{height:344px}
+.photo-stack[data-n="2"]:hover::before{height:250px}.photo-stack[data-n="3"]:hover::before{height:356px}
 .photo-stack.section-photo-hidden::before{pointer-events:none}
-/* «ещё N ›» — a paper tag under the prints (it opens them all as a solitaire); it goes down with the fan */
-.ph-more{all:unset;position:absolute;left:-42px;top:100px;z-index:4;pointer-events:auto;cursor:pointer;font:16px 'CormorantCy',Georgia,serif;color:#2f1d10;background:#fbf6ec;
-  padding:4px 11px 5px;box-shadow:1px 2px 4px rgba(40,25,10,.3);transform:rotate(-2deg);transition:top .5s cubic-bezier(.2,.8,.3,1)}
-.photo-stack[data-n="2"]:hover .ph-more{top:204px}.photo-stack[data-n="3"]:hover .ph-more{top:308px}
+/* «ещё N ›» — a slip of paper of its own, always below the lowest print (never on it), with its own shadow; it opens all the
+   prints as a solitaire, and goes down with the fan */
+.ph-more{all:unset;position:absolute;left:-36px;top:112px;z-index:4;pointer-events:auto;cursor:pointer;font:15px 'CormorantCy',Georgia,serif;color:#2f1d10;
+  background:linear-gradient(100deg,#fbf6ec,#f1e6d3);padding:5px 12px 6px;box-shadow:1px 2px 3px rgba(40,25,10,.28),3px 7px 12px -4px rgba(40,25,10,.3);transform:rotate(-2deg);transition:top .5s cubic-bezier(.2,.8,.3,1)}
+.photo-stack[data-n="2"]:hover .ph-more{top:216px}.photo-stack[data-n="3"]:hover .ph-more{top:320px}
 .ph-more:hover{color:#2f1d10}
 .photo-card.ph-rise{animation:pfRise .36s ease both}@keyframes pfRise{from{opacity:0}to{opacity:1}}
 .photo-card:hover{box-shadow:0 22px 34px rgba(0,0,0,.32),0 4px 9px rgba(0,0,0,.16)}
@@ -750,11 +751,14 @@ html,body{overflow:hidden!important}
    pile's (below), so nothing is cut by the bottom of the window. */
 html body .sheet.active{box-shadow:0 8px 18px rgba(0,0,0,.22),3px 4px 8px rgba(47,28,17,.12),inset 0 1px rgba(255,255,255,.72)!important}
 html body .sheet.ghost{box-shadow:0 5px 12px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.4)!important}
-.sheet.is-pile-bottom::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
-  box-shadow:14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+/* v223: every sheet of the pile carries the long shadow, unseen; the lowest one shows it — so it passes from sheet to sheet in
+   .45s as the pile opens and folds (it jumped when the class moved); only day ↔ night takes its long time */
+.sheet-stack>.sheet:not(.is-pulling)::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  box-shadow:14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22);opacity:0;transition:opacity .45s ease}
+body.lt-x .sheet-stack>.sheet:not(.is-pulling)::after{transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 /* By day the same shadow, lighter: the sheets keep their depth. */
-.sheet.is-pile-bottom::after{opacity:.45}
-.host-night .sheet.is-pile-bottom::after{opacity:1}
+.sheet-stack>.sheet.is-pile-bottom:not(.is-pulling)::after{opacity:.45}
+.host-night .sheet-stack>.sheet.is-pile-bottom:not(.is-pulling)::after{opacity:1}
 .sheet.active .paper::after{opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .sheet.active .paper::before{opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .host-night .sheet.active .paper::after,.host-night .sheet.active .paper::before{opacity:1}
@@ -1099,6 +1103,11 @@ html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opac
 /* v215 — at night the prints by the sheet lie in the lamp's half-light: the top one (nearest the beam) the lightest, the ones
    beneath darker; day and night cross over at the desk's pace */
 .photo-stack .photo-card{transition:top .5s cubic-bezier(.2,.8,.3,1),left .5s cubic-bezier(.2,.8,.3,1),transform .48s cubic-bezier(.22,.72,.2,1),opacity .34s ease,box-shadow .42s ease,filter 2.45s cubic-bezier(.37,0,.63,1)!important}
+/* v223: the prints hang from the bar — by day it throws a soft shadow over their tops, at night it is the lamp and their tops
+   are lit, the light falling away down the print */
+.photo-stack .photo-card::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+body.host-day .photo-stack .photo-card::after{background:linear-gradient(180deg,rgba(60,38,18,.34) 0,rgba(60,38,18,.12) 14%,rgba(60,38,18,0) 32%)}
+body.host-night .photo-stack .photo-card::after{background:linear-gradient(180deg,rgba(255,206,140,.42) 0,rgba(255,190,120,.14) 22%,rgba(255,190,120,0) 46%);mix-blend-mode:screen}
 body.host-night .photo-stack .photo-card.p1{filter:brightness(.8) sepia(.14)}
 body.host-night .photo-stack .photo-card.p2{filter:brightness(.68) sepia(.18)}
 body.host-night .photo-stack .photo-card.p3{filter:brightness(.58) sepia(.2)}
