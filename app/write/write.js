@@ -469,10 +469,10 @@
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
     // v220: the stack lies as far from the sheet as the book's page does on the other side (it used to sit in the middle of the
     // free room: on a wide screen it went out of the lamp's beam); the clock stands under it, centred
-    // v222: the stack stands high, its tabs level with the bar over the sheet — the room under it is the clock's
-    const GAP=108;let h=r.height*.46,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
-    const bar=document.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),top=bar&&bar.height?bar.bottom+24:r.top+78;
-    return {left:Math.round(L-GAP-ww),top:Math.round(top),w:Math.round(ww),h:Math.round(h)};};
+    // v223: the stack's top (and so its tabs, and the book's plate on the right) stays where it always stood; it is a little
+    // shorter than it was, so the clock under it has room
+    const GAP=108;let h=r.height*.52,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
+    return {left:Math.round(L-GAP-ww),top:Math.round(r.top+r.height*.21+14),w:Math.round(ww),h:Math.round(h)};};
   window.__ocWsRoom=()=>shell.classList.contains('oc-w')&&!!leftBox();
 
   // ——— the window's sun: one picture of the panes (the frame between them simply gets no sun — one even shade, no darker crossings)
@@ -645,12 +645,12 @@
     if(c){const pv=c.querySelector('.clock-pivot');
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
       c.style.setProperty('transition','none','important');
-      // v222: the clock is measured at its own size (scale 1: the hand's length above the pivot, the pendulum's reach below it),
-      // then made as large as the room under the stack allows — about two fifths of the screen's height — and hung there, centred
+      // v223: the clock is measured at its own size (scale 1: the hand's length above the pivot, the pendulum's reach below it),
+      // then fills the room under the stack with an equal margin above and below it, centred under the stack
       const k0=parseFloat(getComputedStyle(c).scale)||1;
       c.style.transform='scale(1)';const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
       const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top),hr=c.querySelector('.minute-hand')?.getBoundingClientRect(),hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);
-      const sb=b.top+b.h+18,room=innerHeight-sb-12,sc=Math.max(.5,Math.min(room,innerHeight*.42)/(hand+reach));
+      const room=innerHeight-(b.top+b.h),gap=room*.07,sb=b.top+b.h+gap,sc=Math.max(.5,(room-2*gap)/(hand+reach));
       c.style.transform=`scale(${sc.toFixed(3)})`;const p1=pv.getBoundingClientRect();
       const tx=b.left+b.w/2,ty=sb+hand*sc;
       c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${sc.toFixed(3)})`;

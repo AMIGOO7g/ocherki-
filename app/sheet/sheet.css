@@ -210,6 +210,11 @@ body{
 .photo-card.p3{top:2px;left:-54px;transform:rotate(-7deg);z-index:1}
 .photo-stack:hover .photo-card.p2{top:104px}
 .photo-stack:hover .photo-card.p3{top:208px}
+/* one hover zone under the whole fan: the hand passing a gap between two prints keeps it open (it closed and opened again —
+   the prints jerked) */
+.photo-stack::before{content:"";position:absolute;left:-62px;top:-16px;width:146px;height:128px;pointer-events:auto}
+.photo-stack[data-n="2"]:hover::before{height:236px}.photo-stack[data-n="3"]:hover::before{height:344px}
+.photo-stack.section-photo-hidden::before{pointer-events:none}
 /* «ещё N ›» — a paper tag under the prints (it opens them all as a solitaire); it goes down with the fan */
 .ph-more{all:unset;position:absolute;left:-42px;top:100px;z-index:4;pointer-events:auto;cursor:pointer;font:16px 'CormorantCy',Georgia,serif;color:#2f1d10;background:#fbf6ec;
   padding:4px 11px 5px;box-shadow:1px 2px 4px rgba(40,25,10,.3);transform:rotate(-2deg);transition:top .5s cubic-bezier(.2,.8,.3,1)}

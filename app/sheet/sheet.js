@@ -2695,19 +2695,19 @@ function stripCloneIds(root){
 function lockSectionStack(){
   ghostEls.forEach(({el})=>{
     el.classList.remove('stack-cascade-in');
-    // v222: a sheet still folding back under the open one is hidden when its fold ends (foldSectionStack)
-    if(!el._folding)el.classList.add('stack-hidden-for-section');
+    el.classList.add('stack-hidden-for-section');
   });
   stackIndicator.classList.remove('show');
 }
-// v222: before the chapter scrolls away its sheets fanned at the right slide back under the open sheet (they vanished at once)
-function foldSectionStack(){
-  ghostEls.forEach(({el})=>{
-    if(el.style.display==='none'||el.classList.contains('stack-hidden-for-section'))return;
-    const from=getComputedStyle(el).transform;el._folding=true;
-    const a=el.animate([{transform:from},{transform:'translate(0px,0px) scale(1)'}],{duration:340,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
-    a.onfinish=()=>{el._folding=false;el.classList.add('stack-hidden-for-section');a.cancel();};
-  });
+// v223: before the chapter scrolls away its sheets fanned at the right slide back under the open sheet one after another, the
+// farthest first (the mirror of their cascade in); the scroll begins when the last is under (they vanished at once)
+function foldSectionStack(done){
+  const vis=ghostEls.filter(({el})=>el.style.display!=='none'&&!el.classList.contains('stack-hidden-for-section')&&getComputedStyle(el).display!=='none').reverse();
+  if(!vis.length)return done();
+  let left=vis.length;
+  vis.forEach(({el},k)=>{const from=getComputedStyle(el).transform;
+    const a=el.animate([{transform:from},{transform:'translate(0px,0px) scale(1)'}],{duration:300,delay:k*90,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
+    a.onfinish=()=>{el.classList.add('stack-hidden-for-section');a.cancel();if(--left===0)done();};});
 }
 
 function revealSectionStackCascade(){
@@ -2747,8 +2747,9 @@ function goSection(nextIndex,dir){
 
   // Use exactly the same thumbnail folding physics as page/menu navigation.
   // Once the old thumbnails have fully retracted, the physical sheet scroll begins.
-  foldSectionStack();
-  foldPhotoStack(()=>{
+  // the sheets at the right and the photographs go back at the same time; the scroll begins when both are done
+  let waiting=2;const both=f=>()=>{if(--waiting===0)f();};
+  const scroll=()=>{
     lockSectionStack();
 
     const stack=activeSheet.parentElement;
@@ -2797,7 +2798,8 @@ function goSection(nextIndex,dir){
       sectionAnimating=false;
       recoverEditorInteraction();
     },830);
-  },{revealAfter:false});
+  };
+  foldSectionStack(both(scroll));foldPhotoStack(both(scroll),{revealAfter:false});
 }
 window.addEventListener('wheel' ,e=>{
   if(sectionAnimating)return;
