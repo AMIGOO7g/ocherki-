@@ -431,8 +431,9 @@
     const title = esc(page.title || source.title || page.episode || source.episode || '');
     const episode = esc(cleanEpisode(page.episode || source.episode || 'Семейная хроника'));
     const episodeNo = String(Number(page.episodeNo) || 1).padStart(2, '0');
-    // under a chapter's name: its first episode's name, and nothing when there is none (never «Глава N» a second time, never the name again)
-    const chapterSub = (() => { const e = cleanEpisode(page.episode || source.episode || ''); return e && clean(e).toLowerCase() !== clean(page.title || source.title || '').toLowerCase() && !/^глава\s*\d+$/i.test(e) ? esc(e) : ''; })();
+    // under a chapter's name: its first episode's name, as written on the chapter's first sheet; nothing when there is none (never «Глава N»,
+    // never the chapter's own name again, never the placeholder «Новый эпизод»)
+    const chapterSub = (() => { const e = cleanEpisode(page.episode || source.episode || ''); const bare = x => clean(x).replace(/^глава\s*\d+\s*[.:·—-]?\s*/i, '').toLowerCase(); return e && bare(e) && bare(e) !== bare(page.title || source.title || '') && !/^новый эпизод$/i.test(bare(e)) ? esc(e) : ''; })();
     const text = page.measuredFlow ? '' : esc(cleanText(own(page, 'text') ? page.text : source.text || ''));
     const quote = page.measuredFlow ? '' : esc(page.quote || (ctx.quoteFrom ? ctx.quoteFrom(source) : '') || '');
     const pageSide = side === 'left' ? 'left' : 'right';

@@ -940,6 +940,10 @@ function render(){
   episodeLabel.setAttribute('spellcheck','false');
   episodeLabel.title=isChapter?'Нажмите и измените название эпизода':'';
   if(isChapter)episodeLabel.textContent=p.episode||'';
+  // the first sheet's episode name is the chapter's subtitle in the book (printed under the chapter's name): when it is empty, the line
+  // says so, to be written in
+  {const sec=currentSection(),first=(sec?.pages||[]).find(q=>q&&q.type!=='document'&&q.bookRole!=='document');
+    episodeLabel.dataset.ph=isChapter&&first===p?'подзаголовок главы — его напечатают под названием':'название эпизода';}
   // v211: under an episode's name, its «когда · где» (the line the book prints under it)
   {let el=episodeLabel.nextElementSibling;if(!el||!el.classList.contains('episode-sub')){el=document.createElement('div');el.className='episode-sub';episodeLabel.after(el);}
     el.textContent=isChapter&&p.isEpisodeStart?String(p.episodeLine||'').trim():'';}

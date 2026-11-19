@@ -1,4 +1,4 @@
-/* «Рукопись» (v230) — the chapter on the same desk; see rukopis.js */
+/* «Рукопись» (v231) — the chapter on the same desk; see rukopis.js */
 /* where the light's picture lies under a sheet: registered, so it moves with the sheet frame by frame and never arrives first */
 @property --ox{syntax:'<length>';inherits:true;initial-value:0px}
 @property --oy{syntax:'<length>';inherits:true;initial-value:0px}
@@ -23,8 +23,8 @@ html.rk-on .wc [data-c="mic"],html.rk-on .wc [data-c="aa"],html.rk-on .wc [data-
    size whatever the sheet's scale */
 .rk-sh{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22),14px 8px 22px rgba(0,0,0,.19),26px 12px 40px rgba(0,0,0,.1);
   position:absolute;left:0;top:0;width:var(--w,660px);height:var(--h,940px);box-sizing:border-box;padding:calc(var(--h,940px)*.075) calc(var(--w,660px)*.1);transform-origin:0 0;
-  background:linear-gradient(100deg,#fbf5ea,#f1e5d1);box-shadow:var(--shd);outline:3px solid rgba(214,150,70,0);overflow:hidden;cursor:pointer;pointer-events:auto;
-  filter:brightness(var(--dim,1));transition:transform .55s cubic-bezier(.2,.8,.3,1),--ox .55s cubic-bezier(.2,.8,.3,1),--oy .55s cubic-bezier(.2,.8,.3,1),--sc .55s cubic-bezier(.2,.8,.3,1),translate .25s ease,opacity .5s ease,filter .45s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1),outline-color .6s ease}
+  background:linear-gradient(100deg,#fbf5ea,#f1e5d1);box-shadow:var(--shd);overflow:hidden;cursor:pointer;pointer-events:auto;
+  filter:brightness(var(--dim,1));transition:transform .55s cubic-bezier(.2,.8,.3,1),--ox .55s cubic-bezier(.2,.8,.3,1),--oy .55s cubic-bezier(.2,.8,.3,1),--sc .55s cubic-bezier(.2,.8,.3,1),translate .25s ease,opacity .5s ease,filter .45s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-sh.past{--shd:calc(1px / var(--sc,1)) calc(2px / var(--sc,1)) calc(3px / var(--sc,1)) rgba(60,40,20,.26),calc(12px / var(--sc,1)) calc(17px / var(--sc,1)) calc(26px / var(--sc,1)) rgba(60,40,20,.19),0 0 0 transparent,0 0 0 transparent,0 0 0 transparent}
 html:has(.shell.is-night) .rk-sh{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
 html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px / var(--sc,1)) rgba(0,0,0,.6),0 calc(30px / var(--sc,1)) calc(30px / var(--sc,1)) calc(-8px / var(--sc,1)) rgba(0,0,0,.55),0 0 0 transparent,0 0 0 transparent,0 0 0 transparent}
@@ -34,12 +34,10 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
 .rk-sh p{margin:0;font:calc(var(--h,940px)*.029)/1.55 'CormorantCy',Georgia,serif;color:#3a2614;text-indent:1.5em;display:-webkit-box;-webkit-line-clamp:9;-webkit-box-orient:vertical;overflow:hidden}
 .rk-sh img{display:block;width:100%;height:36%;object-fit:cover;margin:calc(var(--h,940px)*.025) 0 0;border:5px solid #fbf7ef;box-sizing:border-box;box-shadow:1px 2px 4px rgba(40,25,10,.25);filter:sepia(.55) saturate(.75) contrast(.96)}
 .rk-sh.doc{background:linear-gradient(100deg,#efe4cf,#e6d7bc)}
-/* an episode's first sheet: its ribbon hangs from the sheet's upper edge, as large as on the writing sheet (it grows and shrinks with
-   the sheet) */
-.rk-rib{position:absolute;left:calc(var(--w,660px)*.1);top:0;width:calc(var(--w,660px)*.042);height:calc(var(--h,940px)*.1);z-index:7;pointer-events:none;
-  background:linear-gradient(90deg,#7a2a18,#a8462a 45%,#8a3520);clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%);filter:drop-shadow(1px 2px 1px rgba(40,15,5,.35))}
-/* a sheet just laid, moved or brought back: a warm rim that comes and goes */
-.rk-sh.lit{outline-color:rgba(214,150,70,.95)}
+/* an episode's first sheet: the silk ribbon (the constructor's own) hangs from the sheet's upper edge; it grows and shrinks with
+   the sheet */
+.rk-rib{position:absolute;left:calc(var(--w,660px)*.1);top:0;width:calc(var(--w,660px)*.036);height:calc(var(--h,940px)*.16);z-index:7;pointer-events:none;
+  background:url("../../assets/keeper/ribbon-red.webp") center bottom/100% auto no-repeat;filter:drop-shadow(1px 2px 1.5px rgba(40,15,5,.4))}
 .rk-sh.rk-carried{transition:none;z-index:200!important;opacity:1!important}
 /* a sheet of the fan rises a little under the hand (the window's picture stays where it is on the desk) */
 .rk-sh:not(.mid):not(.past):not(.rk-carried):hover{translate:0 -18px}
@@ -47,12 +45,13 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
 /* light: by day the window's picture (as on the desk) and the deeper sheets darker; at night the lamp's beam. Both lie a little past
    the sheet's edges (clipped by it), so no unlit rim shows round a sheet */
 .rk-sh::after,.rk-top::after{content:"";position:absolute;inset:-2px;pointer-events:none;z-index:5;mix-blend-mode:multiply;
-  background:var(--ws-shade) calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px)/calc(100vw / var(--sc,1)) calc(100vh / var(--sc,1)) no-repeat;opacity:1;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+  background-image:var(--ws-shade);background-position:calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px);background-size:calc(100vw / var(--sc,1)) calc(100vh / var(--sc,1));background-repeat:no-repeat;opacity:1;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-lamp,.rk-ly::after{position:absolute;inset:-2px;pointer-events:none;z-index:6;mix-blend-mode:multiply;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
-  background:var(--rk-beam) calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px)/calc(100vw / var(--sc,1)) calc(100vh / var(--sc,1)) no-repeat}
+  /* (the beam is three pictures; position and size set apart apply to all three, as one shorthand would not) */
+  background-image:var(--rk-beam);background-position:calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px);background-size:calc(100vw / var(--sc,1)) calc(100vh / var(--sc,1));background-repeat:no-repeat}
 /* the sheets under a stack's top lie in the same light */
 .rk-ly::before{content:"";position:absolute;inset:-2px;pointer-events:none;mix-blend-mode:multiply;
-  background:var(--ws-shade) calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px)/100vw 100vh no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+  background-image:var(--ws-shade);background-position:calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px);background-size:100vw 100vh;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-ly::after{content:"";background-size:100vw 100vh}
 html:has(.shell.is-night) .rk-ly::before{opacity:0}
 html:has(.shell.is-night) .rk-ly::after{opacity:1}
@@ -104,8 +103,9 @@ html:has(.shell.is-night) .rk-tab::before{opacity:1}
 .rk-tab.cur{transform:translateX(-10px)}
 .rk-tab.cur i{color:#9a4510;text-shadow:0 0 6px rgba(255,150,60,.45)}
 .rk-tab.cur b{color:#8a4a16}
-.rk-tab.over,.rk-tab.lit{transform:translateX(-14px) scale(1.04);box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 0 22px 6px rgba(255,170,80,.5)}
-.rk-tabs.drop .rk-tab.ch:not(.cur){box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 0 12px 2px rgba(255,170,80,.3)}
+.rk-tab.over,.rk-tab.lit{transform:translateX(-14px) scale(1.04);box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 10px 18px rgba(40,25,10,.4)}
+.rk-tab.over i,.rk-tab.lit i{color:#9a4510;text-shadow:0 0 6px rgba(255,150,60,.45)}
+html:has(.shell.is-night) .rk-tab.over i,html:has(.shell.is-night) .rk-tab.lit i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
 .rk-tab.held{z-index:5;cursor:grabbing;transition:box-shadow .3s ease;box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 14px 24px rgba(40,25,10,.4)}
 .rk-tabs.sorting .rk-tab:not(.held){transition:box-shadow .3s ease}
 .rk-tab.rk-tabnew{background:none;border:1.5px dashed rgba(90,63,38,.5);box-shadow:none;font:15px/1.9 'CormorantCy',serif;color:#5a3f26;transition:color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),transform .4s ease}
@@ -140,7 +140,6 @@ html:has(.shell.is-night) .rk-tab.rk-tabnew{color:#e8cfa6;border-color:rgba(232,
 .rk-phs img{position:absolute;width:110px;height:82px;object-fit:cover;border:5px solid #fbf7ef;border-bottom-width:13px;box-shadow:1px 2px 4px rgba(40,25,10,.3);filter:sepia(.55) saturate(.75) contrast(.96) brightness(1.02)}
 .rk-first{flex:1;display:flex;align-items:center;justify-content:center;font:italic 14px/1.35 'CormorantCy',serif;color:#8a6a4a;padding:0 10px}
 .rk-top>span{font:13px 'CormorantCy',serif;color:#6a4a2e;flex:none}
-.rk-st.cur .rk-top{box-shadow:0 0 0 2px rgba(196,140,70,.9),0 0 22px 4px rgba(255,170,80,.35),10px 16px 24px -8px rgba(60,40,20,.38)}
 .rk-all .rk-st.rk-new{display:flex;align-items:center;justify-content:center;box-sizing:border-box;border:1.5px dashed rgba(90,63,38,.5);font:19px 'CormorantCy',serif;color:#5a3f26}
 html:has(.shell.is-night) .rk-all .rk-st.rk-new{color:#e8cfa6;border-color:rgba(232,207,166,.45)}
 .rk-fly{position:fixed;z-index:300;margin:0;pointer-events:none;transition:none;box-shadow:0 30px 50px -10px rgba(60,40,20,.45)}

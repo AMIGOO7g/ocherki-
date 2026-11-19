@@ -98,6 +98,8 @@ body{
 .episode-row::before,.episode-row::after{content:"";height:1px;background:var(--line);width:160px;flex:0 0 160px}
 .episode-row::after{background:var(--line)}
 .episode{font-size:14px;color:#5b4434;letter-spacing:.005em;white-space:nowrap}
+.episode:empty{min-width:12em;text-align:center}
+.episode:empty::before{content:attr(data-ph);opacity:.45;pointer-events:none}
 .editor-wrap{position:absolute;left:58px;right:58px;top:108px;bottom:92px;z-index:15;background:transparent}
 
 /* v60 — quiet contextual actions: present when writing, never a permanent toolbar */
