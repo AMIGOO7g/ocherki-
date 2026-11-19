@@ -99,7 +99,8 @@
       const hMax=ws&&top0?Math.min(base.height*.8,bot0-top0):base.height*.8;H=hMax;W=H*pw/ph;if(W>r2){W=Math.max(0,r2);H=W*ph/pw;}d=0;
       if(ws)return {base,W,H,G:G2,d,extra:0,top0,ok:W>=200};}
     return {base,W,H,G,d,extra,ok:W>=260};}
-  function place(){const g=geo();if(!g)return;const b=g.base,L=b.left-g.d+b.width+g.G,T=g.top0?g.top0:b.top+(b.height-g.H)/2-10;
+  // v221: whole pixels — on a fractional edge the page's shade (::after) left a pale line at its left edge once it stopped
+  function place(){const g=geo();if(!g)return;g.W=Math.round(g.W);g.H=Math.round(g.H);const b=g.base,L=Math.round(b.left-g.d+b.width+g.G),T=Math.round(g.top0?g.top0:b.top+(b.height-g.H)/2-10);
     const css=on?`left:${L}px;top:${T}px;width:${g.W}px;height:${g.H}px`:`left:${b.left+b.width+g.extra-g.W*.7}px;top:${T}px;width:${g.W}px;height:${g.H}px`;
     if((on||!shell.classList.contains('wp-closing'))&&pane._css!==css){pane._css=css;pane.style.cssText=css;}
     keys2.style.left=(L+g.W/2)+'px';keys2.style.top=(T+g.H+(g.top0?50:22))+'px';
@@ -262,7 +263,9 @@
   // (every frame only while something moves — the bar, the page, the keys; otherwise a few times a second)
   let busyTill=0,fr=0,lampKey='',kick=true;new MutationObserver(()=>{kick=true;}).observe(shell,{attributes:true,attributeFilter:['class']});
   requestAnimationFrame(function loop(t){requestAnimationFrame(loop);const r=(isMsQ()?document.querySelector('.mq-car'):wc)?.getBoundingClientRect();
-    const k=r?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'';if(k!==lampKey||kick){lampKey=k;kick=false;busyTill=t+2200;}
+    // v221: the book's page and the stack count too — while either moves the beam on them is laid every frame (it caught up in steps)
+    const pq=document.querySelector('.wp-page')?.getBoundingClientRect(),lq=document.querySelector('.ws-left')?.getBoundingClientRect();
+    const k=(r?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'')+(pq?`|${Math.round(pq.left)},${Math.round(pq.top)},${Math.round(pq.width)}`:'')+(lq?`|${Math.round(lq.left)},${Math.round(lq.top)}`:'');if(k!==lampKey||kick){lampKey=k;kick=false;busyTill=t+2200;}
     if(t<busyTill||++fr%15===0)lamp();});
   // what it says: where we are, «до книги», saved
   // v211: the name over the sheet — the name written for a document or an episode; without one, «Эпизод N · документ» (the
