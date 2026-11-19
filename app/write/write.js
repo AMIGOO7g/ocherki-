@@ -340,56 +340,19 @@
 // ——— write-v119-js
 (()=>{const shell=document.querySelector('.shell');if(!shell)return;
   const modal=document.getElementById('bookPreviewModal');
-  const ttl=document.createElement('div');ttl.className='oc-ttl';ttl.innerHTML='<div class="k">Очерки жизни</div><div class="n"></div><div class="s">история семьи</div><div class="c"></div>';
-  shell.after(ttl);
-  ttl.querySelector('.n').addEventListener('click',()=>document.getElementById('booksBtn')?.click());
   const qk=document.createElement('button');qk.type='button';qk.className='oc-qk';qk.setAttribute('aria-label','Другой вопрос');qk.innerHTML='<span>?</span>';
   const acts=document.querySelector('#writingPrompt .writing-prompt-actions');if(acts)acts.appendChild(qk);
   qk.addEventListener('click',e=>{e.stopPropagation();document.getElementById('writingPromptNext')?.click();});
   const isWrite=()=>shell.classList.contains('is-open')&&!shell.classList.contains('is-start-screen')&&!shell.classList.contains('is-manuscript')&&!modal?.classList.contains('open');
   const root=document.documentElement.style;
-  function words(){const t=(document.getElementById('projectTitle')?.textContent||'').trim();
-    const n=ttl.querySelector('.n');if(n.textContent!==t){const v=t||'Очерки жизни';n.textContent=v;ttl.querySelector('.k').style.display=/^очерки жизни$/i.test(v)?'none':'';n.style.setProperty('--n',(v.length>22?36:v.length>14?44:v.length>10?52:60)+'px');}
-    const c=(document.getElementById('pageCount')?.textContent||'').trim();const k=+c;
-    const w=k%10===1&&k%100!==11?'лист':[2,3,4].includes(k%10)&&![12,13,14].includes(k%100)?'листа':'листов';
-    ttl.querySelector('.c').textContent='';}
   let last='';
-  function layout(){const on=isWrite();shell.classList.toggle('oc-w',on);ttl.classList.toggle('on',on&&!shell.classList.contains('wp-on'));if(!on)return;
-    words();
+  function layout(){const on=isWrite();shell.classList.toggle('oc-w',on);if(!on)return;
     const ed=document.querySelector('.editor-paper')?.getBoundingClientRect();if(!ed||ed.width<200)return;
     const sh=parseFloat(getComputedStyle(document.getElementById('editorPaperWrap')||document.body).translate)||0;
     const L=ed.left-sh,R=ed.right-sh,T=Math.max(ed.top,60),H=Math.min(ed.height,innerHeight-T);
-    const cx=Math.round((R+innerWidth-70)/2);
-    const ty=Math.round(T+H*.34);
-    // one proportion for the whole right column (title, chapter, clock): a laptop sees the same picture, only smaller
+    // one proportion for the whole desk: a laptop sees the same picture, only smaller
     const K=Math.max(.6,Math.min(1,innerHeight/1080,innerWidth/1920));root.setProperty('--oc-k',K.toFixed(3));
     const key=[L,R,T,H,innerWidth].map(Math.round).join();
-    ttl.style.left=cx+'px';ttl.style.top=ty+'px';
-    root.setProperty('--oc-cx',cx+'px');root.setProperty('--oc-ny',Math.round(ty+(ttl.offsetHeight+44)*K)+'px');
-    // the clock stands under the chapter, the signature at the edge
-    const nb=ty+ttl.offsetHeight+44+(document.querySelector('.write-nav')?.offsetHeight||70);
-    // v195: while the desk holds three sheets the clock stands under the book's page (write-desk moves it); it is not pulled back here
-    if(!shell.classList.contains('oc-ws-peek')){const bl=document.querySelector('.bottom-left'),pv=document.querySelector('.bottom-left .clock-pivot');
-      const cur=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-clx'))||cx-120;
-      let nx=cx-120;if(pv&&shell.classList.contains('oc-w')){const pr=pv.getBoundingClientRect();if(pr.width)nx=cur+(cx-(pr.left+pr.width/2));}
-      let ny=Math.min(innerHeight-300,nb+70);
-      // the hands reach about 110px from the centre: the centre stands that far below the chapter's last line.
-      // On a low screen everything keeps its place and the clock itself gets smaller, so it fits under the chapter whole.
-      const mc=document.querySelector('.bottom-left .master-clock');
-      const nv=document.querySelector('.write-nav');if(pv&&nv&&mc&&shell.classList.contains('oc-w')){const nr0=nv.getBoundingClientRect();
-        // v193: the clock keeps one place whatever the chapter's heading is — a kicker above it or not, one line or two: the
-        // room for the tallest heading (the kicker and two lines) is always kept under it
-        let nr=nr0;{const wt=nv.querySelector('.wn-title');const lh=wt?parseFloat(getComputedStyle(wt).lineHeight)||0:0;
-          if(lh){const sc=(nr0.height/(nv.offsetHeight||1))||1;const res=(2*lh+37)*sc;nr={top:nr0.top,height:res,bottom:nr0.top+res};}}
-        const k=Math.max(.5,Math.min(K,(innerHeight-14-nr.bottom)/375));
-        const ok=+(mc.dataset.k||1),mr=mc.getBoundingClientRect(),pr=pv.getBoundingClientRect();
-        if(pr.height&&nr.height&&mr.width){
-          // the pivot's place inside the clock, unscaled — the clock shrinks around its own centre
-          const ox=(pr.left+pr.width/2-mr.left)/ok,oy=(pr.top+pr.height/2-mr.top)/ok;
-          if(Math.abs(k-ok)>.004){mc.style.transformOrigin=`${ox.toFixed(1)}px ${oy.toFixed(1)}px`;mc.style.scale=k.toFixed(3);mc.dataset.k=k.toFixed(3);}
-          const cy=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oc-cly'))||ny;
-          ny=cy+(nr.bottom+125*k-(pr.top+pr.height/2));}}
-      root.setProperty('--oc-clx',Math.round(nx)+'px');root.setProperty('--oc-cly',Math.round(ny)+'px');}
     root.setProperty('--oc-qx',Math.round(L/2)+'px');root.setProperty('--oc-qy',Math.round(T+H/2)+'px');
     // the two keys over the sheet
     const mid=(L+R)/2;root.setProperty('--oc-ky','30px');// the three keys over the sheet share its free width evenly, clear of the top bar on a small screen
@@ -414,7 +377,6 @@
   const pt=document.getElementById('projectTitle');if(pt)new MutationObserver(kick).observe(pt,{childList:true,characterData:true,subtree:true});
   const pc=document.getElementById('pageCount');if(pc)new MutationObserver(kick).observe(pc,{childList:true,characterData:true,subtree:true});
   addEventListener('resize',kick);setInterval(layout,1500);[400,1500,3500,7000].forEach(t=>setTimeout(layout,t));
-  new MutationObserver(()=>{const m=shell.classList.contains('is-manuscript');if(m!==layout._m){layout._m=m;layout();}}).observe(shell,{attributes:true,attributeFilter:['class']});// v220: back from «Рукопись» the desk is laid out at once
 
 })();
 
@@ -503,7 +465,7 @@
   const leftBox=()=>{const w=wrapEl();if(!w)return null;const r=w.getBoundingClientRect();if(!r.width)return null;const sh=parseFloat(getComputedStyle(w).translate)||0;const L=r.left-sh;
     // v220: the stack lies as far from the sheet as the book's page does on the other side (it used to sit in the middle of the
     // free room: on a wide screen it went out of the lamp's beam); the clock stands under it, centred
-    const GAP=108;let h=r.height*.62,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
+    const GAP=108;let h=r.height*.58,ww=h*RATIO;const avail=L-GAP-Math.max(20,L*.06);if(ww>avail){ww=avail;h=ww/RATIO;}if(ww<110)return null;
     return {left:Math.round(L-GAP-ww),top:Math.round(r.top+(r.height-h)/2+14),w:Math.round(ww),h:Math.round(h)};};
   window.__ocWsRoom=()=>shell.classList.contains('oc-w')&&!!leftBox();
 
@@ -649,11 +611,11 @@
 
   // ——— keeping everything in its place
   let lastK='',autoTried=0;
-  const ttl=()=>document.querySelector('.oc-ttl'),clock=()=>document.querySelector('.bottom-left .master-clock');
+  const clock=()=>document.querySelector('.bottom-left .master-clock');
   const tick=()=>{requestAnimationFrame(tick);if(drag)return;
     const ok=isWrite()&&!!leftBox();shell.classList.toggle('oc-ws',ok);
     const W=window.__ocWp;const peek=ok&&W?.isOn?.()&&shell.classList.contains('wp-on');shell.classList.toggle('oc-ws-peek',!!peek);
-    if(!ok){if(lastK){lastK='';const t=ttl();if(t)t.style.removeProperty('translate');const c=clock();if(c){c.style.removeProperty('transform');}}return;}
+    if(!ok){if(lastK){lastK='';const c=clock();if(c){c.style.removeProperty('transform');}}return;}
     setupKeys();
     const b=leftBox();// v203: where the page and its keys come to rest (their set places, not their sliding boxes): the clock stands still
     const ps=W?.pane?.style,ks=W?.keys2;const pg=ps&&ps.width?{left:parseFloat(ps.left),top:parseFloat(ps.top),width:parseFloat(ps.width),height:parseFloat(ps.height)}:null;
@@ -662,21 +624,23 @@
     if(k===lastK)return;lastK=k;
     Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');left.querySelectorAll('.ws-lt').forEach(l=>{const r=l.getBoundingClientRect();l.style.setProperty('--ox',(-r.left).toFixed(1)+'px');l.style.setProperty('--oy',(-r.top).toFixed(1)+'px');});document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
     // the book's name above the page, the clock below its keys — the signature stays where it always is
-    const t=ttl(),c=clock();
+    const c=clock();
     // v205: the book's name is a brass plate like the stack's tabs, level with them, over the page that is laid in the book;
     // it is as wide as the tabs, or as the page when the page is narrower (a tall format) — set from the page's resting place
-    if(t)['translate','scale','transform-origin'].forEach(x=>t.style.removeProperty(x));
     {let pl=document.querySelector('.ws-ttl');if(!pl){pl=document.createElement('div');pl.className='ws-ttl';pl.innerHTML='<i class="nf"></i><b>Очерки жизни</b><span>история семьи</span>';shell.after(pl);}
       const tb=left.querySelector('.ws-tabs')?.getBoundingClientRect();
-      {const n=t?.querySelector('.n')?.textContent.trim()||'Очерки жизни',bb=pl.querySelector('b');if(bb.textContent!==n)bb.textContent=n;}
+      {const n=(document.getElementById('projectTitle')?.textContent||'').trim()||'Очерки жизни',bb=pl.querySelector('b');if(bb.textContent!==n)bb.textContent=n;}
       pl.style.setProperty('--ws-w',b.w+'px');if(peek&&pg&&tb&&tb.width){const w=Math.round(Math.min(tb.width,pg.width));Object.assign(pl.style,{left:Math.round(pg.left+pg.width/2-w/2)+'px',top:Math.round(tb.top)+'px',width:w+'px',height:Math.round(tb.height)+'px'});pl.classList.add('on');}
       else pl.classList.remove('on');}
-    if(peek&&c&&k2&&k2.height){const pv=c.querySelector('.clock-pivot');
+    // the clock stands under the stack: it does not wait for the book's page
+    if(c){const pv=c.querySelector('.clock-pivot');
       // measured, not reckoned: the clock is set to its new size with no move, the pivot is found, then moved by the difference
       c.style.setProperty('transition','none','important');
-      if(!c.style.transform)c._B=new DOMMatrix(getComputedStyle(c).transform==='none'?undefined:getComputedStyle(c).transform).a||1;const B=c._B||1,k0=parseFloat(getComputedStyle(c).scale)||1;
+      // v221: one fixed base (it was read from the clock's transform in the middle of its own transition — after «Рукопись»
+      // it came out smaller each time)
+      const B=1,k0=parseFloat(getComputedStyle(c).scale)||1;
       c.style.transform=`scale(${B})`;const p0=pv.getBoundingClientRect(),bob=c.querySelector('.logo-bob')?.getBoundingClientRect();
-      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const mh=c.querySelector('.minute-hand'),hr=mh?.getBoundingClientRect();const hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);const sb=b.top+b.h+34,room=innerHeight-sb-14;const sc=Math.max(.45,Math.min(1,room/(reach+hand+6)));
+      const reach=Math.max(60,(bob?bob.bottom:p0.bottom+140)-p0.top);const mh=c.querySelector('.minute-hand'),hr=mh?.getBoundingClientRect();const hand=Math.max(40,hr?Math.hypot(hr.width,hr.height):90);const sb=b.top+b.h+18,room=innerHeight-sb-10;const sc=Math.max(.5,Math.min(1.45,1.2*Math.min(room,170)/Math.max(1,(c.offsetHeight||130)*k0)));
       c.style.transform=`scale(${(B*sc).toFixed(3)})`;const p1=pv.getBoundingClientRect();
       const tx=b.left+b.w/2,ty=Math.max(sb+hand*sc,innerHeight-46-reach*sc);
       c.style.transform=`translate(${((tx-(p1.left+p1.width/2))/k0).toFixed(1)}px,${((ty-(p1.top+p1.height/2))/k0).toFixed(1)}px) scale(${(B*sc).toFixed(3)})`;
@@ -740,8 +704,13 @@
 
 // v212 — the desk comes into view when it lies in its place: the stack, the page and the clock laid out (or after 6 s at most)
 (()=>{const H=document.documentElement,sh=document.querySelector('.shell');let t0=performance.now();
-  {let night=false;try{night=localStorage.getItem('ocherkiLight')==='night';}catch(_){}}
   {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
     const veil=()=>{if(H.classList.contains('oc-desk'))return;if((img&&getComputedStyle(document.body,'::after').zIndex==='2147483647')||performance.now()-t1>4000){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
-  const ready=()=>sh&&sh.classList.contains('oc-ready')&&sh.classList.contains('oc-ws-peek')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
-  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>3500){setTimeout(()=>H.classList.add('oc-shown'),300);return;}requestAnimationFrame(go);};go();})();
+  const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
+  // v221: when the desk is slow to come (past 1.5 s), the Keeper greets on the veil — in its ink, as on the start screen
+  let hi=null;const greet=()=>{if(hi||H.classList.contains('oc-shown'))return;let back=false;try{back=localStorage.getItem('ocherkiSeen')==='1';}catch(_){}
+    hi=document.createElement('div');hi.className='oc-hi';hi.innerHTML=`<b>${back?'С возвращением':'Добро пожаловать'}</b><span></span>`;
+    const n=(document.getElementById('projectTitle')?.textContent||'').trim();if(n&&back)hi.querySelector('span').textContent=n;H.appendChild(hi);hi._t=performance.now();requestAnimationFrame(()=>hi.classList.add('on'));};
+  // once the greeting has begun it is let to be read (a second) before the desk comes in over it
+  const show=()=>{const wait=hi?1000-(performance.now()-hi._t):0;if(wait>0){setTimeout(show,wait);return;}H.classList.add('oc-shown');try{localStorage.setItem('ocherkiSeen','1');}catch(_){}if(hi){hi.classList.remove('on');setTimeout(()=>hi.remove(),900);}};
+  const go=()=>{if(H.classList.contains('oc-shown'))return;if(performance.now()>1500)greet();if(ready()||performance.now()-t0>3500){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();

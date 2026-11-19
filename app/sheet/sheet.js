@@ -3062,7 +3062,8 @@ document.getElementById('treeLaunch')?.addEventListener('click',()=>{
 // itself; the card says on its buttons what is done)
 function markPeopleLabel(photo){const n=(photo?.peopleMarks||[]).filter(mark=>mark&&mark.name).length;return n?`кто на фото: ${n}`:'отметить людей';}
 function markPeoplePhoto(photo,done){if(!photo||!window.OcherkiPeopleMarker)return done?.();
-  window.OcherkiPeopleMarker.open({src:photo.src,marks:photo.peopleMarks||[],onDone:marks=>{
+  const doc=(()=>{try{return window.parent!==window&&window.frameElement?window.parent.document:document;}catch(_){return document;}})();
+  window.OcherkiPeopleMarker.open({doc,src:photo.src,marks:photo.peopleMarks||[],onDone:marks=>{
     photo.peopleMarks=marks;const names=marks.map(mark=>mark.name).filter(Boolean).join(', ');
     if(!String(photo.people||'').trim()&&names)photo.people=names;
     persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}done?.();},onCancel:()=>done?.()});}
@@ -4055,16 +4056,26 @@ window.OC_SHEET={
     const shut=()=>{if(!sol||open)return;const S=sol;sol=null;S.veil.classList.remove('on');S.box.classList.remove('on');tellHost(false);setTimeout(()=>{S.veil.remove();S.box.remove();},450);try{renderPhotos();}catch(_){}};
     veil.addEventListener('click',shut);box.querySelector('.sol-close').addEventListener('click',shut);
     box.querySelector('.sol-add').addEventListener('click',()=>{shut();document.getElementById('addPhotoBtn')?.click();});
-    box.addEventListener('pointerdown',e=>{const c=e.target.closest('.sol-pr');if(!c||e.button!==0)return;e.preventDefault();const r=c.getBoundingClientRect(),x0=e.clientX,y0=e.clientY;let fl=null,to=-1;
-      try{c.setPointerCapture(e.pointerId);}catch(_){}
+    // dragging a print: the others make way for it while it is carried (each glides to where it will stand), and it settles
+    // into the gap when let go
+    const flip=(fn)=>{const els=[...box.querySelectorAll('.sol-pr')],r0=new Map(els.map(x=>[x,x.getBoundingClientRect()]));fn();
+      els.forEach(x=>{const a=r0.get(x),b=x.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(!dx&&!dy)return;
+        x.animate([{translate:`${dx}px ${dy}px`},{translate:'0px 0px'}],{duration:320,easing:'cubic-bezier(.2,.8,.3,1)'});});};
+    box.addEventListener('pointerdown',e=>{const c=e.target.closest('.sol-pr');if(!c||e.button!==0)return;e.preventDefault();const r=c.getBoundingClientRect(),x0=e.clientX,y0=e.clientY;let fl=null;const grid=box.querySelector('.sol-grid');
+      // the hand is followed on the whole document: the print itself moves in the grid while carried (and a moved node loses its capture)
       const mv=ev=>{const dx=ev.clientX-x0,dy=ev.clientY-y0;if(!fl&&Math.hypot(dx,dy)<6)return;
         if(!fl){fl=c.cloneNode(true);fl.classList.add('sol-fly');Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});HD.body.appendChild(fl);c.classList.add('sol-gap');}
-        fl.style.transform=`translate(${dx}px,${dy}px) rotate(3deg) scale(1.1)`;fl.style.visibility='hidden';const el=HD.elementFromPoint(ev.clientX,ev.clientY);fl.style.visibility='';
-        box.querySelectorAll('.sol-before').forEach(x=>x.classList.remove('sol-before'));const t=el?.closest?.('.sol-pr');to=t&&t!==c?+t.dataset.i:-1;if(t&&t!==c)t.classList.add('sol-before');};
-      const up=ev=>{c.removeEventListener('pointermove',mv);c.removeEventListener('pointerup',up);c.removeEventListener('pointercancel',up);box.querySelectorAll('.sol-before').forEach(x=>x.classList.remove('sol-before'));
-        const i=+c.dataset.i;if(!fl){if(ev.type==='pointerup')fromSolitaire(c,i);return;}fl.remove();c.classList.remove('sol-gap');
-        if(to>=0&&to!==i){const list=currentPhotos();const [m]=list.splice(i,1);list.splice(to>i?to-1:to,0,m);pg.photoOffset=Math.min(pg.photoOffset||0,list.length-1);persist();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}draw();}};
-      c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);});};
+        fl.style.transform=`translate(${dx}px,${dy}px) rotate(3deg) scale(1.1)`;
+        // the print under the hand: the gap moves before it (or after it, past its middle)
+        fl.style.visibility='hidden';const el=HD.elementFromPoint(ev.clientX,ev.clientY);fl.style.visibility='';const t=el?.closest?.('.sol-pr');
+        if(t&&t!==c){const tr=t.getBoundingClientRect(),after=ev.clientX>tr.left+tr.width/2;const ref=after?t.nextSibling:t;if(ref!==c&&ref!==c.nextSibling)flip(()=>grid.insertBefore(c,ref));}};
+      const up=ev=>{HD.removeEventListener('pointermove',mv);HD.removeEventListener('pointerup',up);HD.removeEventListener('pointercancel',up);
+        const i=+c.dataset.i;if(!fl){if(ev.type==='pointerup')fromSolitaire(c,i);return;}
+        // the print goes down into its gap, then the order is kept
+        const to=c.getBoundingClientRect(),fr=fl.getBoundingClientRect();fl.style.transition='transform .32s cubic-bezier(.2,.8,.3,1)';fl.style.transform=`translate(${to.left-r.left}px,${to.top-r.top}px) rotate(0deg) scale(1)`;
+        setTimeout(()=>{fl.remove();c.classList.remove('sol-gap');const order=[...grid.querySelectorAll('.sol-pr')].map(x=>+x.dataset.i);const list=currentPhotos(),copy=list.slice();
+          if(order.some((v,k)=>v!==k)){order.forEach((v,k)=>{list[k]=copy[v];});pg.photoOffset=Math.min(pg.photoOffset||0,list.length-1);persist();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}}draw();},330);};
+      HD.addEventListener('pointermove',mv);HD.addEventListener('pointerup',up);HD.addEventListener('pointercancel',up);});};
   // a print of the solitaire opens its card (laid over the solitaire) and comes back to its place there
   const hostPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);const o=off();return poseAt({left:r.left-o.x,top:r.top-o.y,width:r.width,height:r.height},Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);};
   const fromSolitaire=(c,i)=>{const p=currentPhotos()[i];if(!p)return;

@@ -1426,14 +1426,14 @@ html body .shell.is-open.is-book-preview .book-design-shell.is-rail{opacity:1!im
 .mode-switch button.is-hint::after{content:"Посмотрите всю рукопись";position:absolute;left:50%;top:calc(100% + 14px);transform:translateX(-50%);white-space:nowrap;font:italic 15px Georgia,serif;color:#3a2a1c;pointer-events:none}
 .mode-switch.is-night button.is-hint::after{color:#f3e7d6}
 .mode-switch button{position:relative}
-.write-nav{position:fixed;z-index:30;text-align:right;color:#3a2a1c;opacity:0;transition:opacity .8s ease,color 2.45s cubic-bezier(.37,0,.63,1);pointer-events:none}
-.shell.is-open:not(.is-book-preview):not(.is-manuscript) .write-nav.is-placed{opacity:1;pointer-events:auto}
-.shell.is-night .write-nav{color:#f3e7d6}
-.write-nav .wn-title{font:italic 20px/1.25 'CormorantCy',Georgia,serif;max-width:230px;margin-left:auto}
-.write-nav .wn-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:6px;font:12px Georgia,serif;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
-.write-nav button{appearance:none;border:0;background:none;cursor:pointer;color:inherit;font:20px/1 Georgia,serif;padding:0 4px;opacity:.8}
-.write-nav button:hover{opacity:1}
-.write-nav button:disabled{opacity:.25;cursor:default}
+
+
+
+
+
+
+
+
 #bookPreviewModal.open.has-arc{pointer-events:none!important}
 #bookPreviewModal.open.has-arc .book-preview-stage,#bookPreviewModal.open.has-arc .book-preview-close,#bookPreviewModal.open.has-arc .book-preview-nav,#bookPreviewModal.open.has-arc .composition-menu,#bookPreviewModal.open.has-arc .recompose-undo.is-on,#bookPreviewModal.open.has-arc .book-rhythm-warning{pointer-events:auto}
 #bookPreviewModal.open.has-arc>*:not(.preview-arc):not(.preview-catcher),#bookPreviewModal.open.has-arc .photo-frame-tools{pointer-events:auto!important}

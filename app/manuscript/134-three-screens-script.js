@@ -152,34 +152,4 @@
   sw.addEventListener('pointermove',e=>{hov=true;if(Math.abs(e.clientX-lastX)>16)push(e.clientX,.11);});
   sw.addEventListener('pointerleave',()=>{hov=false;lastX=0;if(!raf)raf=requestAnimationFrame(step);});
   measure();[600,1500,3000,4500,7000,10000].forEach(t=>setTimeout(measure,t));document.fonts?.ready?.then(measure);
-  // «Глава 2. Тифлис · лист 3 из 7 ‹ ›» beside the sheet instead of the map.
-  const nav=document.createElement('div');nav.className='write-nav';nav.innerHTML='<div class="wn-kicker"></div><div class="wn-title"></div><div class="wn-row"><button type="button" data-step="-1" aria-label="Предыдущий лист">‹</button><span class="wn-count"></span><button type="button" data-step="1" aria-label="Следующий лист">›</button></div>';
-  shell.appendChild(nav);
-  let flat=[],at=-1;
-  const frame=()=>document.getElementById('v35SheetFrame');
-  const send=cmd=>{try{frame()?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',...cmd},'*');}catch(e){}};
-  addEventListener('message',e=>{const d=e.data||{};
-    if(d.type==='OCHERKI_STRUCTURE_STATE'){const st=d.payload||{};flat=[];
-      (st.sections||[]).forEach(s=>(s.pages||[]).forEach((p,i)=>flat.push({s,p,i,n:(s.pages||[]).length})));
-      at=flat.findIndex(x=>x.p.active);render();
-      // After a few written sheets «Рукопись» glows once, inviting a look at the whole book.
-      let seen=false;try{seen=localStorage.getItem('ocherki_ms_seen')==='1';}catch(err){}
-      const written=flat.filter(x=>x.p.userEdited&&String(x.p.text||'').trim()).length;
-      sw.querySelector('[data-mode="manuscript"]').classList.toggle('is-hint',!seen&&written>=3);}
-    else if(d.type==='OCHERKI_ACTIVE_STATE'){const uid=d.payload?.pageUid;const i=flat.findIndex(x=>(x.p.uid||'')===uid);if(i>=0){at=i;render();}}});
-  function render(){const cur=flat[at];if(!cur)return;
-    // «Глава 1» and «лист 6 из 13» in plain type, the chapter's name in script.
-    const full=String(cur.s.title||''),m=full.match(/^((?:Глава|Эпизод|Часть)\s+\d+)[.:]?\s*(.*)$/i);
-    // v187: a new chapter or sheet comes in like the sheets: the old words go back, the new ones come forward
-    const K=m?m[1]:'',T=m?(m[2]||m[1]):full,C=cur.n>1?`лист ${cur.i+1} из ${cur.n}`:'';
-    const sw=(el,t,fwd)=>{if(el.textContent===t)return;if(!el.textContent||!nav.classList.contains('is-placed')){el.textContent=t;return;}
-      el.getAnimations().forEach(a=>a.cancel());el.animate([{opacity:1,transform:'none',filter:'blur(0)'},{opacity:0,transform:`translateY(${fwd?-8:8}px) scale(${fwd?.92:1.06})`,filter:'blur(3px)'}],{duration:320,easing:'ease-in',fill:'forwards'}).finished.then(()=>{
-        el.textContent=t;el.animate([{opacity:0,transform:`translateY(${fwd?10:-10}px) scale(${fwd?1.06:.92})`,filter:'blur(3px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:480,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});}).catch(()=>{});};
-    const fwd=at>=(nav._at??at);nav._at=at;
-    sw(nav.querySelector('.wn-kicker'),K,fwd);sw(nav.querySelector('.wn-title'),T,fwd);sw(nav.querySelector('.wn-count'),C,fwd);
-    nav.querySelector('[data-step="-1"]').disabled=at<=0;nav.querySelector('[data-step="1"]').disabled=at>=flat.length-1;place();}
-  nav.addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b||b.disabled)return;const next=flat[at+Number(b.dataset.step)];if(next)send({action:'select',sectionId:next.s.id,pageUid:next.p.uid});});
-  function place(){if(shell.classList.contains('wp-on')||shell.classList.contains('wp-closing'))return;const r=document.querySelector('.editor-paper')?.getBoundingClientRect();if(!r||!r.width)return;
-    nav.style.right=Math.round(innerWidth-r.left+250)+'px';nav.style.top=Math.round(r.top+r.height/2-30)+'px';nav.classList.add('is-placed');}
-  addEventListener('resize',()=>requestAnimationFrame(place));setTimeout(place,1500);setTimeout(place,4000);
 })();

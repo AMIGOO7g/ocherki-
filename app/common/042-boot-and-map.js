@@ -519,7 +519,8 @@
   // Controlled/replayable physical boot.
   let bootStarted=false;
   let bootTimers=[];
-  const later=(fn,ms)=>{const id=setTimeout(fn,ms);bootTimers.push(id);return id;};
+  // v221: in the shell the boot happens under the desk's veil, unseen — its stages are run at a third of their time there
+  const later=(fn,ms)=>{const id=setTimeout(fn,document.documentElement.classList.contains('oc-quick')?ms*.3:ms);bootTimers.push(id);return id;};
   function resetBootVisualState(){
     bootTimers.forEach(clearTimeout);bootTimers=[];
     shell.classList.add('ui-boot');

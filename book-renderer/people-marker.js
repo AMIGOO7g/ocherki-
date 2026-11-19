@@ -7,8 +7,10 @@
 
   const esc = value => String(value ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const STYLE = `
-  .pm-overlay{position:fixed;inset:0;z-index:5200;background:rgba(30,22,16,.6);display:flex;align-items:center;justify-content:center;font-family:Georgia,"Times New Roman",serif;color:#3b2a20}
-  .pm-panel{display:flex;gap:26px;max-width:96vw;max-height:92vh;background:#f8f0e3;border-radius:14px;padding:24px;box-shadow:0 30px 70px rgba(0,0,0,.4)}
+  .pm-overlay{position:fixed;inset:0;z-index:2147483300;background:rgba(40,24,10,.32);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;font-family:Georgia,"Times New Roman",serif;color:#3b2a20;animation:pm-in .35s ease both}
+  .pm-panel{display:flex;gap:26px;max-width:96vw;max-height:92vh;background:#f8f0e3;border-radius:14px;padding:24px;box-shadow:0 30px 70px rgba(0,0,0,.4);animation:pm-up .4s cubic-bezier(.2,.8,.3,1) both}
+  @keyframes pm-in{from{background:rgba(40,24,10,0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+  @keyframes pm-up{from{opacity:0;transform:translateY(14px)}}
   .pm-stage{position:relative;align-self:center;cursor:crosshair;user-select:none;line-height:0}
   .pm-stage img{max-width:62vw;max-height:84vh;display:block;border-radius:4px}
   .pm-mark{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:#fffaf2;color:#2b2622;font:700 15px/30px Georgia,serif;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.45);cursor:grab}
@@ -28,7 +30,9 @@
   .pm-actions .pm-clear{border:0;background:none;color:#8f5a2e;text-decoration:underline;font:15px Georgia,serif;cursor:pointer}
   .pm-note{font-size:13px;color:#9a8878;margin-top:10px}`;
 
-  function open({ src, marks = [], onDone }) {
+  // doc: the document to open in — the sheet passes its host's, so the marker lies over the whole desk, above the book
+  function open({ src, marks = [], onDone, doc = document }) {
+    const document = doc;
     if (!document.getElementById('pm-style')) { const style = document.createElement('style'); style.id = 'pm-style'; style.textContent = STYLE; document.head.appendChild(style); }
     let list = marks.map(mark => ({ x: Number(mark.x) || 0, y: Number(mark.y) || 0, name: String(mark.name || '') }));
     const overlay = document.createElement('div');
@@ -83,7 +87,7 @@
       list.splice(Number(event.target.closest('li').dataset.index), 1); drawMarks(); drawList();
     });
     listNode.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); } });
-    overlay.querySelector('.pm-clear').addEventListener('click', () => { if (!list.length || window.confirm('Убрать все отметки с этого фото?')) { list = []; drawMarks(); drawList(); } });
+    overlay.querySelector('.pm-clear').addEventListener('click', () => { if (!list.length || (document.defaultView || window).confirm('Убрать все отметки с этого фото?')) { list = []; drawMarks(); drawList(); } });
     const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); onDone && onDone(list.filter(mark => mark.name.trim() || true).map(mark => ({ x: Math.round(mark.x * 10) / 10, y: Math.round(mark.y * 10) / 10, name: mark.name.trim() }))); };
     const onKey = event => { if (event.key === 'Escape') close(); };
     document.addEventListener('keydown', onKey);

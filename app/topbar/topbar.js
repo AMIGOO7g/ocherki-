@@ -203,7 +203,7 @@ function waitPreviewReady(cb){
   // ——— calm loading: the side texts appear once they stand where they belong ———
   let readyT=0;const arm=()=>{if(!shell.classList.contains('oc-w')){if(document.documentElement.classList.contains('rk-on'))return;if(shell.classList.contains('oc-ready'))shell.classList.remove('oc-ready');clearTimeout(readyT);readyT=0;return;}
     if(shell.classList.contains('ui-boot'))return;
-    if(!shell.classList.contains('oc-ready')&&!readyT){dispatchEvent(new Event('resize'));readyT=setTimeout(()=>{dispatchEvent(new Event('resize'));requestAnimationFrame(()=>{shell.classList.add('oc-ready');readyT=0;});},450);}};
+    if(!shell.classList.contains('oc-ready')&&!readyT){dispatchEvent(new Event('resize'));readyT=setTimeout(()=>{dispatchEvent(new Event('resize'));requestAnimationFrame(()=>{shell.classList.add('oc-ready');readyT=0;});},document.documentElement.classList.contains('oc-quick')?200:450);}};
   new MutationObserver(arm).observe(shell,{attributes:true,attributeFilter:['class']});arm();
   // ——— the sway for «в книге», the lamp and «?» ———
   const hang=()=>{const a=T()?.attach;if(!a){setTimeout(hang,500);return;}
