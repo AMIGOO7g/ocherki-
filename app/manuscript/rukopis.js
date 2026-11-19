@@ -35,7 +35,7 @@
   const all=$('.rk-all'),chEl=$('.rk-ch'),fan=$('.rk-fan'),plate=$('.rk-plate'),tabs=$('.rk-tabs'),undoEl=$('.rk-undo');
   // the empty sheet after the chapter's last one
   const blank=document.createElement('div');blank.className='rk-blank';
-  blank.innerHTML='<button type="button" data-a="page">+ лист</button><button type="button" data-a="episode">+ эпизод</button>';
+  blank.innerHTML='<button type="button" data-a="page"><span>+ лист</span></button><button type="button" data-a="episode"><i class="rk-rib"></i><span>+ эпизод</span></button>';
 
   // ——— the book in groups: «Начало книги», each chapter, «Конец книги»
   const groups=()=>{const S=(st?.sections||[]).filter(s=>s.included!==false);const first=S.findIndex(s=>s.type==='chapter');let last=-1;S.forEach((s,i)=>{if(s.type==='chapter')last=i;});
@@ -64,7 +64,10 @@
     // the plates' column at the right edge, and how much of the fan fits before it
     const tw=Math.round(Math.max(130,Math.min(190,innerWidth*.09)));desk.tabs={left:innerWidth-tw-18,width:tw};
     // the sheets go under the bar's lower edge, as the writing sheet does
-    board.style.setProperty('--rk-top',Math.round(desk.bar?desk.bar.bottom-14:0)+'px');return desk;}
+    board.style.setProperty('--rk-top',Math.round(desk.bar?desk.bar.bottom-14:0)+'px');
+    // the lamp's beam is one picture of the whole screen, laid under every sheet from where it lies (as the window's picture is),
+    // so a sheet moving carries its light with it frame by frame
+    board.style.setProperty('--rk-beam',beamOf({x:0,y:0,w:innerWidth,h:innerHeight}));return desk;}
 
   // ——— a sheet's place: d steps from the middle (0 the middle; below 0 — on the pile; above — the fan, each smaller and deeper)
   const SC=[1,.86,.75,.66,.58,.52],VIS=[0,.225,.177,.138,.108,.09],PILE=[[0,0,-.5],[-12,9,-2.2],[7,4,1.5]];
@@ -80,7 +83,7 @@
   const tr=p=>`translate(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px) rotate(${p.r}deg) scale(${p.s})`;
   const sheetHtml=(x,k)=>{const p=x.p,doc=p.type==='document'||p.bookRole==='document',ph=(p.photos||[]).find(q=>q&&q.src);
     const ep=doc?(p.title||'документ'):(p.isEpisodeStart?String(p.episode||'').replace(/^Эпизод\s*\d+\.?\s*/i,''):'');
-    return `<div class="rk-n">${k+1}</div>${ep?`<div class="rk-ep">${esc(ep)}</div>`:''}<p>${esc(words(p.text).slice(0,900))}</p>${ph?`<img src="${esc(ph.src)}" alt="">`:''}<i class="rk-lamp"></i>`;};
+    return `${p.isEpisodeStart||doc?'<i class="rk-rib"></i>':''}<div class="rk-n">${k+1}</div>${ep?`<div class="rk-ep">${esc(ep)}</div>`:''}<p>${esc(words(p.text).slice(0,900))}</p>${ph?`<img src="${esc(ph.src)}" alt="">`:''}<i class="rk-lamp"></i>`;};
   // a sheet that is no longer of the view fades where it lies, then goes
   const retire=el=>{el.dataset.u='';el.classList.add('gone');el.style.opacity=0;el.style.pointerEvents='none';setTimeout(()=>el.remove(),520);};
   const live=()=>[...fan.children].filter(el=>el.dataset.u);
@@ -92,14 +95,12 @@
       L=Math.abs(r.w*Math.sin(A))+Math.abs(r.h*Math.cos(A)),t=50+((ex-(r.x+r.w/2))*nx+(y-(r.y+r.h/2))*ny)/L*100;
       return `linear-gradient(${(A*180/Math.PI).toFixed(1)}deg,rgba(150,100,50,0) ${(t-4).toFixed(1)}%,rgba(110,74,42,.5) ${(t+14).toFixed(1)}%,rgba(46,28,12,.7) ${(t+38).toFixed(1)}%)`;};
     return edge(x1,sp)+','+edge(x0,-sp)+',linear-gradient(180deg,rgba(160,105,50,.04) 0%,rgba(140,90,42,.2) 55%,rgba(95,60,28,.46) 100%)';}
-  function lightSheet(el,p){const P=desk.paper,w=P.width*p.s,h=P.height*p.s;
-    el.style.setProperty('--ox',(-p.x/p.s).toFixed(1)+'px');el.style.setProperty('--oy',(-p.y/p.s).toFixed(1)+'px');el.style.setProperty('--sc',p.s);
-    el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);
-    const lm=el.querySelector('.rk-lamp');if(lm){const bg=beamOf({x:p.x,y:p.y,w,h});if(lm._bg!==bg){lm._bg=bg;lm.style.background=bg;}}}
+  function lightSheet(el,p){el.style.setProperty('--ox',(-p.x/p.s).toFixed(1)+'px');el.style.setProperty('--oy',(-p.y/p.s).toFixed(1)+'px');el.style.setProperty('--sc',p.s);
+    el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);}
 
   // ——— the open chapter
   let G=null,center=0,order=[];
-  function renderFan(keepCenter,fromMiddle,instant){const gs=groups();G=gs.find(g=>g.key===view.key)||null;if(!G){view=null;return renderAll();}
+  function renderFan(keepCenter,fromMiddle,instant,from){const gs=groups();G=gs.find(g=>g.key===view.key)||null;if(!G){view=null;return renderAll();}
     const n=G.sheets.length;order=G.sheets.map(x=>x.p.uid);
     {const i=view.focus?order.indexOf(view.focus):-1;if(i>=0){center=i;view.focus=null;}else if(!keepCenter){const j=order.indexOf(activeUid);center=j>=0?j:0;}}center=Math.max(0,Math.min(n-1,center));
     // how many sheets of the fan fit before the plates
@@ -110,8 +111,9 @@
       if(!el){el=document.createElement('div');el.className='rk-sh';el.dataset.u=x.p.uid;fan.appendChild(el);fresh=true;
         // new sheets come out from under the middle sheet (or in from the right edge), fading in; only on the way in from the
         // editor is the middle one there at once (it lies over the writing sheet)
-        el.style.transform=tr(fromMiddle?slot(0):slot(fanN+1));el.style.opacity=instant&&k===center?1:0;}
-      el.dataset.s=x.s.id;el.dataset.k=k;el.classList.toggle('doc',x.p.type==='document');el.classList.toggle('rib',!!x.p.isEpisodeStart);
+        // (from all the chapters they come out of the chapter's stack, its top sheet growing into the middle one)
+        const p0=from||(fromMiddle?slot(0):slot(fanN+1));el.style.transform=tr(p0);el.style.opacity=(instant||from)&&k===center?1:0;lightSheet(el,p0);}
+      el.dataset.s=x.s.id;el.dataset.k=k;el.classList.toggle('doc',x.p.type==='document'||x.p.bookRole==='document');el.classList.toggle('rib',!!x.p.isEpisodeStart);
       const html=sheetHtml(x,k);if(el._h!==html){el._h=html;el.innerHTML=html;}});
     have.forEach(retire);
     if(blank.parentNode!==fan){blank.style.transform=tr(slot(0));blank.style.opacity=0;fan.appendChild(blank);fresh=true;}
@@ -140,15 +142,14 @@
         :`<div class="rk-first">${esc(g.kind==='part'?g.note:(g.first?`«${g.first}…»`:'пока пусто'))}</div>`)+`<span>${sheetsWord(n)}${g.nph?` · ${g.nph} фото`:''}</span><i class="rk-lamp"></i></div>`;
     return `<div class="rk-st${cur?' cur':''}${g.kind==='chapter'?' ch':''}" data-g="${esc(g.key)}">${h}</div>`;};
   function renderAll(){const gs=groups(),curKey=gOf(activeUid)?.key;
-    // the stacks keep clear of the clock's column at the left
-    const left=desk.pile.left+desk.pile.width+40;Object.assign(all.style,{left:left+'px',right:'28px'});
+    // the stacks stand in the middle of the whole desk
+    Object.assign(all.style,{left:'40px',right:'40px'});
     all.innerHTML=gs.map(g=>stackHtml(g,g.key===curKey)).join('')+'<div class="rk-st rk-new" role="button">+ глава</div>';glideAll(true);lightAll();setBarTitle();}
   function glideAll(now){const t=desk.bar?desk.bar.bottom:120,max=Math.max(0,all.scrollHeight-(innerHeight-t-60));want=Math.max(0,Math.min(max,want));if(now)scroll=want;
     all.style.transform=`translateY(${Math.round(t+34-scroll)}px)`;}
-  let gl=0;const glide=()=>{if(gl)return;const step=()=>{const d=want-scroll;if(Math.abs(d)<.5){scroll=want;gl=0;glideAll();lightAll();return;}scroll+=d*.18;glideAll();gl=requestAnimationFrame(step);};gl=requestAnimationFrame(step);};
+  let gl=0;const glide=()=>{if(gl)return;const step=()=>{const d=want-scroll;if(Math.abs(d)<.5){scroll=want;gl=0;glideAll();lightAll();return;}scroll+=d*.18;glideAll();lightAll();gl=requestAnimationFrame(step);};gl=requestAnimationFrame(step);};
   function lightAll(){all.querySelectorAll('.rk-st:not(.rk-new)').forEach(el=>{const r=el.getBoundingClientRect();if(!r.width)return;
-    el.style.setProperty('--ox',(-r.left).toFixed(1)+'px');el.style.setProperty('--oy',(-r.top).toFixed(1)+'px');el.style.setProperty('--sc',1);
-    const lm=el.querySelector('.rk-lamp');if(lm)lm.style.background=beamOf({x:r.left,y:r.top,w:r.width,h:r.height});});}
+    const t=parseFloat(el.style.translate?.split(' ')[1])||0;el.style.setProperty('--ox',(-r.left).toFixed(1)+'px');el.style.setProperty('--oy',(-(r.top-t)).toFixed(1)+'px');el.style.setProperty('--sc',1);});}
   new MutationObserver(()=>{if(isOpen&&G)layFan();}).observe(shell,{attributes:true,attributeFilter:['class']});
 
   function render(){if(view?.key==='__newch'){const gs=groups().filter(g=>g.kind==='chapter');const g=gs[gs.length-1];view=g?{key:g.key}:null;}
@@ -157,17 +158,32 @@
     if(lit)fan.querySelector(sel(lit))?.classList.add('lit');}
   // into a chapter: the sheets of the one before fade where they lie, the new ones come out from under the middle and fade in;
   // back to all chapters: they go back under the middle and fade, and the stacks come
-  function openChapter(key,focus){view={key,focus};all.classList.remove('on');chEl.classList.add('on');renderFan(false,true);rustle();}
-  function back(){if(!isOpen||busy)return false;if(!view)return false;busy=true;
-    live().forEach(el=>{el.style.transform=tr(slot(0));el.style.opacity=0;});blank.style.opacity=0;rustle();
-    setTimeout(()=>{view=null;G=null;live().forEach(el=>el.remove());chEl.classList.remove('on');all.classList.add('on');renderAll();busy=false;},460);return true;}
+  // a stack's place as a sheet's place (the stack is a small sheet)
+  const stackSlot=q=>({x:q.left,y:q.top,s:q.width/desk.paper.width,r:0,z:60,o:1});
+  function openChapter(key,focus){const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key)}"]`),q=all.classList.contains('on')&&st?st.getBoundingClientRect():null;
+    view={key,focus};
+    if(!q){all.classList.remove('on');chEl.classList.add('on');renderFan(false,true);rustle();return;}
+    // from all the chapters: the stack's top sheet grows into the middle sheet, the others come out from under it
+    busy=true;st.classList.add('rk-wait');all.classList.remove('on');chEl.classList.add('on');renderFan(false,false,false,stackSlot(q));rustle();
+    setTimeout(()=>{st.classList.remove('rk-wait');busy=false;},600);}
+  function back(){if(!isOpen||busy)return false;if(!view)return false;busy=true;const key=G?.key;
+    // the sheets lie down on the pile one after another, the pile goes to its chapter's place among the stacks and becomes its stack
+    const els=live(),c=center;els.forEach(el=>{const k=+el.dataset.k;el.style.transitionDelay=Math.min(Math.abs(k-c),6)*40+'ms';const p=slot(Math.min(-1,k-c-1));el.style.transform=tr(p);el.style.opacity=p.o;el.style.zIndex=30-Math.abs(k-c);lightSheet(el,p);});
+    blank.style.opacity=0;chEl.classList.add('folding');rustle();
+    setTimeout(()=>{view=null;G=null;renderAll();const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key||'')}"]`);
+      if(st){glideTo(st);st.classList.add('rk-wait');}
+      const q=st?.getBoundingClientRect();chEl.classList.remove('on');all.classList.add('on');
+      els.forEach(el=>{el.style.transitionDelay='';if(q){el.style.transform=tr(stackSlot(q));lightSheet(el,stackSlot(q));}el.style.opacity=q&&el.classList.contains('mid')?1:0;});
+      setTimeout(()=>{els.forEach(el=>el.remove());st?.classList.remove('rk-wait');chEl.classList.remove('folding');busy=false;},560);},520);return true;}
+  // the stacks' view scrolls (at once) so that the chapter's stack stands in sight
+  function glideTo(st){const t=desk.bar?desk.bar.bottom:120,r=st.getBoundingClientRect(),y=r.top-(t+34);if(r.bottom>innerHeight-40||r.top<t){want=scroll+y-40;glideAll(true);}}
 
-  // ——— the wheel: one sheet for one gesture; in all the chapters it glides
-  let acc=0,idleT=0,inGesture=false,lastTurn=0;
+  // ——— the wheel: one sheet at a time — while a sheet is still on its way the wheel's further notches are let go (a quick flick of
+  // several notches turns one sheet); in all the chapters it glides
+  let acc=0,lastTurn=0;
   board.addEventListener('wheel',e=>{if(!isOpen)return;if(e.target.closest('.rk-tabs'))return;e.preventDefault();const dy=e.deltaMode===1?e.deltaY*33:e.deltaY;
     if(!view){want+=dy;glide();return;}
-    clearTimeout(idleT);idleT=setTimeout(()=>{inGesture=false;acc=0;},170);acc+=dy;const now=performance.now();
-    if(Math.abs(acc)<36)return;if(inGesture&&now-lastTurn<650)return;inGesture=true;lastTurn=now;go(center+(acc>0?1:-1));acc=0;},{passive:false});
+    const now=performance.now();if(now-lastTurn<560){acc=0;return;}acc+=dy;if(Math.abs(acc)<36)return;lastTurn=now;go(center+(acc>0?1:-1));acc=0;},{passive:false});
   addEventListener('keydown',e=>{if(!isOpen||!view||drag||tabDrag)return;if(e.key==='ArrowRight'||e.key==='ArrowDown')go(center+1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(center-1);else if(e.key==='Escape')back();});
   addEventListener('resize',()=>{if(isOpen){const wasOn=H.classList.contains('rk-on');H.classList.remove('rk-hide');measureDesk();if(wasOn)H.classList.add('rk-hide');render();}});
   plate.addEventListener('click',()=>back());
@@ -208,7 +224,7 @@
     else{d.keys=[...all.querySelectorAll('.rk-st.ch')].map(x=>x.dataset.g);d.fly=d.el.cloneNode(true);d.fly.classList.add('rk-fly');Object.assign(d.fly.style,{left:d.r.left+'px',top:d.r.top+'px',width:d.r.width+'px',height:d.r.height+'px'});
       board.appendChild(d.fly);d.el.classList.add('rk-place');d.rects=null;}}
   function carry(ev){const d=drag,dx=ev.clientX-d.x0,dy=ev.clientY-d.y0;
-    if(!d.sheet){d.fly.style.transform=`translate(${dx}px,${dy}px) rotate(2deg) scale(1.04)`;
+    if(!d.sheet){d.fly.style.transform=`translate(${dx}px,${dy}px) rotate(2deg) scale(1.04)`;d.fly.style.setProperty('--ox',(-(d.r.left+dx)).toFixed(1)+'px');d.fly.style.setProperty('--oy',(-(d.r.top+dy)).toFixed(1)+'px');
       // the stacks' places are measured once per change, not on every move (it lagged)
       if(!d.rects)d.rects=[...all.querySelectorAll('.rk-st.ch')].filter(x=>x!==d.el).map(x=>({x,r:x.getBoundingClientRect()}));
       const t=d.rects.find(o=>ev.clientX>=o.r.left&&ev.clientX<=o.r.right&&ev.clientY>=o.r.top&&ev.clientY<=o.r.bottom);if(!t)return;
@@ -228,7 +244,7 @@
     fan.getBoundingClientRect();d.fan=[...order,'__gap'];d.at=order.length;d.c=Math.max(0,order.length-1);renderTabs();setBarTitle();layFan();}
   function drop(ev){const d=drag;clearTimeout(d.dwell);clearInterval(d.turn);tabs.classList.remove('drop');
     if(!d.sheet){const r=d.el.getBoundingClientRect();d.fly.style.transition='transform .32s cubic-bezier(.2,.8,.3,1)';d.fly.style.transform=`translate(${r.left-d.r.left}px,${r.top-d.r.top}px)`;
-      setTimeout(()=>{d.fly.remove();d.el.classList.remove('rk-place');drag=null;const keys=[...all.querySelectorAll('.rk-st.ch')].map(x=>x.dataset.g);
+      setTimeout(()=>{d.fly.remove();d.el.classList.remove('rk-place');lightAll();drag=null;const keys=[...all.querySelectorAll('.rk-st.ch')].map(x=>x.dataset.g);
         if(keys.join()!==d.keys.join())reorderChapters(keys,d.keys);},330);return;}
     const tab=document.elementsFromPoint(ev.clientX,ev.clientY).find(x=>x.classList?.contains('rk-tab')&&x.classList.contains('ch'));
     const fromG=groups().find(g=>g.key===d.fromKey),uid=d.uid;let at=d.fan.indexOf('__gap');drag=null;d.el.classList.remove('rk-carried');
@@ -241,7 +257,7 @@
     d.el.style.transformOrigin='';
     if(G.key===d.fromKey){const ids=d.fan.filter(u=>u!=='__gap');ids.splice(at,0,uid);if(ids.join()===order.join()){layFan();return;}commitOrder(ids,uid);}
     else carryOver(uid,fromG,G,at,true);}
-  const flip=(els,fn)=>{const r0=new Map(els.map(x=>[x,x.getBoundingClientRect()]));fn();
+  const flip=(els,fn)=>{const r0=new Map(els.map(x=>[x,x.getBoundingClientRect()]));fn();if(els[0]?.classList.contains('rk-st')){all.classList.add('flipping');lightAll();clearTimeout(flip.t);flip.t=setTimeout(()=>all.classList.remove('flipping'),340);}
     els.forEach(x=>{const a=r0.get(x),b=x.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;if(!dx&&!dy)return;x.animate([{translate:`${dx}px ${dy}px`},{translate:'0px 0px'}],{duration:320,easing:'cubic-bezier(.2,.8,.3,1)',composite:'add'});});};
   function reorderChapters(keys,prev){send({action:'reorderChapters',ids:keys});offerUndo('Главы переставлены',()=>send({action:'reorderChapters',ids:prev}));}
 

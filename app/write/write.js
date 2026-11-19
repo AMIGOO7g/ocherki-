@@ -275,7 +275,8 @@
       const ep=String(pg.episode||'').match(/^Эпизод\s*\d+/)?.[0]||'',t=String(pg.title||'').trim();
       if(pg.type==='document')return t&&t!=='Архивный документ'?t:[ep,'документ'].filter(Boolean).join(' · ');
       if(t==='Новый эпизод')return ep||raw;}catch(_){}return raw;};
-  const tick=()=>{if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();const night=shell.classList.contains('is-night');wc.classList.toggle('night',night);
+  // the bar follows day and night everywhere it stands (in «Рукопись» too); the rest only while writing
+  const tick=()=>{wc.classList.toggle('night',shell.classList.contains('is-night'));if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();
     const ch=barName(d),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
     // v212: names in italic, the rest upright — «Глава 5 · Какой он был человек · лист 3 из 36»
     const esc=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const cm=ch.match(/^(Глава\s+\d+)\.?\s*(.*)$/);

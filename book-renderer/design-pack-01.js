@@ -431,6 +431,8 @@
     const title = esc(page.title || source.title || page.episode || source.episode || '');
     const episode = esc(cleanEpisode(page.episode || source.episode || 'Семейная хроника'));
     const episodeNo = String(Number(page.episodeNo) || 1).padStart(2, '0');
+    // under a chapter's name: its first episode's name, and nothing when there is none (never «Глава N» a second time, never the name again)
+    const chapterSub = (() => { const e = cleanEpisode(page.episode || source.episode || ''); return e && clean(e).toLowerCase() !== clean(page.title || source.title || '').toLowerCase() && !/^глава\s*\d+$/i.test(e) ? esc(e) : ''; })();
     const text = page.measuredFlow ? '' : esc(cleanText(own(page, 'text') ? page.text : source.text || ''));
     const quote = page.measuredFlow ? '' : esc(page.quote || (ctx.quoteFrom ? ctx.quoteFrom(source) : '') || '');
     const pageSide = side === 'left' ? 'left' : 'right';
@@ -568,7 +570,7 @@
       const xClass=`${page.bgPhoto?` dpk-x-bg-page dpk-x-bg-${page.bgPhoto.tone==='light'?'light':'dark'} dpk-x-bg-span-${page.bgPhoto.span==='spread'?'spread':'page'}`:''}${page.sidePhoto?' dpk-x-side-page':''}${page.bottomPhotos?' dpk-x-text-photos':''}`;
       const spinePhoto=page.spinePhoto?`<figure class="dpk-t08-photo" data-source-photo-index="${page.spinePhoto.photoIndex}">${image(page.spinePhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure>`:'';
       const topPhoto=page.topPhoto?hspreadPhoto(page.topPhoto.photoIndex):pair?pair.html:'';
-      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1><div>${episode}</div></div><div class="dpk-chapter-rule"></div>`:topPhoto||page.episodeOpening?'':running;
+      const chapterHeader=mode==='chapter'?`<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo||1).padStart(2,'0')}</div><div class="dpk-chapter-title"><h1>${title}</h1>${chapterSub?`<div>${chapterSub}</div>`:''}</div><div class="dpk-chapter-rule"></div>`:topPhoto||page.episodeOpening?'':running;
       const t10=page.t10?t10Layer(page.t10):'';
       // Episode opening: title in one line in the heading colour, a long
       // horizontal handwritten line, air, then the shared text flow.
@@ -581,7 +583,7 @@
     const words = cleanText(own(page, 'text') ? page.text : source.text || '').split(/\s+/).filter(Boolean);
     if (role === 'chapter-photo') return article('D01-CHAPTER-PHOTO', `<figure>${image(page.photoIndex || 0)}</figure>${caption(page.photoIndex || 0) ? `<div class="dpk-caption">${caption(page.photoIndex || 0)}</div>` : ''}${folio}`);
     if (role === 'chapter-text') {
-      const byline = esc([inferred.place, inferred.date].filter(Boolean).join(' · ') || page.episode || source.episode || '');
+      const byline = esc([inferred.place, inferred.date].filter(Boolean).join(' · ')) || chapterSub;
       return article('D01-CHAPTER-TEXT', `<div class="dpk-chapter-kicker">Глава ${String(page.chapterNo || 1).padStart(2, '0')}</div><div class="dpk-chapter-title"><h1>${title}</h1>${byline ? `<div>${byline}</div>` : ''}</div><div class="dpk-chapter-rule"></div><div class="dpk-columns dpk-chapter-copy"><p>${text}</p></div>${folio}`);
     }
     if (role === 'chapter-initial') {

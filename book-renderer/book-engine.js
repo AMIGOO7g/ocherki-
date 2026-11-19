@@ -652,6 +652,8 @@
     if (typeof meta.paginateText !== 'function') throw new Error('Для сборки необходим измеритель DOM.');
     const P = pageFactory();
     const sections = (structure?.sections || []).filter(section => section && section.included !== false);
+    // a chapter is numbered as in the constructor (its place among all the chapters), even when an empty chapter before it stays out of the book
+    const chapterNoOf = id => sections.filter(section => section.type === 'chapter').findIndex(section => section.id === id) + 1;
     const byId = id => sections.find(section => section.id === id);
     const rawChapters = sections.filter(section => section.type === 'chapter');
     const chapters = rawChapters.map((section, chapterIndex) => {
@@ -964,13 +966,13 @@
       const photoIndex = heroIndex >= 0 ? heroIndex : chapter.photos.findIndex(photo=>heroEligible(photo)&&!isPortraitHero(photo));
       const openingQuote = String(chapter.first.quote || chapter.first.pullQuote || chapter.title);
       const left = photoIndex >= 0
-        ? P('chapter',{layout:'chapter-photo',master:'D01-CHAPTER-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,chapterNo:index+1,title:chapter.title})
+        ? P('chapter',{layout:'chapter-photo',master:'D01-CHAPTER-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,chapterNo:chapterNoOf(chapter.sectionId),title:chapter.title})
         : chapter.openingLeftVariant==='initial'
           ? P('chapter-initial',{layout:'chapter-initial',master:'D01-CHAPTER-INITIAL',sectionId:chapter.sectionId,source:chapter,initialLetter:chapter.title,initialText:chapter.openingInitialText||openingQuote,quote:openingQuote})
           : P('quote',{layout:'quote',master:'D01-QUOTE',sectionId:chapter.sectionId,source:chapter,quote:openingQuote,quoteTone:'light'});
       const usedPhotoIndices=new Set(),usedPhotoSources=new Set();
       if(photoIndex>=0){usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));}
-      const opening=P('chapter',{layout:'chapter-intro',master:'D01-CHAPTER-TEXT',sectionId:chapter.sectionId,sourcePageUid:chapter.sourcePageUid,source:chapter,title:chapter.title,episode:chapter.episode,chapterNo:index+1});
+      const opening=P('chapter',{layout:'chapter-intro',master:'D01-CHAPTER-TEXT',sectionId:chapter.sectionId,sourcePageUid:chapter.sourcePageUid,source:chapter,title:chapter.title,episode:chapter.episode,chapterNo:chapterNoOf(chapter.sectionId)});
       consume(opening,'right');
       spreads.push({id:`d01_chapter_${index+1}_open`,master:'D01-SPREAD-CHAPTER',sectionId:chapter.sectionId,left,right:opening});
       // The fixed post-opening beat keeps the approved CTX v1.7 geometry, but
@@ -1852,6 +1854,8 @@
     if (meta.textRhythmOnly === true) return assembleExactText(structure, meta);
     const P = pageFactory();
     const sections = (structure?.sections || []).filter(section => section && section.included !== false);
+    // a chapter is numbered as in the constructor (its place among all the chapters), even when an empty chapter before it stays out of the book
+    const chapterNoOf = id => sections.filter(section => section.type === 'chapter').findIndex(section => section.id === id) + 1;
     const byId = id => sections.find(section => section.id === id);
     const chapters = sections.filter(section => section.type === 'chapter').map(normalizeChapter)
       .filter(chapter => chapter.segments.some(segment=>segment.userEdited && (meta.textRhythmOnly === true ? Boolean(segment.text.trim()) : wordCount(segment.text)>=45)) || chapter.photos.length || chapter.documents.length);
@@ -1869,7 +1873,7 @@
     const usedChapterTitles = new Set();
     chapters.forEach((chapter, index) => {
       const key = norm(chapter.title);
-      if (!key || key === 'новая глава' || usedChapterTitles.has(key)) chapter.title = `Глава ${index + 1}`;
+      if (!key || key === 'новая глава' || usedChapterTitles.has(key)) chapter.title = `Глава ${chapterNoOf(chapter.sectionId)}`;
       usedChapterTitles.add(norm(chapter.title));
     });
 
@@ -2224,11 +2228,11 @@
       const openingQuote = intro.quote || intro.segment?.quote || sentenceQuote(intro.text, usedQuotes) || chapter.title;
       const openingLeftVariant = String(chapter.openingLeftVariant || '').toLowerCase();
       const hero = hasHero
-        ? P('chapter', { layout: 'chapter-photo', master: 'D01-CHAPTER-PHOTO', sectionId: chapter.sectionId, sourcePageUid: chapter.sourcePageUid, source: chapter, photoIndex: 0, chapterNo: chapterIndex + 1, title: chapter.title, episode: chapter.episode })
+        ? P('chapter', { layout: 'chapter-photo', master: 'D01-CHAPTER-PHOTO', sectionId: chapter.sectionId, sourcePageUid: chapter.sourcePageUid, source: chapter, photoIndex: 0, chapterNo: chapterNoOf(chapter.sectionId), title: chapter.title, episode: chapter.episode })
         : openingLeftVariant === 'initial'
           ? P('chapter-initial', { layout:'chapter-initial', master:'D01-CHAPTER-INITIAL', sectionId:chapter.sectionId, source:chapter, initialLetter:chapter.title, initialText:chapter.openingInitialText || openingQuote, quote:openingQuote, episode:chapter.episode })
           : P('quote', { layout:'quote', master:'D01-QUOTE', sectionId:chapter.sectionId, source:chapter, quote:openingQuote, quoteTone:'light', episode:chapter.episode });
-      const opening = P('chapter', { layout: 'chapter-intro', master: 'D01-CHAPTER-TEXT', sectionId: chapter.sectionId, sourcePageUid: chapter.sourcePageUid, source: chapter, text: intro.text, dateWatermark: intro.dateWatermark || '', chapterNo: chapterIndex + 1, title: chapter.title, episode: chapter.episode });
+      const opening = P('chapter', { layout: 'chapter-intro', master: 'D01-CHAPTER-TEXT', sectionId: chapter.sectionId, sourcePageUid: chapter.sourcePageUid, source: chapter, text: intro.text, dateWatermark: intro.dateWatermark || '', chapterNo: chapterNoOf(chapter.sectionId), title: chapter.title, episode: chapter.episode });
       if (hasHero) photoCursor = 1;
       // A chapter opener has one fixed reading direction across the entire
       // book: the visual/quote anchor is on the left and the title plus lead
