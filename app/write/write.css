@@ -1130,7 +1130,9 @@ html:has(.shell.is-evening:not(.is-night)) .oc-barcat .eve{opacity:.95}
 html body .master-clock .logo-bob .oc-cat.eve{display:none!important}
 /* v245 — «Так ляжет» in the evening: the far side of the room is dimmer — the page there lies in it too (it was as bright as by day) */
 .wp-page::before{content:"";position:absolute;inset:-2px;z-index:6;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
-  background:linear-gradient(90deg,rgb(214,190,164) 0%,rgb(196,168,140) 60%,rgb(180,150,122) 100%)}
+  background:var(--ws-shade-e) var(--wpx,0px) var(--wpy,0px)/100vw 100vh no-repeat}
+/* (the evening's own window light lies on it, laid from where it lies on the desk; the day's even shade fades under it) */
 html:has(.shell.oc-w.is-evening:not(.is-night)) .wp-page::before{opacity:1}
+html:has(.shell.oc-w.is-evening:not(.is-night)) .wp-page::after{opacity:0}
 /* v245 — the question about the hero's portrait stands where it is asked (under its tick), not at the card's foot */
 .ph-sure.ph-hsure{position:relative;bottom:auto;margin:10px -30px 6px}

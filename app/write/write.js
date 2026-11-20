@@ -737,3 +737,7 @@
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
   const show=()=>{H.classList.add('oc-shown');};
   const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>3500){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();
+
+// v246 — «Так ляжет» learns where it lies on the screen (its evening light is the room's picture laid from that place)
+(()=>{let k='';const go=()=>{requestAnimationFrame(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();
+  const v=Math.round(r.left)+','+Math.round(r.top);if(v===k)return;k=v;p.style.setProperty('--wpx',(2-Math.round(r.left))+'px');p.style.setProperty('--wpy',(2-Math.round(r.top))+'px');};requestAnimationFrame(go);})();
