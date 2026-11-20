@@ -25,14 +25,14 @@ html:has(.shell.is-night) .bk-cmenu b{color:#c9b08a}
 
 /* the open book: the writing sheet's shadows, by day and at night — one shadow under the whole book (under both pages; a page's
    shadow never falls on the page beside it); a cover alone has its shadow under itself only */
-.bk-shd{position:absolute;top:0;bottom:0;left:0;right:0;z-index:-1;pointer-events:none;
-  box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22)}
+.bk-shd{position:absolute;top:0;bottom:0;z-index:-1;pointer-events:none;opacity:0;
+  box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22);
+  transition:opacity .5s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+.bk-shd.l{left:0;right:50%}.bk-shd.r{left:50%;right:0}.bk-shd.on{opacity:1}
 html:has(.shell.is-night) .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)}
-.bk-spread:has(.bk-l.blank) .bk-shd{left:50%}.bk-spread:has(.bk-r.blank) .bk-shd{right:50%}
-.bk-spread:has(.bk-l.blank):has(.bk-r.blank) .bk-shd{display:none}
-/* the shadow changes slowly only with the room's light (day ↔ night); a page that comes or goes has its shadow at once */
-/* (its sides follow a page coming or going at once; only the light changes it slowly) */
-.bk-shd{transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+/* v242: each page has its own shadow under it (under both pages, never on the page beside it). The shadow comes and goes with the
+   paper: where a leaf comes down it grows while the leaf comes, where a leaf rises from an empty half it fades as the leaf rises;
+   it changes slowly with the room's light (day ↔ night) */
 .bk-spread{position:absolute;display:flex;isolation:isolate;transition:opacity .2s ease}
 .bk-spread.bk-fade{opacity:.15}
 .bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
@@ -121,3 +121,10 @@ html.bk-on.bk-paneoff .wp-pane{visibility:hidden!important}
 html:has(.shell.is-night) .bk-board .bk-k.bk-busy::after{background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);color:#e8d2ae;animation-name:bk-breathe-n}
 @keyframes bk-breathe{from{color:rgba(58,38,20,.4)}to{color:#3a2614}}@keyframes bk-breathe-n{from{color:rgba(232,210,174,.4)}to{color:#e8d2ae}}
 .bk-pmenu small{font-size:13px;opacity:.7;margin-left:6px}
+/* v242: the open spread stands out in the strip — larger, a clear brass frame; the others step back */
+.bk-board .bk-th{opacity:.5;transition:opacity .3s ease,translate .3s ease,scale .35s cubic-bezier(.2,.8,.3,1)}
+.bk-board .bk-th:hover{opacity:.85}
+.bk-board .bk-th.cur{opacity:1;scale:1.16;z-index:1;outline:2px solid rgba(150,105,60,.9);outline-offset:5px}
+html:has(.shell.is-night) .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9)}
+.bk-board .bk-th.cur em{translate:0 6px}
+.bk-stripv{height:190px}.bk-strip{gap:26px;top:14px}

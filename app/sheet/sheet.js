@@ -4097,20 +4097,23 @@ window.OC_SHEET={
     // «собрать в стопку»: the prints come together into a heap in the middle of the solitaire, and the heap goes up under the bar,
     // to the pile it came from (as the sheets of «Рукопись» go into their stack)
     const shut=()=>{if(!sol||open)return;const S=sol;sol=null;S.veil.classList.remove('on');tellHost(false);try{renderPhotos();}catch(_){}
-      const prs=[...S.box.querySelectorAll('.sol-pr')];S.box.querySelectorAll('.sol-h,.sol-bar').forEach(x=>x.animate([{opacity:1},{opacity:0}],{duration:260,fill:'forwards'}));
+      const prs=[...S.box.querySelectorAll('.sol-pr')];
       if(!prs.length||matchMedia('(prefers-reduced-motion: reduce)').matches){S.box.classList.remove('on');setTimeout(()=>{S.veil.remove();S.box.remove();},450);return;}
+      // v242: the prints are lifted out of the solitaire (its box clips them) and carried over everything: first they come together
+      // into a heap in the middle, then one after another each goes down onto the pile, exactly where it lies, and sinks into it
       const g=S.box.querySelector('.sol-grid').getBoundingClientRect(),cx=g.left+g.width/2,cy=Math.min(g.top+g.height/2,g.top+260);
       const o=off(),top=stack.querySelector('.photo-card.p1')||stack.querySelector('.photo-card'),tr=(top||stack).getBoundingClientRect();
-      const tx=o.x+tr.left+tr.width/2,ty=o.y+tr.top+Math.max(30,tr.height/2),tw=Math.max(60,tr.width||140);
-      const ms=1050,E='cubic-bezier(.45,.05,.3,1)';
-      prs.forEach((x,k)=>{const r=x.getBoundingClientRect(),mx=r.left+r.width/2,my=r.top+r.height/2,rot=((k*37)%13-6)*.9,sc=tw/r.width;
-        x.style.zIndex=String(100+k);
-        x.animate([{transform:getComputedStyle(x).transform,opacity:1},
-          {transform:`translate(${cx-mx}px,${cy-my}px) rotate(${rot}deg) scale(.82)`,opacity:1,offset:.42},
-          {transform:`translate(${cx-mx}px,${cy-my+6}px) rotate(${rot*.6}deg) scale(.8)`,opacity:1,offset:.5},
-          {transform:`translate(${tx-mx}px,${ty-my}px) rotate(${rot*.3}deg) scale(${sc})`,opacity:1,offset:.9},
-          {transform:`translate(${tx-mx}px,${ty-my-8}px) rotate(0deg) scale(${sc})`,opacity:0}],{duration:ms,delay:k*18,easing:E,fill:'forwards'});});
-      setTimeout(()=>{S.veil.remove();S.box.remove();},ms+prs.length*18+60);};
+      const tcx=o.x+tr.left+tr.width/2,tcy=o.y+tr.top+tr.height/2,tw=tr.width||124;
+      const fls=prs.map((x,k)=>{const r=x.getBoundingClientRect(),fl=x.cloneNode(true),t=getComputedStyle(x).transform;
+        Object.assign(fl.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:x.offsetWidth+'px',height:x.offsetHeight+'px',margin:'0',zIndex:String(2147483295-k),transform:t,willChange:'transform,opacity',pointerEvents:'none'});
+        HD.body.appendChild(fl);x.style.visibility='hidden';return {fl,mx:r.left+r.width/2,my:r.top+r.height/2,w:x.offsetWidth||r.width,t};});
+      S.box.classList.remove('on');
+      const H1=460,STEP=120,FLY=560,E='cubic-bezier(.45,.05,.3,1)';
+      fls.forEach(({fl,mx,my,w,t},k)=>{const rot=((k*37)%13-6)*.9,heap=`translate(${cx-mx}px,${cy-my}px) rotate(${rot}deg) scale(.86)`,sc=tw/w;
+        fl.animate([{transform:t},{transform:heap}],{duration:H1,delay:k*14,easing:E,fill:'forwards'}).finished.then(()=>{
+          const a=fl.animate([{transform:heap,opacity:1},{transform:`translate(${tcx-mx}px,${tcy-my}px) rotate(-3deg) scale(${sc})`,opacity:1,offset:.86},{transform:`translate(${tcx-mx}px,${tcy-my+4}px) rotate(-3deg) scale(${sc*.98})`,opacity:0}],
+            {duration:FLY,delay:k*STEP,easing:E,fill:'forwards'});a.finished.then(()=>fl.remove(),()=>fl.remove());},()=>fl.remove());});
+      setTimeout(()=>{S.veil.remove();S.box.remove();},H1+fls.length*(STEP+14)+FLY+200);};
     veil.addEventListener('click',shut);box.querySelector('.sol-close').addEventListener('click',shut);
     box.querySelector('.sol-add').addEventListener('click',()=>{shut();document.getElementById('addPhotoBtn')?.click();});
     // dragging a print: the others make way for it while it is carried (each glides to where it will stand), and it settles
@@ -4163,7 +4166,7 @@ window.OC_SHEET={
   // so it never lies on a print, whatever their size
   let tagRun=0;const followTag=()=>{const t0=performance.now(),id=++tagRun;const step=()=>{if(id!==tagRun)return;const m=stack.querySelector('.ph-more');if(!m)return;
       const sr=stack.getBoundingClientRect();let low=0;stack.querySelectorAll('.photo-card').forEach(c=>{low=Math.max(low,c.getBoundingClientRect().bottom-sr.top);});
-      const want=Math.round(low+16);m.style.transition='translate .25s ease';if(Math.abs((parseFloat(m.style.top)||0)-want)>.5)m.style.top=want+'px';if(performance.now()-t0<900)requestAnimationFrame(step);else m.style.removeProperty('transition');};requestAnimationFrame(step);};
+      const want=Math.round(low+16);stack.style.setProperty('--fanh',(want+44)+'px');m.style.transition='translate .25s ease';if(Math.abs((parseFloat(m.style.top)||0)-want)>.5)m.style.top=want+'px';if(performance.now()-t0<900)requestAnimationFrame(step);else m.style.removeProperty('transition');};requestAnimationFrame(step);};
   stack.addEventListener('mouseenter',followTag);stack.addEventListener('mouseleave',followTag);
   // v222: the pile hangs from the bar over the sheet — its prints' top edges 14px under the bar's lower edge
   const hang=()=>{try{const bar=HD.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),par=stack.offsetParent?.getBoundingClientRect();if(!bar||!bar.height||!par)return;

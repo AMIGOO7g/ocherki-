@@ -210,9 +210,13 @@ body{
 .photo-card.p1{top:0;left:-48px;transform:rotate(-3deg);z-index:3}
 .photo-card.p2{top:-2px;left:-38px;transform:rotate(4deg);z-index:2}
 .photo-card.p3{top:2px;left:-54px;transform:rotate(-7deg);z-index:1}
-/* v241: the prints open out by translate (drawn by the compositor, no layout each frame — no small steps on a large screen) */
-.photo-stack:hover .photo-card.p2{translate:0 106px}
-.photo-stack:hover .photo-card.p3{translate:0 210px}
+/* v242: the prints open out by translate (the compositor draws it, no layout each frame); !important — a print just come in
+   (.photo-new-entry) holds its translate at 0 and stayed under the first */
+.photo-stack:hover .photo-card.p2{translate:0 106px!important}
+.photo-stack:hover .photo-card.p3{translate:0 210px!important}
+/* v242: while the prints are open the hand can go from them down to «ещё N» without the pile folding: an unseen bridge over the
+   fanned prints and the tag (its height is set in sheet.js, down to the tag) */
+.photo-stack:hover::before{content:"";position:absolute;left:-70px;top:-6px;width:160px;height:var(--fanh,340px);pointer-events:auto;z-index:0}
 /* one hover zone under the whole fan: the hand passing a gap between two prints keeps it open (it closed and opened again —
    the prints jerked) */
 .photo-stack::before{content:"";position:absolute;left:-62px;top:-16px;width:146px;height:128px;pointer-events:auto}
