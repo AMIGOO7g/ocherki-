@@ -488,6 +488,17 @@
   const SHADE=col=>svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs><filter id="b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter><mask id="m"><rect width="1920" height="1080" fill="#fff"/><g filter="url(#b)" fill="#000" transform="${SKEW}">${PANES()}</g></mask></defs><rect width="1920" height="1080" fill="${col}" mask="url(#m)"/></svg>`);
   const SHADE_PAPER=SHADE('rgb(238,230,218)');
   document.documentElement.style.setProperty('--ws-sun',SUN);document.documentElement.style.setProperty('--ws-shade',SHADE_PAPER);
+  // v243 — the evening's window: the same window and the same slant, the sun low — every pane drawn long across the desk; its light
+  // warm and softer; the room outside it dimmer. It lies over the day's in its own layers (and fades in over them)
+  const EK=2.0,PANES_E=()=>{const o=[];const W=300*EK,H=330,G=26,x0=-130-(EK-1)*120,y0=-300;for(let c=0;c<3;c++)for(let r=0;r<4;r++)o.push(`<rect x="${x0+c*(W+G*EK)}" y="${y0+r*(H+G)}" width="${W}" height="${H}"/>`);return o.join('');};
+  const FALL='<linearGradient id="f" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".85"/><stop offset=".92" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="fm"><rect width="1920" height="1080" fill="url(#f)"/></mask>';
+  const BLUR='<filter id="b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>';
+  const SUN_E=svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs>${FALL}${BLUR}</defs><g mask="url(#fm)"><g filter="url(#b)" fill="rgb(255,204,140)" fill-opacity=".62" transform="${SKEW}">${PANES_E()}</g></g></svg>`);
+  const OUT_E=col=>svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs>${FALL}${BLUR}<mask id="m"><rect width="1920" height="1080" fill="#fff"/><g mask="url(#fm)"><g filter="url(#b)" fill="#000" transform="${SKEW}">${PANES_E()}</g></g></mask></defs><rect width="1920" height="1080" fill="${col}" mask="url(#m)"/></svg>`);
+  const SHADE_E=OUT_E('rgb(230,219,212)');
+  {const R=document.documentElement.style;R.setProperty('--ws-sun-e',SUN_E);R.setProperty('--ws-shade-e',SHADE_E);R.setProperty('--ws-veil-e',OUT_E('rgb(214,196,176)'));
+    // the desk's own evening layer, over the day's desk (it fades in over it)
+    const dd=document.querySelector('.desk-day');if(dd&&!document.querySelector('.desk-eve')){const de=document.createElement('i');de.className='desk-eve';dd.after(de);}}
   // v213: the same shade as a veil (for what lies in its own 3D layer, where a multiplied shade cannot reach: the photograph's card)
   document.documentElement.style.setProperty('--ws-shade-a',SHADE('rgba(96,66,36,.16)'));
 
@@ -496,8 +507,8 @@
   const TI={page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',document:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>'};
   // v197: the kinds of a clean sheet are chosen on a small brass bar over the stack, the same make as the big one
   const tabs=`<div class="ws-tabs" role="tablist"><i class="nf"></i>${[['page','лист'],['episode','эпизод'],['document','документ'],['photo','фото']].map(([k,l],i)=>`<button type="button" role="tab" data-t="${k}" class="${i?'':'on'}"><svg viewBox="0 0 24 24">${TI[k]}</svg><span>${l}</span></button>`).join('')}</div>`;
-  left.innerHTML=tabs+`<i class="ws-s ws-s3"><i class="ws-lt"></i></i><i class="ws-s ws-s2"><i class="ws-lt"></i></i>
-    <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"></i>
+  left.innerHTML=tabs+`<i class="ws-s ws-s3"><i class="ws-lt"><b class="ws-e"></b></i></i><i class="ws-s ws-s2"><i class="ws-lt"><b class="ws-e"></b></i></i>
+    <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"><b class="ws-e"></b></i>
       <div class="ws-nav"><span class="ws-cnt"></span><button type="button" data-q="-1">‹ назад</button><button type="button" data-q="1">дальше ›</button></div>
       <div class="ws-q"></div>
       <div class="ws-hint">потяните лист на стол</div>
@@ -667,7 +678,7 @@
   // the iframe learns where the screen's window lies over it (its sun and shade are laid from the screen's corner) — every
   // frame, only written when it changed (twice a second, the light on the sheet caught up with a jump after the sheet moved)
   requestAnimationFrame(function sun(){requestAnimationFrame(sun);const f=F(),d=FD();if(!f||!d?.body)return;const r=f.getBoundingClientRect();const st=d.body.style;const v=[-r.left,-r.top,innerWidth,innerHeight].map(Math.round).join();if(st._ws===v)return;st._ws=v;
-    st.setProperty('--sun-x',Math.round(-r.left)+'px');st.setProperty('--sun-y',Math.round(-r.top)+'px');st.setProperty('--sun-w',innerWidth+'px');st.setProperty('--sun-h',innerHeight+'px');st.setProperty('--ws-shade',SHADE_PAPER);});
+    st.setProperty('--sun-x',Math.round(-r.left)+'px');st.setProperty('--sun-y',Math.round(-r.top)+'px');st.setProperty('--sun-w',innerWidth+'px');st.setProperty('--sun-h',innerHeight+'px');st.setProperty('--ws-shade',SHADE_PAPER);st.setProperty('--ws-shade-e',SHADE_E);});
   // the book's page opens by itself once the book is ready in the background (unless the hand closed it)
   setInterval(()=>{const W=window.__ocWp;if(!W||W.isOn()||!shell.classList.contains('oc-ws'))return;let off=false;try{off=localStorage.getItem('ocherkiPeekOff')==='1';}catch(_){}
     if(!W.usable())return;void off;if(Date.now()-autoTried<4000)return;autoTried=Date.now();W.open();},1000);
@@ -704,7 +715,7 @@
 // v206 — for now only the editor, «Рукопись» and (v234) «Книга» work: «Архив семьи», «Мои книги», the Keeper's tour and the return to
 // the start are «скоро». Their keys stay in their places (the design is kept); a press only says so. The book is still made
 // in the background for «Так ляжет».
-(()=>{const SOON=['archive','shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
+(()=>{const SOON=['shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
   let tip=null,tT=0;const say=k=>{const r=k.getBoundingClientRect();if(!tip){tip=document.createElement('div');tip.className='oc-soon-tip';document.body.appendChild(tip);}
     tip.textContent='скоро';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+30)+'px';tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),1300);};
   const stop=e=>{const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};

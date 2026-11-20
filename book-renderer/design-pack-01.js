@@ -1242,8 +1242,9 @@
   function editorialPhrases(value) {
     const words=text=>(text.match(/\p{L}+/gu)||[]).length;
     const candidates=[];let order=0;
-    for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(String(value??''))){
-      const whole=clean(sentence.segment);if(!whole||!/\p{L}/u.test(whole))continue;
+    // v243: a footnote's number («[37]») is no part of a quote, nor the dash that opens a line of dialogue
+    for(const sentence of new Intl.Segmenter('ru',{granularity:'sentence'}).segment(String(value??'').replace(/\s*\[\d+\]/g,''))){
+      const whole=clean(sentence.segment).replace(/^[–—-]\s*/u,'');if(!whole||!/\p{L}/u.test(whole))continue;
       // A page may start in the middle of a sentence; that tail is not a quote.
       if(/^[\p{Ll}]/u.test(whole))continue;
       const clauses=whole.split(/(?<=[,;:—])\s+/u).map(clean).filter(Boolean);

@@ -68,6 +68,8 @@
     // One class drives the complete scene. Every visual layer has the same
     // 2.8s dimmer curve, so day and night crossfade continuously.
     shell.classList.toggle('is-night', night);
+    // v243: the evening — a day with the low sun (its own light lies over the day's and fades in at the same pace)
+    shell.classList.toggle('is-evening', mode === 'evening');
     nightBtn.classList.toggle('is-active', night);
     dayBtn.classList.toggle('is-active', !night);
     sendModeToSheet();
@@ -108,7 +110,7 @@
     // v191: the constructor opens in the light the author chose last time; the clock decides only the very first time
     let chosen='';try{chosen=localStorage.getItem('ocherkiLight')||'';}catch(_){}
     const hour = new Date().getHours();
-    const autoMode = chosen==='day'||chosen==='night'?chosen:((hour >= 19 || hour < 7) ? 'night' : 'day');
+    const autoMode = chosen==='day'||chosen==='night'||chosen==='evening'?chosen:((hour >= 19 || hour < 7) ? 'night' : 'day');
     setMode(autoMode);
     requestAnimationFrame(()=>{
       try{ window.OCHERKI_positionMap?.(); }catch(_){}
@@ -235,6 +237,9 @@
 
 
   nightBtn.addEventListener('click',()=>{ if(opened&&lightOn){ setMode('night'); try{localStorage.setItem('ocherkiLight','night');}catch(_){} } });
+  // v243: any of the three lights, by name (the menus' «Вечерний свет»; the bar's light key goes day → evening → night)
+  window.OCHERKI_SET_LIGHT=m=>{ if(opened&&lightOn&&['day','evening','night'].includes(m)){ setMode(m); try{localStorage.setItem('ocherkiLight',m);}catch(_){} } };
+  window.OCHERKI_LIGHT=()=>currentMode;
 
   // Transport controls are part of the shell now.
   // Navigation/audio wiring will be attached when the editor content is connected.

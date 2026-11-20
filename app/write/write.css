@@ -1094,3 +1094,27 @@ html body .shell.oc-w:not(.oc-ws) .bottom-left .master-clock{opacity:0!important
 /* v227: the clock's pendulum swings by itself on the screen's own clock (see 025-shell-core.js) */
 @keyframes ocSwing{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 .master-clock .pendulum.oc-swing{animation:ocSwing 2.4s cubic-bezier(.37,0,.63,1) infinite alternate}
+
+/* v243 — the evening: a day with the low sun. Its light lies over the day's in layers of its own and fades in and out at the
+   desk's pace (2.45 s): on the desk (the panes drawn long, the room outside them dimmer and warmer), on the clean stack, on the
+   sheets of «Рукопись», on the book and its turning leaf, on the things of the archive. Shadows grow longer away from the window */
+.desk-eve{position:absolute;inset:0;pointer-events:none;z-index:8;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);will-change:opacity;contain:strict;
+  background:var(--ws-veil-e) 0 0/100% 100% no-repeat,var(--ws-sun-e) 0 0/100% 100% no-repeat,linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(90,60,30,.18) 100%),
+    linear-gradient(rgba(214,198,172,.80),rgba(214,198,172,.80)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#e4d3b6;
+  background-blend-mode:multiply,screen,normal,normal,normal}
+.shell.is-evening.oc-w:not(.is-manuscript):not(.is-book-preview):not(.is-night) .desk-eve,.shell.is-evening.is-manuscript:not(.is-night) .desk-eve,.shell.is-evening.is-book-preview:not(.is-night) .desk-eve{opacity:1}
+.ws-lt .ws-e{position:absolute;inset:0;background:var(--ws-shade-e) var(--ox,0) var(--oy,0)/100vw 100vh no-repeat scroll;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-evening:not(.is-night)) .ws-lt::before{opacity:0}
+html:has(.shell.is-evening:not(.is-night)) .ws-lt .ws-e{opacity:1}
+:is(.rk-eve,.bk-eve,.ar-eve){background-image:var(--ws-shade-e);opacity:0}
+html:has(.shell.is-evening:not(.is-night)) :is(.rk-sun,.bk-sun,.ar-sun){opacity:0}
+html:has(.shell.is-evening:not(.is-night)) :is(.rk-eve,.bk-eve,.ar-eve){opacity:1}
+/* longer shadows in the evening */
+html:has(.shell.is-evening:not(.is-night)) .bk-shd{box-shadow:1px 2px 3px rgba(60,40,20,.35),40px 26px 36px -6px rgba(60,40,20,.32),96px 60px 76px -22px rgba(60,40,20,.22)}
+html:has(.shell.is-evening:not(.is-night)) .rk-sh{--shd:1px 2px 3px rgba(60,40,20,.35),40px 26px 36px -6px rgba(60,40,20,.32),96px 60px 76px -22px rgba(60,40,20,.22)}
+.ar-vis>img,.ar-spin>img,.ar-flap>img:first-child{transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-evening:not(.is-night)) :is(.ar-vis>img,.ar-spin>img,.ar-flap>img:first-child):not(.ar-shine):not(.ar-seal){filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(34px 26px 26px rgba(60,40,20,.26))}
+/* the clock's cat in the evening: up on the weight, stretching */
+html body .master-clock .logo-bob .oc-cat.eve{width:44px;top:-22px;translate:-50% 0;z-index:3;opacity:0}
+html:has(.shell.is-evening:not(.is-night)) body .master-clock .logo-bob .oc-cat.day{opacity:0}
+html:has(.shell.is-evening:not(.is-night)) body .master-clock .logo-bob .oc-cat.eve{opacity:.92}

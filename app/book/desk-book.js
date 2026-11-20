@@ -1,4 +1,4 @@
-// «Книга» (v242) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
+// «Книга» (v243) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
 // «Так ляжет» fades, and the book comes in closed from the right, its cover up; it opens once — straight on the spread of the sheet
 // being written (one leaf, not every page). From «Рукопись» the whole book comes in from the right, open. The book's page is «Так ляжет»'s size; the pages are the director's
 // own; one light lies over the open book as over the desk (the window's by day, the lamp's at night) and stays where it is while the
@@ -17,7 +17,7 @@
   let isOpen=false,busy=false,cur=0,n=0,geo=null,flipping=false;
 
   const board=document.createElement('div');board.className='bk-board';
-  const LT='<i class="bk-lt"><b class="bk-sun"></b><b class="bk-beam"></b></i>';
+  const LT='<i class="bk-lt"><b class="bk-sun"></b><b class="bk-eve"></b><b class="bk-beam"></b></i>';
   board.innerHTML=`<div class="bk-cap"></div><div class="bk-spread"><div class="bk-pg bk-l"><div class="bk-in"></div>${LT}</div><div class="bk-pg bk-r"><div class="bk-in"></div>${LT}</div><i class="bk-gutter"></i><i class="bk-shd l"></i><i class="bk-shd r"></i></div>`+
     '<div class="bk-stripv"><div class="bk-strip"></div></div><div class="bk-keys bk-kl"></div><div class="bk-keys bk-kr"></div>';
   document.body.append(board);
@@ -116,7 +116,7 @@
     // that rises carries the opposite of its move in its light (o.flap), so the light stays in the room and the paper moves under it
     const room=`translate(${-geo.left}px,${-geo.top}px)`;
     const clone=(el,i)=>{const h=el.querySelector('.bk-host')?.cloneNode(true);if(!h)return null;h.style.overflow='hidden';h.style.background=el.style.backgroundColor||'#fbf7ef';
-      h.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-rl" style="transform:translate(${-(geo.left+i*geo.w)}px,${-geo.top}px)"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);return h;};
+      h.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-rl" style="transform:translate(${-(geo.left+i*geo.w)}px,${-geo.top}px)"><b class="bk-sun"></b><b class="bk-eve"></b><b class="bk-beam"></b></i>`);return h;};
     const flap=(el,[a,b,c,d,e,f])=>{const lt=el.querySelector('.bk-rl');if(!lt)return;const k=a*d-b*c;if(Math.abs(k)<1e-6)return;
       lt.style.transform=`matrix(${d/k},${-b/k},${-c/k},${a/k},${(c*f-d*e)/k},${(b*e-a*f)/k}) ${room}`;};
     // the side the leaf comes down on keeps what lay there until the leaf is down (a cover's empty half stays empty)
@@ -204,7 +204,9 @@
   cmenu.addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;cmenu.hidden=true;compose(b.dataset.id);});
 
   // «Книга» on the bar's keys opens the book on the desk (before the old ways under it hear the press)
-  addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k="book"]');if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(!isOpen)open();},true);
+  addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k="book"]');if(!k)return;e.preventDefault();e.stopImmediatePropagation();
+    // from the archive: the archive goes first, then the book comes
+    if(window.OCHERKI_ARCHIVE_DESK?.isOpen?.()){window.OCHERKI_ARCHIVE_DESK.close(()=>setTimeout(()=>{if(!isOpen)open();},60));return;}if(!isOpen)open();},true);
   setInterval(()=>{if(isOpen&&!busy)setTitle();},800);
   // a photograph framed anew by the hand: its little spread in the strip is drawn again
   addEventListener('ocherki-photo-framed',()=>{if(!isOpen)return;pre.list[cur]=null;filled.delete(cur);fillSome();});

@@ -109,7 +109,7 @@
     // over the text: the episode's name in a chapter; elsewhere the sheet's own name (Обложка, От автора…), so each is known
     const ep=x.s.type==='chapter'?String(p.episode||'').trim():String(p.title||x.s.title||'').trim();
     return `${p.isEpisodeStart||doc?'<i class="rk-rib"></i>':''}<div class="rk-in"><i class="rk-paper"></i><div class="rk-pno">${k+1}</div>${ep?`<div class="rk-epr"><span>${esc(ep)}</span></div>`:''}`+
-      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-beam"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
+      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-eve"></b><b class="rk-beam"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
   // the sheet's text as the editor sets it: its own marked-up text when it has one, else paragraph by paragraph (an empty line
   // between them), the editor's space after each
   const textHtml=p=>{if(p.semanticHtml)return String(p.semanticHtml).replace(/\scontenteditable="[^"]*"/g,'');
@@ -190,8 +190,8 @@
   function lightAll(){all.querySelectorAll('.rk-st:not(.rk-new)').forEach(el=>{const r=el.getBoundingClientRect();if(!r.width)return;
     const t=parseFloat(el.style.translate?.split(' ')[1])||0;el.style.setProperty('--ox',(-r.left).toFixed(1)+'px');el.style.setProperty('--oy',(-(r.top-t)).toFixed(1)+'px');el.style.setProperty('--sc',1);});}
   // the day turning to night (and back): the light crosses over slowly, as on the desk
-  let wasNight=shell.classList.contains('is-night'),ltxT=0;
-  new MutationObserver(()=>{const nt=shell.classList.contains('is-night');if(nt!==wasNight){wasNight=nt;H.classList.add('rk-ltx');clearTimeout(ltxT);ltxT=setTimeout(()=>H.classList.remove('rk-ltx'),2700);}if(isOpen&&G)layFan();}).observe(shell,{attributes:true,attributeFilter:['class']});
+  let wasNight=shell.classList.contains('is-night')+'|'+shell.classList.contains('is-evening'),ltxT=0;
+  new MutationObserver(()=>{const nt=shell.classList.contains('is-night')+'|'+shell.classList.contains('is-evening');if(nt!==wasNight){wasNight=nt;H.classList.add('rk-ltx');clearTimeout(ltxT);ltxT=setTimeout(()=>H.classList.remove('rk-ltx'),2700);}if(isOpen&&G)layFan();}).observe(shell,{attributes:true,attributeFilter:['class']});
 
   setInterval(()=>H.classList.toggle('rk-all-on',isOpen&&!view),250);
   function render(){if(view?.key==='__newch'){const gs=groups().filter(g=>g.kind==='chapter');const g=gs[gs.length-1];view=g?{key:g.key}:null;}

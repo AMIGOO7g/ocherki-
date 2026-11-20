@@ -3163,7 +3163,8 @@ window.addEventListener('message',e=>{
   const d=e.data||{};
   if(d.type!=='OCHERKI_HOST_MODE')return;
   document.body.classList.toggle('host-night',d.mode==='night');
-  document.body.classList.toggle('host-day',d.mode==='day');
+  document.body.classList.toggle('host-day',d.mode==='day'||d.mode==='evening');
+  document.body.classList.toggle('host-eve',d.mode==='evening');
 });
 
 /*@block [" id=\"v51-structure-bridge\"", ""]*/
@@ -3948,8 +3949,8 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 
 /* v212: «Показать знакомство» is gone from the «Аа» menu (the old tour; a new one comes later) */
 // v186 — the sheet's light crosses over slowly only while the day turns to night (and back), never when a sheet changes
-(()=>{const b=document.body;let night=b.classList.contains('host-night'),t=0;
-  new MutationObserver(()=>{const n=b.classList.contains('host-night');if(n===night)return;night=n;b.classList.add('lt-x');clearTimeout(t);t=setTimeout(()=>b.classList.remove('lt-x'),2600);})
+(()=>{const b=document.body;let night=b.classList.contains('host-night')+'|'+b.classList.contains('host-eve'),t=0;
+  new MutationObserver(()=>{const n=b.classList.contains('host-night')+'|'+b.classList.contains('host-eve');if(n===night)return;night=n;b.classList.add('lt-x');clearTimeout(t);t=setTimeout(()=>b.classList.remove('lt-x'),2600);})
     .observe(b,{attributes:true,attributeFilter:['class']});})();
 
 // v187 — a new sheet (or episode, or document) is laid on top of the pile: it comes in from a little above and settles
@@ -3975,7 +3976,7 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
       // the pool itself, the dark below it and the light above it (each laps over the pool by a few pixels: no seam)
       const v=el.classList.contains('lt-nm')?`${x}px ${y}px,${x}px ${y+h}px,${x}px ${y-3*h}px`:`${x}px ${y}px`;if(el._bp!==v){el._bp=v;el.style.backgroundPosition=v;}});
     {const st=document.body.style,sx=parseFloat(st.getPropertyValue('--sun-x'))||0,sy=parseFloat(st.getPropertyValue('--sun-y'))||0;
-      document.querySelectorAll('.sheet.active>.lt-dm,.section-scroll-viewport .section-scroll-sheet>.lt-dm').forEach(el=>{const r=el.getBoundingClientRect(),v=`${(sx-r.left).toFixed(1)}px ${(sy-r.top).toFixed(1)}px,`+(el.parentElement.classList.contains('section-scroll-sheet')?'0 50%':'0 0');if(el._bp!==v){el._bp=v;el.style.setProperty('background-position',v,'important');}});
+      document.querySelectorAll('.sheet.active>:is(.lt-dm,.lt-em),.section-scroll-viewport .section-scroll-sheet>:is(.lt-dm,.lt-em)').forEach(el=>{const r=el.getBoundingClientRect(),v=`${(sx-r.left).toFixed(1)}px ${(sy-r.top).toFixed(1)}px,`+(el.parentElement.classList.contains('section-scroll-sheet')?'0 50%':'0 0');if(el._bp!==v){el._bp=v;el.style.setProperty('background-position',v,'important');}});
       document.querySelectorAll('.sheet.ghost.is-pulling').forEach(el=>{const r=el.getBoundingClientRect();el.style.setProperty('--gx',Math.round(sx-r.left)+'px');el.style.setProperty('--gy',Math.round(sy-r.top)+'px');});}};
   // v192: a sheet put in or swapped gets its light before it is painted, not a frame later
   {const mo=new MutationObserver(put),hook=()=>{const st=document.getElementById('activeSheet')?.parentElement;if(!st)return setTimeout(hook,500);mo.observe(st,{childList:true,attributes:true,attributeFilter:['class','id'],subtree:false});[...st.children].forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class','id','style']}));};hook();}

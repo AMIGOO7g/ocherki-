@@ -138,12 +138,12 @@ function waitPreviewReady(cb){
   const musicOn=()=>/pause|❚|stop/i.test(document.getElementById('transportPlayBtn')?.getAttribute('aria-label')||'')||document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true';
   const draw=()=>{const night=shell.classList.contains('is-night'),big=shell.classList.contains('is-large-ui'),n=(document.getElementById('pageCount')?.textContent||'').trim();
     const it=(a,i,t,on)=>`<div class="it ${on?'on':''}" data-a="${a}"><svg viewBox="0 0 24 24">${I[i]}</svg>${t}</div>`;
-    menu.innerHTML=`<span class="k">Вид</span>${it('day','sun','Дневной свет',!night)}${it('night','moon','Ночной свет',night)}${it('big','big','Крупный интерфейс',big)}<hr>${it('music','note',musicOn()?'Музыка — выключить':'Музыка — включить',musicOn())}<hr>${it('pdf','pdf','Сохранить в PDF')}${it('tour','tour','Показать знакомство')}${it('mail','mail','Написать нам')}`;};
+    const eve=shell.classList.contains('is-evening')&&!night;menu.innerHTML=`<span class="k">Вид</span>${it('day','sun','Дневной свет',!night&&!eve)}${it('evening','sun','Вечерний свет',eve)}${it('night','moon','Ночной свет',night)}${it('big','big','Крупный интерфейс',big)}<hr>${it('music','note',musicOn()?'Музыка — выключить':'Музыка — включить',musicOn())}<hr>${it('pdf','pdf','Сохранить в PDF')}${it('tour','tour','Показать знакомство')}${it('mail','mail','Написать нам')}`;};
   const place=()=>{const r=mk.getBoundingClientRect();menu.style.right=Math.max(16,innerWidth-r.right-10)+'px';menu.style.top=(r.bottom+44)+'px';};
   const open=()=>{draw();place();menu.classList.add('on');};const close=()=>menu.classList.remove('on');
   mk.addEventListener('click',e=>{e.stopPropagation();menu.classList.contains('on')?close():open();});
   menu.addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;e.stopPropagation();close();
-    if(a==='day')click('dayBtn');else if(a==='night')click('nightBtn');else if(a==='big')click('largeUiKey');
+    if(a==='day')window.OCHERKI_SET_LIGHT?window.OCHERKI_SET_LIGHT('day'):click('dayBtn');else if(a==='evening')window.OCHERKI_SET_LIGHT?.('evening');else if(a==='night')click('nightBtn');else if(a==='big')click('largeUiKey');
     else if(a==='music'){click('musicBtn');setTimeout(()=>{if(document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true')click('transportPlayBtn');},120);}
     else if(a==='pdf')click('pdfBtn');else if(a==='pages')click('pagesBtn');else if(a==='mail')click('contactBtn');
     else if(a==='tour'){const room=shell.classList.contains('is-manuscript')?'manuscript':shell.classList.contains('is-book-preview')?'book':'write';window.OCHERKI_TOUR?.start?.(room,true);}});
@@ -215,7 +215,7 @@ function waitPreviewReady(cb){
   // ——— the angel on the pendulum ———
   const bob=document.querySelector('.master-clock .logo-bob');if(bob&&!bob.querySelector('.oc-bob')){const k=document.createElement('span');k.className='oc-bob';k.innerHTML='<i class="nf"></i>';bob.appendChild(k);
     // v226: the clock's cats swing with the pendulum — by day one hangs from the weight by its paws, at night one sleeps curled on it
-    bob.insertAdjacentHTML('beforeend','<img class="oc-cat day" src="assets/clock/cat-day.png" alt="" draggable="false"><img class="oc-cat night" src="assets/clock/cat-night.png" alt="" draggable="false">');}
+    bob.insertAdjacentHTML('beforeend','<img class="oc-cat day" src="assets/clock/cat-day.png" alt="" draggable="false"><img class="oc-cat night" src="assets/clock/cat-night.png" alt="" draggable="false"><img class="oc-cat eve" src="assets/clock/cat-eve.png" alt="" draggable="false">');}
   // ——— music in the corner ———
   const S='<svg viewBox="0 0 24 24">',E='</svg>';
   const IC={note:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',next:'<path d="M6 6l8 6-8 6z"/><path d="M17 6v12"/>',prev:'<path d="M18 6l-8 6 8 6z"/><path d="M7 6v12"/>',play:'<path d="M8 5l11 7-11 7z"/>',pause:'<path d="M9 5v14M15 5v14"/>',mute:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6"/>',snd:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>'};

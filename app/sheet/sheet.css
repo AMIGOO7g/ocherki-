@@ -1123,3 +1123,10 @@ body.host-night .photo-stack.fan .photo-card.p1,body.host-night .photo-stack.fan
 body.host-night .photo-stack .photo-card.p1{filter:brightness(.8) sepia(.14)}
 body.host-night .photo-stack .photo-card.p2{filter:brightness(.68) sepia(.18)}
 body.host-night .photo-stack .photo-card.p3{filter:brightness(.58) sepia(.2)}
+/* v243 — the evening: the low sun's light lies over the day's on the open sheet (its panes long, the room warmer and dimmer) and
+   the lamp is already lit over the sheet; both fade in and out at the desk's pace (body.lt-x), the day's light fades under them */
+html body .sheet.active>.lt-em{background:var(--ws-shade-e,none) var(--sun-x,0) var(--sun-y,0)/var(--sun-w,100vw) var(--sun-h,100vh) no-repeat scroll,
+  linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(200,182,162,.55) 100%) scroll!important;mix-blend-mode:multiply!important}
+html body .sheet.active>.lt-es{background:radial-gradient(ellipse 72% 58% at 50% 36%,rgba(255,222,176,.22),rgba(255,210,160,.07) 62%,rgba(255,210,160,0) 86%)!important;mix-blend-mode:screen!important;z-index:31}
+html body.host-eve .sheet.active>.lt-dm{opacity:0!important}
+html body.host-eve .sheet.active>.lt-em,html body.host-eve .sheet.active>.lt-es{opacity:1}

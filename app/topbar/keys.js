@@ -32,7 +32,7 @@
   // ——— where we are ———
   const shelfOpen=()=>!!window.OcherkiBookcase?.isOpen?.();
   const world=()=>'ed';
-  const current=()=>{if(shelfOpen())return 'shelf';if(document.documentElement.classList.contains('bk-on'))return 'book';if(shell.classList.contains('is-manuscript'))return 'manuscript';if(modal?.classList.contains('open'))return 'book';return 'write';};
+  const current=()=>{if(shelfOpen())return 'shelf';if(window.OCHERKI_ARCHIVE_DESK?.isOpen?.())return 'archive';if(document.documentElement.classList.contains('bk-on'))return 'book';if(shell.classList.contains('is-manuscript'))return 'manuscript';if(modal?.classList.contains('open'))return 'book';return 'write';};
   // ——— actions: the old switch still does the work underneath ———
   const sw=()=>document.querySelector('.mode-switch');
   const swClick=m=>{const b=sw()?.querySelector(`button[data-mode="${m}"]`);if(b){b.click();return true;}return false;};
@@ -63,7 +63,8 @@
   function closeMore(){more.classList.remove('on');top.querySelector('.k[data-k="more"]')?.classList.toggle('glow',false);sync();}
   more.addEventListener('click',e=>{const m=e.target.closest('[data-m]')?.dataset.m;if(!m)return;e.stopPropagation();closeMore();
     const click=id=>document.getElementById(id)?.click();
-    if(m==='light')click(shell.classList.contains('is-night')?'dayBtn':'nightBtn');
+    // the light goes round: day → evening → night → day
+    if(m==='light'){const L=window.OCHERKI_LIGHT?.();if(window.OCHERKI_SET_LIGHT&&L)window.OCHERKI_SET_LIGHT(L==='day'?'evening':L==='evening'?'night':'day');else click(shell.classList.contains('is-night')?'dayBtn':'nightBtn');}
     else if(m==='music'){click('musicBtn');setTimeout(()=>{if(document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true')click('transportPlayBtn');},120);}
     else if(m==='mail')click('contactBtn');
     else if(m==='big')click('largeUiKey');
