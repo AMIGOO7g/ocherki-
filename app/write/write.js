@@ -494,8 +494,10 @@
   const FALL='<linearGradient id="f" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".85"/><stop offset=".92" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="fm"><rect width="1920" height="1080" fill="url(#f)"/></mask>';
   const BLUR='<filter id="b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>';
   const SUN_E=svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs>${FALL}${BLUR}</defs><g mask="url(#fm)"><g filter="url(#b)" fill="rgb(255,178,92)" fill-opacity=".6" transform="${SKEW}">${PANES_E()}</g></g></svg>`);
-  const OUT_E=col=>svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs>${FALL}${BLUR}<mask id="m"><rect width="1920" height="1080" fill="#fff"/><g mask="url(#fm)"><g filter="url(#b)" fill="#000" transform="${SKEW}">${PANES_E()}</g></g></mask></defs><rect width="1920" height="1080" fill="${col}" mask="url(#m)"/></svg>`);
-  const SHADE_E=OUT_E('rgb(222,200,178)');
+  // (a pair of colours: the room grows dimmer towards its far side, away from the window — the paper there lies in the evening's dusk)
+  const OUT_E=col=>{const g=Array.isArray(col)?`<linearGradient id="r" x1="0" x2="1" y1="0" y2="0"><stop offset=".42" stop-color="${col[0]}"/><stop offset="1" stop-color="${col[1]}"/></linearGradient>`:'';
+    return svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs>${FALL}${BLUR}${g}<mask id="m"><rect width="1920" height="1080" fill="#fff"/><g mask="url(#fm)"><g filter="url(#b)" fill="#000" transform="${SKEW}">${PANES_E()}</g></g></mask></defs><rect width="1920" height="1080" fill="${g?'url(#r)':col}" mask="url(#m)"/></svg>`);};
+  const SHADE_E=OUT_E(['rgb(222,200,178)','rgb(176,146,118)']);
   {const R=document.documentElement.style;R.setProperty('--ws-sun-e',SUN_E);R.setProperty('--ws-shade-e',SHADE_E);R.setProperty('--ws-veil-e',OUT_E('rgb(182,148,114)'));
     // the desk's own evening layer, over the day's desk (it fades in over it)
     const dd=document.querySelector('.desk-day');if(dd&&!document.querySelector('.desk-eve')){const de=document.createElement('i');de.className='desk-eve';dd.after(de);}}

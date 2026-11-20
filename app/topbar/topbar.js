@@ -255,7 +255,7 @@ function waitPreviewReady(cb){
 // evening it stands and stretches, at night it sleeps curled; by day it still hangs from the pendulum's weight by its paws.
 // The cats change with the light, slowly, as everything else
 (()=>{const box=document.createElement('div');box.className='oc-barcat';box.setAttribute('aria-hidden','true');
-  box.innerHTML='<img class="eve" src="assets/clock/cat-eve.png" alt="" draggable="false"><img class="night" src="assets/clock/cat-night.png" alt="" draggable="false">';
+  box.innerHTML='<img class="eve" src="assets/clock/cat-eve.png" alt="" draggable="false">';
   document.body.appendChild(box);let last='';
   const put=()=>{requestAnimationFrame(put);const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();
     const seen=!!(r&&r.width>200&&getComputedStyle(b).visibility!=='hidden'&&+getComputedStyle(b).opacity>.05);

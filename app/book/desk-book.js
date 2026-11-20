@@ -1,4 +1,4 @@
-// «Книга» (v244) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
+// «Книга» (v245) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
 // «Так ляжет» fades, and the book comes in closed from the right, its cover up; it opens once — straight on the spread of the sheet
 // being written (one leaf, not every page). From «Рукопись» the whole book comes in from the right, open. The book's page is «Так ляжет»'s size; the pages are the director's
 // own; one light lies over the open book as over the desk (the window's by day, the lamp's at night) and stays where it is while the

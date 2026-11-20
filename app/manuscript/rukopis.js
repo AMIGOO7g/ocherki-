@@ -218,7 +218,10 @@
       const q=st?.getBoundingClientRect();chEl.classList.remove('on');all.classList.add('on');
       const E='.85s cubic-bezier(.45,0,.2,1)';
       els.forEach(el=>{el.style.transitionDelay='';el.style.transition=`transform ${E},opacity .45s ease .4s`;const lt=el.querySelector('.rk-lt');if(lt)lt.style.transition=`background-position ${E},background-size ${E}`;if(q){el.style.transform=tr(stackSlot(q));lightSheet(el,stackSlot(q));}el.style.opacity=q&&el===midEl?1:0;});
-      setTimeout(()=>{st?.classList.remove('rk-wait');requestAnimationFrame(()=>requestAnimationFrame(()=>{els.forEach(el=>el.remove());chEl.classList.remove('folding');busy=false;}));},880);},520);return true;}
+      setTimeout(()=>{st?.classList.remove('rk-wait');
+        // the sheet that came down becomes the stack's top: the top's own face comes over it softly (no blink as one is swapped for the other)
+        const top=st?.querySelector('.rk-top');if(top&&midEl){top.animate([{opacity:0},{opacity:1}],{duration:340,easing:'ease-out'});midEl.style.transition='opacity .34s ease-out';midEl.style.opacity=0;}
+        setTimeout(()=>{els.forEach(el=>el.remove());chEl.classList.remove('folding');busy=false;},top&&midEl?360:30);},880);},520);return true;}
   // the stacks' view scrolls (at once) so that the chapter's stack stands in sight
   function glideTo(st){const t=desk.bar?desk.bar.bottom:120,r=st.getBoundingClientRect(),y=r.top-(t+34);if(r.bottom>innerHeight-40||r.top<t){want=scroll+y-40;glideAll(true);}}
 

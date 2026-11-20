@@ -210,3 +210,9 @@ html:has(.shell.is-night) .rk-nk{opacity:1}
 html:has(.shell.is-evening:not(.is-night)) :is(.rk-ely,.rk-etop){opacity:1}
 html:has(.shell.is-evening:not(.is-night)) .rk-ly::before,html:has(.shell.is-evening:not(.is-night)) .rk-top::after{opacity:0}
 .rk-all .rk-st.rk-new{transition:translate .3s ease,color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1)}
+/* v245 — «+ глава» in the evening: as at night (it was lost in the evening's dusk) */
+html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new{color:#f2e0c0;border-color:rgba(242,224,192,.6)}
+/* v245 — while all the chapters lie as stacks nothing unseen takes the hand from them: the sheets of a chapter shut a moment ago
+   (still fading), and the clean stack's album at the left (its photographs could stay pressable under the stacks) */
+.rk-ch:not(.on) *{pointer-events:none!important}
+html.rk-all-on .ws-left *{pointer-events:none!important}

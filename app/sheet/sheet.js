@@ -4039,7 +4039,7 @@ window.OC_SHEET={
       <label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label><i class="ph-tip">Печатается мелко под фото.</i>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
       <label><span>источник</span><input data-k="source" autocomplete="off" placeholder="семейный архив, альбом бабушки…"></label><i class="ph-tip">Откуда снимок — печатается в конце книги, в «Источниках».</i>
       <label class="ph-line"><span>тон фото</span><select data-s="photoMode"><option value="auto">как есть</option><option value="color">цветная</option><option value="bw">чёрно-белая</option></select></label>
-      <label class="ph-line ph-chk"><span>портрет героя книги</span><input type="checkbox" data-b="portraitHero"></label><i class="ph-tip">Один портрет героя на главу — новый заменит прежний.</i>
+      <label class="ph-line ph-chk"><span>портрет героя книги</span><input type="checkbox" data-b="portraitHero"></label><i class="ph-tip">Один портрет героя на главу — новый заменит прежний.</i><div class="ph-sure ph-hsure" hidden><span>В этой главе уже есть портрет героя. Один герой — одна глава: сделать портретом это фото вместо прежнего?</span><button type="button" class="ph-yes ph-hyes">да, заменить</button><button type="button" class="ph-no ph-hno">оставить прежний</button></div>
       <div class="ph-hero" hidden><div class="ph-two"><label><span>годы жизни</span><input data-k="heroYears" autocomplete="off" placeholder="1901 – 1982"></label><label><span>кто для семьи</span><input data-k="heroRole" autocomplete="off" placeholder="хранительница дома"></label></div><div class="ph-hint"></div></div>
       <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}</div>
       <div class="ph-tipbar" aria-live="polite"></div>
@@ -4057,11 +4057,15 @@ window.OC_SHEET={
     const HINT='Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот; имя — из «кто на фото».';
     const heroSync=()=>{hero.hidden=!chk.checked;const im=card.querySelector('.ph-front img'),w=im.naturalWidth||0,h=im.naturalHeight||0,wide=w&&h&&w/h>1.15;
       hint.textContent=chk.checked&&wide?'Снимок горизонтальный: книга обрежет его по высоте страницы. Если на нём один человек — в книге сдвиньте фото, чтобы он оказался в центре.':HINT;hint.classList.toggle('warn',!!(chk.checked&&wide));};
-    chk.checked=p.portraitHero===true;chk.addEventListener('change',()=>{p.portraitHero=chk.checked;
-      // v244: one hero's portrait in a chapter (as the director lays it): a new one takes the place of the one before, and it is said
-      let was=false;if(chk.checked){const sec=sections.find(sc=>(sc.pages||[]).some(pg=>(pg.photos||[]).includes(p)));(sec?.pages||[]).forEach(pg=>(pg.photos||[]).forEach(q=>{if(q!==p&&q.portraitHero===true){q.portraitHero=false;was=true;}}));}
-      const tb=card.querySelector('.ph-tipbar');if(tb)tb.textContent=chk.checked?(was?'Портрет героя в этой главе теперь этот — прежний снят.':'Один портрет героя на главу.'):'';
-      heroSync();persist();});card.querySelector('.ph-front img').addEventListener('load',heroSync);heroSync();
+    chk.checked=p.portraitHero===true;
+    // v245: one hero's portrait in a chapter (as the director lays it). When the chapter has one already, the card asks plainly, as
+    // it asks before a deletion: this photograph instead of the other, or keep the other
+    const others=()=>{const sec=sections.find(sc=>(sc.pages||[]).some(pg=>(pg.photos||[]).includes(p)));const o=[];(sec?.pages||[]).forEach(pg=>(pg.photos||[]).forEach(q=>{if(q!==p&&q.portraitHero===true)o.push(q);}));return o;};
+    const hs=card.querySelector('.ph-hsure');
+    chk.addEventListener('change',()=>{if(chk.checked&&others().length){chk.checked=false;hs.hidden=false;hs.scrollIntoView?.({block:'nearest',behavior:'smooth'});return;}
+      p.portraitHero=chk.checked;heroSync();persist();});
+    card.querySelector('.ph-hyes').addEventListener('click',()=>{others().forEach(q=>{q.portraitHero=false;});p.portraitHero=true;chk.checked=true;hs.hidden=true;heroSync();persist();});
+    card.querySelector('.ph-hno').addEventListener('click',()=>{hs.hidden=true;});card.querySelector('.ph-front img').addEventListener('load',heroSync);heroSync();
     tone.value=p.photoMode||'auto';tone.addEventListener('change',()=>{p.photoMode=tone.value;persist();});
     const tools=()=>{const m=card.querySelector('.ph-mark'),pr=card.querySelector('.ph-pair');if(m)m.textContent=markPeopleLabel(p);if(pr)pr.textContent=pairLabel(p);
       card.querySelector('.ph-st').textContent=photoStatusLabel(p);};tools();
