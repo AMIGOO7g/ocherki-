@@ -1,91 +1,101 @@
-/* «Архив семьи» (v243) — the first room: five things on the desk; see archive.js */
+/* «Архив семьи» (v246) — the first room: the bar with its sections, five things on the desk; see archive.js */
 .ar-board{position:fixed;inset:0;z-index:2147483080;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s linear .5s;
-  font-family:'CormorantCy',Georgia,serif;color:#3a2614;--ar-ink:#3a2614;--ar-sub:#5a3f26;--ar-vh:min(31vh,360px)}
+  font-family:'CormorantCy',Georgia,serif;color:#3a2614;--ar-ink:#3a2614;--ar-sub:#5a3f26;--ar-vh:min(23vh,265px)}
 .ar-board.on{opacity:1;visibility:visible;transition:opacity .5s ease}
 html.ar-on .oc-soon-tip{z-index:2147483400}
-/* the heading: «Архив», a thin rule with a diamond on each side, the small line under it */
-.ar-h{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 1vh);text-align:center;pointer-events:none}
-.ar-t{display:flex;align-items:center;justify-content:center;gap:28px}
-.ar-h h1{margin:0;font:italic 500 clamp(44px,5.4vh,72px)/1 'CormorantCy',Georgia,serif;color:var(--ar-ink);letter-spacing:.01em;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
-.ar-orn{display:block;width:clamp(120px,14vw,260px);height:1px;background:linear-gradient(90deg,transparent,rgba(90,63,38,.55));position:relative}
+/* the bar stays; its own keys step aside while the archive lies there, and the archive's sections stand in it */
+html.ar-on .wc.wc-w:not(.bq-car)>:not(.nf){opacity:0;pointer-events:none;transition:opacity .3s ease}
+.ar-nav{position:fixed;z-index:2147483160;display:flex;align-items:center;justify-content:center;gap:clamp(18px,3vw,54px);pointer-events:none;opacity:0;transition:opacity .4s ease}
+.ar-nav.on{opacity:1;pointer-events:auto}
+.ar-nav button{all:unset;position:relative;cursor:pointer;font:italic 19px/1 'CormorantCy',Georgia,serif;color:#3a2614;padding:6px 2px;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+.ar-nav button::after{content:"";position:absolute;left:10%;right:10%;bottom:-2px;height:1.5px;background:#9a6a3a;transform:scaleX(0);transition:transform .3s ease}
+.ar-nav button:hover::after{transform:scaleX(.6)}
+.ar-nav button.on::after{transform:scaleX(1)}
+.ar-nav button i{position:absolute;right:-14px;top:-4px;min-width:15px;height:15px;border-radius:8px;background:#9a4510;color:#fff6ea;font:600 10px/15px 'CormorantCy',serif;font-style:normal;text-align:center}
+.ar-nav button i:empty{display:none}
+html:has(.shell.is-night) .ar-nav button{color:#e8d2ae}
+/* the heading under the bar */
+.ar-h{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 2.5vh);text-align:center;pointer-events:none}
+.ar-t{display:flex;align-items:center;justify-content:center;gap:24px}
+.ar-h h1{margin:0;font:italic 500 clamp(38px,4.6vh,60px)/1 'CormorantCy',Georgia,serif;color:var(--ar-ink);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+.ar-orn{display:block;width:clamp(100px,11vw,210px);height:1px;background:linear-gradient(90deg,transparent,rgba(90,63,38,.55));position:relative;transition:background 2.45s cubic-bezier(.37,0,.63,1)}
 .ar-orn.r{background:linear-gradient(270deg,transparent,rgba(90,63,38,.55))}
 .ar-orn::after{content:"";position:absolute;right:-4px;top:-3px;width:7px;height:7px;background:rgba(90,63,38,.7);transform:rotate(45deg)}
 .ar-orn.r::after{right:auto;left:-4px}
-.ar-h p{margin:12px 0 0;font:500 clamp(13px,1.45vh,17px)/1 'CormorantCy',serif;letter-spacing:.32em;text-transform:uppercase;color:var(--ar-sub);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
-/* the row of things: each a door (its picture, its name, what it is, its count) */
-.ar-row{position:absolute;left:50%;translate:-50% 0;top:calc(var(--oct-b,190px) + 1vh + clamp(110px,15vh,170px));width:min(1680px,94vw);display:flex;justify-content:space-around;align-items:flex-start}
-.ar-it{all:unset;box-sizing:border-box;pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;width:19%;-webkit-tap-highlight-color:transparent}
+.ar-h p{margin:10px 0 0;font:500 clamp(12px,1.3vh,16px)/1 'CormorantCy',serif;letter-spacing:.32em;text-transform:uppercase;color:var(--ar-sub);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+/* the row of things: small, with room between them; under each only its count */
+.ar-row{position:absolute;left:50%;translate:-50% 0;top:calc(var(--oct-b,190px) + 2.5vh + clamp(120px,16vh,190px));width:min(1500px,88vw);display:flex;justify-content:space-between;align-items:flex-end}
+.ar-it{all:unset;box-sizing:border-box;pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;-webkit-tap-highlight-color:transparent}
 .ar-it:focus-visible{outline:2px solid rgba(150,105,60,.7);outline-offset:8px;border-radius:12px}
-.ar-vis{position:relative;height:var(--ar-vh);display:flex;align-items:center;justify-content:center;transition:transform .45s cubic-bezier(.2,.75,.25,1)}
-.ar-it:is(:hover,.hov) .ar-vis{transform:scale(1.025)}
+.ar-vis{position:relative;height:var(--ar-vh);display:flex;align-items:center;justify-content:center}
 .ar-vis img{display:block;max-height:100%;pointer-events:none;user-select:none}
-.ar-it>b{margin-top:clamp(14px,2.4vh,30px);font:500 clamp(30px,3.7vh,48px)/1.05 'CormorantCy',serif;color:var(--ar-ink);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
-.ar-it>i{margin-top:10px;font:italic clamp(17px,2vh,25px)/1.25 'CormorantCy',serif;color:var(--ar-sub);max-width:15em;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
-.ar-pill{margin-top:clamp(14px,2vh,24px);padding:6px 20px 7px;border-radius:999px;border:1.5px solid rgba(90,63,38,.55);font:clamp(15px,1.75vh,21px)/1.15 'CormorantCy',serif;color:var(--ar-ink);
+.ar-pill{margin-top:clamp(16px,2.4vh,28px);padding:5px 18px 6px;border-radius:999px;border:1.5px solid rgba(90,63,38,.5);font:clamp(15px,1.7vh,20px)/1.15 'CormorantCy',serif;color:var(--ar-ink);white-space:nowrap;
   transition:color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),background-color .3s ease}
 .ar-pill.has{background:linear-gradient(#8a6a48,#6a4e33);border-color:#5a3f26;color:#f4e6cf}
+.ar-it.cur .ar-pill{border-color:#9a6a3a;box-shadow:0 0 0 1px rgba(154,106,58,.35)}
 .ar-rec{display:flex;align-items:center;gap:9px}
-.ar-rec em{width:11px;height:11px;border-radius:50%;background:#9c6b5a;box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
-/* shadows are drawn here (none are in the pictures): each thing lies on the desk */
-.ar-vis>img,.ar-spin>img,.ar-flap>img:first-child{filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(14px 22px 22px rgba(60,40,20,.28))}
-.ar-shine,.ar-seal{filter:none!important}
-/* the room's light over each thing (masked to its picture): the window's by day, the lamp's at night; it stays where it is */
-.ar-lt{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat;
+.ar-rec em{width:10px;height:10px;border-radius:50%;background:#9c6b5a;box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+/* shadows are drawn here (none are in the pictures): each thing lies on the desk; longer in the evening */
+.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child{filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(12px 20px 20px rgba(60,40,20,.26));transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-evening:not(.is-night)) :is(.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child){filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(30px 24px 24px rgba(60,40,20,.26))}
+html:has(.shell.is-night) :is(.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child){filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 22px 24px rgba(0,0,0,.5))}
+/* the room's light over each thing (masked to its picture): the window's by day, the evening's, the lamp's at night; it stays */
+.ar-lt{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat;z-index:5;
   -webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
 .ar-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .ar-sun{background-image:var(--ws-shade)}.ar-beam{background-image:var(--rk-beam);opacity:0}
 html:has(.shell.is-night) .ar-sun{opacity:0}html:has(.shell.is-night) .ar-beam{opacity:1}
 
-/* 1 · the record: its own light stands still while it turns */
+/* 1 · the record: the disc and its label turn; the shine stands still over them; the middle hole goes through */
 .ar-vinyl{aspect-ratio:1}
-.ar-spin{position:relative;height:100%;aspect-ratio:1;will-change:transform}
-.ar-spin>img{width:100%;height:100%}
-.ar-lab{position:absolute;left:31%;top:31%;width:38%;height:38%;fill:none;stroke:#6a4a2e;stroke-width:2.6;stroke-linecap:round;opacity:.8}
-.ar-shine{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.85;pointer-events:none}
-/* 2 · the microphone: two small waves rise on each side under the hand and fade */
+.ar-spin{position:relative;height:100%;aspect-ratio:1;will-change:transform;-webkit-mask:radial-gradient(circle,transparent 2.1%,#000 2.5%);mask:radial-gradient(circle,transparent 2.1%,#000 2.5%)}
+.ar-spin>img:first-child{width:100%;height:100%}
+.ar-label{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%;filter:sepia(.15) brightness(.97)}
+.ar-shine{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.85;pointer-events:none;-webkit-mask:radial-gradient(circle,transparent 2.1%,#000 2.5%);mask:radial-gradient(circle,transparent 2.1%,#000 2.5%)}
+.ar-vinyl .ar-lt{-webkit-mask:radial-gradient(circle,transparent 2.1%,#000 2.5% 49.6%,transparent 50%);mask:radial-gradient(circle,transparent 2.1%,#000 2.5% 49.6%,transparent 50%)}
+/* 2 · the microphone: still; two small waves on each side under the hand */
 .ar-mic{width:calc(var(--ar-vh)*.62)}
-.ar-mic>img{height:96%}
-.ar-waves{position:absolute;top:16%;width:22%;height:34%;fill:none;stroke:rgba(110,76,44,.65);stroke-width:2.6;stroke-linecap:round;opacity:0;transition:opacity .4s ease}
-.ar-waves.l{left:-8%}.ar-waves.r{right:-8%}
+.ar-mic>img{height:100%}
+.ar-waves{position:absolute;top:12%;width:24%;height:34%;fill:none;stroke:rgba(110,76,44,.65);stroke-width:2.6;stroke-linecap:round;opacity:0;transition:opacity .4s ease}
+.ar-waves.l{left:-14%}.ar-waves.r{right:-14%}
 .ar-it:is(:hover,.hov) .ar-waves{opacity:1}
 .ar-waves path{transform-box:fill-box;transform-origin:50% 50%;opacity:0}
 .ar-it:is(:hover,.hov) .ar-waves path{animation:ar-wave 1.5s ease-out infinite;animation-delay:var(--d)}
 @keyframes ar-wave{0%{opacity:0;transform:scale(.7)}30%{opacity:.9}100%{opacity:0;transform:scale(1.18)}}
-/* 3 · the envelope: the flap lifts on its fold, the letter's edge comes out of it */
-.ar-env{width:calc(var(--ar-vh)*1.02);perspective:900px}
-.ar-env .ar-body{width:100%;max-height:none;position:relative;z-index:2}
-.ar-letter{position:absolute;left:7%;right:7%;top:calc(50% - var(--ar-vh)*.33);height:calc(var(--ar-vh)*.42);z-index:1;background:#f3ead9 url(../../assets/keeper/desk-paper-small.jpg) center/cover;
-  box-shadow:0 1px 2px rgba(60,40,20,.25);transition:translate .42s cubic-bezier(.2,.75,.25,1) .08s}
-.ar-it:is(:hover,.hov) .ar-letter{translate:0 calc(var(--ar-vh)*-.065)}
-.ar-flap{position:absolute;left:0;right:0;top:calc(50% - var(--ar-vh)*.354);z-index:3;transform-origin:50% 0;transform:rotateX(0deg);transition:transform .45s cubic-bezier(.2,.75,.25,1)}
-.ar-flap>img:first-child{width:100%;max-height:none}
-.ar-seal{position:absolute;left:50%;bottom:-11%;width:22%;max-height:none!important;translate:-50% 0;filter:drop-shadow(1px 2px 2px rgba(60,20,10,.4))!important}
-.ar-it:is(:hover,.hov) .ar-flap{transform:rotateX(64deg)}
-.ar-env .ar-lt{z-index:4}
-/* 4 · the sheet with corrections: the writing is text; the red line is drawn under one line, then a tick */
+html:has(.shell.is-night) .ar-waves{stroke:rgba(232,196,140,.7)}
+/* 3 · the envelope: closed, still; the letter comes up out of it (behind it, from its top edge) */
+.ar-env{width:calc(var(--ar-vh)*1.22)}
+.ar-env .ar-body{position:relative;z-index:2;width:100%;max-height:none}
+.ar-letter{position:absolute;z-index:1;left:17%;width:66%;height:calc(var(--ar-vh)*.74);max-height:none!important;object-fit:cover;object-position:50% 0;top:calc(50% - var(--ar-vh)*.39);rotate:-1.5deg;filter:sepia(.25) brightness(.97) drop-shadow(1px 2px 3px rgba(60,40,20,.25))!important;
+  transition:translate .45s cubic-bezier(.2,.75,.25,1)}
+.ar-it:is(:hover,.hov) .ar-letter{translate:0 calc(var(--ar-vh)*-.26)}
+/* 4 · the sheet with corrections: the writing is text; a red line is drawn under one line, then a tick */
 .ar-sheet>img{height:100%}
-.ar-lines{position:absolute;left:21%;right:12%;top:15%;font:400 calc(var(--ar-vh)*.036)/2.2 'SignThatS','CormorantCy',serif;color:#4a3420;text-align:left;white-space:nowrap;pointer-events:none}
+.ar-lines{position:absolute;left:21%;right:13%;top:15%;font:400 calc(var(--ar-vh)*.043)/2.15 'SignThatS','CormorantCy',serif;color:#4a3420;text-align:left;white-space:nowrap;pointer-events:none}
 .ar-lines p{margin:0}
-.ar-mark{position:absolute;left:21%;right:12%;top:15%;height:calc(var(--ar-vh)*.475);overflow:visible;fill:none;stroke:#b0302a;stroke-width:1.4;stroke-linecap:round;pointer-events:none}
-.ar-mark .ar-ul{stroke-dasharray:80;stroke-dashoffset:80;transition:stroke-dashoffset .32s ease}
+.ar-mark{position:absolute;left:21%;right:13%;top:15%;height:calc(var(--ar-vh)*.556);overflow:visible;fill:none;stroke:#b0302a;stroke-width:1.4;stroke-linecap:round;pointer-events:none}
+.ar-mark .ar-ul{stroke-dasharray:90;stroke-dashoffset:90;transition:stroke-dashoffset .32s ease}
 .ar-mark .ar-tick{stroke-width:1.8;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .2s ease}
 .ar-it:is(:hover,.hov) .ar-mark .ar-ul{stroke-dashoffset:0}
 .ar-it:is(:hover,.hov) .ar-mark .ar-tick{stroke-dashoffset:0;transition-delay:.3s}
-/* 5 · the telephone: the screen wakes softly, a note rises on it */
-.ar-phone>img{height:96%}
-.ar-scr{position:absolute;left:13.5%;right:6%;top:4.5%;bottom:4.5%;border-radius:12% / 6%;overflow:hidden;pointer-events:none}
-.ar-glow{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 40%,rgba(255,226,180,.32),rgba(120,90,60,.12) 60%,transparent);opacity:0;transition:opacity .45s ease}
-.ar-note{position:absolute;left:8%;right:8%;bottom:16%;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:rgba(246,236,218,.92);color:#3a2614;
-  font:calc(var(--ar-vh)*.04)/1.15 'CormorantCy',serif;opacity:0;translate:0 10px;transition:opacity .4s ease,translate .45s cubic-bezier(.2,.75,.25,1)}
-.ar-note svg{flex:none;width:1.2em;height:1.2em;fill:none;stroke:#6a4a2e;stroke-width:1.8}
+/* 5 · the telephone: its screen exactly; it wakes softly, a small card rises on it */
+.ar-phone>img{height:100%}
+.ar-scr{position:absolute;left:2.4%;right:2.4%;top:1.2%;bottom:1.2%;border-radius:13.5% / 6.8%;overflow:hidden;pointer-events:none;background:#000}
+.ar-glow{position:absolute;inset:0;background:radial-gradient(130% 70% at 50% 30%,#3a2a1c 0%,#1b130c 55%,#080605 100%);opacity:0;transition:opacity .45s ease}
+.ar-note{position:absolute;left:7%;right:7%;bottom:12%;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:12px;
+  background:linear-gradient(#f3e9d6,#e8d8bc);border:1px solid rgba(154,106,58,.55);box-shadow:0 4px 10px rgba(0,0,0,.35);color:#3a2614;
+  font:calc(var(--ar-vh)*.042)/1.2 'CormorantCy',serif;opacity:0;translate:0 10px;transition:opacity .4s ease,translate .45s cubic-bezier(.2,.75,.25,1)}
+.ar-note b{display:block;font:600 calc(var(--ar-vh)*.032)/1.2 'CormorantCy',serif;letter-spacing:.12em;text-transform:uppercase;color:#7a5a3a}
+.ar-ni{flex:none;width:2em;height:2em;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,#c99a62,#8a5e36);box-shadow:inset 0 1px 2px rgba(255,255,255,.35)}
+.ar-ni svg{width:1.1em;height:1.1em;fill:none;stroke:#fff6ea;stroke-width:1.8}
 .ar-it:is(:hover,.hov) .ar-glow{opacity:1}
 .ar-it:is(:hover,.hov) .ar-note{opacity:1;translate:0 0;transition-delay:.12s}
-.ar-phone.has-new .ar-scr::after{content:"";position:absolute;right:14%;top:7%;width:7px;height:7px;border-radius:50%;background:#e8b070}
-/* at night: the things lie in the lamp's light, the words in the lamp's colour */
-html:has(.shell.is-night) .ar-board{--ar-ink:#ecd6b0;--ar-sub:#c9b08a}
-html:has(.shell.is-night) .ar-pill{border-color:rgba(214,170,110,.55)}
-html:has(.shell.is-night) .ar-orn{background:linear-gradient(90deg,transparent,rgba(214,170,110,.6))}
-html:has(.shell.is-night) .ar-orn.r{background:linear-gradient(270deg,transparent,rgba(214,170,110,.6))}
-html:has(.shell.is-night) .ar-orn::after{background:rgba(214,170,110,.75)}
-html:has(.shell.is-night) .ar-waves{stroke:rgba(232,196,140,.7)}
+.ar-phone.has-new .ar-scr::after{content:"";position:absolute;right:16%;top:6%;width:7px;height:7px;border-radius:50%;background:#e8b070}
+/* at night: the things lie in the lamp's light, the words in its colour (the heading clearly seen) */
+html:has(.shell.is-night) .ar-board{--ar-ink:#f2e2c4;--ar-sub:#dcc39a}
+html:has(.shell.is-night) .ar-h :is(h1,p){text-shadow:0 0 12px rgba(20,10,4,.8)}
+html:has(.shell.is-night) .ar-pill{border-color:rgba(214,170,110,.6)}
+html:has(.shell.is-night) .ar-orn{background:linear-gradient(90deg,transparent,rgba(214,170,110,.7))}
+html:has(.shell.is-night) .ar-orn.r{background:linear-gradient(270deg,transparent,rgba(214,170,110,.7))}
+html:has(.shell.is-night) .ar-orn::after{background:rgba(214,170,110,.8)}
 @media (prefers-reduced-motion: reduce){.ar-board *{transition-duration:.01s!important;animation:none!important}}

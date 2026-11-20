@@ -1,4 +1,4 @@
-// «Книга» (v245) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
+// «Книга» (v246) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
 // «Так ляжет» fades, and the book comes in closed from the right, its cover up; it opens once — straight on the spread of the sheet
 // being written (one leaf, not every page). From «Рукопись» the whole book comes in from the right, open. The book's page is «Так ляжет»'s size; the pages are the director's
 // own; one light lies over the open book as over the desk (the window's by day, the lamp's at night) and stays where it is while the
@@ -166,8 +166,8 @@
     {const v=$('.bk-stripv'),t0=performance.now();v.style.opacity='0';
       const ims=[...strip.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.onload=i.onerror=r;}));
       Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,1400))]).then(()=>{const d=Math.max(0,(fromMs?300:520)-(performance.now()-t0));v.style.opacity='';v.animate([{opacity:0},{opacity:1}],{duration:600,delay:d,easing:'ease-out',fill:'backwards'});});}
-    if(fromMs){// from «Рукопись»: the whole book comes in from the right, «Рукопись» goes under it
-      clearTimeout(paneT);aside(true,0);H.classList.add('bk-paneoff');window.OCHERKI_MANUSCRIPT?.close?.();
+    if(fromMs||fromAr){// from «Рукопись» (or from the archive, its things going aside at the same moment): the whole book comes in from the right
+      clearTimeout(paneT);aside(true,0);H.classList.add('bk-paneoff');if(fromMs)window.OCHERKI_MANUSCRIPT?.close?.();
       board.animate([{translate:'100vw 0px'},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.2,.75,.25,1)'});}
     else{// from the editor: the desk goes off to the left, «Так ляжет» fades, the book comes in closed from the right (its cover up)
       // and, once it lies, opens — one leaf, straight on the spread of the sheet being written
@@ -212,7 +212,8 @@
   // «Книга» on the bar's keys opens the book on the desk (before the old ways under it hear the press)
   addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k="book"]');if(!k)return;e.preventDefault();e.stopImmediatePropagation();
     // from the archive: the archive goes first, then the book comes
-    if(window.OCHERKI_ARCHIVE_DESK?.isOpen?.()){window.OCHERKI_ARCHIVE_DESK.close(()=>setTimeout(()=>{if(!isOpen)open();},60));return;}if(!isOpen)open();},true);
+    if(window.OCHERKI_ARCHIVE_DESK?.isOpen?.()){fromAr=true;window.OCHERKI_ARCHIVE_DESK.close(()=>{if(!isOpen)open();fromAr=false;},true);return;}if(!isOpen)open();},true);
+  let fromAr=false;
   setInterval(()=>{if(isOpen&&!busy)setTitle();},800);
   // a photograph framed anew by the hand: its little spread in the strip is drawn again
   addEventListener('ocherki-photo-framed',()=>{if(!isOpen)return;pre.list[cur]=null;filled.delete(cur);fillSome();});
