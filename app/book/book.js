@@ -388,7 +388,7 @@ document.addEventListener('click',e=>{
       // the leaf: its back page, mirrored across the fold (u,v of the back → the leaf at (S+W-u, v) → across the fold)
       if(flapEl){if(flap.length>2){const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
           const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;
-          flapEl.style.visibility='visible';flapEl.style.transform=`matrix(${a},${b},${c},${dd},${e},${f})`;flapEl.style.clipPath=poly(fold.map(p=>[S+W-p[0],p[1]-Y]));}
+          flapEl.style.visibility='visible';flapEl.style.transform=`matrix(${a},${b},${c},${dd},${e},${f})`;o.flap?.(flapEl,[a,b,c,dd,e,f]);flapEl.style.clipPath=poly(fold.map(p=>[S+W-p[0],p[1]-Y]));}
         else flapEl.style.visibility='hidden';}
       // the bend: a crease at the fold, light on the rounded back, a little shade towards the edge
       if(flap.length>2){xB.save();path(xB,flap);xB.clip();const far=refl(C),g=xB.createLinearGradient(F[0],F[1],far[0],far[1]),q=.25+.75*lift;

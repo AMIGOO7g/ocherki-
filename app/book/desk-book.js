@@ -1,6 +1,6 @@
-// «Книга» (v236) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go;
-// «Так ляжет» keeps its size and slides to its place in the open book, and the other page opens out from the gutter (a cover stays
-// alone). From «Рукопись» the whole book comes in from the right. The book's page is «Так ляжет»'s size; the pages are the director's
+// «Книга» (v240) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
+// «Так ляжет» fades, and the book comes in closed from the right, its cover up; it opens once — straight on the spread of the sheet
+// being written (one leaf, not every page). From «Рукопись» the whole book comes in from the right, open. The book's page is «Так ляжет»'s size; the pages are the director's
 // own; one light lies over the open book as over the desk (the window's by day, the lamp's at night) and stays where it is while the
 // leaves turn. The leaves turn as the old book's did — the paper bends (window.OCHERKI_CURL). Brass plates at the left: the design,
 // the format, the photographs' colour (a press lays the book out anew in place); at the right: how many pages, the print, the file.
@@ -18,7 +18,7 @@
 
   const board=document.createElement('div');board.className='bk-board';
   const LT='<i class="bk-lt"><b class="bk-sun"></b><b class="bk-beam"></b></i>';
-  board.innerHTML=`<div class="bk-cap"></div><div class="bk-spread"><div class="bk-pg bk-l"><div class="bk-in"></div>${LT}</div><div class="bk-pg bk-r"><div class="bk-in"></div>${LT}</div><i class="bk-gutter"></i></div>`+
+  board.innerHTML=`<div class="bk-cap"></div><div class="bk-spread"><div class="bk-pg bk-l"><div class="bk-in"></div>${LT}</div><div class="bk-pg bk-r"><div class="bk-in"></div>${LT}</div><i class="bk-gutter"></i><i class="bk-shd"></i></div>`+
     '<div class="bk-stripv"><div class="bk-strip"></div></div><div class="bk-keys bk-kl"></div><div class="bk-keys bk-kr"></div>';
   document.body.append(board);
   const $=s=>board.querySelector(s),spreadEl=$('.bk-spread'),L=$('.bk-l'),R=$('.bk-r'),cap=$('.bk-cap'),strip=$('.bk-strip'),kl=$('.bk-kl'),kr=$('.bk-kr');
@@ -37,7 +37,7 @@
     // the light: the desk's own pictures (the window's, the lamp's) laid over the open book from where it lies; it never moves
     try{board.style.setProperty('--rk-beam',window.OCHERKI_DESK_LIGHT?.beam()||'none');}catch(_){}
     // each page's light: the desk's picture from where the page lies (a page that moves carries the opposite move in its light)
-    L.querySelector('.bk-lt').style.backgroundPosition=`${-left}px ${-top}px`;R.querySelector('.bk-lt').style.backgroundPosition=`${-(left+w)}px ${-top}px`;}
+    L.querySelector('.bk-lt').style.backgroundPosition=`${2-left}px ${2-top}px`;R.querySelector('.bk-lt').style.backgroundPosition=`${2-(left+w)}px ${2-top}px`;}
   // a page as the director draws it, fitted to its place
   const fill=(el,html)=>{el.querySelector('.bk-in').innerHTML=html?`<div class="bk-host">${html}</div>`:'';el.classList.toggle('blank',!html);};
   // the cover and the back cover lie alone: no page beside them, no fold
@@ -86,12 +86,21 @@
   // ——— turning the page: the paper bends as the old book's did (the copies of the pages lie over the new spread, already drawn
   // beneath, so nothing blinks); the desk's light stays where it is over it
   function turnTo(to){if(!isOpen||flipping||busy)return;to=Math.max(0,Math.min(n-1,to));if(to===cur)return;const from=cur,fwd=to>from;
-    const clone=(el,i)=>{const h=el.querySelector('.bk-host')?.cloneNode(true);if(!h)return null;h.insertAdjacentHTML('beforeend',`<i class="bk-lt" style="background-position:${-(geo.left+i*geo.w)}px ${-geo.top}px"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);return h;};
+    // the light on a page is the room's: a picture of the whole room laid under the page where the page is in the room — the leaf
+    // that rises carries the opposite of its move in its light (o.flap), so the light stays in the room and the paper moves under it
+    const room=`translate(${-geo.left}px,${-geo.top}px)`;
+    const clone=(el,i)=>{const h=el.querySelector('.bk-host')?.cloneNode(true);if(!h)return null;h.style.overflow='hidden';
+      h.insertAdjacentHTML('beforeend',`<i class="bk-lt bk-rl" style="transform:translate(${-(geo.left+i*geo.w)}px,${-geo.top}px)"><b class="bk-sun"></b><b class="bk-beam"></b></i>`);return h;};
+    const flap=(el,[a,b,c,d,e,f])=>{const lt=el.querySelector('.bk-rl');if(!lt)return;const k=a*d-b*c;if(Math.abs(k)<1e-6)return;
+      lt.style.transform=`matrix(${d/k},${-b/k},${-c/k},${a/k},${(c*f-d*e)/k},${(b*e-a*f)/k}) ${room}`;};
+    // the side the leaf comes down on keeps what lay there until the leaf is down (a cover's empty half stays empty)
+    const landing=fwd?L:R,wasBlank=landing.classList.contains('blank'),wasSingle=spreadEl.classList.contains('single');
     const oldL=clone(L,0),oldR=clone(R,1);flipping=true;rustle();show(to);
-    const newL=clone(L,0),newR=clone(R,1);spreadEl.classList.add('curling');
-    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.08,back:()=>show(from),done:()=>{flipping=false;spreadEl.classList.remove('curling');}});}catch(_){ok=false;}
+    const newL=clone(L,0),newR=clone(R,1);landing.classList.toggle('blank',wasBlank);spreadEl.classList.toggle('single',wasSingle);spreadEl.classList.add('curling');
+    const done=()=>{flipping=false;spreadEl.classList.remove('curling');const sp=BK()?.spread(cur);if(sp){L.classList.toggle('blank',!sp.left);R.classList.toggle('blank',!sp.right);spreadEl.classList.toggle('single',!!sp.single);}};
+    let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.15,flap,back:()=>show(from),done});}catch(_){ok=false;}
     if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.classList.add('bk-curl');c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));}}
-    else{flipping=false;spreadEl.classList.remove('curling');}}
+    else done();}
   const turn=dir=>turnTo(cur+dir);
   board.addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();if(flipping||Math.abs(e.deltaY)<20)return;turn(e.deltaY>0?1:-1);},{passive:false});
   addEventListener('keydown',e=>{if(!isOpen)return;if(e.key==='ArrowRight'||e.key==='PageDown')turn(1);else if(e.key==='ArrowLeft'||e.key==='PageUp')turn(-1);else if(e.key==='Escape')window.OCHERKI_SET_MODE?.('write');});
@@ -104,7 +113,7 @@
     away.forEach(s=>document.querySelectorAll(s).forEach(el=>{const mv=[{translate:'0px 0px'},{translate:'-34vw 0px'}],op=[{opacity:1},{opacity:0}];if(!on){mv.reverse();op.reverse();}
       const o={duration:ms,easing:'cubic-bezier(.45,.05,.55,.95)',fill:on?'forwards':'none'};
       try{anims.push(el.animate(mv,Object.assign({composite:'add'},o)),el.animate(op,o));}catch(_){}}));}
-  const pane=()=>document.querySelector('.wp-pane');
+  const pane=()=>document.querySelector('.wp-pane');let paneFade=null;
   function setTitle(){const t=bar()?.querySelector('.t b');if(!t)return;t._h='';const name=String(window.OCHERKI_BOOK_META?.title||'').trim();
     const h=/^Глава/.test(capText)?capText:`<span class="up">Книга</span> · ${capText||(name?`<i>${esc(name)}</i>`:'')}`;if(t.innerHTML!==h)t.innerHTML=h;}
   // the open spread's sheet becomes the sheet being written (for the editor and «Рукопись»)
@@ -123,14 +132,14 @@
     if(fromMs){// from «Рукопись»: the whole book comes in from the right, «Рукопись» goes under it
       aside(true,0);if(pane())pane().style.visibility='hidden';window.OCHERKI_MANUSCRIPT?.close?.();
       board.animate([{translate:'100vw 0px'},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.2,.75,.25,1)'});}
-    else{aside(true,760);
-      const pageEl=side==='left'?L:R,other=side==='left'?R:L,cover=!(side==='left'?BK().spread(cur)?.right:BK().spread(cur)?.left);
-      if(from){// «Так ляжет» keeps its size and slides to its place in the book; the other page opens out from the gutter
-        const to=pageEl.getBoundingClientRect(),dx=from.left-to.left,dy=from.top-to.top,E={duration:760,easing:'cubic-bezier(.45,.05,.3,1)'};
-        pageEl.animate([{translate:`${dx}px ${dy}px`},{translate:'0px 0px'}],E);pageEl.querySelector('.bk-lt').animate([{translate:`${-dx}px ${-dy}px`},{translate:'0px 0px'}],E);
-        if(pane())pane().style.visibility='hidden';
-        if(!cover&&!BK().spread(cur)?.single)other.animate([{transform:`perspective(2200px) rotateY(${side==='left'?-90:90}deg)`,opacity:0},{transform:`perspective(2200px) rotateY(${side==='left'?-90:90}deg)`,opacity:0,offset:.55},{transform:'none',opacity:1}],{duration:1300,easing:'cubic-bezier(.25,.1,.25,1)'});}
-      else spreadEl.animate([{opacity:0},{opacity:1}],{duration:500,easing:'ease-out'});}
+    else{// from the editor: the desk goes off to the left, «Так ляжет» fades, the book comes in closed from the right (its cover up)
+      // and, once it lies, opens — one leaf, straight on the spread of the sheet being written
+      aside(true,760);const p=pane(),target=cur;
+      if(p){paneFade=p.animate([{opacity:1},{opacity:0}],{duration:380,easing:'ease-out',fill:'forwards'});}
+      if(target>0)show(0);
+      const come=board.animate([{translate:'62vw 0px'},{translate:'0px 0px'}],{duration:900,easing:'cubic-bezier(.2,.7,.25,1)'});
+      setTimeout(()=>{if(p)p.style.visibility='hidden';},400);
+      const opened=()=>setTimeout(()=>{busy=false;if(isOpen&&target>0)turnTo(target);},140);come.finished.then(opened,opened);return;}
     setTimeout(()=>{busy=false;},1300);}
   // to: 'write' — the page goes back into «Так ляжет», the desk comes back from the left; 'manuscript' — the book goes off to the
   // right whole and «Рукопись» opens on the open spread's sheet under it
@@ -139,8 +148,8 @@
     if(to==='manuscript'){board.animate([{translate:'0px 0px'},{translate:'100vw 0px'}],{duration:700,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
       // the desk is put back in its place under the book at once (where «Рукопись» measures the writing sheet), and «Рукопись» opens
       // over it in the same moment — its middle sheet lies on the writing sheet, the book goes off over both
-      anims.forEach(x=>{try{x.cancel();}catch(_){}});anims=[];after?.();setTimeout(()=>{if(p)p.style.visibility='';},900);end(720);return;}
-    board.classList.remove('on');aside(false,760);if(p)p.style.visibility='';
+      anims.forEach(x=>{try{x.cancel();}catch(_){}});anims=[];after?.();setTimeout(()=>{if(p)p.style.visibility='';try{paneFade?.cancel();}catch(_){}paneFade=null;},900);end(720);return;}
+    board.classList.remove('on');aside(false,760);if(p)p.style.visibility='';try{paneFade?.cancel();}catch(_){}paneFade=null;
     const tr=paneRect();if(tr){const r=R.getBoundingClientRect();document.querySelector('.wp-pane .wp-page')?.animate([{translate:`${r.left-tr.left}px ${r.top-tr.top}px`},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.45,.05,.3,1)'});}
     end(780);setTimeout(()=>after?.(),790);}
   // ——— the spread's composition on the bar: ‹ › go through the ones that fit, the middle key lists them; the book is laid out anew
