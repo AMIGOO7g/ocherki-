@@ -370,6 +370,7 @@ document.addEventListener('click',e=>{
     const path=(x,pts)=>{x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();};
     const constrain=(M,C)=>{const B=[S,C[1]],B2=[S,C[1]===Y?Y+H:Y],diag=Math.hypot(W,H);let v=sub(M,B),l=len(v);if(l>W)M=[B[0]+v[0]*W/l,B[1]+v[1]*W/l];
       v=sub(M,B2);l=len(v);if(l>diag)M=[B2[0]+v[0]*diag/l,B2[1]+v[1]*diag/l];return M;};
+    const spineRaw=x=>{const g=x.createLinearGradient(S-W*.16,0,S+W*.16,0);[[0,0],[.38,.07],[.47,.2],[.5,.3],[.53,.2],[.62,.07],[1,0]].forEach(([k,a])=>g.addColorStop(k,`rgba(30,18,8,${a})`));x.fillStyle=g;x.fillRect(S-W*.16,Y,W*.32,H);};
     const spine=x=>{if(!leftEl||!underEl)return;const g=x.createLinearGradient(S-W*.16,0,S+W*.16,0);[[0,0],[.38,.07],[.47,.2],[.5,.3],[.53,.2],[.62,.07],[1,0]].forEach(([k,a])=>g.addColorStop(k,`rgba(30,18,8,${a})`));x.fillStyle=g;x.fillRect(S-W*.16,Y,W*.32,H);};
     const rect=[[S,Y],[S+W,Y],[S+W,Y+H],[S,Y+H]];
     let C=[S+W,Y+H];
@@ -393,7 +394,10 @@ document.addEventListener('click',e=>{
       // the bend: a crease at the fold, light on the rounded back, a little shade towards the edge
       if(flap.length>2){xB.save();path(xB,flap);xB.clip();const far=refl(C),g=xB.createLinearGradient(F[0],F[1],far[0],far[1]),q=o.soft?lift:.25+.75*lift;
         g.addColorStop(0,`rgba(0,0,0,${(.3*q).toFixed(3)})`);g.addColorStop(.06,`rgba(0,0,0,${(.08*q).toFixed(3)})`);g.addColorStop(.2,`rgba(255,255,255,${(.28*q).toFixed(3)})`);g.addColorStop(.5,`rgba(255,255,255,${(.05*q).toFixed(3)})`);g.addColorStop(1,`rgba(0,0,0,${(.12*q).toFixed(3)})`);
-        xB.fillStyle=g;xB.fillRect(S-2*W,Y-H,4*W,3*H);xB.restore();}}
+        xB.fillStyle=g;xB.fillRect(S-2*W,Y-H,4*W,3*H);xB.restore();}
+      // (o.flatGutter) the fold of the book lies on the leaf too where it comes down by the spine — the more, the flatter the leaf lies,
+      // so the gutter's shade is there already when it is down (and stays as it rises)
+      if(o.flatGutter&&flap.length>2&&lift<.999){xB.save();path(xB,flap);xB.clip();xB.globalAlpha=1-lift;spineRaw(xB);xB.restore();}}
     const at=e=>[e.clientX-o.X0,e.clientY-o.Y0];
     const end=()=>{root.remove();document.querySelector('.bq-book')?.classList.remove('is-curling');window.__bqCurling=0;o.done();if(window.__bqArcLater){window.__bqArcLater=0;window.__ocherkiArcSync?.(true);}};
     // from where the leaf lies to where it goes; a lift through the middle of the way

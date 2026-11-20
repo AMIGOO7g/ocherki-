@@ -212,11 +212,11 @@ body{
 .photo-card.p3{top:2px;left:-54px;transform:rotate(-7deg);z-index:1}
 /* v242: the prints open out by translate (the compositor draws it, no layout each frame); !important — a print just come in
    (.photo-new-entry) holds its translate at 0 and stayed under the first */
-.photo-stack:hover .photo-card.p2{translate:0 106px!important}
-.photo-stack:hover .photo-card.p3{translate:0 210px!important}
+.photo-stack.fan .photo-card.p2{translate:0 106px!important}
+.photo-stack.fan .photo-card.p3{translate:0 210px!important}
 /* v242: while the prints are open the hand can go from them down to «ещё N» without the pile folding: an unseen bridge over the
    fanned prints and the tag (its height is set in sheet.js, down to the tag) */
-.photo-stack:hover::before{content:"";position:absolute;left:-70px;top:-6px;width:160px;height:var(--fanh,340px);pointer-events:auto;z-index:0}
+.photo-stack.fan::before{content:"";position:absolute;left:-70px;top:-6px;width:160px;height:var(--fanh,340px);pointer-events:auto;z-index:0}
 /* one hover zone under the whole fan: the hand passing a gap between two prints keeps it open (it closed and opened again —
    the prints jerked) */
 .photo-stack::before{content:"";position:absolute;left:-62px;top:-16px;width:146px;height:128px;pointer-events:auto}
@@ -1117,9 +1117,9 @@ html body.host-night .section-scroll-viewport .section-scroll-sheet::before{opac
 body.host-day .photo-stack .photo-card::after{background:linear-gradient(180deg,rgba(60,38,18,.34) 0,rgba(60,38,18,.12) 14%,rgba(60,38,18,0) 32%)}
 body.host-night .photo-stack .photo-card::after{background:linear-gradient(180deg,rgba(255,206,140,.42) 0,rgba(255,190,120,.14) 22%,rgba(255,190,120,0) 46%);mix-blend-mode:screen}
 /* the fan held under the hand comes up into the light: the shadow lifts by day, the prints brighten at night */
-body.host-day .photo-stack:hover .photo-card::after{opacity:.35}
-body.host-day .photo-stack:hover .photo-card{filter:brightness(1.05)}
-body.host-night .photo-stack:hover .photo-card.p1,body.host-night .photo-stack:hover .photo-card.p2,body.host-night .photo-stack:hover .photo-card.p3{filter:brightness(1) sepia(.08)}
+body.host-day .photo-stack.fan .photo-card::after{opacity:.35}
+body.host-day .photo-stack.fan .photo-card{filter:brightness(1.05)}
+body.host-night .photo-stack.fan .photo-card.p1,body.host-night .photo-stack.fan .photo-card.p2,body.host-night .photo-stack.fan .photo-card.p3{filter:brightness(1) sepia(.08)}
 body.host-night .photo-stack .photo-card.p1{filter:brightness(.8) sepia(.14)}
 body.host-night .photo-stack .photo-card.p2{filter:brightness(.68) sepia(.18)}
 body.host-night .photo-stack .photo-card.p3{filter:brightness(.58) sepia(.2)}
