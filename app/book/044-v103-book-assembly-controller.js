@@ -109,7 +109,8 @@
       if(frame){photo.frameX=frame.x;photo.frameY=frame.y;photo.frameZoom=frame.zoom;}
       else{delete photo.frameX;delete photo.frameY;delete photo.frameZoom;}
     }
-    previewSpread?.querySelectorAll(`img[data-frame-photo="${CSS.escape(id)}"]`).forEach(img=>{
+    // the old book's spread and the book on the desk (and the leaf turning over it) show the same framing
+    document.querySelectorAll(`:is(#bookPreviewSpread,.bk-board .bk-spread,.bq-curl.bk-curl) img[data-frame-photo="${CSS.escape(id)}"]`).forEach(img=>{
       img.style.removeProperty('object-position');img.style.removeProperty('transform');img.style.removeProperty('transform-origin');
       if(!frame)return;
       img.style.setProperty('object-position',`${frame.x}% ${frame.y}%`,'important');
@@ -118,7 +119,7 @@
     });
     if(!save)return;
     // The arc's small copy of this spread shows the new framing too.
-    clearTimeout(applyFrame.arc);applyFrame.arc=setTimeout(()=>window.__ocherkiArcRefresh?.(activeSpread),300);
+    clearTimeout(applyFrame.arc);applyFrame.arc=setTimeout(()=>{window.__ocherkiArcRefresh?.(activeSpread);try{dispatchEvent(new CustomEvent('ocherki-photo-framed',{detail:{id}}));}catch(_){}},300);
     clearTimeout(frameSaveTimer);
     frameSaveTimer=setTimeout(()=>{
       const frame2=frame?frameOf(id):null;
@@ -134,19 +135,19 @@
   }
   function showFrameTools(img){
     clearTimeout(frameHideTimer);
-    frameTarget=img;frameTools.hidden=false;placeFrameTools(img);
+    frameTarget=img;frameTools.hidden=false;frameTools.style.zIndex=img.closest('.bk-board')?'2147483090':'';placeFrameTools(img);
   }
   function hideFrameTools(delay=500){
     clearTimeout(frameHideTimer);
     frameHideTimer=setTimeout(()=>{if(!frameDrag&&!frameTools.matches(':hover')){frameTools.hidden=true;frameTarget=null;}},delay);
   }
-  function initPhotoFraming(){
-    if(!previewSpread||previewSpread.dataset.frameBound==='1')return;
-    previewSpread.dataset.frameBound='1';
-    frameTools=document.createElement('div');
+  function initPhotoFraming(root=previewSpread){
+    if(!root||root.dataset.frameBound==='1')return;
+    root.dataset.frameBound='1';const previewSpread=root;
+    if(!frameTools){frameTools=document.createElement('div');
     frameTools.className='photo-frame-tools';frameTools.hidden=true;
     frameTools.innerHTML='<span class="pft-hint">Потяните фото, чтобы сдвинуть</span><button type="button" data-frame="out" title="Уменьшить">−</button><button type="button" data-frame="in" title="Увеличить">+</button><button type="button" data-frame="reset" title="Вернуть как было">Как было</button>';
-    (previewModal||document.body).appendChild(frameTools);
+    document.body.appendChild(frameTools);
     frameTools.addEventListener('mouseleave',()=>hideFrameTools());
     frameTools.addEventListener('click',event=>{
       const button=event.target.closest('[data-frame]');if(!button||!frameTarget)return;
@@ -155,7 +156,7 @@
       if(kind==='reset'){applyFrame(id,null);return;}
       frame.zoom=Math.round(Math.min(3,Math.max(1,frame.zoom+(kind==='in'?.15:-.15)))*100)/100;
       applyFrame(id,frame);
-    });
+    });}
     const pick=event=>{const img=event.target.closest?.('img[data-frame-photo]');return img&&img.dataset.framePhoto?img:null;};
     previewSpread.addEventListener('mouseover',event=>{const img=pick(event);if(img)showFrameTools(img);});
     previewSpread.addEventListener('mouseout',event=>{if(pick(event))hideFrameTools();});
@@ -2468,6 +2469,8 @@
     design:()=>({key:activeDesign,name:(designs.find(d=>d[0]===activeDesign)||[])[1]||''}),
     // the print file, as the old book made it (its own window: pages or spreads, then the server makes the PDF)
     pdf:()=>{if(quietAssemble())openPdfExport();},
+    // the photographs of the book on the desk are framed by the hand as in the old book (drag to move, − + to scale, «Как было»)
+    framing:el=>initPhotoFraming(el),
     // the spread's compositions (as the old book offered them): those that fit, and the one it has now; none — the spread has no photo
     compositions(i){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);if(!ref)return null;const own=String(ref.photo.layoutPreference||'auto').toLowerCase();
       return {now:own!=='auto'?own:String(sp.beat||'auto'),list:compositionChoices(sp).filter(x=>x.ok&&x.id!=='auto').map(x=>({id:x.id,label:x.label}))};},
@@ -2968,7 +2971,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v240"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v241"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

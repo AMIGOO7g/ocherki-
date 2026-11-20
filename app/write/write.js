@@ -531,8 +531,8 @@
   // the contact sheet: eight photographs a page and a cell to bring more from the computer
   const grid=left.querySelector('.ws-grid'),pc=left.querySelector('.ws-pc');let pgN=0,lastSig='';
   // v211: nine photographs a sheet; «+ добавить фото» only on the last sheet (a new sheet holds it when the last one is full)
-  const fillGrid=()=>{const o=OC();const all=o?o.allPhotos():[];const per=9,pages=Math.max(1,Math.ceil((all.length+1)/per));pgN=Math.min(pgN,pages-1);
-    const sig=all.length+'|'+pgN+'|'+(all[0]?.id||'');if(sig===lastSig)return;lastSig=sig;
+  const fillGrid=()=>{const o=OC();const all=o?(o.freePhotos?o.freePhotos():o.allPhotos()):[];const per=9,pages=Math.max(1,Math.ceil((all.length+1)/per));pgN=Math.min(pgN,pages-1);
+    const sig=all.length+'|'+pgN+'|'+all.map(r=>r.id||r.src.slice(-24)).join(',');if(sig===lastSig)return;lastSig=sig;
     const part=all.slice(pgN*per,pgN*per+per);
     grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+(pgN===pages-1&&part.length<per?'<button type="button" class="ws-add">+ добавить<br>фото</button>':'');
     pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;grid._pages=pages;};

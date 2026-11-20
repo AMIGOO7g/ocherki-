@@ -381,17 +381,17 @@ document.addEventListener('click',e=>{
       if(stayEl)stayEl.style.clipPath=stay.length>2?poly(stay.map(p=>[p[0]-S,p[1]])):'polygon(0 0,0 0,0 0)';
       // on the pages beneath: the shade the leaf throws along the fold, the gutter, the leaf's own shadow
       if(fold.length>2){xA.save();path(xA,fold);xA.clip();const sw=Math.max(6,Math.min(W*.35,dl*.6)*(.35+.65*lift)),g=xA.createLinearGradient(F[0],F[1],F[0]+n[0]*sw,F[1]+n[1]*sw);
-        g.addColorStop(0,`rgba(0,0,0,${(.12+.3*lift).toFixed(3)})`);g.addColorStop(1,'rgba(0,0,0,0)');xA.fillStyle=g;xA.fillRect(S-W,Y,2*W,H);xA.restore();}
+        g.addColorStop(0,`rgba(0,0,0,${(o.soft?.42*lift:.12+.3*lift).toFixed(3)})`);g.addColorStop(1,'rgba(0,0,0,0)');xA.fillStyle=g;xA.fillRect(S-W,Y,2*W,H);xA.restore();}
       spine(xA);
       const refl=p=>{const k=2*dot(sub(p,F),n);return[p[0]-k*n[0],p[1]-k*n[1]];},flap=fold.map(refl);
-      if(flap.length>2){xA.save();xA.shadowColor=`rgba(0,0,0,${(.1+.32*lift).toFixed(3)})`;xA.shadowBlur=4+30*lift;xA.shadowOffsetX=(-n[0]*14*lift)*dpr;xA.shadowOffsetY=(-n[1]*14*lift+3*lift)*dpr;path(xA,flap);xA.fillStyle='#f3eee5';xA.fill();xA.restore();}
+      if(flap.length>2){xA.save();xA.shadowColor=`rgba(0,0,0,${(o.soft?.42*lift:.1+.32*lift).toFixed(3)})`;xA.shadowBlur=4+30*lift;xA.shadowOffsetX=(-n[0]*14*lift)*dpr;xA.shadowOffsetY=(-n[1]*14*lift+3*lift)*dpr;path(xA,flap);xA.fillStyle='#f3eee5';xA.fill();xA.restore();}
       // the leaf: its back page, mirrored across the fold (u,v of the back → the leaf at (S+W-u, v) → across the fold)
       if(flapEl){if(flap.length>2){const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
           const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;
           flapEl.style.visibility='visible';flapEl.style.transform=`matrix(${a},${b},${c},${dd},${e},${f})`;o.flap?.(flapEl,[a,b,c,dd,e,f]);flapEl.style.clipPath=poly(fold.map(p=>[S+W-p[0],p[1]-Y]));}
         else flapEl.style.visibility='hidden';}
       // the bend: a crease at the fold, light on the rounded back, a little shade towards the edge
-      if(flap.length>2){xB.save();path(xB,flap);xB.clip();const far=refl(C),g=xB.createLinearGradient(F[0],F[1],far[0],far[1]),q=.25+.75*lift;
+      if(flap.length>2){xB.save();path(xB,flap);xB.clip();const far=refl(C),g=xB.createLinearGradient(F[0],F[1],far[0],far[1]),q=o.soft?lift:.25+.75*lift;
         g.addColorStop(0,`rgba(0,0,0,${(.3*q).toFixed(3)})`);g.addColorStop(.06,`rgba(0,0,0,${(.08*q).toFixed(3)})`);g.addColorStop(.2,`rgba(255,255,255,${(.28*q).toFixed(3)})`);g.addColorStop(.5,`rgba(255,255,255,${(.05*q).toFixed(3)})`);g.addColorStop(1,`rgba(0,0,0,${(.12*q).toFixed(3)})`);
         xB.fillStyle=g;xB.fillRect(S-2*W,Y-H,4*W,3*H);xB.restore();}}
     const at=e=>[e.clientX-o.X0,e.clientY-o.Y0];

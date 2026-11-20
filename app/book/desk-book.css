@@ -31,7 +31,8 @@ html:has(.shell.is-night) .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34p
 .bk-spread:has(.bk-l.blank) .bk-shd{left:50%}.bk-spread:has(.bk-r.blank) .bk-shd{right:50%}
 .bk-spread:has(.bk-l.blank):has(.bk-r.blank) .bk-shd{display:none}
 /* the shadow changes slowly only with the room's light (day ↔ night); a page that comes or goes has its shadow at once */
-html.rk-ltx .bk-shd{transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+/* (its sides follow a page coming or going at once; only the light changes it slowly) */
+.bk-shd{transition:box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .bk-spread{position:absolute;display:flex;isolation:isolate;transition:opacity .2s ease}
 .bk-spread.bk-fade{opacity:.15}
 .bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
@@ -104,10 +105,19 @@ html:has(.shell.is-night) .bk-board .bk-th em{color:#e0c8a2}
 .bq-curl.bk-curl .bq-pc{isolation:isolate}
 /* while a leaf turns, the turning leaf's pages are the book (one fold, one light): the open spread beneath shows only its paper */
 .bk-spread.curling .bk-gutter{opacity:0}
-.bk-spread.curling .bk-pg>:is(.bk-in,.bk-lt){visibility:hidden}
+.bk-spread.curling .bk-pg>.bk-in{visibility:hidden}
 /* a lone cover's little picture: its one page */
 .bk-board .bk-th.single{background:none;box-shadow:none}
 .bk-board .bk-th.single :is(.bk-tl,.bk-tr):empty{visibility:hidden}
 .bk-board .bk-th.single :is(.bk-tl,.bk-tr):not(:empty){box-shadow:1px 2px 4px rgba(60,40,20,.3)}
 /* the print window over the book */
 #pdfExportModal{z-index:2147483099!important}
+/* while the book lies open «Так ляжет» is not on the desk (whatever else redraws it) */
+html.bk-on.bk-paneoff .wp-pane{visibility:hidden!important}
+/* the plate while the book is laid out anew: «собирается», its letters breathing */
+.bk-board .bk-k.bk-busy{pointer-events:none}
+.bk-board .bk-k.bk-busy::after{content:"собирается…";position:absolute;inset:0;display:grid;place-items:center;border-radius:13px;font:15px 'CormorantCy',serif;color:#3a2614;
+  background:linear-gradient(#efe3cb,#e6d5b5 46%,#d9bf98);animation:bk-breathe 1.1s ease-in-out infinite alternate}
+html:has(.shell.is-night) .bk-board .bk-k.bk-busy::after{background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);color:#e8d2ae;animation-name:bk-breathe-n}
+@keyframes bk-breathe{from{color:rgba(58,38,20,.4)}to{color:#3a2614}}@keyframes bk-breathe-n{from{color:rgba(232,210,174,.4)}to{color:#e8d2ae}}
+.bk-pmenu small{font-size:13px;opacity:.7;margin-left:6px}

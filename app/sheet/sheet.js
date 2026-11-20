@@ -3985,6 +3985,9 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 // laid on the open sheet, the new episode's name / when / where, the new document's name, transcript and scan
 window.OC_SHEET={
   allPhotos(){const out=[],seen=new Set(),add=r=>{if(r&&r.src&&!seen.has(r.src)){seen.add(r.src);out.push(r);}};sections.forEach(s=>(s.pages||[]).forEach(p=>(p.photos||[]).forEach(add)));albumPhotos.forEach(add);return out;},
+  // v241: the album on the desk shows only the photographs not yet laid on any sheet (one taken into the book leaves it; taken off
+  // the sheet again, it is back in the album)
+  freePhotos(){const used=new Set();sections.forEach(s=>(s.pages||[]).forEach(p=>(p.photos||[]).forEach(r=>{if(r&&r.src)used.add(r.src);})));const out=[],seen=new Set();albumPhotos.forEach(r=>{if(r&&r.src&&!used.has(r.src)&&!seen.has(r.src)){seen.add(r.src);out.push(r);}});return out;},
   // files from the computer into the album only (no sheet gets them until one is laid there)
   addAlbumFiles(files){[...(files||[])].forEach(f=>{const r=new FileReader();r.onload=()=>{
       const rec={id:'photo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8),src:r.result,caption:'',year:'',place:'',people:'',source:'',story:'',photoMode:'auto',layoutPreference:'auto',status:'uploaded'};
@@ -4091,7 +4094,23 @@ window.OC_SHEET={
       box.querySelector('.sol-h span').textContent=`${list.length} ${list.length%10===1&&list.length%100!==11?'снимок':list.length%10>=2&&list.length%10<=4&&(list.length%100<12||list.length%100>14)?'снимка':'снимков'}`;};
     box.innerHTML='<div class="sol-h"><b>фото этого листа</b><span></span></div><div class="sol-grid"></div><div class="sol-bar"><button type="button" class="sol-close">собрать в стопку</button><button type="button" class="sol-add">+ добавить фото</button></div>';
     HD.body.append(veil,box);draw();sol={veil,box,draw};tellHost(true);requestAnimationFrame(()=>{veil.classList.add('on');box.classList.add('on');});
-    const shut=()=>{if(!sol||open)return;const S=sol;sol=null;S.veil.classList.remove('on');S.box.classList.remove('on');tellHost(false);setTimeout(()=>{S.veil.remove();S.box.remove();},450);try{renderPhotos();}catch(_){}};
+    // «собрать в стопку»: the prints come together into a heap in the middle of the solitaire, and the heap goes up under the bar,
+    // to the pile it came from (as the sheets of «Рукопись» go into their stack)
+    const shut=()=>{if(!sol||open)return;const S=sol;sol=null;S.veil.classList.remove('on');tellHost(false);try{renderPhotos();}catch(_){}
+      const prs=[...S.box.querySelectorAll('.sol-pr')];S.box.querySelectorAll('.sol-h,.sol-bar').forEach(x=>x.animate([{opacity:1},{opacity:0}],{duration:260,fill:'forwards'}));
+      if(!prs.length||matchMedia('(prefers-reduced-motion: reduce)').matches){S.box.classList.remove('on');setTimeout(()=>{S.veil.remove();S.box.remove();},450);return;}
+      const g=S.box.querySelector('.sol-grid').getBoundingClientRect(),cx=g.left+g.width/2,cy=Math.min(g.top+g.height/2,g.top+260);
+      const o=off(),top=stack.querySelector('.photo-card.p1')||stack.querySelector('.photo-card'),tr=(top||stack).getBoundingClientRect();
+      const tx=o.x+tr.left+tr.width/2,ty=o.y+tr.top+Math.max(30,tr.height/2),tw=Math.max(60,tr.width||140);
+      const ms=1050,E='cubic-bezier(.45,.05,.3,1)';
+      prs.forEach((x,k)=>{const r=x.getBoundingClientRect(),mx=r.left+r.width/2,my=r.top+r.height/2,rot=((k*37)%13-6)*.9,sc=tw/r.width;
+        x.style.zIndex=String(100+k);
+        x.animate([{transform:getComputedStyle(x).transform,opacity:1},
+          {transform:`translate(${cx-mx}px,${cy-my}px) rotate(${rot}deg) scale(.82)`,opacity:1,offset:.42},
+          {transform:`translate(${cx-mx}px,${cy-my+6}px) rotate(${rot*.6}deg) scale(.8)`,opacity:1,offset:.5},
+          {transform:`translate(${tx-mx}px,${ty-my}px) rotate(${rot*.3}deg) scale(${sc})`,opacity:1,offset:.9},
+          {transform:`translate(${tx-mx}px,${ty-my-8}px) rotate(0deg) scale(${sc})`,opacity:0}],{duration:ms,delay:k*18,easing:E,fill:'forwards'});});
+      setTimeout(()=>{S.veil.remove();S.box.remove();},ms+prs.length*18+60);};
     veil.addEventListener('click',shut);box.querySelector('.sol-close').addEventListener('click',shut);
     box.querySelector('.sol-add').addEventListener('click',()=>{shut();document.getElementById('addPhotoBtn')?.click();});
     // dragging a print: the others make way for it while it is carried (each glides to where it will stand), and it settles
@@ -4102,12 +4121,16 @@ window.OC_SHEET={
     box.addEventListener('pointerdown',e=>{const c=e.target.closest('.sol-pr');if(!c||e.button!==0)return;e.preventDefault();const r=c.getBoundingClientRect(),x0=e.clientX,y0=e.clientY;let fl=null;const grid=box.querySelector('.sol-grid');
       // the hand is followed on the whole document: the print itself moves in the grid while carried (and a moved node loses its capture)
       const mv=ev=>{const dx=ev.clientX-x0,dy=ev.clientY-y0;if(!fl&&Math.hypot(dx,dy)<6)return;
-        if(!fl){fl=c.cloneNode(true);fl.classList.add('sol-fly');Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});HD.body.appendChild(fl);c.classList.add('sol-gap');}
-        fl.style.transform=`translate(${dx}px,${dy}px) rotate(3deg) scale(1.1)`;
-        // the print under the hand: the gap moves before it (or after it, past its middle)
-        fl.style.visibility='hidden';const el=HD.elementFromPoint(ev.clientX,ev.clientY);fl.style.visibility='';const t=el?.closest?.('.sol-pr');
-        if(t&&t!==c){const tr=t.getBoundingClientRect(),after=ev.clientX>tr.left+tr.width/2;const ref=after?t.nextSibling:t;if(ref!==c&&ref!==c.nextSibling)flip(()=>grid.insertBefore(c,ref));}};
-      const up=ev=>{HD.removeEventListener('pointermove',mv);HD.removeEventListener('pointerup',up);HD.removeEventListener('pointercancel',up);
+        if(!fl){fl=c.cloneNode(true);fl.classList.add('sol-fly');fl.style.willChange='transform';Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});HD.body.appendChild(fl);c.classList.add('sol-gap');}
+        // v241: the print follows the hand once a frame (the moves of a fast mouse are gathered), the carried copy lets the pointer
+        // through, so the print under the hand is found without hiding it
+        lastEv=ev;if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const e2=lastEv,ddx=e2.clientX-x0,ddy=e2.clientY-y0;
+          fl.style.transform=`translate3d(${ddx}px,${ddy}px,0) rotate(3deg) scale(1.1)`;
+          // the print under the hand: the gap moves before it (or after it, past its middle)
+          const el=HD.elementFromPoint(e2.clientX,e2.clientY);const t=el?.closest?.('.sol-pr');
+          if(t&&t!==c&&!t.classList.contains('sol-fly')){const tr=t.getBoundingClientRect(),after=e2.clientX>tr.left+tr.width/2;const ref=after?t.nextSibling:t;if(ref!==c&&ref!==c.nextSibling)flip(()=>grid.insertBefore(c,ref));}});};
+      let raf=0,lastEv=null;
+      const up=ev=>{cancelAnimationFrame(raf);raf=0;HD.removeEventListener('pointermove',mv);HD.removeEventListener('pointerup',up);HD.removeEventListener('pointercancel',up);
         const i=+c.dataset.i;if(!fl){if(ev.type==='pointerup')fromSolitaire(c,i);return;}
         // the print goes down into its gap, then the order is kept
         const to=c.getBoundingClientRect(),fr=fl.getBoundingClientRect();fl.style.transition='transform .32s cubic-bezier(.2,.8,.3,1)';fl.style.transform=`translate(${to.left-r.left}px,${to.top-r.top}px) rotate(0deg) scale(1)`;
@@ -4136,7 +4159,12 @@ window.OC_SHEET={
       const bottom=Math.max(...[[0,h],[w,h]].map(([x,y])=>(x-ox)*sn+y*cs));low=Math.max(low,(open?FAN[i]:REST[i])+bottom);});
     // (fanned, the prints' tilt grows as they open: the tag keeps a wider margin then)
     m.style.top=Math.round(low+(open?40:14))+'px';};
-  stack.addEventListener('mouseenter',()=>placeTag(true));stack.addEventListener('mouseleave',()=>placeTag(false));
+  // v241: while the prints open out under the hand (or fold back) the tag follows the lowest edge as it really is on the screen,
+  // so it never lies on a print, whatever their size
+  let tagRun=0;const followTag=()=>{const t0=performance.now(),id=++tagRun;const step=()=>{if(id!==tagRun)return;const m=stack.querySelector('.ph-more');if(!m)return;
+      const sr=stack.getBoundingClientRect();let low=0;stack.querySelectorAll('.photo-card').forEach(c=>{low=Math.max(low,c.getBoundingClientRect().bottom-sr.top);});
+      const want=Math.round(low+16);m.style.transition='translate .25s ease';if(Math.abs((parseFloat(m.style.top)||0)-want)>.5)m.style.top=want+'px';if(performance.now()-t0<900)requestAnimationFrame(step);else m.style.removeProperty('transition');};requestAnimationFrame(step);};
+  stack.addEventListener('mouseenter',followTag);stack.addEventListener('mouseleave',followTag);
   // v222: the pile hangs from the bar over the sheet — its prints' top edges 14px under the bar's lower edge
   const hang=()=>{try{const bar=HD.querySelector('.wc.wc-w:not(.bq-car)')?.getBoundingClientRect(),par=stack.offsetParent?.getBoundingClientRect();if(!bar||!bar.height||!par)return;
     const t=Math.round(bar.bottom-14-off().y-par.top);if(stack._top!==t){stack._top=t;stack.style.top=t+'px';}}catch(_){}};setInterval(hang,400);hang();
