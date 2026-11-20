@@ -175,8 +175,8 @@
   // ——— all the chapters as stacks (the bar's back key, or the plate)
   const PH=[[16,6,-5],[92,12,4],[50,44,-2]];
   const stackHtml=(g,cur)=>{const n=g.sheets.length,layers=Math.max(1,Math.min(6,1+Math.ceil(n/3)));let h='';
-    for(let k=layers;k>0;k--)h+=`<i class="rk-ly" style="--k:${k};--sg:${k%2?1:-1}"></i>`;
-    h+=`<div class="rk-top"><b>${esc(g.word)}</b>${g.name?`<h3>${esc(g.name)}</h3>`:''}<i class="rk-orn"></i>`+
+    for(let k=layers;k>0;k--)h+=`<i class="rk-ly" style="--k:${k};--sg:${k%2?1:-1}"><b class="rk-nk"></b><b class="rk-ely"></b></i>`;
+    h+=`<div class="rk-top"><i class="rk-etop"></i><b>${esc(g.word)}</b>${g.name?`<h3>${esc(g.name)}</h3>`:''}<i class="rk-orn"></i>`+
       (g.photos.length?`<div class="rk-phs">${g.photos.map((q,k)=>`<img src="${esc(q.src)}" alt="" style="left:${PH[k][0]}px;top:${PH[k][1]}px;transform:rotate(${PH[k][2]}deg)">`).join('')}</div>`
         :`<div class="rk-first">${esc(g.kind==='part'?g.note:(g.first?`«${g.first}…»`:'пока пусто'))}</div>`)+`<span>${sheetsWord(n)}${g.nph?` · ${g.nph} фото`:''}</span><i class="rk-lamp"></i></div>`;
     return `<div class="rk-st${cur?' cur':''}${g.kind==='chapter'?' ch':''}" data-g="${esc(g.key)}">${h}</div>`;};
@@ -210,14 +210,15 @@
     setTimeout(()=>{st.classList.remove('rk-wait');busy=false;},600);}
   function back(){if(!isOpen||busy)return false;if(!view)return false;busy=true;const key=G?.key;
     // the sheets lie down on the pile one after another, the pile goes to its chapter's place among the stacks and becomes its stack
-    const els=live(),c=center;els.forEach(el=>{el.classList.remove('mid');const k=+el.dataset.k;el.style.transitionDelay=Math.min(Math.abs(k-c),6)*40+'ms';const p=slot(Math.min(-1,k-c-1));el.style.transform=tr(p);el.style.opacity=p.o;el.style.zIndex=30-Math.abs(k-c);lightSheet(el,p);});
+    // (the middle sheet is the one that becomes the stack's top: it stays seen all the way, and the stack is shown under it before it goes)
+    const els=live(),c=center,midEl=els.find(el=>+el.dataset.k===c);els.forEach(el=>{el.classList.remove('mid');const k=+el.dataset.k;el.style.transitionDelay=Math.min(Math.abs(k-c),6)*40+'ms';const p=slot(Math.min(-1,k-c-1));el.style.transform=tr(p);el.style.opacity=p.o;el.style.zIndex=30-Math.abs(k-c);lightSheet(el,p);});
     blank.style.opacity=0;chEl.classList.add('folding');rustle();
     setTimeout(()=>{view=null;G=null;renderAll();const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key||'')}"]`);
       if(st){glideTo(st);st.classList.add('rk-wait');}
       const q=st?.getBoundingClientRect();chEl.classList.remove('on');all.classList.add('on');
       const E='.85s cubic-bezier(.45,0,.2,1)';
-      els.forEach(el=>{el.style.transitionDelay='';el.style.transition=`transform ${E},opacity .45s ease .4s`;const lt=el.querySelector('.rk-lt');if(lt)lt.style.transition=`background-position ${E},background-size ${E}`;if(q){el.style.transform=tr(stackSlot(q));lightSheet(el,stackSlot(q));}el.style.opacity=q&&el.classList.contains('mid')?1:0;});
-      setTimeout(()=>{els.forEach(el=>el.remove());st?.classList.remove('rk-wait');chEl.classList.remove('folding');busy=false;},880);},520);return true;}
+      els.forEach(el=>{el.style.transitionDelay='';el.style.transition=`transform ${E},opacity .45s ease .4s`;const lt=el.querySelector('.rk-lt');if(lt)lt.style.transition=`background-position ${E},background-size ${E}`;if(q){el.style.transform=tr(stackSlot(q));lightSheet(el,stackSlot(q));}el.style.opacity=q&&el===midEl?1:0;});
+      setTimeout(()=>{st?.classList.remove('rk-wait');requestAnimationFrame(()=>requestAnimationFrame(()=>{els.forEach(el=>el.remove());chEl.classList.remove('folding');busy=false;}));},880);},520);return true;}
   // the stacks' view scrolls (at once) so that the chapter's stack stands in sight
   function glideTo(st){const t=desk.bar?desk.bar.bottom:120,r=st.getBoundingClientRect(),y=r.top-(t+34);if(r.bottom>innerHeight-40||r.top<t){want=scroll+y-40;glideAll(true);}}
 

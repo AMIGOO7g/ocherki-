@@ -7,7 +7,7 @@
     shelf:'<path d="M4 20h16M6 20V6h3v14M10 20V8h3v12M14.5 20l2-12 3 .6-2 11.4"/>',arch:'<rect x="3" y="7" width="18" height="13" rx="1.5"/><path d="M3 11h18M10 15h4M5 7l2-3h10l2 3"/>',
     q:'<path d="M5 6h14v10H9l-4 3z"/><path d="M10 9.5a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6 1V13M12 15h0"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
     more:'<circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/>',moon:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',
-    sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
+    eve:'<path d="M3 18h18M6 21h12"/><path d="M7 18a5 5 0 0 1 10 0"/><path d="M12 7.5v2.5M5.4 11.4l1.6 1.4M18.6 11.4L17 12.8"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
     note:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',tour:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     mail:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><path d="M3 7l9 6 9-6"/>',big:'<path d="M4 18l4.5-12L13 18M6 14h5M15 18l2.5-7 2.5 7M15.8 16h3.4"/>',pdf:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 14h6M10 17h4"/>'};
   // Geometry of the group (its own coordinates; the whole group is moved and scaled).
@@ -54,7 +54,7 @@
   const musicOn=()=>/pause|❚|stop/i.test(document.getElementById('transportPlayBtn')?.getAttribute('aria-label')||'')||document.getElementById('musicBtn')?.getAttribute('aria-expanded')==='true';
   function drawMore(){const night=shell.classList.contains('is-night');
     const big=shell.classList.contains('is-large-ui');
-    const L=[['music','note','Музыка',musicOn()],['light',night?'sun':'moon',night?'День':'Ночь',false],['big','big',big?'Обычный':'Крупно',big],['tour','tour','Знакомство',false],['mail','mail','Написать',false]];
+    const L=[['music','note','Музыка',musicOn()],(()=>{const Lm=window.OCHERKI_LIGHT?.()||(night?'night':'day');return Lm==='day'?['light','eve','Вечер',false]:Lm==='evening'?['light','moon','Ночь',false]:['light','sun','День',false];})(),['big','big',big?'Обычный':'Крупно',big],['tour','tour','Знакомство',false],['mail','mail','Написать',false]];
     // v168: the choices of «Ещё» open to the right, in the same row as the keys, never over the sheet
     more.innerHTML=L.map((m,i)=>`<div class="mi mi-r ${m[3]?'on':''}" style="--lx:${(i+1)*84}px;--ly:${KY+29}px;transition-delay:${i*70}ms"><div class="sw hg" data-k="m-${m[0]}" style="left:${(i+1)*84-22}px;top:0;width:44px;height:${KY+22}px">${th(22,0,KY-22)}${kb('m-'+m[0],S+I[m[1]]+E,'',44).replace('data-k="m-'+m[0]+'"','data-m="'+m[0]+'"')}</div><span class="ml" data-m="${m[0]}">${m[2]}</span></div>`).join('');
     more.querySelectorAll('.sw').forEach(attach);}

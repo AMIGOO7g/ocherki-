@@ -1127,6 +1127,15 @@ body.host-night .photo-stack .photo-card.p3{filter:brightness(.58) sepia(.2)}
    the lamp is already lit over the sheet; both fade in and out at the desk's pace (body.lt-x), the day's light fades under them */
 html body .sheet.active>.lt-em{background:var(--ws-shade-e,none) var(--sun-x,0) var(--sun-y,0)/var(--sun-w,100vw) var(--sun-h,100vh) no-repeat scroll,
   linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(200,182,162,.55) 100%) scroll!important;mix-blend-mode:multiply!important}
-html body .sheet.active>.lt-es{background:radial-gradient(ellipse 72% 58% at 50% 36%,rgba(255,222,176,.22),rgba(255,210,160,.07) 62%,rgba(255,210,160,0) 86%)!important;mix-blend-mode:screen!important;z-index:31}
+html body .sheet.active>.lt-es{background:radial-gradient(ellipse 72% 58% at 50% 36%,rgba(255,214,160,.3),rgba(255,200,140,.1) 62%,rgba(255,210,160,0) 86%)!important;mix-blend-mode:screen!important;z-index:31}
 html body.host-eve .sheet.active>.lt-dm{opacity:0!important}
 html body.host-eve .sheet.active>.lt-em,html body.host-eve .sheet.active>.lt-es{opacity:1}
+/* v244 — the evening's light on the copies of the sheet that slide while the page is scrolled (it is the room's light: it stays
+   where it is, as on the sheet itself — the day's light showed for a moment) */
+.section-scroll-sheet>.lt-em{mix-blend-mode:multiply!important}
+.section-scroll-viewport .section-scroll-sheet>.lt-em{inset:-100% 0 -100% 0!important;will-change:transform;
+  background:var(--ws-shade-e,none) calc(var(--sun-x,0px) - var(--sh-l,0px)) calc(var(--sun-y,0px) - var(--sh-t,0px) + var(--sh-h,0px))/var(--sun-w,100vw) var(--sun-h,100vh) no-repeat scroll,
+  linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 50%,rgba(200,182,162,.55) 100%) 0 50%/100% 33.3334% no-repeat scroll!important}
+.section-scroll-sheet>.lt-es{z-index:31;mix-blend-mode:screen!important;background:radial-gradient(ellipse 72% 58% at 50% 36%,rgba(255,214,160,.3),rgba(255,200,140,.1) 62%,rgba(255,210,160,0) 86%)!important}
+body.host-eve .section-scroll-sheet>.lt-dm{opacity:0!important}
+body.host-eve .section-scroll-sheet>:is(.lt-em,.lt-es){opacity:1}

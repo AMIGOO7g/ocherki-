@@ -250,3 +250,14 @@ function waitPreviewReady(cb){
 (()=>{let t=0;document.addEventListener('pointerdown',e=>{if(!e.target.closest?.('.oct .k[data-k="voice"],.oct .k[data-k="photo"],.oct .k[data-k="note"],.oct .k[data-k="letter"],.oct .k[data-k="record"],.oct .k[data-k="week"],.oct .k[data-k="archive"],.oct .pl[data-w="arch"]'))return;
   document.documentElement.classList.add('oc-to-room');clearTimeout(t);t=setTimeout(()=>document.documentElement.classList.remove('oc-to-room'),1800);},true);
   document.addEventListener('click',e=>{if(e.target.closest?.('.oct .k[data-k="voice"],.oct .k[data-k="photo"],.oct .k[data-k="note"],.oct .k[data-k="letter"],.oct .k[data-k="record"],.oct .k[data-k="week"]')){document.documentElement.classList.add('oc-to-room');clearTimeout(t);t=setTimeout(()=>document.documentElement.classList.remove('oc-to-room'),1800);}},true);})();
+
+// v244 — the clock's cat in the evening and at night lies on the bar's top edge at its left (the bar is in every room): in the
+// evening it stands and stretches, at night it sleeps curled; by day it still hangs from the pendulum's weight by its paws.
+// The cats change with the light, slowly, as everything else
+(()=>{const box=document.createElement('div');box.className='oc-barcat';box.setAttribute('aria-hidden','true');
+  box.innerHTML='<img class="eve" src="assets/clock/cat-eve.png" alt="" draggable="false"><img class="night" src="assets/clock/cat-night.png" alt="" draggable="false">';
+  document.body.appendChild(box);let last='';
+  const put=()=>{requestAnimationFrame(put);const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();
+    const seen=!!(r&&r.width>200&&getComputedStyle(b).visibility!=='hidden'&&+getComputedStyle(b).opacity>.05);
+    const k=seen?`${Math.round(r.left)},${Math.round(r.top)}`:'off';if(k===last)return;last=k;box.classList.toggle('off',!seen);if(seen){box.style.left=Math.round(r.left+34)+'px';box.style.top=Math.round(r.top)+'px';}};
+  requestAnimationFrame(put);})();

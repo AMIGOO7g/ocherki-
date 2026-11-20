@@ -1,4 +1,4 @@
-// «Книга» (v243) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
+// «Книга» (v244) — the book on the same desk. From the editor: the writing sheet and the clean stack drift off to the left and go,
 // «Так ляжет» fades, and the book comes in closed from the right, its cover up; it opens once — straight on the spread of the sheet
 // being written (one leaf, not every page). From «Рукопись» the whole book comes in from the right, open. The book's page is «Так ляжет»'s size; the pages are the director's
 // own; one light lies over the open book as over the desk (the window's by day, the lamp's at night) and stays where it is while the
@@ -57,14 +57,17 @@
   const idle=(f,t)=>(window.requestIdleCallback||(g=>setTimeout(()=>g({timeRemaining:()=>10}),60)))(f,{timeout:t});
   // v243: the little spreads are made beforehand, while the hand writes (when the page is idle), for the book as it is now; the book
   // opens with its strip whole. A little spread made anew only when the book was laid out anew
-  const pre={at:null,list:[]};
-  const thumbOf=k=>{const at=window.__ocherkiBuiltAt||0;if(pre.at!==at){pre.at=at;pre.list=[];}return pre.list[k]||(pre.list[k]=BK()?.thumb(k)||null);};
+  const pre={at:null,list:[],img:new Map()};window.__bkPre=pre;
+  // (their photographs are fetched and decoded with them — not when they come into sight)
+  const eager=t=>{if(!t)return t;const f=h=>String(h||'').replace(/\sloading="lazy"/g,'');t.left=f(t.left);t.right=f(t.right);
+    String(t.left+t.right).replace(/\ssrc="([^"]+)"/g,(_,u)=>{if(!pre.img.has(u)){const im=new Image();im.decoding='async';im.src=u.replace(/&amp;/g,'&');pre.img.set(u,im.decode?im.decode().catch(()=>{}):Promise.resolve());}return _;});return t;};
+  const thumbOf=k=>{const at=window.__ocherkiBuiltAt||0;if(pre.at!==at){pre.at=at;pre.list=[];}return pre.list[k]||(pre.list[k]=eager(BK()?.thumb(k)||null));};
   const putThumb=(el,k,t)=>{el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;el.classList.toggle('single',!!t.single);
     const prev=k>0?thumbOf(k-1):null,m=t.title&&(!prev||prev.title!==t.title)?String(t.title).match(/^(Глава\s*\d+)\.?\s*(.*)$/i):null;
     el.children[2].innerHTML=(m?`<b>${esc(m[1])}</b>${m[2]?`<span>${esc(m[2])}</span>`:''}`:'')+(t.label?`<small>с. ${esc(t.label)}</small>`:'');filled.add(k);};
   setInterval(()=>{if(isOpen||document.hidden||!shell.classList.contains('oc-w'))return;
     idle(dl=>{if(isOpen)return;let nn=0;try{nn=BK()?.ready?.()||0;}catch(_){return;}const at=window.__ocherkiBuiltAt||0;if(pre.at!==at){pre.at=at;pre.list=[];}
-      for(let k=0;k<nn&&dl.timeRemaining()>6;k++)if(!pre.list[k])try{pre.list[k]=BK().thumb(k);}catch(_){}},1500);},2500);
+      let made=0;for(let k=0;k<nn&&(made<2||dl.timeRemaining()>6);k++)if(!pre.list[k]){try{pre.list[k]=eager(BK().thumb(k));}catch(_){}made++;}},1500);},700);
   function buildStrip(){filled=new Set();let h='';
     for(let k=0;k<n;k++)h+=`<button type="button" class="bk-th" data-k="${k}"><i class="bk-tl"></i><i class="bk-tr"></i><em></em></button>`;
     strip.innerHTML=h;const at=window.__ocherkiBuiltAt||0;if(pre.at===at)pre.list.forEach((t,k)=>{const el=strip.children[k];if(t&&el)putThumb(el,k,t);});paintStrip();}
@@ -127,7 +130,7 @@
     // the shadows follow the paper: the side the leaf rises from takes its new shadow as it rises, the side it comes down on as it comes
     const lift=fwd?shR:shL,land=fwd?shL:shR,liftOn=fwd?wantR:wantL,landOn=fwd?wantL:wantR;
     shL.classList.toggle('on',hadL);shR.classList.toggle('on',hadR);
-    const sT=[setTimeout(()=>lift.classList.toggle('on',liftOn),180),setTimeout(()=>land.classList.toggle('on',landOn),560)];
+    const sT=[setTimeout(()=>lift.classList.toggle('on',liftOn),180),setTimeout(()=>{land.style.transition='opacity .32s ease-out,box-shadow 2.45s cubic-bezier(.37,0,.63,1)';land.classList.toggle('on',landOn);setTimeout(()=>land.style.removeProperty('transition'),400);},930)];
     const done=()=>{sT.forEach(clearTimeout);flipping=false;spreadEl.classList.remove('curling');const sp=BK()?.spread(cur);if(sp){L.classList.toggle('blank',!sp.left);R.classList.toggle('blank',!sp.right);spreadEl.classList.toggle('single',!!sp.single);}shadows();};
     let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.15,soft:true,flatGutter:fwd?!BK()?.spread(to)?.single:!wasSingle,flap,back:()=>show(from),done});}catch(_){ok=false;}
     if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.classList.add('bk-curl');c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));}}
@@ -159,7 +162,10 @@
     const from=fromMs?null:paneRect();
     H.classList.add('bk-on');measure();buildStrip();show(cur);plates();setTitle();try{BK().framing?.(spreadEl);}catch(_){}
     board.classList.add('on','bk-now');requestAnimationFrame(()=>requestAnimationFrame(()=>board.classList.remove('bk-now')));
-    [cap,$('.bk-stripv'),kl,kr].forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:600,delay:fromMs?300:520,easing:'ease-out',fill:'backwards'}));
+    [cap,kl,kr].forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:600,delay:fromMs?300:520,easing:'ease-out',fill:'backwards'}));
+    {const v=$('.bk-stripv'),t0=performance.now();v.style.opacity='0';
+      const ims=[...strip.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.onload=i.onerror=r;}));
+      Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,1400))]).then(()=>{const d=Math.max(0,(fromMs?300:520)-(performance.now()-t0));v.style.opacity='';v.animate([{opacity:0},{opacity:1}],{duration:600,delay:d,easing:'ease-out',fill:'backwards'});});}
     if(fromMs){// from «Рукопись»: the whole book comes in from the right, «Рукопись» goes under it
       clearTimeout(paneT);aside(true,0);H.classList.add('bk-paneoff');window.OCHERKI_MANUSCRIPT?.close?.();
       board.animate([{translate:'100vw 0px'},{translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.2,.75,.25,1)'});}

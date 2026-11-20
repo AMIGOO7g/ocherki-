@@ -4039,7 +4039,7 @@ window.OC_SHEET={
       <label><span>подпись в книге</span><input data-k="caption" autocomplete="off" placeholder="коротко: кто, где, когда"></label><i class="ph-tip">Печатается мелко под фото.</i>${doc?'<label class="tx"><span>пояснение к документу</span><textarea data-x="explanation" rows="2"></textarea></label>':''}
       <label><span>источник</span><input data-k="source" autocomplete="off" placeholder="семейный архив, альбом бабушки…"></label><i class="ph-tip">Откуда снимок — печатается в конце книги, в «Источниках».</i>
       <label class="ph-line"><span>тон фото</span><select data-s="photoMode"><option value="auto">как есть</option><option value="color">цветная</option><option value="bw">чёрно-белая</option></select></label>
-      <label class="ph-line ph-chk"><span>портрет героя книги</span><input type="checkbox" data-b="portraitHero"></label>
+      <label class="ph-line ph-chk"><span>портрет героя книги</span><input type="checkbox" data-b="portraitHero"></label><i class="ph-tip">Один портрет героя на главу — новый заменит прежний.</i>
       <div class="ph-hero" hidden><div class="ph-two"><label><span>годы жизни</span><input data-k="heroYears" autocomplete="off" placeholder="1901 – 1982"></label><label><span>кто для семьи</span><input data-k="heroRole" autocomplete="off" placeholder="хранительница дома"></label></div><div class="ph-hint"></div></div>
       <div class="ph-tools">${opts.album?'':'<button type="button" class="ph-rep">заменить фото</button>'}<button type="button" class="ph-mark"></button>${opts.album?'':'<button type="button" class="ph-pair"></button>'}</div>
       <div class="ph-tipbar" aria-live="polite"></div>
@@ -4057,7 +4057,11 @@ window.OC_SHEET={
     const HINT='Только снимок одного человека — портрет или в полный рост. Книга откроет им главу на целый разворот; имя — из «кто на фото».';
     const heroSync=()=>{hero.hidden=!chk.checked;const im=card.querySelector('.ph-front img'),w=im.naturalWidth||0,h=im.naturalHeight||0,wide=w&&h&&w/h>1.15;
       hint.textContent=chk.checked&&wide?'Снимок горизонтальный: книга обрежет его по высоте страницы. Если на нём один человек — в книге сдвиньте фото, чтобы он оказался в центре.':HINT;hint.classList.toggle('warn',!!(chk.checked&&wide));};
-    chk.checked=p.portraitHero===true;chk.addEventListener('change',()=>{p.portraitHero=chk.checked;heroSync();persist();});card.querySelector('.ph-front img').addEventListener('load',heroSync);heroSync();
+    chk.checked=p.portraitHero===true;chk.addEventListener('change',()=>{p.portraitHero=chk.checked;
+      // v244: one hero's portrait in a chapter (as the director lays it): a new one takes the place of the one before, and it is said
+      let was=false;if(chk.checked){const sec=sections.find(sc=>(sc.pages||[]).some(pg=>(pg.photos||[]).includes(p)));(sec?.pages||[]).forEach(pg=>(pg.photos||[]).forEach(q=>{if(q!==p&&q.portraitHero===true){q.portraitHero=false;was=true;}}));}
+      const tb=card.querySelector('.ph-tipbar');if(tb)tb.textContent=chk.checked?(was?'Портрет героя в этой главе теперь этот — прежний снят.':'Один портрет героя на главу.'):'';
+      heroSync();persist();});card.querySelector('.ph-front img').addEventListener('load',heroSync);heroSync();
     tone.value=p.photoMode||'auto';tone.addEventListener('change',()=>{p.photoMode=tone.value;persist();});
     const tools=()=>{const m=card.querySelector('.ph-mark'),pr=card.querySelector('.ph-pair');if(m)m.textContent=markPeopleLabel(p);if(pr)pr.textContent=pairLabel(p);
       card.querySelector('.ph-st').textContent=photoStatusLabel(p);};tools();
@@ -4109,12 +4113,13 @@ window.OC_SHEET={
         Object.assign(fl.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:x.offsetWidth+'px',height:x.offsetHeight+'px',margin:'0',zIndex:String(2147483295-k),transform:t,willChange:'transform,opacity',pointerEvents:'none'});
         HD.body.appendChild(fl);x.style.visibility='hidden';return {fl,mx:r.left+r.width/2,my:r.top+r.height/2,w:x.offsetWidth||r.width,t};});
       S.box.classList.remove('on');
+      // (the first seven go one by one; the rest of a big heap go down together under them — quick however many there are)
       const H1=460,STEP=120,FLY=560,E='cubic-bezier(.45,.05,.3,1)';
       fls.forEach(({fl,mx,my,w,t},k)=>{const rot=((k*37)%13-6)*.9,heap=`translate(${cx-mx}px,${cy-my}px) rotate(${rot}deg) scale(.86)`,sc=tw/w;
         fl.animate([{transform:t},{transform:heap}],{duration:H1,delay:k*14,easing:E,fill:'forwards'}).finished.then(()=>{
           const a=fl.animate([{transform:heap,opacity:1},{transform:`translate(${tcx-mx}px,${tcy-my}px) rotate(-3deg) scale(${sc})`,opacity:1,offset:.86},{transform:`translate(${tcx-mx}px,${tcy-my+4}px) rotate(-3deg) scale(${sc*.98})`,opacity:0}],
-            {duration:FLY,delay:k*STEP,easing:E,fill:'forwards'});a.finished.then(()=>fl.remove(),()=>fl.remove());},()=>fl.remove());});
-      setTimeout(()=>{S.veil.remove();S.box.remove();},H1+fls.length*(STEP+14)+FLY+200);};
+            {duration:FLY,delay:Math.min(k,6)*STEP,easing:E,fill:'forwards'});a.finished.then(()=>fl.remove(),()=>fl.remove());},()=>fl.remove());});
+      setTimeout(()=>{S.veil.remove();S.box.remove();},H1+Math.min(fls.length,7)*(STEP+14)+FLY+200);};
     veil.addEventListener('click',shut);box.querySelector('.sol-close').addEventListener('click',shut);
     box.querySelector('.sol-add').addEventListener('click',()=>{shut();document.getElementById('addPhotoBtn')?.click();});
     // dragging a print: the others make way for it while it is carried (each glides to where it will stand), and it settles
