@@ -219,7 +219,7 @@ html.rk-all-on .ws-left *{pointer-events:none!important}
 /* v247 — «+ глава» seen on any part of the desk: a pale paper card with a dashed brass edge by day; in the evening and at night a
    dark veil under it (on a light place of the desk the light dashes were lost) */
 .rk-all .rk-st.rk-new{background:rgba(250,244,232,.62);box-shadow:0 1px 3px rgba(60,40,20,.18);border-color:rgba(110,78,46,.65)!important}
-html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new,html:has(.shell.is-night) .rk-all .rk-st.rk-new{background:rgba(32,18,8,.5);box-shadow:0 1px 4px rgba(0,0,0,.35)}
+html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new,html:has(.shell.is-night) .rk-all .rk-st.rk-new{background:rgba(32,18,8,.26);box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .rk-all .rk-st.rk-new{transition:translate .3s ease,color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),background-color 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-all .rk-st.rk-far>*{visibility:hidden}
 .rk-all .rk-st.rk-far{box-shadow:none}
