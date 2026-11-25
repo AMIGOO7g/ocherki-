@@ -33,12 +33,30 @@
     }
     return page.darkPaper?html.replace('class="dpk-page ','class="dpk-page dpk-dark '):html;
   }
+  // v249 — a measured page is remembered: a page measured before with the same words, the same composition, the same side, the
+  // same format and the same chapter's name comes back from memory exactly as it was measured (every field the measuring set on
+  // it). Only what changed is measured again — a book of forty chapters was measured whole (twenty seconds) at every change.
+  const PCACHE=new Map();let PSEQ=0;
+  const pageKey=page=>{const src=page.source||{};return JSON.stringify(page,(k,v)=>k==='source'||k==='measuredFlow'?undefined:v)+'§'+JSON.stringify({t:src.title,e:src.episode,i:src.inferred,g:(src.segments||[]).length});};
+  function measurePage(page,source,host,render,side,metaKey){
+    if(globalThis.OCHERKI_SAFE_LAYOUT||globalThis.OCHERKI_TOLERANT_LAYOUT||globalThis.OCHERKI_NO_PAGE_CACHE)return renderer().paginateText(page,source,host,render,side);
+    let key='';try{key=metaKey+'|'+side+'|'+host.style.width+'x'+host.style.height+'|'+String(source)+'|'+pageKey(page);}catch(_){key='';}
+    const hit=key&&PCACHE.get(key);
+    if(hit){for(const k of hit.del)delete page[k];for(const [k,v] of hit.set)page[k]=structuredClone(v);const r=structuredClone(hit.result);r.measuredFlow=page.measuredFlow;return r;}
+    const before={...page};const result=renderer().paginateText(page,source,host,render,side);
+    if(key)try{const set=[];for(const k of Object.keys(page))if(page[k]!==before[k])set.push([k,structuredClone(page[k])]);
+      const del=Object.keys(before).filter(k=>!(k in page));const r={...result};delete r.measuredFlow;
+      if(PCACHE.size>6000)PCACHE.clear();PCACHE.set(key,{set,del,result:structuredClone(r)});}catch(_){}
+    return result;}
   function createSession(meta={}){
     const size=pack.formats[meta.format||'square'];if(!size)throw Error('Неизвестный формат страницы.');
     const [width,height]=size,host=document.createElement('div');
-    host.style.cssText=`position:fixed;left:-30000px;top:0;width:${width}px;height:${height}px;visibility:hidden;pointer-events:none;--book-page-w:${width}px;--book-page-h:${height}px`;
+    // v249: the measuring place is closed off from the page around it (contain:strict): a measure lays out only this page, not the
+    // whole constructor — a book of forty chapters was laid out in twenty seconds, the page frozen meanwhile
+    host.style.cssText=`position:fixed;left:-30000px;top:0;width:${width}px;height:${height}px;visibility:hidden;pointer-events:none;contain:strict;--book-page-w:${width}px;--book-page-h:${height}px`;
     document.body.appendChild(host);
     const warnings=[],pending=[],pendingKeys=new Set(),render=(p,s)=>renderPage(p,s,meta);
+    let metaKey='';try{metaKey=JSON.stringify(meta,(k,v)=>typeof v==='function'?undefined:(Array.isArray(v)&&v.length>80)?v.length:v);}catch(_){metaKey="u"+(++PSEQ);}
     function textPage(page,source,side){
       const original={...page};let candidate={...original};const removed=new Set(),automaticRetries={quote:0,important:0,margin:0},triedAccents={};let automaticMarginForced=false;
       const automaticRequested={
@@ -48,7 +66,7 @@
       };
       for(;;){
         try{
-          const result=renderer().paginateText(candidate,source,host,render,side);Object.assign(page,candidate);
+          const result=measurePage(candidate,source,host,render,side,metaKey);Object.assign(page,candidate);
           if(original.balanceTrial)return result;
           for(const [kind,overflow]of Object.entries(candidate.measuredFlow?.accentOverflow||{}))if(overflow)warnings.push({code:'ACCENT_DOM_OVERFLOW',template:candidate.master,kind,text:kind==='quote'?candidate.inlineQuote:kind==='margin'?candidate.marginNote:candidate.importantLine,automatic:false,reason:kind==='margin'?'Заметка слишком длинная для этой области. Сократите текст.':'Редакционная вставка не помещается в измеренную область.',fallback:kind==='margin'?'user-must-shorten':'highlighted-without-reflow'});
           return result;
@@ -96,7 +114,7 @@
           if(isAutomatic&&error.kind==='margin'&&automaticMarginForced){
             const safeNote=compactAccent(candidate.marginNote||original.marginNote||source,source,4,3)||'Семейная память';
             const plain={...candidate,master:pack.textMasters.plain,rhythm:'plain',marginNote:'',autoMarginNote:false,allowSafeMarginAudit:false,forceMarginPlacement:false,measuredFlow:undefined};
-            const result=renderer().paginateText(plain,source,host,render,side);
+            const result=measurePage(plain,source,host,render,side,metaKey);
             const geometry=plain.measuredFlow.geometry||{},height=Number(geometry.height)||810;
             plain.measuredFlow.mode=original.rhythm;
             plain.measuredFlow.noteLines=1;
@@ -129,7 +147,7 @@
           if(error.kind==='margin'){
             const authorNote=String(candidate.marginNote||original.marginNote||'');
             const plain={...candidate,master:pack.textMasters.plain,rhythm:'plain',marginNote:'',autoMarginNote:false,allowSafeMarginAudit:false,forceMarginPlacement:false,measuredFlow:undefined};
-            const result=renderer().paginateText(plain,source,host,render,side);
+            const result=measurePage(plain,source,host,render,side,metaKey);
             const geometry=plain.measuredFlow.geometry||{},height=Number(geometry.height)||810;
             plain.measuredFlow.mode=original.rhythm;plain.measuredFlow.noteLines=2;
             plain.measuredFlow.accentOverflow={...(plain.measuredFlow.accentOverflow||{}),margin:false};
@@ -188,7 +206,7 @@
       for(const {warning,page:original}of pending){
         const quote=warning.kind==='quote',rhythm=quote?'inline-quote':'important';
         const page={kind:'text',layout:'prose-dense',master:pack.textMasters[rhythm],rhythm,title:original.title,episode:original.episode,source:original.source,text:'',sourceText:'',accentFallbackZone:'column',importantLine:quote?'':warning.text,inlineQuote:quote?warning.text:'',autoImportant:false,autoInlineQuote:false};
-        try{renderer().paginateText(page,'',host,render,'left');pages.push(page);warning.fallback='relocated-whole-object';}
+        try{measurePage(page,'',host,render,'left',metaKey);pages.push(page);warning.fallback='relocated-whole-object';}
         catch(error){if(error.code!=='ACCENT_UNFIT')throw error;warning.fallback='unplaced-object';warning.reason=error.message;}
       }
       return pages;
