@@ -128,3 +128,15 @@ html:has(.shell.is-night) .bk-board .bk-k.bk-busy::after{background:radial-gradi
 html:has(.shell.is-night) .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9)}
 .bk-board .bk-th.cur em{translate:0 6px}
 .bk-stripv{height:190px}.bk-strip{gap:26px;top:14px}
+
+/* v250: «Собирается книга» — the boy with the kite in the middle of the desk while the book is laid out (only transform and opacity
+   move, so he keeps moving even while the page is busy) */
+.bk-kite{position:fixed;left:50%;top:50%;z-index:2147483070;translate:-50% -46%;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;pointer-events:none;transition:opacity .4s ease}
+.bk-kite.on{opacity:1}
+.bk-kite img{width:min(320px,34vw);height:auto;transform-origin:22% 96%;animation:bkKite 3.4s ease-in-out infinite;will-change:transform}
+@keyframes bkKite{0%,100%{transform:none}50%{transform:translateY(-5px) rotate(-1.4deg)}}
+.bk-kite span{font:italic 24px/1.2 'CormorantCy',Georgia,serif;color:#ecd3a4;letter-spacing:.03em;animation:bkKiteT 1.8s ease-in-out infinite;will-change:opacity}
+@keyframes bkKiteT{0%,100%{opacity:.5}50%{opacity:1}}
+html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite img{filter:brightness(.36) sepia(.5)}
+html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite span{color:#6e4a22}
+@media (prefers-reduced-motion:reduce){.bk-kite img,.bk-kite span{animation:none}}

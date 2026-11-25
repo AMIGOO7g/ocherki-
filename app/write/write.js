@@ -69,7 +69,7 @@
   const keys2=document.createElement('div');keys2.className='wp-keys k-open';
   keys2.innerHTML=`<div class="wp-item back"><button type="button" class="key" aria-label="Вернуть один лист"><span class="cap">${IX}</span></button><span class="lab">вернуть</span></div>
     <div class="wp-pg"><button type="button" data-pg="-1" aria-label="Предыдущая страница листа">‹</button><span></span><button type="button" data-pg="1" aria-label="Следующая страница листа">›</button></div>
-    <div class="wp-item ref"><button type="button" class="key" aria-label="Обновить страницу"><span class="cap">${IR}</span></button><span class="lab">обновить</span></div>`;
+    <div class="wp-item ref"><button type="button" class="key" aria-label="Обновить страницу"><i class="wp-halo"></i><span class="cap">${IR}</span></button><span class="lab">обновить</span></div>`;
   const note=document.createElement('div');note.className='wp-note';note.setAttribute('role','status');note.innerHTML='<i></i><span>Собираю страницу книги… <small>несколько секунд</small></span>';
   shell.append(pane,keys,keys2,note);
   const wrap=()=>document.getElementById('editorPaperWrap');
@@ -115,7 +115,7 @@
     place();
   }
   // lays the page into the pane at once (the book is usually prepared in the background already)
-  function paint(){let res=null;const ratio=topRatio();try{res=window.__ocherkiPeekPage?.(uid,ratio,pick);}catch(_){res=null;}
+  function paint(force){let res=null;const ratio=topRatio();try{res=window.__ocherkiPeekPage?.(uid,ratio,pick,force);}catch(_){res=null;}
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
     if(res){host.innerHTML=res.html;shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
@@ -123,18 +123,19 @@
     // v215: right after loading the book's structure may not have come yet: the page is asked for again a few times (it stayed
     // empty until «обновить» was pressed)
     clearTimeout(paint.r);if(res)paint.n=0;else if((paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(()=>{if(on)refresh(false);},1500);
-    place();window.__ocherkiScalePages?.();ref.classList.remove('is-stale');stale=false;}
+    // v250: a page shown from a book laid out before the latest changes keeps «обновить» lit
+    place();window.__ocherkiScalePages?.();stale=false;try{stale=!window.__ocherkiBook?.fresh?.();}catch(_){}ref.classList.toggle('is-stale',stale);}
   // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
   // made the desk stall); the picture of the old page stays meanwhile
   let lastHand=0;['pointerdown','pointermove','keydown'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
   const quietRefresh=()=>{const q=performance.now()-lastHand;if(q<1100){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,1150-q);return;}
     (window.requestIdleCallback||(f=>setTimeout(f,0)))(()=>refresh(false),{timeout:900});};
-  function refresh(first){if(!on||busy)return;busy=true;pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
+  function refresh(first,force){if(!on||busy)return;busy=true;pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
     ref.classList.remove('is-spin');void ref.offsetWidth;ref.classList.add('is-spin');clearTimeout(refresh.s);refresh.s=setTimeout(()=>ref.classList.remove('is-spin'),950);
-    setTimeout(()=>{paint();requestAnimationFrame(()=>window.__ocherkiScalePages?.());
+    setTimeout(()=>{paint(force);requestAnimationFrame(()=>window.__ocherkiScalePages?.());
       setTimeout(()=>{pane.classList.remove('is-busy');busy=false;},160);},60);}
   tog.querySelector('button').addEventListener('click',()=>{if(!on){try{localStorage.removeItem('ocherkiPeekOff');}catch(_){}}setOpen(!on);});keys2.querySelector('.back button').addEventListener('click',()=>{try{localStorage.setItem('ocherkiPeekOff','1');}catch(_){}setOpen(false);});
-  ref.querySelector('button').addEventListener('click',()=>{pick=null;refresh(false);});
+  ref.querySelector('button').addEventListener('click',()=>{pick=null;refresh(false,true);});
   pg.addEventListener('click',e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;pick=Math.max(0,Math.min(count-1,(pick||0)+(+b.dataset.pg)));refresh(false);});
   addEventListener('message',e=>{const d=e.data||{};
     if(d.type==='OCHERKI_ACTIVE_STATE'&&d.payload?.pageUid){const u=d.payload.pageUid;if(u!==uid){uid=u;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}}

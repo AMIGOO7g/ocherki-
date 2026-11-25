@@ -37,16 +37,24 @@
   // same format and the same chapter's name comes back from memory exactly as it was measured (every field the measuring set on
   // it). Only what changed is measured again — a book of forty chapters was measured whole (twenty seconds) at every change.
   const PCACHE=new Map();let PSEQ=0;
+  // v250 — the measured pages are kept between visits too (IndexedDB, one copy for this version of the engine): the first book
+  // after opening the constructor came out of twenty seconds of measuring. A page measured before the fonts came is never kept.
+  const PVER=(()=>{try{return String(document.currentScript?.src||'').split('v=')[1]||'0';}catch(_){return '0';}})();
+  const pdb=()=>new Promise((ok,no)=>{try{const r=indexedDB.open('ocherki-measured-pages',1);r.onupgradeneeded=()=>r.result.createObjectStore('c');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);}catch(e){no(e);}});
+  try{if(typeof indexedDB!=='undefined')pdb().then(db=>{const q=db.transaction('c').objectStore('c').get(PVER);q.onsuccess=()=>{const m=q.result;if(m instanceof Map)for(const [k,v] of m)if(!PCACHE.has(k))PCACHE.set(k,v);db.close();};q.onerror=()=>db.close();}).catch(()=>{});}catch(_){}
+  let pSaveT=0;globalThis.__ocPageCacheSize=()=>PCACHE.size;
+  const persistSoon=()=>{if(typeof indexedDB==='undefined')return;clearTimeout(pSaveT);pSaveT=setTimeout(()=>{(globalThis.requestIdleCallback||(f=>setTimeout(f,0)))(()=>{
+    pdb().then(db=>{try{const tx=db.transaction('c','readwrite'),st=tx.objectStore('c');st.clear();st.put(PCACHE,PVER);tx.oncomplete=tx.onerror=()=>db.close();}catch(_){db.close();}}).catch(()=>{});},{timeout:8000});},6000);};
   const pageKey=page=>{const src=page.source||{};return JSON.stringify(page,(k,v)=>k==='source'||k==='measuredFlow'?undefined:v)+'§'+JSON.stringify({t:src.title,e:src.episode,i:src.inferred,g:(src.segments||[]).length});};
   function measurePage(page,source,host,render,side,metaKey){
-    if(globalThis.OCHERKI_SAFE_LAYOUT||globalThis.OCHERKI_TOLERANT_LAYOUT||globalThis.OCHERKI_NO_PAGE_CACHE)return renderer().paginateText(page,source,host,render,side);
+    if(globalThis.OCHERKI_SAFE_LAYOUT||globalThis.OCHERKI_TOLERANT_LAYOUT||globalThis.OCHERKI_NO_PAGE_CACHE||(document.fonts&&document.fonts.status!=='loaded'))return renderer().paginateText(page,source,host,render,side);
     let key='';try{key=metaKey+'|'+side+'|'+host.style.width+'x'+host.style.height+'|'+String(source)+'|'+pageKey(page);}catch(_){key='';}
     const hit=key&&PCACHE.get(key);
     if(hit){for(const k of hit.del)delete page[k];for(const [k,v] of hit.set)page[k]=structuredClone(v);const r=structuredClone(hit.result);r.measuredFlow=page.measuredFlow;return r;}
     const before={...page};const result=renderer().paginateText(page,source,host,render,side);
     if(key)try{const set=[];for(const k of Object.keys(page))if(page[k]!==before[k])set.push([k,structuredClone(page[k])]);
       const del=Object.keys(before).filter(k=>!(k in page));const r={...result};delete r.measuredFlow;
-      if(PCACHE.size>6000)PCACHE.clear();PCACHE.set(key,{set,del,result:structuredClone(r)});}catch(_){}
+      if(PCACHE.size>6000)PCACHE.clear();PCACHE.set(key,{set,del,result:structuredClone(r)});persistSoon();}catch(_){}
     return result;}
   function createSession(meta={}){
     const size=pack.formats[meta.format||'square'];if(!size)throw Error('Неизвестный формат страницы.');

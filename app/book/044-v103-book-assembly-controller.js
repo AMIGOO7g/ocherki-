@@ -2115,21 +2115,26 @@
     return `<div class="${hostClass} ${side}${single?' single':''} page-canvas-host${designClass}" data-master="${esc(master)}"${attrs}><div class="page-canvas">${renderBookPage(p,side)}</div></div>`;
   }
 
+  // v250: all the sizes are read first and the pages set after (reading after each write laid the whole page out again for every page)
   function scaleAllPageCanvases(){
+    const [pageW,pageH]=currentPageSize();const todo=[];
     document.querySelectorAll('.page-canvas-host').forEach(host=>{
       const canvas=host.querySelector(':scope > .page-canvas');
       if(!canvas)return;
       const w=host.clientWidth || host.offsetWidth || host.getBoundingClientRect().width;
       const h=host.clientHeight || host.offsetHeight || host.getBoundingClientRect().height;
       if(!(w>1) || !(h>1)) return;
-      const [pageW,pageH]=currentPageSize();
+      todo.push([canvas,w,h]);
+    });
+    for(const [canvas,w,h] of todo){
+      const scale=Math.max(.001,Math.min(w/pageW,h/pageH));
+      const k=pageW+'|'+pageH+'|'+scale+'|'+w+'|'+h;if(canvas._ocScale===k)continue;canvas._ocScale=k;
       canvas.style.width=pageW+'px';
       canvas.style.height=pageH+'px';
-      const scale=Math.max(.001,Math.min(w/pageW,h/pageH));
       canvas.style.transform=`scale(${scale})`;
       canvas.style.left=Math.round((w-pageW*scale)/2)+'px';
       canvas.style.top=Math.round((h-pageH*scale)/2)+'px';
-    });
+    }
   }
 
   const pageCanvasResizeObserver=new ResizeObserver(()=>{
@@ -2400,7 +2405,9 @@
   function bookKey(){return directorContentFingerprint+'|'+activeFormat+'|'+activeDesign;}
   const bookFresh=()=>built&&bookSpreads.length&&!bookOutdated&&window.__ocherkiBuiltKey===bookKey();
   let prebuildT=0;
-  function schedulePrebuild(delay=2600){clearTimeout(prebuildT);prebuildT=setTimeout(prebuild,delay);}
+  // v250: the book is no longer laid out in the background — it is laid out when «Книга» is opened (the boy with the kite meanwhile)
+  // and when «обновить» is pressed under «Так ляжет»; laid out behind the hands it held the page a second or more while one typed
+  function schedulePrebuild(delay=2600){clearTimeout(prebuildT);if(window.OCHERKI_BACKGROUND_BOOK)prebuildT=setTimeout(prebuild,delay);}
   // v192: the quiet layout holds the page for a few seconds on a slower computer — it waits until the hands are off the mouse
   // and keys for a while (the first seconds after opening are the busiest, so it never runs then)
   let lastInput=performance.now();const touch=()=>{lastInput=performance.now();};
@@ -2432,8 +2439,10 @@
         if(built){bookOutdated=false;buildBtn?.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();window.__ocherkiBuiltKey=bookKey();window.__ocherkiPeekSig=peekSig();}}
       catch(_){return false;}finally{window.__ocherkiQuietBuild=false;}}
     return bookSpreads.length>0;}
-  window.__ocherkiPeekPage=(uid,ratio,pick)=>{
-    if(!quietAssemble())return null;
+  // v250: «Так ляжет» shows the page from the book as it was last laid out; it is laid out anew only by «обновить» (force) or
+  // when there is no book yet
+  window.__ocherkiPeekPage=(uid,ratio,pick,force)=>{
+    if(force||!built||!bookSpreads.length){if(!quietAssemble())return null;}
     // every book page that carries words of this sheet, in order
     const sec=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid));const run=sec&&sheetOffsets(sec.id).find(x=>x.uid===uid);
     const list=[];if(run)bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){const rg=pg?.sourceRange;if(pg?.sectionId===sec.id&&rg&&rg.end>run.start&&rg.start<run.end)list.push({pg,side,i,rg});}});
@@ -2973,7 +2982,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v249"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v250"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

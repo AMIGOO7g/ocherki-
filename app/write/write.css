@@ -291,6 +291,15 @@ html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-nigh
 .shell:not(.is-night) .wp-item .lab{color:#7a5428}
 .wp-item:hover .lab{color:var(--gold,#e2b36c)}
 .wp-item.ref.is-stale .cap svg{animation:wpBulb 1.5s ease-in-out infinite!important;color:#f0a845}
+/* v250: a page shown from a book laid out before the latest changes — «обновить» rings softly (its own layer, only opacity moves) */
+.wp-item.ref .key{position:relative}
+.wp-item.ref .wp-halo{position:absolute;inset:-5px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .6s ease;
+  box-shadow:0 0 0 2px rgba(240,168,69,.95),0 0 20px 6px rgba(240,168,69,.55);will-change:opacity}
+.wp-item.ref.is-stale .wp-halo{animation:wpHalo 1.8s ease-in-out infinite}
+@keyframes wpHalo{0%,100%{opacity:.35}50%{opacity:1}}
+.wp-item.ref.is-stale .lab{color:#f0a845}
+.shell:not(.is-night) .wp-item.ref .wp-halo{box-shadow:0 0 0 2px rgba(196,104,18,.95),0 0 20px 6px rgba(214,128,40,.5)}
+.shell:not(.is-night) .wp-item.ref.is-stale .lab{color:#b5600f}
 @keyframes wpBulb{0%,100%{filter:drop-shadow(0 0 2px rgba(255,200,110,.5))}50%{filter:drop-shadow(0 0 7px rgba(255,200,110,1)) drop-shadow(0 0 18px rgba(255,160,60,.95)) brightness(1.5)}}
 
 .wp-item .cap svg{width:22px;height:22px}

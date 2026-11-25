@@ -156,7 +156,15 @@
     const h=/^Глава/.test(capText)?capText:`<span class="up">Книга</span> · ${capText||(name?`<i>${esc(name)}</i>`:'')}`;if(t.innerHTML!==h)t.innerHTML=h;}
   // the open spread's sheet becomes the sheet being written (for the editor and «Рукопись»)
   function syncSheet(){const s=window.__ocherkiSheetForSpread?.(cur);if(s?.pageUid){send({action:'select',sectionId:s.sectionId,pageUid:s.pageUid});window.OCHERKI_MANUSCRIPT?.preset?.(s.pageUid);}}
-  function open(){if(isOpen||busy)return;try{open0();}catch(err){console.warn('book open',err);H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;}}
+  // v250: the book is laid out only now, when it is opened. When it is not up to date the boy with the kite comes first («Собирается
+  // книга») — and only once he is on the screen is the book laid out; then he goes and the book comes in
+  const kite=document.createElement('div');kite.className='bk-kite';kite.setAttribute('aria-live','polite');
+  kite.innerHTML='<img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается книга</span>';document.body.appendChild(kite);
+  function open(){if(isOpen||busy||open.wait)return;let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
+    if(fresh)return open1();
+    open.wait=true;kite.classList.add('on');
+    setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{open.wait=false;open1();kite.classList.remove("on");})),700);}
+  function open1(){try{open0();}catch(err){console.warn('book open',err);H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;}}
   function open0(){
     const B=BK();n=B?.ready?.()||0;if(!n){window.OCHERKI_SAY?.('В книге пока нечего показать — напишите хотя бы несколько строк');return;}
     const fromMs=H.classList.contains('rk-on');busy=true;isOpen=true;
