@@ -45,12 +45,32 @@
   const note='<i class="rm-note">пример — заработает, когда подключим сервер</i>';
 
   let room=null,board=null,scene=null,st={};
+  // v252: the pieces of the archive's scene
+  const ABS=new URL(A,location.href).href;
+  const ttl=t=>`<div class="rc-ttl"><i></i><h2>${t}</h2><i class="r"></i></div>`;
+  const side=(ic,t)=>`<div class="rc-side">${btn('rm-side',ic,t)}</div>`;
+  const low=h=>`<div class="rm-c rc-low">${h}${note}</div>`;
+  // a soft light from the window lies on the thing (as through frosted glass), only on the thing itself
+  const bloom=(f,cls)=>`<span class="blw ${cls||''}" style="--mm:url('${ABS}archive/${f}')"><img src="${A}archive/${f}" alt="" draggable="false"><b class="bl"></b></span>`;
+  const thing=(cls,f)=>`<div class="fx-obj ${cls}" data-own>${bloom(f)}</div>`;
+  // the record: the vinyl and its label turn, the shine and the gold edge stay where the light is
+  const vinylBody=()=>`<span class="vn-spin"><img class="d" src="${A}keeper/desk-vinyl-disc.webp" alt="" draggable="false"><b class="gr"></b><b class="gr2"></b>
+    <span class="vn-lab"><b class="gl"></b><b class="ln"></b><b class="ring"></b><b class="hole"></b></span></span>
+    <span class="vn-shine"><img src="${A}keeper/desk-vinyl-shine.webp" alt="" draggable="false"><b class="cone"></b><b class="rim"></b><b class="rimglow"></b><b class="arc"></b></span>`;
+  const vinyl=cls=>`<div class="vn-disc ${cls||''}" data-own><b class="glow"></b><b class="flare"></b><b class="shadow"></b>${vinylBody()}</div>`;
+  const wave2=(n,seed)=>{let x=seed||7,h='';for(let k=0;k<n;k++){x=(x*9301+49297)%233280;const r=x/233280,e=Math.pow(Math.sin(Math.PI*(k+.5)/n),1.2);h+=`<i style="--h:${Math.max(6,(.2+r*.8)*e*100).toFixed(0)}%;--o:${(.4+.6*e).toFixed(2)}"></i>`;}return `<div class="rc-wave vn-wave">${h}</div>`;};
+  // the thing stands in the middle between the title and the words under it, whatever the screen
+  function center(){if(!room)return;const t=room.querySelector('.rc-ttl'),l=room.querySelector('.rc-low'),o=room.querySelector('.rc-ctr');if(!t||!l||!o)return;
+    const r=room.getBoundingClientRect(),tb=t.getBoundingClientRect().bottom,lt=l.getBoundingClientRect().top;o.style.setProperty('top',Math.round((tb+lt)/2-o.offsetHeight/2-r.top)+'px','important');}
+  addEventListener('resize',()=>requestAnimationFrame(center));
   const toast=t=>{const tip=document.querySelector('.oc-soon-tip')||Object.assign(document.createElement('div'),{className:'oc-soon-tip'});if(!tip.parentNode)document.body.appendChild(tip);
     tip.textContent=t;tip.style.left='50%';tip.style.top='78%';tip.classList.add('on');clearTimeout(tip._t);tip._t=setTimeout(()=>tip.classList.remove('on'),1700);};
   const views={
-    voices(){const v=VOICES[st.vi||0];return head('Голоса','записи родных',btn('rm-side','list',`Все записи (${VOICES.length})`))+
-      `<div class="rm-c rm-voice">${disc('big')}<h3>${esc(v.t)}</h3><p class="rm-sub">${esc(v.who)} · ${esc(v.d)}</p>${wave(64,(st.vi||0)*31+5)}<p class="rm-time"><span class="rm-cur">${mmss(st.pos||0)}</span> / ${mmss(v.len)}</p>
-       <div class="rm-row">${round('rm-prev','prev','Предыдущая')}${btn('rm-main rm-play',st.playing?'pause':'play',st.playing?'Пауза':'Слушать запись')}${round('rm-next','next','Следующая')}</div>${note}</div>`;},
+    // v252: the rooms in the archive's own scene (one wall, one window, one light for all): the thing in the middle between the
+    // title and its words, the main button always on the same line at the foot
+    voices(){const v=VOICES[st.vi||0];return ttl('Голоса')+side('disc',`Все записи (${VOICES.length})`)+vinyl('rc-ctr rm-disc-big')+
+      low(`<h3 class="vn-h">${esc(v.t)}</h3>${wave2(64,(st.vi||0)*31+5)}<p class="vn-t"><span class="rm-cur">${mmss(st.pos||0)}</span> / ${mmss(v.len)}</p>
+       <div class="rm-row">${round('rm-prev','prev','Предыдущая')}${btn('rm-main rm-go rm-play',st.playing?'pause':'play',st.playing?'Пауза':'Слушать запись')}${round('rm-next','next','Следующая')}</div>`);},
     voicesAll(){return head('Все записи','аудиоархив семьи',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-grid">${VOICES.map((v,k)=>`<button type="button" class="rm-cell" data-i="${k}">${disc('small')}<b>${esc(v.who)}</b><span>${esc(v.d)}</span></button>`).join('')}</div>`;},
     // v251: «Запись» is a scene of its own — the dark room, the window's light on the wall, the microphone lit from the front
     record(){const bars=Array.from({length:64},(_,k)=>{const e=Math.pow(Math.sin(Math.PI*(k+.5)/64),1.4);return `<i data-e="${e.toFixed(3)}" style="--h:${Math.max(4,(.1+.12*Math.abs(Math.sin(k*1.3)))*e*100).toFixed(0)}%;--o:${(.35+.65*e).toFixed(2)}"></i>`;}).join('');
@@ -58,26 +78,34 @@
        <div class="rc-mic" data-own><div class="rc-in" style="--mm:url('${new URL(A+'archive/studio-mic.webp',location.href).href}')"><img src="${A}archive/studio-mic.webp" alt="" draggable="false"><b class="rc-front"></b><b class="rc-rim"></b><b class="rc-spec"></b></div></div>
        <div class="rm-c rc-low"><div class="rc-wave">${bars}</div><p class="rc-time"><span class="rm-cur">${mmss(st.rec||0)}</span></p>
        <div class="rm-row">${round('rm-pause','pause','Пауза')}${btn('rm-main rm-go','','<em class="rm-dot"></em><b class="rc-lab">Начать запись</b>')}${round('rm-stop','stop','Остановить')}</div>${note}</div>`;},
-    letters(){const l=LETTERS[st.li||0];return head('Письма','семейная переписка',btn('rm-side','list',`Все письма (${LETTERS.length})`))+
-      `<div class="rm-c rm-letter"><div class="rm-env"><img src="${A}archive/envelope.webp" alt="" draggable="false"></div><h3>Письмо от ${esc(l.from)} <i>·</i> ${esc(l.d)}</h3>
-       <div class="rm-row">${round('rm-prev','prev','Предыдущее')}${btn('rm-main rm-open','book','Открыть письмо')}${round('rm-next','next','Следующее')}</div>${note}</div>`;},
+    letters(){const l=LETTERS[st.li||0];return ttl('Письма')+side('list',`Все письма (${LETTERS.length})`)+thing('rc-ctr rc-env rm-env','envelope-c.webp')+
+      low(`<div class="fx-who">Письмо от ${esc(l.from)} <i>·</i> ${esc(l.d)}</div><p class="fx-sub">семейная переписка</p>
+       <div class="rm-row">${round('rm-prev','prev','Предыдущее')}${btn('rm-main rm-go rm-open','doc','Открыть письмо')}${round('rm-next','next','Следующее')}</div>`);},
     letter(){const l=LETTERS[st.li||0],raw=st.typed;return head('Письма','семейная переписка',btn('rm-side rm-back','back','К конвертам'))+
       `<div class="rm-c rm-read"><div class="rm-paper${raw?' typed':''}"><div class="rm-stamp"><b>${esc(l.city.toUpperCase())}</b><span>${esc(l.d)}</span></div>${l.text.split('\n').map(p=>`<p>${esc(p)}</p>`).join('')}</div>
        <div class="rm-row rm-split"><div class="rm-seg"><button type="button" data-v="0" class="${raw?'':'on'}">Оригинал</button><button type="button" data-v="1" class="${raw?'on':''}">Расшифровка</button></div>${btn('rm-tobook','book','В книгу')}</div></div>`;},
     lettersAll(){return head('Все письма','семейная переписка',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-grid env">${LETTERS.map((l,k)=>`<button type="button" class="rm-cell" data-i="${k}"><img src="${A}archive/envelope.webp" alt="" draggable="false"><b>${esc(l.who)}</b><span>${esc(l.d)}</span></button>`).join('')}</div>`;},
-    fixes(){return head('Правки','что предлагают исправить родные',btn('rm-side','list',`Все правки (${FIXES.length})`))+`<div class="rm-c rm-fix"><img class="rm-feather" src="${A}archive/feather.webp" alt="" draggable="false">
-       <h3><span class="rm-who">${I('user')}</span>Правки от Натальи <i>·</i> Глава 3</h3><p class="rm-caps">предложено ${FIXES.length} ${plural(FIXES.length,'изменение','изменения','изменений')}</p>
-       <div class="rm-row">${btn('rm-main rm-view','doc','Просмотреть правки')}</div>${note}</div>`;},
+    fixes(){return ttl('Правки')+side('list',`Все правки (${FIXES.length})`)+thing('rc-ctr rc-feather','feather-c.webp')+
+      low(`<div class="fx-who"><span class="av">${I('user')}</span>Правки от Натальи <i>·</i> Глава 3</div><div class="fx-count">предложено ${FIXES.length} ${plural(FIXES.length,'изменение','изменения','изменений')}</div>
+       <div class="rm-row">${btn('rm-main rm-go rm-view','doc','Просмотреть правки')}</div>`);},
     fix(){const k=st.fi||0,f=FIXES[k];return head('Наталья · Глава 3','',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-cmp">
        <div class="rm-cards"><div class="rm-card"><b class="rm-tab">Было</b><p>${f.was}</p></div><div class="rm-card"><b class="rm-tab">Предлагается</b><p>${f.now}</p></div></div>
        <div class="rm-row">${round('rm-prev','prev','Предыдущая')}<span class="rm-count">Правка ${k+1} из ${FIXES.length}</span>${round('rm-next','next','Следующая')}</div>
        <div class="rm-row">${btn('rm-no','x','Отклонить')}${btn('rm-main rm-yes','ok','Принять')}</div>${note}</div>`;},
-    question(){if(st.sent)return head('Вопрос недели','')+`<div class="rm-c rm-sent"><img class="rm-plane gone" src="${A}archive/plane.webp" alt="" draggable="false"><div class="rm-check">${I('ok')}</div>
-       <h3>Вопрос отправлен!</h3><p class="rm-sub">для ${esc(PEOPLE[st.pi||0])}, ${esc(DAYS[st.di||0])}</p><div class="rm-row">${btn('rm-main rm-again','send','Задать ещё')}</div>${note}</div>`;
-      return head('Вопрос недели','один вопрос — ответы всей семьи')+`<div class="rm-c rm-q"><img class="rm-plane" src="${A}archive/plane.webp" alt="" draggable="false">
-       <div class="rm-row rm-qrow">${round('rm-prev','prev','Предыдущий')}<h3>${esc(QUESTIONS[st.qi||0])}</h3>${round('rm-next','next','Следующий')}</div>
+    question(){if(st.sent)return ttl('Вопрос недели')+`<div class="rc-check rc-ctr" data-own>${I('ok')}</div>`+
+       low(`<div class="fx-who">Вопрос отправлен!</div><p class="fx-sub">для ${esc(PEOPLE[st.pi||0])} · ${esc(DAYS[st.di||0])}</p><div class="rm-row">${btn('rm-main rm-go rm-again','send','Задать ещё')}</div>`);
+      return ttl('Вопрос недели')+thing('rc-ctr rc-plane rm-plane','plane-c.webp')+
+       low(`<div class="fx-q">${round('rm-prev arw','prev','Предыдущий')}<p>${esc(QUESTIONS[st.qi||0])}</p>${round('rm-next arw','next','Следующий')}</div>
        <div class="rm-row">${btn('rm-pick rm-who2','user','Для '+esc(PEOPLE[st.pi||0]))}${btn('rm-pick rm-day','cal',esc(DAYS[st.di||0]))}</div>
-       <div class="rm-row">${btn('rm-main rm-send','send','Отправить вопрос')}</div>${note}</div>`;}};
+       <div class="rm-row">${btn('rm-main rm-go rm-send','send','Отправить вопрос')}</div>`);},
+    // the archive's front: the five things on the table, each with its name; a thing pressed opens its room
+    home(){const it=(k,vis,name)=>`<button type="button" class="ah-it" data-go="${k}"><span class="ah-vis">${vis}<b class="ah-sh"></b></span><span class="ah-n">${name}</span></button>`;
+      return ttl('Архив семьи')+`<div class="ah-table" data-own></div><div class="ah-row" data-own>`+
+        it('voices',`<span class="ah-disc">${vinylBody()}</span>`,'Голоса')+
+        it('record',`<img class="ah-mic" src="${A}archive/studio-mic.webp" alt="" draggable="false">`,'Запись')+
+        it('letters',bloom('envelope-c.webp','ah-env'),'Письма')+
+        it('fixes',bloom('feather-c.webp','ah-feather'),'Правки')+
+        it('question',bloom('plane-c.webp','ah-plane'),'Вопрос недели')+`</div>`;}};
   function show(v,instant){if(!room)return;st.view=v;const html=views[v]();
     if(instant){room.innerHTML=html;after();return;}
     const old=room.firstElementChild?[...room.children]:[];old.forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'}));
@@ -85,11 +113,15 @@
   // after a room is drawn: its moving parts
   let tick=0;
   function after(){cancelAnimationFrame(tick);const v=st.view;
-    if(v==='voices'){const sp=room.querySelector('.rm-spin'),bars=[...room.querySelectorAll('.rm-wave i')],len=VOICES[st.vi||0].len;let a=st.ang||0,last=0,spd=st.playing?1:0;
-      const step=t=>{const dt=last?Math.min(50,t-last):16;last=t;spd+=((st.playing?1:0)-spd)*Math.min(1,dt/350);a=(a+spd*dt*360/1800)%360;st.ang=a;if(sp)sp.style.transform=`rotate(${a.toFixed(2)}deg)`;
-        if(st.playing){st.pos=Math.min(len,(st.pos||0)+dt/1000);if(st.pos>=len){st.playing=false;st.pos=0;show('voices',true);return;}}
+    // v252: centred between the title and the words (again once the picture has its size)
+    center();room.querySelectorAll('.rc-ctr img').forEach(im=>{if(!im.complete)im.addEventListener('load',center,{once:true});});
+    if(v==='voices'){const sp=room.querySelector('.vn-spin'),bars=[...room.querySelectorAll('.vn-wave i')],len=VOICES[st.vi||0].len;let a=st.ang||0,last=0,spd=st.playing?1:0,hov=false,run=false;
+      // the record turns while it plays and while the hand rests on it (it slows to a stop after); its shine stays still
+      const dk=room.querySelector('.vn-disc');if(dk){dk.addEventListener('pointerenter',()=>{hov=true;if(!run){last=0;run=true;tick=requestAnimationFrame(step);}});dk.addEventListener('pointerleave',()=>{hov=false;});}
+      const step=t=>{run=true;const raw=last?Math.min(1000,t-last):16,dt=Math.min(50,raw);last=t;spd+=(((st.playing||hov)?1:0)-spd)*Math.min(1,dt/350);a=(a+spd*dt*360/1800)%360;st.ang=a;if(sp)sp.style.transform=`rotate(${a.toFixed(2)}deg)`;
+        if(st.playing){st.pos=Math.min(len,(st.pos||0)+raw/1000);if(st.pos>=len){st.playing=false;st.pos=0;show('voices',true);return;}}
         const k=Math.floor(bars.length*(st.pos||0)/len);bars.forEach((b,i)=>b.classList.toggle('on',i<k));const c=room.querySelector('.rm-cur');if(c)c.textContent=mmss(st.pos||0);
-        if(st.playing||spd>.002)tick=requestAnimationFrame(step);};tick=requestAnimationFrame(step);}
+        if(st.playing||hov||spd>.002)tick=requestAnimationFrame(step);else run=false;};tick=requestAnimationFrame(step);}
     if(v==='record'){recUI();const bars=[...room.querySelectorAll('.rc-wave i')];let last=0,acc=0;
       const step=t=>{const dt=last?Math.min(1000,t-last):16;last=t;if(st.recording){st.rec=(st.rec||0)+dt/1000;acc+=dt;
           // the voice's line: new heights every few frames, within the line's swell (louder in the middle)
@@ -101,6 +133,7 @@
     if(!st.recording)r.querySelectorAll('.rc-wave i').forEach((b,k,all)=>{const e=+b.dataset.e;b.style.setProperty('--h',Math.max(4,(.1+.12*Math.abs(Math.sin(k*1.3)))*e*100).toFixed(0)+'%');});}
   // ——— the presses in the rooms
   function press(e){const b=e.target.closest('button');if(!b||!room?.contains(b))return;const v=st.view,c=b.classList;
+    if(v==='home'&&b.dataset.go){const nb=document.querySelector(`.ar-nav [data-k="${b.dataset.go}"]`);if(nb)nb.click();return;}
     const cyc=(key,n,d)=>{st[key]=((st[key]||0)+d+n)%n;};
     if(v==='voices'){if(c.contains('rm-side'))return show('voicesAll');if(c.contains('rm-play')){st.playing=!st.playing;b.innerHTML=`${I(st.playing?'pause':'play')}<span>${st.playing?'Пауза':'Слушать запись'}</span>`;after();return;}
       if(c.contains('rm-prev')||c.contains('rm-next')){cyc('vi',VOICES.length,c.contains('rm-next')?1:-1);st.pos=0;st.playing=false;return show('voices');}}
@@ -130,11 +163,13 @@
     if(!room){room=document.createElement('div');room.className='rm';board.appendChild(room);room.addEventListener('click',press);}
     // v251: the record's scene — dark, the window's light on the wall; it comes and goes slowly under the room
     if(!scene){scene=document.createElement('div');scene.className='rc-scene';scene.setAttribute('aria-hidden','true');
-      scene.innerHTML='<b class="rc-wall"></b><b class="rc-shaft"></b><b class="rc-win"><i></i><i></i><i></i><i></i></b><b class="rc-halo"></b><b class="rc-dark"></b><b class="rc-vign"></b>';board.insertBefore(scene,room);}
-    {const cine=k==='record';scene.classList.toggle('on',cine);room.classList.toggle('rc',cine);document.documentElement.classList.toggle('ar-cine',cine);}
-    const things=board.querySelectorAll('.ar-h,.ar-row');
-    if(!k||k==='x'||!views[k]){cancelAnimationFrame(tick);st.playing=false;st.recording=false;room.classList.remove('on');things.forEach(el=>el.classList.remove('ar-away'));setTimeout(()=>{if(!room.classList.contains('on'))room.innerHTML='';},400);return;}
-    things.forEach(el=>el.classList.add('ar-away'));room.classList.add('on');show(k);});
+      scene.innerHTML='<b class="rc-wall"></b><b class="rc-flow"></b><b class="rc-shaft"></b><b class="rc-bloom"></b><b class="rc-win"><i></i><i></i><i></i><i></i></b><b class="rc-halo"></b><b class="rc-dark"></b><b class="rc-vign"></b>';board.insertBefore(scene,room);}
+    // v252: the whole archive is this scene now — its front (the five things on the table) and every room; the old desk's things stay away
+    const first=!scene.classList.contains('on');if(first){scene.style.transition='none';requestAnimationFrame(()=>requestAnimationFrame(()=>scene.style.transition=''));}
+    scene.classList.add('on');room.classList.add('rc');document.documentElement.classList.add('ar-cine');
+    board.querySelectorAll('.ar-h,.ar-row').forEach(el=>el.classList.add('ar-away'));
+    const v=(!k||k==='x'||!views[k])?'home':k;if(v!=='record'&&st.recording){st.recording=false;}if(v!=='voices')st.playing=false;
+    room.classList.add('on');show(v);});
   // the archive gone: the recording stops and the record's scene goes with it
   new MutationObserver(()=>{if(document.documentElement.classList.contains('ar-on'))return;if(st.recording){st.recording=false;cancelAnimationFrame(tick);recUI();}
     document.documentElement.classList.remove('ar-cine');}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
