@@ -1,0 +1,106 @@
+/* «Архив семьи» — the rooms behind the things (v248); see rooms.js. Our brass and paper; the room's light on the desk */
+.ar-board .ar-away{opacity:0!important;pointer-events:none!important;transition:opacity .35s ease}
+.ar-board .ar-h,.ar-board .ar-row{transition:opacity .45s ease}
+.rm{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s ease;--rm-ink:var(--ar-ink,#3a2614);--rm-sub:var(--ar-sub,#5a3f26)}
+.rm.on{opacity:1}
+.rm.on>*{pointer-events:auto}
+.rm-h{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 2vh);text-align:center;pointer-events:none}
+.rm-h>*{pointer-events:auto}
+.rm-t{display:flex;align-items:center;justify-content:center;gap:24px}
+.rm-h h2{margin:0;font:italic 500 clamp(38px,4.6vh,58px)/1 'CormorantCy',Georgia,serif;color:var(--rm-ink);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+.rm-h p{margin:10px 0 0;font:500 clamp(12px,1.3vh,15px)/1 'CormorantCy',serif;letter-spacing:.3em;text-transform:uppercase;color:var(--rm-sub)}
+.rm-c{position:absolute;left:0;right:0;margin-inline:auto;top:calc(var(--oct-b,190px) + 2vh + clamp(90px,11vh,130px));width:min(1100px,90vw);display:flex;flex-direction:column;align-items:center;gap:clamp(12px,1.8vh,22px)}
+.rm-c h3{margin:0;font:italic 500 clamp(26px,3.1vh,38px)/1.2 'CormorantCy',serif;color:var(--rm-ink);text-align:center}
+.rm-c h3 i{font-style:normal;opacity:.6;margin:0 .3em}
+.rm-sub{margin:-6px 0 0;font:clamp(17px,1.9vh,22px)/1.2 'CormorantCy',serif;color:var(--rm-sub)}
+.rm-caps{margin:0;font:500 clamp(12px,1.3vh,15px)/1 'CormorantCy',serif;letter-spacing:.28em;text-transform:uppercase;color:var(--rm-sub)}
+.rm-time{margin:0;font:clamp(19px,2.1vh,26px)/1 'CormorantCy',serif;color:var(--rm-ink);font-variant-numeric:tabular-nums}
+.rm-time.rm-big{font-size:clamp(30px,3.6vh,44px)}
+.rm-note{font:italic 14px 'CormorantCy',serif;color:var(--rm-sub);opacity:.75;margin-top:4px}
+.rm-row{display:flex;align-items:center;justify-content:center;gap:clamp(16px,2.2vw,34px)}
+/* the brass keys: a long one (the room's main act), round ones (‹ › pause stop), quiet ones (a choice) */
+.rm-btn,.rm-round{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:12px;border:3px solid transparent;
+  background:linear-gradient(#efe3cb,#e6d5b5 46%,#d9bf98) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;
+  box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.32),0 5px 10px rgba(60,40,20,.26);color:#3a2614;transition:translate .25s ease,filter .25s ease}
+.rm-btn{padding:9px 26px 10px;border-radius:999px;font:italic clamp(18px,2vh,23px)/1 'CormorantCy',serif}
+.rm-btn.rm-main{padding:13px 40px 14px;font-size:clamp(21px,2.4vh,28px);min-width:min(300px,60vw)}
+.rm-btn svg,.rm-round svg{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.rm-play svg path,.rm-btn .rm-dot{fill:currentColor}
+.rm-round{width:clamp(46px,5vh,58px);aspect-ratio:1;border-radius:50%;font-size:clamp(18px,2vh,22px)}
+.rm-btn:hover,.rm-round:hover{translate:0 -2px}
+.rm-btn:active,.rm-round:active{translate:0 1px;filter:brightness(.96)}
+.rm-side{position:absolute;right:max(4vw,40px);top:6px;padding:7px 20px 8px;font-size:17px}
+.rm-dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#b0302a;box-shadow:0 0 0 2px rgba(176,48,42,.18)}
+.rm-go:has(.rm-dot) .rm-dot{animation:none}
+html:has(.shell.is-night) :is(.rm-btn,.rm-round){background:radial-gradient(circle,#2a2520,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#ecd6b0}
+/* the sound's line */
+.rm-wave{display:flex;align-items:center;gap:3px;height:clamp(40px,5.5vh,64px);width:min(560px,70vw)}
+.rm-wave i{flex:1;height:var(--h);min-height:2px;border-radius:2px;background:rgba(110,78,46,.38);transition:height .12s ease,background-color .2s ease}
+.rm-wave i.on{background:#a5733f}
+html:has(.shell.is-night) .rm-wave i{background:rgba(232,196,140,.3)}html:has(.shell.is-night) .rm-wave i.on{background:#e2b36c}
+/* the record */
+.rm-disc{position:relative;aspect-ratio:1;filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(12px 20px 20px rgba(60,40,20,.26))}
+.rm-disc.big{height:clamp(220px,30vh,340px)}
+.rm-disc.small{height:clamp(120px,15vh,170px)}
+.rm-spin{position:absolute;inset:0;will-change:transform;-webkit-mask:radial-gradient(circle,transparent 2.1%,#000 2.5%);mask:radial-gradient(circle,transparent 2.1%,#000 2.5%)}
+.rm-spin>img:first-child{width:100%;height:100%;display:block}
+.rm-label{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%}
+.rm-shine{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.85;pointer-events:none;-webkit-mask:radial-gradient(circle,transparent 2.1%,#000 2.5%);mask:radial-gradient(circle,transparent 2.1%,#000 2.5%)}
+html:has(.shell.is-night) .rm-disc{filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 22px 24px rgba(0,0,0,.5))}
+/* rows of records or envelopes */
+.rm-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,3vh,36px) clamp(30px,5vw,80px);width:min(1000px,88vw)}
+.rm-cell{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:translate .25s ease}
+.rm-cell:hover{translate:0 -3px}
+.rm-cell b{font:600 clamp(19px,2.1vh,24px)/1.1 'CormorantCy',serif;color:var(--rm-ink)}
+.rm-cell span{font:italic clamp(16px,1.8vh,20px)/1.1 'CormorantCy',serif;color:var(--rm-sub)}
+.rm-grid.env img{height:clamp(90px,11vh,130px);filter:drop-shadow(2px 4px 4px rgba(60,40,20,.3)) drop-shadow(10px 16px 16px rgba(60,40,20,.22))}
+/* the recording room */
+.rm-mic{height:clamp(220px,30vh,330px);filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(12px 20px 20px rgba(60,40,20,.26))}
+/* the letters */
+.rm-env img{height:clamp(200px,27vh,300px);filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(14px 22px 22px rgba(60,40,20,.26))}
+.rm-paper{position:relative;box-sizing:border-box;width:min(900px,86vw);min-height:clamp(320px,44vh,480px);padding:clamp(28px,4vh,48px) clamp(34px,5vw,70px);
+  background:#efe1c4 url(../../assets/archive/letter.webp) center/cover;box-shadow:1px 2px 3px rgba(60,40,20,.3),18px 26px 40px -10px rgba(60,40,20,.35);
+  font:clamp(21px,2.5vh,30px)/1.65 'SignThatS','CormorantCy',serif;color:#3b2a1c}
+.rm-paper p{margin:0 0 .35em;text-indent:1.2em}.rm-paper p:first-of-type{text-indent:0}
+.rm-paper.typed{font:clamp(17px,1.9vh,21px)/1.6 'PTSerifCy',Georgia,serif}
+.rm-stamp{position:absolute;right:clamp(24px,3vw,44px);top:clamp(20px,3vh,36px);width:96px;height:96px;border-radius:50%;border:2px solid rgba(59,42,28,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  rotate:-8deg;font:12px/1.3 'PTSerifCy',serif;color:rgba(59,42,28,.7);text-indent:0}
+.rm-stamp b{font-size:13px;letter-spacing:.12em}
+.rm-split{justify-content:space-between;width:min(900px,86vw)}
+.rm-seg{display:inline-flex;border-radius:999px;border:1.5px solid rgba(110,78,46,.55);padding:3px}
+.rm-seg button{all:unset;cursor:pointer;padding:7px 22px;border-radius:999px;font:italic 19px 'CormorantCy',serif;color:var(--rm-ink);transition:background .3s ease}
+.rm-seg button.on{background:linear-gradient(#efe3cb,#d9bf98);color:#3a2614;box-shadow:0 1px 3px rgba(60,40,20,.3)}
+/* the corrections */
+.rm-feather{height:clamp(200px,27vh,290px);rotate:-6deg;filter:drop-shadow(2px 4px 4px rgba(60,40,20,.3)) drop-shadow(12px 20px 20px rgba(60,40,20,.24))}
+.rm-who{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;border:1.5px solid currentColor;margin-right:.5em;vertical-align:-.2em}
+.rm-who svg{width:.8em;height:.8em;fill:none;stroke:currentColor;stroke-width:1.8}
+.rm-cards{display:flex;gap:clamp(20px,3vw,48px);width:min(1100px,90vw)}
+.rm-card{position:relative;flex:1;box-sizing:border-box;padding:clamp(40px,5vh,56px) clamp(24px,2.6vw,40px) clamp(26px,3vh,36px);background:linear-gradient(100deg,#f6ecd9,#ecdcbf);
+  box-shadow:1px 2px 3px rgba(60,40,20,.3),14px 20px 30px -8px rgba(60,40,20,.3);transition:transform .5s cubic-bezier(.45,.05,.3,1),opacity .5s ease}
+.rm-card p{margin:0;font:clamp(19px,2.2vh,26px)/1.55 'CormorantCy',serif;color:#3b2a1c}
+.rm-card s{text-decoration:line-through;text-decoration-color:#b0302a;text-decoration-thickness:2px}
+.rm-card mark{background:rgba(226,179,108,.45);color:inherit;padding:0 .15em;border-radius:3px}
+.rm-tab{position:absolute;left:50%;top:-16px;translate:-50% 0;padding:6px 30px 7px;border-radius:999px;font:italic 19px 'CormorantCy',serif;color:#3a2614;
+  background:linear-gradient(#efe3cb,#d9bf98);box-shadow:0 0 0 1px rgba(62,42,29,.5),0 3px 6px rgba(60,40,20,.25)}
+.rm-card.taken{transform:translateY(-14px);box-shadow:0 0 0 2px rgba(165,115,63,.7),14px 20px 30px -8px rgba(60,40,20,.3)}
+.rm-card.dropped{opacity:.35;transform:translateY(10px)}
+.rm-count{font:italic clamp(19px,2.1vh,24px) 'CormorantCy',serif;color:var(--rm-ink);min-width:9em;text-align:center}
+.rm-no{background:none!important;border:1.5px solid rgba(110,78,46,.6)!important;box-shadow:none!important;color:var(--rm-ink)}
+/* the question of the week */
+.rm-plane{height:clamp(120px,16vh,180px);filter:drop-shadow(2px 4px 4px rgba(60,40,20,.28)) drop-shadow(14px 26px 22px rgba(60,40,20,.22))}
+.rm-plane.gone{opacity:0;height:0}
+.rm-qrow h3{max-width:22em;min-height:2.4em;display:flex;align-items:center;justify-content:center}
+.rm-pick{background:none!important;border:1.5px solid rgba(110,78,46,.6)!important;box-shadow:none!important;color:var(--rm-ink);padding:8px 22px 9px}
+.rm-check{width:64px;height:64px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;color:var(--rm-ink);animation:rm-in .5s ease both}
+.rm-check svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:2;stroke-dasharray:30;stroke-dashoffset:30;animation:rm-tick .45s ease .25s forwards}
+@keyframes rm-tick{to{stroke-dashoffset:0}}@keyframes rm-in{from{opacity:0;transform:scale(.8)}}
+/* the things on the desk: the feather writes a line, the plane lifts a little — nothing grows */
+.ar-feather{width:calc(var(--ar-vh)*.8)}
+.ar-feather>img{height:100%;rotate:-6deg;transition:rotate .45s cubic-bezier(.2,.75,.25,1),translate .45s cubic-bezier(.2,.75,.25,1)}
+.ar-ink{position:absolute;left:-30%;bottom:2%;width:60%;height:18%;fill:none;stroke:#3b2a1c;stroke-width:2.2;stroke-linecap:round;stroke-dasharray:140;stroke-dashoffset:140;transition:stroke-dashoffset .5s ease .1s}
+.ar-it:is(:hover,.hov) .ar-feather>img{rotate:-11deg;translate:-6px 4px}
+.ar-it:is(:hover,.hov) .ar-ink{stroke-dashoffset:0}
+.ar-plane{width:calc(var(--ar-vh)*1.25)}
+.ar-plane>img{width:100%;max-height:none!important;transition:translate .5s cubic-bezier(.2,.75,.25,1),rotate .5s cubic-bezier(.2,.75,.25,1)}
+.ar-it:is(:hover,.hov) .ar-plane>img{translate:10px -10px;rotate:-4deg}
+html:has(.shell.is-night) .ar-ink{stroke:#e8d2ae}

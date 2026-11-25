@@ -1,4 +1,4 @@
-// «Архив семьи» (v246) — its first room on the same desk. The bar stays as in every room and carries the archive's sections:
+// «Архив семьи» (v248: the rooms behind the things are in rooms.js; Правки — the feather, Вопрос недели — the paper plane) (v246) — its first room on the same desk. The bar stays as in every room and carries the archive's sections:
 // Голоса · Запись · Письма · Правки · Вопрос недели; a press marks the section (its own room comes next). On the desk five things
 // lie in a row, each its own door, small, with room between them; under each only its count (text). They lie in the room's
 // light (the window's by day, the evening's, the lamp's at night: the light stays where it is). Under the hand each answers and
@@ -26,13 +26,11 @@
       <div class="ar-vis ar-env" style="--m:url('${ABS}archive/envelope.webp')"><img class="ar-letter" src="${A}archive/letter.webp" alt="" draggable="false"><img class="ar-body" src="${A}archive/envelope.webp" alt="" draggable="false">${LT}</div>
       <span class="ar-pill" data-c="letters"></span></button>
     <button type="button" class="ar-it" data-k="fixes" aria-label="Правки — что нужно исправить">
-      <div class="ar-vis ar-sheet" style="--m:url('${ABS}archive/sheets2.webp')"><img src="${A}archive/sheets2.webp" alt="" draggable="false">
-        <div class="ar-lines"><p>Родилась в Карсе весной</p><p>двадцать первого года,</p><p class="ar-fx">в доме у старой пекарни</p><p>на углу двух улиц.</p><p>Отец её служил</p><p>на железной дороге</p></div>
-        <svg class="ar-mark" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="ar-ul" d="M2 50.5 C26 49.2 56 51.6 84 49.8"/><path class="ar-tick" d="M88 41 l3 4 l6 -9"/></svg>${LT}</div>
+      <div class="ar-vis ar-feather" style="--m:url('${ABS}archive/feather.webp')"><img src="${A}archive/feather.webp" alt="" draggable="false">
+        <svg class="ar-ink" viewBox="0 0 100 30" aria-hidden="true"><path d="M4 20 C18 8 26 26 40 14 S62 8 74 16 S88 22 96 12"/></svg>${LT}</div>
       <span class="ar-pill" data-c="fixes"></span></button>
     <button type="button" class="ar-it" data-k="question" aria-label="Вопрос недели — ответы семьи">
-      <div class="ar-vis ar-phone" style="--m:url('${ABS}archive/phone2.webp')"><img src="${A}archive/phone2.webp" alt="" draggable="false">
-        <div class="ar-scr"><i class="ar-glow"></i><div class="ar-note"><i class="ar-ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></i><span>новый ответ</span></div></div>${LT}</div>
+      <div class="ar-vis ar-plane" style="--m:url('${ABS}archive/plane.webp')"><img src="${A}archive/plane.webp" alt="" draggable="false">${LT}</div>
       <span class="ar-pill" data-c="question"></span></button>
   </div>`;
   document.body.appendChild(board);
@@ -41,10 +39,11 @@
   const nav=document.createElement('div');nav.className='ar-nav';nav.innerHTML=SECTS.map(([k,t])=>`<button type="button" data-k="${k}">${t}<i></i></button>`).join('');document.body.appendChild(nav);
   {let last='';const put=()=>{requestAnimationFrame(put);if(!open&&!nav.classList.contains('on'))return;const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();if(!r||!r.width)return;
     const k=[r.left,r.top,r.width,r.height].map(Math.round).join();if(k===last)return;last=k;Object.assign(nav.style,{left:Math.round(r.left+70)+'px',top:Math.round(r.top)+'px',width:Math.round(r.width-140)+'px',height:Math.round(r.height)+'px'});};requestAnimationFrame(put);}
-  const mark=k=>{sect=k;nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$$('.ar-it').forEach(x=>x.classList.toggle('cur',x.dataset.k===k));};
+  const mark=k=>{if(k&&k===sect)k='';sect=k;nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$$('.ar-it').forEach(x=>x.classList.toggle('cur',x.dataset.k===k));
+    try{dispatchEvent(new CustomEvent('ar-room',{detail:{k,board}}));}catch(_){}};
   const soon=(el)=>{const r=el.getBoundingClientRect(),tip=document.querySelector('.oc-soon-tip')||Object.assign(document.createElement('div'),{className:'oc-soon-tip'});if(!tip.parentNode)document.body.appendChild(tip);
     tip.textContent='этот раздел откроется в следующей сборке';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+16)+'px';tip.classList.add('on');clearTimeout(tip._t);tip._t=setTimeout(()=>tip.classList.remove('on'),1600);};
-  nav.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;mark(b.dataset.k);soon(b);});
+  nav.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;mark(b.dataset.k);});
 
   // ——— the counts (text): nothing yet — said so; when something comes, its number
   const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c;};
@@ -55,7 +54,7 @@
       question:c.question?`${c.question} ${plural(c.question,'новый ответ','новых ответа','новых ответов')}`:'ответов пока нет'};
     $$('.ar-pill[data-c]').forEach(p=>{p.textContent=t[p.dataset.c];p.classList.toggle('has',!!c[p.dataset.c]);});
     nav.querySelectorAll('button').forEach(b=>{const n=c[b.dataset.k]||0;b.querySelector('i').textContent=n?String(n):'';});
-    $('.ar-phone')?.classList.toggle('has-new',!!c.question);}
+    }
 
   // ——— the room's light on each thing: the room's own pictures laid from where the thing lies (it never moves with it)
   function light(){try{board.style.setProperty('--rk-beam',window.OCHERKI_DESK_LIGHT?.beam()||'none');}catch(_){}
@@ -71,7 +70,7 @@
   // on a touch screen the first touch shows the thing's motion, the second opens it
   let touched=null;
   board.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const it=e.target.closest('.ar-it');if(it&&touched!==it){$$('.ar-it').forEach(x=>x.classList.toggle('hov',x===it));touched=it;it._first=true;}});
-  board.addEventListener('click',e=>{const it=e.target.closest('.ar-it');if(!it)return;if(it._first){it._first=false;return;}mark(it.dataset.k);soon(it.querySelector('.ar-vis'));});
+  board.addEventListener('click',e=>{const it=e.target.closest('.ar-it');if(!it)return;if(it._first){it._first=false;return;}mark(it.dataset.k);});
 
   // ——— coming and going: the editor's desk fades aside (its places kept), the things come up one after another; the bar stays
   const away=['#editorPaperWrap .editor-paper','.ws-left','#writingPrompt','.wp-keys','.ws-ttl','.wp-pane','.photo-stack'];let anims=[];
@@ -83,7 +82,7 @@
     // from the book or «Рукопись»: back to the desk first, then the archive
     if(B?.isOpen?.()){B.close('write',()=>setTimeout(openA,120));return;}
     if(H.classList.contains('rk-on')){window.OCHERKI_SET_MODE?.('write');setTimeout(openA,900);return;}
-    open=true;busy=true;H.classList.add('ar-on');counts();aside(true,520);board.classList.add('on');nav.classList.add('on');light();
+    open=true;busy=true;H.classList.add('ar-on');sect='x';mark('x');counts();aside(true,520);board.classList.add('on');nav.classList.add('on');light();
     $$('.ar-h,.ar-it').forEach((el,i)=>el.animate([{opacity:0,translate:'0px 14px'},{opacity:1,translate:'0px 0px'}],{duration:620,delay:140+i*70,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'}));
     setTimeout(()=>{busy=false;light();},900);}
   // going: the things go aside and fade at once (another room comes over them at the same time — nothing waits)
