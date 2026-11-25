@@ -104,3 +104,62 @@ html:has(.shell.is-night) .rm-disc{filter:drop-shadow(0 3px 4px rgba(0,0,0,.55))
 .ar-plane>img{width:100%;max-height:none!important;transition:translate .5s cubic-bezier(.2,.75,.25,1),rotate .5s cubic-bezier(.2,.75,.25,1)}
 .ar-it:is(:hover,.hov) .ar-plane>img{translate:10px -10px;rotate:-4deg}
 html:has(.shell.is-night) .ar-ink{stroke:#e8d2ae}
+
+/* ——— v251: «Запись» — its own scene: a dark warm room, the window's light lying on the wall (a blurred frame), the
+   microphone hanging from above, lit from the front, a warm halo behind it; the same buttons as the other rooms in its colours.
+   The archive's day / evening / night do not touch it. */
+.rc-scene{position:absolute;inset:0;pointer-events:none!important;opacity:0;transition:opacity 1.4s cubic-bezier(.37,0,.63,1);overflow:hidden;
+  background:radial-gradient(120% 95% at 50% 45%,#2b1d13 0%,#1c130c 48%,#0d0805 100%)}
+.rc-scene.on{opacity:1}
+.rc-scene b{position:absolute;display:block}
+.rc-wall{left:-14%;top:-18%;width:62%;height:96%;background:radial-gradient(closest-side at 38% 36%,rgba(255,170,96,.34),rgba(255,150,80,.14) 55%,transparent 100%);filter:blur(10px)}
+.rc-win{left:-4%;top:-10%;width:620px;height:700px;transform:rotate(-6deg) skewX(-22deg);transform-origin:0 0;filter:blur(15px);mix-blend-mode:screen;
+  -webkit-mask:radial-gradient(70% 70% at 30% 32%,#000 30%,transparent 92%);mask:radial-gradient(70% 70% at 30% 32%,#000 30%,transparent 92%);animation:rcSun 9s ease-in-out infinite}
+.rc-win i{position:absolute;background:linear-gradient(160deg,rgba(255,200,132,1),rgba(255,166,92,.7))}
+.rc-win i:nth-child(1){left:0;top:0;width:45%;height:45%}.rc-win i:nth-child(2){left:55%;top:0;width:45%;height:45%}
+.rc-win i:nth-child(3){left:0;top:55%;width:45%;height:45%}.rc-win i:nth-child(4){left:55%;top:55%;width:45%;height:45%}
+@keyframes rcSun{0%,100%{opacity:.92}50%{opacity:.78}}
+.rc-shaft{left:-6%;top:-14%;width:110vw;height:44vh;transform:rotate(30deg);transform-origin:0 0;filter:blur(46px);mix-blend-mode:screen;opacity:.55;
+  background:linear-gradient(180deg,transparent,rgba(255,176,100,.35) 50%,transparent);-webkit-mask:linear-gradient(90deg,#000,rgba(0,0,0,.5) 35%,transparent 70%);mask:linear-gradient(90deg,#000,rgba(0,0,0,.5) 35%,transparent 70%)}
+.rc-halo{left:50%;top:30%;width:620px;height:600px;translate:-50% 0;background:radial-gradient(closest-side,rgba(255,172,86,.36),rgba(255,140,60,.13) 55%,transparent 100%);filter:blur(12px);transition:opacity 1.2s ease}
+.rc-dark{left:50%;top:0;width:900px;height:30vh;translate:-50% 0;background:radial-gradient(50% 100% at 50% 0%,rgba(10,6,3,.75) 0%,rgba(10,6,3,0) 100%)}
+.rc-vign{inset:0;background:radial-gradient(80% 72% at 52% 50%,transparent 50%,rgba(0,0,0,.62) 100%)}
+html.ar-cine .rc-scene.on .rc-halo{animation:rcHalo 3.2s ease-in-out infinite paused}
+html.ar-cine .rc-scene.on:has(~.rm.rc-on) .rc-halo{animation-play-state:running}
+@keyframes rcHalo{0%,100%{opacity:1}50%{opacity:.7}}
+/* the room */
+.rm.rc{--rm-ink:#f2dcb6;--rm-sub:rgba(226,200,160,.6)}
+.rc-ttl{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) - 1vh);z-index:2;display:flex;align-items:center;justify-content:center;gap:28px;pointer-events:none!important}
+.rc-ttl h2{margin:0;padding:0 26px;font:italic 500 clamp(44px,5.9vh,64px)/1 'CormorantCy',Georgia,serif;color:#f2dcb6;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+.rc-ttl i{display:block;width:180px;height:1px;background:linear-gradient(90deg,transparent,rgba(226,179,108,.75))}.rc-ttl i.r{background:linear-gradient(270deg,transparent,rgba(226,179,108,.75))}
+.rc-mic{position:absolute;left:0;right:0;margin-inline:auto;top:13vh;height:44vh;width:calc(44vh*655/1158);pointer-events:none!important;
+  -webkit-mask:linear-gradient(180deg,transparent 0%,#000 24%);mask:linear-gradient(180deg,transparent 0%,#000 24%)}
+.rc-in{position:absolute;inset:0;-webkit-mask:var(--mm) center/100% 100% no-repeat;mask:var(--mm) center/100% 100% no-repeat}
+.rc-in img{position:absolute;inset:0;width:100%;height:100%;filter:brightness(1.12) contrast(1.06)}
+.rc-in b{position:absolute;display:block}
+.rc-front{inset:0;background:radial-gradient(60% 34% at 46% 74%,rgba(255,196,128,.55),rgba(255,170,90,.18) 60%,transparent 100%);mix-blend-mode:soft-light}
+.rc-rim{inset:0;background:linear-gradient(100deg,rgba(255,180,100,.35),transparent 30%);mix-blend-mode:screen}
+.rc-spec{left:33%;top:60%;width:14%;height:30%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,230,190,.55),transparent);filter:blur(6px);mix-blend-mode:screen}
+.rm.rc .rc-low{position:absolute;left:0;right:0;top:62vh;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2vh,22px)}
+.rc-wave{display:flex;align-items:center;justify-content:space-between;height:clamp(44px,5.9vh,64px);width:min(620px,70vw);pointer-events:none}
+.rc-wave i{width:2px;height:var(--h);min-height:2px;border-radius:1px;opacity:var(--o);background:linear-gradient(#f6d29a,#c08a48);box-shadow:0 0 5px rgba(240,180,100,.35);transition:height .14s ease}
+.rc-time{margin:0;font:clamp(32px,4.1vh,44px)/1 'CormorantCy',serif;color:#f2dcb6;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+/* the buttons: the sizes of the other rooms, the scene's colours whatever the light */
+.rm.rc .rm-round{background:radial-gradient(circle,#2a2520,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#ecd6b0}
+.rm.rc .rm-btn.rm-go{color:#2c1a0c;background:linear-gradient(#f6e3c0,#e2c08c 55%,#c9a06a) padding-box,linear-gradient(145deg,#f3e2c4,#c59664 40%,#8e6242) border-box;
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.5),0 10px 24px rgba(0,0,0,.5),0 0 34px rgba(255,180,100,.28);transition:box-shadow .6s ease,translate .2s ease,filter .2s ease}
+.rm.rc .rm-btn.rm-go:active{translate:0 1px;filter:brightness(.95)}
+.rm.rc .rm-dot{width:.62em;height:.62em;margin-right:.5em;vertical-align:.02em;border-radius:50%;flex:none;background:radial-gradient(circle at 40% 35%,#e0473c,#a81e16);box-shadow:0 0 0 3px rgba(168,30,22,.18)}
+.rm.rc.rc-on .rm-dot{animation:rcDot 1.2s ease-in-out infinite}
+@keyframes rcDot{0%,100%{opacity:1;box-shadow:0 0 0 3px rgba(168,30,22,.18),0 0 0 rgba(224,71,60,0)}50%{opacity:.75;box-shadow:0 0 0 3px rgba(168,30,22,.18),0 0 12px rgba(224,71,60,.8)}}
+.rm.rc.rc-on .rm-btn.rm-go{box-shadow:inset 0 2px 4px rgba(255,255,255,.5),0 10px 24px rgba(0,0,0,.5),0 0 46px rgba(255,180,100,.45)}
+.rm.rc .rc-lab{font:inherit;font-weight:inherit}
+.rm.rc .rm-note{color:rgba(226,200,160,.55)}
+/* coming in: the microphone comes down a little out of the dark, the rest rises after it */
+.rm.rc.on .rc-mic{animation:rcMic 1.6s cubic-bezier(.2,.75,.25,1) both}
+@keyframes rcMic{from{opacity:0;translate:0 -5vh}to{opacity:1;translate:0 0}}
+/* the bar's sections on the scene: the chosen one a light pill */
+html.ar-on.ar-cine .ar-nav button.on{padding:6px 20px;margin:0 -18px;transition:none;color:#2c1a0c!important;-webkit-text-fill-color:#2c1a0c;background:linear-gradient(#f6e3c0,#dcb682);border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+html.ar-on.ar-cine .ar-nav button.on::after{display:none}
+@media (prefers-reduced-motion:reduce){.rc-win,.rc-halo,.rm.rc .rm-dot,.rm.rc.on .rc-mic{animation:none!important}}
+html.ar-on.ar-cine:has(.shell) .oct .lbx,html.ar-on.ar-cine:has(.shell) .oct .lbx *{color:#f3e3c8!important;text-shadow:0 1px 3px rgba(0,0,0,.65)!important}

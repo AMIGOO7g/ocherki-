@@ -44,7 +44,7 @@
   const head=(t,sub,side)=>`<header class="rm-h"><div class="rm-t"><i class="ar-orn"></i><h2>${t}</h2><i class="ar-orn r"></i></div>${sub?`<p>${sub}</p>`:''}${side||''}</header>`;
   const note='<i class="rm-note">пример — заработает, когда подключим сервер</i>';
 
-  let room=null,board=null,st={};
+  let room=null,board=null,scene=null,st={};
   const toast=t=>{const tip=document.querySelector('.oc-soon-tip')||Object.assign(document.createElement('div'),{className:'oc-soon-tip'});if(!tip.parentNode)document.body.appendChild(tip);
     tip.textContent=t;tip.style.left='50%';tip.style.top='78%';tip.classList.add('on');clearTimeout(tip._t);tip._t=setTimeout(()=>tip.classList.remove('on'),1700);};
   const views={
@@ -52,8 +52,12 @@
       `<div class="rm-c rm-voice">${disc('big')}<h3>${esc(v.t)}</h3><p class="rm-sub">${esc(v.who)} · ${esc(v.d)}</p>${wave(64,(st.vi||0)*31+5)}<p class="rm-time"><span class="rm-cur">${mmss(st.pos||0)}</span> / ${mmss(v.len)}</p>
        <div class="rm-row">${round('rm-prev','prev','Предыдущая')}${btn('rm-main rm-play',st.playing?'pause':'play',st.playing?'Пауза':'Слушать запись')}${round('rm-next','next','Следующая')}</div>${note}</div>`;},
     voicesAll(){return head('Все записи','аудиоархив семьи',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-grid">${VOICES.map((v,k)=>`<button type="button" class="rm-cell" data-i="${k}">${disc('small')}<b>${esc(v.who)}</b><span>${esc(v.d)}</span></button>`).join('')}</div>`;},
-    record(){return head('Запись','расскажите своим голосом')+`<div class="rm-c rm-rec"><img class="rm-mic" src="${A}archive/mic2.webp" alt="" draggable="false">${wave(56,99)}<p class="rm-time rm-big"><span class="rm-cur">${mmss(st.rec||0)}</span></p>
-       <div class="rm-row">${round('rm-pause','pause','Пауза')}${btn('rm-main rm-go','',`<em class="rm-dot"></em>${st.recording?'Идёт запись…':'Начать запись'}`)}${round('rm-stop','stop','Остановить')}</div>${note}</div>`;},
+    // v251: «Запись» is a scene of its own — the dark room, the window's light on the wall, the microphone lit from the front
+    record(){const bars=Array.from({length:64},(_,k)=>{const e=Math.pow(Math.sin(Math.PI*(k+.5)/64),1.4);return `<i data-e="${e.toFixed(3)}" style="--h:${Math.max(4,(.1+.12*Math.abs(Math.sin(k*1.3)))*e*100).toFixed(0)}%;--o:${(.35+.65*e).toFixed(2)}"></i>`;}).join('');
+      return `<div class="rc-ttl"><i></i><h2>Запись</h2><i class="r"></i></div>
+       <div class="rc-mic" data-own><div class="rc-in" style="--mm:url('${new URL(A+'archive/studio-mic.webp',location.href).href}')"><img src="${A}archive/studio-mic.webp" alt="" draggable="false"><b class="rc-front"></b><b class="rc-rim"></b><b class="rc-spec"></b></div></div>
+       <div class="rm-c rc-low"><div class="rc-wave">${bars}</div><p class="rc-time"><span class="rm-cur">${mmss(st.rec||0)}</span></p>
+       <div class="rm-row">${round('rm-pause','pause','Пауза')}${btn('rm-main rm-go','','<em class="rm-dot"></em><b class="rc-lab">Начать запись</b>')}${round('rm-stop','stop','Остановить')}</div>${note}</div>`;},
     letters(){const l=LETTERS[st.li||0];return head('Письма','семейная переписка',btn('rm-side','list',`Все письма (${LETTERS.length})`))+
       `<div class="rm-c rm-letter"><div class="rm-env"><img src="${A}archive/envelope.webp" alt="" draggable="false"></div><h3>Письмо от ${esc(l.from)} <i>·</i> ${esc(l.d)}</h3>
        <div class="rm-row">${round('rm-prev','prev','Предыдущее')}${btn('rm-main rm-open','book','Открыть письмо')}${round('rm-next','next','Следующее')}</div>${note}</div>`;},
@@ -77,7 +81,7 @@
   function show(v,instant){if(!room)return;st.view=v;const html=views[v]();
     if(instant){room.innerHTML=html;after();return;}
     const old=room.firstElementChild?[...room.children]:[];old.forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'}));
-    setTimeout(()=>{room.innerHTML=html;after();[...room.children].forEach((el,i)=>el.animate([{opacity:0,translate:'0 10px'},{opacity:1,translate:'0 0'}],{duration:420,delay:i*60,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'}));},old.length?190:0);}
+    setTimeout(()=>{room.innerHTML=html;after();[...room.children].filter(el=>!el.hasAttribute('data-own')).forEach((el,i)=>el.animate([{opacity:0,translate:'0 10px'},{opacity:1,translate:'0 0'}],{duration:420,delay:i*60,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'}));},old.length?190:0);}
   // after a room is drawn: its moving parts
   let tick=0;
   function after(){cancelAnimationFrame(tick);const v=st.view;
@@ -86,17 +90,23 @@
         if(st.playing){st.pos=Math.min(len,(st.pos||0)+dt/1000);if(st.pos>=len){st.playing=false;st.pos=0;show('voices',true);return;}}
         const k=Math.floor(bars.length*(st.pos||0)/len);bars.forEach((b,i)=>b.classList.toggle('on',i<k));const c=room.querySelector('.rm-cur');if(c)c.textContent=mmss(st.pos||0);
         if(st.playing||spd>.002)tick=requestAnimationFrame(step);};tick=requestAnimationFrame(step);}
-    if(v==='record'){const bars=[...room.querySelectorAll('.rm-wave i')];let last=0;
-      const step=t=>{const dt=last?Math.min(50,t-last):16;last=t;if(st.recording){st.rec=(st.rec||0)+dt/1000;bars.forEach(b=>{b.style.setProperty('--h',(6+Math.random()*70).toFixed(0)+'%');});}
+    if(v==='record'){recUI();const bars=[...room.querySelectorAll('.rc-wave i')];let last=0,acc=0;
+      const step=t=>{const dt=last?Math.min(1000,t-last):16;last=t;if(st.recording){st.rec=(st.rec||0)+dt/1000;acc+=dt;
+          // the voice's line: new heights every few frames, within the line's swell (louder in the middle)
+          if(acc>90){acc=0;bars.forEach(b=>{const e=+b.dataset.e;b.style.setProperty('--h',Math.max(4,(.16+Math.random()*.84)*e*100).toFixed(0)+'%');});}}
         const c=room.querySelector('.rm-cur');if(c)c.textContent=mmss(st.rec||0);if(st.recording)tick=requestAnimationFrame(step);};if(st.recording)tick=requestAnimationFrame(step);}}
+  // the record room's state shown in place (no redraw: the microphone and the light stay as they are)
+  function recUI(){const r=room?.querySelector('.rc-low');if(!r)return;room.classList.toggle('rc-on',!!st.recording);room.classList.toggle('rc-paused',!st.recording&&(st.rec||0)>0);
+    const cur=r.querySelector('.rm-cur');if(cur)cur.textContent=mmss(st.rec||0);const lab=r.querySelector('.rc-lab');if(lab)lab.textContent=st.recording?'Идёт запись…':(st.rec||0)>0?'Продолжить запись':'Начать запись';
+    if(!st.recording)r.querySelectorAll('.rc-wave i').forEach((b,k,all)=>{const e=+b.dataset.e;b.style.setProperty('--h',Math.max(4,(.1+.12*Math.abs(Math.sin(k*1.3)))*e*100).toFixed(0)+'%');});}
   // ——— the presses in the rooms
   function press(e){const b=e.target.closest('button');if(!b||!room?.contains(b))return;const v=st.view,c=b.classList;
     const cyc=(key,n,d)=>{st[key]=((st[key]||0)+d+n)%n;};
     if(v==='voices'){if(c.contains('rm-side'))return show('voicesAll');if(c.contains('rm-play')){st.playing=!st.playing;b.innerHTML=`${I(st.playing?'pause':'play')}<span>${st.playing?'Пауза':'Слушать запись'}</span>`;after();return;}
       if(c.contains('rm-prev')||c.contains('rm-next')){cyc('vi',VOICES.length,c.contains('rm-next')?1:-1);st.pos=0;st.playing=false;return show('voices');}}
     if(v==='voicesAll'){if(c.contains('rm-back'))return show('voices');if(c.contains('rm-cell')){st.vi=+b.dataset.i;st.pos=0;st.playing=false;return show('voices');}}
-    if(v==='record'){if(c.contains('rm-go')){st.recording=true;return show('record',true);}if(c.contains('rm-pause')){st.recording=false;return show('record',true);}
-      if(c.contains('rm-stop')){const had=st.rec>0;st.recording=false;st.rec=0;show('record',true);if(had)toast('запись сохранится, когда подключим сервер');return;}}
+    if(v==='record'){if(c.contains('rm-go')){st.recording=!st.recording;return after();}if(c.contains('rm-pause')){if(st.recording){st.recording=false;after();}return;}
+      if(c.contains('rm-stop')){const had=st.rec>0;st.recording=false;st.rec=0;after();if(had)toast('запись сохранится, когда подключим сервер');return;}}
     if(v==='letters'){if(c.contains('rm-side'))return show('lettersAll');if(c.contains('rm-open'))return openLetter();
       if(c.contains('rm-prev')||c.contains('rm-next')){cyc('li',LETTERS.length,c.contains('rm-next')?1:-1);return show('letters');}}
     if(v==='letter'){if(c.contains('rm-back'))return show('letters');if(b.dataset.v!=null){st.typed=b.dataset.v==='1';return show('letter',true);}if(c.contains('rm-tobook'))return toast('письмо ляжет в книгу — следующим шагом');}
@@ -118,7 +128,14 @@
   // ——— a section chosen (archive.js): the things step aside and its room comes; none — the things come back
   addEventListener('ar-room',e=>{const k=e.detail?.k;board=e.detail?.board;if(!board)return;
     if(!room){room=document.createElement('div');room.className='rm';board.appendChild(room);room.addEventListener('click',press);}
+    // v251: the record's scene — dark, the window's light on the wall; it comes and goes slowly under the room
+    if(!scene){scene=document.createElement('div');scene.className='rc-scene';scene.setAttribute('aria-hidden','true');
+      scene.innerHTML='<b class="rc-wall"></b><b class="rc-shaft"></b><b class="rc-win"><i></i><i></i><i></i><i></i></b><b class="rc-halo"></b><b class="rc-dark"></b><b class="rc-vign"></b>';board.insertBefore(scene,room);}
+    {const cine=k==='record';scene.classList.toggle('on',cine);room.classList.toggle('rc',cine);document.documentElement.classList.toggle('ar-cine',cine);}
     const things=board.querySelectorAll('.ar-h,.ar-row');
     if(!k||k==='x'||!views[k]){cancelAnimationFrame(tick);st.playing=false;st.recording=false;room.classList.remove('on');things.forEach(el=>el.classList.remove('ar-away'));setTimeout(()=>{if(!room.classList.contains('on'))room.innerHTML='';},400);return;}
     things.forEach(el=>el.classList.add('ar-away'));room.classList.add('on');show(k);});
+  // the archive gone: the recording stops and the record's scene goes with it
+  new MutationObserver(()=>{if(document.documentElement.classList.contains('ar-on'))return;if(st.recording){st.recording=false;cancelAnimationFrame(tick);recUI();}
+    document.documentElement.classList.remove('ar-cine');}).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 })();

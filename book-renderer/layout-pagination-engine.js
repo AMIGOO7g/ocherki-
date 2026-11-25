@@ -39,22 +39,40 @@
   const PCACHE=new Map();let PSEQ=0;
   // v250 — the measured pages are kept between visits too (IndexedDB, one copy for this version of the engine): the first book
   // after opening the constructor came out of twenty seconds of measuring. A page measured before the fonts came is never kept.
-  const PVER=(()=>{try{return String(document.currentScript?.src||'').split('v=')[1]||'0';}catch(_){return '0';}})();
+  // v251: what the kept measures belong to is the measuring itself (the pack's page drawing and splitting, this engine, the pack's
+  // styles) — not the constructor's version: every new version measured the whole book again at the first «Так ляжет» (ten seconds)
+  const hashStr=t=>{let h=2166136261>>>0;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36)+':'+t.length;};
+  let PSIG='',PLOADED=null;
+  const measureSig=()=>{if(PSIG)return PSIG;let t='';try{const R=renderer();t+=String(R.paginateText)+String(R.renderPage)+String(measurePage)+String(createSession)+String(build);
+      for(const sh of document.styleSheets){if(!/design-pack-01\.css|fonts\.css/.test(sh.href||''))continue;try{for(const r of sh.cssRules)t+=r.cssText;}catch(_){}}}catch(_){}
+    PSIG=hashStr(t);return PSIG;};
+  const mergeLoaded=()=>{const rec=PLOADED;if(!rec||!PSIG)return;PLOADED=null;if(rec.sig===PSIG&&rec.map instanceof Map)for(const [k,v] of rec.map)if(!PCACHE.has(k))PCACHE.set(k,v);};
   const pdb=()=>new Promise((ok,no)=>{try{const r=indexedDB.open('ocherki-measured-pages',1);r.onupgradeneeded=()=>r.result.createObjectStore('c');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);}catch(e){no(e);}});
-  try{if(typeof indexedDB!=='undefined')pdb().then(db=>{const q=db.transaction('c').objectStore('c').get(PVER);q.onsuccess=()=>{const m=q.result;if(m instanceof Map)for(const [k,v] of m)if(!PCACHE.has(k))PCACHE.set(k,v);db.close();};q.onerror=()=>db.close();}).catch(()=>{});}catch(_){}
-  let pSaveT=0;globalThis.__ocPageCacheSize=()=>PCACHE.size;
+  try{if(typeof indexedDB!=='undefined')pdb().then(db=>{const q=db.transaction('c').objectStore('c').get('pages');q.onsuccess=()=>{PLOADED=q.result||null;mergeLoaded();db.close();};q.onerror=()=>db.close();}).catch(()=>{});}catch(_){}
+  let pSaveT=0;globalThis.__ocPageCacheSize=()=>PCACHE.size;globalThis.__ocPageCacheHas=k=>PCACHE.has(k);
   const persistSoon=()=>{if(typeof indexedDB==='undefined')return;clearTimeout(pSaveT);pSaveT=setTimeout(()=>{(globalThis.requestIdleCallback||(f=>setTimeout(f,0)))(()=>{
-    pdb().then(db=>{try{const tx=db.transaction('c','readwrite'),st=tx.objectStore('c');st.clear();st.put(PCACHE,PVER);tx.oncomplete=tx.onerror=()=>db.close();}catch(_){db.close();}}).catch(()=>{});},{timeout:8000});},6000);};
-  const pageKey=page=>{const src=page.source||{};return JSON.stringify(page,(k,v)=>k==='source'||k==='measuredFlow'?undefined:v)+'§'+JSON.stringify({t:src.title,e:src.episode,i:src.inferred,g:(src.segments||[]).length});};
+    pdb().then(db=>{try{const tx=db.transaction('c','readwrite'),st=tx.objectStore('c');st.clear();st.put({sig:measureSig(),map:PCACHE},'pages');tx.oncomplete=tx.onerror=()=>db.close();}catch(_){db.close();}}).catch(()=>{});},{timeout:8000});},6000);};
+  // v251: the page's running id (d01_page_N) is left out — a page added early in the book renumbered every page after it, and the
+  // whole book was measured again (twenty seconds and more: «страница не отвечает»); the measuring never reads it
+  const pageKey=page=>{const src=page.source||{};return JSON.stringify(page,(k,v)=>k==='source'||k==='measuredFlow'||k==='id'?undefined:v)+'§'+JSON.stringify({t:src.title,e:src.episode,i:src.inferred,g:(src.segments||[]).length});};
   function measurePage(page,source,host,render,side,metaKey){
     if(globalThis.OCHERKI_SAFE_LAYOUT||globalThis.OCHERKI_TOLERANT_LAYOUT||globalThis.OCHERKI_NO_PAGE_CACHE||(document.fonts&&document.fonts.status!=='loaded'))return renderer().paginateText(page,source,host,render,side);
+    if(!PSIG){measureSig();mergeLoaded();}
     let key='';try{key=metaKey+'|'+side+'|'+host.style.width+'x'+host.style.height+'|'+String(source)+'|'+pageKey(page);}catch(_){key='';}
     const hit=key&&PCACHE.get(key);
-    if(hit){for(const k of hit.del)delete page[k];for(const [k,v] of hit.set)page[k]=structuredClone(v);const r=structuredClone(hit.result);r.measuredFlow=page.measuredFlow;return r;}
-    const before={...page};const result=renderer().paginateText(page,source,host,render,side);
-    if(key)try{const set=[];for(const k of Object.keys(page))if(page[k]!==before[k])set.push([k,structuredClone(page[k])]);
-      const del=Object.keys(before).filter(k=>!(k in page));const r={...result};delete r.measuredFlow;
-      if(PCACHE.size>6000)PCACHE.clear();PCACHE.set(key,{set,del,result:structuredClone(r)});persistSoon();}catch(_){}
+    if(hit){for(const k of hit.del)delete page[k];for(const [k,v] of hit.set)page[k]=structuredClone(v);
+      if(hit.err){const e=new Error(hit.err.message);e.name=hit.err.name;Object.assign(e,structuredClone(hit.err.props||{}));throw e;}
+      const r=structuredClone(hit.result);r.measuredFlow=page.measuredFlow;return r;}
+    if(globalThis.__OC_PCDEBUG)globalThis.__OC_PCDEBUG.push(key);
+    // v251: a page that does not fit throws — the director tries a page that way (a line fewer, a line more) on every layout; the
+    // throw is remembered too (it was measured again at every layout: forty-five pages, a second and a half), with what it changed
+    const before={...page};
+    const keep=(extra)=>{if(!key)return;try{const set=[];for(const k of Object.keys(page))if(page[k]!==before[k])set.push([k,structuredClone(page[k])]);
+      const del=Object.keys(before).filter(k=>!(k in page));if(PCACHE.size>6000)PCACHE.clear();PCACHE.set(key,Object.assign({set,del},extra()));persistSoon();}catch(_){}};
+    let result;
+    try{result=renderer().paginateText(page,source,host,render,side);}
+    catch(err){keep(()=>{const props={};for(const k of Object.keys(err||{}))props[k]=err[k];return {err:{message:String(err?.message||err),name:String(err?.name||'Error'),props:structuredClone(props)}};});throw err;}
+    keep(()=>{const r={...result};delete r.measuredFlow;return {result:structuredClone(r)};});
     return result;}
   function createSession(meta={}){
     const size=pack.formats[meta.format||'square'];if(!size)throw Error('Неизвестный формат страницы.');
