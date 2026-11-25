@@ -17,7 +17,7 @@
     disc:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/>',book:'<path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1V19c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6.5V20"/>',
     send:'<path d="M3 11.5L21 4l-7 17-3.2-6.8z"/><path d="M10.8 14.2L21 4"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',ok:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     user:'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.2-3.6 3.8-5.4 7-5.4s5.8 1.8 7 5.4"/>',cal:'<rect x="4" y="5.5" width="16" height="14.5" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
-    doc:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/>',back:'<path d="M14 6l-6 6 6 6"/>'};
+    doc:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',back:'<path d="M14 6l-6 6 6 6"/>'};
   const I=k=>`<svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`;
   // ——— the example family
   const VOICES=[{t:'Бабушка о детстве',who:'Бабушка Анна',d:'14 марта 1958',len:754},{t:'Как познакомились',who:'Дедушка Иван',d:'7 июня 1956',len:512},{t:'Колыбельная',who:'Мама',d:'21 октября 1963',len:188},
@@ -54,8 +54,8 @@
   const bloom=(f,cls)=>`<span class="blw ${cls||''}" style="--mm:url('${ABS}archive/${f}')"><img src="${A}archive/${f}" alt="" draggable="false"><b class="bl"></b></span>`;
   const thing=(cls,f)=>`<div class="fx-obj ${cls}" data-own>${bloom(f)}</div>`;
   // the record: the vinyl and its label turn, the shine and the gold edge stay where the light is
-  const vinylBody=()=>`<span class="vn-spin"><img class="d" src="${A}keeper/desk-vinyl-disc.webp" alt="" draggable="false"><b class="gr"></b><b class="gr2"></b>
-    <span class="vn-lab"><b class="gl"></b><b class="ln"></b><b class="ring"></b><b class="hole"></b></span></span>
+  const vinylBody=lb=>`<span class="vn-spin"><img class="d" src="${A}keeper/desk-vinyl-disc.webp" alt="" draggable="false"><b class="gr"></b><b class="gr2"></b>
+    <span class="vn-lab"${lb?` style="--l1:${lb[0]};--l2:${lb[1]};--l3:${lb[2]}"`:''}><b class="gl"></b><b class="ln"></b><b class="ring"></b><b class="hole"></b></span></span>
     <span class="vn-shine"><img src="${A}keeper/desk-vinyl-shine.webp" alt="" draggable="false"><b class="cone"></b><b class="rim"></b><b class="rimglow"></b><b class="arc"></b></span>`;
   const vinyl=cls=>`<div class="vn-disc ${cls||''}" data-own><b class="glow"></b><b class="flare"></b><b class="shadow"></b>${vinylBody()}</div>`;
   const wave2=(n,seed)=>{let x=seed||7,h='';for(let k=0;k<n;k++){x=(x*9301+49297)%233280;const r=x/233280,e=Math.pow(Math.sin(Math.PI*(k+.5)/n),1.2);h+=`<i style="--h:${Math.max(6,(.2+r*.8)*e*100).toFixed(0)}%;--o:${(.4+.6*e).toFixed(2)}"></i>`;}return `<div class="rc-wave vn-wave">${h}</div>`;};
@@ -71,8 +71,11 @@
     voices(){const v=VOICES[st.vi||0];return ttl('Голоса')+side('disc',`Все записи (${VOICES.length})`)+vinyl('rc-ctr rm-disc-big')+
       low(`<h3 class="vn-h">${esc(v.t)}</h3>${wave2(64,(st.vi||0)*31+5)}<p class="vn-t"><span class="rm-cur">${mmss(st.pos||0)}</span> / ${mmss(v.len)}</p>
        <div class="rm-row">${round('rm-prev','prev','Предыдущая')}${btn('rm-main rm-go rm-play',st.playing?'pause':'play',st.playing?'Пауза':'Слушать запись')}${round('rm-next','next','Следующая')}</div>`);},
-    voicesAll(){return head('Все записи','аудиоархив семьи',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-grid">${VOICES.map((v,k)=>`<button type="button" class="rm-cell" data-i="${k}">${disc('small')}<b>${esc(v.who)}</b><span>${esc(v.d)}</span></button>`).join('')}</div>`;},
-    // v251: «Запись» is a scene of its own — the dark room, the window's light on the wall, the microphone lit from the front
+    // v253: all the records — the records in rows, each with its own colour of label; the one under the hand turns
+    voicesAll(){const LB=[['#f6dcaa','#d9a866','#8e5d2c'],['#c0504a','#8a2a28','#4a1414'],['#9aa46a','#5f6a3c','#30361c'],['#8a95a8','#4f5a70','#262c38'],['#e9c48a','#c08a48','#7a4f22'],['#d08a5a','#9c5530','#4c2410']];
+      return ttl('Все записи')+`<p class="x-sub">аудиоархив семьи</p><div class="x-backr">${round('rm-home','prev','Назад')}</div><span class="x-n">${VOICES.length} ${plural(VOICES.length,'запись','записи','записей')}</span>
+       <div class="x-search">${I('search')}<span>Найти запись…</span></div><div class="x-recs">${VOICES.map((v,k)=>`<button type="button" class="x-rec rm-cell" data-i="${k}"><span class="ah-disc">${vinylBody(LB[k%LB.length])}</span><b>${esc(v.who)}</b><span>${esc(v.d)}</span></button>`).join('')}</div>`;},
+
     record(){const bars=Array.from({length:64},(_,k)=>{const e=Math.pow(Math.sin(Math.PI*(k+.5)/64),1.4);return `<i data-e="${e.toFixed(3)}" style="--h:${Math.max(4,(.1+.12*Math.abs(Math.sin(k*1.3)))*e*100).toFixed(0)}%;--o:${(.35+.65*e).toFixed(2)}"></i>`;}).join('');
       return `<div class="rc-ttl"><i></i><h2>Запись</h2><i class="r"></i></div>
        <div class="rc-mic" data-own><div class="rc-in" style="--mm:url('${new URL(A+'archive/studio-mic.webp',location.href).href}')"><img src="${A}archive/studio-mic.webp" alt="" draggable="false"><b class="rc-front"></b><b class="rc-rim"></b><b class="rc-spec"></b></div></div>
@@ -81,19 +84,29 @@
     letters(){const l=LETTERS[st.li||0];return ttl('Письма')+side('list',`Все письма (${LETTERS.length})`)+thing('rc-ctr rc-env rm-env','envelope-c.webp')+
       low(`<div class="fx-who">Письмо от ${esc(l.from)} <i>·</i> ${esc(l.d)}</div><p class="fx-sub">семейная переписка</p>
        <div class="rm-row">${round('rm-prev','prev','Предыдущее')}${btn('rm-main rm-go rm-open','doc','Открыть письмо')}${round('rm-next','next','Следующее')}</div>`);},
-    letter(){const l=LETTERS[st.li||0],raw=st.typed;return head('Письма','семейная переписка',btn('rm-side rm-back','back','К конвертам'))+
-      `<div class="rm-c rm-read"><div class="rm-paper${raw?' typed':''}"><div class="rm-stamp"><b>${esc(l.city.toUpperCase())}</b><span>${esc(l.d)}</span></div>${l.text.split('\n').map(p=>`<p>${esc(p)}</p>`).join('')}</div>
-       <div class="rm-row rm-split"><div class="rm-seg"><button type="button" data-v="0" class="${raw?'':'on'}">Оригинал</button><button type="button" data-v="1" class="${raw?'on':''}">Расшифровка</button></div>${btn('rm-tobook','book','В книгу')}</div></div>`;},
-    lettersAll(){return head('Все письма','семейная переписка',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-grid env">${LETTERS.map((l,k)=>`<button type="button" class="rm-cell" data-i="${k}"><img src="${A}archive/envelope.webp" alt="" draggable="false"><b>${esc(l.who)}</b><span>${esc(l.d)}</span></button>`).join('')}</div>`;},
+    // the letter: the envelope's back — the letter on its paper with the postmark and the stamp
+    letter(){const l=LETTERS[st.li||0],raw=st.typed;return ttl('Письма')+`<p class="x-sub">семейная переписка</p>`+side('back','К конвертам').replace('rm-side','rm-side rm-back')+
+      `<div class="x-letter${raw?' typed':''}" data-own><div class="x-post"><div class="x-pm">${esc(l.city.toUpperCase())}<small>${esc(l.d)}</small></div><div class="x-stamp"><img src="qa/demo-book/photos/city_tiflis.jpg" alt=""></div></div>${l.text.split('\n').map(p=>`<p>${esc(p)}</p>`).join('')}</div>`+
+      low(`<div class="x-lrow"><div class="x-seg"><button type="button" data-v="0" class="${raw?'':'on'}">Оригинал</button><button type="button" data-v="1" class="${raw?'on':''}">Расшифровка</button></div><i class="ln"></i>${btn('rm-side rm-tobook','book','В книгу')}</div>`);},
+
+    // all the letters — the envelopes in rows; the one under the hand rises and glows
+    lettersAll(){return ttl('Письма')+`<p class="x-sub">семейная переписка</p><div class="x-grid">${LETTERS.map((l,k)=>`<button type="button" class="x-env rm-cell" data-i="${k}"><img src="${A}archive/envelope-c.webp" alt="" draggable="false"><span>${esc(l.who)}<i>·</i>${esc(l.d)}</span></button>`).join('')}</div>
+       <div class="x-back">${btn('rm-side rm-home','prev','Назад')}</div>`;},
+
     fixes(){return ttl('Правки')+side('list',`Все правки (${FIXES.length})`)+thing('rc-ctr rc-feather','feather-c.webp')+
       low(`<div class="fx-who"><span class="av">${I('user')}</span>Правки от Натальи <i>·</i> Глава 3</div><div class="fx-count">предложено ${FIXES.length} ${plural(FIXES.length,'изменение','изменения','изменений')}</div>
        <div class="rm-row">${btn('rm-main rm-go rm-view','doc','Просмотреть правки')}</div>`);},
-    fix(){const k=st.fi||0,f=FIXES[k];return head('Наталья · Глава 3','',btn('rm-side rm-back','back','Назад'))+`<div class="rm-c rm-cmp">
-       <div class="rm-cards"><div class="rm-card"><b class="rm-tab">Было</b><p>${f.was}</p></div><div class="rm-card"><b class="rm-tab">Предлагается</b><p>${f.now}</p></div></div>
-       <div class="rm-row">${round('rm-prev','prev','Предыдущая')}<span class="rm-count">Правка ${k+1} из ${FIXES.length}</span>${round('rm-next','next','Следующая')}</div>
-       <div class="rm-row">${btn('rm-no','x','Отклонить')}${btn('rm-main rm-yes','ok','Принять')}</div>${note}</div>`;},
-    question(){if(st.sent)return ttl('Вопрос недели')+`<div class="rc-check rc-ctr" data-own>${I('ok')}</div>`+
-       low(`<div class="fx-who">Вопрос отправлен!</div><p class="fx-sub">для ${esc(PEOPLE[st.pi||0])} · ${esc(DAYS[st.di||0])}</p><div class="rm-row">${btn('rm-main rm-go rm-again','send','Задать ещё')}</div>`);
+    // the corrections compared: «Было» and «Предлагается» on two sheets
+    fix(){const k=st.fi||0,f=FIXES[k];return ttl('Наталья <span class="x-dot">·</span> Глава 3')+side('list',`Все правки (${FIXES.length})`).replace('rm-side','rm-side rm-back')+
+      `<div class="x-cards" data-own><div class="x-card"><b class="tab">Было</b>${f.was}</div><div class="x-card"><b class="tab">Предлагается</b>${f.now}</div></div>`+
+      low(`<div class="rm-row">${round('rm-prev','prev','Предыдущая')}<span class="x-count">Правка ${k+1} из ${FIXES.length}</span>${round('rm-next','next','Следующая')}</div>
+       <div class="rm-row">${btn('x-no rm-no','x','Отклонить')}${btn('rm-main rm-go rm-yes','ok','Принять')}</div>`);},
+
+    question(){if(st.sent)return ttl('Вопрос недели')+`<div class="x-fly" data-own><svg viewBox="0 0 1920 1080" preserveAspectRatio="none"><defs><linearGradient id="xtr" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#ffb760" stop-opacity="0"/><stop offset=".6" stop-color="#ffc878" stop-opacity=".7"/><stop offset="1" stop-color="#fff0d0" stop-opacity="1"/></linearGradient><filter id="xgl" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+       <path class="tr w" d="M330 470 C 620 520, 860 470, 1110 350" stroke="url(#xtr)" stroke-width="10" fill="none" filter="url(#xgl)"/><path class="tr" d="M330 470 C 620 520, 860 470, 1110 350" stroke="url(#xtr)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+       <circle class="tip" cx="1112" cy="349" r="26" fill="#ffd08a" filter="url(#xgl)"/></svg><img class="pl" src="${A}archive/plane-c.webp" alt="" draggable="false"></div>
+       <div class="x-check">${I('ok')}</div><div class="x-sent"><h3>Вопрос отправлен!</h3><p>для ${esc(PEOPLE[st.pi||0])}<br>${esc(DAYS[st.di||0])}</p></div>`+
+       low(`<div class="rm-row">${btn('rm-main rm-go rm-again','send','Задать ещё')}</div>`);
       return ttl('Вопрос недели')+thing('rc-ctr rc-plane rm-plane','plane-c.webp')+
        low(`<div class="fx-q">${round('rm-prev arw','prev','Предыдущий')}<p>${esc(QUESTIONS[st.qi||0])}</p>${round('rm-next arw','next','Следующий')}</div>
        <div class="rm-row">${btn('rm-pick rm-who2','user','Для '+esc(PEOPLE[st.pi||0]))}${btn('rm-pick rm-day','cal',esc(DAYS[st.di||0]))}</div>
@@ -108,8 +121,8 @@
         it('question',bloom('plane-c.webp','ah-plane'),'Вопрос недели')+`</div>`;}};
   function show(v,instant){if(!room)return;st.view=v;const html=views[v]();
     if(instant){room.innerHTML=html;after();return;}
-    const old=room.firstElementChild?[...room.children]:[];old.forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:200,fill:'forwards'}));
-    setTimeout(()=>{room.innerHTML=html;after();[...room.children].filter(el=>!el.hasAttribute('data-own')).forEach((el,i)=>el.animate([{opacity:0,translate:'0 10px'},{opacity:1,translate:'0 0'}],{duration:420,delay:i*60,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'}));},old.length?190:0);}
+    const old=room.firstElementChild?[...room.children]:[];old.forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:320,easing:'ease-in',fill:'forwards'}));
+    setTimeout(()=>{room.innerHTML=html;after();[...room.children].filter(el=>!el.hasAttribute('data-own')).forEach((el,i)=>el.animate([{opacity:0,translate:'0 10px'},{opacity:1,translate:'0 0'}],{duration:640,delay:i*70,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'}));},old.length?300:0);}
   // after a room is drawn: its moving parts
   let tick=0;
   function after(){cancelAnimationFrame(tick);const v=st.view;
@@ -132,8 +145,10 @@
     const cur=r.querySelector('.rm-cur');if(cur)cur.textContent=mmss(st.rec||0);const lab=r.querySelector('.rc-lab');if(lab)lab.textContent=st.recording?'Идёт запись…':(st.rec||0)>0?'Продолжить запись':'Начать запись';
     if(!st.recording)r.querySelectorAll('.rc-wave i').forEach((b,k,all)=>{const e=+b.dataset.e;b.style.setProperty('--h',Math.max(4,(.1+.12*Math.abs(Math.sin(k*1.3)))*e*100).toFixed(0)+'%');});}
   // ——— the presses in the rooms
-  function press(e){const b=e.target.closest('button');if(!b||!room?.contains(b))return;const v=st.view,c=b.classList;
-    if(v==='home'&&b.dataset.go){const nb=document.querySelector(`.ar-nav [data-k="${b.dataset.go}"]`);if(nb)nb.click();return;}
+  function press(e){if(st.view==='letters'&&e.target.closest('.rc-env'))return openLetter();const b=e.target.closest('button');if(!b||!room?.contains(b))return;const v=st.view,c=b.classList;
+    if(v==='home'&&b.dataset.go){const k=b.dataset.go;st.pend=k==='voices'?'voicesAll':k==='letters'?'lettersAll':null;const nb=document.querySelector(`.ar-nav [data-k="${k}"]`);if(nb)nb.click();return;}
+    if(c.contains('rm-home')){const nb=document.querySelector('.ar-nav button.on');if(nb)nb.click();else show('home');return;}
+    if(v==='letter'&&c.contains('rm-back'))return closeLetter();
     const cyc=(key,n,d)=>{st[key]=((st[key]||0)+d+n)%n;};
     if(v==='voices'){if(c.contains('rm-side'))return show('voicesAll');if(c.contains('rm-play')){st.playing=!st.playing;b.innerHTML=`${I(st.playing?'pause':'play')}<span>${st.playing?'Пауза':'Слушать запись'}</span>`;after();return;}
       if(c.contains('rm-prev')||c.contains('rm-next')){cyc('vi',VOICES.length,c.contains('rm-next')?1:-1);st.pos=0;st.playing=false;return show('voices');}}
@@ -146,18 +161,31 @@
     if(v==='lettersAll'){if(c.contains('rm-back'))return show('letters');if(c.contains('rm-cell')){st.li=+b.dataset.i;return show('letters');}}
     if(v==='fixes'){if(c.contains('rm-view')||c.contains('rm-side')){st.fi=0;return show('fix');}}
     if(v==='fix'){if(c.contains('rm-back'))return show('fixes');if(c.contains('rm-prev')||c.contains('rm-next')){cyc('fi',FIXES.length,c.contains('rm-next')?1:-1);return show('fix');}
-      if(c.contains('rm-yes')||c.contains('rm-no')){const card=room.querySelector(c.contains('rm-yes')?'.rm-card:last-child':'.rm-card:first-child');card?.classList.add(c.contains('rm-yes')?'taken':'dropped');
+      if(c.contains('rm-yes')||c.contains('rm-no')){const card=room.querySelector(c.contains('rm-yes')?'.x-card:last-child':'.x-card:first-child');card?.classList.add(c.contains('rm-yes')?'taken':'dropped');
         setTimeout(()=>{if((st.fi||0)<FIXES.length-1){st.fi++;show('fix');}else{toast('все правки просмотрены');show('fixes');}},520);return;}}
     if(v==='question'){if(st.sent){if(c.contains('rm-again')){st.sent=false;return show('question');}return;}
       if(c.contains('rm-prev')||c.contains('rm-next')){cyc('qi',QUESTIONS.length,c.contains('rm-next')?1:-1);return show('question',true);}
       if(c.contains('rm-who2')){cyc('pi',PEOPLE.length,1);return show('question',true);}if(c.contains('rm-day')){cyc('di',DAYS.length,1);return show('question',true);}
       if(c.contains('rm-send'))return fly();}}
   // the letter: the envelope opens (its picture rises and goes), the letter comes up in its place
-  function openLetter(){const env=room.querySelector('.rm-env');if(!env)return show('letter');env.animate([{transform:'none',opacity:1},{transform:'translateY(-30px) scale(.96)',opacity:0}],{duration:380,easing:'ease-in',fill:'forwards'});setTimeout(()=>show('letter'),260);}
+  function openLetter(){const env=room.querySelector('.rm-env');if(!env)return show('letter');if(st.flip)return;st.flip=true;
+    [...room.children].filter(el=>el!==env).forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'}));
+    env.animate([{transform:'perspective(1600px) rotateY(0deg)'},{transform:'perspective(1600px) rotateY(90deg) scale(1.08)'}],{duration:460,easing:'cubic-bezier(.5,0,.75,.4)',fill:'forwards'});
+    setTimeout(()=>{show('letter',true);const lt=room.querySelector('.x-letter');
+      lt?.animate([{transform:'perspective(1600px) rotateY(-90deg) scale(.7)',opacity:.6},{transform:'perspective(1600px) rotateY(0deg) scale(1)',opacity:1}],{duration:620,easing:'cubic-bezier(.2,.7,.3,1)'});
+      [...room.children].filter(el=>el!==lt).forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:500,delay:280,fill:'backwards'}));st.flip=false;},440);}
+  function closeLetter(){const lt=room.querySelector('.x-letter');if(!lt||st.flip)return show('letters');st.flip=true;
+    [...room.children].filter(el=>el!==lt).forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'}));
+    lt.animate([{transform:'perspective(1600px) rotateY(0deg)'},{transform:'perspective(1600px) rotateY(-90deg) scale(.7)'}],{duration:460,easing:'cubic-bezier(.5,0,.75,.4)',fill:'forwards'});
+    setTimeout(()=>{show('letters',true);const env=room.querySelector('.rm-env');
+      env?.animate([{transform:'perspective(1600px) rotateY(90deg) scale(1.08)'},{transform:'perspective(1600px) rotateY(0deg)'}],{duration:620,easing:'cubic-bezier(.2,.7,.3,1)'});
+      [...room.children].filter(el=>el!==env).forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:500,delay:280,fill:'backwards'}));st.flip=false;},440);}
   // the question: the plane takes off up to the right and is gone, a thin trail behind it
-  function fly(){const pl=room.querySelector('.rm-plane');if(!pl){st.sent=true;return show('question');}
-    pl.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:'translate(18vw,-14vh) rotate(-8deg) scale(.7)',opacity:1,offset:.7},{transform:'translate(34vw,-26vh) rotate(-12deg) scale(.4)',opacity:0}],{duration:1100,easing:'cubic-bezier(.5,0,.6,1)',fill:'forwards'});
-    setTimeout(()=>{st.sent=true;show('question');},900);}
+  function fly(){const pl=room.querySelector('.rm-plane');if(!pl||st.flip){st.sent=true;return show('question');}st.flip=true;
+    room.querySelectorAll('.rc-low').forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:420,fill:'forwards'}));
+    pl.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:'translate(-6vw,4vh) rotate(4deg) scale(.95)',opacity:1,offset:.22},{transform:'translate(14vw,-18vh) rotate(-10deg) scale(.6)',opacity:0}],{duration:1150,easing:'cubic-bezier(.55,0,.4,1)',fill:'forwards'});
+    setTimeout(()=>{st.sent=true;st.flip=false;show('question',true);room.querySelector('.x-fly')?.classList.add('go');
+      [...room.children].filter(el=>!el.classList.contains('x-fly')).forEach((el,i)=>el.animate([{opacity:0,translate:'0 10px'},{opacity:1,translate:'0 0'}],{duration:700,delay:700+i*90,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'}));},950);}
   // ——— a section chosen (archive.js): the things step aside and its room comes; none — the things come back
   addEventListener('ar-room',e=>{const k=e.detail?.k;board=e.detail?.board;if(!board)return;
     if(!room){room=document.createElement('div');room.className='rm';board.appendChild(room);room.addEventListener('click',press);}
@@ -168,7 +196,7 @@
     const first=!scene.classList.contains('on');if(first){scene.style.transition='none';requestAnimationFrame(()=>requestAnimationFrame(()=>scene.style.transition=''));}
     scene.classList.add('on');room.classList.add('rc');document.documentElement.classList.add('ar-cine');
     board.querySelectorAll('.ar-h,.ar-row').forEach(el=>el.classList.add('ar-away'));
-    const v=(!k||k==='x'||!views[k])?'home':k;if(v!=='record'&&st.recording){st.recording=false;}if(v!=='voices')st.playing=false;
+    let v=(!k||k==='x'||!views[k])?'home':k;if(st.pend&&v!=='home'){v=st.pend;}st.pend=null;if(v!=='record'&&st.recording){st.recording=false;}if(v!=='voices')st.playing=false;
     room.classList.add('on');show(v);});
   // the archive gone: the recording stops and the record's scene goes with it
   new MutationObserver(()=>{if(document.documentElement.classList.contains('ar-on'))return;if(st.recording){st.recording=false;cancelAnimationFrame(tick);recUI();}

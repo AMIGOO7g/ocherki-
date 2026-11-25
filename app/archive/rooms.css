@@ -296,3 +296,99 @@ html.ar-on.ar-cine:has(.shell) .oct .lbx,html.ar-on.ar-cine:has(.shell) .oct .lb
 .ah-it:hover .ah-disc .vn-spin{animation-play-state:running}
 @keyframes ahSpin{to{rotate:360deg}}
 @media (prefers-reduced-motion:reduce){.rm.rc.on .rc-ctr,.rm.rc.on .ah-row{animation:none}}
+
+/* ——— v253: the archive's inner screens on the same scene — all the records, all the letters, the letter (the envelope turned over), the corrections compared, the question sent with the plane's bright trail */
+
+.x-cards{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 11vh);display:flex;justify-content:center;gap:clamp(30px,4vw,64px)}
+.x-card{position:relative;width:min(600px,38vw);min-height:30vh;box-sizing:border-box;padding:7.5vh 4.2vh 4vh;border-radius:14px;
+  background:#ecd9b6 url(../../assets/archive/letter.webp) center/cover;box-shadow:inset 0 0 40px rgba(120,80,40,.25),0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(160,110,60,.35);
+  font:italic 500 clamp(28px,3.6vh,40px)/1.42 'CormorantCy',Georgia,serif;color:#3a2614}
+.x-card .tab{position:absolute;left:50%;top:-2.2vh;translate:-50% 0;padding:1.1vh 4.2vh;border-radius:999px;background:linear-gradient(#f6e3c0,#dcb682);color:#3a2614;
+  font:italic 500 clamp(22px,2.8vh,30px)/1 'CormorantCy',serif;box-shadow:0 6px 16px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.6)}
+.x-card s{text-decoration:none;position:relative;color:#5a3b22}
+.x-card s:after{content:"";position:absolute;left:-4%;right:-4%;top:52%;height:2px;background:#b3261e;rotate:-8deg;border-radius:2px}
+.x-card mark{background:linear-gradient(transparent 8%,rgba(242,190,90,.75) 8%,rgba(242,190,90,.75) 92%,transparent 92%);color:#2c1a0c;padding:0 .15em;border-radius:3px}
+.x-count{display:flex;align-items:center;gap:26px;font:italic clamp(22px,2.7vh,30px)/1 'CormorantCy',serif;color:#ecd6b0}
+.x-count:before,.x-count:after{content:"";width:110px;height:1px;background:linear-gradient(90deg,transparent,rgba(226,179,108,.7))}.x-count:after{transform:scaleX(-1)}
+.rm.rc .rm-btn.x-no{background:radial-gradient(circle,#2a2520,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box!important;color:#ecd6b0!important}
+.x-sub{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 6.6vh);text-align:center;font:500 clamp(13px,1.5vh,16px)/1 'CormorantCy',serif;letter-spacing:.38em;text-transform:uppercase;color:rgba(236,214,176,.75)}
+.x-grid{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 11vh);margin:auto;width:min(1040px,80vw);display:grid;grid-template-columns:repeat(3,1fr);gap:3.2vh 4vw;justify-items:center}
+.x-env{display:flex;flex-direction:column;align-items:center;gap:1.3vh;cursor:pointer}
+.x-env img{width:min(230px,14vw);display:block;filter:drop-shadow(10px 16px 14px rgba(0,0,0,.55));transition:filter .4s ease,translate .4s ease;border-radius:4px}
+.x-env:hover img{translate:0 -4px;filter:drop-shadow(0 0 2px rgba(255,214,150,1)) drop-shadow(0 0 16px rgba(255,170,80,.75)) drop-shadow(10px 16px 14px rgba(0,0,0,.55))}
+.x-env span{font:italic clamp(19px,2.3vh,25px)/1 'CormorantCy',serif;color:#f2dcb6;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.x-env span i{font-style:normal;opacity:.6;margin:0 .35em}
+.x-back{position:absolute;left:0;right:0;bottom:6vh;display:flex;align-items:center;justify-content:center;gap:24px}
+.x-back .rm-side{position:static!important}.x-back:before,.x-back:after{content:"";width:110px;height:1px;background:linear-gradient(90deg,transparent,rgba(226,179,108,.7))}.x-back:after{transform:scaleX(-1)}
+.x-search{position:absolute;left:0;right:0;margin:auto;top:calc(var(--oct-b,190px) + 10.5vh);width:min(570px,50vw);height:5.2vh;border-radius:999px;box-sizing:border-box;
+  display:flex;align-items:center;gap:14px;padding:0 22px;border:1.5px solid rgba(214,160,90,.6);background:rgba(20,10,5,.35);font:italic clamp(18px,2.2vh,24px)/1 'CormorantCy',serif;color:rgba(236,214,176,.6)}
+.x-search svg{width:24px;height:24px;fill:none;stroke:#ecd6b0;stroke-width:1.8}
+.x-recs{position:absolute;left:0;right:0;margin:auto;top:calc(var(--oct-b,190px) + 19vh);width:min(1000px,78vw);display:grid;grid-template-columns:repeat(3,1fr);gap:4vh 3vw;justify-items:center}
+.x-rec{display:flex;flex-direction:column;align-items:center;gap:1vh}
+.x-rec .ah-disc{width:20vh;height:20vh}
+.x-rec:hover .ah-disc{filter:drop-shadow(0 0 3px rgba(255,214,150,1)) drop-shadow(0 0 22px rgba(255,160,70,.8))}
+.x-rec b{font:italic 600 clamp(24px,3vh,32px)/1 'CormorantCy',serif;color:#f2dcb6;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.x-rec span{font:italic clamp(18px,2.2vh,24px)/1 'CormorantCy',serif;color:#ecd6b0;opacity:.85}
+.x-rec .vn-lab .gl{background:radial-gradient(circle at 36% 30%,var(--l1),var(--l2) 60%,var(--l3) 100%)!important}
+.x-rec .vn-lab .em{position:absolute;inset:22%;display:block;background:url(../../assets/brand/logo-day-bare.png) center/contain no-repeat;opacity:.5;filter:sepia(1) saturate(1.4) brightness(1.6)}
+.x-backr{position:absolute;left:max(calc(50% - 560px),3vw);top:calc(var(--oct-b,190px) - .5vh)}
+.x-n{position:absolute;right:max(calc(50% - 560px),3vw);top:calc(var(--oct-b,190px) + 1.6vh);font:italic clamp(20px,2.5vh,27px)/1 'CormorantCy',serif;color:#ecd6b0}
+/* the letter: the envelope turned over — its back is the letter */
+.x-letter{position:absolute;left:0;right:0;margin:auto;top:calc(var(--oct-b,190px) + 10vh);width:min(1120px,66vw);min-height:50vh;box-sizing:border-box;border-radius:14px;
+  padding:5vh 6vh 4vh;background:#ecd9b6 url(../../assets/archive/letter.webp) center/cover;box-shadow:inset 0 0 50px rgba(120,80,40,.28),0 22px 50px rgba(0,0,0,.6),0 0 0 1px rgba(160,110,60,.35);
+  font:clamp(20px,2.35vh,27px)/1.5 'SignThatS','CormorantCy',serif;color:#3b2a1c}
+.x-letter p{margin:0 0 .2em;text-indent:1.2em}.x-letter p:first-child{text-indent:0}
+.x-post{float:right;margin:-1.5vh -1vh 1vh 3vh;display:flex;align-items:flex-start}
+.x-pm{width:118px;height:118px;border-radius:50%;border:2px solid rgba(40,28,18,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(40,28,18,.8);
+  font:600 15px/1.2 'PTSerifCy',Georgia,serif;letter-spacing:.12em;margin-right:-30px;margin-top:14px;position:relative;z-index:1;rotate:-8deg}
+.x-pm small{font:500 15px/1 'PTSerifCy',serif;letter-spacing:.04em;margin-top:6px}
+.x-pm:after{content:"";position:absolute;left:70%;top:62%;width:110px;height:34px;background:repeating-linear-gradient(180deg,rgba(40,28,18,.6) 0 2px,transparent 2px 9px);
+  -webkit-mask:linear-gradient(90deg,#000,transparent);mask:linear-gradient(90deg,#000,transparent);border-radius:40%}
+.x-stamp{width:96px;height:120px;padding:7px;box-sizing:border-box;background:#efe2c6;rotate:3deg;
+  -webkit-mask:radial-gradient(circle at 5px 5px,transparent 3px,#000 3.5px) -5px -5px/10px 10px;mask:radial-gradient(circle at 5px 5px,transparent 3px,#000 3.5px) -5px -5px/10px 10px;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.x-stamp img{width:100%;height:100%;object-fit:cover;filter:sepia(1) contrast(1.1) brightness(.95)}
+.x-seg{display:flex;border-radius:999px;padding:4px;border:1.5px solid rgba(214,160,90,.6);background:rgba(20,10,5,.4)}
+.x-seg button{all:unset;cursor:pointer;padding:1.2vh 3.2vh;border-radius:999px;font:italic clamp(20px,2.4vh,26px)/1 'CormorantCy',serif;color:#ecd6b0}
+.x-seg button.on{background:linear-gradient(#f6e3c0,#dcb682);color:#2c1a0c;font-weight:600}
+.x-lrow{display:flex;align-items:center;gap:2.4vw}
+.x-lrow i.ln{display:block;width:12vw;height:1px;background:linear-gradient(90deg,transparent,rgba(226,179,108,.7),transparent)}
+/* the plane flies off, a bright trail behind it */
+.x-fly{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.x-fly .pl{position:absolute;left:calc(50% + 80px);top:calc(var(--oct-b,190px) + 4vh);width:22vh;rotate:-6deg;filter:sepia(.35) saturate(1.3) brightness(1.1) drop-shadow(0 0 18px rgba(255,190,110,.6))}
+.x-fly svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.x-check{position:absolute;left:0;right:0;margin:auto;top:calc(var(--oct-b,190px) + 25vh);width:9vh;height:9vh;border-radius:50%;display:grid;place-items:center;border:2px solid rgba(236,214,176,.9);color:#ecd6b0}
+.x-check svg{width:55%;height:55%;fill:none;stroke:currentColor;stroke-width:1.8}
+.x-sent{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 37vh);text-align:center}
+.x-sent h3{margin:0;font:italic 500 clamp(40px,5.2vh,56px)/1.1 'CormorantCy',Georgia,serif;color:#f2dcb6;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.x-sent p{margin:1.4vh 0 0;font:italic clamp(24px,3vh,32px)/1.35 'CormorantCy',serif;color:#ecd6b0}
+
+.x-env,.x-rec{all:unset;box-sizing:border-box;cursor:pointer}
+.x-env{display:flex;flex-direction:column;align-items:center;gap:1.3vh}
+.x-rec{display:flex;flex-direction:column;align-items:center;gap:1vh}
+.x-rec .ah-disc{transition:filter .4s ease}
+.x-rec:hover .ah-disc .vn-spin{animation-play-state:running}
+.x-search span{pointer-events:none}
+.rc-ttl .x-dot{font-style:normal;opacity:.6;margin:0 .3em}
+.x-letter.typed{font:clamp(17px,2vh,22px)/1.6 'PTSerifCy',Georgia,serif}
+.rc-env{pointer-events:auto!important;cursor:pointer}
+.rc-env:hover .blw{filter:drop-shadow(0 0 14px rgba(255,180,100,.35))}
+.x-letter{transform-origin:50% 50%;backface-visibility:hidden}
+.rm.rc.on .x-cards{animation:rcIn 1s cubic-bezier(.2,.75,.25,1) both}
+/* the corrections: the chosen sheet is taken / let go */
+.x-card{transition:opacity .5s ease,translate .5s ease,filter .5s ease}
+.x-card.taken{filter:drop-shadow(0 0 16px rgba(255,190,110,.7))}
+.x-card.dropped{opacity:.35;translate:0 10px}
+/* the plane's trail: drawn behind it, then it slowly dims */
+.x-fly .tr{stroke-dasharray:1300;stroke-dashoffset:1300}
+.x-fly .tr.w{opacity:.85}
+.x-fly .tip,.x-fly .pl{opacity:0}
+.x-fly.go .tr{animation:xDraw 1.1s cubic-bezier(.3,.6,.3,1) forwards,xDim 5s ease 1.6s forwards}
+.x-fly.go .tip{animation:xTip 1.4s ease .6s forwards}
+.x-fly.go .pl{animation:xPl 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes xDraw{to{stroke-dashoffset:0}}
+@keyframes xDim{to{opacity:.45}}
+@keyframes xTip{0%{opacity:0}40%{opacity:.5}100%{opacity:.3}}
+@keyframes xPl{from{opacity:0;translate:-18vw 12vh;scale:.85}to{opacity:1;translate:0 0;scale:1}}
+@media (prefers-reduced-motion:reduce){.x-fly.go .tr,.x-fly.go .pl,.x-fly.go .tip{animation:none;opacity:1;stroke-dashoffset:0}}
+/* the desk under the archive takes no presses while the archive is open (the clean sheets' question caught them over the front's record) */
+html.ar-on.ar-cine .ws-left,html.ar-on.ar-cine .ws-left *{pointer-events:none!important}
