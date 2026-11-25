@@ -1136,3 +1136,8 @@ html:has(.shell.oc-w.is-evening:not(.is-night)) .wp-page::before{opacity:1}
 html:has(.shell.oc-w.is-evening:not(.is-night)) .wp-page::after{opacity:0}
 /* v245 — the question about the hero's portrait stands where it is asked (under its tick), not at the card's foot */
 .ph-sure.ph-hsure{position:relative;bottom:auto;margin:10px -30px 6px}
+/* v247 — the clean sheet carried over the desk in the evening: the evening's light on it (it was the day's) */
+html:has(.shell.is-evening:not(.is-night)) .ws-plate{background:var(--ws-shade-e) 0 0/100vw 100vh no-repeat fixed,radial-gradient(120% 90% at 18% 6%,rgba(255,240,215,.4),rgba(0,0,0,0) 44%),linear-gradient(100deg,#f7efe2 0%,#f8efe2 68%,#efe0ca 100%);background-blend-mode:multiply,normal,normal}
+/* the page's count under «обновить» in the evening: as at night (it was lost in the dusk) */
+html:has(.shell.is-evening:not(.is-night)) .wp-pg{color:#f0d4a4;text-shadow:0 1px 3px rgba(40,20,6,.55);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
+html:has(.shell.is-evening:not(.is-night)) .wp-pane~* .lab,html:has(.shell.is-evening:not(.is-night)) .wp-keys .wp-item .lab{color:#f0d4a4;text-shadow:0 1px 3px rgba(40,20,6,.55)}

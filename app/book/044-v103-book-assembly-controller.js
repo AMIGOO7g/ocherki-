@@ -2455,6 +2455,8 @@
   const sectionTitleOf=id=>{const sec=(structure?.sections||[]).find(x=>x.id===id);return sec?String(sec.title||''):'';};
   window.__ocherkiBook={
     ready:()=>quietAssemble()?bookSpreads.length:0,
+    // the book as it is laid out now, without laying it out (0 when it is not up to date)
+    fresh:()=>structure&&bookFresh()&&window.__ocherkiPeekSig===peekSig()?bookSpreads.length:0,
     size:()=>currentPageSize(),
     spread(i){const sp=bookSpreads[i];if(!sp)return null;const host=(pg,side)=>pg?pageCanvasHost(pg,side,'preview',true):'';
       return {single:!!sp.single||!sp.left||!sp.right,left:host(sp.left,'left'),right:host(sp.right,'right'),leftNo:sp.left?.pageNo||'',rightNo:sp.right?.pageNo||'',title:sectionTitleOf(sp.right?.sectionId||sp.left?.sectionId)};},

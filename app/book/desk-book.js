@@ -65,9 +65,13 @@
   const putThumb=(el,k,t)=>{el.children[0].innerHTML=t.left;el.children[1].innerHTML=t.right;el.classList.toggle('single',!!t.single);
     const prev=k>0?thumbOf(k-1):null,m=t.title&&(!prev||prev.title!==t.title)?String(t.title).match(/^(Глава\s*\d+)\.?\s*(.*)$/i):null;
     el.children[2].innerHTML=(m?`<b>${esc(m[1])}</b>${m[2]?`<span>${esc(m[2])}</span>`:''}`:'')+(t.label?`<small>с. ${esc(t.label)}</small>`:'');filled.add(k);};
-  setInterval(()=>{if(isOpen||document.hidden||!shell.classList.contains('oc-w'))return;
-    idle(dl=>{if(isOpen)return;let nn=0;try{nn=BK()?.ready?.()||0;}catch(_){return;}const at=window.__ocherkiBuiltAt||0;if(pre.at!==at){pre.at=at;pre.list=[];}
-      let made=0;for(let k=0;k<nn&&(made<2||dl.timeRemaining()>6);k++)if(!pre.list[k]){try{pre.list[k]=eager(BK().thumb(k));}catch(_){}made++;}},1500);},700);
+  // v247: only while the hand rests (3 s after the last key, press or move), only from the book as it is already laid out (it is
+  // never laid out here), and only in the page's free time — one little spread at a time. (v244 laid the whole book out anew
+  // every 0.7 s and drew two little spreads even when the page was busy: on a big book the constructor stopped answering.)
+  let lastHand=performance.now();['keydown','pointerdown','pointermove','wheel'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
+  setInterval(()=>{if(isOpen||document.hidden||!shell.classList.contains('oc-w')||performance.now()-lastHand<3000)return;
+    idle(dl=>{if(isOpen||performance.now()-lastHand<3000)return;let nn=0;try{nn=BK()?.fresh?.()||0;}catch(_){return;}if(!nn)return;const at=window.__ocherkiBuiltAt||0;if(pre.at!==at){pre.at=at;pre.list=[];}
+      for(let k=0;k<nn&&dl.timeRemaining()>12;k++)if(!pre.list[k]){try{pre.list[k]=eager(BK().thumb(k));}catch(_){}}},1000);},1500);
   function buildStrip(){filled=new Set();let h='';
     for(let k=0;k<n;k++)h+=`<button type="button" class="bk-th" data-k="${k}"><i class="bk-tl"></i><i class="bk-tr"></i><em></em></button>`;
     strip.innerHTML=h;const at=window.__ocherkiBuiltAt||0;if(pre.at===at)pre.list.forEach((t,k)=>{const el=strip.children[k];if(t&&el)putThumb(el,k,t);});paintStrip();}

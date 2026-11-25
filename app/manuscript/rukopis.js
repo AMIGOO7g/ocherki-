@@ -131,10 +131,18 @@
     return edge(x1,sp)+','+edge(x0,-sp)+`,linear-gradient(180deg,rgba(160,105,50,.04) ${v(0)},rgba(140,90,42,.2) ${v(.55)},rgba(95,60,28,.46) ${v(1)})`;}
   // the light layer shows the desk's picture of light from where the sheet lies; on the way it slides by the same time and curve as the
   // sheet (now — at once, for a sheet just made). A sheet not seen draws no light
+  // v247: the room's light on a sheet is laid from where the sheet really is on the screen, every frame while it moves (the sheet's
+  // move and the light's own easing went apart, and the light swam across the sheet as the fan turned) — the light stays in the room
+  const moving=new Set();let mvT=0,mvRaf=0;
+  // (read from the sheet's transform as it is this frame: its corner and its scale — as the light is laid when it stands)
+  const follow=()=>{mvRaf=0;const ls=[...moving].filter(el=>el.isConnected).map(el=>{const t=getComputedStyle(el).transform;return [el,t&&t!=='none'?new DOMMatrix(t):null];});
+    ls.forEach(([el,m])=>{const lt=el.querySelector('.rk-lt');if(!lt||!m)return;const sc=Math.hypot(m.a,m.b);if(!sc)return;
+      lt.style.backgroundPosition=`${(-m.e/sc+2).toFixed(1)}px ${(-m.f/sc+2).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/sc).toFixed(1)}px ${(innerHeight/sc).toFixed(1)}px`;});
+    if(performance.now()<mvT)mvRaf=requestAnimationFrame(follow);else moving.clear();};
   function lightSheet(el,p,now){el.style.setProperty('--sc',p.s);el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);
-    const lt=el.querySelector('.rk-lt');if(!lt)return;if(now)lt.style.transition='none';
-    lt.style.backgroundPosition=`${(-p.x/p.s+2).toFixed(1)}px ${(-p.y/p.s+2).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/p.s).toFixed(1)}px ${(innerHeight/p.s).toFixed(1)}px`;
-    if(now){lt.getBoundingClientRect();lt.style.transition='';}}
+    const lt=el.querySelector('.rk-lt');if(!lt)return;lt.style.transition='none';
+    if(now){lt.style.backgroundPosition=`${(-p.x/p.s+2).toFixed(1)}px ${(-p.y/p.s+2).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/p.s).toFixed(1)}px ${(innerHeight/p.s).toFixed(1)}px`;return;}
+    moving.add(el);mvT=performance.now()+1000;if(!mvRaf)mvRaf=requestAnimationFrame(follow);}
 
   // ——— the open chapter
   let G=null,center=0,order=[];
@@ -184,11 +192,17 @@
     // the stacks stand in the middle of the whole desk
     Object.assign(all.style,{left:'40px',right:'40px'});
     all.innerHTML=gs.map(g=>stackHtml(g,g.key===curKey)).join('')+'<div class="rk-st rk-new" role="button">+ глава</div>';glideAll(true);lightAll();setBarTitle();}
+  // v247: the stacks' view glides by one number (its translate); the room's light on every stack follows from it in the style itself
+  // (each stack keeps its place within the view, measured once) — nothing is measured while it glides. (It measured all the stacks
+  // every frame: with forty chapters the page stuck and the stacks moved in steps.)
+  let baseTop=0,ty=0;
   function glideAll(now){const t=desk.bar?desk.bar.bottom:120,max=Math.max(0,all.scrollHeight-(innerHeight-t-60));want=Math.max(0,Math.min(max,want));if(now)scroll=want;
-    all.style.transform=`translateY(${Math.round(t+34-scroll)}px)`;}
-  let gl=0;const glide=()=>{if(gl)return;const step=()=>{const d=want-scroll;if(Math.abs(d)<.5){scroll=want;gl=0;glideAll();lightAll();return;}scroll+=d*.18;glideAll();lightAll();gl=requestAnimationFrame(step);};gl=requestAnimationFrame(step);};
-  function lightAll(){all.querySelectorAll('.rk-st:not(.rk-new)').forEach(el=>{const r=el.getBoundingClientRect();if(!r.width)return;
-    const t=parseFloat(el.style.translate?.split(' ')[1])||0;el.style.setProperty('--ox',(-r.left).toFixed(1)+'px');el.style.setProperty('--oy',(-(r.top-t)).toFixed(1)+'px');el.style.setProperty('--sc',1);});}
+    ty=Math.round(t+34-scroll);all.style.transform=`translateY(${ty}px)`;all.style.setProperty('--ay',(baseTop+ty)+'px');}
+  let gl=0;const glide=()=>{if(gl)return;const step=()=>{const d=want-scroll;if(Math.abs(d)<.5){scroll=want;gl=0;glideAll();return;}scroll+=d*.18;glideAll();gl=requestAnimationFrame(step);};gl=requestAnimationFrame(step);};
+  function lightAll(){const r0=all.getBoundingClientRect();baseTop=r0.top-ty;all.style.setProperty('--ax',r0.left+'px');all.style.setProperty('--ay',(baseTop+ty)+'px');
+    const els=[...all.querySelectorAll('.rk-st:not(.rk-new)')],rs=els.map(el=>[el,el.getBoundingClientRect(),parseFloat(el.style.translate?.split(' ')[1])||0]);
+    rs.forEach(([el,r,t])=>{if(!r.width)return;const bx=(r.left-r0.left).toFixed(1),by=(r.top-t-r0.top).toFixed(1);
+      el.style.setProperty('--ox',`calc(-1 * (var(--ax) + ${bx}px))`);el.style.setProperty('--oy',`calc(-1 * (var(--ay) + ${by}px))`);el.style.setProperty('--sc',1);});}
   // the day turning to night (and back): the light crosses over slowly, as on the desk
   let wasNight=shell.classList.contains('is-night')+'|'+shell.classList.contains('is-evening'),ltxT=0;
   new MutationObserver(()=>{const nt=shell.classList.contains('is-night')+'|'+shell.classList.contains('is-evening');if(nt!==wasNight){wasNight=nt;H.classList.add('rk-ltx');clearTimeout(ltxT);ltxT=setTimeout(()=>H.classList.remove('rk-ltx'),2700);}if(isOpen&&G)layFan();}).observe(shell,{attributes:true,attributeFilter:['class']});
