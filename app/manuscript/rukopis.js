@@ -191,7 +191,7 @@
   function renderAll(){const gs=groups(),curKey=gOf(activeUid)?.key;
     // the stacks stand in the middle of the whole desk
     Object.assign(all.style,{left:'40px',right:'40px'});
-    all.innerHTML=gs.map(g=>stackHtml(g,g.key===curKey)).join('')+'<div class="rk-st rk-new" role="button">+ глава</div>';glideAll(true);lightAll();setBarTitle();}
+    all.innerHTML=gs.map(g=>stackHtml(g,g.key===curKey)).join('')+'<div class="rk-st rk-new" role="button">+ глава</div>';glideAll(true);lightAll();watchFar();setBarTitle();}
   // v247: the stacks' view glides by one number (its translate); the room's light on every stack follows from it in the style itself
   // (each stack keeps its place within the view, measured once) — nothing is measured while it glides. (It measured all the stacks
   // every frame: with forty chapters the page stuck and the stacks moved in steps.)
@@ -199,6 +199,9 @@
   function glideAll(now){const t=desk.bar?desk.bar.bottom:120,max=Math.max(0,all.scrollHeight-(innerHeight-t-60));want=Math.max(0,Math.min(max,want));if(now)scroll=want;
     ty=Math.round(t+34-scroll);all.style.transform=`translateY(${ty}px)`;all.style.setProperty('--ay',(baseTop+ty)+'px');}
   let gl=0;const glide=()=>{if(gl)return;const step=()=>{const d=want-scroll;if(Math.abs(d)<.5){scroll=want;gl=0;glideAll();return;}scroll+=d*.18;glideAll();gl=requestAnimationFrame(step);};gl=requestAnimationFrame(step);};
+  // v247: a stack out of sight is not drawn (forty stacks with their light layers made every frame of the glide heavy)
+  const farIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('rk-far',!e.isIntersecting)),{rootMargin:'240px 0px'}):null;
+  const watchFar=()=>{if(!farIO)return;farIO.disconnect();all.querySelectorAll('.rk-st').forEach(el=>farIO.observe(el));};
   function lightAll(){const r0=all.getBoundingClientRect();baseTop=r0.top-ty;all.style.setProperty('--ax',r0.left+'px');all.style.setProperty('--ay',(baseTop+ty)+'px');
     const els=[...all.querySelectorAll('.rk-st:not(.rk-new)')],rs=els.map(el=>[el,el.getBoundingClientRect(),parseFloat(el.style.translate?.split(' ')[1])||0]);
     rs.forEach(([el,r,t])=>{if(!r.width)return;const bx=(r.left-r0.left).toFixed(1),by=(r.top-t-r0.top).toFixed(1);
