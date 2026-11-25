@@ -189,8 +189,6 @@ html.ar-on.ar-cine:has(.shell) .oct .lbx,html.ar-on.ar-cine:has(.shell) .oct .lb
 .ah-it{display:flex;flex-direction:column;align-items:center;gap:2.4vh;cursor:pointer}
 .ah-vis{height:30vh;display:flex;align-items:flex-end;justify-content:center;position:relative}
 .ah-vis img{max-height:100%;display:block;filter:drop-shadow(-4px -3px 10px rgba(255,180,100,.28)) drop-shadow(12px 22px 18px rgba(0,0,0,.6))}
-.ah-it>span{font:italic 500 clamp(28px,3.4vh,38px)/1 'CormorantCy',Georgia,serif;color:#f2dcb6;text-shadow:0 2px 12px rgba(0,0,0,.6);padding-bottom:12px;position:relative}
-.ah-it>span:after{content:"";position:absolute;left:-14%;right:-14%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(226,179,108,.75),transparent)}
 .ah-disc{width:24vh;height:24vh;position:relative}
 .ah-disc .vn-spin,.ah-disc .vn-shine{position:absolute;inset:0}
 
