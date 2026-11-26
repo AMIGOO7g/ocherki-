@@ -223,3 +223,20 @@ html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new,html:has(.shell
 .rk-all .rk-st.rk-new{transition:translate .3s ease,color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),background-color 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-all .rk-st.rk-far>*{visibility:hidden}
 .rk-all .rk-st.rk-far{box-shadow:none}
+/* v256: the middle sheet lies where the writing sheet lay, under the same lamp — so it casts the very same shadow; while both lie
+   there (the first moment of the change, both ways) only the writing sheet's shadow is drawn (the two together darkened, then
+   lightened), and the middle sheet's shadow never fades in or out */
+html .rk-sh.mid{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22);
+  transition:transform .55s cubic-bezier(.2,.8,.3,1),translate .25s ease,opacity .5s ease,filter .45s ease,box-shadow .3s ease}
+html:has(.shell.is-evening:not(.is-night)) .rk-sh.mid{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
+html:has(.shell.is-night) .rk-sh.mid{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
+html.rk-on:not(.rk-hide) .rk-sh.mid{box-shadow:none!important}
+/* v256: the chapters' list fades at its foot while more plates lie below, and at its head once scrolled down */
+.rk-tabs.rk-more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 150px),rgba(0,0,0,.35) calc(100% - 50px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 150px),rgba(0,0,0,.35) calc(100% - 50px),transparent)}
+.rk-tabs.rk-up{-webkit-mask-image:linear-gradient(180deg,transparent,#000 60px);mask-image:linear-gradient(180deg,transparent,#000 60px)}
+.rk-tabs.rk-up.rk-more{-webkit-mask-image:linear-gradient(180deg,transparent,#000 60px,#000 calc(100% - 150px),rgba(0,0,0,.35) calc(100% - 50px),transparent);mask-image:linear-gradient(180deg,transparent,#000 60px,#000 calc(100% - 150px),rgba(0,0,0,.35) calc(100% - 50px),transparent)}
+/* v256: ‹ › by the sheet's number — the middle sheet one place earlier or later */
+.rk-plate .rk-mv{display:inline-flex;align-items:center;gap:6px}
+.rk-plate .rk-mv button{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font:20px/1 'CormorantCy',Georgia,serif;color:inherit;transition:background .2s ease,opacity .2s ease}
+.rk-plate .rk-mv button:hover{background:rgba(120,80,40,.14)}
+.rk-plate .rk-mv button:disabled{opacity:.25;cursor:default;background:none}

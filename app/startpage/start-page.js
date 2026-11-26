@@ -706,7 +706,10 @@
         const hook=()=>{const fr=document.getElementById('constructorShellFrame');let w=null;try{w=fr&&fr.contentWindow;if(!w||!w.document||w.location.href==='about:blank')w=null;}catch(_){w=null;}
           if(!w||w===hooked)return;hooked=w;const once=()=>{try{w.removeEventListener('pointerdown',once,true);w.removeEventListener('keydown',once,true);}catch(_){}go();};
           try{w.addEventListener('pointerdown',once,true);w.addEventListener('keydown',once,true);}catch(_){}};
-        const t=setInterval(()=>{hook();if(audioState==='playing')clearInterval(t);},800);
+        // v256: and once the verse of the boot has melted away the music begins by itself (the browser lets it when the page has
+        // been touched already, as at the entrance; otherwise the first press starts it)
+        const verseDone=()=>{const fr=document.getElementById('constructorShellFrame');try{return !!fr?.contentWindow?.document?.documentElement?.classList.contains('oc-shown');}catch(_){return false;}};let tried=false;
+        const t=setInterval(()=>{hook();if(!tried&&verseDone()){tried=true;go();}if(audioState==='playing')clearInterval(t);},400);
         document.addEventListener('pointerdown',()=>{if(document.documentElement.classList.contains('oc-direct'))go();},{capture:true,once:true});})();
       const retryAutoplay = () => {
         if (!musicPreference || !musicAllowed || !pendingAutoplay || allMuted || audioState === 'playing') return;
@@ -975,7 +978,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v255";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v256";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 

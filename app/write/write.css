@@ -1149,3 +1149,11 @@ html:has(.shell.is-evening:not(.is-night)) .ws-plate{background:var(--ws-shade-e
 html:has(.shell.is-evening:not(.is-night)) .wp-pg{color:#f0d4a4;text-shadow:0 1px 3px rgba(40,20,6,.55);transition:color 2.45s cubic-bezier(.37,0,.63,1)}
 html:has(.shell.is-evening:not(.is-night)) .wp-pane~* .lab,html:has(.shell.is-evening:not(.is-night)) .wp-keys .wp-item .lab{color:#f0d4a4;text-shadow:0 1px 3px rgba(40,20,6,.55)}
 html:has(.shell.is-evening:not(.is-night)) body .shell .wp-keys .wp-item .lab,html:has(.shell.is-evening:not(.is-night)) body .wp-keys .wp-item .lab{color:#f0d4a4!important;text-shadow:0 1px 3px rgba(40,20,6,.55)}
+
+/* v256: the boy with the kite on the page while it is being laid out */
+.wp-none.wp-wait{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;animation:wpWaitIn .6s ease both}
+.wp-none.wp-wait img{width:46%;height:auto;filter:brightness(.42) sepia(.5);transform-origin:22% 96%;animation:bkKite 3.4s ease-in-out infinite}
+.wp-none.wp-wait span{font:italic 20px/1.2 'CormorantCy',Georgia,serif;color:#8a6338;animation:bkKiteT 1.8s ease-in-out infinite}
+@keyframes wpWaitIn{from{opacity:0}to{opacity:1}}
+@keyframes bkKite{0%,100%{transform:none}50%{transform:translateY(-5px) rotate(-1.4deg)}}
+@keyframes bkKiteT{0%,100%{opacity:.5}50%{opacity:1}}

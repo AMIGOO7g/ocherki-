@@ -833,7 +833,7 @@ function restoreProject(){
         const before=sections.slice(0,index).reverse().find(item=>ids.has(item.id));
         saved.splice(before?saved.findIndex(item=>item.id===before.id)+1:0,0,section);ids.add(section.id);
       });
-      sections.splice(0,sections.length,...saved);
+      sections.splice(0,sections.length,...saved);tidyOneSheetSections();
       activeSection=Math.max(0,Math.min(sections.length-1,Number(record.activeSection)||0));
       if(Number(record.fontSize))fontSize=Number(record.fontSize);
       if(Number(record.lineHeight))lineHeight=Number(record.lineHeight);
@@ -1914,7 +1914,14 @@ function makeSiblingPage(src,blank=true,options={}){
 // blinking — there is nothing to guess about where to click
 function caretInNewSheet(){setTimeout(()=>{try{if(window.__ocPhotoCardOpen?.())return;try{window.parent?.focus();window.frameElement?.focus({preventScroll:true});window.focus();}catch(_){}editor.focus({preventScroll:true});
   const r=document.createRange();r.selectNodeContents(editor);r.collapse(false);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);}catch(_){}},760);}
+// v256: the cover, the title and the other one-page parts of the book have one sheet only — a second one could be added (by «+»
+// or a sheet carried in) and stayed there empty, with no way to take it away
+const ONE_SHEET_IDS=new Set(['cover','title','back-cover','endpaper','back-endpaper','dedication','epigraph','colophon']);
+function sheetIsEmpty(pg){return !String(pg?.text||'').split(/\n{2,}/).some(x=>x.trim()&&x!==FIELD_SKIP&&x.trim()!==SAMPLE_PREFIX)&&!(pg?.photos||[]).length;}
+function tidyOneSheetSections(){let changed=false;sections.forEach(sec=>{if(!ONE_SHEET_IDS.has(sec.id)||!Array.isArray(sec.pages)||sec.pages.length<2)return;
+  const keep=sec.pages.filter((pg,i)=>i===0||!sheetIsEmpty(pg));if(keep.length!==sec.pages.length){sec.pages=keep;sec.active=Math.min(sec.active||0,keep.length-1);changed=true;}});return changed;}
 function addPage(){
+  if(ONE_SHEET_IDS.has(currentSection()?.id)){window.parent.postMessage({type:'OCHERKI_MANUSCRIPT_NOTE',text:'У этой страницы книги один лист'},'*');return;}
   currentPage().text=textFromEditor();
   const sec=currentSection();
   const at=sec.active+1;
@@ -3655,7 +3662,9 @@ window.addEventListener('message',e=>{
         const page = section.pages[index];
         const name = String(page.episode && section.type === 'chapter' ? String(page.episode).replace(/^Эпизод\s+\d+[.:]?\s*/i,'') : (page.title || section.title || 'Лист')).trim();
         const id = 'bin_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-        if(section.type === 'chapter' && section.pages.length > 1){
+        // v256: a sheet of any part with several sheets is really taken away (a page of the cover or the introduction only went out
+        // of the book and stayed in the manuscript)
+        if(section.pages.length > 1){
           section.pages.splice(index, 1);
           bin.push({id, kind:'page', sectionId:section.id, index, page, name, from:section.title});
           // The sheet being written stays open when a sheet before it goes.

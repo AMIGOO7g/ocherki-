@@ -88,7 +88,10 @@
       const pp=ed?.querySelector('p');if(pp){const c=cs(pp);css+=`.rk-board .rk-txt p{margin:${c.marginTop} 0 ${c.marginBottom};text-indent:${c.textIndent}}`;}}
     {const r=rel(ep);if(r&&en){const lc=W.getComputedStyle(ep,'::before');css+=`.rk-board .rk-epr{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px;gap:${cs(ep).columnGap};${font(cs(en))};text-align:center}.rk-board .rk-epr::before,.rk-board .rk-epr::after{background:${lc.backgroundColor};max-width:${lc.width}}`;}}
     {const r=rel(pn);if(r)css+=`.rk-board .rk-pno{left:${r.l}px;top:${r.t}px;right:auto;${font(cs(pn))}}`;}
-    {const img=d.querySelector('.photo-stack img'),r=rel(img);if(r)css+=`.rk-board .rk-ph{left:${r.l}px;top:${r.t}px;width:${r.w}px;height:${r.h}px}`;}
+    // v256: the print as the writing sheet shows it — the whole card with its white margins (only the picture was measured: the
+    // print in the manuscript came out smaller)
+    {const pc=d.querySelector('.photo-stack .photo-card'),r=rel(pc);if(r&&pc.offsetWidth){const w=pc.offsetWidth,h=pc.offsetHeight,cs0=cs(pc);
+      css+=`.rk-board .rk-ph{left:${(r.l+r.w/2-w/2).toFixed(1)}px;top:${(r.t+r.h/2-h/2).toFixed(1)}px;width:${w}px;height:${h}px;border-width:${cs0.paddingTop} ${cs0.paddingRight} ${cs0.paddingBottom} ${cs0.paddingLeft}}`;}}
     if(lookEl.textContent!==css){lookEl.textContent=css;try{localStorage.setItem(lookKey(),css);}catch(_){}}}catch(_){}}
 
   // ——— a sheet's place: d steps from the middle (0 the middle; below 0 — on the pile; above — the fan, each smaller and deeper)
@@ -176,9 +179,15 @@
   function go(to){if(!G)return;to=Math.max(0,Math.min(order.length-1,to));if(to===center)return;center=to;rustle();layFan();}
   // the plate over the pile: the chapter, where we are in it; a press shows all the chapters
   function renderPlate(){if(!G)return;const pl=desk.plate;Object.assign(plate.style,{left:pl.left+'px',top:pl.top+'px',width:pl.width+'px',height:pl.height+'px'});
-    const h=`<b>${esc(G.word)}</b>${G.name?`<i>${esc(G.name)}</i>`:''}<span>${center+1} из ${order.length}</span>`;if(plate._h!==h){plate._h=h;plate.innerHTML=h;}}
-  function renderTabs(){const gs=groups();Object.assign(tabs.style,{left:desk.tabs.left+'px',width:desk.tabs.width+'px',top:(desk.bar?desk.bar.bottom+24:140)+'px'});
-    tabs.innerHTML='<div class="rk-tab rk-taball" role="button"><b>все главы</b></div>'+gs.map(g=>`<div class="rk-tab${g.key===G?.key?' cur':''}${g.kind==='chapter'?' ch':''}${g.key===litTab?' lit':''}" data-g="${esc(g.key)}"><b>${esc(g.word)}<span> · ${g.sheets.length}</span></b>${g.name?`<i>${esc(g.name)}</i>`:''}</div>`).join('')+'<div class="rk-tab rk-tabnew" role="button">+ глава</div>';}
+    const h=`<b>${esc(G.word)}</b>${G.name?`<i>${esc(G.name)}</i>`:''}<span class="rk-mv">${order.length>1?`<button type="button" data-mv="-1" title="Переложить этот лист на место раньше"${center<=0?' disabled':''}>‹</button>`:''}${center+1} из ${order.length}${order.length>1?`<button type="button" data-mv="1" title="Переложить этот лист на место позже"${center>=order.length-1?' disabled':''}>›</button>`:''}</span>`;if(plate._h!==h){plate._h=h;plate.innerHTML=h;}}
+  function renderTabs(){const gs=groups();{const tp=desk.bar?desk.bar.bottom+24:140;Object.assign(tabs.style,{left:desk.tabs.left+'px',width:desk.tabs.width+'px',top:tp+'px',maxHeight:Math.max(200,innerHeight-tp-36)+'px'});}
+    tabs.innerHTML='<div class="rk-tab rk-taball" role="button"><b>все главы</b></div>'+gs.map(g=>`<div class="rk-tab${g.key===G?.key?' cur':''}${g.kind==='chapter'?' ch':''}${g.key===litTab?' lit':''}" data-g="${esc(g.key)}"><b>${esc(g.word)}<span> · ${g.sheets.length}</span></b>${g.name?`<i>${esc(g.name)}</i>`:''}</div>`).join('')+'<div class="rk-tab rk-tabnew" role="button">+ глава</div>';fadeTabs();if(tabsCascade){tabsCascade=false;cascadeTabs();}}
+  // v256: the chapters' plates unfold one under another when the manuscript opens; the list fades out at its foot (and at its head
+  // once scrolled) so that the plates below the screen's edge are seen to go on, not cut
+  let tabsCascade=false;
+  function cascadeTabs(){[...tabs.querySelectorAll('.rk-tab')].forEach((t,i)=>{try{t.animate([{opacity:0,translate:'0 -16px'},{opacity:1,translate:'0 0'}],{duration:520,delay:180+Math.min(i,14)*60,easing:'cubic-bezier(.2,.7,.3,1)',fill:'backwards'});}catch(_){}});}
+  function fadeTabs(){const more=tabs.scrollHeight-tabs.clientHeight-tabs.scrollTop>4,up=tabs.scrollTop>4;tabs.classList.toggle('rk-more',more);tabs.classList.toggle('rk-up',up);}
+  tabs.addEventListener('scroll',fadeTabs,{passive:true});
 
   // ——— all the chapters as stacks (the bar's back key, or the plate)
   const PH=[[16,6,-5],[92,12,4],[50,44,-2]];
@@ -250,7 +259,10 @@
     const now=performance.now();if(now-lastTurn<560){acc=0;return;}acc+=dy;if(Math.abs(acc)<36)return;lastTurn=now;go(center+(acc>0?1:-1));acc=0;},{passive:false});
   addEventListener('keydown',e=>{if(!isOpen||!view||drag||tabDrag)return;if(e.key==='ArrowRight'||e.key==='ArrowDown')go(center+1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(center-1);else if(e.key==='Escape')back();});
   addEventListener('resize',()=>{if(isOpen){const wasOn=H.classList.contains('rk-on');H.classList.remove('rk-hide');measureDesk();if(wasOn)H.classList.add('rk-hide');render();}});
-  plate.addEventListener('click',()=>back());
+  // v256: ‹ › by the sheet's number lay the middle sheet one place earlier or later (moving a sheet was found only by carrying it and
+  // holding it over the pile)
+  plate.addEventListener('click',e=>{const mv=e.target.closest?.('[data-mv]');if(mv){e.stopPropagation();if(mv.disabled||!G||drag)return;const uid=order[center],to=center+(+mv.dataset.mv);if(!uid||to<0||to>=order.length)return;
+    const ids=order.slice();ids.splice(center,1);ids.splice(to,0,uid);rustle();commitOrder(ids,uid);renderPlate();return;}back();});
 
   // ——— «вернуть»: every move can be taken back for a few seconds
   let undoFn=null,undoT=0;
@@ -352,10 +364,12 @@
 
   // ——— coming and going, with as little change as can be: the writing sheet stays (the middle sheet is laid over it), the clean
   // stack turns into the pile, «Так ляжет» and its keys go off to the right, the clock and the signature stay
-  const away=[['.wp-pane',1],['.wp-keys',1],['.ws-ttl',1]];let anims=[];
+  // v256: one long soft glide, fading as it goes (it went in steps: an animation «added» to the element's own place cannot run on
+  // the graphics side, so every busy moment of the page stopped it); only the keys, which hold a place of their own, still add
+  const away=[['.wp-pane',1,false],['.wp-keys',1,true],['.ws-ttl',1,false]];let anims=[];
   function aside(on,ms){anims.forEach(a=>{try{a.cancel();}catch(_){}});anims=[];
-    away.forEach(([s,dx])=>document.querySelectorAll(s).forEach(el=>{const to=`${dx*60}vw 0px`;const kf=on?[{translate:'0px 0px'},{translate:to}]:[{translate:to},{translate:'0px 0px'}];
-      try{anims.push(el.animate(kf,{duration:ms,easing:on?'cubic-bezier(.45,.05,.55,.95)':'cubic-bezier(.2,.75,.25,1)',fill:on?'forwards':'none',composite:'add'}));}catch(_){}}));}
+    away.forEach(([s,dx,add])=>document.querySelectorAll(s).forEach(el=>{const to=`${dx*42}vw 0px`,o=Math.min(1,+getComputedStyle(el).opacity||0);const kf=on?[{translate:'0px 0px',opacity:o},{translate:to,opacity:0}]:[{translate:to,opacity:0},{translate:'0px 0px',opacity:o}];
+      try{anims.push(el.animate(kf,{duration:ms,easing:on?'cubic-bezier(.4,0,.6,1)':'cubic-bezier(.22,.7,.3,1)',fill:on?'forwards':'none',...(add?{composite:'add'}:{})}));}catch(_){}}));}
   function setBarTitle(){const t=bar()?.querySelector('.t b');if(!t)return;t._h='';
     // short, so it stands whole in the bar's middle (the plate over the pile says where we are in the chapter)
     const h=view&&G?`<span class="up">Рукопись</span> · <i>${esc(G.kind==='chapter'?`${G.word} · ${G.name}`:G.word)}</i>`:`<span class="up">Рукопись</span> · <i>все главы</i>`;if(t.innerHTML!==h)t.innerHTML=h;}
@@ -366,7 +380,7 @@
     // (or the sheet the book was open on, given just before)
     if(preset){activeUid=preset;preset='';}
     const g=gOf(activeUid);view=g?{key:g.key,focus:activeUid}:null;
-    H.classList.add('rk-on');aside(true,760);
+    tabsCascade=true;H.classList.add('rk-on');aside(true,950);
     if(view){chEl.classList.add('on');all.classList.remove('on');fanHold=true;renderFan(false,true,true);setTimeout(()=>{fanHold=false;if(isOpen&&G)layFan();},620);}else{chEl.classList.remove('on');all.classList.add('on');renderAll();}
     H.classList.add('rk-shown');
     // the desk's own sheet and stack are put away once the middle sheet and the pile lie over them
@@ -378,7 +392,7 @@
     // these fade, and «Так ляжет» comes back from the right
     live().forEach(el=>{if(!el.classList.contains('mid')){el.style.transform=tr(slot(0));el.style.opacity=0;}});blank.style.opacity=0;
     shell.classList.remove('is-manuscript');H.classList.remove('rk-hide');
-    setTimeout(()=>{H.classList.remove('rk-shown');aside(false,700);setTimeout(()=>{H.classList.remove('rk-on');live().forEach(el=>el.remove());view=null;G=null;},520);},260);}
+    setTimeout(()=>{H.classList.remove('rk-shown');aside(false,950);setTimeout(()=>{H.classList.remove('rk-on');live().forEach(el=>el.remove());view=null;G=null;},520);},260);}
   setInterval(()=>{if(isOpen&&!busy)setBarTitle();},800);
   setInterval(()=>{if(isOpen&&!busy)readLook();},2000);
   // the desk's light for the other screens on it (the book): the lamp's beam over the whole desk, its edges as soft as on the writing

@@ -119,7 +119,7 @@
   // blank in between (it blinked at every change of sheet: the cover's photo was loaded anew on an empty page)
   function swapHost(html){const host=pane.querySelector('.wp-host:not(.wp-next)');if(!host)return;
     pane.querySelectorAll('.wp-host.wp-next').forEach(n=>n.remove());
-    if(!host.firstElementChild||host.querySelector('.wp-none')&&!/<img/.test(html)){host.innerHTML=html;return;}
+    if(!host.firstElementChild||host.querySelector('.wp-none')&&(!/<img/.test(html)||/wp-wait/.test(html))){if(host.innerHTML!==html)host.innerHTML=html;return;}
     const nx=host.cloneNode(false);nx.classList.add('wp-next');nx.innerHTML=html;host.after(nx);window.__ocherkiScalePages?.();
     const ims=[...nx.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));
     Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,900))]).then(()=>{if(!nx.isConnected)return;requestAnimationFrame(()=>{nx.classList.add('in');
@@ -128,10 +128,13 @@
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
     if(res){swapHost(res.html);shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
-    else{swapHost('<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>');pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
+    // v256: while the page is still being laid out (the book's structure has not come yet, or it is being put together) the boy
+    // with the kite stands on the page; «появится в книге» only once the page has been asked for several times in vain
+    else{const waiting=(paint.n||0)<6;
+      swapHost(waiting?'<div class="wp-none wp-wait"><img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается страница</span></div>':'<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>');pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
     // v215: right after loading the book's structure may not have come yet: the page is asked for again a few times (it stayed
     // empty until «обновить» was pressed)
-    clearTimeout(paint.r);if(res)paint.n=0;else if((paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(()=>{if(on)refresh(false);},1500);
+    clearTimeout(paint.r);if(res)paint.n=0;else if((paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(function again(){if(!on||busy){paint.r=setTimeout(again,400);return;}refresh(false);},paint.n<4?700:1500);
     // v250: a page shown from a book laid out before the latest changes keeps «обновить» lit
     place();window.__ocherkiScalePages?.();stale=false;try{stale=!window.__ocherkiBook?.fresh?.();}catch(_){}ref.classList.toggle('is-stale',stale);}
   // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
@@ -745,8 +748,10 @@
   {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
     const veil=()=>{if(H.classList.contains('oc-desk'))return;if(img||performance.now()-t1>2500){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
-  const show=()=>{H.classList.add('oc-shown');};
-  const go=()=>{if(H.classList.contains('oc-shown'))return;const el=performance.now()-t0;if((ready()&&el>2600)||el>4200){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();/* v255: the quatrain on the boot is given time to be read */
+  // v256: as in a film — the lines come one by one, the verse stays a few seconds, melts away, and only then the veil lifts and
+  // the things come in (the time counts from the page's very start: the verse is drawn from the first frame)
+  const show=()=>{H.classList.add('oc-verse-out');setTimeout(()=>H.classList.add('oc-shown'),1900);};
+  const go=()=>{if(H.classList.contains('oc-verse-out'))return;const el=performance.now();if((ready()&&el>8200)||el>13000){show();return;}requestAnimationFrame(go);};go();})();/* v255: the quatrain on the boot is given time to be read */
 
 // v246 — «Так ляжет» learns where it lies on the screen (its evening light is the room's picture laid from that place)
 (()=>{let k='';const go=()=>{requestAnimationFrame(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();
