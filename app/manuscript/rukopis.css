@@ -250,3 +250,11 @@ html:has(.shell.is-night) .rk-plate .rk-del{color:#e8c39a}
 .rk-trash svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .rk-trash.on{opacity:1;translate:-50% 0}
 .rk-trash.over{background:rgba(140,50,30,.82);scale:1.08}
+/* v258: the basket is out of sight altogether until a sheet is carried (its edge stayed at the screen's foot) */
+.rk-board .rk-trash:not(.on){visibility:hidden;opacity:0!important;translate:-50% 140%!important;transition:opacity .25s ease,translate .3s ease,visibility 0s linear .3s}
+.rk-board .rk-trash.on{visibility:visible;transition:opacity .3s ease,translate .35s cubic-bezier(.2,.8,.3,1),background .2s ease,scale .2s ease,visibility 0s}
+.rk-board .rk-trash.on{animation:rkTrashSway 1.6s ease-in-out infinite}
+@keyframes rkTrashSway{0%,100%{rotate:0deg}50%{rotate:-2deg}}
+.rk-board .rk-trash.over{scale:1.14;animation:none}
+/* v258: while the chapter folds back into its stack the plates are not faded wholesale — they fold one by one */
+.rk-ch.folding>.rk-tabs{opacity:1!important}

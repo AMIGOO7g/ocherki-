@@ -141,7 +141,9 @@
     place();window.__ocherkiScalePages?.();stale=false;try{stale=!res?.local&&!window.__ocherkiBook?.fresh?.();}catch(_){}ref.classList.toggle('is-stale',stale);}
   // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
   // made the desk stall); the picture of the old page stays meanwhile
-  let lastHand=0;['pointerdown','pointermove','keydown'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
+  let lastHand=0;['pointerdown','pointermove','keydown','wheel'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
+  // v258: the sheet's own frame tells of its wheel too (scrolling through the sheets laid the page out at every sheet: it stalled)
+  {let hw=null;setInterval(()=>{try{const w=document.getElementById('v35SheetFrame')?.contentWindow;if(w&&w!==hw&&w.document?.readyState!=='loading'){hw=w;['wheel','keydown','pointerdown'].forEach(t=>w.addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));}}catch(_){}},1000);}
   const quietRefresh=()=>{const q=performance.now()-lastHand;if(q<1100){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,1150-q);return;}
     (window.requestIdleCallback||(f=>setTimeout(f,0)))(()=>refresh(false),{timeout:900});};
   function refresh(first,force){if(!on||busy)return;busy=true;if(force)pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
@@ -759,7 +761,11 @@
   const BG=/^(start-light|screen-vignette|night-|desk-)/;
   const things=()=>[...document.querySelectorAll('.shell>*,body>*')].filter(e=>e.id!=='ocVerse'&&e.id!=='shell'&&!/^(SCRIPT|STYLE|LINK)$/.test(e.tagName)&&!BG.test(String(e.className||''))&&e.getClientRects().length);
   const bringIn=()=>{const list=things().map(e=>({e,r:e.getBoundingClientRect()})).filter(o=>o.r.width>4&&o.r.height>4&&o.r.bottom>0&&o.r.top<innerHeight).sort((a,b)=>a.r.top-b.r.top);
-    H.classList.add('oc-shown');list.forEach((o,i)=>{const to=+getComputedStyle(o.e).opacity;if(!(to>0))return;try{o.e.animate([{opacity:0},{opacity:to}],{duration:1100,delay:Math.min(i,10)*70,easing:'cubic-bezier(.3,.1,.3,1)',fill:'backwards'});}catch(_){}});};
+    // each comes from its own side onto its place: the keys and the bar from above, the stack from the left, the book's page from the
+    // right, the sheet and the clock from below
+    H.classList.add('oc-shown');list.forEach((o,i)=>{const to=+getComputedStyle(o.e).opacity;if(!(to>0))return;const cx=(o.r.left+o.r.width/2)/innerWidth,cy=(o.r.top+o.r.height/2)/innerHeight;
+      const from=cy<.16?'0px -34px':cx<.3?'-60px 0px':cx>.7?'60px 0px':'0px 46px';const opt={duration:1250,delay:Math.min(i,10)*80,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'};
+      try{o.e.animate([{opacity:0},{opacity:to}],opt);o.e.animate([{translate:from},{translate:'0px 0px'}],Object.assign({},opt,{composite:'add'}));}catch(_){}});};
   const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);};
   // the veil goes as soon as the desk lies in its light (its toile loaded, the day or the night set)
   const bg=()=>{if(H.classList.contains('oc-bg'))return;if((H.classList.contains('oc-desk')&&sh?.classList.contains('oc-ready'))||performance.now()>4000){H.classList.add('oc-bg');return;}requestAnimationFrame(bg);};bg();

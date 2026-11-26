@@ -1166,3 +1166,10 @@ html:has(.shell.is-evening:not(.is-night)) body .shell .wp-keys .wp-item .lab,ht
 /* v257: the cover's photograph: only its face, with «заменить фото» on it */
 .ph-front .ph-rep-front{all:unset;position:absolute;left:50%;bottom:22px;translate:-50% 0;cursor:pointer;padding:7px 16px;border-radius:999px;background:rgba(251,247,239,.92);color:#5a3f26;font:15px 'CormorantCy',Georgia,serif;box-shadow:0 2px 8px rgba(40,25,10,.25);opacity:0;transition:opacity .3s ease}
 .ph:not(.fly) .ph-front:hover .ph-rep-front,.ph.fly:not(.home) .ph-front:hover .ph-rep-front{opacity:1}
+/* v258: × on each print of the solitaire; the print sinks and fades, the others close up */
+.sol-pr{position:relative}
+.sol-pr .sol-x{all:unset;position:absolute;top:-9px;right:-9px;z-index:3;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;cursor:pointer;
+  background:#fbf7ef;color:#7a4a2a;font:18px/1 'CormorantCy',Georgia,serif;box-shadow:0 2px 6px rgba(40,25,10,.3);opacity:0;scale:.8;transition:opacity .2s ease,scale .2s ease,background .2s ease}
+.sol-pr:hover .sol-x{opacity:1;scale:1}.sol-pr .sol-x:hover{background:#f3d9c8;color:#8a2d16}
+.sol-pr.sol-going{transition:opacity .3s ease,scale .3s ease,translate .3s ease;opacity:0;scale:.86;translate:0 14px;pointer-events:none}
+.sol-undo{all:unset;cursor:pointer;font:16px 'CormorantCy',Georgia,serif;color:#f3e2c6;border-bottom:1px solid rgba(243,226,198,.45);margin-left:18px}

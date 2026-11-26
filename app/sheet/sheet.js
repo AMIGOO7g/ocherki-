@@ -4061,14 +4061,17 @@ window.OC_SHEET={
   const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect(),o=off();const VH=(HD.defaultView||window).innerHeight;const W=Math.round(Math.min(s.width*.9,560)),H=Math.round(Math.min(VH*.88,W*1.62));return {W,H,L:o.x+s.left+(s.width-W)/2,T:Math.round((VH-H)/2+12)};};
   // the card leaves: face up first, all the way; then to where it goes (its pose given by «to»), fading into the print there
   // v213: it comes down slowly onto its place, settles, and only then fades into the print there (the print shows again under it)
+  // v258: the card sets off home while it is still turning face up (it turned, stood still, then flew — it did not feel like a
+  // photograph in the hand)
+  const HOME_AT=430;
   const close=(to,after)=>{if(!open)return;const o=open;open=null;o.card.classList.remove('flip');o.bg.classList.remove('on');tellHost(false);
     setTimeout(()=>{o.card.classList.add('fly','home');poseAspect=null;o.card.style.transform=to?to(o.g):o.from;shapeTo(o.card,o.g,to?poseAspect:o.fromAsp);
       // v255: the print it goes back to lies under the bar's plate: once the card has come down to about half its size on the way,
       // it goes under the plate (it flew over the plate and then blinked under it)
       const w0=o.card.getBoundingClientRect().width,t0=performance.now();const under=()=>{if(!o.card.isConnected)return;const w=o.card.getBoundingClientRect().width;
-        if(w<w0*.55||performance.now()-t0>700){o.card.style.zIndex='2147483149';return;}requestAnimationFrame(under);};requestAnimationFrame(under);},800);
-    setTimeout(()=>{after&&after();o.card.classList.add('fade');},800+900);
-    setTimeout(()=>{o.card.remove();o.bg.remove();},800+900+480);};
+        if(w<w0*.55||performance.now()-t0>700){o.card.style.zIndex='2147483149';return;}requestAnimationFrame(under);};requestAnimationFrame(under);},HOME_AT);
+    setTimeout(()=>{after&&after();o.card.classList.add('fade');},HOME_AT+900);
+    setTimeout(()=>{o.card.remove();o.bg.remove();},HOME_AT+900+480);};
   const openCard=(p,from,opts)=>{if(!p||open)return;const g=place();
     // v257: the cover's photograph has no back to fill (nothing of it is printed on the cover): it is only looked at, a press puts it back
     const coverCard=!opts.album&&currentSection()?.id==='cover';
@@ -4143,10 +4146,22 @@ window.OC_SHEET={
     const veil=HD.createElement('div');veil.className='sol-veil';const box=HD.createElement('div');box.className='sol';
     const a=document.getElementById('activeSheet').getBoundingClientRect(),o=off(),VW=(HD.defaultView||window).innerWidth;const W=Math.min(1100,VW-160),L=Math.max(80,o.x+a.left+a.width/2-W/2);
     Object.assign(box.style,{left:L+'px',width:W+'px'});
-    const draw=()=>{const list=currentPhotos();box.querySelector('.sol-grid').innerHTML=list.map((p,i)=>`<div class="sol-pr" data-i="${i}" style="--r:${(((i*5)%7)-3)*.6}deg"><i style="background-image:url('${String(p.src).replace(/'/g,'%27')}')"></i>${p.caption?`<b>${String(p.caption).replace(/[&<>]/g,'')}</b>`:''}</div>`).join('');
+    const draw=()=>{const list=currentPhotos();box.querySelector('.sol-grid').innerHTML=list.map((p,i)=>`<div class="sol-pr" data-i="${i}" style="--r:${(((i*5)%7)-3)*.6}deg"><button type="button" class="sol-x" data-x="${i}" title="Убрать это фото с листа" aria-label="Убрать фото">×</button><i style="background-image:url('${String(p.src).replace(/'/g,'%27')}')"></i>${p.caption?`<b>${String(p.caption).replace(/[&<>]/g,'')}</b>`:''}</div>`).join('');
       box.querySelector('.sol-h span').textContent=`${list.length} ${list.length%10===1&&list.length%100!==11?'снимок':list.length%10>=2&&list.length%10<=4&&(list.length%100<12||list.length%100>14)?'снимка':'снимков'}`;};
     box.innerHTML='<div class="sol-h"><b>фото этого листа</b><span></span></div><div class="sol-grid"></div><div class="sol-bar"><button type="button" class="sol-close">собрать в стопку</button><button type="button" class="sol-add">+ добавить фото</button></div>';
-    HD.body.append(veil,box);draw();sol={veil,box,draw};tellHost(true);requestAnimationFrame(()=>{veil.classList.add('on');box.classList.add('on');});
+    // v258: × on each print takes it off the sheet at once (each one had to be opened, turned over and deleted); «вернуть фото»
+    // puts the last ones back for a few seconds
+    {let taken=[],undoT=0;const bar=box.querySelector('.sol-bar');const ub=HD.createElement('button');ub.type='button';ub.className='sol-undo';ub.hidden=true;bar.appendChild(ub);
+      const showUndo=()=>{ub.hidden=!taken.length;ub.textContent=taken.length>1?`вернуть ${taken.length} фото`:'вернуть фото';clearTimeout(undoT);undoT=setTimeout(()=>{taken=[];ub.hidden=true;},8000);};
+      ub.addEventListener('click',()=>{const list=currentPhotos();taken.slice().reverse().forEach(t=>list.splice(Math.min(t.i,list.length),0,t.p));taken=[];ub.hidden=true;persist();renderPhotos();draw();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}});
+      box.addEventListener('pointerdown',e=>{const x=e.target.closest?.('.sol-x');if(!x)return;e.stopPropagation();e.preventDefault();const pr=x.closest('.sol-pr'),i=+x.dataset.x,list=currentPhotos(),ph=list[i];if(!ph||pr.classList.contains('sol-going'))return;
+        pr.classList.add('sol-going');setTimeout(()=>{const at=currentPhotos().indexOf(ph);if(at<0)return;currentPhotos().splice(at,1);const pg=currentPage();pg.photoOffset=Math.min(pg.photoOffset||0,Math.max(0,currentPhotos().length-1));taken.push({p:ph,i:at});
+          persist();renderPhotos();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}flip(()=>pr.remove());setTimeout(draw,360);showUndo();},300);},true);}
+    HD.body.append(veil,box);draw();sol={veil,box,draw};
+    // v258: the prints are dealt out of the pile one after another, each gliding to its place (they all appeared at once)
+    requestAnimationFrame(()=>{const st=stack.getBoundingClientRect(),o=off(),px=o.x+st.left+st.width/2,py=o.y+st.top+40;
+      [...box.querySelectorAll('.sol-pr')].forEach((el,k)=>{const r=el.getBoundingClientRect(),dx=px-(r.left+r.width/2),dy=py-(r.top+r.height/2),opt={duration:620,delay:120+Math.min(k,18)*45,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'};
+        try{el.animate([{translate:`${dx.toFixed(0)}px ${dy.toFixed(0)}px`,scale:.55},{translate:'0px 0px',scale:1}],Object.assign({},opt,{composite:'add'}));el.animate([{opacity:0},{opacity:1}],Object.assign({},opt,{duration:380}));}catch(_){}});});tellHost(true);requestAnimationFrame(()=>{veil.classList.add('on');box.classList.add('on');});
     // «собрать в стопку»: the prints come together into a heap in the middle of the solitaire, and the heap goes up under the bar,
     // to the pile it came from (as the sheets of «Рукопись» go into their stack)
     const shut=()=>{if(!sol||open)return;const S=sol;sol=null;S.veil.classList.remove('on');tellHost(false);try{renderPhotos();}catch(_){}

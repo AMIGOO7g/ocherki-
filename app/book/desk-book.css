@@ -143,3 +143,10 @@ html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite span{color:#6e4a22}
 /* v256: the children take turns; the girl and the boy on the pier are drawn dark already */
 .bk-kite[data-kid="umbrella"] img,.bk-kite[data-kid="pier"] img{filter:none!important;opacity:.85;transform-origin:50% 100%}
 html:has(.shell.is-night) .bk-kite[data-kid="umbrella"] img,html:has(.shell.is-night) .bk-kite[data-kid="pier"] img,html:has(.shell.is-evening) .bk-kite[data-kid="umbrella"] img,html:has(.shell.is-evening) .bk-kite[data-kid="pier"] img{filter:invert(.86) sepia(.6) brightness(1.05)!important}
+/* v258: the boy over the writing sheet: a soft veil of light under him, so he reads clearly over the text */
+.bk-kite{padding:46px 70px 38px}
+.bk-kite::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,rgba(246,238,224,.96),rgba(240,230,212,.88) 55%,rgba(236,224,204,0) 100%);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);-webkit-mask:radial-gradient(closest-side,#000 62%,transparent 100%);mask:radial-gradient(closest-side,#000 62%,transparent 100%)}
+html:has(.shell.is-night) .bk-kite::before,html:has(.shell.is-evening) .bk-kite::before{background:radial-gradient(closest-side,rgba(28,18,10,.92),rgba(28,18,10,.8) 55%,rgba(28,18,10,0) 100%)}
+/* v258: the little spread the wheel has come to */
+.bk-strip>.browse{outline:2px solid rgba(200,150,80,.85);outline-offset:3px;border-radius:2px}

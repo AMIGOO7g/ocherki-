@@ -185,7 +185,12 @@
   // v256: the chapters' plates unfold one under another when the manuscript opens; the list fades out at its foot (and at its head
   // once scrolled) so that the plates below the screen's edge are seen to go on, not cut
   let tabsCascade=false;
-  function cascadeTabs(){[...tabs.querySelectorAll('.rk-tab')].forEach((t,i)=>{try{t.animate([{opacity:0,translate:'0 -16px'},{opacity:1,translate:'0 0'}],{duration:520,delay:180+Math.min(i,14)*60,easing:'cubic-bezier(.2,.7,.3,1)',fill:'backwards'});}catch(_){}});}
+  // v258: the plates fold away one after another from the lowest in sight up — leaving for «Писать» and going back to all the
+  // chapters alike (back to the chapters they vanished at once, and a new unfolding could start over a folding: they blinked)
+  function foldTabs(){tabs.getAnimations({subtree:true}).forEach(a=>{try{a.finish();}catch(_){}});const tb=tabs.getBoundingClientRect(),vis=[...tabs.querySelectorAll('.rk-tab')].filter(t=>{const r=t.getBoundingClientRect();return r.bottom>tb.top&&r.top<tb.bottom;}).reverse();
+    vis.forEach((t,i)=>{try{t.animate([{opacity:1,translate:'0 0'},{opacity:0,translate:'0 -14px'}],{duration:260,delay:Math.min(i,12)*28,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});}catch(_){}});
+    return 260+Math.min(vis.length,12)*28;}
+  function cascadeTabs(){tabs.getAnimations({subtree:true}).forEach(a=>{try{a.cancel();}catch(_){}});[...tabs.querySelectorAll('.rk-tab')].forEach((t,i)=>{try{t.animate([{opacity:0,translate:'0 -16px'},{opacity:1,translate:'0 0'}],{duration:520,delay:180+Math.min(i,14)*60,easing:'cubic-bezier(.2,.7,.3,1)',fill:'backwards'});}catch(_){}});}
   function fadeTabs(){const more=tabs.scrollHeight-tabs.clientHeight-tabs.scrollTop>4,up=tabs.scrollTop>4;tabs.classList.toggle('rk-more',more);tabs.classList.toggle('rk-up',up);}
   tabs.addEventListener('scroll',fadeTabs,{passive:true});
 
@@ -228,7 +233,7 @@
   // back to all chapters: they go back under the middle and fade, and the stacks come
   // a stack's place as a sheet's place (the stack is a small sheet)
   const stackSlot=q=>({x:q.left,y:q.top,s:q.width/desk.paper.width,r:0,z:60,o:1});
-  function openChapter(key,focus){const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key)}"]`),q=all.classList.contains('on')&&st?st.getBoundingClientRect():null;
+  function openChapter(key,focus){tabsCascade=true;const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key)}"]`),q=all.classList.contains('on')&&st?st.getBoundingClientRect():null;
     view={key,focus};
     if(!q){all.classList.remove('on');chEl.classList.add('on');renderFan(false,true);rustle();return;}
     // from all the chapters: the stack's top sheet grows into the middle sheet, the others come out from under it
@@ -238,7 +243,7 @@
     // the sheets lie down on the pile one after another, the pile goes to its chapter's place among the stacks and becomes its stack
     // (the middle sheet is the one that becomes the stack's top: it stays seen all the way, and the stack is shown under it before it goes)
     const els=live(),c=center,midEl=els.find(el=>+el.dataset.k===c);els.forEach(el=>{el.classList.remove('mid');const k=+el.dataset.k;el.style.transitionDelay=Math.min(Math.abs(k-c),6)*40+'ms';const p=slot(Math.min(-1,k-c-1));el.style.transform=tr(p);el.style.opacity=p.o;el.style.zIndex=30-Math.abs(k-c);lightSheet(el,p);});
-    blank.style.opacity=0;chEl.classList.add('folding');rustle();
+    blank.style.opacity=0;foldTabs();chEl.classList.add('folding');rustle();
     setTimeout(()=>{view=null;G=null;renderAll();const st=all.querySelector(`.rk-st[data-g="${CSS.escape(key||'')}"]`);
       if(st){glideTo(st);st.classList.add('rk-wait');}
       const q=st?.getBoundingClientRect();chEl.classList.remove('on');all.classList.add('on');

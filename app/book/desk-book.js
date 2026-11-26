@@ -83,12 +83,15 @@
     fillT=idle(step,200);}
   // v257: the strip can be run through with the wheel, fast, without turning a page (to the cover from page 300 in a moment); a
   // press on a little spread opens it; the strip comes back to the open spread a little after the hand leaves it
-  let browse=null,browseT=0;
+  let browse=null,browseT=0,browseAcc=0;
   function paintStrip(){[...strip.children].forEach((el,k)=>el.classList.toggle('cur',k===cur));const at=browse==null?cur:browse,el=strip.children[at],v=$('.bk-stripv');
     if(el&&v)strip.style.translate=`${Math.round(v.clientWidth/2-(el.offsetLeft+el.offsetWidth/2))}px 0`;fillSome(at);}
   $('.bk-stripv').addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();e.stopPropagation();const d=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*(e.deltaMode===1?33:1);
-    const step=Math.sign(d)*Math.max(1,Math.round(Math.abs(d)/60));browse=Math.max(0,Math.min(strip.children.length-1,(browse==null?cur:browse)+step));paintStrip();
-    clearTimeout(browseT);browseT=setTimeout(()=>{browse=null;paintStrip();},2600);},{passive:false});
+    // one notch — one spread; a quick spin gives more notches, so it runs faster by itself (it jumped to the book's end)
+    browseAcc+=d;const step=Math.trunc(browseAcc/(Math.abs(d)>=50?Math.abs(d):60));if(!step)return;browseAcc-=step*(Math.abs(d)>=50?Math.abs(d):60);
+    browse=Math.max(0,Math.min(strip.children.length-1,(browse==null?cur:browse)+Math.sign(step)*Math.min(3,Math.abs(step))));paintStrip();
+    strip.querySelectorAll('.browse').forEach(x=>x.classList.remove('browse'));strip.children[browse]?.classList.add('browse');
+    clearTimeout(browseT);browseT=setTimeout(()=>{browse=null;browseAcc=0;strip.querySelectorAll('.browse').forEach(x=>x.classList.remove('browse'));paintStrip();},3200);},{passive:false});
   strip.addEventListener('click',e=>{const t=e.target.closest('[data-k]');if(t){clearTimeout(browseT);browse=null;turnTo(+t.dataset.k);}});
 
   // ——— the plates at the sides: the book's own settings (a press lays the book out anew where it lies), and what can be done with it
@@ -169,7 +172,8 @@
   function open(){if(isOpen||busy||open.wait)return;let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
     if(fresh)return open1();
     open.wait=true;{const k=window.__ocKid?.()||'kite',im=kite.querySelector('img');im.src=`assets/book/${k==='kite'?'kite':k==='umbrella'?'girl-umbrella':'pier-jump'}.webp`;kite.dataset.kid=k;}kite.classList.add('on');
-    setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{open.wait=false;open1();kite.classList.remove("on");})),700);}
+    // v258: the book is laid out in steps behind the boy (it held the page for a long time, up to «страница не отвечает»)
+    setTimeout(()=>{const go=()=>{open.wait=false;open1();kite.classList.remove("on");};if(window.__ocherkiBookInSteps)window.__ocherkiBookInSteps(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));else go();},700);}
   function open1(){try{open0();}catch(err){console.warn('book open',err);H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;}}
   function open0(){
     const B=BK();n=B?.ready?.()||0;if(!n){window.OCHERKI_SAY?.('В книге пока нечего показать — напишите хотя бы несколько строк');return;}

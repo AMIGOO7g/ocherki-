@@ -6,7 +6,7 @@
 <title>Очерки жизни — unified shell + paper keyboard</title>
 <script>/* v213: the desk's own tone from the first moment; nothing of the boot is seen until the desk itself comes (write.js); v221: oc-quick — so the boot's stages, unseen under the veil, go by quickly (042) */(()=>{const H=document.documentElement;let m='';try{m=localStorage.getItem('ocherkiLight')||'';}catch(_){}/* v254: the boot's desk in the light the constructor will open in — the last chosen, or by the clock the first time (an evening left the boot by day) */if(!/^(day|evening|night)$/.test(m)){const h=new Date().getHours();m=(h>=19||h<7)?'night':'day';}H.style.background=m==='night'?'#0d0704':m==='evening'?'#5a3d27':'#e6d8bf';H.classList.add('oc-quick');if(m==='night')H.classList.add('oc-night0');if(m==='evening')H.classList.add('oc-eve0');})();</script>
 <style>html:not(.oc-desk) body{opacity:0!important}</style>
-<link rel="stylesheet" href="app/common/001-base.css?v=20261107-v258" data-inline-from="style">
+<link rel="stylesheet" href="app/common/001-base.css?v=20261107-v259" data-inline-from="style">
 <style id="oc-boot-veil">/* v255 — the boot: from the very first frame the desk in the light it will open in (day, evening, night: its toile and its
    light), the quatrain on it; then the words melt away and the things come in. (The veil's look came only with write.css, at the
    page's end: the white toile, then the colour changing in steps.) */
@@ -25,11 +25,11 @@ html:not(.oc-shown) body>:not(.shell):not(#ocVerse){opacity:0!important;pointer-
 #ocVerse{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;padding:0 8vw;pointer-events:none;
   font:italic 500 clamp(22px,2.4vw,34px)/1.55 'CormorantCy',Georgia,serif;color:#4a3220;text-align:center;opacity:1;transition:opacity 1.8s ease}
 #ocVerse p{margin:0;max-width:30em}#ocVerse p:nth-child(3){margin-top:.6em}
-#ocVerse p span{display:inline-block;opacity:0;filter:blur(7px);translate:0 3px;animation:ocVerseIn 1.6s cubic-bezier(.25,.1,.25,1) forwards}
+#ocVerse p span{display:inline-block;opacity:0;translate:0 5px;scale:.985;will-change:opacity,translate;animation:ocVerseIn 1.8s cubic-bezier(.22,.1,.25,1) forwards}
 html:not(.oc-desk) #ocVerse p span{animation-play-state:paused}
 /* in daylight the toile is quieted under the verse: a soft pale light where the words stand */
 html:not(.oc-eve0):not(.oc-night0) #ocVerse::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 52% 42% at 50% 50%,rgba(244,234,216,.9),rgba(238,226,204,.62) 55%,rgba(232,218,194,0) 100%)}
-@keyframes ocVerseIn{to{opacity:1;translate:0 0;filter:none}}
+@keyframes ocVerseIn{0%{opacity:0;translate:0 5px;scale:.985}55%{opacity:.75}100%{opacity:1;translate:0 0;scale:1}}
 html.oc-eve0 #ocVerse,html.oc-night0 #ocVerse{color:#f0dcbc;text-shadow:0 2px 14px rgba(0,0,0,.55)}
 html:not(.oc-eve0):not(.oc-night0) #ocVerse{color:#3a2614;text-shadow:0 1px 12px rgba(255,246,230,.9)}
 html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
@@ -40,9 +40,9 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
 
 
 
-<script src="app/common/021-calm-dom-v142.js?v=20261107-v258" data-inline-from="script"></script>
-<script src="app/start/022-v35-auth-gate-state.js?v=20261107-v258" data-inline-from="script"></script>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v258">
+<script src="app/common/021-calm-dom-v142.js?v=20261107-v259" data-inline-from="script"></script>
+<script src="app/start/022-v35-auth-gate-state.js?v=20261107-v259" data-inline-from="script"></script>
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v259">
 </head>
 <body>
 <div id="ocVerse" aria-hidden="true"><p>«Память — это тихая комната, где хранятся наши самые ценные дни.</p><p>Голоса близких, запах старых писем, запечатлённые мгновения…</p><p>Время уходит, но истории остаются. Давайте сохраним вашу.»</p></div><script>/* v256: the verse comes out of the mist word by word */(function(){var v=document.getElementById('ocVerse'),k=0;if(!v)return;[].forEach.call(v.querySelectorAll('p'),function(p){var w=p.textContent.split(/(\s+)/);p.textContent='';w.forEach(function(t){if(/^\s+$/.test(t)){p.appendChild(document.createTextNode(t));return;}var s=document.createElement('span');s.textContent=t;s.style.animationDelay=(0.5+k*0.14).toFixed(2)+'s';k++;p.appendChild(s);});});})();</script>
@@ -246,7 +246,7 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v258" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v259" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -338,7 +338,7 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
     </div>
   </div>
 </div>
-<script src="app/common/025-shell-core.js?v=20261107-v258" data-inline-from="script"></script>
+<script src="app/common/025-shell-core.js?v=20261107-v259" data-inline-from="script"></script>
 
 
 
@@ -355,15 +355,15 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
 
 
 
-<script src="app/common/042-boot-and-map.js?v=20261107-v258" data-inline-from="script"></script>
+<script src="app/common/042-boot-and-map.js?v=20261107-v259" data-inline-from="script"></script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v258"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v258"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v258"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v258"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v258"></script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v258"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v258"></script>
-<script src="app/book/044-v103-book-assembly-controller.js?v=20261107-v258" data-inline-from="script"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v259"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v259"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v259"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v259"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v259"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v259"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v259"></script>
+<script src="app/book/044-v103-book-assembly-controller.js?v=20261107-v259" data-inline-from="script"></script>
 
 
 
@@ -432,33 +432,33 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
 
 
 
-<script src="app/common/common-early.js?v=20261107-v258"></script>
-<script src="app/manuscript/134-three-screens-script.js?v=20261107-v258" data-inline-from="script"></script>
-<script src="app/manuscript/rukopis.js?v=20261107-v258"></script>
-<script src="app/book/desk-book.js?v=20261107-v258"></script>
-<script src="app/archive/archive.js?v=20261107-v258"></script>
-<script src="app/archive/rooms.js?v=20261107-v258"></script>
+<script src="app/common/common-early.js?v=20261107-v259"></script>
+<script src="app/manuscript/134-three-screens-script.js?v=20261107-v259" data-inline-from="script"></script>
+<script src="app/manuscript/rukopis.js?v=20261107-v259"></script>
+<script src="app/book/desk-book.js?v=20261107-v259"></script>
+<script src="app/archive/archive.js?v=20261107-v259"></script>
+<script src="app/archive/rooms.js?v=20261107-v259"></script>
 
 
-<script src="app/topbar/keys.js?v=20261107-v258" data-inline-from="script"></script>
-<script src="app/book/book.js?v=20261107-v258"></script>
-<script src="app/write/write.js?v=20261107-v258"></script>
+<script src="app/topbar/keys.js?v=20261107-v259" data-inline-from="script"></script>
+<script src="app/book/book.js?v=20261107-v259"></script>
+<script src="app/write/write.js?v=20261107-v259"></script>
 
 
 
-<script src="app/common/common-late.js?v=20261107-v258"></script>
+<script src="app/common/common-late.js?v=20261107-v259"></script>
 
 
-<script src="assets/keeper/tour.js?v=20261107-v258"></script>
-<script src="app/start/start.js?v=20261107-v258"></script>
-<script src="app/topbar/topbar.js?v=20261107-v258"></script>
+<script src="assets/keeper/tour.js?v=20261107-v259"></script>
+<script src="app/start/start.js?v=20261107-v259"></script>
+<script src="app/topbar/topbar.js?v=20261107-v259"></script>
 
 
-<link rel="stylesheet" href="app/start/start.css?v=20261107-v258">
-<link rel="stylesheet" href="app/common/chrome.css?v=20261107-v258">
-<link rel="stylesheet" href="app/write/write.css?v=20261107-v258">
-<link rel="stylesheet" href="app/manuscript/rukopis.css?v=20261107-v258">
-<link rel="stylesheet" href="app/book/desk-book.css?v=20261107-v258">
-<link rel="stylesheet" href="app/archive/archive.css?v=20261107-v258">
-<link rel="stylesheet" href="app/archive/rooms.css?v=20261107-v258">
-<link rel="stylesheet" href="app/book/book.css?v=20261107-v258">
+<link rel="stylesheet" href="app/start/start.css?v=20261107-v259">
+<link rel="stylesheet" href="app/common/chrome.css?v=20261107-v259">
+<link rel="stylesheet" href="app/write/write.css?v=20261107-v259">
+<link rel="stylesheet" href="app/manuscript/rukopis.css?v=20261107-v259">
+<link rel="stylesheet" href="app/book/desk-book.css?v=20261107-v259">
+<link rel="stylesheet" href="app/archive/archive.css?v=20261107-v259">
+<link rel="stylesheet" href="app/archive/rooms.css?v=20261107-v259">
+<link rel="stylesheet" href="app/book/book.css?v=20261107-v259">
