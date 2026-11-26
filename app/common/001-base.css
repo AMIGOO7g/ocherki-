@@ -601,3 +601,7 @@ body{min-height:100svh}
  0%,100%{transform:scale(1) rotate(0deg)}
  50%{transform:scale(1.04) rotate(2deg)}
 }
+/* v261: the night's toile with its colour already laid in (the same brightness, contrast, saturation and sepia as before, done once
+   beforehand instead of by the screen every frame — on a 4K screen it cost a part of every frame) */
+.night-artwork{background-image:url("../../assets/toile/desk-toile-night.webp");filter:none}
+.night-artwork-ink{background-image:url("../../assets/toile/desk-toile-ink.webp");filter:none}

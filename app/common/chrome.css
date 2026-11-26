@@ -509,3 +509,9 @@ html body .rc2 .rc2-th{right:auto;left:calc(50% + 420px);top:calc(41% - 100px)}
 .oct .th{background:var(--th1)!important;-webkit-mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.42));mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.42));transition:background-color 2.45s cubic-bezier(.37,0,.63,1)!important}
 .oct .k,.oct .k *,.oct .lb,.oct .lbx,.oct .lbx *,.oct [class*="lab"]{transition:color 2.45s cubic-bezier(.37,0,.63,1),stroke 2.45s cubic-bezier(.37,0,.63,1),fill 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1),opacity 2.45s cubic-bezier(.37,0,.63,1),filter .6s}
 .oct .k .gl{transition:opacity .9s cubic-bezier(.4,0,.2,1)!important}
+/* v261: the veil under the menus and windows is not drawn at all while it is not shown — its blur, even at zero, made the whole
+   screen be drawn again behind it every frame (on a 4K screen that was most of the frame) */
+.ct-veil:not(.on){-webkit-backdrop-filter:none;backdrop-filter:none;visibility:hidden;transition:background .5s,visibility 0s linear .5s}
+.ct-veil.on{visibility:visible}
+/* the Keeper's canvases (blended over the whole screen) are not drawn while he is set aside */
+html.oc-nokeeper .wk,html.oc-nokeeper .okh,html.oc-nokeeper .okp{display:none!important}
