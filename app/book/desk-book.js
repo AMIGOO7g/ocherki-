@@ -75,15 +75,21 @@
   function buildStrip(){filled=new Set();let h='';
     for(let k=0;k<n;k++)h+=`<button type="button" class="bk-th" data-k="${k}"><i class="bk-tl"></i><i class="bk-tr"></i><em></em></button>`;
     strip.innerHTML=h;const at=window.__ocherkiBuiltAt||0;if(pre.at===at)pre.list.forEach((t,k)=>{const el=strip.children[k];if(t&&el)putThumb(el,k,t);});paintStrip();}
-  function fillSome(){if(window.cancelIdleCallback)cancelIdleCallback(fillT);const order=[...Array(n).keys()].filter(k=>!filled.has(k)).sort((a,b)=>Math.abs(a-cur)-Math.abs(b-cur));if(!order.length)return;
+  function fillSome(at){const c0=Number.isInteger(at)?at:cur;if(window.cancelIdleCallback)cancelIdleCallback(fillT);const order=[...Array(n).keys()].filter(k=>!filled.has(k)).sort((a,b)=>Math.abs(a-c0)-Math.abs(b-c0));if(!order.length)return;
     const step=dl=>{let done=0;while(order.length&&(done<2||dl.timeRemaining()>8)){const k=order.shift(),t=thumbOf(k),el=strip.children[k];if(!t||!el)continue;
         // under it: where a chapter begins, «Глава N» and its name; then its pages
         putThumb(el,k,t);done++;}
       BK()?.scale?.();if(order.length&&isOpen)fillT=idle(step,400);};
     fillT=idle(step,200);}
-  function paintStrip(){[...strip.children].forEach((el,k)=>el.classList.toggle('cur',k===cur));const el=strip.children[cur],v=$('.bk-stripv');
-    if(el&&v)strip.style.translate=`${Math.round(v.clientWidth/2-(el.offsetLeft+el.offsetWidth/2))}px 0`;fillSome();}
-  strip.addEventListener('click',e=>{const t=e.target.closest('[data-k]');if(t)turnTo(+t.dataset.k);});
+  // v257: the strip can be run through with the wheel, fast, without turning a page (to the cover from page 300 in a moment); a
+  // press on a little spread opens it; the strip comes back to the open spread a little after the hand leaves it
+  let browse=null,browseT=0;
+  function paintStrip(){[...strip.children].forEach((el,k)=>el.classList.toggle('cur',k===cur));const at=browse==null?cur:browse,el=strip.children[at],v=$('.bk-stripv');
+    if(el&&v)strip.style.translate=`${Math.round(v.clientWidth/2-(el.offsetLeft+el.offsetWidth/2))}px 0`;fillSome(at);}
+  $('.bk-stripv').addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();e.stopPropagation();const d=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*(e.deltaMode===1?33:1);
+    const step=Math.sign(d)*Math.max(1,Math.round(Math.abs(d)/60));browse=Math.max(0,Math.min(strip.children.length-1,(browse==null?cur:browse)+step));paintStrip();
+    clearTimeout(browseT);browseT=setTimeout(()=>{browse=null;paintStrip();},2600);},{passive:false});
+  strip.addEventListener('click',e=>{const t=e.target.closest('[data-k]');if(t){clearTimeout(browseT);browse=null;turnTo(+t.dataset.k);}});
 
   // ——— the plates at the sides: the book's own settings (a press lays the book out anew where it lies), and what can be done with it
   function plates(){const B=BK();if(!B)return;const fm=B.formats(),f=fm.find(x=>x.key===B.format())||fm[0],pm=B.photoModes(),m=pm.find(x=>x.key===B.photoMode())||pm[0];
@@ -141,7 +147,7 @@
     else done();}
   const turn=dir=>turnTo(cur+dir);
   board.addEventListener('wheel',e=>{if(!isOpen)return;e.preventDefault();if(flipping||Math.abs(e.deltaY)<20)return;turn(e.deltaY>0?1:-1);},{passive:false});
-  addEventListener('keydown',e=>{if(!isOpen)return;if(e.key==='ArrowRight'||e.key==='PageDown')turn(1);else if(e.key==='ArrowLeft'||e.key==='PageUp')turn(-1);else if(e.key==='Escape')window.OCHERKI_SET_MODE?.('write');});
+  addEventListener('keydown',e=>{if(!isOpen)return;if(e.key==='ArrowRight'||e.key==='PageDown')turn(1);else if(e.key==='ArrowLeft'||e.key==='PageUp')turn(-1);else if(e.key==='Home')turnTo(0);else if(e.key==='End')turnTo(n-1);else if(e.key==='Escape')window.OCHERKI_SET_MODE?.('write');});
   addEventListener('resize',()=>{if(isOpen){measure();show(cur);}});
 
   // ——— coming and going

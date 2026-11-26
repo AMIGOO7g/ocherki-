@@ -1183,3 +1183,9 @@ html body .footer #saveState{opacity:0!important;pointer-events:none}
 .host-night .editor-wrap.has-head .sh-head{color:#f0dfc4}
 .editor-wrap.has-head .editor{padding-top:92px!important}
 .editor-wrap.has-head .editor>p:first-child::before{content:"Текст";display:block;font:italic 400 12px/1 Georgia,serif;letter-spacing:.04em;color:#a89784;opacity:.62;margin-bottom:6px;text-indent:0}
+/* v257: the chapter's name on its first sheet, over the episode line */
+.paper .ch-head{display:none}
+.paper.has-ch-head .ch-head{display:block;position:absolute;left:60px;right:60px;top:26px;z-index:4;text-align:center;font:italic 500 calc(19px * var(--fzk,1))/1.25 Georgia,'Times New Roman',serif;color:#3b2a20;outline:none;caret-color:#a35f1d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paper.has-ch-head .ch-head::before{content:attr(data-label);display:block;font:italic 400 11px/1 Georgia,serif;letter-spacing:.04em;color:#a89784;opacity:.62;margin-bottom:5px;pointer-events:none}
+.host-night .paper.has-ch-head .ch-head{color:#f0dfc4}
+.paper.has-ch-head .topbar{visibility:hidden}

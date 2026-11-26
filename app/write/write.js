@@ -124,7 +124,7 @@
     const ims=[...nx.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));
     Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,900))]).then(()=>{if(!nx.isConnected)return;requestAnimationFrame(()=>{nx.classList.add('in');
       setTimeout(()=>{if(!nx.isConnected)return;host.remove();nx.style.transition='none';nx.classList.remove('wp-next','in');void nx.offsetWidth;nx.style.transition='';},1300);});});}
-  function paint(force){let res=null;const ratio=topRatio();try{res=window.__ocherkiPeekPage?.(uid,ratio,pick,force);}catch(_){res=null;}
+  function paint(force){let res=null;const ratio=topRatio();try{res=(window.__ocherkiPeekLocal||window.__ocherkiPeekPage)?.(uid,ratio,pick,force);}catch(_){res=null;}
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
     if(res){swapHost(res.html);shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
@@ -138,7 +138,7 @@
     // empty until «обновить» was pressed)
     clearTimeout(paint.r);if(res)paint.n=0;else if(window.__ocherkiPeekWhy!=='absent'&&(paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(function again(){if(!on||busy){paint.r=setTimeout(again,400);return;}refresh(false);},paint.n<4?700:1500);
     // v250: a page shown from a book laid out before the latest changes keeps «обновить» lit
-    place();window.__ocherkiScalePages?.();stale=false;try{stale=!window.__ocherkiBook?.fresh?.();}catch(_){}ref.classList.toggle('is-stale',stale);}
+    place();window.__ocherkiScalePages?.();stale=false;try{stale=!res?.local&&!window.__ocherkiBook?.fresh?.();}catch(_){}ref.classList.toggle('is-stale',stale);}
   // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
   // made the desk stall); the picture of the old page stays meanwhile
   let lastHand=0;['pointerdown','pointermove','keydown'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
@@ -292,7 +292,9 @@
       if(t==='Новый эпизод')return ep||raw;}catch(_){}return raw;};
   // the bar follows day and night everywhere it stands (in «Рукопись» too); the rest only while writing
   const tick=()=>{wc.classList.toggle('night',shell.classList.contains('is-night'));if(!isWrite())return;wc.querySelector('[data-c="peek"]')?.classList.toggle('on',shell.classList.contains('wp-on'));const d=FD();
-    const ch=barName(d),n=(d?.getElementById('pageNo')?.textContent||'').trim(),all=(document.getElementById('pageCount')?.textContent||'').trim();
+    // v257: «лист 3 из 12» within the chapter (or part) being written — «из 71» was the whole book's page count; a part of one sheet
+    // shows no number
+    const ch=barName(d);let n='',all='';try{const W=F()?.contentWindow,sec=W?.currentSection?.(),pg=W?.currentPage?.();const L=(sec?.pages||[]).length;if(L>1){n=String((sec.pages||[]).indexOf(pg)+1||'');all=String(L);}}catch(_){}
     // v212: names in italic, the rest upright — «Глава 5 · Какой он был человек · лист 3 из 36»
     const esc=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const cm=ch.match(/^(Глава\s+\d+)\.?\s*(.*)$/);
     const ED='<button type="button" class="ed" aria-label="Изменить название" data-tip="изменить название"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg></button>';
@@ -767,4 +769,4 @@
 (()=>{let k='';const go=()=>{requestAnimationFrame(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();
   const v=Math.round(r.left)+','+Math.round(r.top);if(v===k)return;k=v;p.style.setProperty('--wpx',(2-Math.round(r.left))+'px');p.style.setProperty('--wpy',(2-Math.round(r.top))+'px');};requestAnimationFrame(go);})();
 // v256: the children who wait with the author take turns — the boy with the kite, the girl under the umbrella, the boy on the pier
-window.__ocKid=(()=>{const K=['kite','umbrella','pier'];let i=Math.floor(Math.random()*3);return ()=>K[(i++)%3];})();
+window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and the boy on the pier will live elsewhere)

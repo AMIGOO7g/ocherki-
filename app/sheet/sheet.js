@@ -4056,7 +4056,8 @@ window.OC_SHEET={
   // into it, all in one move (it flew as an upright card and became square at the very end — a jump)
   let poseAspect=null;
   const printPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);const pose=poseAt(r,Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);poseAspect=c.offsetWidth&&c.offsetHeight?c.offsetHeight/c.offsetWidth:null;return pose;};
-  const shapeTo=(card,g,asp)=>{const h=asp?Math.round(g.W*asp):g.H;card.style.height=h+'px';card.style.top=(g.T+(g.H-h)/2)+'px';};
+  // v257: the shape changes by trimming the card's top and bottom (its size stays: changing the height every frame made it tremble)
+  const shapeTo=(card,g,asp)=>{const h=asp?Math.min(g.H,g.W*asp):g.H,d=Math.max(0,(g.H-h)/2);card.style.clipPath=d>0.5?`inset(${d.toFixed(1)}px -80px ${d.toFixed(1)}px -80px)`:'inset(-80px -80px -80px -80px)';};
   const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect(),o=off();const VH=(HD.defaultView||window).innerHeight;const W=Math.round(Math.min(s.width*.9,560)),H=Math.round(Math.min(VH*.88,W*1.62));return {W,H,L:o.x+s.left+(s.width-W)/2,T:Math.round((VH-H)/2+12)};};
   // the card leaves: face up first, all the way; then to where it goes (its pose given by «to»), fading into the print there
   // v213: it comes down slowly onto its place, settles, and only then fades into the print there (the print shows again under it)
@@ -4069,6 +4070,8 @@ window.OC_SHEET={
     setTimeout(()=>{after&&after();o.card.classList.add('fade');},800+900);
     setTimeout(()=>{o.card.remove();o.bg.remove();},800+900+480);};
   const openCard=(p,from,opts)=>{if(!p||open)return;const g=place();
+    // v257: the cover's photograph has no back to fill (nothing of it is printed on the cover): it is only looked at, a press puts it back
+    const coverCard=!opts.album&&currentSection()?.id==='cover';
     const bg=HD.createElement('div');bg.className='ph-bg'+(opts.noVeil?' ph-bg-clear':'');HD.body.appendChild(bg);
     const card=HD.createElement('div');card.className='ph';Object.assign(card.style,{left:g.L+'px',top:g.T+'px',width:g.W+'px',height:g.H+'px'});
     card.style.setProperty('--phx',(-g.L)+'px');card.style.setProperty('--phy',(-g.T)+'px');
@@ -4116,11 +4119,11 @@ window.OC_SHEET={
     card.querySelector('.ph-pair')?.addEventListener('click',()=>aside(back=>pairPhoto(p,back)));
     card.querySelector('.ph-rep')?.addEventListener('click',()=>replacePhotoFile(pageOf,p,rec=>{card.querySelector('.ph-front img').src=rec.src;tools();}));
     poseAspect=null;const fromPose=from(g),fromAsp=poseAspect;card.style.transform=fromPose;shapeTo(card,g,fromAsp);HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,fromAsp,back:opts.back};tellHost(true);opts.taken?.();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';shapeTo(card,g,null);bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';shapeTo(card,g,null);bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card&&!coverCard)card.classList.add('flip');},430);}));
     card.addEventListener('click',e=>e.stopPropagation());
     // the hint of the field being written in shows in one quiet line kept for it (nothing above it moves)
     {const bar=card.querySelector('.ph-tipbar');card.querySelector('.ph-back').addEventListener('focusin',e=>{const row=e.target.closest('label,.ph-two');const t=row?.closest('.ph-hero')?null:(row?.parentElement?.closest('.ph-two')||row)?.nextElementSibling;bar.textContent=t?.classList.contains('ph-tip')?t.textContent:'';});}
-    card.querySelector('.ph-ret2').addEventListener('click',()=>card.classList.toggle('flip'));card.querySelector('.ph-front').addEventListener('click',()=>card.classList.add('flip'));
+    if(coverCard){const rep=card.querySelector('.ph-rep');if(rep){rep.classList.add('ph-rep-front');card.querySelector('.ph-front').appendChild(rep);rep.addEventListener('click',e=>e.stopPropagation());}}card.querySelector('.ph-ret2').addEventListener('click',()=>card.classList.toggle('flip'));card.querySelector('.ph-front').addEventListener('click',()=>{if(coverCard)close(null,opts.back);else card.classList.add('flip');});
     card.querySelector('.ph-ret').addEventListener('click',()=>close(null,opts.back));bg.addEventListener('click',()=>close(null,opts.back));
     if(opts.album){card.querySelector('.ph-lay').addEventListener('click',()=>{if(!OC_SHEET.canPhoto())return close(null,opts.back);
         // laid on the sheet: it goes on top of the pile (made there first, unseen), and the card comes down onto it
@@ -4253,8 +4256,20 @@ window.OC_SHEET={
 (()=>{const IDS={intro:'Вступление',author:'От автора',afterword:'Послесловие',thanks:'Благодарности',final:'Финал'};
   const wrap=editor.closest('.editor-wrap');if(!wrap)return;const h=document.createElement('div');h.className='sh-head';h.contentEditable='true';h.spellcheck=false;h.dataset.label='Заголовок — его можно изменить';wrap.prepend(h);
   const sync=()=>{const sec=currentSection?.(),p=currentPage?.();const on=!!(sec&&IDS[sec.id]&&p&&!pageUsesForm(p));wrap.classList.toggle('has-head',on);
-    if(on&&document.activeElement!==h){const t=String(p.title||sec.title||IDS[sec.id]);if(h.textContent!==t)h.textContent=t;}};
+    if(on&&document.activeElement!==h){const t=String(p.title||sec.title||IDS[sec.id]);if(h.textContent!==t)h.textContent=t;}
+    // centred on the sheet itself (the text's column sits off the middle on these sheets: the heading stood to the right)
+    if(on){const pa=wrap.closest('.paper')||wrap.parentElement,pr=pa.getBoundingClientRect(),wr=wrap.getBoundingClientRect();if(pr.width){h.style.left=Math.round(pr.left+48-wr.left)+'px';h.style.right=Math.round(wr.right-(pr.right-48))+'px';}}};
   const commit=()=>{const t=h.textContent.replace(/\s+/g,' ').trim();const sec=currentSection(),p=currentPage();if(!sec||!p)return;if(!t){sync();return;}
     if(p.title!==t){p.title=t;if((sec.pages||[]).indexOf(p)===0)sec.title=t;persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}}};
   h.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();h.blur();}if(e.key==='Escape'){e.preventDefault();h.blur();sync();}});
+  h.addEventListener('blur',commit);setInterval(sync,500);sync();})();
+// v257: the chapter's name on its first sheet, written there itself (only the bar above held it, and the sheet showed the episode
+// alone — «Эпизод 1» read as if the chapter were missing); a quiet note above says it can be changed
+(()=>{const paper=document.querySelector('.paper');if(!paper)return;const h=document.createElement('div');h.className='ch-head';h.contentEditable='true';h.spellcheck=false;h.dataset.label='Название главы — его можно изменить';paper.appendChild(h);
+  const name=sec=>String(sec?.title||'').replace(/^Глава\s+\d+[.:]?\s*/i,'').trim();
+  const sync=()=>{const sec=currentSection?.(),p=currentPage?.();const on=!!(sec&&sec.type==='chapter'&&p&&(sec.pages||[]).indexOf(p)===0&&!pageUsesForm(p));paper.classList.toggle('has-ch-head',on);
+    if(on&&document.activeElement!==h){const t=name(sec)||'Новая глава';if(h.textContent!==t)h.textContent=t;}};
+  const commit=()=>{const t=h.textContent.replace(/\s+/g,' ').trim();const sec=currentSection();if(!sec||sec.type!=='chapter'||!t){sync();return;}if(t===name(sec))return;
+    try{OC_SHEET.renameChapter(t);}catch(_){chapterLabel.textContent=t;commitChapterHeading();persistSoon();window.__OCHERKI_EMIT_STRUCTURE?.();}};
+  h.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();h.blur();}if(e.key==='Escape'){e.preventDefault();sync();h.blur();}});
   h.addEventListener('blur',commit);setInterval(sync,500);sync();})();

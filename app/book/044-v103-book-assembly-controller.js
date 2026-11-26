@@ -283,6 +283,11 @@
     const txt=[sp.left,sp.right].filter(pg=>pg&&pg.sourceRange&&pg.sectionId&&pg.sourceRange.end>pg.sourceRange.start);
     if(txt.length){const sid=txt[0].sectionId,same=txt.filter(pg=>pg.sectionId===sid);const a=same[0].sourceRange.start,b=same[same.length-1].sourceRange.end;const uid=sheetAtOffset(sid,Math.round((a+b)/2));if(uid)return {sectionId:sid,pageUid:uid};}
     for(const pg of [sp.left,sp.right]){if(!pg)continue;const uid=photoSheetOf(pg)||pg.sourcePageUid||'';if(uid&&pg.sectionId)return {sectionId:pg.sectionId,pageUid:uid};}
+    // v257: the book's own pages (cover, title, endpaper, dedication, epigraph, contents…) lead to their own sheet — from the cover
+    // in the book one comes to the cover's sheet in the manuscript and the editor (it went back to the last sheet written)
+    {const KIND={cover:'cover','half-title':'title',title:'title',dedication:'dedication',epigraph:'epigraph',contents:'contents','contents-left':'contents','contents-right':'contents',colophon:'colophon','back-cover':'back-cover'};
+      for(const pg of [sp.right,sp.left]){if(!pg)continue;const k=pg.type||pg.kind;let sid=pg.sectionId||KIND[k]||'';if(k==='endpaper')sid=i<3?'endpaper':'back-endpaper';
+        const sec=sid&&(structure?.sections||[]).find(x=>x.id===sid);const p0=sec?.pages?.[0];if(p0)return {sectionId:sec.id,pageUid:p0.uid||p0.id};}}
     return null;}
   // v98: how far into the open sheet the author is (the caret, else the
   // first paragraph in sight), 0…1 — the book opens on that very spread.
@@ -2450,8 +2455,54 @@
     try{assemble();}catch(_){built=false;}finally{structure=full;window.__ocherkiQuietBuild=false;window.__ocherkiLastStructure=full;}
     partialBook=!!built;window.__ocherkiBuiltKey='';window.__ocherkiPeekSig='';return partialBook&&bookSpreads.length>0;}
   const peekEmpty=new Map();
-  window.__ocherkiPeekPage=(uid,ratio,pick,force)=>{
-    {const s0=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid)),front=!!(s0&&FRONT_IDS.has(s0.id));
+  // v257: «Так ляжет» lays out only what the page needs — the book's first pages and the sheet's own part (a chapter, the
+  // introduction, a family page…) — never the whole book (that took twenty seconds and stopped the page: at «обновить», at the
+  // contents, at a change of format). The page numbers are those the part will have in the whole book when it is known.
+  const localPeek=new Map();
+  const PROBE={id:'__oc_probe',type:'chapter',title:'Глава',included:true,pages:[{uid:'__oc_probe_p',id:'__oc_probe_p',type:'chapter',title:'Глава',episode:'',text:'Текст.',userEdited:true,photos:[]}]};
+  const chapterNoOf=sec=>{for(const sp of bookSpreads)for(const pg of [sp?.left,sp?.right])if(pg&&pg.sectionId===sec.id&&pg.chapterNo)return pg.chapterNo;
+    const chs=(structure?.sections||[]).filter(x=>x.type==='chapter'&&x.included!==false);return Math.max(1,chs.indexOf(sec)+1);};
+  function localSpreads(sec,stand){const secs=(structure?.sections||[]).filter(x=>x.included!==false);
+    const part=secs.filter(x=>FRONT_IDS.has(x.id)||x===sec).map(x=>x===sec&&stand?stand:x);const hasCh=part.some(x=>x.type==='chapter'&&(x.pages||[]).some(pg=>String(pg.text||'').trim()||(pg.photos||[]).length));
+    const st=Object.assign({},structure,{sections:hasCh?part:part.concat([PROBE])});
+    const key=JSON.stringify([activeFormat,activeDesign,window.OCHERKI_BOOK_META?.bookPhotoMode||'',st.sections]);
+    const hit=localPeek.get(key);if(hit)return hit;
+    const longWord=/[^\s\u200b]{24,}/gu,breakLong=t=>typeof t==='string'&&/[^\s\u200b]{24,}/u.test(t)?t.replace(longWord,w=>w.replace(/([^\s]{7})(?=[^\s])/gu,'$1\u200b')):t;
+    const sb=JSON.parse(JSON.stringify(st));(sb.sections||[]).forEach(x=>(x.pages||[]).forEach(pg=>{pg.text=breakLong(pg.text);if(pg.semanticHtml&&/[^\s<>\u200b]{24,}/.test(pg.semanticHtml))delete pg.semanticHtml;}));
+    const meta=Object.assign({},window.OCHERKI_BOOK_META||{},{format:activeFormat});let ex=null;
+    try{ex=window.OcherkiLayoutPagination.build(sb,meta);}catch(_){window.OCHERKI_SAFE_LAYOUT=true;try{ex=window.OcherkiLayoutPagination.build(sb,meta);}catch(__){ex=null;}finally{window.OCHERKI_SAFE_LAYOUT=false;}}
+    const spreads=ex&&ex.ready?ex.spreads.filter(sp=>!(sp?.left?.sectionId==='__oc_probe'||sp?.right?.sectionId==='__oc_probe')):null;
+    // the part's page numbers as in the whole book (when the whole book has been laid out once): its first page there
+    if(spreads&&!FRONT_IDS.has(sec.id)&&bookSpreads.length){let full=0,loc=0;const first=(arr)=>{for(const sp of arr)for(const pg of [sp?.left,sp?.right])if(pg&&pg.sectionId===sec.id&&+pg.pageNo)return +pg.pageNo;return 0;};
+      full=first(bookSpreads);loc=first(spreads);const d=full&&loc?full-loc:0;if(d)spreads.forEach(sp=>[sp?.left,sp?.right].forEach(pg=>{if(pg&&pg.sectionId===sec.id&&+pg.pageNo)pg.pageNo=+pg.pageNo+d;}));}
+    // its chapter number as in the whole book (laid out alone it was always «Глава 01»)
+    if(spreads&&sec.type==='chapter'){const n=chapterNoOf(sec);spreads.forEach(sp=>[sp?.left,sp?.right].forEach(pg=>{if(pg&&pg.sectionId===sec.id&&pg.chapterNo)pg.chapterNo=n;}));}
+    localPeek.set(key,spreads);if(localPeek.size>12)localPeek.delete(localPeek.keys().next().value);return spreads;}
+  window.__ocherkiPeekLocal=(uid,ratio,pick,force)=>{
+    if(!structure||!window.OcherkiLayoutPagination)return null;const sec=(structure.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid));
+    // the contents needs the whole book (its page numbers): the book as last laid out, or laid out once
+    if(!sec)return null;
+    // the contents: as the whole book last laid out gave it (never laid out anew here); with no book yet, its rows with the chapters'
+    // names and the numbers left for the book to give
+    if(sec.id==='contents'){if(built&&bookSpreads.length&&!partialBook)return window.__ocherkiPeekPage(uid,ratio,pick,false,true);
+      const chs=(structure.sections||[]).filter(x=>x.type==='chapter'&&x.included!==false);
+      const stub=chs.map(x=>({id:x.id,type:'chapter',title:x.title,included:true,pages:[{uid:x.id+'_stub',id:x.id+'_stub',type:'chapter',title:x.title,episode:'',text:'·',userEdited:true,photos:[]}]}));
+      const st=Object.assign({},structure,{sections:(structure.sections||[]).filter(x=>FRONT_IDS.has(x.id)||x===sec).concat(stub)});
+      let ex=null;try{ex=window.OcherkiLayoutPagination.build(JSON.parse(JSON.stringify(st)),Object.assign({},window.OCHERKI_BOOK_META||{},{format:activeFormat}));}catch(_){ex=null;}
+      if(!ex?.ready)return null;ex.spreads.forEach(sp=>[sp?.left,sp?.right].forEach(pg=>{if(pg&&Array.isArray(pg.items))pg.items.forEach(it=>{it.page='';});}));
+      const keep=bookSpreads;let res=null;bookSpreads=ex.spreads;try{res=window.__ocherkiPeekPage(uid,ratio,pick,false,true);}finally{bookSpreads=keep;}if(res)res.local=true;return res;}
+    window.__ocherkiPeekWhy='nobook';const t0=performance.now();
+    // v257: an empty sheet of a chapter (a new episode, a sheet laid on the desk) is shown where it will stand — in its chapter, in
+    // the episode's own dress, with a quiet line in place of its words (it was shown as a new chapter)
+    let stand=null;{const pi=(sec.pages||[]).findIndex(p=>(p.uid||p.id)===uid),tp=sec.pages[pi];const empty=tp&&(!String(tp.text||'').trim()||tp.sample===true||String(tp.text||'').startsWith('ТЕКСТ-ОБРАЗЕЦ'));
+      if(sec.type==='chapter'&&pi>0&&empty){stand=JSON.parse(JSON.stringify(sec));const q=stand.pages[pi];q.text=q.type==='document'?'Здесь будет документ.':'Здесь начнётся этот эпизод.';q.userEdited=true;q.sample=false;q.semanticHtml='';}}
+    const spreads=localSpreads(sec,stand);if(!spreads)return null;window.__ocherkiPeekWhy='absent';
+    if(stand){const mark=stand.pages.find(p=>(p.uid||p.id)===uid)?.text||'';let hit=null;spreads.some((sp,i)=>[[sp?.left,'left'],[sp?.right,'right']].some(([pg,side])=>{if(pg&&pg.sectionId===sec.id&&!/quote/i.test(String(pg.layout||'')+String(pg.master||''))){let j='';try{j=pageCanvasHost(pg,side,'preview',true);}catch(_){}if(j.includes(mark.slice(0,18))){hit={pg,side,i};return true;}}return false;}));
+      if(hit){const [w,h]=currentPageSize();window.__ocherkiPeekMs=Math.round(performance.now()-t0);return {html:pageCanvasHost(hit.pg,hit.side,'preview',true),w,h,pageNo:hit.pg.pageNo||'',spread:hit.i,side:hit.side,n:1,k:0,local:true,empty:true};}}
+    const keep=bookSpreads;let res=null;bookSpreads=spreads;try{res=window.__ocherkiPeekPage(uid,ratio,pick,false,true);}finally{bookSpreads=keep;}
+    window.__ocherkiPeekMs=Math.round(performance.now()-t0);if(res)res.local=true;return res;};
+  window.__ocherkiPeekPage=(uid,ratio,pick,force,noAsm)=>{
+    if(!noAsm){const s0=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid)),front=!!(s0&&FRONT_IDS.has(s0.id));
       // v256: why no page is given — «nobook»: the book could not be laid out yet; «absent»: it is laid out, this sheet is not in it
       window.__ocherkiPeekWhy='nobook';
       if(!force&&front&&(!built||!bookSpreads.length)){if(!liteAssemble()&&!quietAssemble())return null;}
@@ -2477,7 +2528,7 @@
         const ex=window.OcherkiLayoutPagination.build({sections:[one]},Object.assign({},window.OCHERKI_BOOK_META||{},{format:activeFormat}));
         let hit=null;const all=[];(ex?.spreads||[]).forEach((sp,i)=>[[sp?.left,'left'],[sp?.right,'right']].forEach(([pg,side])=>{if(pg&&pg.sectionId===one.id)all.push({pg,side,i});}));hit=all.find(x=>x.pg.layout==='chapter-intro')||all[0]||null;
         peekEmpty.set(key,hit);if(peekEmpty.size>40)peekEmpty.delete(peekEmpty.keys().next().value);}
-      const hit=peekEmpty.get(key);if(hit){const [w,h]=currentPageSize();return {html:pageCanvasHost(hit.pg,hit.side,'preview',true),w,h,pageNo:'',spread:-1,side:hit.side,n:1,k:0,empty:true};}}catch(_){}
+      const hit=peekEmpty.get(key);if(hit){hit.pg.chapterNo=chapterNoOf(sec);const [w,h]=currentPageSize();return {html:pageCanvasHost(hit.pg,hit.side,'preview',true),w,h,pageNo:'',spread:-1,side:hit.side,n:1,k:0,empty:true};}}catch(_){}
       return null;}
     else{const i=uid?spreadIndexForUid(uid):-1;if(i<0)return null;const sp=bookSpreads[i],side=window.__ocherkiSpreadSide||(sp.right?'right':'left');const pg=(side==='left'?sp.left:sp.right)||sp.right||sp.left;if(!pg)return null;list.push({pg,side,i});}
     const it=list[k],[w,h]=currentPageSize();
@@ -3005,7 +3056,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v257"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v258"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

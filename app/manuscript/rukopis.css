@@ -241,3 +241,12 @@ html.rk-on:not(.rk-hide) .rk-sh.mid{box-shadow:none!important}
 .rk-plate .rk-mv button:hover{background:rgba(120,80,40,.14)}
 .rk-plate .rk-mv button:disabled{opacity:.25;cursor:default;background:none}
 html.rk-phcard .rk-sh.mid .rk-ph{opacity:0;transition:opacity .25s ease}
+/* v257: × on the plate takes the middle sheet away; the basket at the desk's foot shows while a sheet is carried */
+.rk-plate .rk-del{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font:19px/1 'CormorantCy',Georgia,serif;color:#8a5a3a;opacity:.7;margin-left:4px;transition:background .2s ease,opacity .2s ease}
+.rk-plate .rk-del:hover{opacity:1;background:rgba(150,70,40,.14)}
+html:has(.shell.is-night) .rk-plate .rk-del{color:#e8c39a}
+.rk-trash{position:fixed;left:50%;bottom:22px;z-index:60;translate:-50% 30px;display:flex;align-items:center;gap:10px;padding:10px 22px;border-radius:999px;pointer-events:none;
+  background:rgba(60,40,24,.62);color:#f4e4c8;font:16px 'CormorantCy',Georgia,serif;box-shadow:0 8px 24px rgba(30,18,8,.35);opacity:0;transition:opacity .3s ease,translate .35s cubic-bezier(.2,.8,.3,1),background .2s ease,scale .2s ease}
+.rk-trash svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.rk-trash.on{opacity:1;translate:-50% 0}
+.rk-trash.over{background:rgba(140,50,30,.82);scale:1.08}

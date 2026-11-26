@@ -1012,10 +1012,11 @@ html.oc-desk body{opacity:1;transition:opacity .7s ease}
 /* the card: a real print that turns over — its face the photograph, its back the hand-written lines */
 .ph-bg{position:fixed;inset:0;z-index:2147483300;background:rgba(30,18,8,0);-webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease,background .5s ease}
 .ph-bg.on{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);background:rgba(30,18,8,.1)}
-.ph.fly.home{transition:transform .9s cubic-bezier(.25,.6,.2,1),height .9s cubic-bezier(.25,.6,.2,1),top .9s cubic-bezier(.25,.6,.2,1)}
+.ph.fly.home{transition:transform .9s cubic-bezier(.25,.6,.2,1),clip-path .9s cubic-bezier(.25,.6,.2,1)}
 .ph.fade{transition:opacity .45s ease;opacity:0}
 .ph{position:fixed;z-index:2147483301;perspective:1600px;transform-origin:50% 50%}
-.ph.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1),height .55s cubic-bezier(.3,.7,.2,1),top .55s cubic-bezier(.3,.7,.2,1)}
+.ph.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1),clip-path .55s cubic-bezier(.3,.7,.2,1)}
+.ph{will-change:transform,clip-path}
 .ph.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
 .ph-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
 .ph.flip .ph-in{transform:rotateY(180deg)}
@@ -1162,3 +1163,6 @@ html:has(.shell.is-evening:not(.is-night)) body .shell .wp-keys .wp-item .lab,ht
 @keyframes wpWaitIn{from{opacity:0}to{opacity:1}}
 @keyframes bkKite{0%,100%{transform:none}50%{transform:translateY(-5px) rotate(-1.4deg)}}
 @keyframes bkKiteT{0%,100%{opacity:.5}50%{opacity:1}}
+/* v257: the cover's photograph: only its face, with «заменить фото» on it */
+.ph-front .ph-rep-front{all:unset;position:absolute;left:50%;bottom:22px;translate:-50% 0;cursor:pointer;padding:7px 16px;border-radius:999px;background:rgba(251,247,239,.92);color:#5a3f26;font:15px 'CormorantCy',Georgia,serif;box-shadow:0 2px 8px rgba(40,25,10,.25);opacity:0;transition:opacity .3s ease}
+.ph:not(.fly) .ph-front:hover .ph-rep-front,.ph.fly:not(.home) .ph-front:hover .ph-rep-front{opacity:1}

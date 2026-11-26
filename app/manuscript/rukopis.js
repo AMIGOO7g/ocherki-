@@ -179,7 +179,7 @@
   function go(to){if(!G)return;to=Math.max(0,Math.min(order.length-1,to));if(to===center)return;center=to;rustle();layFan();}
   // the plate over the pile: the chapter, where we are in it; a press shows all the chapters
   function renderPlate(){if(!G)return;const pl=desk.plate;Object.assign(plate.style,{left:pl.left+'px',top:pl.top+'px',width:pl.width+'px',height:pl.height+'px'});
-    const h=`<b>${esc(G.word)}</b>${G.name?`<i>${esc(G.name)}</i>`:''}<span class="rk-mv">${order.length>1?`<button type="button" data-mv="-1" title="Переложить этот лист на место раньше"${center<=0?' disabled':''}>‹</button>`:''}${center+1} из ${order.length}${order.length>1?`<button type="button" data-mv="1" title="Переложить этот лист на место позже"${center>=order.length-1?' disabled':''}>›</button>`:''}</span>`;if(plate._h!==h){plate._h=h;plate.innerHTML=h;}}
+    const h=`<b>${esc(G.word)}</b>${G.name?`<i>${esc(G.name)}</i>`:''}<span class="rk-mv">${order.length>1?`<button type="button" data-mv="-1" title="Переложить этот лист на место раньше"${center<=0?' disabled':''}>‹</button>`:''}${center+1} из ${order.length}${order.length>1?`<button type="button" data-mv="1" title="Переложить этот лист на место позже"${center>=order.length-1?' disabled':''}>›</button>`:''}</span><button type="button" class="rk-del" data-del title="Убрать этот лист (его можно вернуть)">×</button>`;if(plate._h!==h){plate._h=h;plate.innerHTML=h;}}
   function renderTabs(){const gs=groups();{const tp=desk.bar?desk.bar.bottom+24:140;Object.assign(tabs.style,{left:desk.tabs.left+'px',width:desk.tabs.width+'px',top:tp+'px',maxHeight:Math.max(200,innerHeight-tp-36)+'px'});}
     tabs.innerHTML='<div class="rk-tab rk-taball" role="button"><b>все главы</b></div>'+gs.map(g=>`<div class="rk-tab${g.key===G?.key?' cur':''}${g.kind==='chapter'?' ch':''}${g.key===litTab?' lit':''}" data-g="${esc(g.key)}"><b>${esc(g.word)}<span> · ${g.sheets.length}</span></b>${g.name?`<i>${esc(g.name)}</i>`:''}</div>`).join('')+'<div class="rk-tab rk-tabnew" role="button">+ глава</div>';fadeTabs();if(tabsCascade){tabsCascade=false;cascadeTabs();}}
   // v256: the chapters' plates unfold one under another when the manuscript opens; the list fades out at its foot (and at its head
@@ -261,13 +261,21 @@
   addEventListener('resize',()=>{if(isOpen){const wasOn=H.classList.contains('rk-on');H.classList.remove('rk-hide');measureDesk();if(wasOn)H.classList.add('rk-hide');render();}});
   // v256: ‹ › by the sheet's number lay the middle sheet one place earlier or later (moving a sheet was found only by carrying it and
   // holding it over the pile)
-  plate.addEventListener('click',e=>{const mv=e.target.closest?.('[data-mv]');if(mv){e.stopPropagation();if(mv.disabled||!G||drag)return;const uid=order[center],to=center+(+mv.dataset.mv);if(!uid||to<0||to>=order.length)return;
+  plate.addEventListener('click',e=>{if(e.target.closest?.('[data-del]')){e.stopPropagation();if(!G||drag)return;const uid=order[center];if(uid)removeSheet(uid,fan.querySelector(sel(uid)));return;}const mv=e.target.closest?.('[data-mv]');if(mv){e.stopPropagation();if(mv.disabled||!G||drag)return;const uid=order[center],to=center+(+mv.dataset.mv);if(!uid||to<0||to>=order.length)return;
     const ids=order.slice();ids.splice(center,1);ids.splice(to,0,uid);rustle();commitOrder(ids,uid);renderPlate();return;}back();});
 
   // ——— «вернуть»: every move can be taken back for a few seconds
   let undoFn=null,undoT=0;
   function offerUndo(text,fn){undoFn=fn;undoEl.querySelector('span').textContent=text;undoEl.classList.add('on');clearTimeout(undoT);undoT=setTimeout(()=>{undoEl.classList.remove('on');undoFn=null;},7000);}
   undoEl.querySelector('button').addEventListener('click',()=>{const f=undoFn;undoFn=null;undoEl.classList.remove('on');f?.();});
+  // v257: a sheet taken away — by × on the plate, or let fall into the basket at the desk's foot while carried; it goes down and
+  // fades, the others close up, and «вернуть» brings it back for a few seconds
+  function removeSheet(uid,el){const sec=G?.sec;if(!sec||!uid)return;
+    if(el){el.dataset.u='';el.classList.add('gone');el.style.transition='transform .5s cubic-bezier(.4,0,.2,1),opacity .45s ease';
+      const r=el.getBoundingClientRect(),tr0=getComputedStyle(el).transform;el.style.transform=(tr0==='none'?'':tr0+' ')+'translateY(60px) scale(.92)';el.style.opacity=0;setTimeout(()=>el.remove(),520);}
+    send({action:'deletePage',sectionId:sec.id,pageUid:uid});order=order.filter(u=>u!==uid);center=Math.min(center,Math.max(0,order.length-1));layFan();renderPlate();
+    offerUndo('Лист убран',()=>{view={key:G?.key||view?.key,focus:uid};send({action:'undoDelete'});});}
+  const trash=document.createElement('div');trash.className='rk-trash';trash.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg><span>убрать лист</span>';board.appendChild(trash);
   function commitOrder(ids,uid){const prev=order.slice(),sec=G.sec;if(!sec)return;order=ids;center=ids.indexOf(uid);layFan();send({action:'reorderPages',sectionId:sec.id,ids});
     shine(uid);offerUndo('Лист переставлен',()=>{view.focus=uid;send({action:'reorderPages',sectionId:sec.id,ids:prev});});}
   // a sheet into another chapter: «follow» — the view goes with it (it was laid among that chapter's sheets); otherwise the view
@@ -293,13 +301,13 @@
       if(d.dead){drag=null;return;}drop(ev);};
     addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up);});
   function startCarry(){const d=drag;
-    if(d.sheet){d.el.classList.add('rk-carried');d.uid=d.el.dataset.u;d.fromKey=G.key;d.was=order.indexOf(d.uid);d.fan=order.filter(u=>u!==d.uid);d.c=Math.min(center,d.fan.length);d.at=d.c;d.fan.splice(d.at,0,'__gap');layFan();tabs.classList.add('drop');
+    if(d.sheet){d.el.classList.add('rk-carried');trash.classList.add('on');d.uid=d.el.dataset.u;d.fromKey=G.key;d.was=order.indexOf(d.uid);d.fan=order.filter(u=>u!==d.uid);d.c=Math.min(center,d.fan.length);d.at=d.c;d.fan.splice(d.at,0,'__gap');layFan();tabs.classList.add('drop');
       // held over the pile or the fan's far end, the sheets turn under the hand, one at a time
       d.turn=setInterval(()=>{if(drag!==d||!d.ev||d.overTab)return;const ids=d.fan.filter(u=>u!=='__gap');
         if(d.zone==='pile'&&d.c>0){d.c--;rustle();carry(d.ev);}else if(d.zone==='far'&&ids.length-d.c>fanN){d.c++;rustle();carry(d.ev);}},520);}
     else{d.keys=[...all.querySelectorAll('.rk-st.ch')].map(x=>x.dataset.g);d.fly=d.el.cloneNode(true);d.fly.classList.add('rk-fly');Object.assign(d.fly.style,{left:d.r.left+'px',top:d.r.top+'px',width:d.r.width+'px',height:d.r.height+'px'});
       board.appendChild(d.fly);d.el.classList.add('rk-place');d.rects=null;}}
-  function carry(ev){const d=drag,dx=ev.clientX-d.x0,dy=ev.clientY-d.y0;
+  function carry(ev){const d=drag,dx=ev.clientX-d.x0,dy=ev.clientY-d.y0;if(d.sheet){const tr=trash.getBoundingClientRect();trash.classList.toggle('over',ev.clientX>=tr.left-20&&ev.clientX<=tr.right+20&&ev.clientY>=tr.top-30&&ev.clientY<=tr.bottom+20);}
     if(!d.sheet){d.fly.style.transform=`translate(${dx}px,${dy}px) rotate(2deg) scale(1.04)`;d.fly.style.setProperty('--ox',(-(d.r.left+dx)).toFixed(1)+'px');d.fly.style.setProperty('--oy',(-(d.r.top+dy)).toFixed(1)+'px');
       // the stacks' places are measured once per change, not on every move (it lagged)
       if(!d.rects)d.rects=[...all.querySelectorAll('.rk-st.ch')].filter(x=>x!==d.el).map(x=>({x,r:x.getBoundingClientRect()}));
@@ -318,7 +326,9 @@
     live().forEach(el=>{if(el!==d.el)retire(el);});view={key};G=g;order=g.sheets.map(x=>x.p.uid);
     g.sheets.forEach((x,k)=>{const el=document.createElement('div');el.className='rk-sh';el.dataset.u=x.p.uid;el.dataset.s=x.s.id;el.dataset.k=k;el.innerHTML=sheetHtml(x,k);el.style.transform=tr(slot(fanN+1));el.style.opacity=0;fan.appendChild(el);lightSheet(el,slot(fanN+1),true);});
     fan.getBoundingClientRect();d.fan=[...order,'__gap'];d.at=order.length;d.c=Math.max(0,order.length-1);renderTabs();setBarTitle();layFan();}
-  function drop(ev){const d=drag;clearTimeout(d.dwell);clearInterval(d.turn);tabs.classList.remove('drop');
+  function drop(ev){const d=drag;clearTimeout(d.dwell);clearInterval(d.turn);tabs.classList.remove('drop');trash.classList.remove('on','over');
+    if(d.sheet&&G&&G.key===d.fromKey){const tr=trash.getBoundingClientRect();if(ev.clientX>=tr.left-20&&ev.clientX<=tr.right+20&&ev.clientY>=tr.top-30&&ev.clientY<=tr.bottom+20){drag=null;d.el.classList.remove('rk-carried');d.el.style.transformOrigin='';
+      order=d.fan.filter(u=>u!=='__gap');order.splice(Math.max(0,d.fan.indexOf('__gap')),0,d.uid);removeSheet(d.uid,d.el);return;}}
     if(!d.sheet){const r=d.el.getBoundingClientRect();d.fly.style.transition='transform .32s cubic-bezier(.2,.8,.3,1)';d.fly.style.transform=`translate(${r.left-d.r.left}px,${r.top-d.r.top}px)`;
       setTimeout(()=>{d.fly.remove();d.el.classList.remove('rk-place');lightAll();drag=null;const keys=[...all.querySelectorAll('.rk-st.ch')].map(x=>x.dataset.g);
         if(keys.join()!==d.keys.join())reorderChapters(keys,d.keys);},330);return;}
