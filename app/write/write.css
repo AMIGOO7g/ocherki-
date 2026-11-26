@@ -264,6 +264,7 @@ html body .book-preview-modal.is-night #bookPreviewInfo,html body .shell.is-nigh
 .wp-page{position:absolute;inset:0;background:#fff;box-shadow:0 30px 60px rgba(0,0,0,.45),0 6px 14px rgba(0,0,0,.2);overflow:hidden}
 .shell:not(.is-night) .wp-page{box-shadow:0 26px 50px rgba(70,40,15,.28),0 5px 12px rgba(70,40,15,.14)}
 .wp-host,.wp-wait{position:absolute;inset:0;transition:opacity .55s ease}
+.wp-host.wp-next{opacity:0;transition:opacity .28s ease}.wp-host.wp-next.in{opacity:1}
 .wp-host .page-canvas-host{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
 .wp-none{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font:20px/1.5 'CormorantCy',Georgia,serif;color:#a07a4c;background:#fbf8f2}
 .wp-wait{display:grid;place-items:center;font:19px 'CormorantCy',Georgia,serif;color:#a07a4c;opacity:0;pointer-events:none;background:#fff}
@@ -1007,6 +1008,7 @@ html body::after{content:"";position:fixed;inset:0;z-index:2147483647;pointer-ev
   linear-gradient(rgba(214,198,172,.80),rgba(214,198,172,.80)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#e4d3b6;
   background-blend-mode:screen,normal,normal,normal}
 html.oc-night0 body::after{background:radial-gradient(ellipse 70% 80% at 50% 10%,#1d1006 0%,#120904 55%,#0b0603 100%);background-blend-mode:normal}/* v215: the night desk comes in as the warm dusk itself (the light toile showed through, cold) */
+html.oc-eve0 body::after{background:linear-gradient(100deg,rgba(255,170,90,.16),rgba(255,150,80,0) 55%),linear-gradient(rgba(118,82,52,.78),rgba(92,62,38,.84)),url("../../assets/toile/desk-toile.png") center/cover no-repeat,#5a3d27;background-blend-mode:screen,normal,normal,normal}/* v254: an evening's boot comes in as the evening desk (it came in by day) */
 html.oc-shown body::after{opacity:0}
 html.oc-desk body{opacity:1;transition:opacity .7s ease}
 

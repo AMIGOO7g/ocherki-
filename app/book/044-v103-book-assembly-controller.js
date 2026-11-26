@@ -200,7 +200,7 @@
   let designAppliedFromConfig=false;
   /* The first control-book pass is composed in the approved 280 x 280 mm format. */
   let activeFormat='square';
-  let built=false;
+  let built=false,partialBook=false;
   let buildMessage='';
   let pendingBuildRequest=false;
   let directorRebuildTimer=null;
@@ -2436,13 +2436,23 @@
   function quietAssemble(){if(!structure)return false;
     if(!bookFresh()||window.__ocherkiPeekSig!==peekSig()){window.__ocherkiQuietBuild=true;
       try{try{assemble();}catch(first){window.OCHERKI_SAFE_LAYOUT=true;try{assemble();}finally{window.OCHERKI_SAFE_LAYOUT=false;}}
-        if(built){bookOutdated=false;buildBtn?.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();window.__ocherkiBuiltKey=bookKey();window.__ocherkiPeekSig=peekSig();}}
+        if(built){partialBook=false;bookOutdated=false;buildBtn?.classList.remove('is-outdated');window.__ocherkiBuiltAt=Date.now();window.__ocherkiBuiltKey=bookKey();window.__ocherkiPeekSig=peekSig();}}
       catch(_){return false;}finally{window.__ocherkiQuietBuild=false;}}
     return bookSpreads.length>0;}
   // v250: «Так ляжет» shows the page from the book as it was last laid out; it is laid out anew only by «обновить» (force) or
   // when there is no book yet
+  // v254: the book's first pages (cover, endpaper, title, dedication, epigraph) do not wait for the whole book: with no book laid out
+  // yet they are laid out with only the first chapter behind them (a moment instead of the whole book's twenty seconds); the whole
+  // book is laid out when a chapter's page is asked for, by «обновить» or when «Книга» opens
+  const FRONT_IDS=new Set(['cover','endpaper','title','dedication','epigraph']);
+  function liteAssemble(){const full=structure;if(!full)return false;const secs=full.sections||[],first=secs.find(x=>x.type==='chapter');
+    structure=Object.assign({},full,{sections:secs.filter(x=>FRONT_IDS.has(x.id)||x===first)});window.__ocherkiQuietBuild=true;
+    try{assemble();}catch(_){built=false;}finally{structure=full;window.__ocherkiQuietBuild=false;window.__ocherkiLastStructure=full;}
+    partialBook=!!built;window.__ocherkiBuiltKey='';window.__ocherkiPeekSig='';return partialBook&&bookSpreads.length>0;}
   window.__ocherkiPeekPage=(uid,ratio,pick,force)=>{
-    if(force||!built||!bookSpreads.length){if(!quietAssemble())return null;}
+    {const s0=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid)),front=!!(s0&&FRONT_IDS.has(s0.id));
+      if(!force&&front&&(!built||!bookSpreads.length)){if(!liteAssemble()&&!quietAssemble())return null;}
+      else if(force||!built||!bookSpreads.length||(partialBook&&!front)){if(!quietAssemble())return null;}}
     // every book page that carries words of this sheet, in order
     const sec=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid));const run=sec&&sheetOffsets(sec.id).find(x=>x.uid===uid);
     const list=[];if(run)bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){const rg=pg?.sourceRange;if(pg?.sectionId===sec.id&&rg&&rg.end>run.start&&rg.start<run.end)list.push({pg,side,i,rg});}});
@@ -2982,7 +2992,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v253"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v254"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

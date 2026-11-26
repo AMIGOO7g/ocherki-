@@ -115,11 +115,20 @@
     place();
   }
   // lays the page into the pane at once (the book is usually prepared in the background already)
+  // v254: the next page is laid under the one shown and comes over it once its pictures are ready — the shown page never goes
+  // blank in between (it blinked at every change of sheet: the cover's photo was loaded anew on an empty page)
+  function swapHost(html){const host=pane.querySelector('.wp-host:not(.wp-next)');if(!host)return;
+    pane.querySelectorAll('.wp-host.wp-next').forEach(n=>n.remove());
+    if(!host.firstElementChild||host.querySelector('.wp-none')&&!/<img/.test(html)){host.innerHTML=html;return;}
+    const nx=host.cloneNode(false);nx.classList.add('wp-next');nx.innerHTML=html;host.after(nx);window.__ocherkiScalePages?.();
+    const ims=[...nx.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));
+    Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,900))]).then(()=>{if(!nx.isConnected)return;requestAnimationFrame(()=>{nx.classList.add('in');
+      setTimeout(()=>{if(!nx.isConnected)return;host.remove();nx.classList.remove('wp-next','in');},300);});});}
   function paint(force){let res=null;const ratio=topRatio();try{res=window.__ocherkiPeekPage?.(uid,ratio,pick,force);}catch(_){res=null;}
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
-    if(res){host.innerHTML=res.html;shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
-    else{host.innerHTML='<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>';pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
+    if(res){swapHost(res.html);shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
+    else{swapHost('<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>');pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
     // v215: right after loading the book's structure may not have come yet: the page is asked for again a few times (it stayed
     // empty until «обновить» was pressed)
     clearTimeout(paint.r);if(res)paint.n=0;else if((paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(()=>{if(on)refresh(false);},1500);
@@ -130,7 +139,7 @@
   let lastHand=0;['pointerdown','pointermove','keydown'].forEach(t=>addEventListener(t,()=>{lastHand=performance.now();},{passive:true,capture:true}));
   const quietRefresh=()=>{const q=performance.now()-lastHand;if(q<1100){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,1150-q);return;}
     (window.requestIdleCallback||(f=>setTimeout(f,0)))(()=>refresh(false),{timeout:900});};
-  function refresh(first,force){if(!on||busy)return;busy=true;pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
+  function refresh(first,force){if(!on||busy)return;busy=true;if(force)pane.classList.add('is-busy');ref.classList.remove('is-stale');stale=false;
     ref.classList.remove('is-spin');void ref.offsetWidth;ref.classList.add('is-spin');clearTimeout(refresh.s);refresh.s=setTimeout(()=>ref.classList.remove('is-spin'),950);
     setTimeout(()=>{paint(force);requestAnimationFrame(()=>window.__ocherkiScalePages?.());
       setTimeout(()=>{pane.classList.remove('is-busy');busy=false;},160);},60);}
