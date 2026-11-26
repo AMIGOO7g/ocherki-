@@ -32,12 +32,12 @@
 .rm-side{position:absolute;right:max(4vw,40px);top:6px;padding:7px 20px 8px;font-size:17px}
 .rm-dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#b0302a;box-shadow:0 0 0 2px rgba(176,48,42,.18)}
 .rm-go:has(.rm-dot) .rm-dot{animation:none}
-html:has(.shell.is-night) :is(.rm-btn,.rm-round){background:radial-gradient(circle,#2a2520,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#ecd6b0}
+html.sh-shell.sh-is-night :is(.rm-btn,.rm-round){background:radial-gradient(circle,#2a2520,#1d1b18 72%,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#ecd6b0}
 /* the sound's line */
 .rm-wave{display:flex;align-items:center;gap:3px;height:clamp(40px,5.5vh,64px);width:min(560px,70vw)}
 .rm-wave i{flex:1;height:var(--h);min-height:2px;border-radius:2px;background:rgba(110,78,46,.38);transition:height .12s ease,background-color .2s ease}
 .rm-wave i.on{background:#a5733f}
-html:has(.shell.is-night) .rm-wave i{background:rgba(232,196,140,.3)}html:has(.shell.is-night) .rm-wave i.on{background:#e2b36c}
+html.sh-shell.sh-is-night .rm-wave i{background:rgba(232,196,140,.3)}html.sh-shell.sh-is-night .rm-wave i.on{background:#e2b36c}
 /* the record */
 .rm-disc{position:relative;aspect-ratio:1;filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(12px 20px 20px rgba(60,40,20,.26))}
 .rm-disc.big{height:clamp(220px,30vh,340px)}
@@ -46,7 +46,7 @@ html:has(.shell.is-night) .rm-wave i{background:rgba(232,196,140,.3)}html:has(.s
 .rm-spin>img:first-child{width:100%;height:100%;display:block}
 .rm-label{position:absolute;left:28.4%;top:28.4%;width:43.2%;height:43.2%}
 .rm-shine{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.85;pointer-events:none;-webkit-mask:radial-gradient(circle,transparent 2.1%,#000 2.5%);mask:radial-gradient(circle,transparent 2.1%,#000 2.5%)}
-html:has(.shell.is-night) .rm-disc{filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 22px 24px rgba(0,0,0,.5))}
+html.sh-shell.sh-is-night .rm-disc{filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 22px 24px rgba(0,0,0,.5))}
 /* rows of records or envelopes */
 .rm-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,3vh,36px) clamp(30px,5vw,80px);width:min(1000px,88vw)}
 .rm-cell{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:translate .25s ease}
@@ -103,7 +103,7 @@ html:has(.shell.is-night) .rm-disc{filter:drop-shadow(0 3px 4px rgba(0,0,0,.55))
 .ar-plane{width:calc(var(--ar-vh)*1.25)}
 .ar-plane>img{width:100%;max-height:none!important;transition:translate .5s cubic-bezier(.2,.75,.25,1),rotate .5s cubic-bezier(.2,.75,.25,1)}
 .ar-it:is(:hover,.hov) .ar-plane>img{translate:10px -10px;rotate:-4deg}
-html:has(.shell.is-night) .ar-ink{stroke:#e8d2ae}
+html.sh-shell.sh-is-night .ar-ink{stroke:#e8d2ae}
 
 /* ——— v251: «Запись» — its own scene: a dark warm room, the window's light lying on the wall (a blurred frame), the
    microphone hanging from above, lit from the front, a warm halo behind it; the same buttons as the other rooms in its colours.
@@ -162,7 +162,7 @@ html.ar-cine .rc-scene.on:has(~.rm.rc-on) .rc-halo{animation-play-state:running}
 html.ar-on.ar-cine .ar-nav button.on{padding:6px 20px;margin:0 -18px;transition:none;color:#2c1a0c!important;-webkit-text-fill-color:#2c1a0c;background:linear-gradient(#f6e3c0,#dcb682);border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 html.ar-on.ar-cine .ar-nav button.on::after{display:none}
 @media (prefers-reduced-motion:reduce){.rc-win,.rc-halo,.rm.rc .rm-dot,.rm.rc.on .rc-mic{animation:none!important}}
-html.ar-on.ar-cine:has(.shell) .oct .lbx,html.ar-on.ar-cine:has(.shell) .oct .lbx *{color:#f3e3c8!important;text-shadow:0 1px 3px rgba(0,0,0,.65)!important}
+html.ar-on.ar-cine.sh-shell .oct .lbx,html.ar-on.ar-cine.sh-shell .oct .lbx *{color:#f3e3c8!important;text-shadow:0 1px 3px rgba(0,0,0,.65)!important}
 
 /* ——— v252: the whole archive in one scene — the same wall, window and light behind the front and every room (from the agreed screenshots) */
 

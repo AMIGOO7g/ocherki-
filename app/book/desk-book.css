@@ -20,8 +20,8 @@ html.bk-on .wc .bkc.off{opacity:.3;pointer-events:none}
 .bk-cmenu button{all:unset;display:block;cursor:pointer;padding:6px 10px;border-radius:8px}
 .bk-cmenu button:hover{background:rgba(196,150,100,.18)}
 .bk-cmenu button.cur{background:rgba(196,150,100,.28)}
-html:has(.shell.is-night) .bk-cmenu{background:radial-gradient(circle,#25221e,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#e8d2ae}
-html:has(.shell.is-night) .bk-cmenu b{color:#c9b08a}
+html.sh-shell.sh-is-night .bk-cmenu{background:radial-gradient(circle,#25221e,#191714) padding-box,linear-gradient(145deg,#ead4b1,#c59664 24%,#8e6242 62%,#4a3324) border-box;color:#e8d2ae}
+html.sh-shell.sh-is-night .bk-cmenu b{color:#c9b08a}
 
 /* the open book: the writing sheet's shadows, by day and at night — one shadow under the whole book (under both pages; a page's
    shadow never falls on the page beside it); a cover alone has its shadow under itself only */
@@ -29,7 +29,7 @@ html:has(.shell.is-night) .bk-cmenu b{color:#c9b08a}
   box-shadow:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22);
   transition:opacity .5s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .bk-shd.l{left:0;right:50%}.bk-shd.r{left:50%;right:0}.bk-shd.on{opacity:1}
-html:has(.shell.is-night) .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)}
+html.sh-shell.sh-is-night .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55)}
 /* v242: each page has its own shadow under it (under both pages, never on the page beside it). The shadow comes and goes with the
    paper: where a leaf comes down it grows while the leaf comes, where a leaf rises from an empty half it fades as the leaf rises;
    it changes slowly with the room's light (day ↔ night) */
@@ -53,13 +53,13 @@ html:has(.shell.is-night) .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34p
 .bk-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .bk-sun{background-image:var(--ws-shade)}
 .bk-beam{background-image:var(--rk-beam);opacity:0}
-html:has(.shell.is-night) .bk-sun{opacity:0}
-html:has(.shell.is-night) .bk-beam{opacity:1}
+html.sh-shell.sh-is-night .bk-sun{opacity:0}
+html.sh-shell.sh-is-night .bk-beam{opacity:1}
 .bq-curl .bk-lt-curl{z-index:30;width:100%;height:100%}
 
 .bk-cap{display:none;position:absolute;left:50%;translate:-50% 0;font:500 13px 'CormorantCy',serif;letter-spacing:.22em;text-transform:uppercase;color:#4a3020;white-space:nowrap;
   text-shadow:0 0 6px rgba(250,242,228,.95),0 0 14px rgba(250,242,228,.8);transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .bk-cap{color:#ecd6b0;text-shadow:0 0 6px rgba(20,12,6,.9),0 0 14px rgba(20,12,6,.7)}
+html.sh-shell.sh-is-night .bk-cap{color:#ecd6b0;text-shadow:0 0 6px rgba(20,12,6,.9),0 0 14px rgba(20,12,6,.7)}
 /* the strip of all the spreads: each in little as it lies in the book; the open one stands in the middle */
 .bk-stripv{position:absolute;height:170px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
 .bk-strip{position:absolute;left:0;top:10px;display:flex;gap:16px;align-items:center;transition:translate .5s cubic-bezier(.3,.1,.2,1)}
@@ -70,7 +70,7 @@ html:has(.shell.is-night) .bk-cap{color:#ecd6b0;text-shadow:0 0 6px rgba(20,12,6
 .bk-board .bk-th.cur{opacity:1;outline:1.5px solid rgba(110,80,50,.6);outline-offset:4px}
 /* at night the little pages lie in the lamp's half-light (their captions stay readable) */
 .bk-board .bk-th .bk-tl,.bk-board .bk-th .bk-tr{transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .bk-board .bk-th :is(.bk-tl,.bk-tr){filter:brightness(.6) sepia(.15)}html:has(.shell.is-night) .bk-board .bk-th:is(.cur,:hover) :is(.bk-tl,.bk-tr){filter:brightness(.88) sepia(.08)}
+html.sh-shell.sh-is-night .bk-board .bk-th :is(.bk-tl,.bk-tr){filter:brightness(.6) sepia(.15)}html.sh-shell.sh-is-night .bk-board .bk-th:is(.cur,:hover) :is(.bk-tl,.bk-tr){filter:brightness(.88) sepia(.08)}
 /* the brass plates at the sides */
 .bk-board .bk-keys{position:absolute;display:flex;flex-direction:column;gap:12px;width:170px}
 .bk-board .bk-k{display:block!important;box-sizing:border-box;padding:7px 14px 7px!important;text-align:center;border-radius:16px;border:3px solid transparent!important;font:17px 'CormorantCy',serif;color:#3a2614;
@@ -78,13 +78,13 @@ html:has(.shell.is-night) .bk-board .bk-th :is(.bk-tl,.bk-tr){filter:brightness(
   box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 5px 10px rgba(60,40,20,.26)!important;transition:translate .3s ease,color 2.45s cubic-bezier(.37,0,.63,1);position:relative;isolation:isolate}
 /* the plates' dark night face comes over the day's as a layer, with the letters, in the same time as the desk */
 .bk-board .bk-k::before{content:"";position:absolute;inset:0;border-radius:13px;pointer-events:none;z-index:-1;background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);box-shadow:inset 0 3px 7px rgba(0,0,0,.5);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .bk-board .bk-k::before{opacity:1}
+html.sh-shell.sh-is-night .bk-board .bk-k::before{opacity:1}
 .bk-board .bk-k b{display:block;font:500 10px 'CormorantCy',serif;letter-spacing:.16em;text-transform:uppercase;color:#6a4a2e;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
 .bk-board .bk-k span{display:block;font:12px 'CormorantCy',serif;color:#7a5a3a;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
 .bk-board button.bk-k:hover{translate:0 -2px}
 .bk-board .bk-k.bk-soon{opacity:.7}
-html:has(.shell.is-night) .bk-board .bk-k{color:#e8d2ae}
-html:has(.shell.is-night) .bk-board .bk-k b,html:has(.shell.is-night) .bk-board .bk-k span{color:#c9b08a}
+html.sh-shell.sh-is-night .bk-board .bk-k{color:#e8d2ae}
+html.sh-shell.sh-is-night .bk-board .bk-k b,html.sh-shell.sh-is-night .bk-board .bk-k span{color:#c9b08a}
 /* a little page fills its half of the little spread (the director fits its page to it) */
 .bk-board .bk-th .bd-page-mini{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#fbf7ef}
 .bk-board .bk-th .bd-page-mini .page-canvas{position:absolute;transform-origin:0 0}
@@ -94,8 +94,8 @@ html:has(.shell.is-night) .bk-board .bk-k b,html:has(.shell.is-night) .bk-board 
 .bk-board .bk-th em b{display:block;font:600 15px 'CormorantCy',serif;letter-spacing:.06em}
 .bk-board .bk-th em span{display:block;font:15px 'CormorantCy',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bk-board .bk-th em small{display:block;font:14px 'CormorantCy',serif;color:#5a3f26;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .bk-board .bk-th em small{color:#c9b08a}
-html:has(.shell.is-night) .bk-board .bk-th em{color:#e0c8a2}
+html.sh-shell.sh-is-night .bk-board .bk-th em small{color:#c9b08a}
+html.sh-shell.sh-is-night .bk-board .bk-th em{color:#e0c8a2}
 .bk-board .bk-th{overflow:visible}
 
 /* the light on the turning leaves: the whole room's picture, laid where the page is in the room (see desk-book.js) */
@@ -118,14 +118,14 @@ html.bk-on.bk-paneoff .wp-pane{visibility:hidden!important}
 .bk-board .bk-k.bk-busy{pointer-events:none}
 .bk-board .bk-k.bk-busy::after{content:"собирается…";position:absolute;inset:0;display:grid;place-items:center;border-radius:13px;font:15px 'CormorantCy',serif;color:#3a2614;
   background:linear-gradient(#efe3cb,#e6d5b5 46%,#d9bf98);animation:bk-breathe 1.1s ease-in-out infinite alternate}
-html:has(.shell.is-night) .bk-board .bk-k.bk-busy::after{background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);color:#e8d2ae;animation-name:bk-breathe-n}
+html.sh-shell.sh-is-night .bk-board .bk-k.bk-busy::after{background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);color:#e8d2ae;animation-name:bk-breathe-n}
 @keyframes bk-breathe{from{color:rgba(58,38,20,.4)}to{color:#3a2614}}@keyframes bk-breathe-n{from{color:rgba(232,210,174,.4)}to{color:#e8d2ae}}
 .bk-pmenu small{font-size:13px;opacity:.7;margin-left:6px}
 /* v242: the open spread stands out in the strip — larger, a clear brass frame; the others step back */
 .bk-board .bk-th{opacity:.5;transition:opacity .3s ease,translate .3s ease,scale .35s cubic-bezier(.2,.8,.3,1)}
 .bk-board .bk-th:hover{opacity:.85}
 .bk-board .bk-th.cur{opacity:1;scale:1.16;z-index:1;outline:2px solid rgba(150,105,60,.9);outline-offset:5px}
-html:has(.shell.is-night) .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9)}
+html.sh-shell.sh-is-night .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9)}
 .bk-board .bk-th.cur em{translate:0 6px}
 .bk-stripv{height:190px}.bk-strip{gap:26px;top:14px}
 
@@ -137,17 +137,17 @@ html:has(.shell.is-night) .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9
 @keyframes bkKite{0%,100%{transform:none}50%{transform:translateY(-5px) rotate(-1.4deg)}}
 .bk-kite span{font:italic 24px/1.2 'CormorantCy',Georgia,serif;color:#ecd3a4;letter-spacing:.03em;animation:bkKiteT 1.8s ease-in-out infinite;will-change:opacity}
 @keyframes bkKiteT{0%,100%{opacity:.5}50%{opacity:1}}
-html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite img{filter:brightness(.36) sepia(.5)}
-html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite span{color:#6e4a22}
+html.sh-shell:not(.sh-is-night):not(.sh-is-evening) .bk-kite img{filter:brightness(.36) sepia(.5)}
+html.sh-shell:not(.sh-is-night):not(.sh-is-evening) .bk-kite span{color:#6e4a22}
 @media (prefers-reduced-motion:reduce){.bk-kite img,.bk-kite span{animation:none}}
 /* v256: the children take turns; the girl and the boy on the pier are drawn dark already */
 .bk-kite[data-kid="umbrella"] img,.bk-kite[data-kid="pier"] img{filter:none!important;opacity:.85;transform-origin:50% 100%}
-html:has(.shell.is-night) .bk-kite[data-kid="umbrella"] img,html:has(.shell.is-night) .bk-kite[data-kid="pier"] img,html:has(.shell.is-evening) .bk-kite[data-kid="umbrella"] img,html:has(.shell.is-evening) .bk-kite[data-kid="pier"] img{filter:invert(.86) sepia(.6) brightness(1.05)!important}
+html.sh-shell.sh-is-night .bk-kite[data-kid="umbrella"] img,html.sh-shell.sh-is-night .bk-kite[data-kid="pier"] img,html.sh-shell.sh-is-evening .bk-kite[data-kid="umbrella"] img,html.sh-shell.sh-is-evening .bk-kite[data-kid="pier"] img{filter:invert(.86) sepia(.6) brightness(1.05)!important}
 /* v258: the boy over the writing sheet: a soft veil of light under him, so he reads clearly over the text */
 .bk-kite{padding:46px 70px 38px}
 .bk-kite::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,rgba(246,238,224,.96),rgba(240,230,212,.88) 55%,rgba(236,224,204,0) 100%);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);-webkit-mask:radial-gradient(closest-side,#000 62%,transparent 100%);mask:radial-gradient(closest-side,#000 62%,transparent 100%)}
-html:has(.shell.is-night) .bk-kite::before,html:has(.shell.is-evening) .bk-kite::before{background:radial-gradient(closest-side,rgba(28,18,10,.92),rgba(28,18,10,.8) 55%,rgba(28,18,10,0) 100%)}
+html.sh-shell.sh-is-night .bk-kite::before,html.sh-shell.sh-is-evening .bk-kite::before{background:radial-gradient(closest-side,rgba(28,18,10,.92),rgba(28,18,10,.8) 55%,rgba(28,18,10,0) 100%)}
 /* v258: the little spread the wheel has come to */
 .bk-strip>.browse{outline:2px solid rgba(200,150,80,.85);outline-offset:3px;border-radius:2px}
 /* v260: the boy, when not shown, is not drawn at all (he went on moving unseen, every frame) */
@@ -160,10 +160,10 @@ html:has(.shell.is-night) .bk-kite::before,html:has(.shell.is-evening) .bk-kite:
 .bk-girl img{width:min(460px,38vw);height:auto;opacity:.7;filter:blur(.7px)}
 .bk-girl span{font:italic 24px/1.2 'CormorantCy',Georgia,serif;color:#5a3f26;opacity:.8;animation:bkKiteT 1.8s ease-in-out infinite}
 .bk-girl:not(.on) span{animation:none}
-html:has(.shell.is-night) .bk-girl img,html:has(.shell.is-evening) .bk-girl img{filter:invert(1) sepia(.35) brightness(1.05) blur(.7px);opacity:.62}
-html:has(.shell.is-night) .bk-girl span,html:has(.shell.is-evening) .bk-girl span{color:#f0dcbc}
+html.sh-shell.sh-is-night .bk-girl img{filter:invert(1) sepia(.35) brightness(1.05) blur(.7px);opacity:.62}
+html.sh-shell.sh-is-night .bk-girl span{color:#f0dcbc}
 /* v260: the boy without a spot under him, larger, a little transparent and soft, like a memory */
 .bk-kite{padding:0}
 .bk-kite::before{display:none!important}
 .bk-kite img{width:min(440px,36vw)!important;opacity:.72;filter:brightness(.42) sepia(.5) blur(.6px)!important}
-html:has(.shell.is-night) .bk-kite img,html:has(.shell.is-evening) .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6px)!important;opacity:.66}
+html.sh-shell.sh-is-night .bk-kite img,html.sh-shell.sh-is-evening .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6px)!important;opacity:.66}

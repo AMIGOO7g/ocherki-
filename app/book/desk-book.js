@@ -174,7 +174,8 @@
   const kite=document.createElement('div');kite.className='bk-kite';kite.setAttribute('aria-live','polite');
   kite.innerHTML='<img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается книга</span>';document.body.appendChild(kite);
   function open(){if(isOpen||busy||open.wait)return;let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
-    if(fresh)return open1();
+    // v262: the boy comes even when the book is ready (laying its spreads on the desk takes a few seconds too, with nothing seen)
+    if(fresh){open.wait=true;kite.style.left='';kite.style.top='';kite.classList.add('on');setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{open.wait=false;open1();kite.classList.remove('on');})),450);return;}
     // v260: the boy stands where the page is being made — over «Так ляжет» when it lies on the desk — not over the writing sheet
     {const pn=document.querySelector('.shell.wp-on .wp-pane'),r=pn?.getBoundingClientRect();if(r&&r.width>100){kite.style.left=Math.round(r.left+r.width/2)+'px';kite.style.top=Math.round(r.top+r.height/2)+'px';pn.classList.add('wp-blank');setTimeout(()=>pn.classList.remove('wp-blank'),4000);}else{kite.style.left='';kite.style.top='';}}
     open.wait=true;{const k=window.__ocKid?.()||'kite',im=kite.querySelector('img');im.src=`assets/book/${k==='kite'?'kite':k==='umbrella'?'girl-umbrella':'pier-jump'}.webp`;kite.dataset.kid=k;}kite.classList.add('on');

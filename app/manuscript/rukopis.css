@@ -29,8 +29,8 @@ html.rk-on .wc [data-c="mic"],html.rk-on .wc [data-c="aa"],html.rk-on .wc [data-
   position:absolute;left:0;top:0;width:var(--w,660px);height:var(--h,940px);box-sizing:border-box;transform-origin:0 0;box-shadow:var(--shd);cursor:pointer;pointer-events:auto;
   filter:brightness(var(--dim,1));transition:transform .55s cubic-bezier(.2,.8,.3,1),translate .25s ease,opacity .5s ease,filter .45s ease,box-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-sh.past{--shd:calc(1px / var(--sc,1)) calc(2px / var(--sc,1)) calc(3px / var(--sc,1)) rgba(60,40,20,.26),calc(12px / var(--sc,1)) calc(17px / var(--sc,1)) calc(26px / var(--sc,1)) rgba(60,40,20,.19),0 0 0 transparent,0 0 0 transparent,0 0 0 transparent}
-html:has(.shell.is-night) .rk-sh{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
-html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px / var(--sc,1)) rgba(0,0,0,.6),0 calc(30px / var(--sc,1)) calc(30px / var(--sc,1)) calc(-8px / var(--sc,1)) rgba(0,0,0,.55),0 0 0 transparent,0 0 0 transparent,0 0 0 transparent}
+html.sh-shell.sh-is-night .rk-sh{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
+html.sh-shell.sh-is-night .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px / var(--sc,1)) rgba(0,0,0,.6),0 calc(30px / var(--sc,1)) calc(30px / var(--sc,1)) calc(-8px / var(--sc,1)) rgba(0,0,0,.55),0 0 0 transparent,0 0 0 transparent,0 0 0 transparent}
 /* the sheet itself is the writing sheet: its paper, its episode line, its text, its little number — all as the editor has them
    (measured on the editor's own sheet when «Рукопись» opens, rukopis.js, #rkLook); what is drawn here is only the fallback */
 .rk-in{position:absolute;inset:0;overflow:hidden;background:linear-gradient(100deg,#f7f0e3,#efe4d0)}
@@ -46,7 +46,7 @@ html:has(.shell.is-night) .rk-sh.past{--shd:0 calc(2px / var(--sc,1)) calc(3px /
    dimmed under the lamp, on the pile and in the fan as dim as their sheet) */
 .rk-ph{position:absolute;left:-67px;top:22px;width:113px;height:74px;object-fit:cover;box-sizing:border-box;border:4px solid #fbf7ef;rotate:-4deg;z-index:8;pointer-events:none;
   box-shadow:1px 2px 4px rgba(40,25,10,.3);filter:sepia(.55) saturate(.75) contrast(.96) brightness(var(--phb,.97));transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .rk-ph{--phb:.6}
+html.sh-shell.sh-is-night .rk-ph{--phb:.6}
 /* on the pile and in the fan the sheet's number shows large in its corner (the text is not to be read there, the sheet is known by
    its number, its photographs and its ribbon) */
 .rk-big{position:absolute;right:7%;bottom:4%;font:calc(var(--h,940px)*.05)/1 'CormorantCy',Georgia,serif;color:#6a4a2e;opacity:0;transition:opacity .45s ease;z-index:6;pointer-events:none}
@@ -64,8 +64,8 @@ html:has(.shell.is-night) .rk-ph{--phb:.6}
 .rk-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-sun{background-image:var(--ws-shade)}
 .rk-beam{background-image:var(--rk-beam);opacity:0}
-html:has(.shell.is-night) .rk-sun{opacity:0}
-html:has(.shell.is-night) .rk-beam{opacity:1}
+html.sh-shell.sh-is-night .rk-sun{opacity:0}
+html.sh-shell.sh-is-night .rk-beam{opacity:1}
 /* a sheet of the fan rises a little under the hand */
 .rk-sh:not(.mid):not(.past):not(.rk-carried):hover{translate:0 -18px}
 /* the stacks of all the chapters: the window's picture and the lamp's beam laid by their place (they move little) */
@@ -78,8 +78,8 @@ html:has(.shell.is-night) .rk-beam{opacity:1}
 .rk-ly::before{content:"";position:absolute;inset:-2px;pointer-events:none;mix-blend-mode:multiply;
   background-image:var(--ws-shade);background-position:calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px);background-size:100vw 100vh;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-ly::after{content:""}
-html:has(.shell.is-night) .rk-ly::before,html:has(.shell.is-night) .rk-top::after{opacity:0}
-html:has(.shell.is-night) .rk-ly::after,html:has(.shell.is-night) .rk-lamp{opacity:1}
+html.sh-shell.sh-is-night .rk-ly::before,html.sh-shell.sh-is-night .rk-top::after{opacity:0}
+html.sh-shell.sh-is-night .rk-ly::after,html.sh-shell.sh-is-night .rk-lamp{opacity:1}
 
 /* after the chapter's last sheet: two empty sheets' frames one above the other — «+ лист», «+ эпизод» (with its ribbon); each rises
    a little under the hand */
@@ -91,20 +91,20 @@ html:has(.shell.is-night) .rk-ly::after,html:has(.shell.is-night) .rk-lamp{opaci
 .rk-blank button span{font:calc(var(--h,940px)*.034) 'CormorantCy',serif;color:#5a3f26;white-space:nowrap;transition:color 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-blank button:hover{translate:0 calc(-14px / var(--sc,1));background:rgba(255,250,240,.38)!important}
 .rk-blank .rk-rib{left:auto;right:calc(var(--w,660px)*.06)}
-html:has(.shell.is-night) .rk-blank button{border-color:rgba(232,207,166,.42)!important;background:rgba(255,220,170,.04)!important}
-html:has(.shell.is-night) .rk-blank button:hover{background:rgba(255,220,170,.12)!important}
-html:has(.shell.is-night) .rk-blank button span{color:#e8cfa6}
+html.sh-shell.sh-is-night .rk-blank button{border-color:rgba(232,207,166,.42)!important;background:rgba(255,220,170,.04)!important}
+html.sh-shell.sh-is-night .rk-blank button:hover{background:rgba(255,220,170,.12)!important}
+html.sh-shell.sh-is-night .rk-blank button span{color:#e8cfa6}
 
 /* the plate over the pile: the chapter and where we are in it (a press shows all the chapters). The name is written in the script,
    with room above and below for its tall letters */
 .rk-plate{position:absolute;display:flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;cursor:pointer;border-radius:999px;border:3px solid transparent;
   background:none;white-space:nowrap;overflow:hidden;padding:0 16px}
-html:has(.shell.is-night) .rk-plate>*{position:relative;transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
+html.sh-shell.sh-is-night .rk-plate>*{position:relative;transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-plate b{font:500 12px 'CormorantCy',serif;letter-spacing:.18em;text-transform:uppercase;color:#6a4a2e;flex:none}
 .rk-plate i{font:500 19px/1.6 'CormorantCy',Georgia,serif;font-style:normal;color:#2f1d10;padding:0 .2em;min-width:0;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 0 rgba(255,190,110,0)}
 .rk-plate span{font:14px 'CormorantCy',serif;color:#6a4a2e;flex:none}
-html:has(.shell.is-night) .rk-plate b,html:has(.shell.is-night) .rk-plate span{color:#e0c8a2}
-html:has(.shell.is-night) .rk-plate i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
+html.sh-shell.sh-is-night .rk-plate b,html.sh-shell.sh-is-night .rk-plate span{color:#e0c8a2}
+html.sh-shell.sh-is-night .rk-plate i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
 
 /* the chapters' plates along the right edge: brass, as the plate over the stack; the open chapter's name glows. A plate is carried
    up or down to put its chapter there; a sheet held over one opens that chapter, let go on it goes into it */
@@ -114,7 +114,7 @@ html:has(.shell.is-night) .rk-plate i{color:#ffe2b0;text-shadow:0 0 4px rgba(255
   box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 5px 10px rgba(60,40,20,.26);
   transition:transform .4s cubic-bezier(.2,.8,.3,1),box-shadow .5s ease}
 .rk-tab::before{content:"";position:absolute;inset:0;border-radius:13px;pointer-events:none;background:radial-gradient(circle,#25221e,#1d1b18 72%,#191714);box-shadow:inset 0 3px 7px rgba(0,0,0,.5);opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-night) .rk-tab::before{opacity:1}
+html.sh-shell.sh-is-night .rk-tab::before{opacity:1}
 .rk-tab>*{position:relative;transition:color 2.45s cubic-bezier(.37,0,.63,1),text-shadow .6s ease}
 .rk-tab b{display:block;font:500 10px 'CormorantCy',serif;letter-spacing:.12em;white-space:nowrap;text-transform:uppercase;color:#6a4a2e}
 .rk-tab b span{letter-spacing:.04em}
@@ -125,7 +125,7 @@ html:has(.shell.is-night) .rk-tab::before{opacity:1}
 .rk-tab.cur b{color:#8a4a16}
 .rk-tab.over,.rk-tab.lit{transform:translateX(-14px) scale(1.04);box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 10px 18px rgba(40,25,10,.4)}
 .rk-tab.over i,.rk-tab.lit i{color:#9a4510;text-shadow:0 0 6px rgba(255,150,60,.45)}
-html:has(.shell.is-night) .rk-tab.over i,html:has(.shell.is-night) .rk-tab.lit i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
+html.sh-shell.sh-is-night .rk-tab.over i,html.sh-shell.sh-is-night .rk-tab.lit i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
 .rk-tab.held{z-index:5;cursor:grabbing;transition:box-shadow .3s ease;box-shadow:0 0 0 1px rgba(62,42,29,.7),inset 0 3px 7px rgba(70,45,25,.4),0 14px 24px rgba(40,25,10,.4)}
 .rk-tabs.sorting .rk-tab:not(.held){transition:box-shadow .3s ease}
 .rk-tab.rk-tabnew{background:none;border:1.5px dashed rgba(90,63,38,.5);box-shadow:none;font:15px/1.9 'CormorantCy',serif;color:#5a3f26;transition:color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),transform .4s ease}
@@ -133,11 +133,11 @@ html:has(.shell.is-night) .rk-tab.over i,html:has(.shell.is-night) .rk-tab.lit i
 /* «все главы» heads the column: all the chapters as stacks */
 .rk-tab.rk-taball{padding:7px 14px 6px}
 .rk-tab.rk-taball b{font-size:11px;letter-spacing:.2em}
-html:has(.shell.is-night) .rk-tab b{color:#c9b08a}
-html:has(.shell.is-night) .rk-tab i{color:#e8d2ae}
-html:has(.shell.is-night) .rk-tab.cur i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
-html:has(.shell.is-night) .rk-tab.cur b{color:#e0c8a2}
-html:has(.shell.is-night) .rk-tab.rk-tabnew{color:#e8cfa6;border-color:rgba(232,207,166,.45)}
+html.sh-shell.sh-is-night .rk-tab b{color:#c9b08a}
+html.sh-shell.sh-is-night .rk-tab i{color:#e8d2ae}
+html.sh-shell.sh-is-night .rk-tab.cur i{color:#ffe2b0;text-shadow:0 0 4px rgba(255,190,110,.8)}
+html.sh-shell.sh-is-night .rk-tab.cur b{color:#e0c8a2}
+html.sh-shell.sh-is-night .rk-tab.rk-tabnew{color:#e8cfa6;border-color:rgba(232,207,166,.45)}
 
 /* «вернуть» after every move */
 .rk-undo{position:fixed;left:50%;bottom:24px;z-index:150;display:flex;align-items:center;gap:18px;padding:12px 22px;translate:-50% 140%;transition:translate .4s cubic-bezier(.2,.8,.3,1);
@@ -164,7 +164,7 @@ html:has(.shell.is-night) .rk-tab.rk-tabnew{color:#e8cfa6;border-color:rgba(232,
 .rk-first{flex:1;display:flex;align-items:center;justify-content:center;font:italic 14px/1.35 'CormorantCy',serif;color:#8a6a4a;padding:0 10px}
 .rk-top>span{font:13px 'CormorantCy',serif;color:#6a4a2e;flex:none}
 .rk-all .rk-st.rk-new{display:flex;align-items:center;justify-content:center;box-sizing:border-box;border:1.5px dashed rgba(90,63,38,.5);font:19px 'CormorantCy',serif;color:#5a3f26}
-html:has(.shell.is-night) .rk-all .rk-st.rk-new{color:#e8cfa6;border-color:rgba(232,207,166,.45)}
+html.sh-shell.sh-is-night .rk-all .rk-st.rk-new{color:#e8cfa6;border-color:rgba(232,207,166,.45)}
 .rk-fly{position:fixed;z-index:300;margin:0;pointer-events:none;transition:none;box-shadow:0 30px 50px -10px rgba(60,40,20,.45)}
 .rk-st.rk-place>*{visibility:hidden}.rk-st.rk-place{outline:1.5px dashed rgba(90,63,38,.5);outline-offset:-1px;translate:none!important}
 
@@ -182,36 +182,36 @@ html.oc-to-room .ms-flyer{display:none!important}
 html.rk-on .ws-left{z-index:2147483070!important}
 
 /* (measured against the writing sheet: the desk's light alone gives its colour by day; at night a touch warmer and lighter) */
-html:has(.shell.is-night) .rk-board .rk-in{background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover!important}
+html.sh-shell.sh-is-night .rk-board .rk-in{background:#e9e2d8 url("../../assets/keeper/sheet-paper.jpg") center/cover!important}
 /* all the chapters: the stack's own plate goes too */
 html.rk-all-on .ws-left .ws-tabs{opacity:0!important;transition:opacity .3s ease}
 /* the stacks' sheets: at night their shadow is the lamp's dark, not brown */
-html:has(.shell.is-night) .rk-ly{box-shadow:0 1px 3px rgba(0,0,0,.55)}
-html:has(.shell.is-night) .rk-sh .rk-lt{opacity:.9}
+html.sh-shell.sh-is-night .rk-ly{box-shadow:0 1px 3px rgba(0,0,0,.55)}
+html.sh-shell.sh-is-night .rk-sh .rk-lt{opacity:.9}
 /* at night the editor's sheet is a shade warmer under the lamp */
 .rk-sh .rk-in::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:7;mix-blend-mode:multiply;background:rgb(255,247,235);opacity:0;transition:opacity .5s ease}
-html:has(.shell.is-night) .rk-sh .rk-in::after{opacity:1}
+html.sh-shell.sh-is-night .rk-sh .rk-in::after{opacity:1}
 /* the stacks' lower sheets lie deeper, each a little darker than the one above it (as the editor's stack): no pale edges */
 .rk-ly{background-color:#e9dcc5;box-shadow:inset 0 0 0 2000px rgba(140,118,92,calc(.1 + var(--k)*.05)),1px 2px 3px rgba(60,40,20,.25)}
-html:has(.shell.is-night) .rk-ly{box-shadow:inset 0 0 0 2000px rgba(55,30,10,calc(.3 + var(--k)*.06)),0 1px 3px rgba(0,0,0,.55)}
+html.sh-shell.sh-is-night .rk-ly{box-shadow:inset 0 0 0 2000px rgba(55,30,10,calc(.3 + var(--k)*.06)),0 1px 3px rgba(0,0,0,.55)}
 
 /* v244 — the sheets under a stack's top: their depth is painted in their own paper (a shade drawn inside the sheet showed its light
    edge as a white rim when the sheets fanned); at night a darker veil comes over them slowly, as everything else; in the evening
    the low sun's light lies on them and on the top sheet (over the day's, fading in) */
 .rk-ly{background:linear-gradient(rgba(140,118,92,calc(.1 + var(--k)*.05)),rgba(140,118,92,calc(.1 + var(--k)*.05))),linear-gradient(100deg,#f3e9d8,#e9dcc5)!important;
   box-shadow:1px 2px 3px rgba(60,40,20,.25)!important;transition:transform .35s cubic-bezier(.2,.8,.3,1),box-shadow 2.45s cubic-bezier(.37,0,.63,1)!important}
-html:has(.shell.is-night) .rk-ly{box-shadow:0 1px 3px rgba(0,0,0,.55)!important}
+html.sh-shell.sh-is-night .rk-ly{box-shadow:0 1px 3px rgba(0,0,0,.55)!important}
 .rk-ly>b{position:absolute;inset:0;pointer-events:none;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-nk{background:rgba(55,30,10,calc(.24 + var(--k)*.05));opacity:0}
-html:has(.shell.is-night) .rk-nk{opacity:1}
+html.sh-shell.sh-is-night .rk-nk{opacity:1}
 .rk-ely,.rk-etop{position:absolute;inset:-2px;pointer-events:none;mix-blend-mode:multiply;opacity:0;transition:opacity 2.45s cubic-bezier(.37,0,.63,1);
   background-image:var(--ws-shade-e);background-position:calc(var(--ox,0px) + 2px) calc(var(--oy,0px) + 2px);background-size:100vw 100vh;background-repeat:no-repeat}
 .rk-etop{z-index:5}
-html:has(.shell.is-evening:not(.is-night)) :is(.rk-ely,.rk-etop){opacity:1}
-html:has(.shell.is-evening:not(.is-night)) .rk-ly::before,html:has(.shell.is-evening:not(.is-night)) .rk-top::after{opacity:0}
+html.sh-shell.sh-is-evening:not(.sh-is-night) :is(.rk-ely,.rk-etop){opacity:1}
+html.sh-shell.sh-is-evening:not(.sh-is-night) .rk-ly::before,html.sh-shell.sh-is-evening:not(.sh-is-night) .rk-top::after{opacity:0}
 .rk-all .rk-st.rk-new{transition:translate .3s ease,color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1)}
 /* v245 — «+ глава» in the evening: as at night (it was lost in the evening's dusk) */
-html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new{color:#f2e0c0;border-color:rgba(242,224,192,.6)}
+html.sh-shell.sh-is-evening:not(.sh-is-night) .rk-all .rk-st.rk-new{color:#f2e0c0;border-color:rgba(242,224,192,.6)}
 /* v245 — while all the chapters lie as stacks nothing unseen takes the hand from them: the sheets of a chapter shut a moment ago
    (still fading), and the clean stack's album at the left (its photographs could stay pressable under the stacks) */
 .rk-ch:not(.on) *{pointer-events:none!important}
@@ -219,7 +219,7 @@ html.rk-all-on .ws-left *{pointer-events:none!important}
 /* v247 — «+ глава» seen on any part of the desk: a pale paper card with a dashed brass edge by day; in the evening and at night a
    dark veil under it (on a light place of the desk the light dashes were lost) */
 .rk-all .rk-st.rk-new{background:rgba(250,244,232,.62);box-shadow:0 1px 3px rgba(60,40,20,.18);border-color:rgba(110,78,46,.65)!important}
-html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new,html:has(.shell.is-night) .rk-all .rk-st.rk-new{background:rgba(32,18,8,.26);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+html.sh-shell.sh-is-evening:not(.sh-is-night) .rk-all .rk-st.rk-new,html.sh-shell.sh-is-night .rk-all .rk-st.rk-new{background:rgba(32,18,8,.26);box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .rk-all .rk-st.rk-new{transition:translate .3s ease,color 2.45s cubic-bezier(.37,0,.63,1),border-color 2.45s cubic-bezier(.37,0,.63,1),background-color 2.45s cubic-bezier(.37,0,.63,1)}
 .rk-all .rk-st.rk-far>*{visibility:hidden}
 .rk-all .rk-st.rk-far{box-shadow:none}
@@ -228,8 +228,8 @@ html:has(.shell.is-evening:not(.is-night)) .rk-all .rk-st.rk-new,html:has(.shell
    lightened), and the middle sheet's shadow never fades in or out */
 html .rk-sh.mid{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22);
   transition:transform .55s cubic-bezier(.2,.8,.3,1),translate .25s ease,opacity .5s ease,filter .45s ease,box-shadow .3s ease}
-html:has(.shell.is-evening:not(.is-night)) .rk-sh.mid{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
-html:has(.shell.is-night) .rk-sh.mid{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
+html.sh-shell.sh-is-evening:not(.sh-is-night) .rk-sh.mid{--shd:1px 2px 3px rgba(60,40,20,.35),22px 18px 30px -6px rgba(60,40,20,.34),48px 36px 60px -20px rgba(60,40,20,.22),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
+html.sh-shell.sh-is-night .rk-sh.mid{--shd:0 2px 3px rgba(0,0,0,.6),0 34px 34px -6px rgba(0,0,0,.75),0 70px 70px -30px rgba(0,0,0,.55),14px 8px 22px rgba(0,0,0,.42),26px 12px 40px rgba(0,0,0,.22)}
 html.rk-on:not(.rk-hide) .rk-sh.mid{box-shadow:none!important}
 /* v256: the chapters' list fades at its foot while more plates lie below, and at its head once scrolled down */
 .rk-tabs.rk-more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 150px),rgba(0,0,0,.35) calc(100% - 50px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 150px),rgba(0,0,0,.35) calc(100% - 50px),transparent)}
@@ -244,7 +244,7 @@ html.rk-phcard .rk-sh.mid .rk-ph{opacity:0;transition:opacity .25s ease}
 /* v257: × on the plate takes the middle sheet away; the basket at the desk's foot shows while a sheet is carried */
 .rk-plate .rk-del{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font:19px/1 'CormorantCy',Georgia,serif;color:#8a5a3a;opacity:.7;margin-left:4px;transition:background .2s ease,opacity .2s ease}
 .rk-plate .rk-del:hover{opacity:1;background:rgba(150,70,40,.14)}
-html:has(.shell.is-night) .rk-plate .rk-del{color:#e8c39a}
+html.sh-shell.sh-is-night .rk-plate .rk-del{color:#e8c39a}
 .rk-trash{position:fixed;left:50%;bottom:22px;z-index:60;translate:-50% 30px;display:flex;align-items:center;gap:10px;padding:10px 22px;border-radius:999px;pointer-events:none;
   background:rgba(60,40,24,.62);color:#f4e4c8;font:16px 'CormorantCy',Georgia,serif;box-shadow:0 8px 24px rgba(30,18,8,.35);opacity:0;transition:opacity .3s ease,translate .35s cubic-bezier(.2,.8,.3,1),background .2s ease,scale .2s ease}
 .rk-trash svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}

@@ -13,7 +13,7 @@ html.ar-on .wc.wc-w:not(.bq-car)>:not(.nf){opacity:0;pointer-events:none;transit
 .ar-nav button.on::after{transform:scaleX(1)}
 .ar-nav button i{position:absolute;right:-14px;top:-4px;min-width:15px;height:15px;border-radius:8px;background:#9a4510;color:#fff6ea;font:600 10px/15px 'CormorantCy',serif;font-style:normal;text-align:center}
 .ar-nav button i:empty{display:none}
-html:has(.shell.is-night) .ar-nav button{color:#e8d2ae}
+html.sh-shell.sh-is-night .ar-nav button{color:#e8d2ae}
 /* the heading under the bar */
 .ar-h{position:absolute;left:0;right:0;top:calc(var(--oct-b,190px) + 2.5vh);text-align:center;pointer-events:none}
 .ar-t{display:flex;align-items:center;justify-content:center;gap:24px}
@@ -37,14 +37,14 @@ html:has(.shell.is-night) .ar-nav button{color:#e8d2ae}
 .ar-rec em{width:10px;height:10px;border-radius:50%;background:#9c6b5a;box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
 /* shadows are drawn here (none are in the pictures): each thing lies on the desk; longer in the evening */
 .ar-vis>img:not(.ar-shine),.ar-spin>img:first-child{filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(12px 20px 20px rgba(60,40,20,.26));transition:filter 2.45s cubic-bezier(.37,0,.63,1)}
-html:has(.shell.is-evening:not(.is-night)) :is(.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child){filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(30px 24px 24px rgba(60,40,20,.26))}
-html:has(.shell.is-night) :is(.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child){filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 22px 24px rgba(0,0,0,.5))}
+html.sh-shell.sh-is-evening:not(.sh-is-night) :is(.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child){filter:drop-shadow(2px 4px 4px rgba(60,40,20,.32)) drop-shadow(30px 24px 24px rgba(60,40,20,.26))}
+html.sh-shell.sh-is-night :is(.ar-vis>img:not(.ar-shine),.ar-spin>img:first-child){filter:drop-shadow(0 3px 4px rgba(0,0,0,.55)) drop-shadow(0 22px 24px rgba(0,0,0,.5))}
 /* the room's light over each thing (masked to its picture): the window's by day, the evening's, the lamp's at night; it stays */
 .ar-lt{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;background-size:100vw 100vh;background-repeat:no-repeat;z-index:5;
   -webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
 .ar-lt b{position:absolute;inset:0;background-position:inherit;background-size:inherit;background-repeat:no-repeat;transition:opacity 2.45s cubic-bezier(.37,0,.63,1)}
 .ar-sun{background-image:var(--ws-shade)}.ar-beam{background-image:var(--rk-beam);opacity:0}
-html:has(.shell.is-night) .ar-sun{opacity:0}html:has(.shell.is-night) .ar-beam{opacity:1}
+html.sh-shell.sh-is-night .ar-sun{opacity:0}html.sh-shell.sh-is-night .ar-beam{opacity:1}
 
 /* 1 · the record: the disc and its label turn; the shine stands still over them; the middle hole goes through */
 .ar-vinyl{aspect-ratio:1}
@@ -62,7 +62,7 @@ html:has(.shell.is-night) .ar-sun{opacity:0}html:has(.shell.is-night) .ar-beam{o
 .ar-waves path{transform-box:fill-box;transform-origin:50% 50%;opacity:0}
 .ar-it:is(:hover,.hov) .ar-waves path{animation:ar-wave 1.5s ease-out infinite;animation-delay:var(--d)}
 @keyframes ar-wave{0%{opacity:0;transform:scale(.7)}30%{opacity:.9}100%{opacity:0;transform:scale(1.18)}}
-html:has(.shell.is-night) .ar-waves{stroke:rgba(232,196,140,.7)}
+html.sh-shell.sh-is-night .ar-waves{stroke:rgba(232,196,140,.7)}
 /* 3 · the envelope: closed, still; the letter comes up out of it (behind it, from its top edge) */
 .ar-env{width:calc(var(--ar-vh)*1.22)}
 .ar-env .ar-body{position:relative;z-index:2;width:100%;max-height:none}
@@ -92,10 +92,10 @@ html:has(.shell.is-night) .ar-waves{stroke:rgba(232,196,140,.7)}
 .ar-it:is(:hover,.hov) .ar-note{opacity:1;translate:0 0;transition-delay:.12s}
 .ar-phone.has-new .ar-scr::after{content:"";position:absolute;right:16%;top:6%;width:7px;height:7px;border-radius:50%;background:#e8b070}
 /* at night: the things lie in the lamp's light, the words in its colour (the heading clearly seen) */
-html:has(.shell.is-night) .ar-board{--ar-ink:#f2e2c4;--ar-sub:#dcc39a}
-html:has(.shell.is-night) .ar-h :is(h1,p){text-shadow:0 0 12px rgba(20,10,4,.8)}
-html:has(.shell.is-night) .ar-pill{border-color:rgba(214,170,110,.6)}
-html:has(.shell.is-night) .ar-orn{background:linear-gradient(90deg,transparent,rgba(214,170,110,.7))}
-html:has(.shell.is-night) .ar-orn.r{background:linear-gradient(270deg,transparent,rgba(214,170,110,.7))}
-html:has(.shell.is-night) .ar-orn::after{background:rgba(214,170,110,.8)}
+html.sh-shell.sh-is-night .ar-board{--ar-ink:#f2e2c4;--ar-sub:#dcc39a}
+html.sh-shell.sh-is-night .ar-h :is(h1,p){text-shadow:0 0 12px rgba(20,10,4,.8)}
+html.sh-shell.sh-is-night .ar-pill{border-color:rgba(214,170,110,.6)}
+html.sh-shell.sh-is-night .ar-orn{background:linear-gradient(90deg,transparent,rgba(214,170,110,.7))}
+html.sh-shell.sh-is-night .ar-orn.r{background:linear-gradient(270deg,transparent,rgba(214,170,110,.7))}
+html.sh-shell.sh-is-night .ar-orn::after{background:rgba(214,170,110,.8)}
 @media (prefers-reduced-motion: reduce){.ar-board *{transition-duration:.01s!important;animation:none!important}}

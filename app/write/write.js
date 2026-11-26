@@ -807,7 +807,7 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
   const toggle=()=>{on=!on;if(on){if(!box){box=document.createElement('div');box.className='oc-pm';box.innerHTML='<b>плавность</b><div class="pm-now">…</div><pre class="pm-log"></pre><button type="button">скопировать</button>';document.body.appendChild(box);
       box.querySelector('button').addEventListener('click',()=>{const t=[navigator.userAgent,`экран ${innerWidth}×${innerHeight}, devicePixelRatio ${devicePixelRatio}`,...log].join('\n');try{navigator.clipboard.writeText(t);box.querySelector('button').textContent='скопировано';}catch(_){}});}
       box.style.display='';last=0;frames=[];raf=requestAnimationFrame(loop);}else{cancelAnimationFrame(raf);if(box)box.style.display='none';}};
-  const key=e=>{if(e.ctrlKey&&e.shiftKey&&(e.code==='KeyP')){e.preventDefault();toggle();try{localStorage.setItem('ocherkiPerf',on?'1':'0');}catch(_){}}};addEventListener('keydown',key,true);
+  const key=e=>{if(((e.altKey&&e.shiftKey)||(e.ctrlKey&&e.shiftKey&&e.altKey))&&(e.code==='KeyP')){e.preventDefault();toggle();try{localStorage.setItem('ocherkiPerf',on?'1':'0');}catch(_){}}};addEventListener('keydown',key,true);
   // once turned on it stays on (also after a reload) until turned off again; «?perf=1» in the address turns it on too
   try{if(/[?&]perf=1/.test(location.search+(window.parent!==window?window.parent.location.search:''))||localStorage.getItem('ocherkiPerf')==='1')setTimeout(()=>{if(!on)toggle();},3000);}catch(_){}
   setInterval(()=>{try{const w=document.getElementById('v35SheetFrame')?.contentWindow;if(w&&!w.__ocPmHooked){w.__ocPmHooked=1;w.addEventListener('keydown',key,true);}}catch(_){}},1500);

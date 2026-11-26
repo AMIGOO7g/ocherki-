@@ -319,13 +319,16 @@
     const hours = (now.getHours()%12) + minutes/60;
     // Browser Date() uses the visitor's local device time zone.
     // Hands share one pivot; 12 o'clock is -90deg from the CSS horizontal baseline.
-    document.getElementById('hourHand').style.transform = `rotate(${hours*30-90}deg)`;
-    document.getElementById('minuteHand').style.transform = `rotate(${minutes*6-90}deg)`;
+    // v262: the hands turn by themselves on the graphics side (an endless rotation started at the right place), instead of being
+    // turned by the page every frame — that one write a frame made the whole page recalculate its styles 60 times a second, always
+    const turn=(id,from,to,period,phase)=>{const el=document.getElementById(id);if(!el)return;(el._ocRot||[]).forEach(a=>a.cancel());
+      const a=el.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${to}deg)`}],{duration:period,iterations:Infinity,easing:'linear'});a.currentTime=phase*period;el._ocRot=[a];el.style.transform='';};
+    turn('hourHand',-90,270,43200000,hours/12);
+    turn('minuteHand',-90,270,3600000,minutes/60);
     // The second hand intentionally runs counter-clockwise.
-    document.getElementById('secondHand').style.transform = `rotate(${-90-seconds*6}deg)`;
-    requestAnimationFrame(updateClock);
+    turn('secondHand',-90,-450,60000,seconds/60);
   }
-  requestAnimationFrame(updateClock);
+  updateClock();setInterval(updateClock,10*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateClock();});
 
   function enableSwing(el, opts={}){
     const trigger = opts.trigger || el;

@@ -6,7 +6,7 @@
 <title>Очерки жизни — unified shell + paper keyboard</title>
 <script>/* v213: the desk's own tone from the first moment; nothing of the boot is seen until the desk itself comes (write.js); v221: oc-quick — so the boot's stages, unseen under the veil, go by quickly (042) */(()=>{const H=document.documentElement;let m='';try{m=localStorage.getItem('ocherkiLight')||'';}catch(_){}/* v254: the boot's desk in the light the constructor will open in — the last chosen, or by the clock the first time (an evening left the boot by day) */if(!/^(day|evening|night)$/.test(m)){const h=new Date().getHours();m=(h>=19||h<7)?'night':'day';}H.style.background=m==='night'?'#0d0704':m==='evening'?'#5a3d27':'#e6d8bf';H.classList.add('oc-quick');if(m==='night')H.classList.add('oc-night0');if(m==='evening')H.classList.add('oc-eve0');})();</script>
 <style>html:not(.oc-desk) body{opacity:0!important}</style>
-<link rel="stylesheet" href="app/common/001-base.css?v=20261107-v261" data-inline-from="style">
+<link rel="stylesheet" href="app/common/001-base.css?v=20261107-v262" data-inline-from="style">
 <script>/* v260: the Keeper (3D) is set aside for now in the constructor, to keep it light; his files stay as they are — remove this line to bring him back */window.OCHERKI_NO_KEEPER=true;document.documentElement.classList.add('oc-nokeeper');
 /* v260: one waking for all the loops that keep things in their places. While something moves (a transition, an animation, the
    hand, the wheel, a key, a change of mode) they run every frame; at rest they look three times a second (each measured the page
@@ -18,6 +18,15 @@
   setInterval(function(){if(performance.now()<till||!sleepers.size)return;var l=[...sleepers];sleepers.clear();l.forEach(function(f){try{f(performance.now());}catch(_){}});},330);
   ['transitionrun','animationstart'].forEach(function(e){addEventListener(e,function(ev){var t=ev.target;if(t&&t.closest&&t.closest(QUIET))return;wake();},{passive:true,capture:true});});
   ['pointerdown','wheel','keydown','resize'].forEach(function(e){addEventListener(e,wake,{passive:true,capture:true});});
+  /* v262: the room's state (day, evening, night, the desk, the book) is mirrored on <html> as plain classes (sh-…): the styles
+     that asked «html:has(.shell.is-night)» made every change anywhere on the page cost a check of the whole page — seven times the
+     work of a plain class, at every frame of every movement */
+  var MIRROR=['is-night','is-evening','oc-w','is-book-preview','oc-ws','oc-ws-peek','ws-leaving','ws-off'],H=document.documentElement;
+  function mirror(sh){H.classList.add('sh-shell');MIRROR.forEach(function(c){H.classList.toggle('sh-'+c,sh.classList.contains(c));});}
+  function hookShell(){var sh=document.getElementById('shell');if(!sh)return false;mirror(sh);new MutationObserver(function(){mirror(sh);}).observe(sh,{attributes:true,attributeFilter:['class']});return true;}
+  if(!hookShell()){var w=new MutationObserver(function(){if(hookShell())w.disconnect();});w.observe(H,{childList:true,subtree:true});}
+  function hookModal(){var m=document.getElementById('bookPreviewModal');if(!m)return;var f=function(){H.classList.toggle('bpm-entering',m.classList.contains('is-entering'));H.classList.toggle('bpm-closing',m.classList.contains('is-closing'));};f();new MutationObserver(f).observe(m,{attributes:true,attributeFilter:['class']});}
+  document.addEventListener('DOMContentLoaded',hookModal);
   var mo=new MutationObserver(wake);document.addEventListener('DOMContentLoaded',function(){mo.observe(document.documentElement,{attributes:true,attributeFilter:['class']});var sh=document.getElementById('shell');if(sh)mo.observe(sh,{attributes:true,attributeFilter:['class']});});
   setInterval(function(){try{var w=document.getElementById('v35SheetFrame')&&document.getElementById('v35SheetFrame').contentWindow;if(w&&!w.__ocWakeHooked&&w.document&&w.document.body){w.__ocWakeHooked=1;['transitionrun','animationstart','scroll','wheel','pointerdown','keydown','input'].forEach(function(e){w.addEventListener(e,wake,{passive:true,capture:true});});}}catch(_){}},1000);
 })();</script>
@@ -54,9 +63,9 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
 
 
 
-<script src="app/common/021-calm-dom-v142.js?v=20261107-v261" data-inline-from="script"></script>
-<script src="app/start/022-v35-auth-gate-state.js?v=20261107-v261" data-inline-from="script"></script>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v261">
+<script src="app/common/021-calm-dom-v142.js?v=20261107-v262" data-inline-from="script"></script>
+<script src="app/start/022-v35-auth-gate-state.js?v=20261107-v262" data-inline-from="script"></script>
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v262">
 </head>
 <body>
 <div id="ocVerse" aria-hidden="true"><p>«Память — это тихая комната, где хранятся наши самые ценные дни.</p><p>Голоса близких, запах старых писем, запечатлённые мгновения…</p><p>Время уходит, но истории остаются. Давайте сохраним вашу.»</p></div><script>/* v256: the verse comes out of the mist word by word */(function(){var v=document.getElementById('ocVerse'),k=0;if(!v)return;[].forEach.call(v.querySelectorAll('p'),function(p){var w=p.textContent.split(/(\s+)/);p.textContent='';w.forEach(function(t){if(/^\s+$/.test(t)){p.appendChild(document.createTextNode(t));return;}var s=document.createElement('span');s.textContent=t;s.style.animationDelay=(0.5+k*0.14).toFixed(2)+'s';k++;p.appendChild(s);});});})();</script>
@@ -260,7 +269,7 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v261" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v262" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -352,7 +361,7 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
     </div>
   </div>
 </div>
-<script src="app/common/025-shell-core.js?v=20261107-v261" data-inline-from="script"></script>
+<script src="app/common/025-shell-core.js?v=20261107-v262" data-inline-from="script"></script>
 
 
 
@@ -369,15 +378,15 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
 
 
 
-<script src="app/common/042-boot-and-map.js?v=20261107-v261" data-inline-from="script"></script>
+<script src="app/common/042-boot-and-map.js?v=20261107-v262" data-inline-from="script"></script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v261"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v261"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v261"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v261"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v261"></script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v261"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v261"></script>
-<script src="app/book/044-v103-book-assembly-controller.js?v=20261107-v261" data-inline-from="script"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v262"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v262"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v262"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v262"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v262"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v262"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v262"></script>
+<script src="app/book/044-v103-book-assembly-controller.js?v=20261107-v262" data-inline-from="script"></script>
 
 
 
@@ -446,33 +455,33 @@ html.oc-verse-out #ocVerse,html.oc-shown #ocVerse{opacity:0}
 
 
 
-<script src="app/common/common-early.js?v=20261107-v261"></script>
-<script src="app/manuscript/134-three-screens-script.js?v=20261107-v261" data-inline-from="script"></script>
-<script src="app/manuscript/rukopis.js?v=20261107-v261"></script>
-<script src="app/book/desk-book.js?v=20261107-v261"></script>
-<script src="app/archive/archive.js?v=20261107-v261"></script>
-<script src="app/archive/rooms.js?v=20261107-v261"></script>
+<script src="app/common/common-early.js?v=20261107-v262"></script>
+<script src="app/manuscript/134-three-screens-script.js?v=20261107-v262" data-inline-from="script"></script>
+<script src="app/manuscript/rukopis.js?v=20261107-v262"></script>
+<script src="app/book/desk-book.js?v=20261107-v262"></script>
+<script src="app/archive/archive.js?v=20261107-v262"></script>
+<script src="app/archive/rooms.js?v=20261107-v262"></script>
 
 
-<script src="app/topbar/keys.js?v=20261107-v261" data-inline-from="script"></script>
-<script src="app/book/book.js?v=20261107-v261"></script>
-<script src="app/write/write.js?v=20261107-v261"></script>
+<script src="app/topbar/keys.js?v=20261107-v262" data-inline-from="script"></script>
+<script src="app/book/book.js?v=20261107-v262"></script>
+<script src="app/write/write.js?v=20261107-v262"></script>
 
 
 
-<script src="app/common/common-late.js?v=20261107-v261"></script>
+<script src="app/common/common-late.js?v=20261107-v262"></script>
 
 
-<script src="assets/keeper/tour.js?v=20261107-v261"></script>
-<script src="app/start/start.js?v=20261107-v261"></script>
-<script src="app/topbar/topbar.js?v=20261107-v261"></script>
+<script src="assets/keeper/tour.js?v=20261107-v262"></script>
+<script src="app/start/start.js?v=20261107-v262"></script>
+<script src="app/topbar/topbar.js?v=20261107-v262"></script>
 
 
-<link rel="stylesheet" href="app/start/start.css?v=20261107-v261">
-<link rel="stylesheet" href="app/common/chrome.css?v=20261107-v261">
-<link rel="stylesheet" href="app/write/write.css?v=20261107-v261">
-<link rel="stylesheet" href="app/manuscript/rukopis.css?v=20261107-v261">
-<link rel="stylesheet" href="app/book/desk-book.css?v=20261107-v261">
-<link rel="stylesheet" href="app/archive/archive.css?v=20261107-v261">
-<link rel="stylesheet" href="app/archive/rooms.css?v=20261107-v261">
-<link rel="stylesheet" href="app/book/book.css?v=20261107-v261">
+<link rel="stylesheet" href="app/start/start.css?v=20261107-v262">
+<link rel="stylesheet" href="app/common/chrome.css?v=20261107-v262">
+<link rel="stylesheet" href="app/write/write.css?v=20261107-v262">
+<link rel="stylesheet" href="app/manuscript/rukopis.css?v=20261107-v262">
+<link rel="stylesheet" href="app/book/desk-book.css?v=20261107-v262">
+<link rel="stylesheet" href="app/archive/archive.css?v=20261107-v262">
+<link rel="stylesheet" href="app/archive/rooms.css?v=20261107-v262">
+<link rel="stylesheet" href="app/book/book.css?v=20261107-v262">
