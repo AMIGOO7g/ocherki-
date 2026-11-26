@@ -392,7 +392,11 @@
     // these fade, and «Так ляжет» comes back from the right
     live().forEach(el=>{if(!el.classList.contains('mid')){el.style.transform=tr(slot(0));el.style.opacity=0;}});blank.style.opacity=0;
     shell.classList.remove('is-manuscript');H.classList.remove('rk-hide');
-    setTimeout(()=>{H.classList.remove('rk-shown');aside(false,950);setTimeout(()=>{H.classList.remove('rk-on');live().forEach(el=>el.remove());view=null;G=null;},520);},260);}
+    // v256: the chapters' plates fold away as they came, one after another, from the lowest seen up
+    {const tb=tabs.getBoundingClientRect(),vis=[...tabs.querySelectorAll('.rk-tab')].filter(t=>{const r=t.getBoundingClientRect();return r.bottom>tb.top&&r.top<tb.bottom;}).reverse();
+      vis.forEach((t,i)=>{try{t.animate([{opacity:1,translate:'0 0'},{opacity:0,translate:'0 -14px'}],{duration:260,delay:Math.min(i,12)*28,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});}catch(_){}});
+      setTimeout(()=>tabs.querySelectorAll('.rk-tab').forEach(t=>t.getAnimations().forEach(a=>a.cancel())),1400);}
+    setTimeout(()=>{H.classList.remove('rk-shown');aside(false,950);setTimeout(()=>{H.classList.remove('rk-on');live().forEach(el=>el.remove());view=null;G=null;},520);},420);}
   setInterval(()=>{if(isOpen&&!busy)setBarTitle();},800);
   setInterval(()=>{if(isOpen&&!busy)readLook();},2000);
   // the desk's light for the other screens on it (the book): the lamp's beam over the whole desk, its edges as soft as on the writing
@@ -402,3 +406,7 @@
   window.OCHERKI_MANUSCRIPT={open,close,back,preset:u=>{preset=String(u||'');activeUid=preset||activeUid;},centerUid:()=>view&&G?order[center]||'':'',isOpen:()=>isOpen,freeze:()=>{},activeUid:()=>activeUid,
     frontPick:()=>activeUid?{pageUid:activeUid}:null,flyToEditor:()=>false,sheetOf:()=>null};
 })();
+// v256: a print taken up from the middle sheet leaves its place there (it stayed on the sheet while the card flew out), and lies
+// there again once the card has come down onto it
+(()=>{let t=0;addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_PHOTO_CARD')return;const H=document.documentElement;clearTimeout(t);
+  if(d.open)H.classList.add('rk-phcard');else t=setTimeout(()=>H.classList.remove('rk-phcard'),1650);});})();

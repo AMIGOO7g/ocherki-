@@ -665,6 +665,8 @@ function textFromEditor(){
 }
 function updateMeasureStyle(){
   editor.style.fontSize=fontSize+'px';
+  // v256: the pages with a size of their own (cover, title, dedication…) grow with «Аа» too, in the same measure
+  document.documentElement.style.setProperty('--fzk',(fontSize/14).toFixed(3));
   editor.style.lineHeight=lineHeight;
   if(window.OcherkiEditorSourceBridge) window.OcherkiEditorSourceBridge.syncMeasureBox(editor,measureBox);
   else{
@@ -2689,6 +2691,10 @@ function renderPhotos(){
   }
 
   photoStack.classList.add('show');
+  // v256: on another sheet the prints come in one after another, and «ещё N» only once they lie (it showed first, the prints
+  // appeared at once after it)
+  {const u=currentPage()?.uid||currentPage()?.id||'';if(photoStack._uid!==u){photoStack._uid=u;photoStack.classList.remove('ph-in');void photoStack.offsetWidth;photoStack.classList.add('ph-in');
+    clearTimeout(photoStack._inT);photoStack._inT=setTimeout(()=>photoStack.classList.remove('ph-in'),1400);}}
 
   visiblePhotoIndices().forEach((photoIndex,visIdx)=>{
     const p=photos[photoIndex];
@@ -4046,12 +4052,16 @@ window.OC_SHEET={
   const tellHost=on=>{try{window.parent?.postMessage({type:'OCHERKI_PHOTO_CARD',open:on},'*');}catch(_){}};
   // a place on the desk as a pose of the card: its centre on the place's centre, one scale (no stretching), the place's tilt
   const poseAt=(r,ang,w,g)=>{const o=off();return `translate(${(r.left+o.x+r.width/2-(g.L+g.W/2)).toFixed(1)}px,${(r.top+o.y+r.height/2-(g.T+g.H/2)).toFixed(1)}px) rotate(${ang.toFixed(2)}deg) scale(${(w/g.W).toFixed(4)})`;};
-  const printPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);return poseAt(r,Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);};
+  // v256: the print's own shape (height to width) goes with its pose: the card grows from it into its upright shape and narrows back
+  // into it, all in one move (it flew as an upright card and became square at the very end — a jump)
+  let poseAspect=null;
+  const printPose=(c,g)=>{const r=c.getBoundingClientRect(),t=getComputedStyle(c).transform,m=new DOMMatrix(t==='none'?undefined:t);const pose=poseAt(r,Math.atan2(m.b,m.a)*180/Math.PI,c.offsetWidth||r.width,g);poseAspect=c.offsetWidth&&c.offsetHeight?c.offsetHeight/c.offsetWidth:null;return pose;};
+  const shapeTo=(card,g,asp)=>{const h=asp?Math.round(g.W*asp):g.H;card.style.height=h+'px';card.style.top=(g.T+(g.H-h)/2)+'px';};
   const place=()=>{const a=document.getElementById('activeSheet'),s=a.getBoundingClientRect(),o=off();const VH=(HD.defaultView||window).innerHeight;const W=Math.round(Math.min(s.width*.9,560)),H=Math.round(Math.min(VH*.88,W*1.62));return {W,H,L:o.x+s.left+(s.width-W)/2,T:Math.round((VH-H)/2+12)};};
   // the card leaves: face up first, all the way; then to where it goes (its pose given by «to»), fading into the print there
   // v213: it comes down slowly onto its place, settles, and only then fades into the print there (the print shows again under it)
   const close=(to,after)=>{if(!open)return;const o=open;open=null;o.card.classList.remove('flip');o.bg.classList.remove('on');tellHost(false);
-    setTimeout(()=>{o.card.classList.add('fly','home');o.card.style.transform=to?to(o.g):o.from;
+    setTimeout(()=>{o.card.classList.add('fly','home');poseAspect=null;o.card.style.transform=to?to(o.g):o.from;shapeTo(o.card,o.g,to?poseAspect:o.fromAsp);
       // v255: the print it goes back to lies under the bar's plate: once the card has come down to about half its size on the way,
       // it goes under the plate (it flew over the plate and then blinked under it)
       const w0=o.card.getBoundingClientRect().width,t0=performance.now();const under=()=>{if(!o.card.isConnected)return;const w=o.card.getBoundingClientRect().width;
@@ -4105,8 +4115,8 @@ window.OC_SHEET={
     card.querySelector('.ph-mark').addEventListener('click',()=>aside(back=>markPeoplePhoto(p,back)));
     card.querySelector('.ph-pair')?.addEventListener('click',()=>aside(back=>pairPhoto(p,back)));
     card.querySelector('.ph-rep')?.addEventListener('click',()=>replacePhotoFile(pageOf,p,rec=>{card.querySelector('.ph-front img').src=rec.src;tools();}));
-    const fromPose=from(g);card.style.transform=fromPose;HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,back:opts.back};tellHost(true);opts.taken?.();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
+    poseAspect=null;const fromPose=from(g),fromAsp=poseAspect;card.style.transform=fromPose;shapeTo(card,g,fromAsp);HD.body.appendChild(card);open={card,bg,p,g,from:fromPose,fromAsp,back:opts.back};tellHost(true);opts.taken?.();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{card.classList.add('fly');card.style.transform='none';shapeTo(card,g,null);bg.classList.add('on');setTimeout(()=>{if(open&&open.card===card)card.classList.add('flip');},430);}));
     card.addEventListener('click',e=>e.stopPropagation());
     // the hint of the field being written in shows in one quiet line kept for it (nothing above it moves)
     {const bar=card.querySelector('.ph-tipbar');card.querySelector('.ph-back').addEventListener('focusin',e=>{const row=e.target.closest('label,.ph-two');const t=row?.closest('.ph-hero')?null:(row?.parentElement?.closest('.ph-two')||row)?.nextElementSibling;bar.textContent=t?.classList.contains('ph-tip')?t.textContent:'';});}
@@ -4231,3 +4241,20 @@ window.OC_SHEET={
     stack.addEventListener('click',e=>{if(!e.target.closest('.ph-more'))return;e.stopPropagation();solitaire();});}
   window.__ocBadge=badge;
   window.__ocPhotoCardOpen=()=>!!open;})();
+// v256: the sheet's foot says when this very sheet was last saved — time and date, small and quiet («Дальше» and «в книге ›» are
+// gone: the book's page always lies on the right now)
+(()=>{const foot=document.querySelector('.footer');if(!foot)return;const el=document.createElement('div');el.className='sv-at';foot.appendChild(el);
+  const M=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const fmt=t=>{const d=new Date(t);return `сохранено ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} · ${d.getDate()} ${M[d.getMonth()]}${d.getFullYear()!==new Date().getFullYear()?' '+d.getFullYear():''}`;};
+  editor.addEventListener('input',()=>{const p=currentPage();if(p){p.editedAt=Date.now();paint();}});
+  const paint=()=>{const p=currentPage?.();const t=p?.editedAt||0;const s=t?fmt(t):'';if(el.textContent!==s)el.textContent=s;};setInterval(paint,1000);paint();})();
+// v256: the heading of the introduction, «От автора», the afterword, the thanks and the last words is written on the sheet itself
+// (it could be changed only in the bar above — not to be guessed); a quiet note above it says what it is
+(()=>{const IDS={intro:'Вступление',author:'От автора',afterword:'Послесловие',thanks:'Благодарности',final:'Финал'};
+  const wrap=editor.closest('.editor-wrap');if(!wrap)return;const h=document.createElement('div');h.className='sh-head';h.contentEditable='true';h.spellcheck=false;h.dataset.label='Заголовок — его можно изменить';wrap.prepend(h);
+  const sync=()=>{const sec=currentSection?.(),p=currentPage?.();const on=!!(sec&&IDS[sec.id]&&p&&!pageUsesForm(p));wrap.classList.toggle('has-head',on);
+    if(on&&document.activeElement!==h){const t=String(p.title||sec.title||IDS[sec.id]);if(h.textContent!==t)h.textContent=t;}};
+  const commit=()=>{const t=h.textContent.replace(/\s+/g,' ').trim();const sec=currentSection(),p=currentPage();if(!sec||!p)return;if(!t){sync();return;}
+    if(p.title!==t){p.title=t;if((sec.pages||[]).indexOf(p)===0)sec.title=t;persistSoon();try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}}};
+  h.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();h.blur();}if(e.key==='Escape'){e.preventDefault();h.blur();sync();}});
+  h.addEventListener('blur',commit);setInterval(sync,500);sync();})();

@@ -1151,3 +1151,35 @@ body.host-eve .section-scroll-sheet>:is(.lt-em,.lt-es){opacity:1}
 .editor[data-section-id="title"] p[data-i]:first-child{font-size:inherit;line-height:inherit;letter-spacing:normal;margin-bottom:0}
 .editor[data-section-id="title"] p[data-i="0"]{font-size:30px;line-height:1.08;letter-spacing:.015em}
 .editor[data-section-id="cover"] p[data-i="0"]{font-size:28px;line-height:1.12}
+
+/* v256: «Аа» reaches every page: the cover, the title, the dedication, the epigraph and the other pages keep their own sizes,
+   multiplied by the chosen size (only the chapters grew before) */
+html .editor[data-page-type="cover"]{font-size:calc(22px * var(--fzk,1))!important}
+html .editor[data-page-type="title"],html .editor[data-page-type="dedication"],html .editor[data-page-type="epigraph"],html .editor[data-page-type="back-cover"]{font-size:calc(18px * var(--fzk,1))!important}
+html .editor[data-page-type="contents"]{font-size:calc(14px * var(--fzk,1))!important}
+html .editor[data-page-type="inside-back-cover"]{font-size:calc(15px * var(--fzk,1))!important}
+html .editor[data-section-id="title"]{font-size:calc(17px * var(--fzk,1))!important}
+html .editor[data-section-id="dedication"],html .editor[data-section-id="epigraph"]{font-size:calc(18px * var(--fzk,1))!important}
+html .editor[data-section-id="colophon"]{font-size:calc(13px * var(--fzk,1))!important}
+html .editor[data-section-id="back-cover"]{font-size:calc(17px * var(--fzk,1))!important}
+html .editor[data-section-id="title"] p[data-i="0"]{font-size:calc(30px * var(--fzk,1))}
+html .editor[data-section-id="cover"] p[data-i="0"]{font-size:calc(28px * var(--fzk,1))}
+/* v256: the prints of a sheet come in one after another, «ещё N» after them */
+.photo-stack.ph-in .photo-card{animation:phIn .5s cubic-bezier(.2,.7,.3,1) both}
+.photo-stack.ph-in .photo-card:nth-of-type(2){animation-delay:.09s}.photo-stack.ph-in .photo-card:nth-of-type(3){animation-delay:.18s}
+.photo-stack.ph-in .ph-more{animation:phMoreIn .45s ease .5s both}
+@keyframes phIn{from{opacity:0;scale:.94}to{opacity:1;scale:1}}
+@keyframes phMoreIn{from{opacity:0;scale:.9}to{opacity:1;scale:1}}
+/* v256: the foot of the sheet: only when it was saved */
+html body .footer #nsBook,html body .footer #nextStep{display:none!important}
+html body .footer #saveState{opacity:0!important;pointer-events:none}
+.footer .sv-at{position:absolute;left:50%;bottom:2px;translate:-50% 0;white-space:nowrap;font:italic 400 12px/1.3 Georgia,'Times New Roman',serif;letter-spacing:.02em;color:#9a8878;opacity:.6;pointer-events:none}
+.host-night .footer .sv-at{color:#c4b29b;opacity:.5}
+/* v256: the heading line on the introduction-like sheets, with its quiet note above */
+.editor-wrap .sh-head{display:none}
+.editor-wrap.has-head{position:relative}
+.editor-wrap.has-head .sh-head{display:block;position:absolute;left:0;right:0;top:26px;z-index:3;text-align:center;font:italic 400 calc(22px * var(--fzk,1))/1.3 Georgia,'Times New Roman',serif;color:#3b2a20;outline:none;caret-color:#a35f1d;padding:2px 0 8px;border-bottom:1px solid rgba(120,90,60,.14)}
+.editor-wrap.has-head .sh-head::before{content:attr(data-label);position:absolute;left:0;right:0;top:-18px;font:italic 400 12px/1 Georgia,serif;letter-spacing:.04em;color:#a89784;opacity:.62;pointer-events:none}
+.host-night .editor-wrap.has-head .sh-head{color:#f0dfc4}
+.editor-wrap.has-head .editor{padding-top:92px!important}
+.editor-wrap.has-head .editor>p:first-child::before{content:"Текст";display:block;font:italic 400 12px/1 Georgia,serif;letter-spacing:.04em;color:#a89784;opacity:.62;margin-bottom:6px;text-indent:0}

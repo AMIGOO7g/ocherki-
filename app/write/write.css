@@ -1012,10 +1012,10 @@ html.oc-desk body{opacity:1;transition:opacity .7s ease}
 /* the card: a real print that turns over — its face the photograph, its back the hand-written lines */
 .ph-bg{position:fixed;inset:0;z-index:2147483300;background:rgba(30,18,8,0);-webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:backdrop-filter .5s ease,-webkit-backdrop-filter .5s ease,background .5s ease}
 .ph-bg.on{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);background:rgba(30,18,8,.1)}
-.ph.fly.home{transition:transform .9s cubic-bezier(.25,.6,.2,1)}
+.ph.fly.home{transition:transform .9s cubic-bezier(.25,.6,.2,1),height .9s cubic-bezier(.25,.6,.2,1),top .9s cubic-bezier(.25,.6,.2,1)}
 .ph.fade{transition:opacity .45s ease;opacity:0}
 .ph{position:fixed;z-index:2147483301;perspective:1600px;transform-origin:50% 50%}
-.ph.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1)}
+.ph.fly{transition:transform .55s cubic-bezier(.3,.7,.2,1),height .55s cubic-bezier(.3,.7,.2,1),top .55s cubic-bezier(.3,.7,.2,1)}
 .ph.gone{transition:transform .5s ease,opacity .45s ease;transform:scale(.6) rotate(-6deg)!important;opacity:0}
 .ph-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .78s cubic-bezier(.45,.05,.25,1)}
 .ph.flip .ph-in{transform:rotateY(180deg)}
@@ -1152,7 +1152,12 @@ html:has(.shell.is-evening:not(.is-night)) body .shell .wp-keys .wp-item .lab,ht
 
 /* v256: the boy with the kite on the page while it is being laid out */
 .wp-none.wp-wait{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;animation:wpWaitIn .6s ease both}
-.wp-none.wp-wait img{width:46%;height:auto;filter:brightness(.42) sepia(.5);transform-origin:22% 96%;animation:bkKite 3.4s ease-in-out infinite}
+.wp-none.wp-wait img{width:62%;max-height:62%;object-fit:contain;height:auto;filter:brightness(.42) sepia(.5);transform-origin:22% 96%;animation:bkKite 3.4s ease-in-out infinite}
+.wp-none.wp-wait.k-umbrella img,.wp-none.wp-wait.k-pier img{filter:none;opacity:.82;transform-origin:50% 100%}
+.wp-none.wp-wait.k-umbrella img{animation:wpStep 1.6s ease-in-out infinite}
+.wp-none.wp-wait.k-pier img{animation:wpBob 2.6s ease-in-out infinite}
+@keyframes wpStep{0%,100%{transform:none}50%{transform:translateY(-4px) rotate(.6deg)}}
+@keyframes wpBob{0%,100%{transform:none}50%{transform:translateY(-3px)}}
 .wp-none.wp-wait span{font:italic 20px/1.2 'CormorantCy',Georgia,serif;color:#8a6338;animation:bkKiteT 1.8s ease-in-out infinite}
 @keyframes wpWaitIn{from{opacity:0}to{opacity:1}}
 @keyframes bkKite{0%,100%{transform:none}50%{transform:translateY(-5px) rotate(-1.4deg)}}

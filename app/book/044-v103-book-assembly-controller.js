@@ -2449,10 +2449,14 @@
     structure=Object.assign({},full,{sections:secs.filter(x=>FRONT_IDS.has(x.id)||x===first)});window.__ocherkiQuietBuild=true;
     try{assemble();}catch(_){built=false;}finally{structure=full;window.__ocherkiQuietBuild=false;window.__ocherkiLastStructure=full;}
     partialBook=!!built;window.__ocherkiBuiltKey='';window.__ocherkiPeekSig='';return partialBook&&bookSpreads.length>0;}
+  const peekEmpty=new Map();
   window.__ocherkiPeekPage=(uid,ratio,pick,force)=>{
     {const s0=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid)),front=!!(s0&&FRONT_IDS.has(s0.id));
+      // v256: why no page is given — «nobook»: the book could not be laid out yet; «absent»: it is laid out, this sheet is not in it
+      window.__ocherkiPeekWhy='nobook';
       if(!force&&front&&(!built||!bookSpreads.length)){if(!liteAssemble()&&!quietAssemble())return null;}
-      else if(force||!built||!bookSpreads.length||(partialBook&&!front)){if(!quietAssemble())return null;}}
+      else if(force||!built||!bookSpreads.length||(partialBook&&!front)){if(!quietAssemble())return null;}
+      window.__ocherkiPeekWhy='absent';}
     // every book page that carries words of this sheet, in order
     const sec=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid));const run=sec&&sheetOffsets(sec.id).find(x=>x.uid===uid);
     const list=[];if(run)bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){const rg=pg?.sourceRange;if(pg?.sectionId===sec.id&&rg&&rg.end>run.start&&rg.start<run.end)list.push({pg,side,i,rg});}});
@@ -2466,6 +2470,15 @@
       const want=MAP[sec.id]||MAP[sec.type];if(want){const hits=[];bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){if(pg&&want.includes(pg.type||pg.kind))hits.push({pg,side,i});}});
         if(sec.id==='title')hits.sort((a,b)=>((a.pg.type||a.pg.kind)==='title'?0:1)-((b.pg.type||b.pg.kind)==='title'?0:1));if(hits.length){const si=(sec.id==='back-endpaper')?hits[hits.length-1].i:hits[0].i;hits.filter(h=>sec.id==='endpaper'||sec.id==='back-endpaper'?h.i===si:true).forEach(h=>list.push(h));}}}
     if(list.length){if(Number.isInteger(pick))k=Math.max(0,Math.min(list.length-1,pick));}
+    // v256: a chapter with nothing written yet is not in the book — its opening is shown as the book will set it (its name and a
+    // quiet line in place of the text), laid out alone, without touching the book
+    else if(sec&&sec.type==='chapter'&&window.OcherkiLayoutPagination){try{const key=JSON.stringify([sec.title,activeFormat,activeDesign,(sec.pages||[])[0]?.episode||'']);
+      if(!peekEmpty.has(key)){const one=JSON.parse(JSON.stringify(sec));one.included=true;(one.pages||[]).forEach((pg,i)=>{pg.text=i?'':'Здесь начнётся ваш рассказ.';pg.userEdited=!i;pg.sample=false;pg.semanticHtml='';pg.photos=[];});one.pages=(one.pages||[]).slice(0,1);
+        const ex=window.OcherkiLayoutPagination.build({sections:[one]},Object.assign({},window.OCHERKI_BOOK_META||{},{format:activeFormat}));
+        let hit=null;const all=[];(ex?.spreads||[]).forEach((sp,i)=>[[sp?.left,'left'],[sp?.right,'right']].forEach(([pg,side])=>{if(pg&&pg.sectionId===one.id)all.push({pg,side,i});}));hit=all.find(x=>x.pg.layout==='chapter-intro')||all[0]||null;
+        peekEmpty.set(key,hit);if(peekEmpty.size>40)peekEmpty.delete(peekEmpty.keys().next().value);}
+      const hit=peekEmpty.get(key);if(hit){const [w,h]=currentPageSize();return {html:pageCanvasHost(hit.pg,hit.side,'preview',true),w,h,pageNo:'',spread:-1,side:hit.side,n:1,k:0,empty:true};}}catch(_){}
+      return null;}
     else{const i=uid?spreadIndexForUid(uid):-1;if(i<0)return null;const sp=bookSpreads[i],side=window.__ocherkiSpreadSide||(sp.right?'right':'left');const pg=(side==='left'?sp.left:sp.right)||sp.right||sp.left;if(!pg)return null;list.push({pg,side,i});}
     const it=list[k],[w,h]=currentPageSize();
     return {html:pageCanvasHost(it.pg,it.side==='left'?'left':'right','preview',true),w,h,pageNo:it.pg.pageNo||'',spread:it.i,side:it.side==='left'?'left':'right',n:list.length,k};};
@@ -2992,7 +3005,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v256"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v257"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

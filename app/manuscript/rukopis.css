@@ -240,3 +240,4 @@ html.rk-on:not(.rk-hide) .rk-sh.mid{box-shadow:none!important}
 .rk-plate .rk-mv button{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font:20px/1 'CormorantCy',Georgia,serif;color:inherit;transition:background .2s ease,opacity .2s ease}
 .rk-plate .rk-mv button:hover{background:rgba(120,80,40,.14)}
 .rk-plate .rk-mv button:disabled{opacity:.25;cursor:default;background:none}
+html.rk-phcard .rk-sh.mid .rk-ph{opacity:0;transition:opacity .25s ease}

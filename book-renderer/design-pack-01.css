@@ -3010,3 +3010,5 @@ body .dpk-page .dpk-endpaper-photo.is-right{left:-100%!important}
 /* v255: the author's name above the title on the cover, as books have it; on the title page the author at the head and the city and year at the foot */
 body .dpk-page.dpk-cover h1 .dpk-cover-by{display:block!important;margin:0 0 16px!important;font:700 14px/1.2 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.16em!important;text-transform:none!important;color:#e9e1d4!important}
 body .dpk-page.dpk-title .dpk-title-imprint{position:absolute!important;left:70px!important;right:70px!important;bottom:70px!important;text-align:center!important;font:400 13px/1 'PTSerifCy',Georgia,serif!important;letter-spacing:.12em!important;color:var(--dpk-muted)!important}
+/* v256: the cover's photograph can be moved and enlarged in the book like any other (the shade and the words over it took the hand) */
+body .dpk-page.dpk-cover .dpk-cover-scrim,body .dpk-page.dpk-cover .dpk-cover-kicker,body .dpk-page.dpk-cover h1,body .dpk-page.dpk-cover .dpk-cover-subtitle,body .dpk-page.dpk-cover .dpk-cover-author{pointer-events:none!important}

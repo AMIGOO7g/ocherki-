@@ -533,7 +533,7 @@
     if (role === 'blank') return article('D01-ENDPAPER', '');
     if (role === 'half-title') return article('D01-HALF-TITLE', `<div class="dpk-kicker">${esc(meta.halfKicker || 'Очерки жизни')}</div><h1>${esc(meta.title || 'Семейная хроника')}</h1><div class="dpk-half-meta">${esc(meta.subtitle || '')}</div>${folio}`);
     if (role === 'title') return article('D01-TITLE', `${meta.author?`<div class="dpk-title-author">${esc(meta.author)}</div>`:''}<div class="dpk-title-wrap"><div class="dpk-kicker">${esc(meta.titleKicker || 'Семейная история')}</div><h1>${esc(meta.title || '')}</h1><div class="dpk-short-rule"></div><p>${esc(meta.subtitle || '')}</p></div>${meta.titleCity||meta.titleYear?`<div class="dpk-title-imprint">${[meta.titleCity,meta.titleYear].filter(Boolean).map(esc).join(' · ')}</div>`:''}`);
-    if (role === 'epigraph') return article('D01-EPIGRAPH', `<div class="dpk-centered"><div class="dpk-kicker">Эпиграф</div><blockquote>${esc(page.epigraphText || text)}</blockquote>${page.epigraphSource ? `<div class="dpk-source">${esc(page.epigraphSource)}</div>` : ''}</div>${folio}`);
+    if (role === 'epigraph') return article('D01-EPIGRAPH', `<div class="dpk-centered"><div class="dpk-kicker">Эпиграф</div><blockquote>${esc(page.epigraphText || text)}</blockquote>${page.epigraphSource ? `<div class="dpk-source">${/^\s*[—–©-]/.test(page.epigraphSource)?'':'— '}${esc(page.epigraphSource)}</div>` : ''}</div>${folio}`);
     if (role === 'dedication') return article('D01-EPIGRAPH', `<div class="dpk-centered"><div class="dpk-kicker">Посвящение</div><blockquote>${esc(page.dedicationText || text)}</blockquote>${page.dedicationSign ? `<div class="dpk-source">${esc(page.dedicationSign)}</div>` : ''}</div>${folio}`);
     if (role === 'contents') {
       const items = (page.items || []).map((item, index) => `<div class="dpk-content-row"><span>${esc(item.title || `Глава ${index + 1}`)}</span><i></i><b>${esc(item.page || '')}</b></div>`).join('');
@@ -1058,7 +1058,9 @@
       const labels = { intro: 'Вступление', 'author-note': 'От автора', epilogue: 'Послесловие', thanks: 'Благодарности', sources: 'Источники', final: 'Финал' };
       const masters = { intro: 'D01-INTRO', 'author-note': 'D01-AUTHOR', epilogue: 'D01-FINAL', thanks: 'D01-THANKS', sources: 'D01-SOURCES', final: 'D01-FINAL' };
       const label = labels[page.kind] || 'Финал';
-      return article(masters[page.kind] || 'D01-FINAL', `${running}<div class="dpk-centered dpk-final-copy"><div class="dpk-kicker">${label}</div><h2>${title || esc(meta.title || '')}</h2><div class="dpk-short-rule"></div>${text?`<p>${text}</p>`:''}</div>${meta.author||meta.year?`<div class="dpk-final-sign">${esc([meta.author,meta.year].filter(Boolean).join(' · '))}</div>`:''}${folio}`);
+      // v256: the kicker only when the heading says something else (it read «Вступление / Вступление»); the running head is the book's own name
+      const sameHead=String(page.title||'').trim().toLowerCase()===label.toLowerCase();
+      return article(masters[page.kind] || 'D01-FINAL', `<div class="dpk-running">${esc(meta.title || 'Семейная хроника')}</div><div class="dpk-centered dpk-final-copy">${sameHead?'':`<div class="dpk-kicker">${label}</div>`}<h2>${title || esc(meta.title || '')}</h2><div class="dpk-short-rule"></div>${text?`<p>${text}</p>`:''}</div>${meta.author||meta.year?`<div class="dpk-final-sign">${esc([meta.author,meta.year].filter(Boolean).join(' · '))}</div>`:''}${folio}`);
     }
     if (role === 'colophon') {
       const rows = (page.rows || []).filter(row => row.value).map(row => `<div class="dpk-colophon-row"><b>${esc(row.label)}</b><span>${esc(row.value)}</span></div>`).join('');

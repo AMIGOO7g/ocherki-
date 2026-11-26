@@ -162,7 +162,7 @@
   kite.innerHTML='<img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается книга</span>';document.body.appendChild(kite);
   function open(){if(isOpen||busy||open.wait)return;let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
     if(fresh)return open1();
-    open.wait=true;kite.classList.add('on');
+    open.wait=true;{const k=window.__ocKid?.()||'kite',im=kite.querySelector('img');im.src=`assets/book/${k==='kite'?'kite':k==='umbrella'?'girl-umbrella':'pier-jump'}.webp`;kite.dataset.kid=k;}kite.classList.add('on');
     setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{open.wait=false;open1();kite.classList.remove("on");})),700);}
   function open1(){try{open0();}catch(err){console.warn('book open',err);H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;}}
   function open0(){

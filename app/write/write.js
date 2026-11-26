@@ -130,11 +130,13 @@
     if(res){swapHost(res.html);shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
     // v256: while the page is still being laid out (the book's structure has not come yet, or it is being put together) the boy
     // with the kite stands on the page; «появится в книге» only once the page has been asked for several times in vain
-    else{const waiting=(paint.n||0)<6;
-      swapHost(waiting?'<div class="wp-none wp-wait"><img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается страница</span></div>':'<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>');pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
+    else{const why=window.__ocherkiPeekWhy,hasPage=!!pane.querySelector('.wp-host:not(.wp-next) .page-canvas-host');
+      // the boy stays only while the book is being laid out, and never takes the place of a page already shown (it blinked)
+      const waiting=why!=='absent'&&(paint.n||0)<6;if(waiting&&hasPage){clearTimeout(paint.r);paint.n=(paint.n||0)+1;paint.r=setTimeout(()=>{if(on&&!busy)refresh(false);},900);return;}
+      swapHost(waiting?(()=>{if(!paint.kid||!pane.querySelector('.wp-wait'))paint.kid=window.__ocKid?.()||'kite';return `<div class="wp-none wp-wait k-${paint.kid}"><img src="assets/book/${paint.kid==='kite'?'kite':paint.kid==='umbrella'?'girl-umbrella':'pier-jump'}.webp" alt="" draggable="false"><span>Собирается страница</span></div>`;})():'<div class="wp-none">Этот раздел появится в книге,<br>когда в нём будет текст или фото</div>');pane.querySelector('.wp-cap').textContent='так ляжет в книге';}
     // v215: right after loading the book's structure may not have come yet: the page is asked for again a few times (it stayed
     // empty until «обновить» was pressed)
-    clearTimeout(paint.r);if(res)paint.n=0;else if((paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(function again(){if(!on||busy){paint.r=setTimeout(again,400);return;}refresh(false);},paint.n<4?700:1500);
+    clearTimeout(paint.r);if(res)paint.n=0;else if(window.__ocherkiPeekWhy!=='absent'&&(paint.n=(paint.n||0)+1)<=8)paint.r=setTimeout(function again(){if(!on||busy){paint.r=setTimeout(again,400);return;}refresh(false);},paint.n<4?700:1500);
     // v250: a page shown from a book laid out before the latest changes keeps «обновить» lit
     place();window.__ocherkiScalePages?.();stale=false;try{stale=!window.__ocherkiBook?.fresh?.();}catch(_){}ref.classList.toggle('is-stale',stale);}
   // v202: the book's page is laid out again only once the hands rest a moment (a layout in the middle of taking the next sheet
@@ -295,7 +297,7 @@
     const esc=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const cm=ch.match(/^(Глава\s+\d+)\.?\s*(.*)$/);
     const ED='<button type="button" class="ed" aria-label="Изменить название" data-tip="изменить название"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg></button>';
     const nm=cm?`<span class="up">${esc(cm[1])}</span>${cm[2]?` · <i>${esc(cm[2])}</i>${ED}`:''}`:(/·/.test(ch)?`<span class="up">${esc(ch)}</span>`:(ch?`<i>${esc(ch)}</i>${ED}`:''));
-    const t=[nm,n&&all?`<span class="up">лист ${n} из ${all}</span>`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te._h!==t&&!te.querySelector('[contenteditable]')){te._h=t;te.innerHTML=t;}
+    const t=[nm,n&&all?`<span class="up">лист ${n} из ${all}</span>`:''].filter(Boolean).join(' · ');const te=wc.querySelector('.t b');if(te._h!==t&&!te.querySelector('[contenteditable="true"]')){te._h=t;te.innerHTML=t;}
     const tk=document.querySelector('.bd-rail-key[data-rail="tips"]');const m=(tk?.getAttribute('aria-label')||'').match(/(\d+)/);const em=wc.querySelector('[data-c="tips"] em');em.textContent=m?m[1]:'';wc.querySelector('[data-c="tips"]').classList.toggle('on',!!m);
     const ss=(d?.getElementById('saveState')?.textContent||'');const dot=wc.querySelector('.sv');dot.classList.toggle('busy',/Сохраня/i.test(ss));dot.title=ss||'Черновик сохранён';};
   setInterval(tick,500);
@@ -307,7 +309,7 @@
   // v212: the name of the chapter (or of the sheet) is changed right in the bar — a press on it, Enter to keep, Esc to leave
   wc.querySelector('.t b').addEventListener('click',e=>{const ed=e.target.closest('.ed');const i=ed?ed.previousElementSibling:e.target.closest('i');if(!i||i.tagName!=='I'||i.isContentEditable)return;e.stopPropagation();
     i.contentEditable='true';i.spellcheck=false;i.focus();const r=document.createRange();r.selectNodeContents(i);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
-    const done=keep=>{i.removeEventListener('blur',onBlur);i.contentEditable='false';const v=i.textContent.trim();wc.querySelector('.t b')._h='';if(keep&&v)try{F()?.contentWindow?.OC_SHEET?.renameChapter(v);}catch(_){}tick();};
+    const done=keep=>{i.removeEventListener('blur',onBlur);i.removeAttribute('contenteditable');const v=i.textContent.trim();wc.querySelector('.t b')._h='';if(keep&&v)try{F()?.contentWindow?.OC_SHEET?.renameChapter(v);}catch(_){}tick();};
     const onBlur=()=>done(true);i.addEventListener('blur',onBlur);
     i.addEventListener('keydown',k=>{k.stopPropagation();if(k.key==='Enter'){k.preventDefault();i.blur();}if(k.key==='Escape'){k.preventDefault();i.removeEventListener('blur',onBlur);done(false);}});});
   // the keyboard: it comes up with the first key, the sheet steps up to make room, then all goes back after a pause
@@ -750,9 +752,19 @@
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
   // v256: as in a film — the lines come one by one, the verse stays a few seconds, melts away, and only then the veil lifts and
   // the things come in (the time counts from the page's very start: the verse is drawn from the first frame)
-  const show=()=>{H.classList.add('oc-verse-out');setTimeout(()=>H.classList.add('oc-shown'),1900);};
-  const go=()=>{if(H.classList.contains('oc-verse-out'))return;const el=performance.now();if((ready()&&el>8200)||el>13000){show();return;}requestAnimationFrame(go);};go();})();/* v255: the quatrain on the boot is given time to be read */
+  // v256: the things on the desk come in one after another, from the top down, once the verse has gone (the desk under them has
+  // been there all along, in its own light)
+  const BG=/^(start-light|screen-vignette|night-|desk-)/;
+  const things=()=>[...document.querySelectorAll('.shell>*,body>*')].filter(e=>e.id!=='ocVerse'&&e.id!=='shell'&&!/^(SCRIPT|STYLE|LINK)$/.test(e.tagName)&&!BG.test(String(e.className||''))&&e.getClientRects().length);
+  const bringIn=()=>{const list=things().map(e=>({e,r:e.getBoundingClientRect()})).filter(o=>o.r.width>4&&o.r.height>4&&o.r.bottom>0&&o.r.top<innerHeight).sort((a,b)=>a.r.top-b.r.top);
+    H.classList.add('oc-shown');list.forEach((o,i)=>{const to=+getComputedStyle(o.e).opacity;if(!(to>0))return;try{o.e.animate([{opacity:0},{opacity:to}],{duration:1100,delay:Math.min(i,10)*70,easing:'cubic-bezier(.3,.1,.3,1)',fill:'backwards'});}catch(_){}});};
+  const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);};
+  // the veil goes as soon as the desk lies in its light (its toile loaded, the day or the night set)
+  const bg=()=>{if(H.classList.contains('oc-bg'))return;if((H.classList.contains('oc-desk')&&sh?.classList.contains('oc-ready'))||performance.now()>4000){H.classList.add('oc-bg');return;}requestAnimationFrame(bg);};bg();
+  let tDesk=0;const go=()=>{if(H.classList.contains('oc-verse-out'))return;if(!tDesk&&H.classList.contains('oc-desk'))tDesk=performance.now();const el=tDesk?performance.now()-tDesk:0;if((ready()&&el>8800)||performance.now()>15000){show();return;}requestAnimationFrame(go);};go();})();/* v255: the quatrain on the boot is given time to be read */
 
 // v246 — «Так ляжет» learns where it lies on the screen (its evening light is the room's picture laid from that place)
 (()=>{let k='';const go=()=>{requestAnimationFrame(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();
   const v=Math.round(r.left)+','+Math.round(r.top);if(v===k)return;k=v;p.style.setProperty('--wpx',(2-Math.round(r.left))+'px');p.style.setProperty('--wpy',(2-Math.round(r.top))+'px');};requestAnimationFrame(go);})();
+// v256: the children who wait with the author take turns — the boy with the kite, the girl under the umbrella, the boy on the pier
+window.__ocKid=(()=>{const K=['kite','umbrella','pier'];let i=Math.floor(Math.random()*3);return ()=>K[(i++)%3];})();

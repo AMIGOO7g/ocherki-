@@ -140,3 +140,7 @@ html:has(.shell.is-night) .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9
 html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite img{filter:brightness(.36) sepia(.5)}
 html:has(.shell:not(.is-night):not(.is-evening)) .bk-kite span{color:#6e4a22}
 @media (prefers-reduced-motion:reduce){.bk-kite img,.bk-kite span{animation:none}}
+/* v256: the children take turns; the girl and the boy on the pier are drawn dark already */
+.bk-kite[data-kid="umbrella"] img,.bk-kite[data-kid="pier"] img{filter:none!important;opacity:.85;transform-origin:50% 100%}
+html:has(.shell.is-night) .bk-kite[data-kid="umbrella"] img,html:has(.shell.is-night) .bk-kite[data-kid="pier"] img,html:has(.shell.is-evening) .bk-kite[data-kid="umbrella"] img,html:has(.shell.is-evening) .bk-kite[data-kid="pier"] img{filter:invert(.86) sepia(.6) brightness(1.05)!important}
+.bk-kite img{width:min(420px,40vw)}

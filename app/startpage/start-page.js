@@ -481,7 +481,11 @@
             stopVinyl();
             await m.play();
             await fadeAudio(m, AUDIO_TARGET.music, 2600);
-          } catch(e) { console.log('Music waiting for interaction', e); }
+          } catch(e) {
+            // v256: the browser would not let it sound (no press on the page yet): the key no longer shows it playing in silence —
+            // it waits, and the next press anywhere starts it
+            audioState='paused';musicIntroStarted=false;pendingAutoplay=musicPreference;updateAudioUi();
+            console.log('Music waiting for interaction', e); }
         }, VINYL_INTRO_MS);
       };
 
@@ -704,7 +708,7 @@
       // starts it (softly, as before), unless the author turned it off; the browser may also let it start at once.
       (()=>{let hooked=null;const go=()=>{if(audioState==='playing'||allMuted||!musicPreference)return;musicAllowed=true;pendingAutoplay=true;startAmbientMusic('direct');};
         const hook=()=>{const fr=document.getElementById('constructorShellFrame');let w=null;try{w=fr&&fr.contentWindow;if(!w||!w.document||w.location.href==='about:blank')w=null;}catch(_){w=null;}
-          if(!w||w===hooked)return;hooked=w;const once=()=>{try{w.removeEventListener('pointerdown',once,true);w.removeEventListener('keydown',once,true);}catch(_){}go();};
+          if(!w||w===hooked)return;hooked=w;const once=()=>{if(audioState==='playing'){try{w.removeEventListener('pointerdown',once,true);w.removeEventListener('keydown',once,true);}catch(_){}return;}go();};
           try{w.addEventListener('pointerdown',once,true);w.addEventListener('keydown',once,true);}catch(_){}};
         // v256: and once the verse of the boot has melted away the music begins by itself (the browser lets it when the page has
         // been touched already, as at the entrance; otherwise the first press starts it)
@@ -978,7 +982,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v256";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v257";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 
