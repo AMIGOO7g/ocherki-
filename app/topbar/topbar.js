@@ -257,7 +257,7 @@ function waitPreviewReady(cb){
 (()=>{const box=document.createElement('div');box.className='oc-barcat';box.setAttribute('aria-hidden','true');
   box.innerHTML='<img class="eve" src="assets/clock/cat-eve.png" alt="" draggable="false">';
   document.body.appendChild(box);let last='';
-  const put=()=>{requestAnimationFrame(put);const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();
+  const put=()=>{(window.__ocLoop||requestAnimationFrame)(put);const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();
     const seen=!!(r&&r.width>200&&getComputedStyle(b).visibility!=='hidden'&&+getComputedStyle(b).opacity>.05);
     const k=seen?`${Math.round(r.left)},${Math.round(r.top)}`:'off';if(k===last)return;last=k;box.classList.toggle('off',!seen);if(seen){box.style.left=Math.round(r.left+34)+'px';box.style.top=Math.round(r.top)+'px';}};
   requestAnimationFrame(put);})();

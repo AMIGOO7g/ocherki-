@@ -1173,3 +1173,11 @@ html:has(.shell.is-evening:not(.is-night)) body .shell .wp-keys .wp-item .lab,ht
 .sol-pr:hover .sol-x{opacity:1;scale:1}.sol-pr .sol-x:hover{background:#f3d9c8;color:#8a2d16}
 .sol-pr.sol-going{transition:opacity .3s ease,scale .3s ease,translate .3s ease;opacity:0;scale:.86;translate:0 14px;pointer-events:none}
 .sol-undo{all:unset;cursor:pointer;font:16px 'CormorantCy',Georgia,serif;color:#f3e2c6;border-bottom:1px solid rgba(243,226,198,.45);margin-left:18px}
+/* v260: the Keeper is set aside for now: his dot is not shown */
+html.oc-nokeeper .okh-dot{display:none!important}
+/* v260: the smoothness meter */
+.oc-pm{position:fixed;right:14px;bottom:14px;z-index:2147483647;width:420px;padding:10px 14px;border-radius:10px;background:rgba(20,14,8,.86);color:#f3e6cf;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;pointer-events:auto}
+.oc-pm b{font:600 13px Georgia,serif;letter-spacing:.04em}.oc-pm pre{margin:6px 0;white-space:pre-wrap;font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;max-height:180px;overflow:auto}
+.oc-pm button{all:unset;cursor:pointer;border-bottom:1px solid rgba(243,230,207,.5)}
+/* v260: the boy on «Так ляжет»: larger, a little transparent and soft */
+.wp-none.wp-wait img{width:72%;max-height:70%;opacity:.7;filter:brightness(.42) sepia(.5) blur(.6px)}

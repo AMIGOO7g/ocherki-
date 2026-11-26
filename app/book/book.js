@@ -317,7 +317,7 @@ document.addEventListener('click',e=>{
     const k=[sp.left,sp.right].filter(Boolean).map(p=>KIND[p.kind]).find(Boolean);if(k)return k;
     for(let j=i;j>=0;j--){const l=a.label?.(j);if(l&&l.chapter)return l.name||l.chapter;}return'';};
   let lastName=null;
-  const frame=()=>{requestAnimationFrame(frame);const on=isBook();car.classList.toggle('on',on);
+  const frame=()=>{(window.__ocLoop||requestAnimationFrame)(frame);const on=isBook();car.classList.toggle('on',on);
     if(!on){book.classList.remove('on');name.classList.remove('on');return;}
     car.classList.toggle('night',shell.classList.contains('is-night'));
     // while a leaf is turning, the carriage and the name still tell the spread it leaves

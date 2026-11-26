@@ -3997,7 +3997,11 @@ window.addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_ST
 // page, a turn between sections, a new sheet laid down) passes under it — dark while it is far below, lighter as it comes up.
 // The place is the open sheet's place in the layout (offsets — no transform or animation moves it), so nothing flickers.
 (()=>{const SEL='.sheet.active>.lt-nm,.sheet.active>.lt-ns'; // the travelling copies are kept in step by CSS (sheet.css v191)
-  const step=()=>{requestAnimationFrame(step);put();},put=()=>{const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
+  // v260: laid every frame only while something moves; at rest the loop sleeps (it measured the sheet every frame, always)
+  let stepTill=0,stepping=false;const wakeStep=()=>{stepTill=performance.now()+1600;if(!stepping){stepping=true;requestAnimationFrame(step);}};
+  ['transitionrun','animationstart','scroll','resize','input','pointerdown','wheel','keydown'].forEach(e=>addEventListener(e,wakeStep,{passive:true,capture:true}));
+  new MutationObserver(wakeStep).observe(document.body,{attributes:true,attributeFilter:['class','style']});setInterval(()=>{if(!stepping)put();},500);
+  const step=t=>{put();if(performance.now()<stepTill)requestAnimationFrame(step);else stepping=false;},put=()=>{const a=document.getElementById('activeSheet'),box=a?.offsetParent;if(!a||!box)return;
     const b=box.getBoundingClientRect(),L=b.left+box.clientLeft+a.offsetLeft,T=b.top+box.clientTop+a.offsetTop;
     // v207: nothing to lay again while the sheet lies still and nothing travels (it was measured every frame: a quarter of
     // each frame went on it, and the change of day and night stalled)

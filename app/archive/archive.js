@@ -37,7 +37,7 @@
   const $=s=>board.querySelector(s),$$=s=>[...board.querySelectorAll(s)];
   // ——— the sections on the bar (it stays, as in every room; its own keys step aside while the archive lies there)
   const nav=document.createElement('div');nav.className='ar-nav';nav.innerHTML=SECTS.map(([k,t])=>`<button type="button" data-k="${k}">${t}<i></i></button>`).join('');document.body.appendChild(nav);
-  {let last='';const put=()=>{requestAnimationFrame(put);if(!open&&!nav.classList.contains('on'))return;const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();if(!r||!r.width)return;
+  {let last='';const put=()=>{(window.__ocLoop||requestAnimationFrame)(put);if(!open&&!nav.classList.contains('on'))return;const b=document.querySelector('.wc.wc-w:not(.bq-car)');const r=b?.getBoundingClientRect();if(!r||!r.width)return;
     const k=[r.left,r.top,r.width,r.height].map(Math.round).join();if(k===last)return;last=k;Object.assign(nav.style,{left:Math.round(r.left+70)+'px',top:Math.round(r.top)+'px',width:Math.round(r.width-140)+'px',height:Math.round(r.height)+'px'});};requestAnimationFrame(put);}
   const mark=k=>{if(k&&k===sect)k='';sect=k;nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$$('.ar-it').forEach(x=>x.classList.toggle('cur',x.dataset.k===k));
     try{dispatchEvent(new CustomEvent('ar-room',{detail:{k,board}}));}catch(_){}};

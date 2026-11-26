@@ -179,6 +179,8 @@
     setTimeout(()=>{k.__go=true;k.click();k.__go=false;},1000);
     setTimeout(()=>{shell.classList.remove('ws-leaving','ws-off');leaving=false;const l=document.querySelector('.ws-left');if(l)l.style.animation='';},2600);},true);
   // v195: the desk of three sheets reaches the page from outside
+  // v260: a new format reshapes «Так ляжет» at once (it stayed square a second or two after the book went vertical)
+  addEventListener('oc-format',()=>{pane._css='';place();if(on){pick=null;setTimeout(()=>refresh(false),60);}});
   window.__ocWp={open:()=>{if(!on)setOpen(true);},isOn:()=>on,geo,place,pane,keys2,usable};
 })();
 
@@ -231,7 +233,16 @@
   // it rides on the head of the sheet, wherever the sheet goes
   let lastKey='';
   // v220: in «Рукопись» the bar stays where it is (the sheet under it has gone off the screen; the bar does not follow it)
-  const follow=()=>{requestAnimationFrame(follow);const rk=document.documentElement.classList.contains('rk-on')||document.documentElement.classList.contains('bk-on');const on=isWrite()||rk;wc.classList.toggle('on',on);if(rk){add.classList.remove('on');return;}if(!on){add.classList.remove('on');return;}
+  // v260: it follows the sheet every frame only while something moves; at rest it sleeps (it measured the sheet's frame 60 times a
+  // second, always — most of the work the page did while nothing happened)
+  let fTill=0,fRun=false;const wakeF=()=>{fTill=performance.now()+1500;if(!fRun){fRun=true;requestAnimationFrame(follow);}};
+  new MutationObserver(wakeF).observe(shell,{attributes:true,attributeFilter:['class']});new MutationObserver(wakeF).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+  // (the pendulum, the clock and the years on the dial move all the time on their own: they do not wake it)
+  const QUIET='.power-dock,.power-swing,.bottom-left,.oc-years,.okh-dot,.bk-kite';const wakeFe=e=>{if(e&&e.target&&e.target.closest&&e.target.closest(QUIET))return;wakeF();};
+  ['transitionrun','animationstart'].forEach(e=>addEventListener(e,wakeFe,{passive:true,capture:true}));['resize','pointerdown','wheel','keydown'].forEach(e=>addEventListener(e,wakeF,{passive:true,capture:true}));
+  {let hw=null;setInterval(()=>{try{const w=F()?.contentWindow;if(w&&w!==hw&&w.document?.body){hw=w;['transitionrun','animationstart','scroll','wheel','pointerdown','keydown','input'].forEach(e=>w.addEventListener(e,wakeF,{passive:true,capture:true}));}}catch(_){}if(!fRun)followNow();},400);}
+  const follow=()=>{followNow();if(performance.now()<fTill)requestAnimationFrame(follow);else fRun=false;};
+  const followNow=()=>{const rk=document.documentElement.classList.contains('rk-on')||document.documentElement.classList.contains('bk-on');const on=isWrite()||rk;wc.classList.toggle('on',on);if(rk){add.classList.remove('on');return;}if(!on){add.classList.remove('on');return;}
     const f=F(),d=FD();if(!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;dress();if(shell.classList.contains('ws-off'))return;
     const fr=f.getBoundingClientRect();
     // v192: the sheet's place in the layout, not its animated box — a sheet that is being laid or swapped must not drag the bar
@@ -239,7 +250,7 @@
     const L=fr.left+f.clientLeft+x,T=fr.top+f.clientTop+y,W=sh.offsetWidth;
     const k=[L,T,W].map(Math.round).join();if(k!==lastKey){lastKey=k;wc.style.left=Math.round(L-96)+'px';wc.style.top=Math.round(T-19)+'px';wc.style.width=Math.round(W+192)+'px';
       const R=document.documentElement.style;R.setProperty('--bar-l',Math.round(L-96)+'px');R.setProperty('--bar-t',Math.round(T-19)+'px');R.setProperty('--bar-w',Math.round(W+192)+'px');}};
-  requestAnimationFrame(follow);
+  wakeF();
   // v183 — the lamp under the bar: its beam starts at the bar's own ends and spreads a third of the bar's width each way by the
   // foot of the screen; it lights up last, a moment after the bar has come
   const cone=document.querySelector('.desk-cone'),beam=cone?.querySelector('i'),clk=document.querySelector('.master-clock');
@@ -279,12 +290,19 @@
     if(clk&&clk.style.maskImage){clk.style.webkitMaskImage=clk.style.maskImage='';}};
   // every frame: the light keeps to the bar and to the page while they move (no steps, no blinking)
   // (every frame only while something moves — the bar, the page, the keys; otherwise a few times a second)
-  let busyTill=0,fr=0,lampKey='',kick=true;new MutationObserver(()=>{kick=true;}).observe(shell,{attributes:true,attributeFilter:['class']});
-  requestAnimationFrame(function loop(t){requestAnimationFrame(loop);const r=(isMsQ()?document.querySelector('.mq-car'):wc)?.getBoundingClientRect();
+  // v260: the light is laid every frame only while something moves (the bar, the page, the stack, a change of mode); at rest the
+  // loop sleeps and a quiet look four times a second wakes it (it measured three things and laid the light every frame, always)
+  let busyTill=0,lampKey='',kick=true,running=false;
+  const keyNow=()=>{const r=(isMsQ()?document.querySelector('.mq-car'):wc)?.getBoundingClientRect();
     // v221: the book's page and the stack count too — while either moves the beam on them is laid every frame (it caught up in steps)
     const pq=document.querySelector('.wp-page')?.getBoundingClientRect(),lq=document.querySelector('.ws-left')?.getBoundingClientRect();
-    const k=(r?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'')+(pq?`|${Math.round(pq.left)},${Math.round(pq.top)},${Math.round(pq.width)}`:'')+(lq?`|${Math.round(lq.left)},${Math.round(lq.top)}`:'');if(k!==lampKey||kick){lampKey=k;kick=false;busyTill=t+2200;}
-    if(t<busyTill||++fr%15===0)lamp();});
+    return (r?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'')+(pq?`|${Math.round(pq.left)},${Math.round(pq.top)},${Math.round(pq.width)}`:'')+(lq?`|${Math.round(lq.left)},${Math.round(lq.top)}`:'');};
+  const wakeLamp=()=>{busyTill=Math.max(busyTill,performance.now()+2200);if(!running){running=true;requestAnimationFrame(loop);}};
+  function loop(t){const k=keyNow();if(k!==lampKey||kick){lampKey=k;kick=false;busyTill=t+2200;}lamp();if(t<busyTill)requestAnimationFrame(loop);else running=false;}
+  new MutationObserver(()=>{kick=true;wakeLamp();}).observe(shell,{attributes:true,attributeFilter:['class']});
+  ['transitionrun','animationstart'].forEach(e=>addEventListener(e,ev=>{if(ev.target?.closest?.('.power-dock,.power-swing,.bottom-left,.oc-years,.okh-dot,.bk-kite'))return;wakeLamp();},{passive:true,capture:true}));addEventListener('resize',wakeLamp,{passive:true});
+  setInterval(()=>{if(running)return;const k=keyNow();if(k!==lampKey)wakeLamp();},250);
+  wakeLamp();
   // what it says: where we are, «до книги», saved
   // v211: the name over the sheet — the name written for a document or an episode; without one, «Эпизод N · документ» (the
   // empty «Архивный документ» / «Новый эпизод» read as mistakes)
@@ -357,7 +375,7 @@
     if(w&&w!==show.w){show.w=w;HK=HKS[w];HINT=HINTS[w];show.said=0;hint.classList.remove('on');}
     if(on&&K&&!show.said){show.said=1;setTimeout(()=>{let m={};try{m=JSON.parse(localStorage.getItem(HK)||'{}');}catch(_){}if(m.off||m.seen)rest();else say(false);},1800);}};
   setInterval(show,600);
-  const boot=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const L=window.OcherkiTour?.loadKeeper;if(!L){setTimeout(boot,1500);return;}
+  const boot=()=>{if(window.OCHERKI_NO_KEEPER||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const L=window.OcherkiTour?.loadKeeper;if(!L){setTimeout(boot,1500);return;}
     L().then(()=>{if(K||!window.OcherkiKeeper3D)return;K=OcherkiKeeper3D.create(wk.querySelector('canvas'),{size:1.05,dust:8,quick:1.6});if(K){K.start();K.resize?.();}}).catch(()=>{});};
   setTimeout(boot,4000);
 })();
@@ -657,7 +675,7 @@
   // ——— keeping everything in its place
   let lastK='',autoTried=0;
   const clock=()=>document.querySelector('.bottom-left .master-clock');
-  const tick=()=>{requestAnimationFrame(tick);if(drag)return;
+  const tick=()=>{(window.__ocLoop||requestAnimationFrame)(tick);if(drag)return;
     const ok=isWrite()&&!!leftBox();shell.classList.toggle('oc-ws',ok);
     const W=window.__ocWp;const peek=ok&&W?.isOn?.()&&shell.classList.contains('wp-on');shell.classList.toggle('oc-ws-peek',!!peek);
     if(!ok){if(lastK){lastK='';const c=clock();if(c){c.style.removeProperty('transform');}}return;}
@@ -698,7 +716,7 @@
   requestAnimationFrame(tick);
   // the iframe learns where the screen's window lies over it (its sun and shade are laid from the screen's corner) — every
   // frame, only written when it changed (twice a second, the light on the sheet caught up with a jump after the sheet moved)
-  requestAnimationFrame(function sun(){requestAnimationFrame(sun);const f=F(),d=FD();if(!f||!d?.body)return;const r=f.getBoundingClientRect();const st=d.body.style;const v=[-r.left,-r.top,innerWidth,innerHeight].map(Math.round).join();if(st._ws===v)return;st._ws=v;
+  requestAnimationFrame(function sun(){(window.__ocLoop||requestAnimationFrame)(sun);const f=F(),d=FD();if(!f||!d?.body)return;const r=f.getBoundingClientRect();const st=d.body.style;const v=[-r.left,-r.top,innerWidth,innerHeight].map(Math.round).join();if(st._ws===v)return;st._ws=v;
     st.setProperty('--sun-x',Math.round(-r.left)+'px');st.setProperty('--sun-y',Math.round(-r.top)+'px');st.setProperty('--sun-w',innerWidth+'px');st.setProperty('--sun-h',innerHeight+'px');st.setProperty('--ws-shade',SHADE_PAPER);st.setProperty('--ws-shade-e',SHADE_E);});
   // the book's page opens by itself once the book is ready in the background (unless the hand closed it)
   setInterval(()=>{const W=window.__ocWp;if(!W||W.isOn()||!shell.classList.contains('oc-ws'))return;let off=false;try{off=localStorage.getItem('ocherkiPeekOff')==='1';}catch(_){}
@@ -766,13 +784,29 @@
     H.classList.add('oc-shown');list.forEach((o,i)=>{const to=+getComputedStyle(o.e).opacity;if(!(to>0))return;const cx=(o.r.left+o.r.width/2)/innerWidth,cy=(o.r.top+o.r.height/2)/innerHeight;
       const from=cy<.16?'0px -34px':cx<.3?'-60px 0px':cx>.7?'60px 0px':'0px 46px';const opt={duration:1250,delay:Math.min(i,10)*80,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'};
       try{o.e.animate([{opacity:0},{opacity:to}],opt);o.e.animate([{translate:from},{translate:'0px 0px'}],Object.assign({},opt,{composite:'add'}));}catch(_){}});};
-  const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);};
+  const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);setTimeout(()=>document.getElementById('ocVerse')?.remove(),4200);};
   // the veil goes as soon as the desk lies in its light (its toile loaded, the day or the night set)
   const bg=()=>{if(H.classList.contains('oc-bg'))return;if((H.classList.contains('oc-desk')&&sh?.classList.contains('oc-ready'))||performance.now()>4000){H.classList.add('oc-bg');return;}requestAnimationFrame(bg);};bg();
   let tDesk=0;const go=()=>{if(H.classList.contains('oc-verse-out'))return;if(!tDesk&&H.classList.contains('oc-desk'))tDesk=performance.now();const el=tDesk?performance.now()-tDesk:0;if((ready()&&el>8800)||performance.now()>15000){show();return;}requestAnimationFrame(go);};go();})();/* v255: the quatrain on the boot is given time to be read */
 
 // v246 — «Так ляжет» learns where it lies on the screen (its evening light is the room's picture laid from that place)
-(()=>{let k='';const go=()=>{requestAnimationFrame(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();
+(()=>{let k='';const go=()=>{(window.__ocLoop||requestAnimationFrame)(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();
   const v=Math.round(r.left)+','+Math.round(r.top);if(v===k)return;k=v;p.style.setProperty('--wpx',(2-Math.round(r.left))+'px');p.style.setProperty('--wpy',(2-Math.round(r.top))+'px');};requestAnimationFrame(go);})();
 // v256: the children who wait with the author take turns — the boy with the kite, the girl under the umbrella, the boy on the pier
 window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and the boy on the pier will live elsewhere)
+// v260 — the smoothness meter (Ctrl+Shift+P): frames per second, the longest frame and the long stalls of the last seconds, and
+// for every press of a top key (Писать, Рукопись, Книга…) a line of how the next three seconds went. «скопировать» puts the lines
+// on the clipboard, to be sent as they are.
+(()=>{let box=null,on=false,raf=0,last=0,frames=[],stalls=[],log=[],rec=null;
+  try{new PerformanceObserver(l=>{for(const e of l.getEntries()){stalls.push({t:e.startTime,d:e.duration});if(rec)rec.long=Math.max(rec.long,e.duration);}}).observe({type:'longtask',buffered:false});}catch(_){}
+  const loop=t=>{if(!on)return;raf=requestAnimationFrame(loop);if(last){const d=t-last;frames.push({t,d});if(rec){rec.n++;rec.worst=Math.max(rec.worst,d);if(d>34)rec.slow++;}}last=t;
+    const now=t;frames=frames.filter(f=>now-f.t<3000);stalls=stalls.filter(s=>now-s.t<5000);
+    if(rec&&now-rec.t0>3000){log.push(`${rec.name}: кадров ${rec.n} за 3 с (${Math.round(rec.n/3)}/с), медленных ${rec.slow}, худший кадр ${Math.round(rec.worst)} мс, долгая работа ${Math.round(rec.long)} мс`);rec=null;paintLog();}
+    if(!(frames.length%10)){const fps=frames.length/3,worst=Math.max(0,...frames.map(f=>f.d));box.querySelector('.pm-now').textContent=`${fps.toFixed(0)} кадр/с · худший кадр ${worst.toFixed(0)} мс · подвисаний за 5 с: ${stalls.length}${stalls.length?` (самое долгое ${Math.round(Math.max(...stalls.map(s=>s.d)))} мс)`:''}`;}};
+  const paintLog=()=>{box.querySelector('.pm-log').textContent=log.slice(-8).join('\n');};
+  const toggle=()=>{on=!on;if(on){if(!box){box=document.createElement('div');box.className='oc-pm';box.innerHTML='<b>плавность</b><div class="pm-now">…</div><pre class="pm-log"></pre><button type="button">скопировать</button>';document.body.appendChild(box);
+      box.querySelector('button').addEventListener('click',()=>{const t=[navigator.userAgent,`экран ${innerWidth}×${innerHeight}, devicePixelRatio ${devicePixelRatio}`,...log].join('\n');try{navigator.clipboard.writeText(t);box.querySelector('button').textContent='скопировано';}catch(_){}});}
+      box.style.display='';last=0;frames=[];raf=requestAnimationFrame(loop);}else{cancelAnimationFrame(raf);if(box)box.style.display='none';}};
+  const key=e=>{if(e.ctrlKey&&e.shiftKey&&(e.code==='KeyP')){e.preventDefault();toggle();}};addEventListener('keydown',key,true);
+  setInterval(()=>{try{const w=document.getElementById('v35SheetFrame')?.contentWindow;if(w&&!w.__ocPmHooked){w.__ocPmHooked=1;w.addEventListener('keydown',key,true);}}catch(_){}},1500);
+  document.addEventListener('click',e=>{if(!on)return;const k=e.target.closest?.('.oct .k[data-k],.wc [data-c],.rk-tab,.bk-strip>*');if(!k)return;const name=k.dataset.k||k.dataset.c||k.textContent.trim().slice(0,20);rec={name,t0:performance.now(),n:0,worst:0,slow:0,long:0};},true);})();

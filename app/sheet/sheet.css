@@ -1189,3 +1189,5 @@ html body .footer #saveState{opacity:0!important;pointer-events:none}
 .paper.has-ch-head .ch-head::before{content:attr(data-label);display:block;font:italic 400 11px/1 Georgia,serif;letter-spacing:.04em;color:#a89784;opacity:.62;margin-bottom:5px;pointer-events:none}
 .host-night .paper.has-ch-head .ch-head{color:#f0dfc4}
 .paper.has-ch-head .topbar{visibility:hidden}
+/* v260: at night the sheet is still paper under the lamp: its headings stay dark ink (they were light and could not be seen) */
+.host-night .paper.has-ch-head .ch-head,.host-night .editor-wrap.has-head .sh-head{color:#3b2a20}

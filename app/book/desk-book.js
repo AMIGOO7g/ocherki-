@@ -118,12 +118,16 @@
     const plate=kl.querySelector(`[data-set="${k}"]`);plate?.classList.add('bk-busy');
     // the sheet of the open spread stays open: the book is laid out anew and opens on it again
     const keep=window.__ocherkiSheetForSpread?.(cur);
-    const dim=[spreadEl,$('.bk-stripv')].map(el=>el.animate([{opacity:1},{opacity:.25}],{duration:280,easing:'ease-out',fill:'forwards'}));
-    // the plate and the dimmed book are drawn first, then the director works
+    // v260: the old book goes away altogether (a tenth of it stayed seen in the middle) and the running girl takes its place while
+    // the book is laid out anew — in steps, so she keeps running and the page never stalls
+    const dim=[spreadEl,$('.bk-stripv')].map(el=>el.animate([{opacity:1},{opacity:0}],{duration:320,easing:'ease-out',fill:'forwards'}));girl.classList.add('on');
     requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{
-      try{if(k==='format')B.setFormat(key);else B.setPhotoMode(key);n=B.ready();const pk=keep&&window.__ocherkiPeekPage?.(keep.pageUid,-1);cur=Math.max(0,Math.min(n-1,pk?pk.spread:cur));
+      try{if(k==='format')B.setFormat(key,true);else B.setPhotoMode(key,true);}catch(err){console.warn('book relayout',err);}
+      const done=()=>{try{n=B.ready();const pk=keep&&window.__ocherkiPeekPage?.(keep.pageUid,-1);cur=Math.max(0,Math.min(n-1,pk?pk.spread:cur));
         measure();buildStrip();show(cur);plates();}catch(err){console.warn('book relayout',err);}
-      busy=false;dim.forEach(a=>{try{a.cancel();}catch(_){}});[spreadEl,$('.bk-stripv')].forEach(el=>el.animate([{opacity:.25},{opacity:1}],{duration:520,easing:'ease-out'}));},40)));}
+        busy=false;girl.classList.remove('on');dim.forEach(a=>{try{a.cancel();}catch(_){}});[spreadEl,$('.bk-stripv')].forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:620,easing:'ease-out'}));};
+      if(window.__ocherkiBookInSteps)window.__ocherkiBookInSteps(()=>requestAnimationFrame(done));else done();},360)));}
+  const girl=document.createElement('div');girl.className='bk-girl';girl.innerHTML='<img src="assets/book/girl-run.webp" alt="" draggable="false"><span>Собирается книга</span>';document.body.appendChild(girl);
 
   // ——— turning the page: the paper bends as the old book's did (the copies of the pages lie over the new spread, already drawn
   // beneath, so nothing blinks); the desk's light stays where it is over it
@@ -171,6 +175,8 @@
   kite.innerHTML='<img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается книга</span>';document.body.appendChild(kite);
   function open(){if(isOpen||busy||open.wait)return;let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
     if(fresh)return open1();
+    // v260: the boy stands where the page is being made — over «Так ляжет» when it lies on the desk — not over the writing sheet
+    {const pn=document.querySelector('.shell.wp-on .wp-pane'),r=pn?.getBoundingClientRect();if(r&&r.width>100){kite.style.left=Math.round(r.left+r.width/2)+'px';kite.style.top=Math.round(r.top+r.height/2)+'px';}else{kite.style.left='';kite.style.top='';}}
     open.wait=true;{const k=window.__ocKid?.()||'kite',im=kite.querySelector('img');im.src=`assets/book/${k==='kite'?'kite':k==='umbrella'?'girl-umbrella':'pier-jump'}.webp`;kite.dataset.kid=k;}kite.classList.add('on');
     // v258: the book is laid out in steps behind the boy (it held the page for a long time, up to «страница не отвечает»)
     setTimeout(()=>{const go=()=>{open.wait=false;open1();kite.classList.remove("on");};if(window.__ocherkiBookInSteps)window.__ocherkiBookInSteps(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));else go();},700);}

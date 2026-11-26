@@ -100,5 +100,5 @@
   const settle=setInterval(()=>{if(shell.classList.contains('oc-ready')){clearInterval(settle);{/* v192: the Keeper's 3D warm-up holds the page a moment — only once the hands have been off the mouse and keys for a while */
     let last=performance.now();const t=()=>{last=performance.now();};const W=[window];try{const fw=document.getElementById('v35SheetFrame')?.contentWindow;if(fw)W.push(fw);}catch(_){}
     W.forEach(w=>['pointerdown','pointermove','keydown','wheel'].forEach(e=>w.addEventListener(e,t,{passive:true,capture:true})));
-    const go=()=>{if(performance.now()-last<5000)return setTimeout(go,1500);W.forEach(w=>['pointerdown','pointermove','keydown','wheel'].forEach(e=>w.removeEventListener(e,t,{capture:true})));OcherkiTour.warm();};setTimeout(go,4000);}}},700);
+    const go=()=>{if(performance.now()-last<5000)return setTimeout(go,1500);W.forEach(w=>['pointerdown','pointermove','keydown','wheel'].forEach(e=>w.removeEventListener(e,t,{capture:true})));if(!window.OCHERKI_NO_KEEPER)OcherkiTour.warm();};setTimeout(go,4000);}}},700);
 })();
