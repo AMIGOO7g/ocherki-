@@ -1139,3 +1139,15 @@ html body.host-eve .sheet.active>.lt-em,html body.host-eve .sheet.active>.lt-es{
 .section-scroll-sheet>.lt-es{z-index:31;mix-blend-mode:screen!important;background:radial-gradient(ellipse 72% 58% at 50% 36%,rgba(255,214,160,.3),rgba(255,200,140,.1) 62%,rgba(255,210,160,0) 86%)!important}
 body.host-eve .section-scroll-sheet>.lt-dm{opacity:0!important}
 body.host-eve .section-scroll-sheet>:is(.lt-em,.lt-es){opacity:1}
+
+/* v255: a quiet note above each line of the cover and the title pages, saying what the line is */
+.editor p[data-label]{position:relative;margin-top:1.55em!important}
+.editor p[data-label]::before{content:attr(data-label);position:absolute;left:0;right:0;top:-1.45em;text-align:inherit;font:italic 400 12px/1 Georgia,'Times New Roman',serif;
+  letter-spacing:.04em;color:#a89784;opacity:.62;pointer-events:none;user-select:none;-webkit-user-select:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.host-night .editor p[data-label]::before{color:#c4b29b;opacity:.5}
+.editor[data-page-type="cover"]{padding-top:64px}
+.editor[data-page-type="title"]{padding-top:52px}
+/* the title sheet: the book's name is the large line now (it is no longer the first one) */
+.editor[data-section-id="title"] p[data-i]:first-child{font-size:inherit;line-height:inherit;letter-spacing:normal;margin-bottom:0}
+.editor[data-section-id="title"] p[data-i="0"]{font-size:30px;line-height:1.08;letter-spacing:.015em}
+.editor[data-section-id="cover"] p[data-i="0"]{font-size:28px;line-height:1.12}

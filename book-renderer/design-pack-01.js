@@ -513,7 +513,7 @@
       const coverSource = ctx.image ? ctx.image(source, 0) : '';
       const coverTone = photoToneClass(source?.photos?.[0]);
       const footer=esc(meta.coverFooter || '');
-      return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async"${frameAttrs(0)}>` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>Семейная хроника</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
+      return article('D01-COVER', `${coverSource ? `<img class="dpk-cover-image${coverTone ? ` ${coverTone}` : ''}" src="${esc(coverSource)}" alt="" loading="lazy" decoding="async"${frameAttrs(0)}>` : ''}<div class="dpk-cover-scrim"></div><div class="dpk-cover-kicker"><span>${esc(meta.coverKicker || 'Семейная хроника')}</span><span>${esc(meta.year || '')}</span></div>${meta.title?`<h1>${meta.author?`<span class="dpk-cover-by">${esc(meta.author)}</span>`:''}${esc(meta.title)}</h1>`:''}<div class="dpk-cover-rule"></div><div class="dpk-cover-subtitle">${esc(meta.subtitle || '')}</div>${footer?`<div class="dpk-cover-author">${footer}</div>`:''}`);
     }
     if (role === 'endpaper') {
       // v107: the author's own picture lies across the whole endpaper spread.
@@ -531,8 +531,8 @@
       return article('D01-ENDPAPER', `<div class="dpk-endpaper-grid-lines" aria-hidden="true"></div>${mark}`, 'dpk-endpaper-mono');
     }
     if (role === 'blank') return article('D01-ENDPAPER', '');
-    if (role === 'half-title') return article('D01-HALF-TITLE', `<div class="dpk-kicker">Очерки жизни</div><h1>${esc(meta.title || 'Семейная хроника')}</h1><div class="dpk-half-meta">${esc(meta.subtitle || '')}</div>${folio}`);
-    if (role === 'title') return article('D01-TITLE', `<div class="dpk-title-wrap"><div class="dpk-kicker">Семейная история</div><h1>${esc(meta.title || '')}</h1><div class="dpk-short-rule"></div><p>${esc(meta.subtitle || '')}</p></div>${meta.author?`<div class="dpk-title-author">${esc(meta.author)}</div>`:''}`);
+    if (role === 'half-title') return article('D01-HALF-TITLE', `<div class="dpk-kicker">${esc(meta.halfKicker || 'Очерки жизни')}</div><h1>${esc(meta.title || 'Семейная хроника')}</h1><div class="dpk-half-meta">${esc(meta.subtitle || '')}</div>${folio}`);
+    if (role === 'title') return article('D01-TITLE', `${meta.author?`<div class="dpk-title-author">${esc(meta.author)}</div>`:''}<div class="dpk-title-wrap"><div class="dpk-kicker">${esc(meta.titleKicker || 'Семейная история')}</div><h1>${esc(meta.title || '')}</h1><div class="dpk-short-rule"></div><p>${esc(meta.subtitle || '')}</p></div>${meta.titleCity||meta.titleYear?`<div class="dpk-title-imprint">${[meta.titleCity,meta.titleYear].filter(Boolean).map(esc).join(' · ')}</div>`:''}`);
     if (role === 'epigraph') return article('D01-EPIGRAPH', `<div class="dpk-centered"><div class="dpk-kicker">Эпиграф</div><blockquote>${esc(page.epigraphText || text)}</blockquote>${page.epigraphSource ? `<div class="dpk-source">${esc(page.epigraphSource)}</div>` : ''}</div>${folio}`);
     if (role === 'dedication') return article('D01-EPIGRAPH', `<div class="dpk-centered"><div class="dpk-kicker">Посвящение</div><blockquote>${esc(page.dedicationText || text)}</blockquote>${page.dedicationSign ? `<div class="dpk-source">${esc(page.dedicationSign)}</div>` : ''}</div>${folio}`);
     if (role === 'contents') {

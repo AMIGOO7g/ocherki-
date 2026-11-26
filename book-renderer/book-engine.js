@@ -706,17 +706,17 @@
     }).filter(chapter => Boolean(chapter.text) || chapter.photos.length || chapter.documents.length);
     if (!chapters.length) return { ready: false, message: 'Добавьте текст хотя бы в одну главу.' };
     const spreads = [];
-    const [coverTitle, coverSubtitle, coverAuthor, coverFooter] = fieldValues(byId('cover'), 4);
-    const [titleTitle, titleSubtitle, titleAuthor] = fieldValues(byId('title'), 3);
+    const [coverTitle, coverSubtitle, coverAuthor, coverFooter, coverKicker, coverYear] = fieldValues(byId('cover'), 6);
+    const [titleTitle, titleSubtitle, titleAuthor, titleKicker, titleCity, titleYear, halfKicker] = fieldValues(byId('title'), 7);
     const [epigraphText, epigraphSource] = fieldValues(byId('epigraph'), 2);
     const [dedicationText, dedicationSign] = fieldValues(byId('dedication'), 2);
     const coverSource = byId('cover')?.pages?.[0] || {};
     const backCoverSource = byId('back-cover')?.pages?.[0] || {};
-    const bookMeta = { ...meta, title: coverTitle || meta.title || 'Семейная хроника', subtitle: coverSubtitle || meta.subtitle || '', author: coverAuthor || meta.author || '', coverFooter };
-    const titleMeta = { ...bookMeta, title: titleTitle || bookMeta.title, subtitle: titleSubtitle || bookMeta.subtitle, author: titleAuthor || bookMeta.author };
+    const bookMeta = { ...meta, title: coverTitle || meta.title || 'Семейная хроника', subtitle: coverSubtitle || meta.subtitle || '', author: coverAuthor || meta.author || '', coverFooter, coverKicker, year: coverYear || meta.year || '' };
+    const titleMeta = { ...bookMeta, title: titleTitle || bookMeta.title, subtitle: titleSubtitle || bookMeta.subtitle, author: titleAuthor || bookMeta.author, titleKicker, titleCity, titleYear, halfKicker };
     if (byId('cover')) spreads.push({ id:'d01_cover', master:'D01-SPREAD-COVER', left:null, right:P('cover',{meta:bookMeta,source:coverSource}), single:'right' });
     if (byId('endpaper')) spreads.push({id:'d01_endpaper_front',master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperPhoto:endpaperPhotoOf(byId('endpaper'))}),right:P('endpaper',{meta:bookMeta,endpaperPhoto:endpaperPhotoOf(byId('endpaper'))})});
-    if (byId('title')) spreads.push({id:'d01_titles',master:'D01-SPREAD-TITLES',left:P('half-title',{layout:'half-title',meta:bookMeta}),right:P('title',{layout:'title-page',meta:titleMeta})});
+    if (byId('title')) spreads.push({id:'d01_titles',master:'D01-SPREAD-TITLES',left:P('half-title',{layout:'half-title',meta:titleMeta}),right:P('title',{layout:'title-page',meta:titleMeta})});
     const contentsPage = P('contents-right',{meta:bookMeta,items:chapters.map(chapter=>({sectionId:chapter.sectionId,title:chapter.title,page:''}))});
     const epigraphPage = P('epigraph',{epigraphText:epigraphText || 'Память соединяет поколения.',epigraphSource,meta:bookMeta});
     if (byId('dedication')) {
@@ -1894,8 +1894,8 @@
     planAutomaticBookCompositions(chapters);
 
     const spreads = [];
-    const [coverTitle, coverSubtitle, coverAuthor, coverFooter] = fieldValues(byId('cover'), 4);
-    const [titleTitle, titleSubtitle, titleAuthor] = fieldValues(byId('title'), 3);
+    const [coverTitle, coverSubtitle, coverAuthor, coverFooter, coverKicker, coverYear] = fieldValues(byId('cover'), 6);
+    const [titleTitle, titleSubtitle, titleAuthor, titleKicker, titleCity, titleYear, halfKicker] = fieldValues(byId('title'), 7);
     const [epigraphText, epigraphSource] = fieldValues(byId('epigraph'), 2);
     const [dedicationText, dedicationSign] = fieldValues(byId('dedication'), 2);
     const coverSource = byId('cover')?.pages?.[0] || {};
@@ -1904,17 +1904,20 @@
       title: coverTitle || meta.title || 'Семейная хроника',
       subtitle: coverSubtitle || meta.subtitle || '',
       author: coverAuthor || meta.author || '',
-      coverFooter: coverFooter || ''
+      coverFooter: coverFooter || '',
+      coverKicker: coverKicker || '',
+      year: coverYear || meta.year || ''
     });
     const titleMeta = Object.assign({}, bookMeta, {
       title: titleTitle || bookMeta.title,
       subtitle: titleSubtitle || bookMeta.subtitle,
-      author: titleAuthor || bookMeta.author
+      author: titleAuthor || bookMeta.author,
+      titleKicker: titleKicker || '', titleCity: titleCity || '', titleYear: titleYear || '', halfKicker: halfKicker || ''
     });
 
     if(byId('cover')) spreads.push({ id: 'd01_cover', master: 'D01-SPREAD-COVER', left: null, right: P('cover', { meta: bookMeta, source: coverSource }), single: 'right' });
     if(byId('endpaper')) spreads.push({ id: 'd01_endpaper_front', master: 'D01-SPREAD-ENDPAPER', left: P('endpaper', { meta: bookMeta, endpaperPhoto: endpaperPhotoOf(byId('endpaper')) }), right: P('endpaper', { meta: bookMeta, endpaperPhoto: endpaperPhotoOf(byId('endpaper')) }) });
-    if(byId('title')) spreads.push({ id: 'd01_titles', master: 'D01-SPREAD-TITLES', left: P('half-title', { layout: 'half-title', meta: bookMeta }), right: P('title', { layout: 'title-page', meta: titleMeta }) });
+    if(byId('title')) spreads.push({ id: 'd01_titles', master: 'D01-SPREAD-TITLES', left: P('half-title', { layout: 'half-title', meta: titleMeta }), right: P('title', { layout: 'title-page', meta: titleMeta }) });
 
     const contentsPage = P('contents-right', {
       meta: bookMeta,

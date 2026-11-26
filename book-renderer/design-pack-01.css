@@ -104,7 +104,7 @@ body .dpk-page.dpk-title .dpk-kicker{margin-bottom:14px!important}
 body .dpk-page.dpk-title h1{font:500 60px/1.1 'CormorantCy',Georgia,serif!important;letter-spacing:.09em!important;text-transform:uppercase!important}
 body .dpk-page.dpk-title .dpk-short-rule{margin:22px auto 18px!important}
 body .dpk-page.dpk-title p{max-width:420px!important;margin:0 auto!important;font:italic 400 14px/1.5 'PTSerifCy',Georgia,serif!important}
-body .dpk-page.dpk-title .dpk-title-author{position:absolute!important;left:70px!important;right:70px!important;bottom:70px!important;text-align:center!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:var(--dpk-muted)!important}
+body .dpk-page.dpk-title .dpk-title-author{position:absolute!important;left:70px!important;right:70px!important;top:70px!important;text-align:center!important;font:700 13px/1 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.14em!important;color:var(--dpk-muted)!important}
 body .dpk-page.dpk-epigraph .dpk-centered,body .dpk-page.dpk-dedication .dpk-centered{left:91px!important;right:91px!important}
 body .dpk-page.dpk-epigraph .dpk-kicker,body .dpk-page.dpk-dedication .dpk-kicker{margin-bottom:28px!important}
 body .dpk-page.dpk-epigraph blockquote,body .dpk-page.dpk-dedication blockquote{font:italic 500 24px/1.5 'CormorantCy',Georgia,serif!important}
@@ -3006,3 +3006,7 @@ body .dpk-page.dpk-endpaper-photo-page{overflow:hidden!important}
 body .dpk-page .dpk-endpaper-photo{position:absolute!important;top:0!important;bottom:0!important;width:200%!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
 body .dpk-page .dpk-endpaper-photo.is-left{left:0!important}
 body .dpk-page .dpk-endpaper-photo.is-right{left:-100%!important}
+
+/* v255: the author's name above the title on the cover, as books have it; on the title page the author at the head and the city and year at the foot */
+body .dpk-page.dpk-cover h1 .dpk-cover-by{display:block!important;margin:0 0 16px!important;font:700 14px/1.2 'PTSerifCy',Georgia,serif!important;font-variant-caps:small-caps!important;letter-spacing:.16em!important;text-transform:none!important;color:#e9e1d4!important}
+body .dpk-page.dpk-title .dpk-title-imprint{position:absolute!important;left:70px!important;right:70px!important;bottom:70px!important;text-align:center!important;font:400 13px/1 'PTSerifCy',Georgia,serif!important;letter-spacing:.12em!important;color:var(--dpk-muted)!important}

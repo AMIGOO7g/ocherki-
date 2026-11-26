@@ -6,18 +6,39 @@
 <title>Очерки жизни — unified shell + paper keyboard</title>
 <script>/* v213: the desk's own tone from the first moment; nothing of the boot is seen until the desk itself comes (write.js); v221: oc-quick — so the boot's stages, unseen under the veil, go by quickly (042) */(()=>{const H=document.documentElement;let m='';try{m=localStorage.getItem('ocherkiLight')||'';}catch(_){}/* v254: the boot's desk in the light the constructor will open in — the last chosen, or by the clock the first time (an evening left the boot by day) */if(!/^(day|evening|night)$/.test(m)){const h=new Date().getHours();m=(h>=19||h<7)?'night':'day';}H.style.background=m==='night'?'#0d0704':m==='evening'?'#5a3d27':'#e6d8bf';H.classList.add('oc-quick');if(m==='night')H.classList.add('oc-night0');if(m==='evening')H.classList.add('oc-eve0');})();</script>
 <style>html:not(.oc-desk) body{opacity:0!important}</style>
-<link rel="stylesheet" href="app/common/001-base.css?v=20261107-v254" data-inline-from="style">
+<link rel="stylesheet" href="app/common/001-base.css?v=20261107-v255" data-inline-from="style">
+<style id="oc-boot-veil">/* v255 — the boot: from the very first frame the desk in the light it will open in (day, evening, night: its toile and its
+   light), the quatrain on it; then the words melt away and the things come in. (The veil's look came only with write.css, at the
+   page's end: the white toile, then the colour changing in steps.) */
+html body::after{content:"";position:fixed;inset:0;z-index:2147483646;pointer-events:none;opacity:1;transition:opacity 1.2s ease;
+  background:linear-gradient(rgba(150,118,86,.55),rgba(150,118,86,.55)),radial-gradient(ellipse 70% 60% at 18% 12%,rgba(255,236,200,.35),transparent 70%),linear-gradient(rgba(226,212,188,.46),rgba(214,198,172,.52)),url("assets/toile/desk-toile.png") center/cover no-repeat,#e4d3b6;
+  background-blend-mode:color,screen,normal,normal,normal}
+html.oc-eve0 body::after{background:linear-gradient(#9a6436,#9a6436),radial-gradient(ellipse 60% 55% at 22% 18%,rgba(255,176,96,.42),rgba(255,150,80,.12) 55%,transparent 80%),linear-gradient(rgba(122,86,56,.52),rgba(96,66,42,.62)),url("assets/toile/desk-toile.png") center/cover no-repeat,#6a4a30;
+  background-blend-mode:color,screen,multiply,normal,normal}
+html.oc-night0 body::after{background:linear-gradient(#8a5428,#8a5428),radial-gradient(ellipse 62% 56% at 50% 40%,rgba(236,168,91,.34),rgba(164,88,27,.14) 50%,transparent 80%),linear-gradient(rgba(40,22,10,.72),rgba(20,10,5,.84)),url("assets/toile/desk-toile.png") center/cover no-repeat,#1b0e06;
+  background-blend-mode:color,screen,multiply,normal,normal}
+html.oc-shown body::after{opacity:0}
+#ocVerse{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;padding:0 8vw;pointer-events:none;
+  font:italic 500 clamp(22px,2.4vw,34px)/1.55 'CormorantCy',Georgia,serif;color:#4a3220;text-align:center;opacity:1;transition:opacity 1.2s ease}
+#ocVerse p{margin:0;max-width:30em;opacity:0;translate:0 6px;animation:ocVerseIn 1.4s ease forwards}
+#ocVerse p:nth-child(2){animation-delay:.5s}#ocVerse p:nth-child(3){animation-delay:1s;margin-top:.6em}
+@keyframes ocVerseIn{to{opacity:1;translate:0 0}}
+html.oc-eve0 #ocVerse,html.oc-night0 #ocVerse{color:#f0dcbc;text-shadow:0 2px 14px rgba(0,0,0,.55)}
+html:not(.oc-eve0):not(.oc-night0) #ocVerse{text-shadow:0 1px 10px rgba(255,246,230,.8)}
+html.oc-shown #ocVerse{opacity:0}
+</style>
 
 
 
 
 
 
-<script src="app/common/021-calm-dom-v142.js?v=20261107-v254" data-inline-from="script"></script>
-<script src="app/start/022-v35-auth-gate-state.js?v=20261107-v254" data-inline-from="script"></script>
-<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v254">
+<script src="app/common/021-calm-dom-v142.js?v=20261107-v255" data-inline-from="script"></script>
+<script src="app/start/022-v35-auth-gate-state.js?v=20261107-v255" data-inline-from="script"></script>
+<link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v255">
 </head>
 <body>
+<div id="ocVerse" aria-hidden="true"><p>«Память — это тихая комната, где хранятся наши самые ценные дни.</p><p>Голоса близких, запах старых писем, запечатлённые мгновения…</p><p>Время уходит, но истории остаются. Давайте сохраним вашу.»</p></div>
 <div class="shell is-night ui-boot" id="shell">
   <div class="start-light"></div>
   <div class="screen-vignette"></div>
@@ -218,7 +239,7 @@
   <div class="editor-stage" id="editorStage" aria-label="Рабочая область">
     <div class="editor-paper-wrap" id="editorPaperWrap">
       <div class="editor-paper v35-host-paper">
-        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v254" title="Редактор книги"></iframe>
+        <iframe id="v35SheetFrame" class="v35-sheet-frame" allow="microphone" src="sheet_v35.html?v=demo-book-20261107-v255" title="Редактор книги"></iframe>
       </div>
       <div class="editor-paper-shadow"></div>
     </div>
@@ -310,7 +331,7 @@
     </div>
   </div>
 </div>
-<script src="app/common/025-shell-core.js?v=20261107-v254" data-inline-from="script"></script>
+<script src="app/common/025-shell-core.js?v=20261107-v255" data-inline-from="script"></script>
 
 
 
@@ -327,15 +348,15 @@
 
 
 
-<script src="app/common/042-boot-and-map.js?v=20261107-v254" data-inline-from="script"></script>
+<script src="app/common/042-boot-and-map.js?v=20261107-v255" data-inline-from="script"></script>
 
 
-<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v254"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v254"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v254"></script>
-<script src="book-renderer/book-engine.js?v=demo-book-20261107-v254"></script>
-<script src="book-renderer/project-store.js?v=demo-book-20261107-v254"></script>
-<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v254"></script>
-<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v254"></script>
-<script src="app/book/044-v103-book-assembly-controller.js?v=20261107-v254" data-inline-from="script"></script>
+<script src="book-renderer/geo-cities.js?v=demo-book-20261107-v255"></script><script src="book-renderer/geo-atlas.js?v=demo-book-20261107-v255"></script><script src="book-renderer/design-pack-01.js?v=demo-book-20261107-v255"></script>
+<script src="book-renderer/book-engine.js?v=demo-book-20261107-v255"></script>
+<script src="book-renderer/project-store.js?v=demo-book-20261107-v255"></script>
+<script src="book-renderer/design-pack-01.layout.js?v=demo-book-20261107-v255"></script>
+<script src="book-renderer/layout-pagination-engine.js?v=demo-book-20261107-v255"></script>
+<script src="app/book/044-v103-book-assembly-controller.js?v=20261107-v255" data-inline-from="script"></script>
 
 
 
@@ -404,33 +425,33 @@
 
 
 
-<script src="app/common/common-early.js?v=20261107-v254"></script>
-<script src="app/manuscript/134-three-screens-script.js?v=20261107-v254" data-inline-from="script"></script>
-<script src="app/manuscript/rukopis.js?v=20261107-v254"></script>
-<script src="app/book/desk-book.js?v=20261107-v254"></script>
-<script src="app/archive/archive.js?v=20261107-v254"></script>
-<script src="app/archive/rooms.js?v=20261107-v254"></script>
+<script src="app/common/common-early.js?v=20261107-v255"></script>
+<script src="app/manuscript/134-three-screens-script.js?v=20261107-v255" data-inline-from="script"></script>
+<script src="app/manuscript/rukopis.js?v=20261107-v255"></script>
+<script src="app/book/desk-book.js?v=20261107-v255"></script>
+<script src="app/archive/archive.js?v=20261107-v255"></script>
+<script src="app/archive/rooms.js?v=20261107-v255"></script>
 
 
-<script src="app/topbar/keys.js?v=20261107-v254" data-inline-from="script"></script>
-<script src="app/book/book.js?v=20261107-v254"></script>
-<script src="app/write/write.js?v=20261107-v254"></script>
+<script src="app/topbar/keys.js?v=20261107-v255" data-inline-from="script"></script>
+<script src="app/book/book.js?v=20261107-v255"></script>
+<script src="app/write/write.js?v=20261107-v255"></script>
 
 
 
-<script src="app/common/common-late.js?v=20261107-v254"></script>
+<script src="app/common/common-late.js?v=20261107-v255"></script>
 
 
-<script src="assets/keeper/tour.js?v=20261107-v254"></script>
-<script src="app/start/start.js?v=20261107-v254"></script>
-<script src="app/topbar/topbar.js?v=20261107-v254"></script>
+<script src="assets/keeper/tour.js?v=20261107-v255"></script>
+<script src="app/start/start.js?v=20261107-v255"></script>
+<script src="app/topbar/topbar.js?v=20261107-v255"></script>
 
 
-<link rel="stylesheet" href="app/start/start.css?v=20261107-v254">
-<link rel="stylesheet" href="app/common/chrome.css?v=20261107-v254">
-<link rel="stylesheet" href="app/write/write.css?v=20261107-v254">
-<link rel="stylesheet" href="app/manuscript/rukopis.css?v=20261107-v254">
-<link rel="stylesheet" href="app/book/desk-book.css?v=20261107-v254">
-<link rel="stylesheet" href="app/archive/archive.css?v=20261107-v254">
-<link rel="stylesheet" href="app/archive/rooms.css?v=20261107-v254">
-<link rel="stylesheet" href="app/book/book.css?v=20261107-v254">
+<link rel="stylesheet" href="app/start/start.css?v=20261107-v255">
+<link rel="stylesheet" href="app/common/chrome.css?v=20261107-v255">
+<link rel="stylesheet" href="app/write/write.css?v=20261107-v255">
+<link rel="stylesheet" href="app/manuscript/rukopis.css?v=20261107-v255">
+<link rel="stylesheet" href="app/book/desk-book.css?v=20261107-v255">
+<link rel="stylesheet" href="app/archive/archive.css?v=20261107-v255">
+<link rel="stylesheet" href="app/archive/rooms.css?v=20261107-v255">
+<link rel="stylesheet" href="app/book/book.css?v=20261107-v255">

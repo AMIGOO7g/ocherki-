@@ -123,7 +123,7 @@
     const nx=host.cloneNode(false);nx.classList.add('wp-next');nx.innerHTML=html;host.after(nx);window.__ocherkiScalePages?.();
     const ims=[...nx.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));
     Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,900))]).then(()=>{if(!nx.isConnected)return;requestAnimationFrame(()=>{nx.classList.add('in');
-      setTimeout(()=>{if(!nx.isConnected)return;host.remove();nx.classList.remove('wp-next','in');},300);});});}
+      setTimeout(()=>{if(!nx.isConnected)return;host.remove();nx.style.transition='none';nx.classList.remove('wp-next','in');void nx.offsetWidth;nx.style.transition='';},1300);});});}
   function paint(force){let res=null;const ratio=topRatio();try{res=window.__ocherkiPeekPage?.(uid,ratio,pick,force);}catch(_){res=null;}
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
@@ -743,10 +743,10 @@
 // v212 — the desk comes into view when it lies in its place: the stack, the page and the clock laid out (or after 6 s at most)
 (()=>{const H=document.documentElement,sh=document.querySelector('.shell');let t0=performance.now();
   {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
-    const veil=()=>{if(H.classList.contains('oc-desk'))return;if((img&&getComputedStyle(document.body,'::after').zIndex==='2147483647')||performance.now()-t1>4000){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
+    const veil=()=>{if(H.classList.contains('oc-desk'))return;if(img||performance.now()-t1>2500){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
   const show=()=>{H.classList.add('oc-shown');};
-  const go=()=>{if(H.classList.contains('oc-shown'))return;if(ready()||performance.now()-t0>3500){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();
+  const go=()=>{if(H.classList.contains('oc-shown'))return;const el=performance.now()-t0;if((ready()&&el>2600)||el>4200){setTimeout(show,150);return;}requestAnimationFrame(go);};go();})();/* v255: the quatrain on the boot is given time to be read */
 
 // v246 — «Так ляжет» learns where it lies on the screen (its evening light is the room's picture laid from that place)
 (()=>{let k='';const go=()=>{requestAnimationFrame(go);const p=document.querySelector('.wp-pane .wp-page');if(!p)return;const r=p.getBoundingClientRect();

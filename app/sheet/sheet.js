@@ -22,13 +22,25 @@ const SAMPLE_PREFIX='ТЕКСТ-ОБРАЗЕЦ';
 // prop (used everywhere else) without losing which slot is which.
 const FIELD_SKIP=' ';
 const MULTI_FIELD_PLACEHOLDERS={
-  cover:['Название книги','Короткий подзаголовок','Автор','Нижняя подпись на обложке (необязательно)'],
+  // v255: the words the book used to print by itself are the author's too (stored after the old ones, so older books keep theirs)
+  cover:['Название книги','Короткий подзаголовок','Имя автора','Нижняя подпись на обложке (необязательно)','Семейная хроника','Год (необязательно)'],
   'back-cover':['Текст на задней обложке','Нижняя подпись (необязательно)'],
-  title:['Название книги','Подзаголовок книги','Автор'],
+  title:['Название книги','Подзаголовок книги','Имя автора','Семейная история','Город','Год','Очерки жизни'],
   dedication:['Текст посвящения','От кого (необязательно)'],
   epigraph:['Текст цитаты','Источник или автор (необязательно)'],
   colophon:['Составитель','Дизайн и вёрстка','Год издания','Место издания']
 };
+// v255: the fields in the order they stand on the page, and a quiet note above each saying what the line is
+const MULTI_FIELD_ORDER={cover:[4,5,2,0,1,3],title:[2,3,0,1,4,5,6]};
+const MULTI_FIELD_LABELS={
+  cover:['Название','Подзаголовок','Автор — над названием, как в книгах','Подпись внизу обложки','Надпись вверху слева','Год — вверху справа'],
+  'back-cover':['Текст задней обложки','Подпись внизу'],
+  title:['Название','Подзаголовок','Автор — вверху титула','Надпись над названием','Город — внизу титула','Год издания','Шмуцтитул (страница слева) — надпись вверху'],
+  dedication:['Посвящение','Подпись'],
+  epigraph:['Цитата','Источник'],
+  colophon:['Составитель','Дизайн и вёрстка','Год издания','Место издания']
+};
+function multiFieldOrder(t){const n=(MULTI_FIELD_PLACEHOLDERS[t]||[]).length;return MULTI_FIELD_ORDER[t]||Array.from({length:n},(_,i)=>i);}
 function isMultiFieldPageType(t){ return Object.prototype.hasOwnProperty.call(MULTI_FIELD_PLACEHOLDERS,t); }
 const initialParas=[
 `История семьи чаще всего начинается не с громких событий, а с едва уловимых подробностей: с дороги, по которой когда-то шли пешком, с дома, где по вечерам зажигали лампу, с имени, которое в детстве звучало особенно тепло. Эти маленькие детали переживают годы и становятся тем, из чего складывается память рода.`,
@@ -505,14 +517,17 @@ function htmlFromText(t){
     // not touch the others.
     const placeholders=MULTI_FIELD_PLACEHOLDERS[pageType]||[];
     const rawParts=raw.split(/\n{2,}/);
-    return placeholders.map((ph,i)=>{
+    const labels=MULTI_FIELD_LABELS[pageType]||[];
+    return multiFieldOrder(pageType).map(i=>{
+      const ph=placeholders[i];
       const val=rawParts[i];
       const filled=val!==undefined && val!==FIELD_SKIP && val.trim()!=='';
+      const at=` data-i="${i}"${labels[i]?` data-label="${esc(labels[i])}"`:''}`;
       if(!filled){
         const kind=i===0?'lead':'body';
-        return `<p class="sample-${kind}" data-sample="${kind}">${esc(ph)}</p>`;
+        return `<p class="sample-${kind}" data-sample="${kind}"${at}>${esc(ph)}</p>`;
       }
-      return `<p>${esc(val.trim())}</p>`;
+      return `<p${at}>${esc(val.trim())}</p>`;
     }).join('');
   }
   // The family sections are read line by line: every line is its own paragraph.
@@ -623,12 +638,15 @@ function pageUsesForm(page){return ['recipes','voices','interview','timeline'].i
 function textFromEditor(){
   if(pageUsesForm(currentPage()))return String(currentPage()?.text||'');
   if(isMultiFieldPageType(editor.dataset.pageType)){
-    const ps=[...editor.querySelectorAll('p')];
-    return ps.map(p=>{
-      if(p.hasAttribute('data-sample')) return FIELD_SKIP;
+    // each line goes back to its own place (the page shows them in another order than they are kept)
+    const t0=editor.dataset.pageType,order=multiFieldOrder(t0),out=order.map(()=>FIELD_SKIP);
+    [...editor.querySelectorAll('p')].forEach((p,j)=>{
+      const i=p.dataset.i!==undefined&&p.dataset.i!==''?+p.dataset.i:order[j];if(!(i>=0&&i<out.length))return;
+      if(p.hasAttribute('data-sample')) return;
       const t=p.innerText.replace(/\n+/g,' ').trim();
-      return t || FIELD_SKIP;
-    }).join('\n\n');
+      if(t)out[i]=t;
+    });
+    return out.join('\n\n');
   }
   if(editor.dataset.pageType==='contents'){
     const cp=currentPage();
@@ -4024,7 +4042,11 @@ window.OC_SHEET={
   // the card leaves: face up first, all the way; then to where it goes (its pose given by «to»), fading into the print there
   // v213: it comes down slowly onto its place, settles, and only then fades into the print there (the print shows again under it)
   const close=(to,after)=>{if(!open)return;const o=open;open=null;o.card.classList.remove('flip');o.bg.classList.remove('on');tellHost(false);
-    setTimeout(()=>{o.card.classList.add('fly','home');o.card.style.transform=to?to(o.g):o.from;},800);
+    setTimeout(()=>{o.card.classList.add('fly','home');o.card.style.transform=to?to(o.g):o.from;
+      // v255: the print it goes back to lies under the bar's plate: once the card has come down to about half its size on the way,
+      // it goes under the plate (it flew over the plate and then blinked under it)
+      const w0=o.card.getBoundingClientRect().width,t0=performance.now();const under=()=>{if(!o.card.isConnected)return;const w=o.card.getBoundingClientRect().width;
+        if(w<w0*.55||performance.now()-t0>700){o.card.style.zIndex='2147483149';return;}requestAnimationFrame(under);};requestAnimationFrame(under);},800);
     setTimeout(()=>{after&&after();o.card.classList.add('fade');},800+900);
     setTimeout(()=>{o.card.remove();o.bg.remove();},800+900+480);};
   const openCard=(p,from,opts)=>{if(!p||open)return;const g=place();
