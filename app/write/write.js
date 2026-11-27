@@ -248,6 +248,8 @@
   const follow=()=>{followNow();if(performance.now()<fTill)requestAnimationFrame(follow);else fRun=false;};
   const followNow=()=>{const rk=document.documentElement.classList.contains('rk-on')||document.documentElement.classList.contains('bk-on');const on=isWrite()||rk;wc.classList.toggle('on',on);if(rk){add.classList.remove('on');return;}if(!on){add.classList.remove('on');return;}
     const f=F(),d=FD();if(!f||!d)return;const sh=d.querySelector('.sheet.active');if(!sh)return;dress();if(shell.classList.contains('ws-off'))return;
+    // while the desk is coming in the bar stays where it stands (the writing sheet slides in under it: the bar followed it, up and down)
+    if((window.__ocBootBusy||0)>performance.now())return;
     const fr=f.getBoundingClientRect();
     // v192: the sheet's place in the layout, not its animated box — a sheet that is being laid or swapped must not drag the bar
     let x=sh.offsetLeft,y=sh.offsetTop,e=sh.offsetParent;while(e&&e!==d.body){x+=e.offsetLeft+e.clientLeft-e.scrollLeft;y+=e.offsetTop+e.clientTop-e.scrollTop;e=e.offsetParent;}
@@ -263,7 +265,7 @@
   const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),bk=!ms&&isBookQ(),on=isWrite()||ms||bk;
     // v265: at night the lamp is lit already under the verse (the verse stands in its pool, under the bar), warming up slowly; by day
     // and in the evening it lights last, once the things have come
-    {const HH=document.documentElement,early=night&&HH.classList.contains('oc-desk')&&!HH.classList.contains('oc-shown');
+    {const HH=document.documentElement,early=night&&HH.classList.contains('oc-barready')&&!HH.classList.contains('oc-shown');
       if(!lit&&on&&shell.classList.contains('oc-ready')&&(early||HH.classList.contains('oc-shown'))){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),early?300:1300);}}// v213: the lamp lights last, once the things on the desk have come
     const bar=ms?document.querySelector('.mq-car'):bk?document.querySelector('.bq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
     const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${(x/4).toFixed(1)}px ${(h/4).toFixed(1)}px`;// v261: the beam is drawn at a quarter of the screen and stretched (the same softness, a sixteenth of the blurring)
@@ -779,6 +781,10 @@
 (()=>{const H=document.documentElement,sh=document.querySelector('.shell');let t0=performance.now();
   {let img=false;const im=new Image();im.onload=im.onerror=()=>{img=true;};im.src='assets/toile/desk-toile.png';const t1=performance.now();
     const veil=()=>{if(H.classList.contains('oc-desk'))return;if(img||performance.now()-t1>2500){H.classList.add('oc-desk');return;}requestAnimationFrame(veil);};veil();}
+  // the bar stands in its place once it has not moved for four looks in a row (the night's lamp is lit from it, under the verse)
+  {let last='',same=0;const look=()=>{if(H.classList.contains('oc-barready'))return;const b=document.querySelector('.wc.wc-w:not(.bq-car)'),r=b?.getBoundingClientRect();
+      const k=r&&r.width>100?`${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)}`:'';if(k&&k===last&&sh?.classList.contains('oc-ready'))same++;else same=0;last=k;
+      if(same>=4){H.classList.add('oc-barready');return;}setTimeout(look,100);};look();}
   const ready=()=>sh&&sh.classList.contains('oc-ready')&&document.querySelector('.ws-left')?.style.left&&document.querySelector('.bottom-left .master-clock')?.style.transform;
   // v256: as in a film — the lines come one by one, the verse stays a few seconds, melts away, and only then the veil lifts and
   // the things come in (the time counts from the page's very start: the verse is drawn from the first frame)
@@ -786,31 +792,39 @@
   // been there all along, in its own light)
   const BG=/^(start-light|screen-vignette|night-|desk-)/;
   const things=()=>[...document.querySelectorAll('.shell>*,body>*')].filter(e=>e.id!=='ocVerse'&&e.id!=='shell'&&!/^(SCRIPT|STYLE|LINK)$/.test(e.tagName)&&!BG.test(String(e.className||''))&&e.getClientRects().length);
-  // v265 — the desk comes in as one piece of music, conducted: the keys drop from above one after another and swing on their cords;
-  // then the plates come down and in from their sides; then the sheets slide out from under the plates (the stack from under its
-  // plate, «Так ляжет» from under the book's name, the writing sheet up from below); last the clock and the small things. Only
+  // the desk comes in as one piece of music, conducted: the keys drop from above one after another and swing on their cords; then
+  // the plates drop on theirs; then the sheets slide down out from under the plates (the stack from under its plate, «Так ляжет»
+  // from under the book's name, the writing sheet from under the bar); last the clock and the small things. Only
   // place and opacity move (no shadows, no filters), and nothing heavy is done meanwhile (__ocBootBusy holds the layouts back).
   const bringIn=()=>{const list=things().map(e=>({e,r:e.getBoundingClientRect()})).filter(o=>o.r.width>4&&o.r.height>4&&o.r.bottom>0&&o.r.top<innerHeight);
     // (their opacity is read with their own transitions held: «Так ляжет» faded in alone by its transition, before its turn)
     const held=list.map(o=>{const v=o.e.style.getPropertyValue('transition'),pr=o.e.style.getPropertyPriority('transition');o.e.style.setProperty('transition','none','important');return [o.e,v,pr];});
     H.classList.add('oc-shown');list.forEach(o=>{o.to=+getComputedStyle(o.e).opacity;});held.forEach(([e,v,pr])=>{if(v)e.style.setProperty('transition',v,pr);else e.style.removeProperty('transition');});
     window.__ocBootBusy=performance.now()+3200;const night=H.classList.contains('oc-night0');
+    // the other lights' pictures are decoded once the desk has come, quietly (the first change of the light decoded them on the spot:
+    // the screen blinked)
+    setTimeout(()=>['assets/toile/desk-toile-night.webp','assets/toile/desk-toile-ink.webp','assets/toile/desk-toile.png'].forEach(src=>{const im=new Image();im.decoding='async';im.src=src;im.decode?.().catch(()=>{});}),3600);
     const ease='cubic-bezier(.2,.75,.25,1)',fade=(el,to,delay,dur)=>{try{el.animate([{opacity:0},{opacity:to}],{duration:dur||700,delay,easing:'ease-out',fill:'backwards'});}catch(_){}},
       slide=(el,from,delay,dur)=>{try{el.animate([{translate:from},{translate:'0px 0px'}],{duration:dur||1150,delay,easing:ease,fill:'backwards',composite:'add'});}catch(_){}};
-    const T={keys:0,plates:650,sheets:1050,rest:1500};
+    const T={keys:0,plates:700,sheets:1150,rest:1600};
+    // a plate drops on its cords from above and settles with a little bounce, as the keys do
+    const drop=(el,delay)=>{try{el.animate([{translate:'0px -130px'},{offset:.5,translate:'0px 7px'},{offset:.7,translate:'0px -3px'},{offset:.86,translate:'0px 1px'},{translate:'0px 0px'}],{duration:1150,delay,easing:'cubic-bezier(.3,.6,.4,1)',fill:'backwards',composite:'add'});}catch(_){}};
+    // a sheet slides down out from under its plate
+    const under=(el,delay)=>{fade(el,+getComputedStyle(el).opacity||1,delay,520);slide(el,'0px -80px',delay,1150);};
     list.forEach(o=>{const el=o.e,to=o.to;if(!(to>0))return;const c=String(el.className||'');
       // the keys: each hanger drops on its cord and swings to rest, from the middle outwards
       if(c.split(' ').includes('oct')){fade(el,to,T.keys,500);const sws=[...el.querySelectorAll(':scope .sw')],mid=innerWidth/2;
         sws.map(sw=>({sw,d:Math.abs(sw.getBoundingClientRect().left+sw.getBoundingClientRect().width/2-mid)})).sort((a,b)=>a.d-b.d).forEach(({sw},k)=>{const dl=T.keys+k*70;
           try{sw.animate([{translate:'0px -150px',rotate:'0deg'},{offset:.42,translate:'0px 7px',rotate:'3.2deg'},{offset:.62,translate:'0px -3px',rotate:'-2.2deg'},{offset:.8,translate:'0px 1px',rotate:'1deg'},{offset:.92,translate:'0px 0px',rotate:'-.4deg'},{translate:'0px 0px',rotate:'0deg'}],{duration:1500,delay:dl,easing:'cubic-bezier(.3,.6,.4,1)',fill:'backwards',composite:'add'});}catch(_){}});return;}
-      // the bar: at night it was there already, under the lamp, with the verse beneath it
-      if(c.includes('wc-w')){if(night)return;fade(el,to,T.plates,600);slide(el,'0px -46px',T.plates,1000);return;}
-      // the plates: from their own sides
-      if(/ws-ttl|mode-switch|project-key|book-design-shell/.test(c)){const cx=(o.r.left+o.r.width/2)/innerWidth;fade(el,to,T.plates+120,600);slide(el,cx<.5?'-70px 0px':'70px 0px',T.plates+120,1000);return;}
-      // the sheets slide out from under the plates
-      if(c.includes('ws-left')){fade(el,to,T.sheets,650);slide(el,'0px -70px',T.sheets,1200);return;}
-      if(c.includes('wp-pane')){fade(el,to,T.sheets+120,650);slide(el,'0px -70px',T.sheets+120,1200);return;}
-      if(c.includes('editor-stage')){fade(el,to,T.sheets+60,650);slide(el,'0px 90px',T.sheets+60,1250);return;}
+      // the bar (at night it hangs there already, under the lamp)
+      if(c.includes('wc-w')){if(night)return;fade(el,to,T.plates,450);drop(el,T.plates);return;}
+      // the plates beside: they drop too
+      if(/ws-ttl|mode-switch|project-key|book-design-shell/.test(c)){fade(el,to,T.plates+140,450);drop(el,T.plates+140);return;}
+      // the stack: its plate drops with the others, its sheets slide out from under it
+      if(c.includes('ws-left')){fade(el,to,T.plates+80,300);el.querySelectorAll(':scope>.ws-tabs').forEach(x=>drop(x,T.plates+80));el.querySelectorAll(':scope>.ws-s').forEach((x,k)=>under(x,T.sheets+k*40));return;}
+      // «Так ляжет» slides out from under the book's name, the writing sheet from under the bar
+      if(c.includes('wp-pane')){fade(el,to,T.sheets,300);el.querySelectorAll(':scope>.wp-page').forEach(x=>under(x,T.sheets+80));return;}
+      if(c.includes('editor-stage')){fade(el,to,T.sheets,520);slide(el,'0px -80px',T.sheets,1150);return;}
       // the rest — the clock, the small keys — last, from below
       fade(el,to,T.rest,700);slide(el,'0px 30px',T.rest,1000);});};
   const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);setTimeout(()=>document.getElementById('ocVerse')?.remove(),4200);};
@@ -854,16 +868,24 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
     if(!k){k=document.createElement('button');k.type='button';k.className='ch-pick';k.title='Все главы и эпизоды — открыть нужное';k.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 12h14M5 16h9"/></svg>главы ▾';t.appendChild(k);}return k;};
   setInterval(()=>{const w=writing();const k=w?key():bar()?.querySelector('.t>.ch-pick');if(k)k.hidden=!w;if(!w&&panel.classList.contains('on'))close();},700);
   const close=()=>{panel.classList.remove('on');};
-  const open=()=>{const W=FW();let secs=[],cur=null,curPg=null;try{secs=W.eval('sections');cur=W.currentSection?.();curPg=W.currentPage?.();}catch(_){}if(!secs?.length)return;
-    const rows=[];secs.forEach(s=>{if(s.included===false&&s.type!=='chapter')return;const isCh=s.type==='chapter';const first=(s.pages||[])[0];
-      const epCur=s===cur&&curPg&&curPg!==first&&curPg.isEpisodeStart===true;rows.push(`<button type="button" class="cp-s${isCh?' ch':''}${s===cur&&!epCur?' cur':''}" data-s="${esc(s.id)}" data-p="${esc(first?.uid||first?.id||'')}">${esc(s.title||s.id)}</button>`);
-      if(isCh)(s.pages||[]).forEach((p,i)=>{if(i===0||p.isEpisodeStart!==true)return;const nm=String(p.episode||p.title||'Эпизод').trim();
-        rows.push(`<button type="button" class="cp-e${p===curPg?' cur':''}" data-s="${esc(s.id)}" data-p="${esc(p.uid||p.id||'')}">${esc(nm)}</button>`);});});
-    panel.innerHTML=rows.join('');const b=bar().getBoundingClientRect();panel.style.left=Math.round(b.left+b.width/2)+'px';panel.style.top=Math.round(b.bottom+10)+'px';
-    panel.classList.add('on');panel.querySelector('.cur')?.scrollIntoView({block:'center'});};
+  // the chapters fold: the chapter being written is open, the others show only their names (a ▸ opens one)
+  const openCh=new Set();
+  const draw=()=>{const W=FW();let secs=[],cur=null,curPg=null;try{secs=W.eval('sections');cur=W.currentSection?.();curPg=W.currentPage?.();}catch(_){}if(!secs?.length)return false;
+    const rows=[];secs.forEach(s=>{if(s.included===false&&s.type!=='chapter')return;const isCh=s.type==='chapter';const pages=s.pages||[],first=pages[0];
+      const eps=isCh?pages.filter((p,i)=>i>0&&p.isEpisodeStart===true):[];const here=s===cur,epHere=here&&eps.includes(curPg),shown=openCh.has(s.id);
+      rows.push(`<div class="cp-row${isCh?' ch':''}${here&&!epHere?' cur':''}">${eps.length?`<button type="button" class="cp-fold" data-fold="${esc(s.id)}" aria-label="${shown?'Свернуть':'Показать эпизоды'}">${shown?'▾':'▸'}</button>`:'<i class="cp-sp"></i>'}<button type="button" class="cp-go" data-s="${esc(s.id)}" data-p="${esc(first?.uid||first?.id||'')}">${esc(s.title||s.id)}</button></div>`);
+      if(shown)eps.forEach(p=>rows.push(`<div class="cp-row ep${p===curPg?' cur':''}"><button type="button" class="cp-go" data-s="${esc(s.id)}" data-p="${esc(p.uid||p.id||'')}">${esc(String(p.episode||p.title||'Эпизод').trim())}</button></div>`));});
+    panel.innerHTML=rows.join('');return true;};
+  const open=()=>{const W=FW();let cur=null;try{cur=W.currentSection?.();}catch(_){}openCh.clear();if(cur)openCh.add(cur.id);if(!draw())return;
+    const b=bar().getBoundingClientRect();panel.style.left=Math.round(b.left+b.width/2)+'px';panel.style.top=Math.round(b.bottom+10)+'px';panel.style.maxHeight=Math.round(innerHeight-b.bottom-30)+'px';
+    panel.classList.add('on');panel.querySelector('.cur')?.scrollIntoView({block:'center'});
+    // a press in the editor (another document) closes it too
+    try{const d=document.getElementById('v35SheetFrame')?.contentDocument;if(d&&!d.__ocChpick){d.__ocChpick=1;d.addEventListener('pointerdown',close,true);}}catch(_){}};
   document.addEventListener('click',e=>{const k=e.target.closest?.('.ch-pick');if(k){e.preventDefault();e.stopPropagation();panel.classList.contains('on')?close():open();return;}
-    const it=e.target.closest?.('.oc-chpick button');if(it){e.preventDefault();try{FW()?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:it.dataset.s,pageUid:it.dataset.p},'*');}catch(_){}close();return;}
+    const f=e.target.closest?.('.oc-chpick [data-fold]');if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fold;openCh.has(id)?openCh.delete(id):openCh.add(id);draw();return;}
+    const it=e.target.closest?.('.oc-chpick [data-s]');if(it){e.preventDefault();try{FW()?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:it.dataset.s,pageUid:it.dataset.p},'*');}catch(_){}close();return;}
     if(panel.classList.contains('on')&&!e.target.closest?.('.oc-chpick'))close();},true);
+  addEventListener('pointerdown',e=>{if(panel.classList.contains('on')&&!e.target.closest?.('.oc-chpick,.ch-pick'))close();},true);
   addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('on'))close();});})();
 
 // v267 — the melodies: under the bar's ▶/❚❚, as the hand comes, a small plate drops with the melody's name and ‹ › to the one before
@@ -888,8 +910,16 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
   const veil=document.createElement('div');veil.className='oc-shelf-veil';const box=document.createElement('div');box.className='oc-shelf';box.setAttribute('role','dialog');box.setAttribute('aria-label','Мои книги');
   document.body.append(veil,box);
   const close=()=>{box.classList.remove('on');veil.classList.remove('on');};
-  const go=id=>{box.classList.add('leaving');const F=document.getElementById('v35SheetFrame')?.contentWindow;Promise.resolve(F?.__ocherkiPersistNow?.()).catch(()=>{}).then(()=>{
-      try{localStorage.setItem('ocherkiActiveBook',id);}catch(_){}document.documentElement.classList.add('oc-leaving');setTimeout(()=>location.reload(),450);});};
+  // another book opens in place: the open one is saved, the editor's sheet is loaded anew with the other book (the constructor itself
+  // stays — no verse again, no boot), the boy stands in the middle meanwhile
+  const go=id=>{close();const fr=document.getElementById('v35SheetFrame'),F=fr?.contentWindow;
+    const back=()=>new Promise(r=>{if(!window.OCHERKI_DESKBOOK?.isOpen?.()&&!document.documentElement.classList.contains('rk-on'))return r();window.OCHERKI_SET_MODE?.('write');setTimeout(r,1300);});
+    back().then(()=>{window.__ocherkiKite?.(true,'Открывается книга');const t0=performance.now();
+      Promise.resolve(F?.__ocherkiPersistNow?.()).catch(()=>{}).then(()=>{try{localStorage.setItem('ocherkiActiveBook',id);}catch(_){}
+        const done=e=>{if(e.data?.type!=='OCHERKI_STRUCTURE_STATE')return;removeEventListener('message',done);
+          // «Так ляжет» shows the other book's page at once (it kept the first book's)
+          setTimeout(()=>document.querySelector('.wp-item.ref button')?.click(),250);setTimeout(()=>window.__ocherkiKite?.(false),Math.max(0,900-(performance.now()-t0)));};
+        addEventListener('message',done);try{F.location.reload();}catch(_){location.reload();}setTimeout(()=>{removeEventListener('message',done);window.__ocherkiKite?.(false);},12000);});});};
   async function fill(){let books=[];try{books=await S()?.list()||[];}catch(_){}const cur=active();
     if(!books.some(b=>b.id===cur))books.unshift({id:cur,title:'Эта книга',savedAt:Date.now()});
     books.sort((a,b)=>(b.id===cur)-(a.id===cur)||(b.savedAt||0)-(a.savedAt||0));

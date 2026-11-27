@@ -237,7 +237,7 @@
     return (st?.sections||[]).map(section=>[
       section.id,section.type,section.title,section.auto,section.included,
       (section.pages||[]).map(page=>[
-        page.uid,page.id,page.type,page.title,page.episode,page.included,
+        page.uid,page.id,page.type,page.title,page.episode,page.episodeLine,page.included,
         fastFingerprint(page.text),fastFingerprint(page.semanticHtml),page.quote,page.eraDate,page.dateLabel,
         page.dateMode,page.dateWatermark,page.bookRole,page.continuation,
         page.isEpisodeStart,page.dropCapPreference,page.explanation,
@@ -755,6 +755,7 @@
           sourcePageUid:p.uid,
           title:p.title||sec.title||'Лист',
           episode:p.episode||'',
+          episodeLine:String(p.episodeLine||'').trim(),
           type:p.type||sec.type||'text',
           text:String(p.text||''),
           semanticHtml:String(p.semanticHtml||''),
@@ -2443,7 +2444,7 @@
   window.__ocherkiPageSize=()=>currentPageSize();
   window.__ocherkiScalePages=()=>scaleAllPageCanvases();
   // v126: what the book was last built from (sheets, their words and photos), so a sheet written a moment ago is never missed.
-  const peekSig=()=>((structure?.sections)||[]).map(sec=>sec.id+':'+(sec.included===false?'x':'')+(sec.pages||[]).map(pg=>(pg.uid||pg.id||'')+'.'+String(pg.text||'').length+'.'+((pg.photos||[]).length)+'.'+(pg.episode||'')).join(',')).join('|');
+  const peekSig=()=>((structure?.sections)||[]).map(sec=>sec.id+':'+(sec.included===false?'x':'')+(sec.pages||[]).map(pg=>(pg.uid||pg.id||'')+'.'+String(pg.text||'').length+'.'+((pg.photos||[]).length)+'.'+(pg.episode||'')+'.'+(pg.episodeLine||'')).join(',')).join('|');
   // the book laid out quietly when it is not up to date with the sheets (no notice, no «Собираю книгу…»); false if it cannot be
   function quietAssemble(){if(!structure)return false;
     if(!bookFresh()||window.__ocherkiPeekSig!==peekSig()){window.__ocherkiQuietBuild=true;
@@ -3085,7 +3086,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v267"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v268"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -3096,7 +3097,8 @@
     if(!built||!bookPages.length)return;
     el.download.disabled=true;el.cancel.disabled=true;el.close.disabled=true;el.progress?.classList.add('show');
     if(el.error){el.error.hidden=true;el.error.textContent='';}
-    if(el.note)el.note.textContent='Создаём печатный файл. Это может занять до минуты…';window.__ocherkiGirl?.(true,'Сохраняется PDF');
+    // while the file is made the window steps aside and the running girl takes its place (it comes back only with an error)
+    if(el.note)el.note.textContent='Создаём печатный файл. Это может занять до минуты…';el.modal?.classList.add('is-making');window.__ocherkiGirl?.(true,'Сохраняется PDF');
     try{
       await document.fonts?.ready;
       const raw=String(window.OCHERKI_BOOK_META?.title||'Семейная хроника').trim()||'Семейная хроника';
@@ -3108,12 +3110,12 @@
       const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
       if(el.note)el.note.textContent='PDF создан в размере книги и качестве 300 dpi.';
       el.progress?.classList.remove('show');
-      setTimeout(closePdfExport,900);
+      closePdfExport();
     }catch(error){
       el.progress?.classList.remove('show');
       if(el.error){el.error.hidden=false;el.error.textContent=`Не удалось создать PDF: ${error.message}. Запускайте конструктор через start_windows.bat.`;}
       if(el.note)el.note.textContent='Книга и введённые данные не потеряны.';
-    }finally{window.__ocherkiGirl?.(false);el.download.disabled=false;el.cancel.disabled=false;el.close.disabled=false;}
+    }finally{window.__ocherkiGirl?.(false);el.modal?.classList.remove('is-making');el.download.disabled=false;el.cancel.disabled=false;el.close.disabled=false;}
   }
   async function saveBookAsPdf(){openPdfExport();}
   let previewPaging=false;

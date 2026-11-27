@@ -46,7 +46,7 @@
     const h=el.querySelector('.bk-host');el.style.backgroundColor=h?paperOf(h.firstElementChild)||'':'';};
   // the cover and the back cover lie alone: no page beside them, no fold
   const shadows=()=>{shL.classList.toggle('on',!L.classList.contains('blank'));shR.classList.toggle('on',!R.classList.contains('blank'));};
-  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;fill(L,sp.left);fill(R,sp.right);shadows();spreadEl.classList.toggle('single',!!sp.single);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
+  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;if(!flipping){L.classList.remove('hold');R.classList.remove('hold');}fill(L,sp.left);fill(R,sp.right);shadows();spreadEl.classList.toggle('single',!!sp.single);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
   function caption(sp){sp=sp||BK()?.spread(cur);const m=String(sp?.title||'').match(/^(Глава\s*\d+)\.?\s*(.*)$/i);
     capText=m?`${m[1]}${m[2]?' · <i>'+esc(m[2])+'</i>':''} · ${cur+1}/${n}`:`${cur+1} из ${n}`;setTitle();}
   let capText='';
@@ -146,12 +146,14 @@
     // v264: an empty half (the cover's left) is not drawn as a white page on the turning leaf
     const oldL=L.classList.contains('blank')?null:clone(L,0),oldR=R.classList.contains('blank')?null:clone(R,1),hadL=shL.classList.contains('on'),hadR=shR.classList.contains('on');flipping=true;rustle();show(to);
     const wantL=!L.classList.contains('blank'),wantR=!R.classList.contains('blank'),newL=wantL?clone(L,0):null,newR=wantR?clone(R,1):null;
-    landing.classList.toggle('blank',wasBlank);spreadEl.classList.toggle('single',wasSingle);spreadEl.classList.add('curling');
+    // the half the leaf comes down on is held empty until the leaf is down (a cover's empty half stays empty) — a mark of its own,
+    // never the page's «blank» (a page left marked blank lay transparent on the desk, its words on the wallpaper)
+    landing.classList.toggle('hold',wasBlank);spreadEl.classList.toggle('single',wasSingle);spreadEl.classList.add('curling');
     // the shadows follow the paper: the side the leaf rises from takes its new shadow as it rises, the side it comes down on as it comes
     const lift=fwd?shR:shL,land=fwd?shL:shR,liftOn=fwd?wantR:wantL,landOn=fwd?wantL:wantR;
     shL.classList.toggle('on',hadL);shR.classList.toggle('on',hadR);
     const sT=[setTimeout(()=>lift.classList.toggle('on',liftOn),180),setTimeout(()=>{land.style.transition='opacity .32s ease-out,box-shadow 2.45s cubic-bezier(.37,0,.63,1)';land.classList.toggle('on',landOn);setTimeout(()=>land.style.removeProperty('transition'),400);},930)];
-    const done=()=>{sT.forEach(clearTimeout);flipping=false;spreadEl.classList.remove('curling');const sp=BK()?.spread(cur);if(sp){L.classList.toggle('blank',!sp.left);R.classList.toggle('blank',!sp.right);spreadEl.classList.toggle('single',!!sp.single);}shadows();};
+    const done=()=>{sT.forEach(clearTimeout);flipping=false;spreadEl.classList.remove('curling');L.classList.remove('hold');R.classList.remove('hold');const sp=BK()?.spread(cur);if(sp){L.classList.toggle('blank',!sp.left);R.classList.toggle('blank',!sp.right);spreadEl.classList.toggle('single',!!sp.single);}shadows();};
     let ok=false;try{ok=!!window.OCHERKI_CURL?.({forward:fwd,oldL,oldR,newL,newR,X0:geo.left,Y0:geo.top,S:geo.w,H:geo.h,lift:.15,soft:true,flatGutter:fwd?!BK()?.spread(to)?.single:!wasSingle,flap,back:()=>show(from),done});}catch(_){ok=false;}
     if(ok){const c=[...document.querySelectorAll('.bq-curl')].pop();if(c){c.style.zIndex='2147483085';c.classList.add('bk-curl');c.style.setProperty('--rk-beam',board.style.getPropertyValue('--rk-beam'));}}
     else done();}
@@ -176,12 +178,20 @@
   // книга») — and only once he is on the screen is the book laid out; then he goes and the book comes in
   const kite=document.createElement('div');kite.className='bk-kite';kite.setAttribute('aria-live','polite');
   kite.innerHTML='<img src="assets/book/kite.webp" alt="" draggable="false"><span>Собирается книга</span>';document.body.appendChild(kite);
-  function open(){if(isOpen||busy||open.wait)return;let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
+  // the boy means «the constructor is thinking: the book is being made» — from «Писать» he stands over «Так ляжет» (the book comes
+  // from there), from anywhere else in the middle of the desk
+  // the boy for any thinking of the constructor that is not the book's (another book being opened)
+  window.__ocherkiKite=(v,text)=>{kite.querySelector('span').textContent=text||'Собирается книга';if(v){kite.style.left='';kite.style.top='';}kite.classList.toggle('on',!!v);};
+  function placeKite(){const pn=document.querySelector('.shell.wp-on .wp-pane .wp-page'),r=!H.classList.contains('rk-on')&&pn?.getBoundingClientRect();
+    if(r&&r.width>100){kite.style.left=Math.round(r.left+r.width/2)+'px';kite.style.top=Math.round(r.top+r.height/2)+'px';}else{kite.style.left='';kite.style.top='';}}
+  function open(){if(isOpen||busy||open.wait)return;
+    // from «Рукопись» its sheets go away first (the book came in over them while they were still there)
+    if(H.classList.contains('rk-on')&&!H.classList.contains('rk-leaving')){H.classList.add('rk-leaving');open.wait=true;setTimeout(()=>{open.wait=false;open();setTimeout(()=>H.classList.remove('rk-leaving'),1200);},380);return;}
+    let fresh=0;try{fresh=BK()?.fresh?.()||0;}catch(_){}
     // v262: the boy comes even when the book is ready (laying its spreads on the desk takes a few seconds too, with nothing seen)
-    if(fresh){open.wait=true;kite.style.left='';kite.style.top='';kite.classList.add('on');setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{open.wait=false;open1();kite.classList.remove('on');})),450);return;}
+    if(fresh){open.wait=true;placeKite();kite.classList.add('on');setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{open.wait=false;open1();kite.classList.remove('on');})),450);return;}
     // v260: the boy stands where the page is being made — over «Так ляжет» when it lies on the desk — not over the writing sheet
-    // v264: the boy always stands in the middle of the desk — wherever he comes, he means «the constructor is thinking: the book is being made»
-    kite.style.left='';kite.style.top='';
+    placeKite();
     open.wait=true;{const k=window.__ocKid?.()||'kite',im=kite.querySelector('img');im.src=`assets/book/${k==='kite'?'kite':k==='umbrella'?'girl-umbrella':'pier-jump'}.webp`;kite.dataset.kid=k;}kite.classList.add('on');
     // v258: the book is laid out in steps behind the boy (it held the page for a long time, up to «страница не отвечает»)
     setTimeout(()=>{const go=()=>{open.wait=false;open1();kite.classList.remove("on");};if(window.__ocherkiBookInSteps)window.__ocherkiBookInSteps(()=>requestAnimationFrame(()=>requestAnimationFrame(go)));else go();},700);}

@@ -37,7 +37,7 @@ html.sh-shell.sh-is-night .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34p
 .bk-spread.bk-fade{opacity:.15}
 .bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
 .bk-in{position:absolute;inset:0}
-.bk-pg.blank{background:none!important}/* v264: the half the leaf comes down on stays empty until it is down (a page's own colour, set as it was filled, showed white beside the cover) */
+.bk-pg.blank,.bk-pg.hold{background:none!important}.bk-pg.hold>.bk-in{visibility:hidden}
 .bk-pg.blank .bk-lt,.bk-spread.single .bk-gutter{display:none}
 .bk-l{transform-origin:100% 50%}.bk-r{transform-origin:0 50%}
 .bk-host{position:absolute;inset:0}
@@ -131,14 +131,14 @@ html.sh-shell.sh-is-night .bk-board .bk-th.cur{outline-color:rgba(214,170,110,.9
 
 /* v250: «Собирается книга» — the boy with the kite in the middle of the desk while the book is laid out (only transform and opacity
    move, so he keeps moving even while the page is busy) */
-.bk-kite{position:fixed;left:50%;top:50%;z-index:2147483070;translate:-50% -46%;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;pointer-events:none;transition:opacity .4s ease}
+.bk-kite{position:fixed;left:50%;top:50%;z-index:2147483095;translate:-50% -46%;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;pointer-events:none;transition:opacity .4s ease}
 .bk-kite.on{opacity:1}
 .bk-kite img{width:min(320px,34vw);height:auto;transform-origin:22% 96%;animation:bkKite 3.4s ease-in-out infinite;will-change:transform}
 @keyframes bkKite{0%,100%{transform:none}50%{transform:translateY(-5px) rotate(-1.4deg)}}
 .bk-kite span{font:italic 24px/1.2 'CormorantCy',Georgia,serif;color:#ecd3a4;letter-spacing:.03em;animation:bkKiteT 1.8s ease-in-out infinite;will-change:opacity}
 @keyframes bkKiteT{0%,100%{opacity:.5}50%{opacity:1}}
-html.sh-shell:not(.sh-is-night):not(.sh-is-evening) .bk-kite img{filter:brightness(.36) sepia(.5)}
-html.sh-shell:not(.sh-is-night):not(.sh-is-evening) .bk-kite span{color:#6e4a22}
+html.sh-shell:not(.sh-is-night) .bk-kite img{filter:brightness(.36) sepia(.5)}
+html.sh-shell:not(.sh-is-night) .bk-kite span{color:#6e4a22}
 @media (prefers-reduced-motion:reduce){.bk-kite img,.bk-kite span{animation:none}}
 /* v256: the children take turns; the girl and the boy on the pier are drawn dark already */
 .bk-kite[data-kid="umbrella"] img,.bk-kite[data-kid="pier"] img{filter:none!important;opacity:.85;transform-origin:50% 100%}
@@ -155,7 +155,7 @@ html.sh-shell.sh-is-night .bk-kite::before,html.sh-shell.sh-is-evening .bk-kite:
 .bk-kite:not(.on) img,.bk-kite:not(.on) span{animation:none!important}
 /* v260: the running girl while the book is laid out anew (a format, the photographs' tone): dark by day, light at evening and night,
    a little soft, like a memory; no light spot under her */
-.bk-girl{position:fixed;left:50%;top:50%;z-index:2147483070;translate:-50% -50%;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s}
+.bk-girl{position:fixed;left:50%;top:50%;z-index:2147483095;translate:-50% -50%;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s}
 .bk-girl.on{opacity:1;visibility:visible;transition:opacity .45s ease,visibility 0s}
 .bk-girl img{width:min(460px,38vw);height:auto;opacity:.7;filter:blur(.7px)}
 .bk-girl span{font:italic 24px/1.2 'CormorantCy',Georgia,serif;color:#5a3f26;opacity:.8;animation:bkKiteT 1.8s ease-in-out infinite}
@@ -166,7 +166,9 @@ html.sh-shell.sh-is-night .bk-girl span{color:#f0dcbc}
 .bk-kite{padding:0}
 .bk-kite::before{display:none!important}
 .bk-kite img{width:min(440px,36vw)!important;opacity:.72;filter:brightness(.42) sepia(.5) blur(.6px)!important}
-html.sh-shell.sh-is-night .bk-kite img,html.sh-shell.sh-is-evening .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6px)!important;opacity:.66}
+html.sh-shell.sh-is-night .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6px)!important;opacity:.66}
 
-/* v264: over the PDF window while the file is being made */
 .bk-girl.pdf{z-index:2147483600}
+/* from «Рукопись» to the book: the manuscript's sheets go first, then the book comes */
+html.rk-leaving .rk-board{opacity:0!important;transition:opacity .35s ease!important}
+.pdf-export-modal.is-making{opacity:0!important;pointer-events:none!important;transition:opacity .3s ease!important}

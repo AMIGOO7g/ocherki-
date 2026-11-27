@@ -3260,6 +3260,7 @@ window.addEventListener('message',e=>{
           type: page.type || 'text',
           title: page.title || section.title || 'Лист',
           episode: page.episode || '',
+          episodeLine: String(page.episodeLine || '').trim(),
           // Sentences glued without a space («побуждениями.Александр», as
           // text pasted from a website often is) get their space back, so a
           // justified line does not stretch around one long «word».

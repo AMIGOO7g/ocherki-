@@ -349,6 +349,7 @@
         dateMode,
         dateRendered: false,
         isEpisodeStart: page.isEpisodeStart === true,
+        episodeLine: String(page.episodeLine || '').trim(),
         userEdited: page.userEdited === true,
         explanation: String(page.explanation || page.comment || '').trim(),
         started: false,
