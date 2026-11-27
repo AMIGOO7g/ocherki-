@@ -365,6 +365,8 @@ document.addEventListener('click',e=>{
     if(flapEl){flapEl.style.left='0px';flapEl.style.transformOrigin='0 0';}
     const dpr=Math.min(2,devicePixelRatio||1),pad=W;[cA,cB].forEach(c=>{c.width=Math.round((2*W+2*pad)*dpr);c.height=Math.round((H+2*pad)*dpr);c.style.cssText=`position:absolute;left:${-pad}px;top:${-pad}px;width:${2*W+2*pad}px;height:${H+2*pad}px`;});
     const xA=cA.getContext('2d'),xB=cB.getContext('2d');
+    // v263: the leaf's back (the page to come) waits hidden until the first frame has turned it — at the start it lay flat over the left page and showed through for a frame
+    if(flapEl)flapEl.style.clipPath='polygon(0 0,0 0,0 0)';
     document.body.appendChild(root);document.querySelector('.bq-book')?.classList.add('is-curling');window.__bqCurling=1;
     const poly=pts=>'polygon('+pts.map(p=>`${p[0].toFixed(1)}px ${p[1].toFixed(1)}px`).join(',')+')';
     const path=(x,pts)=>{x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();};

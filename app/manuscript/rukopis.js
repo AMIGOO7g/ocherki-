@@ -112,7 +112,7 @@
     // over the text: the episode's name in a chapter; elsewhere the sheet's own name (Обложка, От автора…), so each is known
     const ep=x.s.type==='chapter'?String(p.episode||'').trim():String(p.title||x.s.title||'').trim();
     return `${p.isEpisodeStart||doc?'<i class="rk-rib"></i>':''}<div class="rk-in"><i class="rk-paper"></i><div class="rk-pno">${k+1}</div>${ep?`<div class="rk-epr"><span>${esc(ep)}</span></div>`:''}`+
-      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-eve"></b><b class="rk-beam"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
+      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-eve"></b><b class="rk-beam"></b><b class="rk-pool"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
   // the sheet's text as the editor sets it: its own marked-up text when it has one, else paragraph by paragraph (an empty line
   // between them), the editor's space after each
   const textHtml=p=>{if(p.semanticHtml)return String(p.semanticHtml).replace(/\scontenteditable="[^"]*"/g,'');

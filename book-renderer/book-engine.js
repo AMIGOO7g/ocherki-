@@ -1013,7 +1013,9 @@
         dateWatermark:fixedInput.dateWatermark||fixedInput.eraDate||''
       });
       fixedText.autoInlineQuote=!fixedText.inlineQuote;
-      consume(fixedText,'left');
+      // v263: an episode that starts right where the chapter's opening page ends opens at once with its own spread —
+      // the chapter's fixed second spread never takes the episode's words (a short chapter + «+ эпизод» read as a new chapter)
+      if(!pendingEpisode())consume(fixedText,'left');
       // If the manuscript ends before any line can continue below the quote,
       // remove the optional quote and remeasure the same untouched source as
       // a quiet ending. The decision comes from the rendered cells, not from

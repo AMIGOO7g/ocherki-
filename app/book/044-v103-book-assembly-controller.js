@@ -91,7 +91,7 @@
   // Block 2: the author moves a photo inside its frame (drag), enlarges it
   // (+ / −) or returns it to the book's own framing («Как было», or a double
   // click). Only the framing changes: no rebuild, the text is untouched.
-  let frameTools=null,frameTarget=null,frameHideTimer=0,frameSaveTimer=0,frameDrag=null;
+  let frameWatch=0,frameTools=null,frameTarget=null,frameHideTimer=0,frameSaveTimer=0,frameDrag=null;
   const frameNum=value=>value==null||value===''?NaN:Number(value);
   function framePhotos(id){
     const out=[];
@@ -136,6 +136,9 @@
   function showFrameTools(img){
     clearTimeout(frameHideTimer);
     frameTarget=img;frameTools.hidden=false;frameTools.style.zIndex=img.closest('.bk-board')?'2147483090':'';placeFrameTools(img);
+    // v263: the hint never stays without its photo — a page turned or closed under the hand gave no «mouseout», and it hung on
+    clearInterval(frameWatch);frameWatch=setInterval(()=>{if(frameDrag)return;const t=frameTarget;
+      if(!t||!t.isConnected||!t.getClientRects().length||(!t.matches(':hover')&&!frameTools.matches(':hover'))){clearInterval(frameWatch);clearTimeout(frameHideTimer);frameTools.hidden=true;frameTarget=null;}},400);
   }
   function hideFrameTools(delay=500){
     clearTimeout(frameHideTimer);
@@ -2531,6 +2534,8 @@
     // every book page that carries words of this sheet, in order
     const sec=(structure?.sections||[]).find(x=>(x.pages||[]).some(p=>(p.uid||p.id)===uid));const run=sec&&sheetOffsets(sec.id).find(x=>x.uid===uid);
     const list=[];if(run)bookSpreads.forEach((sp,i)=>{for(const [pg,side] of [[sp?.left,'left'],[sp?.right,'right']]){const rg=pg?.sourceRange;if(pg?.sectionId===sec.id&&rg&&rg.end>run.start&&rg.start<run.end)list.push({pg,side,i,rg});}});
+    // v263: a sheet that opens an episode begins on its opening page — the page before it carries only the edge of its range
+    {const eo=list.findIndex(x=>x.pg?.episodeOpening);if(eo>0)list.splice(0,eo);}
     let k=0;
     if(list.length){if(Number.isInteger(pick))k=Math.max(0,Math.min(list.length-1,pick));
       else{const o=run.start+Math.max(0,Math.min(1,ratio>=0?ratio:0))*(run.end-run.start);const at=list.findIndex(x=>x.rg.start<=o&&o<x.rg.end);k=at>=0?at:(o>=run.end?list.length-1:0);}}
@@ -3076,7 +3081,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v262"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v263"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>

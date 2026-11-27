@@ -61,7 +61,9 @@
   const IB='<svg viewBox="0 0 24 24"><path d="M12 6c-2.6-1.8-5.6-1.9-8.5-1.3v13.5c2.9-.6 5.9-.5 8.5 1.3 2.6-1.8 5.6-1.9 8.5-1.3V4.7C17.6 4.1 14.6 4.2 12 6zM12 6v13.5"/></svg>';
   const IX='<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
   const IR='<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>';
-  const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div><i class="wp-lamp"></i></div><button type="button" class="wp-day" aria-pressed="false">☀ дневной свет</button>';
+  const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div><i class="wp-lamp"></i></div><i class="wp-kid" aria-hidden="true"><img src="assets/book/kite.webp" alt="" draggable="false"></i><button type="button" class="wp-day" aria-pressed="false">☀ дневной свет</button>';
+  // v263: while the page of another sheet is on its way (scrolling through the sheets), a small boy with his kite at the page's foot
+  const kid=v=>{clearTimeout(kid.t);pane.classList.toggle('kid',v);if(v)kid.t=setTimeout(()=>pane.classList.remove('kid'),9000);};
   // v187: at night the page lies under the lamp too; «дневной свет» shows the true print colours while it is pressed in
   pane.querySelector('.wp-day').addEventListener('click',e=>{e.stopPropagation();const on=pane.classList.toggle('show-day');e.currentTarget.setAttribute('aria-pressed',String(on));});
   const keys=document.createElement('div');keys.className='wp-keys k-closed';
@@ -119,14 +121,15 @@
   // blank in between (it blinked at every change of sheet: the cover's photo was loaded anew on an empty page)
   function swapHost(html){const host=pane.querySelector('.wp-host:not(.wp-next)');if(!host)return;
     pane.querySelectorAll('.wp-host.wp-next').forEach(n=>n.remove());
-    if(!host.firstElementChild||host.querySelector('.wp-none')&&(!/<img/.test(html)||/wp-wait/.test(html))){if(host.innerHTML!==html)host.innerHTML=html;return;}
+    if(!host.firstElementChild||host.querySelector('.wp-none')&&(!/<img/.test(html)||/wp-wait/.test(html))){if(host.innerHTML!==html)host.innerHTML=html;kid(false);return;}
     const nx=host.cloneNode(false);nx.classList.add('wp-next');nx.innerHTML=html;host.after(nx);window.__ocherkiScalePages?.();
     const ims=[...nx.querySelectorAll('img')].map(i=>i.complete?(i.decode?i.decode().catch(()=>{}):null):new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));
-    Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,900))]).then(()=>{if(!nx.isConnected)return;requestAnimationFrame(()=>{nx.classList.add('in');
+    Promise.race([Promise.all(ims),new Promise(r=>setTimeout(r,900))]).then(()=>{if(!nx.isConnected)return;requestAnimationFrame(()=>{nx.classList.add('in');kid(false);
       setTimeout(()=>{if(!nx.isConnected)return;host.remove();nx.style.transition='none';nx.classList.remove('wp-next','in');void nx.offsetWidth;nx.style.transition='';},1300);});});}
   function paint(force){let res=null;const ratio=topRatio();try{res=(window.__ocherkiPeekLocal||window.__ocherkiPeekPage)?.(uid,ratio,pick,force);}catch(_){res=null;}
     const host=pane.querySelector('.wp-host');
     count=res?.n||1;pg.classList.toggle('on',count>1);if(res){pick=res.k;pg.querySelector('span').textContent=`${res.k+1} из ${count}`;pg.querySelector('[data-pg="-1"]').disabled=res.k<=0;pg.querySelector('[data-pg="1"]').disabled=res.k>=count-1;}
+    if(!res)kid(false);
     if(res){swapHost(res.html);shown=res.spread;pane.querySelector('.wp-cap').textContent=`так ляжет в книге${res.pageNo?' · страница '+res.pageNo:''}`;}
     // v256: while the page is still being laid out (the book's structure has not come yet, or it is being put together) the boy
     // with the kite stands on the page; «появится в книге» only once the page has been asked for several times in vain
@@ -154,9 +157,9 @@
   ref.querySelector('button').addEventListener('click',()=>{pick=null;refresh(false,true);});
   pg.addEventListener('click',e=>{const b=e.target.closest('[data-pg]');if(!b||b.disabled)return;pick=Math.max(0,Math.min(count-1,(pick||0)+(+b.dataset.pg)));refresh(false);});
   addEventListener('message',e=>{const d=e.data||{};
-    if(d.type==='OCHERKI_ACTIVE_STATE'&&d.payload?.pageUid){const u=d.payload.pageUid;if(u!==uid){uid=u;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}}
+    if(d.type==='OCHERKI_ACTIVE_STATE'&&d.payload?.pageUid){const u=d.payload.pageUid;if(u!==uid){uid=u;pick=null;if(on){kid(true);clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}}
     else if(d.type==='OCHERKI_STRUCTURE_STATE'){let a='';(d.payload?.sections||[]).forEach(s=>(s.pages||[]).forEach(p=>{if(p.active)a=p.uid||p.id||'';}));
-      if(a&&a!==uid){uid=a;pick=null;if(on){clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}
+      if(a&&a!==uid){uid=a;pick=null;if(on){kid(true);clearTimeout(tAuto);tAuto=setTimeout(quietRefresh,450);}}
       else if(on&&!busy){stale=true;ref.classList.add('is-stale');}}});
   const sync=()=>{const ok=usable();shell.classList.toggle('wp-ready',ok);
     // v202: leaving for the book the page, its keys, the book's name and the clock slide off to the left with the sheets
