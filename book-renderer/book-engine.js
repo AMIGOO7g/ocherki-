@@ -266,6 +266,9 @@
     const pick = sentences.slice(1, 14).find(fit) || sentences.slice(0, 1).find(fit) || '';
     return pick.trim().replace(/[.…]+$/u, '');
   }
+  // A place may carry its map coordinates («Малые Кузьмичи [57.87, 41.45]»): the
+  // map reads them, the page shows only the name.
+  const placeLabel = text => String(text || '').replace(/\s*[[(]\s*-?\d+(?:[.,]\d+)?\s*[,;]\s*-?\d+(?:[.,]\d+)?\s*[\])]/gu, '').trim();
   const isWhoPhoto = photo => Boolean(imageSource(photo)) && Array.isArray(photo?.peopleMarks) && photo.peopleMarks.filter(mark => mark && String(mark.name || '').trim()).length >= 2;
 
   // Then/now pairs: photos that name each other in pairWith. «Было» is the
@@ -1322,7 +1325,7 @@
             if(tone==='B')chapterAccents.dark++;chapterAccents.t12++;
             const textPage=nextTextPage('left');
             const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
-              t12Kicker:String(photo.place||photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
+              t12Kicker:placeLabel(photo.place)||String(photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
             spreads.push({master:'D01-SPREAD-T12',sectionId:chapter.sectionId,left:textPage,right:photoPage,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
@@ -1635,7 +1638,7 @@
       // the names by number, the caption and the photo's story on the right.
       chapter.pairs.forEach(([then,now])=>{
         const source={photos:[then,now]},caption=[then.caption,now.caption].map(text=>String(text||'').trim());
-        const side=(photo,index,label)=>({label,year:String(photo.year||'').trim(),caption:caption[index],place:String(photo.place||'').trim()});
+        const side=(photo,index,label)=>({label,year:String(photo.year||'').trim(),caption:caption[index],place:placeLabel(photo.place)});
         const pair={then:side(then,0,'Было'),now:side(now,1,'Стало'),pageFormat:meta.format||'square'};
         spreads.push({master:'D01-SPREAD-THEN-NOW',sectionId:chapter.sectionId,fixedRhythm:true,
           left:P('then-now',{layout:'then-now',master:'D01-THEN-NOW',meta:bookMeta,source,photoIndex:0,pair,side:'then'}),
@@ -1654,7 +1657,7 @@
         const ordered=rows.reverse().map(row=>row.items.sort((a,b)=>a.x-b.x).map(item=>item.name).join(', '));
         const where=['в первом','во втором','в третьем','в четвёртом','в пятом','в шестом'];
         const peopleCaption=ordered.length===1?`Слева направо: ${ordered[0]}.`:`Слева направо: ${ordered.map((names,index)=>`${where[index]||`в ${index+1}-м`} ряду — ${names}`).join('; ')}.`;
-        const who={marks,peopleCaption,caption:String(photo.caption||'').trim(),year:String(photo.year||'').trim(),place:String(photo.place||'').trim(),story:String(photo.story||'').trim(),pageFormat:meta.format||'square'};
+        const who={marks,peopleCaption,caption:String(photo.caption||'').trim(),year:String(photo.year||'').trim(),place:placeLabel(photo.place),story:String(photo.story||'').trim(),pageFormat:meta.format||'square'};
         const source={photos:chapter.whoPhotos};
         spreads.push({master:'D01-SPREAD-WHO',sectionId:chapter.sectionId,fixedRhythm:true,
           left:P('who-legend',{layout:'who-legend',master:'D01-WHO-LEGEND',meta:bookMeta,source,photoIndex:whoIndex,who}),
@@ -1801,7 +1804,7 @@
       if(picked.length>=3){
         const timelinePage=byId('timeline').pages?.find(page=>page.included!==false)||{};
         const custom=String(timelinePage.title||'').trim();
-        const i01={events:picked.map(event=>({year:event.year,place:event.place,text:event.text,photoSrc:withPhotos&&event.photo?imageSource(event.photo.source.photos[event.photo.photoIndex]):''})),
+        const i01={events:picked.map(event=>({year:event.year,place:placeLabel(event.place),text:event.text,photoSrc:withPhotos&&event.photo?imageSource(event.photo.source.photos[event.photo.photoIndex]):''})),
           title:custom&&custom!=='Хронология'?custom:'Путь нашей семьи',subtitle:'Главные события и места',withPhotos,pageFormat:meta.format||'square'};
         spreads.push({master:'D01-SPREAD-I01-TIMELINE',left:P('i01-timeline',{layout:'i01-timeline',master:'D01-I01',meta:bookMeta,i01}),right:P('i01-timeline',{layout:'i01-timeline',master:'D01-I01',meta:bookMeta,i01})});
       }
