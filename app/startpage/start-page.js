@@ -283,10 +283,14 @@
         "assets/audio/playlist/ambient-4.mp3"
       ];
       const musicPlaylist = musicPlaylistSources.map(src => new Audio(src));
+      // v267: each visit begins with the next melody after the one heard last (it was always the first)
       let musicTrackIndex = 0;
+      try{const last=JSON.parse(localStorage.getItem('ocherki_audio_preferences_v1')||'{}').track;if(Number.isInteger(last))musicTrackIndex=(last+1)%musicPlaylistSources.length;}catch(_){}
+      const TRACK_NAMES=musicPlaylistSources.map(src=>{const f=src.split('/').pop().replace('.mp3','');const m=f.match(/^([a-z]+)-(\d+)$/);
+        if(!m)return 'Главная тема';return ({blues:'Блюз',jazz:'Джаз',ambient:'Тишина'}[m[1]]||m[1])+' '+m[2];});
       const audioTracks = {
         vinyl: new Audio("assets/audio/vinyl.mp3"),
-        music: musicPlaylist[0],
+        music: musicPlaylist[musicTrackIndex],
         light: new Audio("assets/audio/light.mp3"),
         page: new Audio("assets/audio/page.mp3")
       };
@@ -327,7 +331,8 @@
             type:'OCHERKI_AUDIO_STATE',
             state: audioState,
             muted: allMuted,
-            layers:{...audioLayers}
+            layers:{...audioLayers},
+            track: musicTrackIndex, tracks: musicPlaylist.length, trackName: TRACK_NAMES[musicTrackIndex]
           }, '*');
         } catch(_) {}
       };
@@ -337,7 +342,8 @@
           music:!!musicPreference,
           page:audioLayers.page!==false,
           light:audioLayers.light!==false,
-          muted:!!allMuted
+          muted:!!allMuted,
+          track:musicTrackIndex
         })); }catch(_){}
       };
 
@@ -361,7 +367,7 @@
       const currentMusic = () => musicPlaylist[musicTrackIndex];
       const setMusicTrack = index => {
         musicTrackIndex = (index + musicPlaylist.length) % musicPlaylist.length;
-        audioTracks.music = currentMusic();
+        audioTracks.music = currentMusic();try{saveAudioPrefs();}catch(_){}
         return audioTracks.music;
       };
       const pauseAllMusic = () => musicPlaylist.forEach(track => track.pause());
@@ -982,7 +988,7 @@
         if (!frame || frame.dataset.preloaded) return;
         frame.dataset.preloaded = "1";
         frame.addEventListener("load", () => { shellLoaded = true; }, { once:true });
-        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v266";
+        frame.src = "shell.html?embedded=1&v=demo-book-20261107-v267";
       };
       if (constructorEntry?.classList.contains("is-visible")) window.OCHERKI_PRELOAD_SHELL();
 

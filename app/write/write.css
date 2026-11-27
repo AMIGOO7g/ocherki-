@@ -1222,3 +1222,56 @@ html.sh-shell.sh-is-night .oc-chpick button{color:#e8d2ae}
 html.sh-shell.sh-is-night .oc-chpick button.cp-e{color:#d9b47e}
 html.sh-shell.sh-is-night .oc-chpick button:hover{background:rgba(255,220,170,.1)}
 html.sh-shell.sh-is-night .oc-chpick button.cur{background:rgba(255,220,170,.18)}
+/* v267 — the melody's plate under ▶/❚❚: its name, its number, ‹ › */
+.oc-tune{position:fixed;z-index:2147483210;translate:-50% -6px;display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:14px;
+  background:linear-gradient(180deg,#f6ecdc,#efe2cc);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 10px 24px rgba(60,40,20,.25),0 2px 5px rgba(60,40,20,.16);
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,translate .3s cubic-bezier(.2,.8,.3,1),visibility 0s linear .3s}
+.oc-tune.on{opacity:1;visibility:visible;pointer-events:auto;translate:-50% 0;transition:opacity .25s ease,translate .3s cubic-bezier(.2,.8,.3,1),visibility 0s}
+.oc-tune span{display:flex;flex-direction:column;align-items:center;min-width:120px;line-height:1.15}
+.oc-tune b{font:italic 16px 'CormorantCy',Georgia,serif;color:#4a3324;font-weight:500}
+.oc-tune i{font:12px 'CormorantCy',Georgia,serif;font-style:normal;letter-spacing:.06em;color:#8a6338}
+.oc-tune button{all:unset;cursor:pointer;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;font:22px/1 'CormorantCy',Georgia,serif;color:#6e4a22;transition:background .2s ease}
+.oc-tune button:hover{background:rgba(160,110,60,.16)}
+html.sh-shell.sh-is-night .oc-tune{background:linear-gradient(180deg,#2b2119,#221a14);box-shadow:0 10px 24px rgba(0,0,0,.55),0 0 0 1px rgba(232,207,166,.18) inset}
+html.sh-shell.sh-is-night .oc-tune b{color:#e8d2ae}html.sh-shell.sh-is-night .oc-tune i{color:#c9a679}html.sh-shell.sh-is-night .oc-tune button{color:#e8cfa6}
+html.sh-shell.sh-is-night .oc-tune button:hover{background:rgba(255,220,170,.12)}
+
+/* v267 — «Мои книги»: a shelf over the desk */
+.oc-shelf-veil{position:fixed;inset:0;z-index:2147483240;background:rgba(40,26,14,.32);opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s linear .4s}
+.oc-shelf-veil.on{opacity:1;visibility:visible;transition:opacity .4s ease,visibility 0s}
+.oc-shelf{position:fixed;left:50%;top:50%;z-index:2147483250;translate:-50% -46%;width:min(1040px,calc(100vw - 80px));max-height:78vh;overflow:auto;padding:22px 28px 30px;border-radius:20px;
+  background:linear-gradient(180deg,#f6ecdc,#ecdcc2);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 30px 70px rgba(40,25,10,.4),0 4px 12px rgba(40,25,10,.2);
+  opacity:0;visibility:hidden;transition:opacity .4s ease,translate .5s cubic-bezier(.2,.8,.3,1),visibility 0s linear .5s}
+.oc-shelf.on{opacity:1;visibility:visible;translate:-50% -50%;transition:opacity .4s ease,translate .5s cubic-bezier(.2,.8,.3,1),visibility 0s}
+.oc-shelf.leaving{opacity:0}
+.oc-shelf .sh-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.oc-shelf .sh-h b{font:italic 30px 'CormorantCy',Georgia,serif;color:#3b2a1c;font-weight:500}
+.oc-shelf .sh-x{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;font:26px/1 Georgia,serif;color:#6e4a22}.oc-shelf .sh-x:hover{background:rgba(160,110,60,.15)}
+.oc-shelf .sh-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:26px 22px;padding:8px 4px 18px;border-bottom:10px solid #b48a5c;box-shadow:0 12px 14px -10px rgba(60,40,20,.4)}
+.oc-shelf .sh-bk{display:flex;flex-direction:column;align-items:center;gap:8px;transition:opacity .4s ease,scale .4s ease}
+.oc-shelf .sh-bk.gone{opacity:0;scale:.9}
+.oc-shelf .sh-cov{all:unset;cursor:pointer;box-sizing:border-box;width:150px;aspect-ratio:7/10;border-radius:3px 6px 6px 3px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px 14px;
+  background:linear-gradient(90deg,rgba(0,0,0,.25) 0 6px,rgba(255,255,255,.08) 6px 8px,transparent 8px),linear-gradient(160deg,#6b2f2a,#4a1f1c);box-shadow:2px 4px 8px rgba(40,20,10,.35),10px 16px 24px -10px rgba(40,20,10,.4);
+  transition:translate .3s cubic-bezier(.2,.8,.3,1),box-shadow .3s ease}
+.oc-shelf .sh-bk:nth-child(3n) .sh-cov{background:linear-gradient(90deg,rgba(0,0,0,.25) 0 6px,rgba(255,255,255,.08) 6px 8px,transparent 8px),linear-gradient(160deg,#2f3b52,#1f2738)}
+.oc-shelf .sh-bk:nth-child(3n+1) .sh-cov{background:linear-gradient(90deg,rgba(0,0,0,.25) 0 6px,rgba(255,255,255,.08) 6px 8px,transparent 8px),linear-gradient(160deg,#4d5a34,#323c22)}
+.oc-shelf .sh-cov:hover{translate:0 -6px}
+.oc-shelf .sh-cov strong{font:600 17px/1.25 'CormorantCy',Georgia,serif;letter-spacing:.04em;color:#f1dcb2;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+.oc-shelf .sh-new .sh-cov{background:none!important;box-shadow:none;border:2px dashed rgba(110,74,34,.45);flex-direction:column;gap:6px;color:#6e4a22}
+.oc-shelf .sh-new .sh-cov span{font:40px/1 'CormorantCy',Georgia,serif}.oc-shelf .sh-new .sh-cov em{font:italic 18px 'CormorantCy',Georgia,serif}
+.oc-shelf .sh-new .sh-cov[hidden]{display:none}
+.oc-shelf .sh-ask{width:150px;aspect-ratio:7/10;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:12px;border:2px dashed rgba(110,74,34,.45);border-radius:6px}
+.oc-shelf .sh-ask[hidden]{display:none}
+.oc-shelf .sh-ask input{all:unset;border-bottom:1px solid rgba(110,74,34,.5);font:italic 17px 'CormorantCy',Georgia,serif;color:#3b2a1c;padding:4px 2px}
+.oc-shelf .sh-ask div{display:flex;flex-wrap:wrap;gap:6px}
+.oc-shelf .sh-tag{font:13px/1.3 'CormorantCy',Georgia,serif;color:#7a5a38;text-align:center}.oc-shelf .sh-tag em{color:#9a3b2a}
+.oc-shelf .sh-bk.cur .sh-cov{outline:2px solid rgba(255,190,110,.8);outline-offset:4px}
+.oc-shelf .sh-ops{display:flex;gap:6px}
+.oc-shelf .op{all:unset;cursor:pointer;padding:3px 10px;border-radius:10px;border:1px solid rgba(110,74,34,.38);font:italic 14px 'CormorantCy',Georgia,serif;color:#6e4a22}
+.oc-shelf .op:hover{background:rgba(255,236,200,.6)}.oc-shelf .op.del{color:#8a2d16;border-color:rgba(138,45,22,.35)}
+.oc-shelf .sh-sure{font:13px/1.4 'CormorantCy',Georgia,serif;color:#5a3f26;text-align:center;max-width:170px}.oc-shelf .sh-sure[hidden]{display:none}
+html.sh-shell.sh-is-night .oc-shelf{background:linear-gradient(180deg,#2b2119,#201812);box-shadow:0 30px 70px rgba(0,0,0,.7),0 0 0 1px rgba(232,207,166,.16) inset}
+html.sh-shell.sh-is-night .oc-shelf .sh-h b,html.sh-shell.sh-is-night .oc-shelf .sh-ask input{color:#ecd8b6}
+html.sh-shell.sh-is-night .oc-shelf .sh-tag,html.sh-shell.sh-is-night .oc-shelf .op,html.sh-shell.sh-is-night .oc-shelf .sh-x,html.sh-shell.sh-is-night .oc-shelf .sh-new .sh-cov,html.sh-shell.sh-is-night .oc-shelf .sh-sure{color:#d9bf94}
+html.sh-shell.sh-is-night .oc-shelf .sh-row{border-bottom-color:#5a4028}
+html.oc-leaving body{transition:opacity .4s ease;opacity:0}

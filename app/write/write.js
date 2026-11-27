@@ -761,7 +761,7 @@
 // v206 — for now only the editor, «Рукопись» and (v234) «Книга» work: «Архив семьи», «Мои книги», the Keeper's tour and the return to
 // the start are «скоро». Their keys stay in their places (the design is kept); a press only says so. The book is still made
 // in the background for «Так ляжет».
-(()=>{const SOON=['shelf','tour'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
+(()=>{const SOON=['tour'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
   let tip=null,tT=0;const say=k=>{const r=k.getBoundingClientRect();if(!tip){tip=document.createElement('div');tip.className='oc-soon-tip';document.body.appendChild(tip);}
     tip.textContent='скоро';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+30)+'px';tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),1300);};
   // v264: the logo only sways and lights under the hand — a press does nothing (it said «скоро»)
@@ -865,3 +865,53 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
     const it=e.target.closest?.('.oc-chpick button');if(it){e.preventDefault();try{FW()?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:it.dataset.s,pageUid:it.dataset.p},'*');}catch(_){}close();return;}
     if(panel.classList.contains('on')&&!e.target.closest?.('.oc-chpick'))close();},true);
   addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('on'))close();});})();
+
+// v267 — the melodies: under the bar's ▶/❚❚, as the hand comes, a small plate drops with the melody's name and ‹ › to the one before
+// or after (only the first melody was ever heard: there are eleven)
+(()=>{const tune=document.createElement('div');tune.className='oc-tune';tune.innerHTML='<button type="button" data-t="prev" aria-label="Предыдущая мелодия">‹</button><span><b>Мелодия</b><i></i></span><button type="button" data-t="next" aria-label="Следующая мелодия">›</button>';document.body.appendChild(tune);
+  let st={};const paint=()=>{tune.querySelector('b').textContent=st.trackName||'Мелодия';tune.querySelector('i').textContent=st.tracks?`${(st.track||0)+1} из ${st.tracks}${st.state==='playing'&&!st.muted?'':' · пауза'}`:'';};
+  addEventListener('message',e=>{const d=e.data||{};if(d.type!=='OCHERKI_AUDIO_STATE')return;st=d;paint();});
+  const send=a=>{try{(window.parent!==window?window.parent:window).postMessage({type:'OCHERKI_AUDIO_COMMAND',action:a},'*');}catch(_){}};
+  let hideT=0;const show=k=>{clearTimeout(hideT);const r=k.getBoundingClientRect();tune.style.left=Math.round(r.left+r.width/2)+'px';tune.style.top=Math.round(r.bottom+14)+'px';paint();tune.classList.add('on');};
+  const hide=()=>{clearTimeout(hideT);hideT=setTimeout(()=>tune.classList.remove('on'),650);};
+  document.addEventListener('pointerover',e=>{const k=e.target.closest?.('.wc [data-c="music"]');if(k)show(k);else if(e.target.closest?.('.oc-tune'))clearTimeout(hideT);},true);
+  document.addEventListener('pointerout',e=>{if(e.target.closest?.('.wc [data-c="music"],.oc-tune')&&!e.relatedTarget?.closest?.('.wc [data-c="music"],.oc-tune'))hide();},true);
+  tune.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;e.stopPropagation();send(b.dataset.t==='next'?'nextTrack':'prevTrack');});})();
+
+
+// v267 — «Мои книги»: the books on a shelf over the desk, the open one marked; «+ Новая книга» asks only for its name; a book opens
+// in its own light (the page is laid anew for it); a book can be taken off the shelf (asked once more; never the open one)
+(()=>{const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const S=()=>window.OcherkiStore;const active=()=>{try{return localStorage.getItem('ocherkiActiveBook')||'current';}catch(_){return 'current';}};
+  const when=t=>{if(!t)return'';try{const d=new Date(t),n=new Date(),hm=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),dd=(day(n)-day(d))/864e5;
+    if(dd===0)return'сегодня, '+hm;if(dd===1)return'вчера, '+hm;return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})+', '+hm;}catch(_){return'';}};
+  const veil=document.createElement('div');veil.className='oc-shelf-veil';const box=document.createElement('div');box.className='oc-shelf';box.setAttribute('role','dialog');box.setAttribute('aria-label','Мои книги');
+  document.body.append(veil,box);
+  const close=()=>{box.classList.remove('on');veil.classList.remove('on');};
+  const go=id=>{box.classList.add('leaving');const F=document.getElementById('v35SheetFrame')?.contentWindow;Promise.resolve(F?.__ocherkiPersistNow?.()).catch(()=>{}).then(()=>{
+      try{localStorage.setItem('ocherkiActiveBook',id);}catch(_){}document.documentElement.classList.add('oc-leaving');setTimeout(()=>location.reload(),450);});};
+  async function fill(){let books=[];try{books=await S()?.list()||[];}catch(_){}const cur=active();
+    if(!books.some(b=>b.id===cur))books.unshift({id:cur,title:'Эта книга',savedAt:Date.now()});
+    books.sort((a,b)=>(b.id===cur)-(a.id===cur)||(b.savedAt||0)-(a.savedAt||0));
+    box.innerHTML='<div class="sh-h"><b>Мои книги</b><button type="button" class="sh-x" aria-label="Закрыть">×</button></div><div class="sh-row">'+
+      '<div class="sh-bk sh-new"><button type="button" class="sh-cov" data-new><span>+</span><em>Новая книга</em></button><form class="sh-ask" hidden><input type="text" maxlength="80" placeholder="Название книги" aria-label="Название новой книги"><div><button type="submit" class="op">Начать</button><button type="button" class="op" data-cancel>Отмена</button></div></form></div>'+
+      books.map(b=>`<div class="sh-bk${b.id===cur?' cur':''}" data-id="${esc(b.id)}"><button type="button" class="sh-cov" data-open="${esc(b.id)}"><strong>${esc(b.title||'Книга без названия')}</strong></button>
+        <div class="sh-tag">${b.id===cur?'<em>открыта сейчас</em>':`сохранена ${esc(when(b.savedAt)||'—')}`}${b.pages?` · ${b.pages} стр.`:''}</div>
+        ${b.id===cur?'':`<div class="sh-ops"><button type="button" class="op" data-open="${esc(b.id)}">Открыть</button><button type="button" class="op del" data-del="${esc(b.id)}">Убрать</button></div>
+        <div class="sh-sure" hidden>Убрать «${esc(b.title||'книгу')}» навсегда? <button type="button" class="op del" data-yes="${esc(b.id)}">Убрать</button><button type="button" class="op" data-no>Оставить</button></div>`}</div>`).join('')+'</div>';}
+  const open=()=>{fill().then(()=>{veil.classList.add('on');box.classList.add('on');});};
+  box.addEventListener('click',async e=>{const t=e.target;
+    if(t.closest('.sh-x')){close();return;}
+    if(t.closest('[data-new]')){const f=box.querySelector('.sh-ask');f.hidden=false;box.querySelector('[data-new]').hidden=true;f.querySelector('input').focus();return;}
+    if(t.closest('[data-cancel]')){box.querySelector('.sh-ask').hidden=true;box.querySelector('[data-new]').hidden=false;return;}
+    const o=t.closest('[data-open]');if(o){if(o.dataset.open===active()){close();return;}go(o.dataset.open);return;}
+    const d=t.closest('[data-del]');if(d){d.closest('.sh-bk').querySelector('.sh-sure').hidden=false;return;}
+    if(t.closest('[data-no]')){t.closest('.sh-sure').hidden=true;return;}
+    const y=t.closest('[data-yes]');if(y){const bk=y.closest('.sh-bk');bk.classList.add('gone');try{await S()?.remove(y.dataset.yes);}catch(_){}setTimeout(fill,450);}});
+  box.addEventListener('submit',e=>{e.preventDefault();const title=box.querySelector('.sh-ask input').value.trim()||'Новая книга';const id='book-'+Date.now().toString(36);
+    // the new book is born with its name on the cover and the title page (the constructor's own way of starting a book)
+    try{localStorage.setItem('ocherkiLifeProjectDraft',JSON.stringify({setupId:'shelf-'+id,title,subtitle:'',author:''}));}catch(_){}go(id);});
+  veil.addEventListener('click',close);addEventListener('keydown',e=>{if(e.key==='Escape'&&box.classList.contains('on'))close();});
+  // the key «Мои книги» (top row and the editor's row) opens the shelf
+  document.addEventListener('click',e=>{const k=e.target.closest?.('.oct .k[data-k="shelf"],.oct .k[data-a="shelf"]');if(!k)return;e.preventDefault();e.stopImmediatePropagation();box.classList.contains('on')?close():open();},true);
+  window.OcherkiBookcase={open,close,isOpen:()=>box.classList.contains('on')};})();
