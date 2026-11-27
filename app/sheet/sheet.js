@@ -4146,11 +4146,13 @@ window.OC_SHEET={
   // «+N»). A press on a print opens its card over the solitaire (it comes back there); a print dragged to another place
   // changes the order; «собрать в стопку» (or a press beside the prints) gathers them back into the pile
   let sol=null;
+  // v264: each print keeps its own tilt (from its own name), so the prints that close up after one is taken away do not turn at the end
+  const solTilt=(p,i)=>{const k=String(p?.id||p?.src||i);let h=0;for(let j=0;j<k.length;j+=Math.max(1,k.length>>6))h=(h*31+k.charCodeAt(j))|0;return ((Math.abs(h)%7)-3)*.6;};
   const solitaire=()=>{if(sol)return;const ph=currentPhotos();if(!ph.length)return;const pg=currentPage();
     const veil=HD.createElement('div');veil.className='sol-veil';const box=HD.createElement('div');box.className='sol';
     const a=document.getElementById('activeSheet').getBoundingClientRect(),o=off(),VW=(HD.defaultView||window).innerWidth;const W=Math.min(1100,VW-160),L=Math.max(80,o.x+a.left+a.width/2-W/2);
     Object.assign(box.style,{left:L+'px',width:W+'px'});
-    const draw=()=>{const list=currentPhotos();box.querySelector('.sol-grid').innerHTML=list.map((p,i)=>`<div class="sol-pr" data-i="${i}" style="--r:${(((i*5)%7)-3)*.6}deg"><button type="button" class="sol-x" data-x="${i}" title="Убрать это фото с листа" aria-label="Убрать фото">×</button><i style="background-image:url('${String(p.src).replace(/'/g,'%27')}')"></i>${p.caption?`<b>${String(p.caption).replace(/[&<>]/g,'')}</b>`:''}</div>`).join('');
+    const draw=()=>{const list=currentPhotos();box.querySelector('.sol-grid').innerHTML=list.map((p,i)=>`<div class="sol-pr" data-i="${i}" style="--r:${solTilt(p,i)}deg"><button type="button" class="sol-x" data-x="${i}" title="Убрать это фото с листа" aria-label="Убрать фото">×</button><i style="background-image:url('${String(p.src).replace(/'/g,'%27')}')"></i>${p.caption?`<b>${String(p.caption).replace(/[&<>]/g,'')}</b>`:''}</div>`).join('');
       box.querySelector('.sol-h span').textContent=`${list.length} ${list.length%10===1&&list.length%100!==11?'снимок':list.length%10>=2&&list.length%10<=4&&(list.length%100<12||list.length%100>14)?'снимка':'снимков'}`;};
     box.innerHTML='<div class="sol-h"><b>фото этого листа</b><span></span></div><div class="sol-grid"></div><div class="sol-bar"><button type="button" class="sol-close">собрать в стопку</button><button type="button" class="sol-add">+ добавить фото</button></div>';
     // v258: × on each print takes it off the sheet at once (each one had to be opened, turned over and deleted); «вернуть фото»

@@ -140,6 +140,8 @@
     clearInterval(frameWatch);frameWatch=setInterval(()=>{if(frameDrag)return;const t=frameTarget;
       if(!t||!t.isConnected||!t.getClientRects().length||(!t.matches(':hover')&&!frameTools.matches(':hover'))){clearInterval(frameWatch);clearTimeout(frameHideTimer);frameTools.hidden=true;frameTarget=null;}},400);
   }
+  // v264: the book's every change (a turn, a new format or photo mode, a new build, closing) takes the hint away at once
+  window.__ocherkiHideFrameTools=()=>{clearInterval(frameWatch);clearTimeout(frameHideTimer);if(frameTools&&!frameDrag){frameTools.hidden=true;frameTarget=null;}};
   function hideFrameTools(delay=500){
     clearTimeout(frameHideTimer);
     frameHideTimer=setTimeout(()=>{if(!frameDrag&&!frameTools.matches(':hover')){frameTools.hidden=true;frameTarget=null;}},delay);
@@ -2461,7 +2463,7 @@
   // so the page never stops long enough for the browser to call it frozen and the boy with the kite keeps moving. The pages
   // measured in a step are kept, so each next step lays out again in a moment what was done and measures only what is new;
   // the last step is the whole book.
-  window.__ocherkiBookInSteps=(done,progress)=>{if(!structure){done?.(false);return;}
+  window.__ocherkiBookInSteps=(done,progress)=>{window.__ocherkiHideFrameTools?.();if(!structure){done?.(false);return;}
     if(bookFresh()&&window.__ocherkiPeekSig===peekSig()&&built&&!partialBook&&bookSpreads.length){done?.(true);return;}
     const full=structure,secs=full.sections||[],chs=secs.filter(x=>x.type==='chapter'&&x.included!==false);const steps=[];
     for(let k=2;k<chs.length;k*=2)steps.push(k);steps.push(chs.length);let i=0;
@@ -3081,7 +3083,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v263"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v264"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
@@ -3092,7 +3094,7 @@
     if(!built||!bookPages.length)return;
     el.download.disabled=true;el.cancel.disabled=true;el.close.disabled=true;el.progress?.classList.add('show');
     if(el.error){el.error.hidden=true;el.error.textContent='';}
-    if(el.note)el.note.textContent='Создаём печатный файл. Это может занять до минуты…';
+    if(el.note)el.note.textContent='Создаём печатный файл. Это может занять до минуты…';window.__ocherkiGirl?.(true,'Сохраняется PDF');
     try{
       await document.fonts?.ready;
       const raw=String(window.OCHERKI_BOOK_META?.title||'Семейная хроника').trim()||'Семейная хроника';
@@ -3109,7 +3111,7 @@
       el.progress?.classList.remove('show');
       if(el.error){el.error.hidden=false;el.error.textContent=`Не удалось создать PDF: ${error.message}. Запускайте конструктор через start_windows.bat.`;}
       if(el.note)el.note.textContent='Книга и введённые данные не потеряны.';
-    }finally{el.download.disabled=false;el.cancel.disabled=false;el.close.disabled=false;}
+    }finally{window.__ocherkiGirl?.(false);el.download.disabled=false;el.cancel.disabled=false;el.close.disabled=false;}
   }
   async function saveBookAsPdf(){openPdfExport();}
   let previewPaging=false;

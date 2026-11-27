@@ -61,9 +61,10 @@
   const IB='<svg viewBox="0 0 24 24"><path d="M12 6c-2.6-1.8-5.6-1.9-8.5-1.3v13.5c2.9-.6 5.9-.5 8.5 1.3 2.6-1.8 5.6-1.9 8.5-1.3V4.7C17.6 4.1 14.6 4.2 12 6zM12 6v13.5"/></svg>';
   const IX='<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
   const IR='<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>';
-  const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div><i class="wp-lamp"></i></div><i class="wp-kid" aria-hidden="true"><img src="assets/book/kite.webp" alt="" draggable="false"></i><button type="button" class="wp-day" aria-pressed="false">☀ дневной свет</button>';
-  // v263: while the page of another sheet is on its way (scrolling through the sheets), a small boy with his kite at the page's foot
-  const kid=v=>{clearTimeout(kid.t);pane.classList.toggle('kid',v);if(v)kid.t=setTimeout(()=>pane.classList.remove('kid'),9000);};
+  const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div><i class="wp-lamp"></i></div><button type="button" class="wp-day" aria-pressed="false">☀ дневной свет</button>';
+  // v264: the small boy at the page's foot is gone (too small to be seen); the page of the next sheet tells it is on its way by its
+  // caption instead (kid(true) after a short wait)
+  const kid=v=>{clearTimeout(kid.t);if(!v){pane.classList.remove('kid');return;}kid.t=setTimeout(()=>pane.classList.add('kid'),700);};
   // v187: at night the page lies under the lamp too; «дневной свет» shows the true print colours while it is pressed in
   pane.querySelector('.wp-day').addEventListener('click',e=>{e.stopPropagation();const on=pane.classList.toggle('show-day');e.currentTarget.setAttribute('aria-pressed',String(on));});
   const keys=document.createElement('div');keys.className='wp-keys k-closed';
@@ -757,10 +758,11 @@
 // v206 — for now only the editor, «Рукопись» and (v234) «Книга» work: «Архив семьи», «Мои книги», the Keeper's tour and the return to
 // the start are «скоро». Their keys stay in their places (the design is kept); a press only says so. The book is still made
 // in the background for «Так ляжет».
-(()=>{const SOON=['shelf','tour','logo'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
+(()=>{const SOON=['shelf','tour'];const sel=SOON.map(k=>`.oct .k[data-k="${k}"],.oct .k[data-a="${k}"]`).join(',');
   let tip=null,tT=0;const say=k=>{const r=k.getBoundingClientRect();if(!tip){tip=document.createElement('div');tip.className='oc-soon-tip';document.body.appendChild(tip);}
     tip.textContent='скоро';tip.style.left=Math.round(r.left+r.width/2)+'px';tip.style.top=Math.round(r.bottom+30)+'px';tip.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>tip.classList.remove('on'),1300);};
-  const stop=e=>{const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};
+  // v264: the logo only sways and lights under the hand — a press does nothing (it said «скоро»)
+  const stop=e=>{if(e.target.closest?.('.oct .k[data-k="logo"]')){e.preventDefault();e.stopImmediatePropagation();return;}const k=e.target.closest?.(sel);if(!k)return;e.preventDefault();e.stopImmediatePropagation();if(e.type==='click')say(k);};
   ['pointerdown','mousedown','click'].forEach(t=>document.addEventListener(t,stop,true));
   const mark=()=>document.querySelectorAll(sel).forEach(k=>k.classList.add('oc-soon'));mark();setInterval(mark,1500);
   const wrapMode=()=>{const f=window.OCHERKI_SET_MODE;if(!f||f._soon)return;const B=()=>window.OCHERKI_DESKBOOK;const g=t=>{if(t==='book')return B()?.open();if(t!=='write'&&t!=='manuscript')return undefined;if(B()?.isOpen())return B().close(t,()=>{if(t==='manuscript')f(t);});return f(t);};g._soon=true;window.OCHERKI_SET_MODE=g;};wrapMode();setInterval(wrapMode,1000);})();

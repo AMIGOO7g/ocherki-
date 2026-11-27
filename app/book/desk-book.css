@@ -37,7 +37,7 @@ html.sh-shell.sh-is-night .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34p
 .bk-spread.bk-fade{opacity:.15}
 .bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
 .bk-in{position:absolute;inset:0}
-.bk-pg.blank{background:none}
+.bk-pg.blank{background:none!important}/* v264: the half the leaf comes down on stays empty until it is down (a page's own colour, set as it was filled, showed white beside the cover) */
 .bk-pg.blank .bk-lt,.bk-spread.single .bk-gutter{display:none}
 .bk-l{transform-origin:100% 50%}.bk-r{transform-origin:0 50%}
 .bk-host{position:absolute;inset:0}
@@ -167,3 +167,6 @@ html.sh-shell.sh-is-night .bk-girl span{color:#f0dcbc}
 .bk-kite::before{display:none!important}
 .bk-kite img{width:min(440px,36vw)!important;opacity:.72;filter:brightness(.42) sepia(.5) blur(.6px)!important}
 html.sh-shell.sh-is-night .bk-kite img,html.sh-shell.sh-is-evening .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6px)!important;opacity:.66}
+
+/* v264: over the PDF window while the file is being made */
+.bk-girl.pdf{z-index:2147483600}

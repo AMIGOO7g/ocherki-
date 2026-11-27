@@ -1076,7 +1076,7 @@ html.sh-shell.sh-is-night .ws-grid .ws-ph{filter:brightness(.72) sepia(.16)}
 .sol.on{opacity:1;transform:none}
 /* v222: the words of the solitaire on slips of paper — readable whatever lies blurred under them, day and night */
 .sol-h{align-self:center;text-align:center;margin:0 0 18px;padding:10px 26px 12px;background:linear-gradient(100deg,#f8f1e4,#efe3cf);box-shadow:1px 3px 6px rgba(0,0,0,.35);transform:rotate(-1deg)}.sol-h b{font:400 34px/1.2 'SignThatS','CormorantCy',Georgia,serif;color:#2f1d10;font-weight:400}.sol-h span{margin-left:14px;font:17px 'CormorantCy',Georgia,serif;color:#5a3f26}
-.sol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:22px 20px;overflow:auto;padding:8px 26px 40px 14px;margin-bottom:-24px;scrollbar-width:thin}
+.sol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:22px 20px;overflow:auto;padding:20px 26px 40px 14px;margin:-12px 0 -24px;scrollbar-width:thin}/* v264: room above the top row for its ×s (they were cut) */
 .sol-pr{position:relative;aspect-ratio:4/3;background:#fbf7ef;padding:6px 6px 18px;box-sizing:border-box;cursor:grab;transform:rotate(var(--r,0deg));
   box-shadow:1px 2px 3px rgba(40,25,10,.3),6px 10px 16px -6px rgba(40,25,10,.35);transition:translate .25s ease,box-shadow .25s ease}
 .sol-pr:hover{translate:0 -3px;box-shadow:1px 2px 3px rgba(40,25,10,.3),10px 16px 22px -6px rgba(40,25,10,.42)}
@@ -1192,11 +1192,10 @@ html body .shell .desk-cone{inset:auto;left:0;top:0;width:25vw;height:25vh;trans
 /* v261: the beam's soft mask is drawn at a quarter size and stretched over the screen */
 html body .shell .desk-lit{-webkit-mask-size:100% 100%!important;mask-size:100% 100%!important;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 
-/* v263 — the small boy with the kite at the page's foot while the page of the next sheet is on its way: dark by day and in the
-   evening, light at night; he comes and goes softly */
-.wp-kid{position:absolute;left:-6px;top:100%;margin-top:0;width:96px;height:96px;pointer-events:none;opacity:0;transition:opacity .45s ease;z-index:21}
-.wp-kid img{width:100%;height:100%;object-fit:contain;transform-origin:22% 96%;filter:brightness(.3) sepia(.5);opacity:.85;animation:bkKite 3.4s ease-in-out infinite;animation-play-state:paused}
-.wp-pane.kid .wp-kid{opacity:1}
-.wp-pane.kid .wp-kid img{animation-play-state:running}
-html.sh-shell.sh-is-night .wp-kid img{filter:sepia(.3) brightness(1.08);opacity:.72}
-@media (prefers-reduced-motion:reduce){.wp-kid img{animation:none}}
+/* v264 — while the page of the next sheet is on its way longer than a moment, the caption says so and breathes, and «обновить»
+   turns slowly (the old page stays meanwhile) */
+.wp-pane .wp-cap::after{content:"";}
+.wp-pane.kid .wp-cap{animation:wpCapBreath 1.6s ease-in-out infinite}
+.wp-pane.kid .wp-cap::after{content:" · собирается…"}
+@keyframes wpCapBreath{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.wp-pane.kid .wp-cap{animation:none}}
