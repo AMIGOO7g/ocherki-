@@ -140,13 +140,16 @@
   const lerp=(a,b,k)=>({x:a.x+(b.x-a.x)*k,y:a.y+(b.y-a.y)*k,r:a.r+(b.r-a.r)*k,s:a.s+(b.s-a.s)*k});
   function apply(el,q){el._pc=q;el.style.transform=tr(q);const room=el.querySelector('.rk-room');
     if(room)room.style.transform=`translate(2px,2px) scale(${(1/q.s).toFixed(5)}) rotate(${-q.r}deg) translate(${(-q.x).toFixed(1)}px,${(-q.y).toFixed(1)}px)`;}
+  // while a sheet moves, it and its light (the sheet's size) are layers of their own: the graphics side moves the drawn sheet (its
+  // words drawn once — drawn anew at every step they shimmered) and only the light is drawn anew; at rest all is drawn sharp again
+  const layer=(el,on)=>{const v=on?'transform':'';el.style.willChange=v;const lt=el.querySelector('.rk-lt');if(lt)lt.style.willChange=v;};
   function twStep(now){twRaf=0;tweens.forEach((t,el)=>{if(!el.isConnected){tweens.delete(el);return;}const k=Math.max(0,Math.min(1,(now-t.t0)/t.dur));
-      if(now<t.t0)return;apply(el,k>=1?t.to:lerp(t.from,t.to,t.ease(k)));if(k>=1)tweens.delete(el);});if(tweens.size)twRaf=requestAnimationFrame(twStep);}
+      if(now<t.t0)return;apply(el,k>=1?t.to:lerp(t.from,t.to,t.ease(k)));if(k>=1){tweens.delete(el);layer(el,false);}});if(tweens.size)twRaf=requestAnimationFrame(twStep);}
   function place(el,p,o={}){el.style.setProperty('--sc',p.s);el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);
     if(o.now||!el._pc||matchMedia('(prefers-reduced-motion: reduce)').matches){tweens.delete(el);apply(el,p);return;}
     const cur=tweens.get(el),from=el._pc;if(cur&&cur.to.x===p.x&&cur.to.y===p.y&&cur.to.s===p.s&&cur.to.r===p.r)return;
     if(!cur&&from.x===p.x&&from.y===p.y&&from.s===p.s&&from.r===p.r)return;
-    tweens.set(el,{from,to:p,t0:performance.now()+(o.delay||0),dur:o.dur||550,ease:o.ease||easeOut});if(!twRaf)twRaf=requestAnimationFrame(twStep);}
+    layer(el,true);tweens.set(el,{from,to:p,t0:performance.now()+(o.delay||0),dur:o.dur||550,ease:o.ease||easeOut});if(!twRaf)twRaf=requestAnimationFrame(twStep);}
 
   // ——— the open chapter
   let G=null,center=0,order=[];
@@ -163,7 +166,7 @@
         // editor is the middle one there at once (it lies over the writing sheet)
         // (from all the chapters they come out of the chapter's stack, its top sheet growing into the middle one)
         const p0=from||(fromMiddle?slot(0):slot(fanN+1));el.style.opacity=(instant||from)&&k===center?1:0;el._p0=p0;}
-      el.dataset.s=x.s.id;el.dataset.k=k;el.classList.toggle('doc',x.p.type==='document'||x.p.bookRole==='document');el.classList.toggle('rib',!!x.p.isEpisodeStart);
+      el.dataset.s=x.s.id;el.dataset.k=k;el.classList.toggle('doc',x.p.type==='document'||x.p.bookRole==='document');el.classList.toggle('rib',k>0&&G.kind==='chapter'&&x.p.isEpisodeStart===true);
       const html=sheetHtml(x,k);if(el._h!==html){el._h=html;el.innerHTML=html;if(el._pc)apply(el,el._pc);}if(el._p0){place(el,el._p0,{now:true});el._p0=null;}});
     have.forEach(retire);
     if(blank.parentNode!==fan){blank.style.transform=tr(slot(0));blank.style.opacity=0;fan.appendChild(blank);fresh=true;}
@@ -209,7 +212,12 @@
   function renderAll(){const gs=groups(),curKey=gOf(activeUid)?.key;
     // the stacks stand in the middle of the whole desk
     Object.assign(all.style,{left:'40px',right:'40px'});
-    all.innerHTML=gs.map(g=>stackHtml(g,g.key===curKey)).join('')+'<div class="rk-st rk-new" role="button">+ глава</div>';glideAll(true);lightAll();watchFar();setBarTitle();}
+    all.innerHTML=gs.map(g=>stackHtml(g,g.key===curKey)).join('')+'<div class="rk-st rk-new" role="button">+ глава</div>';glideAll(true);lightAll();watchFar();setBarTitle();
+    // a chapter just added comes into its place from «+ глава», growing out of it (it appeared at once)
+    if(newFrom){const from=all.querySelector('.rk-new')?.getBoundingClientRect();all.querySelectorAll('.rk-st[data-g]').forEach(st=>{if(newFrom.has(st.dataset.g))return;const r=st.getBoundingClientRect();
+        const dx=from?from.left+from.width/2-(r.left+r.width/2):0,dy=from?from.top+from.height/2-(r.top+r.height/2):0;
+        try{st.animate([{scale:.55,translate:`${dx.toFixed(0)}px ${dy.toFixed(0)}px`},{scale:1,translate:'0px 0px'}],{duration:760,easing:'cubic-bezier(.2,.8,.3,1)',composite:'add'});st.animate([{opacity:0},{opacity:1}],{duration:500,easing:'ease-out'});}catch(_){}});newFrom=null;}}
+  let newFrom=null;
   // v247: the stacks' view glides by one number (its translate); the room's light on every stack follows from it in the style itself
   // (each stack keeps its place within the view, measured once) — nothing is measured while it glides. (It measured all the stacks
   // every frame: with forty chapters the page stuck and the stacks moved in steps.)
@@ -256,7 +264,9 @@
       setTimeout(()=>{st?.classList.remove('rk-wait');
         // the sheet that came down becomes the stack's top: the top's own face comes over it softly (no blink as one is swapped for the other)
         const top=st?.querySelector('.rk-top');if(top&&midEl){top.animate([{opacity:0},{opacity:1}],{duration:340,easing:'ease-out'});midEl.style.transition='opacity .34s ease-out';midEl.style.opacity=0;}
-        setTimeout(()=>{els.forEach(el=>el.remove());chEl.classList.remove('folding');busy=false;},top&&midEl?360:30);},880);},520);return true;}
+        setTimeout(()=>{els.forEach(el=>el.remove());chEl.classList.remove('folding');busy=false;},top&&midEl?360:30);},880);},590+Math.min(els.length,7)*40);return true;}
+  // (the pile is gathered whole first — every sheet down on it — and only then the pile goes to its stack: the last sheets were still on
+  // their way when it left)
   // the stacks' view scrolls (at once) so that the chapter's stack stands in sight
   function glideTo(st){const t=desk.bar?desk.bar.bottom:120,r=st.getBoundingClientRect(),y=r.top-(t+34);if(r.bottom>innerHeight-40||r.top<t){want=scroll+y-40;glideAll(true);}}
 
@@ -301,7 +311,7 @@
   // ——— presses and carrying
   blank.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!G?.sec)return;view.focus='__last';
     if(b.dataset.a==='page')send({action:'addPageAt',sectionId:G.sec.id});else send({action:'addEpisode',sectionId:G.sec.id,atEnd:true});});
-  all.addEventListener('click',e=>{if(e.target.closest('.rk-new')){send({action:'addChapter'});want=1e9;}});
+  all.addEventListener('click',e=>{if(e.target.closest('.rk-new')){newFrom=new Set(groups().map(g=>g.key));send({action:'addChapter'});want=1e9;}});
   board.addEventListener('pointerdown',e=>{if(e.button!==0||busy)return;
     const sh=e.target.closest('.rk-sh:not(.gone)'),stack=e.target.closest('.rk-all .rk-st:not(.rk-new)');if(!sh&&!stack)return;e.preventDefault();const el=sh||stack;
     drag={el,sheet:!!sh,x0:e.clientX,y0:e.clientY,r:el.getBoundingClientRect(),moved:false};

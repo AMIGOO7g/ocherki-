@@ -37,7 +37,9 @@ html.sh-shell.sh-is-night .bk-shd{box-shadow:0 2px 3px rgba(0,0,0,.6),0 34px 34p
 .bk-spread.bk-fade{opacity:.15}
 .bk-pg{position:relative;flex:1;height:100%;overflow:hidden;background:#fbf7ef}
 .bk-in{position:absolute;inset:0}
-.bk-pg.blank,.bk-pg.hold{background:none!important}.bk-pg.hold>.bk-in{visibility:hidden}
+.bk-pg.blank,.bk-pg.hold{background:none!important}
+/* the half held empty under the turning leaf: nothing of it shows — its words, its handwritten lines (they kept their own visibility), its light */
+.bk-pg.hold>.bk-in{opacity:0!important}.bk-pg.hold .bk-lt{display:none}
 .bk-pg.blank .bk-lt,.bk-spread.single .bk-gutter{display:none}
 .bk-l{transform-origin:100% 50%}.bk-r{transform-origin:0 50%}
 .bk-host{position:absolute;inset:0}
@@ -165,7 +167,7 @@ html.sh-shell.sh-is-night .bk-girl span{color:#f0dcbc}
 /* v260: the boy without a spot under him, larger, a little transparent and soft, like a memory */
 .bk-kite{padding:0}
 .bk-kite::before{display:none!important}
-.bk-kite img{width:min(440px,36vw)!important;opacity:.72;filter:brightness(.42) sepia(.5) blur(.6px)!important}
+.bk-kite img{width:min(440px,36vw)!important;opacity:.86;filter:brightness(.26) sepia(.45) blur(.5px)!important}
 html.sh-shell.sh-is-night .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6px)!important;opacity:.66}
 
 .bk-girl.pdf{z-index:2147483600}

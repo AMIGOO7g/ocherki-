@@ -181,7 +181,7 @@
   // the boy means «the constructor is thinking: the book is being made» — from «Писать» he stands over «Так ляжет» (the book comes
   // from there), from anywhere else in the middle of the desk
   // the boy for any thinking of the constructor that is not the book's (another book being opened)
-  window.__ocherkiKite=(v,text)=>{kite.querySelector('span').textContent=text||'Собирается книга';if(v){kite.style.left='';kite.style.top='';}kite.classList.toggle('on',!!v);};
+  window.__ocherkiKite=(v,text)=>{if(isOpen||open.wait)return;kite.querySelector('span').textContent=text||'Собирается книга';if(v)placeKite();kite.classList.toggle('on',!!v);};
   function placeKite(){const pn=document.querySelector('.shell.wp-on .wp-pane .wp-page'),r=!H.classList.contains('rk-on')&&pn?.getBoundingClientRect();
     if(r&&r.width>100){kite.style.left=Math.round(r.left+r.width/2)+'px';kite.style.top=Math.round(r.top+r.height/2)+'px';}else{kite.style.left='';kite.style.top='';}}
   function open(){if(isOpen||busy||open.wait)return;

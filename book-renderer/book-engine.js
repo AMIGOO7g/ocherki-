@@ -676,7 +676,8 @@
         const label=String(page.episode||'').replace(/^\s*Эпизод\s+\d+[.:]?\s*/iu,'').trim();
         const photoOpening=page.isEpisodeStart===true&&(page.photos||[]).some(photo=>imageSource(photo)&&photo.portraitHero!==true&&!String(photo.heroName||'').trim());
         // v126: a sheet that starts a new episode (a new name) opens it in the book even without a photograph.
-        const opensEpisode=runIndex>0&&!page.sample&&page.isEpisodeStart===true&&rawText.trim()&&!photoOpening&&norm(label||'')!==norm(previousLabel||'')&&!isContinuation(previousText,rawText,page);
+        // a sheet begun as an episode opens it — whatever its name (two «Новый эпизод» one after another opened only with a photograph)
+        const opensEpisode=runIndex>0&&!page.sample&&page.isEpisodeStart===true&&rawText.trim()&&!photoOpening&&!isContinuation(previousText,rawText,page);
         if(!opensEpisode&&runIndex>0&&label&&!page.sample&&page.isEpisodeStart!==false&&!isContinuation(previousText,rawText,page)&&rawText.trim()&&!photoOpening
           &&norm(label)!==norm(previousLabel)&&norm(label)!==norm(chapterName)&&!/^новый эпизод$/iu.test(label)&&label.length<=90)
           prefix=(previousText?'\n\n':'')+'\u2063'+label.replace(/\s+/gu,' ')+'\u2063\n\n';

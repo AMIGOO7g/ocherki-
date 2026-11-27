@@ -4309,3 +4309,6 @@ window.OC_SHEET={
     try{OC_SHEET.renameChapter(t);}catch(_){chapterLabel.textContent=t;commitChapterHeading();persistSoon();window.__OCHERKI_EMIT_STRUCTURE?.();}};
   h.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();h.blur();}if(e.key==='Escape'){e.preventDefault();sync();h.blur();}});
   h.addEventListener('blur',commit);setInterval(sync,500);sync();})();
+
+// the sheet loaded anew into a desk that is already there (another book opened): its photographs need not wait for the desk
+try{if(window.parent!==window&&window.parent.document.documentElement.classList.contains('oc-shown'))document.body.classList.add('oc-photos-in');}catch(_){}

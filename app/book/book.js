@@ -365,6 +365,8 @@ document.addEventListener('click',e=>{
     if(flapEl){flapEl.style.left='0px';flapEl.style.transformOrigin='0 0';}
     const dpr=Math.min(2,devicePixelRatio||1),pad=W;[cA,cB].forEach(c=>{c.width=Math.round((2*W+2*pad)*dpr);c.height=Math.round((H+2*pad)*dpr);c.style.cssText=`position:absolute;left:${-pad}px;top:${-pad}px;width:${2*W+2*pad}px;height:${H+2*pad}px`;});
     const xA=cA.getContext('2d'),xB=cB.getContext('2d');
+    // the leaf's shadow is cast by a shape of the leaf's own paper (a light one showed as a white edge around a dark page)
+    const leafPaper=(pick.back&&pick.back.style.background)||(pick.front&&pick.front.style.background)||'#f3eee5';
     // v263: the leaf's back (the page to come) waits hidden until the first frame has turned it — at the start it lay flat over the left page and showed through for a frame
     if(flapEl)flapEl.style.clipPath='polygon(0 0,0 0,0 0)';
     document.body.appendChild(root);document.querySelector('.bq-book')?.classList.add('is-curling');window.__bqCurling=1;
@@ -387,7 +389,7 @@ document.addEventListener('click',e=>{
         g.addColorStop(0,`rgba(0,0,0,${(o.soft?.42*lift:.12+.3*lift).toFixed(3)})`);g.addColorStop(1,'rgba(0,0,0,0)');xA.fillStyle=g;xA.fillRect(S-W,Y,2*W,H);xA.restore();}
       spine(xA);
       const refl=p=>{const k=2*dot(sub(p,F),n);return[p[0]-k*n[0],p[1]-k*n[1]];},flap=fold.map(refl);
-      if(flap.length>2){xA.save();xA.shadowColor=`rgba(0,0,0,${(o.soft?.42*lift:.1+.32*lift).toFixed(3)})`;xA.shadowBlur=4+30*lift;xA.shadowOffsetX=(-n[0]*14*lift)*dpr;xA.shadowOffsetY=(-n[1]*14*lift+3*lift)*dpr;path(xA,flap);xA.fillStyle='#f3eee5';xA.fill();xA.restore();}
+      if(flap.length>2){xA.save();xA.shadowColor=`rgba(0,0,0,${(o.soft?.42*lift:.1+.32*lift).toFixed(3)})`;xA.shadowBlur=4+30*lift;xA.shadowOffsetX=(-n[0]*14*lift)*dpr;xA.shadowOffsetY=(-n[1]*14*lift+3*lift)*dpr;path(xA,flap);xA.fillStyle=leafPaper;xA.fill();xA.restore();}
       // the leaf: its back page, mirrored across the fold (u,v of the back → the leaf at (S+W-u, v) → across the fold)
       if(flapEl){if(flap.length>2){const R00=1-2*n[0]*n[0],R01=-2*n[0]*n[1],R11=1-2*n[1]*n[1],tx=2*dot(F,n)*n[0],ty=2*dot(F,n)*n[1];
           const a=-R00,b=-R01,c=R01,dd=R11,e=R00*(S+W)+R01*Y+tx,f=R01*(S+W)+R11*Y+ty;

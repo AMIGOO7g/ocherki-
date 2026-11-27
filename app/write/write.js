@@ -62,9 +62,8 @@
   const IX='<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
   const IR='<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>';
   const pane=document.createElement('div');pane.className='wp-pane';pane.innerHTML='<div class="wp-cap">так ляжет в книге</div><div class="wp-page"><div class="wp-host"></div><div class="wp-wait"><span>собираю страницу…</span></div><i class="wp-lamp"></i></div><button type="button" class="wp-day" aria-pressed="false">☀ дневной свет</button>';
-  // v264: the small boy at the page's foot is gone (too small to be seen); the page of the next sheet tells it is on its way by its
-  // caption instead (kid(true) after a short wait)
-  const kid=v=>{clearTimeout(kid.t);if(!v){pane.classList.remove('kid');return;}kid.t=setTimeout(()=>pane.classList.add('kid'),700);};
+  // the page of the next sheet on its way longer than a moment: the caption says so and the boy with the kite stands over the page
+  const kid=v=>{clearTimeout(kid.t);if(!v){if(pane.classList.contains('kid'))window.__ocherkiKite?.(false);pane.classList.remove('kid');return;}kid.t=setTimeout(()=>{pane.classList.add('kid');window.__ocherkiKite?.(true,'Собирается страница');kid.t=setTimeout(()=>kid(false),9000);},700);};
   // v187: at night the page lies under the lamp too; «дневной свет» shows the true print colours while it is pressed in
   pane.querySelector('.wp-day').addEventListener('click',e=>{e.stopPropagation();const on=pane.classList.toggle('show-day');e.currentTarget.setAttribute('aria-pressed',String(on));});
   const keys=document.createElement('div');keys.className='wp-keys k-closed';
@@ -685,6 +684,8 @@
   let lastK='',autoTried=0;
   const clock=()=>document.querySelector('.bottom-left .master-clock');
   const tick=()=>{(window.__ocLoop||requestAnimationFrame)(tick);if(drag)return;
+    // while the desk comes in, its things keep the places they were given (the sheet slides in: they followed it)
+    if((window.__ocBootBusy||0)>performance.now()&&lastK)return;
     const ok=isWrite()&&!!leftBox();shell.classList.toggle('oc-ws',ok);
     const W=window.__ocWp;const peek=ok&&W?.isOn?.()&&shell.classList.contains('wp-on');shell.classList.toggle('oc-ws-peek',!!peek);
     if(!ok){if(lastK){lastK='';const c=clock();if(c){c.style.removeProperty('transform');}}return;}
@@ -696,13 +697,15 @@
     if(k===lastK)return;lastK=k;
     Object.assign(left.style,{left:b.left+'px',top:b.top+'px',width:b.w+'px',height:b.h+'px'});left.style.setProperty('--ws-w',b.w+'px');// v227: the window's picture is laid from the stack's place on the desk, not from where it is seen this moment (coming back from
     // «Рукопись» it was measured while the stack was still off the screen, and the picture stayed off its place)
-    {const base=left.getBoundingClientRect();left.querySelectorAll('.ws-lt').forEach(l=>{const r=l.getBoundingClientRect();l.style.setProperty('--ox',(-(b.left+r.left-base.left)).toFixed(1)+'px');l.style.setProperty('--oy',(-(b.top+r.top-base.top)).toFixed(1)+'px');});}document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
+    // (from the layout, not from the screen: while the desk comes in its parts are moving)
+    left.querySelectorAll('.ws-lt').forEach(l=>{let x=0,y=0,e=l;while(e&&e!==left){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent;}l.style.setProperty('--ox',(-(b.left+x)).toFixed(1)+'px');l.style.setProperty('--oy',(-(b.top+y)).toFixed(1)+'px');});document.documentElement.style.setProperty('--ws-bx',Math.round(b.left+b.w/2)+'px');document.documentElement.style.setProperty('--ws-by',Math.round(b.top+b.h+Math.max(26,b.h*.06))+'px');
     // the book's name above the page, the clock below its keys — the signature stays where it always is
     const c=clock();
     // v205: the book's name is a brass plate like the stack's tabs, level with them, over the page that is laid in the book;
     // it is as wide as the tabs, or as the page when the page is narrower (a tall format) — set from the page's resting place
     {let pl=document.querySelector('.ws-ttl');if(!pl){pl=document.createElement('div');pl.className='ws-ttl';pl.innerHTML='<i class="nf"></i><b>Очерки жизни</b><span>история семьи</span>';shell.after(pl);}
-      const tb=left.querySelector('.ws-tabs')?.getBoundingClientRect();
+      // the tabs' resting place (their box on the screen moves while they drop in at the start: the name's plate landed on «Так ляжет»)
+      const te=left.querySelector('.ws-tabs'),tb=te?{top:b.top+te.offsetTop,width:te.offsetWidth,height:te.offsetHeight}:null;
       {const n=(document.getElementById('projectTitle')?.textContent||'').trim()||'Очерки жизни',bb=pl.querySelector('b');if(bb.textContent!==n)bb.textContent=n;}
       pl.style.setProperty('--ws-w',b.w+'px');if(peek&&pg&&tb&&tb.width){const w=Math.round(Math.min(tb.width,pg.width));Object.assign(pl.style,{left:Math.round(pg.left+pg.width/2-w/2)+'px',top:Math.round(tb.top)+'px',width:w+'px',height:Math.round(tb.height)+'px'});pl.classList.add('on');}
       else pl.classList.remove('on');}
@@ -803,7 +806,12 @@
     window.__ocBootBusy=performance.now()+3200;const night=H.classList.contains('oc-night0');
     // the other lights' pictures are decoded once the desk has come, quietly (the first change of the light decoded them on the spot:
     // the screen blinked)
-    setTimeout(()=>['assets/toile/desk-toile-night.webp','assets/toile/desk-toile-ink.webp','assets/toile/desk-toile.png'].forEach(src=>{const im=new Image();im.decoding='async';im.src=src;im.decode?.().catch(()=>{});}),3600);
+    // and the other lights' layers are drawn once, unseen (at a whisper of opacity for a moment), so the first change of the light does
+    // not have to draw them on the spot (the screen blinked)
+    setTimeout(()=>{const sel='.shell>.night-base,.shell>.night-artwork,.shell>.night-main,.shell>.night-warm,.shell>.night-shadow,.shell>.night-artwork-ink,.shell>.night-vignette,.shell>.desk-day,.shell>.desk-eve,.shell>.desk-shade,.shell>.desk-cone,.shell>.desk-lit,.shell>.start-light';
+      const quiet=[...document.querySelectorAll(sel)].filter(e=>+getComputedStyle(e).opacity<.01);
+      quiet.forEach(e=>{e.style.setProperty('transition','none','important');e.style.setProperty('opacity','.004','important');});
+      setTimeout(()=>quiet.forEach(e=>{e.style.removeProperty('opacity');requestAnimationFrame(()=>e.style.removeProperty('transition'));}),900);},3600);
     const ease='cubic-bezier(.2,.75,.25,1)',fade=(el,to,delay,dur)=>{try{el.animate([{opacity:0},{opacity:to}],{duration:dur||700,delay,easing:'ease-out',fill:'backwards'});}catch(_){}},
       slide=(el,from,delay,dur)=>{try{el.animate([{translate:from},{translate:'0px 0px'}],{duration:dur||1150,delay,easing:ease,fill:'backwards',composite:'add'});}catch(_){}};
     const T={keys:0,plates:700,sheets:1150,rest:1600};
@@ -826,7 +834,9 @@
       if(c.includes('wp-pane')){fade(el,to,T.sheets,300);el.querySelectorAll(':scope>.wp-page').forEach(x=>under(x,T.sheets+80));return;}
       if(c.includes('editor-stage')){fade(el,to,T.sheets,520);slide(el,'0px -80px',T.sheets,1150);return;}
       // the rest — the clock, the small keys — last, from below
-      fade(el,to,T.rest,700);slide(el,'0px 30px',T.rest,1000);});};
+      fade(el,to,T.rest,700);slide(el,'0px 30px',T.rest,1000);});
+    // the photographs on the sheet come last of all, softly, once everything lies in its place
+    setTimeout(()=>{try{document.getElementById('v35SheetFrame')?.contentDocument?.body?.classList.add('oc-photos-in');}catch(_){}},T.rest+700);};
   const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);setTimeout(()=>document.getElementById('ocVerse')?.remove(),4200);};
   // the veil goes as soon as the desk lies in its light (its toile loaded, the day or the night set)
   const bg=()=>{if(H.classList.contains('oc-bg'))return;if((H.classList.contains('oc-desk')&&sh?.classList.contains('oc-ready'))||performance.now()>4000){H.classList.add('oc-bg');return;}requestAnimationFrame(bg);};bg();
@@ -873,8 +883,8 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
   const draw=()=>{const W=FW();let secs=[],cur=null,curPg=null;try{secs=W.eval('sections');cur=W.currentSection?.();curPg=W.currentPage?.();}catch(_){}if(!secs?.length)return false;
     const rows=[];secs.forEach(s=>{if(s.included===false&&s.type!=='chapter')return;const isCh=s.type==='chapter';const pages=s.pages||[],first=pages[0];
       const eps=isCh?pages.filter((p,i)=>i>0&&p.isEpisodeStart===true):[];const here=s===cur,epHere=here&&eps.includes(curPg),shown=openCh.has(s.id);
-      rows.push(`<div class="cp-row${isCh?' ch':''}${here&&!epHere?' cur':''}">${eps.length?`<button type="button" class="cp-fold" data-fold="${esc(s.id)}" aria-label="${shown?'Свернуть':'Показать эпизоды'}">${shown?'▾':'▸'}</button>`:'<i class="cp-sp"></i>'}<button type="button" class="cp-go" data-s="${esc(s.id)}" data-p="${esc(first?.uid||first?.id||'')}">${esc(s.title||s.id)}</button></div>`);
-      if(shown)eps.forEach(p=>rows.push(`<div class="cp-row ep${p===curPg?' cur':''}"><button type="button" class="cp-go" data-s="${esc(s.id)}" data-p="${esc(p.uid||p.id||'')}">${esc(String(p.episode||p.title||'Эпизод').trim())}</button></div>`));});
+      rows.push(`<div class="cp-row${isCh?' ch':''}${here&&!epHere?' cur':''}${here?' here':''}" data-sec="${esc(s.id)}">${eps.length?`<button type="button" class="cp-fold" data-fold="${esc(s.id)}" aria-label="${shown?'Свернуть':'Показать эпизоды'}">${shown?'▾':'▸'}</button>`:'<i class="cp-sp"></i>'}<button type="button" class="cp-go" data-s="${esc(s.id)}" data-p="${esc(first?.uid||first?.id||'')}">${esc(s.title||s.id)}</button></div>`);
+      if(shown)eps.forEach(p=>rows.push(`<div class="cp-row ep${p===curPg?' cur':''}" data-of="${esc(s.id)}"><button type="button" class="cp-go" data-s="${esc(s.id)}" data-p="${esc(p.uid||p.id||'')}">${esc(String(p.episode||p.title||'Эпизод').trim())}</button></div>`));});
     panel.innerHTML=rows.join('');return true;};
   const open=()=>{const W=FW();let cur=null;try{cur=W.currentSection?.();}catch(_){}openCh.clear();if(cur)openCh.add(cur.id);if(!draw())return;
     const b=bar().getBoundingClientRect();panel.style.left=Math.round(b.left+b.width/2)+'px';panel.style.top=Math.round(b.bottom+10)+'px';panel.style.maxHeight=Math.round(innerHeight-b.bottom-30)+'px';
@@ -882,7 +892,12 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
     // a press in the editor (another document) closes it too
     try{const d=document.getElementById('v35SheetFrame')?.contentDocument;if(d&&!d.__ocChpick){d.__ocChpick=1;d.addEventListener('pointerdown',close,true);}}catch(_){}};
   document.addEventListener('click',e=>{const k=e.target.closest?.('.ch-pick');if(k){e.preventDefault();e.stopPropagation();panel.classList.contains('on')?close():open();return;}
-    const f=e.target.closest?.('.oc-chpick [data-fold]');if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fold;openCh.has(id)?openCh.delete(id):openCh.add(id);draw();return;}
+    // a chapter's episodes fold away and unfold softly (the rest of the list moves with them)
+    const f=e.target.closest?.('.oc-chpick [data-fold]');if(f){e.preventDefault();e.stopPropagation();const id=f.dataset.fold,sel=`.cp-row[data-of="${CSS.escape(id)}"]`;
+      if(openCh.has(id)){openCh.delete(id);const rows=[...panel.querySelectorAll(sel)];rows.forEach(r=>{r.style.height=r.offsetHeight+'px';r.style.overflow='hidden';});
+        requestAnimationFrame(()=>rows.forEach(r=>{r.style.transition='height .26s ease,opacity .2s ease';r.style.height='0px';r.style.opacity='0';}));setTimeout(draw,270);}
+      else{openCh.add(id);draw();panel.querySelectorAll(sel).forEach(r=>{const h=r.offsetHeight;try{r.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:280,easing:'ease-out'});}catch(_){}});}
+      return;}
     const it=e.target.closest?.('.oc-chpick [data-s]');if(it){e.preventDefault();try{FW()?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:it.dataset.s,pageUid:it.dataset.p},'*');}catch(_){}close();return;}
     if(panel.classList.contains('on')&&!e.target.closest?.('.oc-chpick'))close();},true);
   addEventListener('pointerdown',e=>{if(panel.classList.contains('on')&&!e.target.closest?.('.oc-chpick,.ch-pick'))close();},true);

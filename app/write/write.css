@@ -1213,22 +1213,26 @@ html.sh-shell.sh-is-night .wc .t .ch-pick:hover{background:rgba(255,220,170,.12)
   opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease,translate .32s cubic-bezier(.2,.8,.3,1),visibility 0s linear .32s}
 .oc-chpick::-webkit-scrollbar{display:none}
 .oc-chpick.on{opacity:1;visibility:visible;pointer-events:auto;translate:-50% 0;transition:opacity .28s ease,translate .32s cubic-bezier(.2,.8,.3,1),visibility 0s}
-.oc-chpick .cp-row{display:flex;align-items:center;gap:4px;border-radius:10px;opacity:.62;transition:opacity .2s ease,background .2s ease}
+.oc-chpick .cp-row{display:flex;align-items:center;gap:4px;border-radius:10px;opacity:.82;transition:opacity .2s ease,background .2s ease;position:relative}
 .oc-chpick .cp-row:hover{opacity:1;background:rgba(160,110,60,.12)}
-.oc-chpick .cp-row.cur{opacity:1;background:rgba(160,110,60,.2)}
+.oc-chpick .cp-row.cur{opacity:1;background:rgba(160,110,60,.22);box-shadow:inset 0 0 0 1.5px rgba(140,90,40,.55)}
+/* the chapter being written stays marked when it is folded */
+.oc-chpick .cp-row.here{opacity:1}
+.oc-chpick .cp-row.ch.here::before{content:"";position:absolute;left:-6px;top:8px;bottom:8px;width:4px;border-radius:2px;background:#b0702c}
 .oc-chpick .cp-fold,.oc-chpick .cp-sp{all:unset;flex:none;width:26px;height:26px;display:grid;place-items:center;cursor:pointer;font:16px/1 Georgia,serif;color:#8a6338;border-radius:50%}
 .oc-chpick .cp-fold:hover{background:rgba(160,110,60,.18)}
-.oc-chpick .cp-go{all:unset;flex:1;min-width:0;cursor:pointer;padding:6px 10px 7px 2px;font:19px/1.4 'CormorantCy',Georgia,serif;color:#3b2a1c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-chpick .cp-go{all:unset;flex:1;min-width:0;cursor:pointer;padding:6px 10px 7px 2px;font:19px/1.4 'CormorantCy',Georgia,serif;color:#2c1e12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oc-chpick .cp-row.ch .cp-go{font-size:21px;font-weight:600}
 .oc-chpick .cp-row.ep{padding-left:30px}
-.oc-chpick .cp-row.ep .cp-go{font-style:italic;font-size:18px;color:#5a3f26;position:relative;padding-left:16px}
+.oc-chpick .cp-row.ep .cp-go{font-style:italic;font-size:18px;color:#4a321c;position:relative;padding-left:16px}
 .oc-chpick .cp-row.ep .cp-go::before{content:"";position:absolute;left:0;top:10px;width:4px;height:15px;background:#9a3b2a;border-radius:1px}
 html.sh-shell.sh-is-night .oc-chpick{background:linear-gradient(180deg,#2b2119,#221a14);box-shadow:0 16px 38px rgba(0,0,0,.6),0 0 0 1px rgba(232,207,166,.18) inset}
-html.sh-shell.sh-is-night .oc-chpick .cp-go{color:#ecd8b6}
+html.sh-shell.sh-is-night .oc-chpick .cp-go{color:#f4e4c6}
 html.sh-shell.sh-is-night .oc-chpick .cp-row.ep .cp-go{color:#d9b47e}
 html.sh-shell.sh-is-night .oc-chpick .cp-fold{color:#c9a679}
 html.sh-shell.sh-is-night .oc-chpick .cp-row:hover{background:rgba(255,220,170,.1)}
-html.sh-shell.sh-is-night .oc-chpick .cp-row.cur{background:rgba(255,220,170,.17)}
+html.sh-shell.sh-is-night .oc-chpick .cp-row.cur{background:rgba(255,220,170,.17);box-shadow:inset 0 0 0 1.5px rgba(255,210,150,.45)}
+html.sh-shell.sh-is-night .oc-chpick .cp-row.ch.here::before{background:#e0a860}
 /* v267 — the melody's plate under ▶/❚❚: its name, its number, ‹ › */
 .oc-tune{position:fixed;z-index:2147483210;translate:-50% -6px;display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:14px;
   background:linear-gradient(180deg,#f6ecdc,#efe2cc);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 10px 24px rgba(60,40,20,.25),0 2px 5px rgba(60,40,20,.16);
