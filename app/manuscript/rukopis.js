@@ -112,7 +112,7 @@
     // over the text: the episode's name in a chapter; elsewhere the sheet's own name (Обложка, От автора…), so each is known
     const ep=x.s.type==='chapter'?String(p.episode||'').trim():String(p.title||x.s.title||'').trim();
     return `${p.isEpisodeStart||doc?'<i class="rk-rib"></i>':''}<div class="rk-in"><i class="rk-paper"></i><div class="rk-pno">${k+1}</div>${ep?`<div class="rk-epr"><span>${esc(ep)}</span></div>`:''}`+
-      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><b class="rk-sun"></b><b class="rk-eve"></b><b class="rk-beam"></b><b class="rk-pool"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
+      `<div class="rk-txt">${textHtml(p)}</div><i class="rk-lt"><i class="rk-room"><b class="rk-sun"></b><b class="rk-eve"></b><b class="rk-beam"></b></i><b class="rk-pool"></b></i><b class="rk-big">${k+1}</b></div>${ph?`<img class="rk-ph" src="${esc(ph.src)}" alt="">`:''}`;};
   // the sheet's text as the editor sets it: its own marked-up text when it has one, else paragraph by paragraph (an empty line
   // between them), the editor's space after each
   const textHtml=p=>{if(p.semanticHtml)return String(p.semanticHtml).replace(/\scontenteditable="[^"]*"/g,'');
@@ -142,7 +142,18 @@
     ls.forEach(([el,m])=>{const lt=el.querySelector('.rk-lt');if(!lt||!m)return;const sc=Math.hypot(m.a,m.b);if(!sc)return;
       lt.style.backgroundPosition=`${(-m.e/sc+2).toFixed(1)}px ${(-m.f/sc+2).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/sc).toFixed(1)}px ${(innerHeight/sc).toFixed(1)}px`;});
     if(performance.now()<mvT)mvRaf=requestAnimationFrame(follow);else moving.clear();};
+  // v265: the light no longer follows the sheet from the script (a frame late, and later still while the page was busy: it shook).
+  // The room's picture lies inside the sheet moved by the very opposite of the sheet's move — the same time, the same curve, the
+  // same delay, carried by the graphics side — so wherever the sheet goes the light stays where it is in the room
   function lightSheet(el,p,now){el.style.setProperty('--sc',p.s);el.style.setProperty('--dim',p.depth?Math.max(.8,1-.05*p.depth).toFixed(3):1);
+    const room=el.querySelector('.rk-room');if(room){
+      if(now)room.style.transition='none';
+      else{const cs=getComputedStyle(el),props=cs.transitionProperty.split(','),i=props.findIndex(x=>x.trim()==='transform'||x.trim()==='all');
+        const pick=(v,k)=>{const a=v.split(/,(?![^(]*\))/);return (a[k%a.length]||a[0]).trim();};
+        room.style.transition=i<0?'none':`transform ${pick(cs.transitionDuration,i)} ${pick(cs.transitionTimingFunction,i)} ${pick(cs.transitionDelay,i)}`;}
+      room.style.transform=`translate(2px,2px) scale(${(1/p.s).toFixed(5)}) rotate(${-p.r}deg) translate(${(-p.x).toFixed(1)}px,${(-p.y).toFixed(1)}px)`;
+      if(now){void room.offsetWidth;room.style.transition='';}
+      return;}
     const lt=el.querySelector('.rk-lt');if(!lt)return;lt.style.transition='none';
     if(now){lt.style.backgroundPosition=`${(-p.x/p.s+2).toFixed(1)}px ${(-p.y/p.s+2).toFixed(1)}px`;lt.style.backgroundSize=`${(innerWidth/p.s).toFixed(1)}px ${(innerHeight/p.s).toFixed(1)}px`;return;}
     moving.add(el);mvT=performance.now()+1000;if(!mvRaf)mvRaf=requestAnimationFrame(follow);}

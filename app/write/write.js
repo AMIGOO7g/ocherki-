@@ -261,7 +261,10 @@
   let lit=false;
   const isBookQ=()=>shell.classList.contains('is-book-preview')&&document.body.classList.contains('oct-book')&&!!document.querySelector('.bq-car');
   const lamp=()=>{const night=shell.classList.contains('is-night'),ms=isMsQ(),bk=!ms&&isBookQ(),on=isWrite()||ms||bk;
-    if(!lit&&on&&shell.classList.contains('oc-ready')&&document.documentElement.classList.contains('oc-shown')){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),1300);}// v213: the lamp lights last, once the things on the desk have come
+    // v265: at night the lamp is lit already under the verse (the verse stands in its pool, under the bar), warming up slowly; by day
+    // and in the evening it lights last, once the things have come
+    {const HH=document.documentElement,early=night&&HH.classList.contains('oc-desk')&&!HH.classList.contains('oc-shown');
+      if(!lit&&on&&shell.classList.contains('oc-ready')&&(early||HH.classList.contains('oc-shown'))){lit=true;setTimeout(()=>shell.classList.add('oc-lit'),early?300:1300);}}// v213: the lamp lights last, once the things on the desk have come
     const bar=ms?document.querySelector('.mq-car'):bk?document.querySelector('.bq-car'):wc;const r=bar.getBoundingClientRect(),W=innerWidth,H=innerHeight;if(!r.width||!beam)return;
     const x0=r.left+(ms?20:44),x1=r.right-(ms?20:44),y=r.top+r.height*.9,sp=r.width*(ms?.6:.3),P=(x,h)=>`${(x/4).toFixed(1)}px ${(h/4).toFixed(1)}px`;// v261: the beam is drawn at a quarter of the screen and stretched (the same softness, a sixteenth of the blurring)
     {const cp=`polygon(${P(Math.round(x0),Math.round(y))},${P(Math.round(x1),Math.round(y))},${P(Math.round(x1+sp),Math.round(H*1.04))},${P(Math.round(x0-sp),Math.round(H*1.04))})`;if(beam._cp!==cp){beam._cp=cp;beam.style.clipPath=cp;}}
@@ -783,12 +786,33 @@
   // been there all along, in its own light)
   const BG=/^(start-light|screen-vignette|night-|desk-)/;
   const things=()=>[...document.querySelectorAll('.shell>*,body>*')].filter(e=>e.id!=='ocVerse'&&e.id!=='shell'&&!/^(SCRIPT|STYLE|LINK)$/.test(e.tagName)&&!BG.test(String(e.className||''))&&e.getClientRects().length);
-  const bringIn=()=>{const list=things().map(e=>({e,r:e.getBoundingClientRect()})).filter(o=>o.r.width>4&&o.r.height>4&&o.r.bottom>0&&o.r.top<innerHeight).sort((a,b)=>a.r.top-b.r.top);
-    // each comes from its own side onto its place: the keys and the bar from above, the stack from the left, the book's page from the
-    // right, the sheet and the clock from below
-    H.classList.add('oc-shown');list.forEach((o,i)=>{const to=+getComputedStyle(o.e).opacity;if(!(to>0))return;const cx=(o.r.left+o.r.width/2)/innerWidth,cy=(o.r.top+o.r.height/2)/innerHeight;
-      const from=cy<.16?'0px -34px':cx<.3?'-60px 0px':cx>.7?'60px 0px':'0px 46px';const opt={duration:1250,delay:Math.min(i,10)*80,easing:'cubic-bezier(.2,.75,.25,1)',fill:'backwards'};
-      try{o.e.animate([{opacity:0},{opacity:to}],opt);o.e.animate([{translate:from},{translate:'0px 0px'}],Object.assign({},opt,{composite:'add'}));}catch(_){}});};
+  // v265 — the desk comes in as one piece of music, conducted: the keys drop from above one after another and swing on their cords;
+  // then the plates come down and in from their sides; then the sheets slide out from under the plates (the stack from under its
+  // plate, «Так ляжет» from under the book's name, the writing sheet up from below); last the clock and the small things. Only
+  // place and opacity move (no shadows, no filters), and nothing heavy is done meanwhile (__ocBootBusy holds the layouts back).
+  const bringIn=()=>{const list=things().map(e=>({e,r:e.getBoundingClientRect()})).filter(o=>o.r.width>4&&o.r.height>4&&o.r.bottom>0&&o.r.top<innerHeight);
+    // (their opacity is read with their own transitions held: «Так ляжет» faded in alone by its transition, before its turn)
+    const held=list.map(o=>{const v=o.e.style.getPropertyValue('transition'),pr=o.e.style.getPropertyPriority('transition');o.e.style.setProperty('transition','none','important');return [o.e,v,pr];});
+    H.classList.add('oc-shown');list.forEach(o=>{o.to=+getComputedStyle(o.e).opacity;});held.forEach(([e,v,pr])=>{if(v)e.style.setProperty('transition',v,pr);else e.style.removeProperty('transition');});
+    window.__ocBootBusy=performance.now()+3200;const night=H.classList.contains('oc-night0');
+    const ease='cubic-bezier(.2,.75,.25,1)',fade=(el,to,delay,dur)=>{try{el.animate([{opacity:0},{opacity:to}],{duration:dur||700,delay,easing:'ease-out',fill:'backwards'});}catch(_){}},
+      slide=(el,from,delay,dur)=>{try{el.animate([{translate:from},{translate:'0px 0px'}],{duration:dur||1150,delay,easing:ease,fill:'backwards',composite:'add'});}catch(_){}};
+    const T={keys:0,plates:650,sheets:1050,rest:1500};
+    list.forEach(o=>{const el=o.e,to=o.to;if(!(to>0))return;const c=String(el.className||'');
+      // the keys: each hanger drops on its cord and swings to rest, from the middle outwards
+      if(c.split(' ').includes('oct')){fade(el,to,T.keys,500);const sws=[...el.querySelectorAll(':scope .sw')],mid=innerWidth/2;
+        sws.map(sw=>({sw,d:Math.abs(sw.getBoundingClientRect().left+sw.getBoundingClientRect().width/2-mid)})).sort((a,b)=>a.d-b.d).forEach(({sw},k)=>{const dl=T.keys+k*70;
+          try{sw.animate([{translate:'0px -150px',rotate:'0deg'},{offset:.42,translate:'0px 7px',rotate:'3.2deg'},{offset:.62,translate:'0px -3px',rotate:'-2.2deg'},{offset:.8,translate:'0px 1px',rotate:'1deg'},{offset:.92,translate:'0px 0px',rotate:'-.4deg'},{translate:'0px 0px',rotate:'0deg'}],{duration:1500,delay:dl,easing:'cubic-bezier(.3,.6,.4,1)',fill:'backwards',composite:'add'});}catch(_){}});return;}
+      // the bar: at night it was there already, under the lamp, with the verse beneath it
+      if(c.includes('wc-w')){if(night)return;fade(el,to,T.plates,600);slide(el,'0px -46px',T.plates,1000);return;}
+      // the plates: from their own sides
+      if(/ws-ttl|mode-switch|project-key|book-design-shell/.test(c)){const cx=(o.r.left+o.r.width/2)/innerWidth;fade(el,to,T.plates+120,600);slide(el,cx<.5?'-70px 0px':'70px 0px',T.plates+120,1000);return;}
+      // the sheets slide out from under the plates
+      if(c.includes('ws-left')){fade(el,to,T.sheets,650);slide(el,'0px -70px',T.sheets,1200);return;}
+      if(c.includes('wp-pane')){fade(el,to,T.sheets+120,650);slide(el,'0px -70px',T.sheets+120,1200);return;}
+      if(c.includes('editor-stage')){fade(el,to,T.sheets+60,650);slide(el,'0px 90px',T.sheets+60,1250);return;}
+      // the rest — the clock, the small keys — last, from below
+      fade(el,to,T.rest,700);slide(el,'0px 30px',T.rest,1000);});};
   const show=()=>{H.classList.add('oc-verse-out');setTimeout(bringIn,1900);setTimeout(()=>document.getElementById('ocVerse')?.remove(),4200);};
   // the veil goes as soon as the desk lies in its light (its toile loaded, the day or the night set)
   const bg=()=>{if(H.classList.contains('oc-bg'))return;if((H.classList.contains('oc-desk')&&sh?.classList.contains('oc-ready'))||performance.now()>4000){H.classList.add('oc-bg');return;}requestAnimationFrame(bg);};bg();
