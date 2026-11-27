@@ -966,7 +966,15 @@ function render(){
     episodeLabel.dataset.ph=isChapter&&first===p?'подзаголовок главы — его напечатают под названием':'название эпизода';}
   // v211: under an episode's name, its «когда · где» (the line the book prints under it)
   {let el=episodeLabel.nextElementSibling;if(!el||!el.classList.contains('episode-sub')){el=document.createElement('div');el.className='episode-sub';episodeLabel.after(el);}
-    el.textContent=isChapter&&p.isEpisodeStart?String(p.episodeLine||'').trim():'';}
+    el.textContent=isChapter&&p.isEpisodeStart?String(p.episodeLine||'').trim():'';
+    // v266: the handwritten line the book prints under an episode's name can be written here, under the name: empty, it shows
+    // (faded) what the book will take by itself — the photograph's story or a phrase of the episode
+    const own=isChapter&&p.isEpisodeStart===true&&(currentSection()?.pages||[]).find(q=>q&&q.type!=='document'&&q.bookRole!=='document')!==p;
+    if(own)el.textContent='';
+    let hl=episodeRow.nextElementSibling;if(!hl||!hl.classList.contains('ep-hand')){hl=document.createElement('div');hl.className='ep-hand';hl.setAttribute('contenteditable','true');hl.setAttribute('spellcheck','false');hl.title='Строка от руки под названием эпизода — её можно написать свою';episodeRow.after(hl);}
+    hl.hidden=!own;hl.closest('.paper')?.classList.toggle('has-ep-hand',own);if(own){if(document.activeElement!==hl)hl.textContent=String(p.episodeLine||'').trim();
+      const story=String((p.photos||[]).find(ph=>ph&&ph.src&&String(ph.story||'').trim())?.story||'').trim().match(/^[^.!?…]+[.!?…]?/u)?.[0]||'';
+      hl.dataset.ph=(story&&story.length<=90?story:'')||autoEpisodeLine(p.text)||'строка от руки под названием эпизода';}}
 
   const showIncludeToggle=optionalAuto();
   const paperEl=activeSheet.querySelector('.paper');
@@ -1072,6 +1080,12 @@ episodeLabel.addEventListener('keydown',e=>{
   if(e.key==='Escape'){e.preventDefault();render();episodeLabel.blur();}
 });
 episodeLabel.addEventListener('blur',commitEpisodeHeading);
+// v266: the episode's handwritten line — the same choice as the book's (a phrase of 24–70 letters, from the second sentence on)
+function autoEpisodeLine(text){const ss=String(text||'').split(/\n+/u).join(' ').match(/[^.!?…]+[.!?…]+/gu)||[];const fit=x=>{const c=x.trim();return c.length>=24&&c.length<=70&&!/[«»"„“:;]/u.test(c);};
+  return ((ss.slice(1,14).find(fit)||ss.slice(0,1).find(fit)||'').trim()).replace(/[.…]+$/u,'');}
+document.addEventListener('keydown',e=>{const el=e.target?.closest?.('.ep-hand');if(!el)return;if(e.key==='Enter'){e.preventDefault();el.blur();}else if(e.key==='Escape'){e.preventDefault();el.textContent=String(currentPage()?.episodeLine||'');el.blur();}},true);
+document.addEventListener('focusout',e=>{const el=e.target?.closest?.('.ep-hand');if(!el)return;const p=currentPage();if(!p)return;const v=String(el.textContent||'').replace(/\s+/g,' ').trim();
+  if(v===String(p.episodeLine||'').trim())return;p.episodeLine=v;if(!v){delete p.episodeWhen;delete p.episodeWhere;}el.textContent=v;p.userEdited=true;try{persistSoon();}catch(_){}try{window.__OCHERKI_EMIT_STRUCTURE?.();}catch(_){}},true);
 
 function placeCaretInParagraph(pEl){
   if(!pEl) return;

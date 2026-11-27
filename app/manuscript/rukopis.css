@@ -274,3 +274,18 @@ html.sh-shell.sh-is-night .rk-sh.mid .rk-lt{opacity:1}
 .rk-lt{overflow:hidden}
 .rk-lt .rk-room{position:absolute;left:0;top:0;width:100vw;height:100vh;transform-origin:0 0;will-change:transform;pointer-events:none}
 .rk-lt .rk-room b{position:absolute;inset:0;background-position:0 0!important;background-size:100% 100%!important;background-repeat:no-repeat}
+
+/* v266 — «все главы» in the bar of a chapter: a small key beside the chapter's name; the first times it glows softly */
+.wc .t .rk-allk{all:unset;flex:none;pointer-events:auto;position:relative;z-index:3;display:inline-flex;align-items:center;gap:5px;margin-left:4px;padding:2px 10px 2px 8px;border-radius:12px;cursor:pointer;
+  font:italic 15px/1.3 'CormorantCy',Georgia,serif;letter-spacing:0;text-transform:none;color:#6e4a22;border:1px solid rgba(110,74,34,.38);vertical-align:middle;transition:background .25s ease,border-color .25s ease}
+.wc .t .rk-allk svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6}
+.wc .t .rk-allk:hover{background:rgba(255,236,200,.5);border-color:rgba(110,74,34,.7)}
+html.sh-shell.sh-is-night .wc .t .rk-allk{color:#e8cfa6;border-color:rgba(232,207,166,.4)}
+html.sh-shell.sh-is-night .wc .t .rk-allk:hover{background:rgba(255,220,170,.12)}
+.wc .t .rk-allk.rk-hint{animation:rkAllHint 2.4s ease-in-out 3}
+@keyframes rkAllHint{0%,100%{box-shadow:0 0 0 0 rgba(255,190,110,0)}50%{box-shadow:0 0 0 5px rgba(255,190,110,.35)}}
+
+/* v266 — the episodes of a chapter: red ribbons put between the stack's sheets, their ends out at the top */
+.rk-st .rk-ribs{position:absolute;left:0;right:0;top:0;height:0;z-index:8;pointer-events:none}
+.rk-st .rk-ribs b{position:absolute;top:calc(-24px - var(--d,0px));width:13px;height:calc(26px + var(--d,0px));background:url("../../assets/keeper/ribbon-red.webp") center bottom/100% auto no-repeat;
+  filter:drop-shadow(1px 1px 1px rgba(40,15,5,.3));transform:scaleY(-1)}

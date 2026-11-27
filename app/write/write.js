@@ -841,3 +841,27 @@ window.__ocKid=()=>'kite';// v257: always the boy with the kite (the girl and th
   try{if(/[?&]perf=1/.test(location.search+(window.parent!==window?window.parent.location.search:''))||localStorage.getItem('ocherkiPerf')==='1')setTimeout(()=>{if(!on)toggle();},3000);}catch(_){}
   setInterval(()=>{try{const w=document.getElementById('v35SheetFrame')?.contentWindow;if(w&&!w.__ocPmHooked){w.__ocPmHooked=1;w.addEventListener('keydown',key,true);}}catch(_){}},1500);
   document.addEventListener('click',e=>{if(!on)return;const k=e.target.closest?.('.oct .k[data-k],.wc [data-c],.rk-tab,.bk-strip>*');if(!k)return;const name=k.dataset.k||k.dataset.c||k.textContent.trim().slice(0,20);rec={name,t0:performance.now(),n:0,worst:0,slow:0,long:0};},true);})();
+
+// v266 — the chapters and their episodes from the bar of «Писать»: a press on «▾ главы» beside the name lets down the book's parts
+// as a column of plates (the chapters, each with its episodes under it); a press on one opens it in the editor (it was reached only
+// through «Рукопись»)
+(()=>{const shell=document.querySelector('.shell');if(!shell)return;const FW=()=>document.getElementById('v35SheetFrame')?.contentWindow;
+  const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const panel=document.createElement('div');panel.className='oc-chpick';panel.setAttribute('role','menu');document.body.appendChild(panel);
+  const writing=()=>shell.classList.contains('oc-ws')&&!shell.classList.contains('is-manuscript')&&!shell.classList.contains('is-book-preview')&&!document.documentElement.classList.contains('rk-on')&&!document.documentElement.classList.contains('bk-on');
+  const bar=()=>document.querySelector('.wc.wc-w:not(.bq-car)');
+  const key=()=>{const b=bar(),t=b?.querySelector('.t');if(!t)return null;let k=t.querySelector(':scope>.ch-pick');
+    if(!k){k=document.createElement('button');k.type='button';k.className='ch-pick';k.title='Все главы и эпизоды — открыть нужное';k.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 12h14M5 16h9"/></svg>главы ▾';t.appendChild(k);}return k;};
+  setInterval(()=>{const w=writing();const k=w?key():bar()?.querySelector('.t>.ch-pick');if(k)k.hidden=!w;if(!w&&panel.classList.contains('on'))close();},700);
+  const close=()=>{panel.classList.remove('on');};
+  const open=()=>{const W=FW();let secs=[],cur=null,curPg=null;try{secs=W.eval('sections');cur=W.currentSection?.();curPg=W.currentPage?.();}catch(_){}if(!secs?.length)return;
+    const rows=[];secs.forEach(s=>{if(s.included===false&&s.type!=='chapter')return;const isCh=s.type==='chapter';const first=(s.pages||[])[0];
+      const epCur=s===cur&&curPg&&curPg!==first&&curPg.isEpisodeStart===true;rows.push(`<button type="button" class="cp-s${isCh?' ch':''}${s===cur&&!epCur?' cur':''}" data-s="${esc(s.id)}" data-p="${esc(first?.uid||first?.id||'')}">${esc(s.title||s.id)}</button>`);
+      if(isCh)(s.pages||[]).forEach((p,i)=>{if(i===0||p.isEpisodeStart!==true)return;const nm=String(p.episode||p.title||'Эпизод').trim();
+        rows.push(`<button type="button" class="cp-e${p===curPg?' cur':''}" data-s="${esc(s.id)}" data-p="${esc(p.uid||p.id||'')}">${esc(nm)}</button>`);});});
+    panel.innerHTML=rows.join('');const b=bar().getBoundingClientRect();panel.style.left=Math.round(b.left+b.width/2)+'px';panel.style.top=Math.round(b.bottom+10)+'px';
+    panel.classList.add('on');panel.querySelector('.cur')?.scrollIntoView({block:'center'});};
+  document.addEventListener('click',e=>{const k=e.target.closest?.('.ch-pick');if(k){e.preventDefault();e.stopPropagation();panel.classList.contains('on')?close():open();return;}
+    const it=e.target.closest?.('.oc-chpick button');if(it){e.preventDefault();try{FW()?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'select',sectionId:it.dataset.s,pageUid:it.dataset.p},'*');}catch(_){}close();return;}
+    if(panel.classList.contains('on')&&!e.target.closest?.('.oc-chpick'))close();},true);
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('on'))close();});})();

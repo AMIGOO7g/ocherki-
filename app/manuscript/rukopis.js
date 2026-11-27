@@ -207,12 +207,15 @@
 
   // ——— all the chapters as stacks (the bar's back key, or the plate)
   const PH=[[16,6,-5],[92,12,4],[50,44,-2]];
-  const stackHtml=(g,cur)=>{const n=g.sheets.length,layers=Math.max(1,Math.min(6,1+Math.ceil(n/3)));let h='';
+  const stackHtml=(g,cur)=>{const nEp=g.kind==='chapter'?g.sheets.filter((x,i)=>i>0&&x.p?.isEpisodeStart===true&&x.p?.type!=='document').length:0,n=g.sheets.length,layers=Math.max(1,Math.min(6,1+Math.ceil(n/3)));let h='';
     for(let k=layers;k>0;k--)h+=`<i class="rk-ly" style="--k:${k};--sg:${k%2?1:-1}"><b class="rk-nk"></b><b class="rk-ely"></b></i>`;
     h+=`<div class="rk-top"><i class="rk-etop"></i><b>${esc(g.word)}</b>${g.name?`<h3>${esc(g.name)}</h3>`:''}<i class="rk-orn"></i>`+
       (g.photos.length?`<div class="rk-phs">${g.photos.map((q,k)=>`<img src="${esc(q.src)}" alt="" style="left:${PH[k][0]}px;top:${PH[k][1]}px;transform:rotate(${PH[k][2]}deg)">`).join('')}</div>`
-        :`<div class="rk-first">${esc(g.kind==='part'?g.note:(g.first?`«${g.first}…»`:'пока пусто'))}</div>`)+`<span>${sheetsWord(n)}${g.nph?` · ${g.nph} фото`:''}</span><i class="rk-lamp"></i></div>`;
+        :`<div class="rk-first">${esc(g.kind==='part'?g.note:(g.first?`«${g.first}…»`:'пока пусто'))}</div>`)+`<span>${sheetsWord(n)}${nEp?` · ${nEp} ${epWord(nEp)}`:''}${g.nph?` · ${g.nph} фото`:''}</span><i class="rk-lamp"></i></div>`;
+    // v266: a chapter's episodes show on its stack — a red ribbon for each, put in between the sheets as bookmarks, and in the count
+    if(nEp)h+=`<i class="rk-ribs">${Array.from({length:Math.min(nEp,5)},(_,k)=>`<b style="left:${(62+k*7)}%;--d:${k%2?6:0}px"></b>`).join('')}</i>`;
     return `<div class="rk-st${cur?' cur':''}${g.kind==='chapter'?' ch':''}" data-g="${esc(g.key)}">${h}</div>`;};
+  const epWord=n=>n%10===1&&n%100!==11?'эпизод':n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?'эпизода':'эпизодов';
   function renderAll(){const gs=groups(),curKey=gOf(activeUid)?.key;
     // the stacks stand in the middle of the whole desk
     Object.assign(all.style,{left:'40px',right:'40px'});
@@ -272,7 +275,10 @@
   let acc=0,lastTurn=0;
   board.addEventListener('wheel',e=>{if(!isOpen)return;if(e.target.closest('.rk-tabs'))return;e.preventDefault();const dy=e.deltaMode===1?e.deltaY*33:e.deltaY;
     if(!view){want+=dy;glide();return;}
-    const now=performance.now();if(now-lastTurn<560){acc=0;return;}acc+=dy;if(Math.abs(acc)<36)return;lastTurn=now;go(center+(acc>0?1:-1));acc=0;},{passive:false});
+    const now=performance.now();if(now-lastTurn<560){acc=0;return;}acc+=dy;if(Math.abs(acc)<36)return;lastTurn=now;
+    // v266: at the chapter's first sheet one notch more upwards goes up to all the chapters (as a map is drawn back)
+    if(acc<0&&center<=0){acc=0;try{localStorage.setItem('ocherkiAllSeen','1');}catch(_){}back();return;}
+    go(center+(acc>0?1:-1));acc=0;},{passive:false});
   addEventListener('keydown',e=>{if(!isOpen||!view||drag||tabDrag)return;if(e.key==='ArrowRight'||e.key==='ArrowDown')go(center+1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(center-1);else if(e.key==='Escape')back();});
   addEventListener('resize',()=>{if(isOpen){const wasOn=H.classList.contains('rk-on');H.classList.remove('rk-hide');measureDesk();if(wasOn)H.classList.add('rk-hide');render();}});
   // v256: ‹ › by the sheet's number lay the middle sheet one place earlier or later (moving a sheet was found only by carrying it and
@@ -398,7 +404,16 @@
       try{anims.push(el.animate(kf,{duration:ms,easing:on?'cubic-bezier(.4,0,.6,1)':'cubic-bezier(.22,.7,.3,1)',fill:on?'forwards':'none',...(add?{composite:'add'}:{})}));}catch(_){}}));}
   function setBarTitle(){const t=bar()?.querySelector('.t b');if(!t)return;t._h='';
     // short, so it stands whole in the bar's middle (the plate over the pile says where we are in the chapter)
-    const h=view&&G?`<span class="up">Рукопись</span> · <i>${esc(G.kind==='chapter'?`${G.word} · ${G.name}`:G.word)}</i>`:`<span class="up">Рукопись</span> · <i>все главы</i>`;if(t.innerHTML!==h)t.innerHTML=h;}
+    // v266: in a chapter the bar also offers the way up to all the chapters, plainly (it was found only by «‹» or the plate): a key
+    // of its own beside the name (inside the name it was cut off with it)
+    const h=view&&G?`<span class="up">Рукопись</span> · <i>${esc(G.kind==='chapter'?`${G.word} · ${G.name}`:G.word)}</i>`:`<span class="up">Рукопись</span> · <i>все главы</i>`;if(t.innerHTML!==h)t.innerHTML=h;
+    const box=t.parentElement;let k=box.querySelector(':scope>.rk-allk');
+    if(view&&G){if(!k){k=document.createElement('button');k.type='button';k.className='rk-allk';k.title='Все главы рукописи стопками';
+        k.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1"/><rect x="13.5" y="4" width="7" height="7" rx="1"/><rect x="3.5" y="14" width="7" height="7" rx="1"/><rect x="13.5" y="14" width="7" height="7" rx="1"/></svg>все главы';box.appendChild(k);
+        let seen=false;try{seen=localStorage.getItem('ocherkiAllSeen')==='1';}catch(_){}if(!seen)k.classList.add('rk-hint');}}
+    else k?.remove();}
+  // the key «все главы» in the bar (pressed — the chapter goes into its stack among all the others)
+  document.addEventListener('click',e=>{const k=e.target.closest?.('.rk-allk');if(!k||!isOpen)return;e.preventDefault();e.stopPropagation();try{localStorage.setItem('ocherkiAllSeen','1');}catch(_){}back();},true);
   function open(){if(isOpen||busy)return;busy=true;isOpen=true;want=0;scroll=0;measureDesk();
     send({action:'flush'});send({action:'requestState'});
     // the sheet being written is asked of the editor itself (the message about it may not have come yet)
@@ -411,7 +426,7 @@
     H.classList.add('rk-shown');
     // the desk's own sheet and stack are put away once the middle sheet and the pile lie over them
     setTimeout(()=>{H.classList.add('rk-hide');shell.classList.add('is-manuscript');busy=false;},380);}
-  function close(){window.__msFlying=false;if(!isOpen)return;isOpen=false;undoEl.classList.remove('on');
+  function close(){window.__msFlying=false;if(!isOpen)return;isOpen=false;document.querySelectorAll('.rk-allk').forEach(k=>k.remove());undoEl.classList.remove('on');
     if(!view&&all.classList.contains('on')){all.animate([{opacity:1,translate:'0px 0px',scale:1},{opacity:0,translate:'0px 40px',scale:.97}],{duration:520,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
       setTimeout(()=>all.getAnimations().forEach(a=>a.cancel()),1100);}
     // the fan goes back under the middle sheet, the desk's sheet and stack come back under the middle sheet and the pile, then
