@@ -3015,7 +3015,7 @@ body .dpk-page.dpk-cover .dpk-cover-scrim,body .dpk-page.dpk-cover .dpk-cover-ki
 
 /* v271 — footnotes: the number after the word takes no width (the line is measured without it), «Примечания» at the end */
 body .dpk-page .dpk-fn{position:relative!important;display:inline!important}
-body .dpk-page .dpk-fn::after{content:attr(data-fn);position:absolute!important;left:.03em;top:-.72em;font:700 .72em/1 'CormorantCy',Georgia,serif;color:#8a6a3c;letter-spacing:0;white-space:nowrap}
+body .dpk-page .dpk-fn::after{content:attr(data-fn);position:absolute!important;left:.06em;top:-.22em;font:700 .74em/1 'CormorantCy',Georgia,serif;color:#8a6a3c;letter-spacing:0;white-space:nowrap}
 body .dpk-page.dpk-dark .dpk-fn::after,body .dpk-page[class*="dark"] .dpk-fn::after{color:#d9bf8c}
 body .dpk-page.dpk-endnotes{background:#fff!important}
 body .dpk-page.dpk-endnotes .dpk-endnotes-title{position:absolute!important;left:91px;right:91px;top:118px;margin:0;text-align:center;font:400 40px/1.1 'CormorantCy',Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:#2c241c}
@@ -3031,8 +3031,10 @@ body .dpk-page.dpk-endnotes .dpk-endnotes-list b{flex:0 0 26px;text-align:right;
 body .dpk-page.dpk-endnotes .dpk-endnotes-list p{margin:0;font:15px/1.55 Georgia,'PT Serif',serif;color:#2f271f;text-align:left}
 body .dpk-page.dpk-endnotes .dpk-endnotes-list i{font-style:italic;color:#1f1912}
 body .dpk-page.dpk-endnotes .dpk-endnotes-list em{font-style:normal;font-size:12px;color:#9a8a74;white-space:nowrap;margin-left:4px}
-/* v271 — the end-of-episode mark under the last text, centred on that column (not on the page) */
-body .dpk-page.dpk-dom-paginated .dpk-flow-cell>.dpk-end-mark{position:absolute!important;top:auto!important;bottom:auto!important;left:0!important;right:0!important;margin-top:30px!important}
+/* v273 — the end-of-episode mark: centred on the whole text block of a two-column page (its old place), and on the one column
+   of a page that has only one (a dark sheet beside its photograph) */
+body .dpk-page.dpk-dom-paginated.dpk-x-bg-dark.dpk-x-bg-span-page.left .dpk-end-mark{left:70px!important;right:540px!important}
+body .dpk-page.dpk-dom-paginated.dpk-x-bg-dark.dpk-x-bg-span-page.right .dpk-end-mark{left:91px!important;right:540px!important}
 /* v271 — no text shadows in print: PDF viewers draw a blurred shadow as a dark box under every line. On dark photographs the
    veil under the column carries the contrast; it is a little deeper there in print to make up for the shadow. */
 @media print{
@@ -3049,11 +3051,19 @@ body .dpk-page.dpk-document-comment.dpk-document-aside-page .dpk-document-aside 
 body .dpk-page.dpk-document-comment.dpk-document-aside-page .dpk-document-aside p{margin:0!important;font:italic 400 18px/1.6 'PTSerifCy',Georgia,serif!important;color:#3b342c!important}
 body .dpk-page.dpk-document-comment.dpk-document-aside-page .dpk-document-date{margin:0 0 10px!important;font:italic 14px/1.4 'PTSerifCy',Georgia,serif!important;color:#8a8175!important}
 /* v271 — captions: a card photo has its own caption written on its white edge; captions are never cut with «…» (they wrap) */
-body .dpk-page .dpk-card-note{position:absolute!important;left:6px!important;right:6px!important;bottom:3px!important;height:30px!important;margin:0!important;
-  font:400 21px/30px 'SignThatS','CormorantCy',Georgia,serif!important;color:#4d3d2c!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;letter-spacing:0!important}
-body .dpk-page.dpk-t10 .dpk-t10-card.has-note,body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{padding-bottom:34px!important;background:#fff!important;box-sizing:border-box!important}
-body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{border:10px solid #fff!important;border-bottom:0!important;box-shadow:0 10px 24px rgba(30,20,10,.22),0 0 0 1px rgba(0,0,0,.06)!important}
+body .dpk-page .dpk-card-note{position:absolute!important;left:8px!important;right:8px!important;bottom:6px!important;height:auto!important;margin:0!important;padding:0!important;
+  font:400 19px/1.55 'SignThatS','CormorantCy',Georgia,serif!important;color:#4d3d2c!important;text-align:center!important;white-space:nowrap!important;overflow:visible!important;letter-spacing:0!important}
+body .dpk-page.dpk-t10 .dpk-t10-card.has-note,body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{padding-bottom:46px!important;background:#fff!important;box-sizing:border-box!important;overflow:visible!important}
+body .dpk-page.dpk-t10 .dpk-t10-card.has-note img,body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note img{height:100%!important}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{border:10px solid #fff!important;border-bottom:0!important;
+  box-shadow:0 0 0 1px rgba(0,0,0,.07),0 3px 0 1px rgba(0,0,0,.05),0 6px 0 3px rgba(0,0,0,.04),0 9px 0 6px rgba(0,0,0,.03)!important}
 body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note img{height:100%!important}
 body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-caption{position:absolute!important;left:70px!important;right:70px!important;bottom:36px!important;text-align:center!important}
 body .dpk-page.right.dpk-ctx-detail-sq .dpk-ctx-caption{left:91px!important}
 body .dpk-page .dpk-caption{white-space:normal!important;text-overflow:clip!important;overflow:visible!important}
+/* v273 — a quiet pause facing a dark sheet is dark too: the quote in light gold on black */
+body .dpk-page.dpk-t08.dpk-dark{background:#11110f!important}
+body .dpk-page.dpk-t08.dpk-dark .dpk-t08-quote p{color:#d8c7a5!important}
+body .dpk-page.dpk-t08.dpk-dark .dpk-t08-quote i{background:#d8c7a5!important}
+body .dpk-page.dpk-quote.dpk-light-quote.dpk-dark{background:#11110f!important}
+body .dpk-page.dpk-quote.dpk-light-quote.dpk-dark blockquote{color:#d8c7a5!important}

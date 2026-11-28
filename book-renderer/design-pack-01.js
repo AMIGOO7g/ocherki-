@@ -545,11 +545,9 @@
     }
     if (page.measuredFlow) {
       const flow=page.measuredFlow,mode=flow.mode;
-      // v271: the end-of-episode mark stands right under the last text, centred on its own column
-      const lastCell=page.chapterEndMark?flow.cells.reduce((last,text,index)=>String(text||'').trim()?index:last,-1):-1;
       const cell=index=>{
         const ranges=(flow.inlineRanges?.[index]||[]).map(item=>({...item,attrs:item.editable?editorialAttrs('important'):''}));
-        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true,Boolean(flow.paragraphStarts?.[index]))}</p>${index===lastCell?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':''}</div>`;
+        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true,Boolean(flow.paragraphStarts?.[index]))}</p></div>`;
       };
       const overflowClass=kind=>flow.accentOverflow?.[kind]?' dpk-accent-overflow':'';
       const quote=()=>`<div class="dpk-quote-reservation"><p class="dpk-inline-quote${overflowClass('quote')}"${editorialAttrs('inline-quote')}>${sourceMarkup(page.inlineQuote||'')}</p></div>`;
@@ -583,7 +581,7 @@
       // horizontal handwritten line, air, then the shared text flow.
       const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
       const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):page.railPhoto?captionLine([page.railPhoto.photoIndex]):page.bottomPhotos?captionLine(page.bottomPhotos.photoIndices):'';
-      const endMark=page.chapterEndMark&&lastCell<0?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':'';
+      const endMark=page.chapterEndMark?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':'';
       return article(page.master,`${endMark}${bg}${sidePhoto}${bottomPhotos}${smallHead}${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}${xClass}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }

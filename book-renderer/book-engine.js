@@ -232,8 +232,15 @@
     return source.replace(new RegExp(`(^|\\s)${escaped}(?=\\s|$)`,'u'),' ').replace(/\s{2,}/g,' ').trim();
   }
 
+  // v273: a quote is a whole sentence of the narration — never a line of dialogue, never one that runs across a paragraph
+  // break («…бросил топорик: — Мам!»); sixty to a hundred and seventy characters when there is such a sentence.
+  function quoteSentences(text) {
+    return String(text || '').split(/\n\s*\n/u).filter(paragraph => !/^\s*[—–-]/u.test(paragraph))
+      .flatMap(paragraph => sentences(paragraph)).filter(item => !/^[—–-]/u.test(item) && !/[:,]\s*[—–-]/u.test(item) && !/[—–-]\s*$/u.test(item));
+  }
   function quoteCandidate(text, used, seed = 0) {
-    const candidates = sentences(text).filter(item => item.length >= 45 && item.length <= 190);
+    const all = quoteSentences(text), fine = all.filter(item => item.length >= 60 && item.length <= 170);
+    const candidates = fine.length ? fine : all.filter(item => item.length >= 45 && item.length <= 190);
     if (!candidates.length) return '';
     const start = Math.abs(Number(seed) || 0) % candidates.length;
     for (let offset = 0; offset < candidates.length; offset += 1) {
@@ -954,7 +961,8 @@
         return {offset:run.start+(run.text.length-String(run.page.text).length),photoPosition,opened:false,
           title:String(run.page.episode||run.page.title||'').replace(/^\u042d\u043f\u0438\u0437\u043e\u0434\s+\d+[.:]?\s*/iu,'').trim()||String(run.page.title||'').trim(),
           line:String(run.page.episodeLine||'').trim()||(story.length<=90?story:'')||episodeLineFrom(run.page.text),caption:photo?[String(photo.caption||'').trim()||String(photo.people||'').trim(),String(photo.year||'').trim()].filter(Boolean).join(', '):'',
-          quote:photo?'':(sentenceQuote(run.page.text,new Set())||'')};
+          // v273: the quote facing an episode's first page comes from further on, not from the lines printed right beside it
+          quote:photo?'':(sentenceQuote((t=>{const tail=t.slice(Math.min(700,Math.floor(t.length/3)));return tail.replace(/^[^.!?…]*[.!?…]+\s*/u,'');})(String(run.page.text||'')),new Set())||sentenceQuote(run.page.text,new Set())||'')};
       }).filter(Boolean);
       const pendingEpisode=()=>episodes.find(item=>!item.opened&&item.offset===sourceOffset);
       const consume = (page,side) => {
@@ -1882,10 +1890,19 @@
     // where children and grandchildren write their own lines by hand. On by
     // default; meta.continuationPages === false leaves it out.
     if(meta.continuationPages!==false)spreads.push({master:'D01-SPREAD-CONTINUATION',left:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta,notesHeading:'Для тех, кто продолжит эту историю'}),right:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta})});
+    // v273: the printed block is sewn in sheets of four pages: when the inner pages come to a number that is not a multiple of four,
+    // two more ruled pages «for those who continue» make it up (covers and endpapers are not part of the block)
+    {const inner=spreads.flatMap(spread=>[spread.left,spread.right]).filter(page=>page&&!['cover','back-cover','endpaper'].includes(page.kind)).length;
+      if(inner%4===2)spreads.push({master:'D01-SPREAD-CONTINUATION',left:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta}),right:P('notes-page',{layout:'notes-page',master:'D01-NOTES',meta:bookMeta})});}
     if(byId('back-endpaper'))spreads.push({master:'D01-SPREAD-ENDPAPER',left:P('endpaper',{meta:bookMeta,endpaperBack:true,endpaperPhoto:endpaperPhotoOf(byId('back-endpaper'))}),right:P('endpaper',{meta:bookMeta,endpaperBack:true,endpaperPhoto:endpaperPhotoOf(byId('back-endpaper'))})});
     if(byId('inside-back-cover')&&!/ENDPAPER/.test(String(spreads[spreads.length-1]?.master||'')))spreads.push({master:'D01-SPREAD-INSIDE-BACK-COVER',left:P('blank',{meta:bookMeta}),right:P('inside-back-cover',{layout:'endpaper',meta:bookMeta,plainEndpaper:true})});
     const [backCoverText,backCoverMark]=fieldValues(byId('back-cover'),2);
     if(byId('back-cover'))spreads.push({master:'D01-SPREAD-BACK-COVER',left:P('back-cover',{layout:'back-cover',source:backCoverSource,meta:{...bookMeta,backCoverText,backCoverMark},photoIndex:0}),right:null,single:'left'});
+    // v273: a quiet page (a pause with a quote) facing a dark sheet turns dark as well — a white page beside a black one
+    // broke the spread in two
+    {const darkPage=page=>!!page&&(page.darkFlow===true||page.darkPaper===true||page.bgPhoto?.tone==='dark'||page.p01Variant==='C'||page.kind==='vignette'||(page.kind==='fade-photo'&&page.fadeTone==='dark'));
+      const quiet=page=>!!page&&(page.kind==='t08-pause'||page.kind==='quote');
+      for(const spread of spreads){if(darkPage(spread.left)&&quiet(spread.right))spread.right.darkPaper=true;if(darkPage(spread.right)&&quiet(spread.left))spread.left.darkPaper=true;}}
     spreads.forEach((spread,index)=>{if(!spread.id)spread.id=`d01_spread_${index+1}`;});
     const pages=spreads.flatMap(spread=>[spread.left,spread.right].filter(Boolean));
     pages.forEach((page,index)=>{page.pageNo=index+1;});
