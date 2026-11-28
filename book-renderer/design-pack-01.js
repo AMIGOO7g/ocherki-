@@ -925,7 +925,10 @@
       // text, larger than body text, in the chapter heading colour.
       const used=page.avoidAccents||[];
       const quote=page.pauseQuote||((freshPhrases(page.quoteSource||'',used).find(item=>item.text.length<=110&&item.text.length>=18)||{}).text)||'';
-      return article('D01-T08-PAUSE',`${quote?`<div class="dpk-t08-quote"><p>«${esc(quote.replace(/[.…]+$/u,''))}»</p><i></i></div>`:''}${folio}`,'dpk-t08');
+      // v275: a pause lying on the second half of a spread-wide photograph
+      const bg=page.bgPhoto?`<figure class="dpk-x-bg">${image(page.bgPhoto.photoIndex).replace('loading="lazy"','loading="eager"')}</figure><i class="dpk-x-bg-veil" aria-hidden="true"></i>`:'';
+      const bgClass=page.bgPhoto?` dpk-x-bg-page dpk-x-bg-${page.bgPhoto.tone==='light'?'light':'dark'} dpk-x-bg-span-${page.bgPhoto.span==='spread'?'spread':'page'} dpk-t08-on-photo`:'';
+      return article('D01-T08-PAUSE',`${bg}${quote?`<div class="dpk-t08-quote"><p>«${esc(quote.replace(/[.…]+$/u,''))}»</p><i></i></div>`:''}${folio}`,'dpk-t08'+bgClass);
     }
     if (role === 'p01-portrait' || role === 'p01-text') {
       // P01 portrait accent: a large portrait on the left, a short restrained
@@ -1079,7 +1082,7 @@
       const masters = { intro: 'D01-INTRO', 'author-note': 'D01-AUTHOR', epilogue: 'D01-FINAL', thanks: 'D01-THANKS', sources: 'D01-SOURCES', final: 'D01-FINAL' };
       const label = labels[page.kind] || 'Финал';
       // v256: the kicker only when the heading says something else (it read «Вступление / Вступление»); the running head is the book's own name
-      const sameHead=String(page.title||'').trim().toLowerCase()===label.toLowerCase();
+      const sameHead=page.album||String(page.title||'').trim().toLowerCase()===label.toLowerCase();
       return article(masters[page.kind] || 'D01-FINAL', `<div class="dpk-running">${esc(meta.title || 'Семейная хроника')}</div><div class="dpk-centered dpk-final-copy">${sameHead?'':`<div class="dpk-kicker">${label}</div>`}<h2>${title || esc(meta.title || '')}</h2><div class="dpk-short-rule"></div>${text?`<p>${text}</p>`:''}</div>${meta.author||meta.year?`<div class="dpk-final-sign">${esc([meta.author,meta.year].filter(Boolean).join(' · '))}</div>`:''}${folio}`);
     }
     if (role === 'colophon') {

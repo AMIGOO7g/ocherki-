@@ -942,7 +942,16 @@
     const photoBeatRandom = () => { photoBeatSeed=(photoBeatSeed+0x6D2B79F5)>>>0; let t=photoBeatSeed; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
     const accentZones=['middle','bottom','top','middle','top','bottom'];
     let accentBeat=0;
+    // v275: what the director needs to tell the author (photos left over, photos too small for their place, chapters short of text)
+    const report=[];
+    // photos the chapters could not hold go to «Фотоальбом» at the end of the book (meta.photoAlbum === false keeps the old closing spreads)
+    const albumPhotos=[];
+    // dark spreads: more than one a chapter is allowed, but never closer than three spreads to the last one
+    let lastDarkAt=-99;const darkOk=()=>spreads.length-lastDarkAt>3;
     chapters.forEach((chapter,index) => {
+      // v275: the director's chance is seeded by the chapter itself (its id and its photos), not by the whole book's text: a word
+      // changed anywhere no longer reshuffles the compositions of every chapter
+      photoBeatSeed=textSeed(String(chapter.sectionId)+'|'+chapter.photos.map(photo=>photo.id||'').join(','))||1;
       const chapterSpreadStart = spreads.length;let segmentSpreadStart=chapterSpreadStart;
       let rest = chapter.text, sourceOffset = 0;
       const occurrences = {};
@@ -1129,7 +1138,7 @@
         // A photo not yet measured (edgeTone empty) keeps the old rotation.
         const edgeTone=String(photo.edgeTone||'');
         let variant=String(photo.heroVariant||(edgeTone==='light'||edgeTone==='mid'?'A':edgeTone==='dark'?'C':['A','C'][portraitCount++%2])).toUpperCase()==='C'?'C':'A';
-        if(variant==='C')chapterAccents.dark++;
+        if(variant==='C')(chapterAccents.dark++,lastDarkAt=spreads.length);
         const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
         const heroName=String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears=String(photo.heroYears||photo.year||'').trim(),heroRole=String(photo.heroRole||'').trim();
         // Without a name, years or role the right page would stand empty:
@@ -1310,9 +1319,9 @@
           // pair of photos under a quote.
           const railPhoto=[...unused].filter(photoPosition=>photoAspect(chapter.photos[photoPosition])>=1.2).sort((a,b)=>byAuthor(a,b)||photoAspect(chapter.photos[b])-photoAspect(chapter.photos[a]))[0];
           const fadePhoto=ordinary[0];
-          const extraFits={rail:railPhoto!=null&&rest.length>1500,fade:fadePhoto!=null&&rest.length>1500,darkside:fadePhoto!=null&&rest.length>1500&&!chapterAccents.dark,
-            darkfade:fadePhoto!=null&&!chapterAccents.dark&&rest.length>1500,overlay:fadePhoto!=null&&rest.length>1500&&!chapterAccents.dark,darkgrad:fadePhoto!=null&&rest.length>2600&&!chapterAccents.dark,
-            darkpair:ordinary.length>=2&&rest.length>2600&&!chapterAccents.dark,textphotos:ordinary.length>=1&&rest.length>1500,pair:ordinary.length>=2,mosaic:ordinary.length>=4&&rest.length>1200,quoteband:ordinary.length>=2&&rest.length>0};
+          const extraFits={rail:railPhoto!=null&&rest.length>1500,fade:fadePhoto!=null&&rest.length>1500,darkside:fadePhoto!=null&&rest.length>1500&&darkOk(),
+            darkfade:fadePhoto!=null&&darkOk()&&rest.length>1500,overlay:fadePhoto!=null&&rest.length>1500&&darkOk(),darkgrad:fadePhoto!=null&&rest.length>2600&&darkOk(),
+            darkpair:ordinary.length>=2&&rest.length>2600&&darkOk(),textphotos:ordinary.length>=1&&rest.length>1500,pair:ordinary.length>=2,mosaic:ordinary.length>=4&&rest.length>1200,quoteband:ordinary.length>=2&&rest.length>0};
           const eligible=Object.entries(photoBeatWeights).filter(([beat])=>beat!==lastPhotoBeat&&!(['t06','t07','t08','t10','t12',...Object.keys(extraFits)].includes(beat)&&recentPhotoBeats.includes(beat))&&(beat in extraFits?extraFits[beat]:beat==='t12'?t12Fits&&!chapterAccents.t12:beat==='t10'?t10Fits&&!chapterAccents.t10:beat==='t08'?t08Fits:beat==='t07'?t07Fits:beat==='t06'?t06Fits:beat==='hspread'?horizontal.length>0&&rest.length>2600:beat==='panorama'?wide.length>0:beat==='three'?ordinary.length>=3:beat==='two'?ordinary.length>=2:unused.length>0));
           // What else would fit here: the preview offers exactly these.
           const beatOptions=eligible.map(([id])=>id);
@@ -1356,8 +1365,8 @@
             // The dark tone needs a photograph that is dark where the text lies.
             const textSideTone=String((side==='right'?photo.rightTone:photo.edgeTone)||'');
             let tone=String(photo.t12Tone||(textSideTone==='light'?'A':['A','B'][t12Count++%2])).toUpperCase()==='B'?'B':'A';
-            if(tone==='B'&&chapterAccents.dark)tone='A';
-            if(tone==='B')chapterAccents.dark++;chapterAccents.t12++;
+            if(tone==='B'&&!darkOk())tone='A';
+            if(tone==='B')(chapterAccents.dark++,lastDarkAt=spreads.length);chapterAccents.t12++;
             const textPage=nextTextPage('left');
             const photoPage=P('t12-photo',{layout:'t12-photo',master:'D01-T12',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,t12Tone:tone,t12Side:side,
               t12Kicker:placeLabel(photo.place)||String(photo.year||'').trim(),t12Title:String(photo.caption||'').trim(),t12Text:String(photo.story||'').trim()});
@@ -1450,7 +1459,7 @@
           if(beat==='darkside'){
             // A full-bleed photograph dissolving towards the fold into a dark
             // sheet that carries the text.
-            chapterAccents.dark++;
+            (chapterAccents.dark++,lastDarkAt=spreads.length);
             const before=spreads[spreads.length-1],photoLeft=!(before?.left&&!before.left.measuredFlow);
             const photoIndex=take(fadePhoto);
             const photoPage=P('fade-photo',{layout:'x-fade-photo',master:'D01-X-FADE',sectionId:chapter.sectionId,source:chapter,photoIndex,fadeTone:'dark',fadeSide:photoLeft?'left':'right',title:chapter.title});
@@ -1464,7 +1473,7 @@
             // overlay: white text over the darkened side of a photograph.
             const photoIndex=take(fadePhoto),tone=beat==='fade'?'light':'dark';
             // White text over a dark photo: the facing page is a dark sheet too.
-            if(tone==='dark')chapterAccents.dark++;
+            if(tone==='dark')(chapterAccents.dark++,lastDarkAt=spreads.length);
             const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone,span:'page'},forceRhythm:'plain'});
             const right=nextTextPage('right',tone==='dark'?{darkFlow:true,forceRhythm:'plain'}:{});
             spreads.push({master:beat==='fade'?'D01-SPREAD-X-LIGHT-GRADIENT':'D01-SPREAD-X-OVERLAY',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,beatOptionsByPhoto});
@@ -1473,17 +1482,20 @@
           }
           if(beat==='darkgrad'){
             // One darkened photograph under the whole spread, light text on both pages.
-            chapterAccents.dark++;
+            (chapterAccents.dark++,lastDarkAt=spreads.length);
             const photoIndex=take(fadePhoto);
             const left=nextTextPage('left',{photoIndex,bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'});
-            const right=nextTextPage('right',{bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'});
+            // v275: when the text ends on the left page, the photograph goes on across the right one with a quote on it
+            // (a black sheet with a quote broke the one picture in two)
+            const right=nextTextPage('right',{bgPhoto:{photoIndex,tone:'dark',span:'spread'},darkFlow:true,forceRhythm:'plain'})
+              ||P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:String(chapter.text||'').replace(String(left?.text||'\u0000'),''),avoidAccents:usedAccents.slice(),bgPhoto:{photoIndex,tone:'dark',span:'spread'}});
             spreads.push({master:'D01-SPREAD-X-DARK-GRADIENT',sectionId:chapter.sectionId,left,right,fixedRhythm:true,continuousImage:true,beat,beatOptions,beatOptionsByPhoto});
             textSpreadStreak=0;
             continue;
           }
           if(beat==='darkpair'){
             // Two dark sheets, each a text column beside its own photograph.
-            chapterAccents.dark++;
+            (chapterAccents.dark++,lastDarkAt=spreads.length);
             const [first,second]=ordinary.slice(0,2).map(take);
             const left=nextTextPage('left',{photoIndex:first,sidePhoto:{photoIndex:first},darkFlow:true,forceRhythm:'plain'});
             const right=nextTextPage('right',{photoIndex:second,sidePhoto:{photoIndex:second},darkFlow:true,forceRhythm:'plain'});
@@ -1504,7 +1516,7 @@
           if(beat==='darkfade'){
             // A photograph in a black sheet whose edges sink into darkness;
             // the facing dark sheet carries the text.
-            chapterAccents.dark++;
+            (chapterAccents.dark++,lastDarkAt=spreads.length);
             const photoIndex=take(fadePhoto);
             const photoPage=P('vignette',{layout:'x-vignette',master:'D01-X-VIGNETTE',sectionId:chapter.sectionId,source:chapter,photoIndex,title:chapter.title,pageFormat:meta.format||'square'});
             const textPage=nextTextPage('right',{darkFlow:true,forceRhythm:'plain'});
@@ -1621,6 +1633,12 @@
         // first photo of each spread carries the choice (layoutPreference).
         const pause=()=>P('t08-pause',{layout:'t08-pause',master:'D01-T08-PAUSE',sectionId:chapter.sectionId,source:chapter,title:chapter.title,quoteSource:chapter.text,avoidAccents:usedAccents.slice()});
         const closing=(left,right,beat,beatOptions,extra={})=>spreads.push({master:'D01-SPREAD-PHOTO-CLOSING',sectionId:chapter.sectionId,left,right,fixedRhythm:true,beat,beatOptions,...extra});
+        // v275: a chapter closes with one photo spread at most; the photos still left go to the album at the end of the book
+        if(meta.photoAlbum!==false&&left.length>3){
+          const spare=left.splice(3);spare.forEach(mark);
+          albumPhotos.push({chapter,positions:spare});
+          report.push({code:'PHOTOS_TO_ALBUM',sectionId:chapter.sectionId,title:chapter.title,count:spare.length,photoIds:spare.map(position=>chapter.photos[position]?.id).filter(Boolean)});
+        }
         while(left.length){
           const first=left[0],wish=String(chapter.photos[first]?.layoutPreference||''),isWide=photoAspect(chapter.photos[first])>=1.45;
           const options=[...(left.length>=2?['pair','quoteband']:[]),...(left.length>=3?['closing3']:[]),'photoquote',...(isWide?['panorama']:[])];
@@ -1875,6 +1893,22 @@
         for(const mark of list){if(mark.placed||mark.at<=range.start||mark.at>range.end)continue;mark.placed=true;mark.number=++number;mark.page=page;page.footnoteMarks.push({at:mark.at-range.start,n:number});endnotes.push(mark);}
       }
     }
+    // v275 — «Фотоальбом»: the photos the chapters could not hold, chapter by chapter; one photo a page (meta.albumMode 'single')
+    // or a mosaic of up to five (the default)
+    if(albumPhotos.length){
+      const albumPages=[];
+      for(const {chapter,positions} of albumPhotos){
+        if(meta.albumMode==='single'){for(const position of positions)albumPages.push(P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',source:chapter,photoIndex:position,title:'Фотоальбом',album:true}));continue;}
+        for(let i=0;i<positions.length;){
+          const rest=positions.length-i,take=rest>=4?Math.min(5,rest===6?3:rest):rest;const part=positions.slice(i,i+take);i+=take;
+          albumPages.push(part.length>=3?P('mosaic',{layout:'mosaic',master:'D01-MOSAIC',source:chapter,photoIndices:part,title:'Фотоальбом',album:true})
+            :part.length===2?P('two-photo',{layout:'photo-duo',master:'D01-TWO-PHOTO',source:chapter,photoIndices:part,title:'Фотоальбом',album:true})
+            :P('large-photo',{layout:'photo-fullspread',master:'D01-LARGE-PHOTO',source:chapter,photoIndex:part[0],title:'Фотоальбом',album:true}));
+        }
+      }
+      spreads.push({master:'D01-SPREAD-ALBUM-TITLE',left:P('album-title',{kind:'final',meta:bookMeta,title:'Фотоальбом',text:'Фотографии, которые не вошли в главы',album:true}),right:albumPages.shift()||P('blank',{meta:bookMeta})});
+      for(let i=0;i<albumPages.length;i+=2)spreads.push({master:'D01-SPREAD-ALBUM',left:albumPages[i],right:albumPages[i+1]||P('blank',{meta:bookMeta})});
+    }
     if(endnotes.length){
       // about thirty lines a page (fewer under the title): a chapter's name
       // takes two, a note one per eighty-odd characters and a little air
@@ -1916,7 +1950,15 @@
     const pages=spreads.flatMap(spread=>[spread.left,spread.right].filter(Boolean));
     pages.forEach((page,index)=>{page.pageNo=index+1;});
     for(const item of contentsPage.items)item.page=pages.find(page=>page.sectionId===item.sectionId&&page.layout==='chapter-intro')?.pageNo||'';
-    const result={ready:true,pagination:'dom-exact-v2',designPack:'design-01-editorial',spreads,pages,meta:bookMeta,expectedManuscripts,directorPlan:[]};
+    // v275 — the report also names photos too small for the place they were given (about 150 dpi or less in print, where the
+    // page or spread is about 28 cm wide): the author may keep them or replace them
+    {const small=new Map();
+      for(const page of pages){const big=['large-photo','photo','chapter','p01-portrait','vignette','fade-photo','rail-photo'].includes(page.kind)||page.bgPhoto||page.panorama;if(!big||!page.source?.photos)continue;
+        const index=page.bgPhoto?.photoIndex??page.photoIndex;const photo=page.source.photos[index];if(!photo||!photo.width)continue;
+        const needed=(page.panorama||page.bgPhoto?.span==='spread'?2:1)*1650;
+        if(Math.max(photo.width,photo.height)<needed&&!small.has(photo.id||photo.src))small.set(photo.id||photo.src,{code:'PHOTO_TOO_SMALL',sectionId:page.sectionId||page.source.sectionId,title:page.source.title,photoId:photo.id,caption:String(photo.caption||'').trim(),pageNo:page.pageNo,px:Math.max(photo.width,photo.height)});}
+      report.push(...small.values());}
+    const result={ready:true,pagination:'dom-exact-v2',designPack:'design-01-editorial',spreads,pages,meta:bookMeta,expectedManuscripts,directorPlan:[],report};
     const integrity=auditExactText(result);
     if(integrity.status!=='pass')throw new Error(`Проверка текста не пройдена: ${(globalThis.OcherkiBookRenderer?.ruleWords||(r=>r.join(', ')))(integrity.violations.map(item=>item.rule))}`);
     return result;

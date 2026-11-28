@@ -3068,3 +3068,8 @@ body .dpk-page.dpk-t08.dpk-dark .dpk-t08-quote p{color:#d8c7a5!important}
 body .dpk-page.dpk-t08.dpk-dark .dpk-t08-quote i{background:#d8c7a5!important}
 body .dpk-page.dpk-quote.dpk-light-quote.dpk-dark{background:#11110f!important}
 body .dpk-page.dpk-quote.dpk-light-quote.dpk-dark blockquote{color:#d8c7a5!important}
+/* v275 — a pause on the second half of a spread-wide dark photograph: the quote in light gold over the veil */
+body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-t08-quote{z-index:2!important}
+body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-t08-quote p{color:#eadcbd!important}
+body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-t08-quote i{background:#eadcbd!important}
+body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-folio{z-index:2!important;color:#d8c7a5!important}
