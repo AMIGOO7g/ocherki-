@@ -3073,3 +3073,19 @@ body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-t08-quote{z-index:2!important}
 body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-t08-quote p{color:#eadcbd!important}
 body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-t08-quote i{background:#eadcbd!important}
 body .dpk-page.dpk-t08.dpk-t08-on-photo .dpk-folio{z-index:2!important;color:#d8c7a5!important}
+/* v276 — dissolving edges that survive the PDF: browsers drop CSS masks when they save a PDF, so the photo's edges showed hard.
+   The edges are covered instead by a gradient in the page's own colour (vector, prints as it shows); the photo's frame has the
+   page colour too, so no light line can appear where they meet. */
+body .dpk-page.dpk-p01-c .dpk-p01-portrait{-webkit-mask-image:none!important;mask-image:none!important;background:#121110!important}
+body .dpk-page.dpk-p01-c .dpk-p01-portrait::after{display:block!important;content:''!important;position:absolute!important;inset:-2px!important;pointer-events:none!important;z-index:2!important;
+  background:linear-gradient(to right,#121110 0,#121110 1.5%,rgba(18,17,16,.55) 10%,rgba(18,17,16,0) 22%,rgba(18,17,16,0) 78%,rgba(18,17,16,.55) 90%,#121110 98.5%,#121110 100%),
+    linear-gradient(to bottom,#121110 0,#121110 1.5%,rgba(18,17,16,.55) 8%,rgba(18,17,16,0) 16%,rgba(18,17,16,0) 80%,rgba(18,17,16,.55) 90%,#121110 98.5%,#121110 100%)!important}
+body .dpk-page.dpk-x-vignette .dpk-x-vignette-photo{-webkit-mask-image:none!important;mask-image:none!important;background:#0b0b0a!important}
+body .dpk-page.dpk-x-vignette .dpk-x-vignette-photo::after{content:''!important;position:absolute!important;inset:-2px!important;pointer-events:none!important;
+  background:radial-gradient(ellipse 50% 50% at 50% 48%,rgba(11,11,10,0) 52%,rgba(11,11,10,.5) 76%,#0b0b0a 97%,#0b0b0a 100%)!important}
+/* v276 — «Голоса семьи» on a dark spread: the voices in light gold on black (the end of the book no longer runs white after white) */
+body .dpk-page.dpk-voices-page.dpk-voices-dark{background:#11110f!important;print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+body .dpk-page.dpk-voices-page.dpk-voices-dark .dpk-voices h2{color:#e6d6b4!important}
+body .dpk-page.dpk-voices-page.dpk-voices-dark .dpk-voice blockquote{color:#efe6d3!important}
+body .dpk-page.dpk-voices-page.dpk-voices-dark .dpk-voice figcaption{color:#bfa77c!important}
+body .dpk-page.dpk-voices-page.dpk-voices-dark .dpk-folio,body .dpk-page.dpk-voices-page.dpk-voices-dark .dpk-running{color:#9a8c74!important}

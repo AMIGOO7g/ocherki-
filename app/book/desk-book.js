@@ -34,6 +34,7 @@
     Object.assign(spreadEl.style,{left:left+'px',top:top+'px',width:2*w+'px',height:h+'px'});
     cap.style.top=(top-32)+'px';Object.assign($('.bk-stripv').style,{left:Math.max(20,left-60)+'px',top:(top+h+26)+'px',width:Math.min(W-40,2*w+120)+'px'});
     strip.style.setProperty('--tw',Math.round(2*TH*pw/ph)+'px');
+    try{if(!vars.hidden)vplace();syncVTab();}catch(_){}
     Object.assign(kl.style,{left:Math.max(16,left-40-180)+'px',top:top+'px'});Object.assign(kr.style,{left:(left+2*w+40)+'px',top:top+'px'});
     // the light: the desk's own pictures (the window's, the lamp's) laid over the open book from where it lies; it never moves
     try{board.style.setProperty('--rk-beam',window.OCHERKI_DESK_LIGHT?.beam()||'none');}catch(_){}
@@ -46,7 +47,7 @@
     const h=el.querySelector('.bk-host');el.style.backgroundColor=h?paperOf(h.firstElementChild)||'':'';};
   // the cover and the back cover lie alone: no page beside them, no fold
   const shadows=()=>{shL.classList.toggle('on',!L.classList.contains('blank'));shR.classList.toggle('on',!R.classList.contains('blank'));};
-  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;if(!flipping){L.classList.remove('hold');R.classList.remove('hold');}fill(L,sp.left);fill(R,sp.right);shadows();spreadEl.classList.toggle('single',!!sp.single);BK()?.scale?.();caption(sp);paintStrip();syncComp();}
+  function show(i){const sp=BK()?.spread(i);if(!sp)return;cur=i;if(!flipping){L.classList.remove('hold');R.classList.remove('hold');}fill(L,sp.left);fill(R,sp.right);shadows();spreadEl.classList.toggle('single',!!sp.single);BK()?.scale?.();caption(sp);paintStrip();syncComp();if(!vars.hidden&&!flipping)vclose(false);syncVTab();}
   function caption(sp){sp=sp||BK()?.spread(cur);const m=String(sp?.title||'').match(/^(Глава\s*\d+)\.?\s*(.*)$/i);
     capText=m?`${m[1]}${m[2]?' · <i>'+esc(m[2])+'</i>':''} · ${cur+1}/${n}`:`${cur+1} из ${n}`;setTitle();}
   let capText='';
@@ -98,7 +99,9 @@
   function plates(){const B=BK();if(!B)return;const fm=B.formats(),f=fm.find(x=>x.key===B.format())||fm[0],pm=B.photoModes(),m=pm.find(x=>x.key===B.photoMode())||pm[0];
     kl.innerHTML=`<div class="bk-k" aria-disabled="true"><b>дизайн</b>${esc(B.design().name)}</div>`+
       `<button type="button" class="bk-k" data-set="format"><b>формат</b>${esc(f?.name||'')}<span>${esc(f?.dims||'')}</span></button>`+
-      `<button type="button" class="bk-k" data-set="photo"><b>фото</b>${esc(m?.label||'')}</button>`;
+      `<button type="button" class="bk-k" data-set="photo"><b>фото</b>${esc(m?.label||'')}</button>`+
+      // v276: the album at the end (photos the chapters could not hold) — only when the book has one
+      ((B.report?.()||[]).some(r=>r.code==='PHOTOS_TO_ALBUM')?`<button type="button" class="bk-k" data-set="album"><b>фотоальбом</b>${(window.OCHERKI_BOOK_META?.albumMode||'mosaic')==='single'?'по одному фото':'мозаикой'}</button>`:'');
     const pages=B.pages();
     kr.innerHTML=`<div class="bk-k" aria-disabled="true"><b>в книге</b>${pages} ${plural(pages,'страница','страницы','страниц')}</div>`+
       `<div class="bk-k bk-soon" aria-disabled="true"><b>заказ</b>напечатать<span>скоро</span></div>`+
@@ -109,12 +112,12 @@
   const pmenu=document.createElement('div');pmenu.className='bk-cmenu bk-pmenu';pmenu.hidden=true;document.body.appendChild(pmenu);
   kl.addEventListener('click',e=>{const b=e.target.closest('[data-set]');if(!b||busy||flipping)return;e.stopPropagation();const B=BK(),k=b.dataset.set;
     if(!pmenu.hidden&&pmenu.dataset.set===k){pmenu.hidden=true;return;}
-    const list=k==='format'?B.formats().map(x=>({key:x.key,label:`${x.name} <small>${esc(x.dims)}</small>`})):B.photoModes().map(x=>({key:x.key,label:esc(x.label)})),now=k==='format'?B.format():B.photoMode();
-    pmenu.dataset.set=k;pmenu.innerHTML=`<b>${k==='format'?'Формат книги':'Фото в книге'}</b>`+list.map(x=>`<button type="button" data-key="${esc(x.key)}"${x.key===now?' class="cur"':''}>${x.label}</button>`).join('');
+    const list=k==='format'?B.formats().map(x=>({key:x.key,label:`${x.name} <small>${esc(x.dims)}</small>`})):k==='album'?[{key:'mosaic',label:'Мозаикой'},{key:'single',label:'По одному фото на странице'}]:B.photoModes().map(x=>({key:x.key,label:esc(x.label)})),now=k==='format'?B.format():k==='album'?(window.OCHERKI_BOOK_META?.albumMode||'mosaic'):B.photoMode();
+    pmenu.dataset.set=k;pmenu.innerHTML=`<b>${k==='format'?'Формат книги':k==='album'?'Фотоальбом в конце книги':'Фото в книге'}</b>`+list.map(x=>`<button type="button" data-key="${esc(x.key)}"${x.key===now?' class="cur"':''}>${x.label}</button>`).join('');
     const r=b.getBoundingClientRect();Object.assign(pmenu.style,{left:Math.round(r.right+14)+'px',top:Math.round(r.top)+'px'});pmenu.hidden=false;});
   addEventListener('click',e=>{if(!pmenu.hidden&&!pmenu.contains(e.target)&&!e.target.closest?.('.bk-kl'))pmenu.hidden=true;},true);
   pmenu.addEventListener('click',e=>{const o=e.target.closest('[data-key]');if(!o)return;const k=pmenu.dataset.set,key=o.dataset.key;pmenu.hidden=true;relayout(k,key);});
-  function relayout(k,key){const B=BK();if(busy||flipping||(k==='format'?B.format():B.photoMode())===key)return;window.__ocherkiHideFrameTools?.();busy=true;rustle();
+  function relayout(k,key){const B=BK();if(busy||flipping||(k==='format'?B.format():k==='album'?(window.OCHERKI_BOOK_META?.albumMode||'mosaic'):B.photoMode())===key)return;window.__ocherkiHideFrameTools?.();busy=true;rustle();
     const plate=kl.querySelector(`[data-set="${k}"]`);plate?.classList.add('bk-busy');
     // the sheet of the open spread stays open: the book is laid out anew and opens on it again
     const keep=window.__ocherkiSheetForSpread?.(cur);
@@ -122,7 +125,7 @@
     // the book is laid out anew — in steps, so she keeps running and the page never stalls
     const dim=[spreadEl,$('.bk-stripv')].map(el=>el.animate([{opacity:1},{opacity:0}],{duration:320,easing:'ease-out',fill:'forwards'}));girl.classList.add('on');spreadEl.style.pointerEvents='none';
     requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{
-      try{if(k==='format')B.setFormat(key,true);else B.setPhotoMode(key,true);}catch(err){console.warn('book relayout',err);}
+      try{if(k==='format')B.setFormat(key,true);else if(k==='album'){window.OCHERKI_BOOK_META.albumMode=key;try{localStorage.setItem('ocherki_album_mode',key);}catch(_){}window.__ocherkiPeekSig='';}else B.setPhotoMode(key,true);}catch(err){console.warn('book relayout',err);}
       const done=()=>{try{n=B.ready();const pk=keep&&window.__ocherkiPeekPage?.(keep.pageUid,-1);cur=Math.max(0,Math.min(n-1,pk?pk.spread:cur));
         measure();buildStrip();show(cur);plates();}catch(err){console.warn('book relayout',err);}
         busy=false;girl.classList.remove('on');spreadEl.style.pointerEvents='';dim.forEach(a=>{try{a.cancel();}catch(_){}});[spreadEl,$('.bk-stripv')].forEach(el=>el.animate([{opacity:0},{opacity:1}],{duration:620,easing:'ease-out'}));};
@@ -227,7 +230,7 @@
     setTimeout(()=>{busy=false;},1300);}
   // to: 'write' — the page goes back into «Так ляжет», the desk comes back from the left; 'manuscript' — the book goes off to the
   // right whole and «Рукопись» opens on the open spread's sheet under it
-  function close(to,after,tries=0){if(!isOpen){after?.();return;}window.__ocherkiHideFrameTools?.();if((busy||flipping)&&tries<15){setTimeout(()=>close(to,after,tries+1),200);return;}busy=true;syncSheet();pmenu.hidden=true;cmenu.hidden=true;const ft=document.querySelector('.photo-frame-tools');if(ft)ft.hidden=true;
+  function close(to,after,tries=0){if(!isOpen){after?.();return;}window.__ocherkiHideFrameTools?.();if((busy||flipping)&&tries<15){setTimeout(()=>close(to,after,tries+1),200);return;}busy=true;syncSheet();pmenu.hidden=true;cmenu.hidden=true;try{vars.hidden=true;vtab.hidden=true;notes.hidden=true;board.classList.remove('vars-on');}catch(_){}const ft=document.querySelector('.photo-frame-tools');if(ft)ft.hidden=true;
     const p=pane(),end=ms=>setTimeout(()=>{H.classList.remove('bk-on');board.classList.remove('on');isOpen=false;busy=false;fill(L,'');fill(R,'');board.getAnimations().forEach(a=>a.cancel());},ms);
     if(to==='manuscript'){board.animate([{translate:'0px 0px'},{translate:'100vw 0px'}],{duration:700,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
       // the desk is put back in its place under the book at once (where «Рукопись» measures the writing sheet), and «Рукопись» opens
@@ -240,16 +243,71 @@
   // where it lies and stays on the spread of that photo
   const cmenu=document.createElement('div');cmenu.className='bk-cmenu';cmenu.hidden=true;document.body.appendChild(cmenu);
   function syncComp(){const c=BK()?.compositions?.(cur),w=bar();if(!w)return;w.querySelectorAll('.bkc').forEach(b=>b.classList.toggle('off',!c||!c.list.length));}
-  function compose(id){if(!id||busy||flipping)return;window.__ocherkiHideFrameTools?.();busy=true;rustle();const at=BK().compose(cur,id);n=BK().ready();cur=Math.max(0,Math.min(n-1,at));
+  function compose(id){if(!id||busy||flipping)return;if(!vars.hidden)vclose(false);window.__ocherkiHideFrameTools?.();busy=true;rustle();const at=BK().compose(cur,id);n=BK().ready();cur=Math.max(0,Math.min(n-1,at));
     buildStrip();show(cur);plates();busy=false;spreadEl.animate([{opacity:.35},{opacity:1}],{duration:420,easing:'ease-out'});
-    const lab=BK().compositions(cur)?.list.find(x=>x.id===id)?.label;if(lab)window.OCHERKI_SHOW_TOAST?.(lab);}
+    const lab=id==='auto'?'Как выберет книга':BK().compositions(cur)?.list.find(x=>x.id===id)?.label;if(lab)window.OCHERKI_SHOW_TOAST?.(lab);syncVTab();}
   function step(dir){const c=BK()?.compositions?.(cur);if(!c||!c.list.length)return;const i=c.list.findIndex(x=>x.id===c.now);compose(c.list[((i<0?(dir>0?-1:0):i)+dir+c.list.length)%c.list.length].id);}
+  // v276 — the spread's other compositions, shown before they are chosen. Over the book a quiet line «Другие композиции этого
+  // разворота · N» (or «выбрано вами · вернуть как было» when the author chose one); a press lays the variants out in little in
+  // place of the strip under the book: the real spread in each one, five at a time, thin arrows, «1–5 из N». A variant pressed is
+  // shown on the open book as it would lie, with how many spreads after it would change; «сохранить» keeps it, «не сохранять»
+  // puts the book back. Only the spread's own chapter is laid out for a variant, a little at a time, so nothing stops.
+  const vtab=document.createElement('button');vtab.type='button';vtab.className='bk-vtab';vtab.hidden=true;board.appendChild(vtab);
+  const vars=document.createElement('div');vars.className='bk-vars';vars.hidden=true;
+  vars.innerHTML='<button type="button" class="bkv-arr" data-d="-1" aria-label="Предыдущие">‹</button><div class="bkv-row"></div><button type="button" class="bkv-arr" data-d="1" aria-label="Следующие">›</button>'
+    +'<div class="bkv-side"><span class="bkv-cnt"></span><button type="button" class="bkv-ok" disabled>сохранить</button><button type="button" class="bkv-no">не сохранять</button></div><div class="bkv-say"></div>';
+  board.appendChild(vars);
+  const vrow=vars.querySelector('.bkv-row'),vcnt=vars.querySelector('.bkv-cnt'),vsay=vars.querySelector('.bkv-say'),vok=vars.querySelector('.bkv-ok');
+  let vlist=[],vpage=0,vpick=null,vnow='',vT=0;const PER=5;
+  function syncVTab(){const c=isOpen?BK()?.compositions?.(cur):null;if(!c||!c.list.length||!vars.hidden){vtab.hidden=true;return;}
+    const own=BK()?.own?.(cur)||'auto';
+    vtab.innerHTML=own!=='auto'?'выбрано вами <i>·</i> <u>вернуть как было</u>':`Другие композиции этого разворота <i>·</i> ${c.list.length}`;vtab.dataset.own=own!=='auto'?'1':'';vtab.hidden=false;
+    if(geo)Object.assign(vtab.style,{left:(geo.left+geo.w)+'px',top:(geo.top-34)+'px'});}
+  function vplace(){if(!geo)return;Object.assign(vars.style,{left:Math.max(20,geo.left-60)+'px',top:(geo.top+geo.h+18)+'px',width:Math.min(innerWidth-40,2*geo.w+120)+'px'});}
+  function vdraw(){const from=vpage*PER,part=vlist.slice(from,from+PER);
+    vrow.innerHTML=part.map(x=>`<button type="button" class="bk-th bkv${x.id===vnow?' now':''}${vpick===x.id?' cur':''}" data-id="${esc(x.id)}"><i class="bk-tl"></i><i class="bk-tr"></i><em>${x.id===vnow?'<b>сейчас</b>':''}<span>${esc(x.label)}</span></em></button>`).join('');
+    vcnt.textContent=vlist.length>PER?`${from+1}–${from+part.length} из ${vlist.length}`:`${vlist.length} ${plural(vlist.length,'вариант','варианта','вариантов')}`;
+    vars.querySelectorAll('.bkv-arr').forEach(b=>b.classList.toggle('off',+b.dataset.d<0?vpage===0:from+PER>=vlist.length));
+    // the little spreads are laid out one by one, between the hand's moves
+    clearTimeout(vT);const todo=[...vrow.children];const one=()=>{const el=todo.shift();if(!el||vars.hidden)return;const v=BK()?.variant?.(cur,el.dataset.id);
+      if(v){el.children[0].innerHTML=v.mini.left;el.children[1].innerHTML=v.mini.right;el.classList.toggle('single',v.single);BK()?.scale?.();}else el.classList.add('none');vT=setTimeout(one,30);};vT=setTimeout(one,60);}
+  function vopen(){const c=BK()?.compositions?.(cur);if(!c||!c.list.length)return;vnow=c.now;vlist=[...c.list].sort((a,b)=>(b.id===vnow)-(a.id===vnow));vpage=0;vpick=null;vok.disabled=true;
+    vsay.textContent='Нажмите на вариант — разворот покажет, как он ляжет';board.classList.add('vars-on');vars.hidden=false;vtab.hidden=true;vplace();vdraw();}
+  function vclose(back){clearTimeout(vT);vars.hidden=true;board.classList.remove('vars-on');if(back&&vpick)show(cur);vpick=null;syncVTab();}
+  function vshow(id){const v=BK()?.variant?.(cur,id);if(!v)return;vpick=id;vok.disabled=id===vnow;fill(L,v.full.left);fill(R,v.full.right);shadows();spreadEl.classList.toggle('single',v.single);BK()?.scale?.();
+    spreadEl.animate([{opacity:.4},{opacity:1}],{duration:300,easing:'ease-out'});
+    vsay.innerHTML=id===vnow?'Так разворот лежит сейчас':v.changed?`Текст перетечёт: изменятся ещё <b>${v.changed} ${plural(v.changed,'разворот','разворота','разворотов')}</b> дальше в главе`:'Изменится только этот разворот';
+    vrow.querySelectorAll('.bkv').forEach(b=>b.classList.toggle('cur',b.dataset.id===id));}
+  vtab.addEventListener('click',e=>{e.stopPropagation();if(vtab.dataset.own){compose('auto');return;}vopen();});
+  vars.addEventListener('click',e=>{e.stopPropagation();const a=e.target.closest('.bkv-arr');if(a&&!a.classList.contains('off')){vpage+=+a.dataset.d;vdraw();return;}
+    const t=e.target.closest('.bkv');if(t&&!t.classList.contains('none')){vshow(t.dataset.id);return;}
+    if(e.target.closest('.bkv-ok')&&vpick&&vpick!==vnow){const id=vpick;vclose(false);compose(id);return;}
+    if(e.target.closest('.bkv-no'))vclose(true);});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&!vars.hidden)vclose(true);});
+  // v276 — the director's notes for the author, in the margin to the right of the book, under its plates: a few quiet lines (photos
+  // that went to the album, photos too small for their place). A note pressed opens its spread and offers what can be done; a
+  // small photo can be kept as it is (it is not named again).
+  const notes=document.createElement('div');notes.className='bk-notes';notes.hidden=true;board.appendChild(notes);
+  const okKey='ocherki_report_ok';const okSet=()=>{try{return new Set(JSON.parse(localStorage.getItem(okKey)||'[]'));}catch(_){return new Set();}};
+  const chapterName=t=>String(t||'').replace(/^Глава\s+\d+[.:]?\s*/i,'');
+  function syncNotes(){const list=(BK()?.report?.()||[]).filter(r=>!(r.code==='PHOTO_TOO_SMALL'&&okSet().has(String(r.photoId||''))));
+    if(!isOpen||!list.length||!geo){notes.hidden=true;return;}
+    const small=list.filter(r=>r.code==='PHOTO_TOO_SMALL'),album=list.filter(r=>r.code==='PHOTOS_TO_ALBUM');
+    const item=(r,k,text,acts)=>`<div class="bkn" data-k="${k}" data-s="${r.spread}"><p>${text}</p><div class="bkn-a">${acts}</div></div>`;
+    let h='<div class="bkn-h">заметки к книге</div>';
+    album.slice(0,2).forEach((r,k)=>{h+=item(r,'a'+k,`${r.count} ${plural(r.count,'фото не вошло','фото не вошли','фото не вошли')} в главу «${esc(chapterName(r.title))}» — они в «Фотоальбоме»`,'<button data-a="text">дописать главу</button><button data-a="see">открыть главу</button>');});
+    small.slice(0,3).forEach((r,k)=>{h+=item(r,'s'+k,`Фото ${r.caption?`«${esc(r.caption)}»`:''} маловато для целой страницы${r.pageNo?` (с. ${r.pageNo})`:''}`,`<button data-a="see">посмотреть</button><button data-a="keep" data-p="${esc(r.photoId||'')}">оставить так</button><button data-a="text">заменить в главе</button>`);});
+    if(small.length>3)h+=`<div class="bkn-more">и ещё ${small.length-3} ${plural(small.length-3,'фото','фото','фото')} маловаты</div>`;
+    if(notes.innerHTML!==h)notes.innerHTML=h;Object.assign(notes.style,{left:(geo.left+2*geo.w+40)+'px',top:(geo.top+250)+'px'});notes.hidden=false;}
+  notes.addEventListener('click',e=>{e.stopPropagation();const n=e.target.closest('.bkn');if(!n)return;const s=+n.dataset.s,b=e.target.closest('button');
+    if(!b){notes.querySelectorAll('.bkn').forEach(x=>x.classList.toggle('open',x===n&&!x.classList.contains('open')));return;}
+    if(b.dataset.a==='keep'){const set=okSet();set.add(b.dataset.p);try{localStorage.setItem(okKey,JSON.stringify([...set]));}catch(_){}syncNotes();return;}
+    if(s>=0&&s!==cur)turnTo(s);if(b.dataset.a==='text')setTimeout(()=>close('write'),s>=0&&s!==cur?900:0);});
+  setInterval(()=>{if(isOpen&&!busy&&!flipping)syncNotes();},1500);
   addEventListener('click',e=>{if(!isOpen)return;const b=e.target.closest?.('.wc .bkc');if(!b){if(!cmenu.hidden&&!cmenu.contains(e.target))cmenu.hidden=true;return;}
     e.preventDefault();e.stopImmediatePropagation();const k=b.dataset.c;
     if(k==='cprev')step(-1);else if(k==='cnext')step(1);
-    else{if(!cmenu.hidden){cmenu.hidden=true;return;}const c=BK()?.compositions?.(cur);if(!c)return;
-      cmenu.innerHTML='<b>Композиция разворота</b>'+c.list.map(x=>`<button type="button" data-id="${esc(x.id)}"${x.id===c.now?' class="cur"':''}>${esc(x.label)}</button>`).join('');
-      const r=b.getBoundingClientRect();Object.assign(cmenu.style,{left:Math.round(Math.min(innerWidth-260,r.left-110))+'px',top:Math.round(r.bottom+16)+'px'});cmenu.hidden=false;}},true);
+    else{if(!vars.hidden)vclose(true);else vopen();}},true);
   cmenu.addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;cmenu.hidden=true;compose(b.dataset.id);});
 
   // «Книга» on the bar's keys opens the book on the desk (before the old ways under it hear the press)

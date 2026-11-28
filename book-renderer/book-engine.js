@@ -1759,7 +1759,7 @@
       if(pages.length===2&&!pages[1].length){const all=pages[0];pages[0]=all.length>1?all.slice(0,Math.ceil(all.length/2)):[];pages[1]=all.length>1?all.slice(Math.ceil(all.length/2)):all;}
       const heading=String(voicesSource.title||'').trim()||'Голоса семьи';
       for(let i=0;i<pages.length&&i<6;i+=2)
-        spreads.push({master:'D01-SPREAD-VOICES',left:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i],heading:i===0?heading:'',pageFormat:meta.format||'square'}),right:P('voices-page',{layout:'voices-page',master:'D01-VOICES',meta:bookMeta,voices:pages[i+1],heading:'',pageFormat:meta.format||'square'})});
+        spreads.push({master:'D01-SPREAD-VOICES',left:P('voices-page',{layout:'voices-page',master:'D01-VOICES',dark:true,meta:bookMeta,voices:pages[i],heading:i===0?heading:'',pageFormat:meta.format||'square'}),right:P('voices-page',{layout:'voices-page',master:'D01-VOICES',dark:true,meta:bookMeta,voices:pages[i+1],heading:'',pageFormat:meta.format||'square'})});
     }
     // «Рецепты и традиции»: one spread per recipe or custom. First line is
     // the name, lines starting with a dash or a bullet are what is needed,
@@ -1850,6 +1850,11 @@
           events.push({year,place:String(photo.place||'').trim()||String(photo.caption||'').trim(),text:String(photo.place||'').trim()?String(photo.caption||'').trim():'',photo:{source:chapter,photoIndex}});
         });
       }
+      // v276: an event of the chronology takes a photo of the book from its year (or up to three years round it), each photo once —
+      // the spread gets its pictures and is no longer a lone line on white
+      {const used=new Set(),pool=[];for(const chapter of chapters)chapter.photos.forEach((photo,photoIndex)=>{const y=Number(String(photo.year||'').match(/\d{4}/u)?.[0]);if(y&&imageSource(photo)&&!isWhoPhoto(photo))pool.push({y,photo,ref:{source:chapter,photoIndex}});});
+        for(const event of events){if(event.photo)continue;const y=Number(event.year);let best=null;for(const item of pool){const d=Math.abs(item.y-y);if(d<=3&&!used.has(imageSource(item.photo))&&(!best||d<best.d))best={d,item};}
+          if(best){used.add(imageSource(best.item.photo));event.photo=best.item.ref;}}}
       const byYear=new Map();for(const event of events)if(!byYear.has(event.year))byYear.set(event.year,event);
       const withPhotos=[...byYear.values()].filter(event=>event.photo).length>=4;
       const chosen=[...byYear.values()].sort((a,b)=>Number(a.year)-Number(b.year));
@@ -1908,6 +1913,10 @@
       }
       spreads.push({master:'D01-SPREAD-ALBUM-TITLE',left:P('album-title',{kind:'final',meta:bookMeta,title:'Фотоальбом',text:'Фотографии, которые не вошли в главы',album:true}),right:albumPages.shift()||P('blank',{meta:bookMeta})});
       for(let i=0;i<albumPages.length;i+=2)spreads.push({master:'D01-SPREAD-ALBUM',left:albumPages[i],right:albumPages[i+1]||P('blank',{meta:bookMeta})});
+      // v276: the album goes between the family's voices and the recipes, so the white spreads at the end of the book do not
+      // follow one another
+      {const start=spreads.findIndex(sp=>sp.master==='D01-SPREAD-ALBUM-TITLE'),album=spreads.splice(start);let at=-1;spreads.forEach((sp,k)=>{if(sp.master==='D01-SPREAD-VOICES')at=k;});
+        spreads.splice(at>=0?at+1:spreads.length,0,...album);}
     }
     if(endnotes.length){
       // about thirty lines a page (fewer under the title): a chapter's name

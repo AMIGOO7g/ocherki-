@@ -773,7 +773,7 @@
       // «Голоса семьи»: memories as quiet italic quotes, each signed in small
       // capitals; the first page carries the heading.
       const voices=page.voices||[];
-      return article('D01-VOICES',`<div class="dpk-voices${page.heading?' has-head':''}">${page.heading?`<h2>${esc(page.heading)}</h2>`:''}${voices.map(voice=>`<figure class="dpk-voice"><blockquote style="font-size:${voice.size||22}px">«${esc(String(voice.text).replace(/«/gu,"„").replace(/»/gu,"“"))}»</blockquote>${voice.who?`<figcaption>${esc(voice.who)}</figcaption>`:''}</figure>`).join('')}</div>`,'dpk-voices-page');
+      return article('D01-VOICES',`<div class="dpk-voices${page.heading?' has-head':''}">${page.heading?`<h2>${esc(page.heading)}</h2>`:''}${voices.map(voice=>`<figure class="dpk-voice"><blockquote style="font-size:${voice.size||22}px">«${esc(String(voice.text).replace(/«/gu,"„").replace(/»/gu,"“"))}»</blockquote>${voice.who?`<figcaption>${esc(voice.who)}</figcaption>`:''}</figure>`).join('')}</div>`,'dpk-voices-page'+(page.dark?' dpk-voices-dark':''));
     }
     if (role === 'who-photo') {
       // «Кто на фото», right page: the group photo as large as the page

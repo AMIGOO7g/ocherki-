@@ -10,6 +10,8 @@
   window.OCHERKI_BOOK_META = window.OCHERKI_BOOK_META || {
     title:'Очерки жизни', subtitle:'История нашей семьи', author:'', year:new Date().getFullYear(), design:'editorial'
   };
+  // v276: how the album at the end of the book lays its photos, as the author last chose
+  try{const m=localStorage.getItem('ocherki_album_mode');if(m)window.OCHERKI_BOOK_META.albumMode=m;}catch(_){}
   projectTitle.textContent = 'Очерки жизни';
   pageCount.textContent = '24';
 

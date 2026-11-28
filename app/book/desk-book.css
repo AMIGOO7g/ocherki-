@@ -174,3 +174,44 @@ html.sh-shell.sh-is-night .bk-kite img{filter:sepia(.3) brightness(1.08) blur(.6
 /* from «Рукопись» to the book: the manuscript's sheets go first, then the book comes */
 html.rk-leaving .rk-board{opacity:0!important;transition:opacity .35s ease!important}
 .pdf-export-modal.is-making{opacity:0!important;pointer-events:none!important;transition:opacity .3s ease!important}
+
+/* v276 — the spread's other compositions: a quiet line over the book and the variants in little in place of the strip */
+.bk-board .bk-vtab{all:unset;position:absolute;translate:-50% 0;z-index:6;cursor:pointer;white-space:nowrap;font:15px 'CormorantCy',Georgia,serif;letter-spacing:.02em;color:#4a3020;opacity:.78;transition:opacity .25s}
+.bk-board .bk-vtab:hover{opacity:1}
+.bk-board .bk-vtab[hidden]{display:none}
+.bk-board .bk-vtab i{font-style:normal;margin:0 4px;opacity:.6}
+.bk-board .bk-vtab u{text-decoration:underline dotted;text-underline-offset:4px}
+html.sh-shell.sh-is-night .bk-board .bk-vtab{color:#ecd6b0}
+.bk-board.vars-on .bk-stripv{opacity:0;pointer-events:none;transition:opacity .3s}
+.bk-board .bk-vars{position:absolute;z-index:6;display:flex;align-items:flex-start;justify-content:center;gap:14px;padding-top:8px;--tw:150px}
+.bk-board .bk-vars[hidden]{display:none}
+.bk-board .bkv-row{display:flex;gap:22px}
+.bk-board .bk-vars .bkv{width:var(--tw);height:75px}
+.bk-board .bk-vars .bkv em{top:calc(100% + 7px);font:italic 14px/1.25 'CormorantCy',Georgia,serif}
+.bk-board .bk-vars .bkv em b{display:inline;font:600 11px Georgia,serif;letter-spacing:.14em;text-transform:uppercase;color:#8a4a16;margin-right:6px}
+.bk-board .bk-vars .bkv.cur{outline:1.5px solid #9a5a1c;outline-offset:4px;opacity:1}
+.bk-board .bk-vars .bkv.none{opacity:.35;cursor:default}
+.bk-board .bkv-arr{all:unset;cursor:pointer;font:300 34px/75px Georgia,serif;color:#5b3a1c;padding:0 4px;opacity:.75}
+.bk-board .bkv-arr:hover{opacity:1}
+.bk-board .bkv-arr.off{opacity:.18;cursor:default}
+.bk-board .bkv-side{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin-left:8px;padding-top:4px;font:14px Georgia,serif;color:#5b4633}
+.bk-board .bkv-side button{all:unset;cursor:pointer;font:italic 16px 'CormorantCy',Georgia,serif;color:#5b3a1c;text-decoration:underline dotted;text-underline-offset:4px}
+.bk-board .bkv-side .bkv-ok{color:#8a4a16;font-weight:600}
+.bk-board .bkv-side .bkv-ok:disabled{opacity:.35;cursor:default}
+.bk-board .bkv-say{position:absolute;left:0;right:0;top:142px;text-align:center;font:italic 16px 'CormorantCy',Georgia,serif;color:#3a2614}
+.bk-board .bkv-say b{color:#8a4a16}
+html.sh-shell.sh-is-night .bk-board :is(.bkv-arr,.bkv-side,.bkv-side button,.bkv-say,.bk-vars .bkv em){color:#ecd6b0}
+.bk-board .bk-vars .bkv.cur em,.bk-board .bk-vars .bkv em{font:italic 14px/1.25 'CormorantCy',Georgia,serif!important;color:#3a2614}
+/* v276 — the director's notes in the margin: quiet lines with a thin rule, opened on a press */
+.bk-board .bk-notes{position:absolute;z-index:5;width:210px;font:15px/1.4 'CormorantCy',Georgia,serif;color:#3a2614}
+.bk-board .bk-notes[hidden]{display:none}
+.bk-board .bkn-h{font:11px Georgia,serif;letter-spacing:.2em;text-transform:uppercase;color:#7a5a3a;margin:0 0 8px}
+.bk-board .bkn{position:relative;padding:4px 0 8px 12px;margin:0 0 6px;cursor:pointer;border-left:1px solid rgba(138,90,42,.45);transition:border-color .2s}
+.bk-board .bkn:hover{border-left-color:#9a5a1c}
+.bk-board .bkn p{margin:0;font-style:italic}
+.bk-board .bkn-a{display:none;flex-wrap:wrap;gap:4px 12px;margin-top:6px}
+.bk-board .bkn.open .bkn-a{display:flex}
+.bk-board .bkn-a button{all:unset;cursor:pointer;font:14px Georgia,serif;color:#8a4a16;text-decoration:underline dotted;text-underline-offset:3px}
+.bk-board .bkn-more{padding-left:13px;font:italic 14px 'CormorantCy',Georgia,serif;color:#7a5a3a}
+html.sh-shell.sh-is-night .bk-board :is(.bk-notes,.bkn-h,.bkn-more){color:#ecd6b0}
+html.sh-shell.sh-is-night .bk-board .bkn-a button{color:#f0c88e}

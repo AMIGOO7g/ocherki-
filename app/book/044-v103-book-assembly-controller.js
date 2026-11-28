@@ -248,7 +248,7 @@
         (page.photos||[]).map(photo=>[
           fastFingerprint(photo.src||photo.dataUrl||photo.dataURL||photo.url||photo.preview||photo.objectUrl||''),
           photo.caption,photo.year,photo.place,photo.people,photo.story,
-          photo.photoMode,photo.colorKind,photo.edgeTone,photo.rightTone,photo.layoutPreference,photo.portraitHero,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
+          photo.photoMode,photo.colorKind,photo.edgeTone,photo.rightTone,photo.layoutPreference,photo.portraitHero,photo.heroVariant,photo.heroYears,photo.heroRole,photo.width,photo.height,photo.orientation,
           photo.focalX,photo.focalY,photo.focalConfirmed,photo.focalSource,photo.ctxHandwrittenNote,JSON.stringify(photo.detailRoi||photo.ctxRoi||photo.roi||null),JSON.stringify(photo.regions||null)
         ].join('\u001f')).join('\u001e')
       ].join('\u001f')).join('\u001e')
@@ -2591,18 +2591,45 @@
     framing:el=>initPhotoFraming(el),
     // the spread's compositions (as the old book offered them): those that fit, and the one it has now; none — the spread has no photo
     compositions(i){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);if(!ref)return null;const own=String(ref.photo.layoutPreference||'auto').toLowerCase();
+      // v276: the hero's portrait tells which of its two pages it lies on now
+      if(sp.beat==='p01'){const v=String([sp.left,sp.right].find(p=>p?.p01Variant)?.p01Variant||'C');return {now:v==='A'?'hero-light':'hero-dark',list:compositionChoices(sp).map(x=>({id:x.id,label:x.label}))};}
       return {now:own!=='auto'?own:String(sp.beat||'auto'),list:compositionChoices(sp).filter(x=>x.ok&&x.id!=='auto').map(x=>({id:x.id,label:x.label}))};},
     // a spread laid out in another composition: its photo keeps the choice (the sheet is told too), the book is laid out anew; the
     // spread that holds the photo now is given back
     compose(i,id){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);if(!ref)return i;const {page,photo,photoIndex}=ref;
+      // v276: the hero's portrait on a dark or a light page is the photo's own setting, not a composition
+      if(/^hero-/.test(id)){const want=id==='hero-light'?'A':'C',pid=String(photo.id||'');photo.heroVariant=want;
+        (structure?.sections||[]).forEach(x=>(x.pages||[]).forEach(pg=>(pg.photos||[]).forEach(ph=>{if(pid&&String(ph.id||'')===pid)ph.heroVariant=want;})));
+        try{document.getElementById('v35SheetFrame')?.contentWindow?.postMessage({type:'OCHERKI_STRUCTURE_COMMAND',action:'setPhotoProps',photoId:pid,props:{heroVariant:want}},'*');}catch(_){}
+        window.__ocherkiPeekSig='';quietAssemble();return i;}
       updateLocalPhotoLayout(page,photo,photoIndex,id);
       send({action:'setPhotoLayout',sectionId:page.sectionId,pageUid:photo._sourcePageUid||page.sourcePageUid||'',photoId:photo.id||'',layoutPreference:id});
       spreadPhotoRefs(sp).forEach(o=>{if(o.photo===photo||!o.photo.id||String(o.photo.layoutPreference||'auto')==='auto')return;updateLocalPhotoLayout(o.page,o.photo,o.photoIndex,'auto');
         send({action:'setPhotoLayout',sectionId:o.page.sectionId,pageUid:o.photo._sourcePageUid||o.page.sourcePageUid||'',photoId:o.photo.id||'',layoutPreference:'auto'});});
       window.__ocherkiPeekSig='';if(!quietAssemble())return i;const pid=String(photo.id||'');
       const at=bookSpreads.findIndex(x=>spreadPhotoRefs(x).some(r=>String(r.photo.id||'')===pid));return at>=0?at:Math.min(i,bookSpreads.length-1);},
+    // v276 — a composition shown before it is chosen: only the spread's own chapter is laid out again with the photo in that
+    // composition (fast, nothing is saved); the result is the spread as it would lie, in little and in full, and how many spreads
+    // of the chapter after it would change. Kept per spread and composition until the book changes.
+    variant(i,id){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);if(!ref)return null;const key=bookKey()+'|'+i+'|'+id;if(variantCache.has(key))return variantCache.get(key);
+      const sec=(structure?.sections||[]).find(x=>x.id===ref.page.sectionId);if(!sec)return null;const pid=String(ref.photo.id||''),src=String(ref.photo.src||'');
+      const stand=JSON.parse(JSON.stringify(sec));(stand.pages||[]).forEach(pg=>(pg.photos||[]).forEach(ph=>{if((pid&&String(ph.id||'')===pid)||(!pid&&ph.src===src)){if(/^hero-/.test(id))ph.heroVariant=id==='hero-light'?'A':'C';else ph.layoutPreference=id;}}));
+      const before=localSpreads(sec),after=localSpreads(sec,stand);if(!after)return null;
+      const holds=x=>spreadPhotoRefs(x).some(r=>pid?String(r.photo.id||'')===pid:r.photo.src===src);
+      const at=after.findIndex(holds),was=before?before.findIndex(holds):-1;if(at<0)return null;const v=after[at];
+      const sig=x=>[x?.master,x?.left?.kind,x?.right?.kind,x?.left?.text?.length,x?.right?.text?.length].join('|');
+      let changed=0;if(before&&was>=0)for(let k=1;k<Math.max(after.length-at,before.length-was);k++)if(sig(after[at+k])!==sig(before[was+k]))changed++;
+      const host=(pg,side,kind)=>pg?pageCanvasHost(pg,side,kind,kind==='preview'):'';
+      const res={single:!!v.single||!v.left||!v.right,mini:{left:host(v.left,'left','mini'),right:host(v.right,'right','mini')},full:{left:host(v.left,'left','preview'),right:host(v.right,'right','preview')},changed,master:v.master};
+      variantCache.set(key,res);return res;},
+    // v276: the spread's photo back to the director's own choice
+    own(i){const sp=bookSpreads[i],ref=sp&&spreadPhotoRef(sp);return ref?String(ref.photo.layoutPreference||'auto').toLowerCase():'auto';},
+    // v276: the director's report for the author (photos sent to the album, photos too small for their place), each with the
+    // spread to open
+    report:()=>(window.__ocherkiDirectorReport||[]).map(r=>({...r,spread:bookSpreads.findIndex(sp=>[sp.left,sp.right].some(pg=>pg&&(r.pageNo?pg.pageNo===r.pageNo:pg.sectionId===r.sectionId)))})),
     // pages just put on the desk are drawn (a little page is drawn when it comes in sight) and fitted to their places
     scale:()=>{observePageCanvasHosts();scaleAllPageCanvases();}};
+  const variantCache=new Map();
   function performBuild(after){
     if(!structure) return false;
     hideBookNotice();
@@ -3089,7 +3116,7 @@
     const sheetWidth=spreadMode?size[0]*2:size[0];
     // Page mode keeps the canonical rule: @page{size:${size[0]}mm ${size[1]}mm;margin:0}
     const [,pageHeight]=currentPageSize();
-    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v275"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
+    return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><base href="../"><link rel="stylesheet" href="book-renderer/fonts.css"><link rel="stylesheet" href="book-renderer/design-pack-01.css?v=demo-book-20261107-v276"><style>:root{--book-page-w:1000px;--book-page-h:${pageHeight}px}@page{size:${sheetWidth}mm ${size[1]}mm;margin:0}html,body{margin:0;background:#fff}.book-print-sheet{position:relative;width:${sheetWidth}mm;height:${size[1]}mm;overflow:hidden;break-after:page;page-break-after:always}.book-print-sheet:last-child{break-after:auto}.spread-sheet{display:grid;grid-template-columns:1fr 1fr}.spread-cell{position:relative;width:${size[0]}mm;height:${size[1]}mm;overflow:hidden}.dpk-page{position:absolute!important;left:0;top:0;transform-origin:0 0;transform:scale(${printScale});}</style></head><body class="book-format-${activeFormat}">${sheets}<style id="v77-cover-in-place">
 .book-preview-spread.is-cover::after,.book-preview-spread.is-cover::before{display:none!important}
 .book-preview-spread>.book-preview-half.is-ghost{visibility:hidden!important;background:none!important;box-shadow:none!important;pointer-events:none}
 </style>
