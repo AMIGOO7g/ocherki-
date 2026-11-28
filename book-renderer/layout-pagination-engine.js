@@ -31,7 +31,30 @@
       for(let p=box.parentElement;p&&p!==article;p=p.parentElement)p.setAttribute('data-native-ancestor','');
       article.classList.add('dpk-native-paginated');html=article.outerHTML;
     }
+    if(page.footnoteMarks?.length)html=withFootnoteMarks(html,page.footnoteMarks);
     return page.darkPaper?html.replace('class="dpk-page ','class="dpk-page dpk-dark '):html;
+  }
+  // A footnote's number goes in as an empty mark right after its word; the
+  // digit is drawn by CSS, so the text read back from the page is unchanged.
+  function withFootnoteMarks(html,marks){
+    const template=document.createElement('template');template.innerHTML=html;
+    const streams=[...template.content.querySelectorAll('[data-source-stream]')];if(!streams.length)return html;
+    const pending=[...marks].sort((a,b)=>a.at-b.at);let offset=0;
+    for(const stream of streams){
+      const walker=document.createTreeWalker(stream,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+      for(const node of nodes){
+        const length=node.nodeValue.length;
+        const inside=[];while(pending.length&&pending[0].at>offset&&pending[0].at<=offset+length)inside.push(pending.shift());
+        // from the last to the first, so each split leaves the earlier places where they were
+        for(const mark of inside.reverse()){
+          const local=mark.at-offset,tail=local<node.nodeValue.length?node.splitText(local):null;
+          const sup=document.createElement('span');sup.className='dpk-fn';sup.dataset.fn=String(mark.n);sup.setAttribute('aria-label',`примечание ${mark.n}`);
+          node.parentNode.insertBefore(sup,tail||node.nextSibling);
+        }
+        offset+=length;
+      }
+    }
+    return template.innerHTML;
   }
   // v249 — a measured page is remembered: a page measured before with the same words, the same composition, the same side, the
   // same format and the same chapter's name comes back from memory exactly as it was measured (every field the measuring set on

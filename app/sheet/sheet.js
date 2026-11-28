@@ -1012,6 +1012,8 @@ function render(){
   updatePageFill();
   updateStack();
   renderPhotos();
+  // v271: the explained words are dotted and numbered (app/sheet/footnotes.js)
+  window.OcherkiFootnotes?.decorate();
   try{
     if(window.__OCHERKI_RENDER_NAVIGATION) window.__OCHERKI_EMIT_ACTIVE?.();
     else window.__OCHERKI_EMIT_STRUCTURE?.();
@@ -1229,6 +1231,8 @@ editor.addEventListener('mousedown',()=>{keepEndUntil=0;});
 
 function editorContentOverflows(){
   if(!editor) return false;
+  // v271: an open footnote slip parts the paragraphs for a moment; that is not text running over the sheet
+  if(window.OcherkiFootnotes?.holding) return false;
 
   // Method 1: native scroll geometry.
   if(editor.scrollHeight > editor.clientHeight + 2) return true;
@@ -3184,6 +3188,8 @@ window.addEventListener('message',e=>{
 
 /*@block [" id=\"v46-host-bridge\"", ""]*/
 window.addEventListener('keydown',e=>{
+  // v271: writing in a footnote slip is not typing on the sheet (the paper must not roll up under it)
+  if(e.target?.closest?.('.fn-card'))return;
   try{
     window.parent.postMessage({
       type:'OCHERKI_PHYSICAL_KEY',
@@ -3195,6 +3201,7 @@ window.addEventListener('keydown',e=>{
 },true);
 
 window.addEventListener('keyup',e=>{
+  if(e.target?.closest?.('.fn-card'))return;
   try{
     window.parent.postMessage({
       type:'OCHERKI_PHYSICAL_KEY',

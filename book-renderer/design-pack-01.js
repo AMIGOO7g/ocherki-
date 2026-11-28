@@ -101,6 +101,7 @@
     if (layout === 'x-quote-band') return 'x-quote-band';
     if (layout === 'x-vignette') return 'x-vignette';
     if (layout === 'notes-page' || kind === 'notes-page') return 'notes-page';
+    if (layout === 'endnotes' || kind === 'endnotes') return 'endnotes';
     if (layout === 'i01-timeline' || kind === 'i01-timeline') return 'i01-timeline';
     if (layout === 'i02-route' || kind === 'i02-route') return 'i02-route';
     if (layout === 'i03-tree' || kind === 'i03-tree') return 'i03-tree';
@@ -855,6 +856,14 @@
           +`<span class="dpk-i01-text" style="top:${axisY+34}px;width:${col}px">${event.place?`<strong>${esc(event.place)}</strong>`:''}${event.text?`<em>${esc(event.text)}</em>`:''}</span></div>`);
       });
       return article('D01-I01',parts.join(''),'dpk-i01');
+    }
+    if (role === 'endnotes') {
+      // «Примечания»: the explanations of the footnotes, by chapter, each with the page its word stands on.
+      const upper = value => { const v = String(value || ''); return v.charAt(0).toLocaleUpperCase('ru') + v.slice(1); };
+      // an explanation that opens with the term itself («Трудодень — …») is not preceded by the word a second time
+      const body = item => { const text = String(item.text || ''), head = text.match(/^[«"]?([^—–-]{1,40}?)[»"]?\s+[—–-]\s+/u), key = value => String(value || '').toLocaleLowerCase('ru').replace(/[^\p{L}]/gu, '').slice(0, 4); return head && key(head[1]) && key(head[1]) === key(item.word) ? { lead: head[1], rest: text.slice(head[0].length) } : { lead: upper(item.word), rest: text }; };
+      const blocks = (page.blocks || []).map(block => `<section class="dpk-endnotes-chapter"><div class="dpk-endnotes-head">${esc(block.title)}${block.continued ? ' <span>(продолжение)</span>' : ''}</div><ol class="dpk-endnotes-list">${block.items.map(item => `<li><b>${item.n}</b><p>${(b => `<i>${esc(b.lead)}</i> — ${esc(b.rest)}`)(body(item))}${item.ref?.pageNo ? ` <em>с. ${item.ref.pageNo}</em>` : ''}</p></li>`).join('')}</ol></section>`).join('');
+      return article('D01-ENDNOTES', `<div class="dpk-running">${esc(meta.title || 'Семейная хроника')}</div>${page.first ? '<h2 class="dpk-endnotes-title">Примечания</h2><div class="dpk-short-rule"></div>' : ''}<div class="dpk-endnotes${page.first ? '' : ' dpk-endnotes-more'}">${blocks}</div>${folio}`);
     }
     if (role === 'notes-page') {
       // Ruled pages left empty for the family to write in; the left page opens

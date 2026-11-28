@@ -218,7 +218,8 @@
     st.textContent=`.topbar .tl>button,.topbar .tr>button,.topbar .chapter,.page-no{visibility:hidden!important;pointer-events:none!important}
       html body .footer #saveState,html body .footer .next-step .ns-label,html body .footer .next-step .ns-text,html body .footer #nsBook{font:italic 14px/1.3 Georgia,serif!important;letter-spacing:.01em!important}html body .footer #saveState{visibility:hidden!important}`;
     d.head.appendChild(st);
-    d.addEventListener('keydown',e=>{if(e.key.length===1||e.key==='Enter'||e.key==='Backspace')typing(true);},true);
+    // (v271: not while a footnote slip is being written — the paper stays where the slip is)
+    d.addEventListener('keydown',e=>{if(e.target?.closest?.('.fn-card'))return;if(e.key.length===1||e.key==='Enter'||e.key==='Backspace')typing(true);},true);
     d.addEventListener('input',()=>feed());d.addEventListener('selectionchange',()=>feed());};
   wc.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;e.stopPropagation();const c=b.dataset.c,d=FD();
     // in «Рукопись» the back key goes from an opened chapter to all the chapters, and from there back to writing
@@ -551,9 +552,9 @@
 
   // ——— the clean stack
   const left=document.createElement('div');left.className='ws-left';left.setAttribute('aria-label','Чистые листы');
-  const TI={page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',document:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>'};
+  const TI={page:'<path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/>',episode:'<path d="M7 3h10v18l-5-4-5 4z"/>',document:'<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',photo:'<rect x="3" y="6" width="18" height="13" rx="1.5"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/>',fn:'<path d="M7 4.5h10v15.5l-5 1.5-5-1.5z"/><circle cx="12" cy="8" r="1.3"/><path d="M11 13.2l1.6-1.2v6"/>'};
   // v197: the kinds of a clean sheet are chosen on a small brass bar over the stack, the same make as the big one
-  const tabs=`<div class="ws-tabs" role="tablist"><i class="nf"></i>${[['page','лист'],['episode','эпизод'],['document','документ'],['photo','фото']].map(([k,l],i)=>`<button type="button" role="tab" data-t="${k}" class="${i?'':'on'}"><svg viewBox="0 0 24 24">${TI[k]}</svg><span>${l}</span></button>`).join('')}</div>`;
+  const tabs=`<div class="ws-tabs" role="tablist"><i class="nf"></i>${[['page','лист'],['episode','эпизод'],['document','документ'],['photo','фото'],['fn','пояснение']].map(([k,l],i)=>`<button type="button" role="tab" data-t="${k}" class="${i?'':'on'}"><svg viewBox="0 0 24 24">${TI[k]}</svg><span>${l}</span></button>`).join('')}</div>`;
   left.innerHTML=tabs+`<i class="ws-s ws-s3"><i class="ws-lt"><b class="ws-e"></b></i></i><i class="ws-s ws-s2"><i class="ws-lt"><b class="ws-e"></b></i></i>
     <div class="ws-s ws-top" title="Потяните лист на стол"><i class="ws-lt"><b class="ws-e"></b></i>
       <div class="ws-nav"><span class="ws-cnt"></span><button type="button" data-q="-1">‹ назад</button><button type="button" data-q="1">дальше ›</button></div>
@@ -567,7 +568,10 @@
         <label><span>что это</span><input data-f="dtitle" autocomplete="off" placeholder="например, письмо отца"></label><label class="tx"><span>расшифровка</span><textarea data-f="dtext" rows="2" placeholder="что написано в документе"></textarea></label>
         <div class="ws-fh">потяните на стол — в главе появится страница документа</div></div>
       <div class="ws-face ws-f-photo"><div class="ws-pnav"><span class="ws-pc"></span><button type="button" data-p="-1">‹ назад</button><button type="button" data-p="1">дальше ›</button></div>
-        <div class="ws-grid"></div><div class="ws-fh">потяните фото на лист</div></div></div>`;
+        <div class="ws-grid"></div><div class="ws-fh">потяните фото на лист</div></div>
+      <div class="ws-face ws-f-fn"><div class="ws-ft">Пояснение к&nbsp;слову</div><div class="ws-fs">для слов, которых внуки<br>могут не знать</div>
+        <div class="ws-fn-slot"><button type="button" class="ws-fn-tag" aria-label="Потяните цифру на слово в тексте"><span>1</span></button></div>
+        <div class="ws-fh">потяните <b>цифру</b> на слово в тексте —<br>в книге пояснение уйдёт в «Примечания»</div></div></div>`;
   document.body.appendChild(left);
   const top=left.querySelector('.ws-top'),qEl=left.querySelector('.ws-q'),cnt=left.querySelector('.ws-cnt');
   let kind='page';
@@ -595,7 +599,7 @@
     grid.innerHTML=part.map((r,i)=>`<i class="ws-ph" data-i="${pgN*per+i}" style="background-image:url('${String(r.src).replace(/'/g,'%27')}')"></i>`).join('')+(pgN===pages-1&&part.length<per?'<button type="button" class="ws-add">+ добавить<br>фото</button>':'');
     pc.textContent=`фото семьи · ${pgN+1} из ${pages}`;left.querySelector('.ws-pnav').classList.toggle('one',pages<2);grid._all=all;grid._pages=pages;};
   // v213: a new clean sheet slides onto the stack and settles (as the open sheets in the middle do); the contact sheet's pages the same
-  const KINDS=['page','episode','document','photo'];let turning=false;
+  const KINDS=['page','episode','document','photo','fn'];let turning=false;
   const setKind=k=>{kind=k;left.querySelectorAll('.ws-tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===k));left.dataset.kind=k;if(k==='photo'){lastSig='';fillGrid();}};
   const turnTo=(k,after)=>{if(turning)return;turning=true;(after||setKind)(k);top.classList.remove('ws-settle');void top.offsetWidth;top.classList.add('ws-settle');
     setTimeout(()=>{top.classList.remove('ws-settle');turning=false;},560);};
@@ -620,6 +624,37 @@
       if(over&&OC()?.addPhotoCopy(rec)){pr.classList.add('laid');paperFx(.25);setTimeout(()=>pr.remove(),420);}
       else{pr.classList.add('back');pr.style.transform='none';setTimeout(()=>pr.remove(),380);}};
     try{c.setPointerCapture(e.pointerId);}catch(_){}c.addEventListener('pointermove',mv);c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);});
+  // v271 — the footnote tag: pulled onto a word in the text (or pressed, and then the word clicked). The word under it lights up;
+  // let go over a word, the tag flies to it and becomes its number, and the paper slip for the explanation opens on the sheet.
+  {const slot=left.querySelector('.ws-fn-slot'),tag=left.querySelector('.ws-fn-tag'),num=tag.querySelector('span');
+    const frameBox=()=>document.getElementById('v35SheetFrame')?.getBoundingClientRect();
+    const refresh=()=>{try{const n=OC()?.fnNext?.();if(n)num.textContent=String(n);}catch(_){}};
+    const can=()=>{try{return !!OC()?.fnCan?.();}catch(_){return false;}};
+    // a new tag comes into the empty slot from below
+    const refill=()=>{refresh();tag.classList.remove('gone','lifted');tag.classList.add('refill');setTimeout(()=>tag.classList.remove('refill'),520);};
+    const say=t=>{slot.dataset.say=t;slot.classList.add('say');clearTimeout(slot._t);slot._t=setTimeout(()=>slot.classList.remove('say'),2400);};
+    setInterval(()=>{if(kind==='fn'&&!tag.classList.contains('lifted'))refresh();},1500);
+    tag.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();
+      if(!can()){say('пояснения ставятся в тексте главы');return;}
+      const r=tag.getBoundingClientRect(),fly=tag.cloneNode(true);fly.classList.add('ws-fn-fly');Object.assign(fly.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+      const x0=e.clientX,y0=e.clientY;let moved=false,on=true,tx=0,ty=0,cx=0,cy=0,hit=null;
+      const frame=()=>{if(!on)return;requestAnimationFrame(frame);cx+=(tx-cx)*.42;cy+=(ty-cy)*.42;fly.style.transform=`translate(${cx.toFixed(1)}px,${cy.toFixed(1)}px) rotate(${(hit?-12:Math.max(-10,Math.min(10,(tx-cx)/10))).toFixed(2)}deg) scale(${hit?.86:1.06})`;};
+      const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-x0,ev.clientY-y0)>5){moved=true;document.body.appendChild(fly);tag.classList.add('gone');paperFx(.25);requestAnimationFrame(frame);}
+        if(!moved)return;const fb=frameBox();hit=fb?OC()?.fnHover?.(ev.clientX-fb.left,ev.clientY-fb.top):null;
+        // over a word the tag settles above its end, as if hung on it
+        if(hit){tx=fb.left+hit.left+hit.width+2-r.left;ty=fb.top+hit.top-r.height+6-r.top;}else{tx=ev.clientX-x0;ty=ev.clientY-y0;}
+        fly.classList.toggle('over',!!hit);};
+      const up=ev=>{tag.removeEventListener('pointermove',mv);tag.removeEventListener('pointerup',up);tag.removeEventListener('pointercancel',up);
+        if(!moved){// pressed: the tag lifts and waits for a word to be clicked
+          tag.classList.add('lifted');say('нажмите на слово в тексте · Esc — отмена');
+          OC()?.fnPick?.(true,ok=>{tag.classList.remove('lifted');if(ok){tag.classList.add('gone');setTimeout(refill,420);}});return;}
+        on=false;const fb=frameBox();const ok=ev.type==='pointerup'&&fb&&OC()?.fnDrop?.(ev.clientX-fb.left,ev.clientY-fb.top);
+        if(ok){fly.classList.add('laid');paperFx(.2);setTimeout(()=>{fly.remove();refill();},460);}
+        else{fly.classList.add('back');fly.style.transform='none';setTimeout(()=>{fly.remove();tag.classList.remove('gone');},420);try{OC()?.fnHover?.(-1,-1);}catch(_){}}};
+      try{tag.setPointerCapture(e.pointerId);}catch(_){}tag.addEventListener('pointermove',mv);tag.addEventListener('pointerup',up);tag.addEventListener('pointercancel',up);});
+    // leaving the tab ends a waiting pick
+    left.querySelector('.ws-tabs').addEventListener('click',()=>{if(tag.classList.contains('lifted')){OC()?.fnPick?.(false);tag.classList.remove('lifted');}});
+    refresh();}
   left.querySelector('.ws-nav').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;e.stopPropagation();document.getElementById(b.dataset.q==='1'?'writingPromptNext':'writingPromptAgree')?.click();});
   // the chapter's question is written on the top clean sheet (the same question as beside the sheet, the same keys)
   // the chapter may have no questions (the family tree): the question beside the sheet is then hidden — the clean sheet is clean
@@ -634,7 +669,7 @@
   // ——— taking a clean sheet to the desk
   const act=a=>{try{FW()?.postMessage({type:'OCHERKI_SHEET_ACTION',act:a},'*');}catch(_){}};
   let drag=null;
-  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo'||turning)return;e.preventDefault();
+  top.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('button,input,textarea,label,.ws-grid')||kind==='photo'||kind==='fn'||turning)return;e.preventDefault();
     const r=top.getBoundingClientRect();const fl=top.cloneNode(true);fl.classList.add('ws-flyer');// the window's light stays on the stack: a sheet in the hand is lit as it is lifted, not as it lay
     fl.querySelectorAll(shell.classList.contains('is-night')?'.ws-tabs,.ws-nav':'.ws-tabs,.ws-nav,.ws-lt').forEach(x=>x.remove());{const nb=left.style.getPropertyValue('--ws-nbg');if(nb)fl.style.setProperty('--ws-nbg',nb);}fl.dataset.kind=kind;{const src=top.querySelectorAll('input,textarea'),dst=fl.querySelectorAll('input,textarea');src.forEach((x,i)=>{if(dst[i])dst[i].value=x.value;});}fl.querySelector('.ws-q')?.classList.remove('in');fl.style.setProperty('--ws-w',top.offsetWidth+'px');
     Object.assign(fl.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});document.body.appendChild(fl);top.classList.add('ws-away');

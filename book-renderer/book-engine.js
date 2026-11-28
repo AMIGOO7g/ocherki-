@@ -269,6 +269,22 @@
   // A place may carry its map coordinates («Малые Кузьмичи [57.87, 41.45]»): the
   // map reads them, the page shows only the name.
   const placeLabel = text => String(text || '').replace(/\s*[[(]\s*-?\d+(?:[.,]\d+)?\s*[,;]\s*-?\d+(?:[.,]\d+)?\s*[\])]/gu, '').trim();
+  // A footnote is kept on its sheet as the explained word, which of its
+  // occurrences it is (0 — the first) and the explanation. Its mark stands
+  // right after that word; offsets are found again at every build, so editing
+  // the text elsewhere never moves it.
+  const footnoteEnd = (text, note) => {
+    const word = String(note?.word || '').trim();
+    if (!word) return -1;
+    const source = String(text || ''), wanted = Math.max(0, Number(note?.occ) || 0), letter = /[\p{L}\p{N}]/u;
+    for (let from = 0, seen = 0; ;) {
+      const at = source.indexOf(word, from);
+      if (at < 0) return -1;
+      const end = at + word.length;
+      if (!letter.test(source.charAt(at - 1) || ' ') && !letter.test(source.charAt(end) || ' ')) { if (seen === wanted) return end; seen++; }
+      from = at + 1;
+    }
+  };
   const isWhoPhoto = photo => Boolean(imageSource(photo)) && Array.isArray(photo?.peopleMarks) && photo.peopleMarks.filter(mark => mark && String(mark.name || '').trim()).length >= 2;
 
   // Then/now pairs: photos that name each other in pairWith. «Было» is the
@@ -1816,6 +1832,44 @@
       let at=-1;spreads.forEach((spread,index)=>{if(middle&&spread.sectionId===middle)at=index;});
       if(at<0)at=spreads.length-1;
       spreads.splice(at+1,0,i02Spread);
+    }
+    // Footnotes: a small number after the explained word in the text (drawn by
+    // CSS, so the text itself stays exact) and «Примечания» before the
+    // sources, by chapter, each with the page it stands on. Numbers follow the
+    // reading order; a note whose word is not on a text page is left out.
+    const endnotes=[];
+    {
+      const bySection=new Map();
+      for(const chapter of chapters){
+        const list=[];
+        for(const run of chapter.runs){
+          const notes=Array.isArray(run.page?.footnotes)?run.page.footnotes:[];if(!notes.length)continue;
+          const raw=String(run.page.text??''),start=run.start+(run.text.length-raw.length);
+          for(const note of notes){const end=footnoteEnd(raw,note);if(end>=0&&String(note.text||'').trim())list.push({at:start+end,note,chapter,placed:false});}
+        }
+        if(list.length)bySection.set(chapter.sectionId,list.sort((a,b)=>a.at-b.at));
+      }
+      let number=0;
+      for(const spread of spreads)for(const page of [spread.left,spread.right]){
+        if(!page)continue;page.footnoteMarks=[];
+        const range=page.sourceRange,list=range&&bySection.get(page.sectionId);if(!list)continue;
+        for(const mark of list){if(mark.placed||mark.at<=range.start||mark.at>range.end)continue;mark.placed=true;mark.number=++number;mark.page=page;page.footnoteMarks.push({at:mark.at-range.start,n:number});endnotes.push(mark);}
+      }
+    }
+    if(endnotes.length){
+      // about thirty lines a page (fewer under the title): a chapter's name
+      // takes two, a note one per eighty-odd characters and a little air
+      const pagesOfNotes=[];let blocks=[],lines=4,block=null;const room=()=>pagesOfNotes.length?34:30;
+      const turn=()=>{pagesOfNotes.push(blocks);blocks=[];lines=0;block=null;};
+      for(const mark of endnotes){
+        const item={n:mark.number,word:String(mark.note.word).trim(),text:String(mark.note.text).trim(),ref:mark.page},need=.45+Math.ceil((item.word.length+item.text.length+8)/86);
+        if(!block||block.sectionId!==mark.chapter.sectionId){if(lines+2.4+need>room())turn();block={sectionId:mark.chapter.sectionId,title:mark.chapter.title,items:[]};blocks.push(block);lines+=2.4;}
+        else if(lines+need>room()){turn();block={sectionId:mark.chapter.sectionId,title:mark.chapter.title,items:[],continued:true};blocks.push(block);lines+=2.4;}
+        block.items.push(item);lines+=need;
+      }
+      if(blocks.length)pagesOfNotes.push(blocks);
+      const notePages=pagesOfNotes.map((list,index)=>P('endnotes',{layout:'endnotes',master:'D01-ENDNOTES',meta:bookMeta,blocks:list,first:index===0}));
+      for(let i=0;i<notePages.length;i+=2)spreads.push({master:'D01-SPREAD-ENDNOTES',left:notePages[i],right:notePages[i+1]||P('blank',{meta:bookMeta})});
     }
     if(hasMatter('afterword')||hasMatter('thanks'))spreads.push({master:'D01-SPREAD-AFTERWORD-THANKS',left:matter('afterword','epilogue','D01-FINAL','Послесловие'),right:matter('thanks','thanks','D01-THANKS','Благодарности')});
     if(hasMatter('sources')||byId('colophon')){

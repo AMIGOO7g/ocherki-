@@ -948,9 +948,9 @@ html body .ws-flyer .ws-q,html body .ws-flyer .ws-hint{transition:opacity .25s e
 /* v209 — the faces of the clean stack: «лист» shows the chapter's question; «эпизод», «документ» and «фото» each their own sheet */
 .ws-face{display:none;position:absolute;inset:0;flex-direction:column;align-items:stretch;padding:12% 9% 8%;box-sizing:border-box;text-align:left;z-index:4;color:#5a3f26}
 /* the face of each kind — on the stack and on every copy of its top sheet (the leaf turned over, the sheet in the hand) */
-[data-kind="episode"] .ws-f-episode,[data-kind="document"] .ws-f-document,[data-kind="photo"] .ws-f-photo{display:flex}
-.ws-top:is([data-kind="episode"],[data-kind="document"],[data-kind="photo"])>:is(.ws-q,.ws-nav,.ws-hint){visibility:hidden}
-.ws-left:is([data-kind="episode"],[data-kind="document"],[data-kind="photo"]) .ws-top>:is(.ws-q,.ws-nav,.ws-hint){visibility:hidden}
+[data-kind="episode"] .ws-f-episode,[data-kind="document"] .ws-f-document,[data-kind="photo"] .ws-f-photo,[data-kind="fn"] .ws-f-fn{display:flex}
+.ws-top:is([data-kind="episode"],[data-kind="document"],[data-kind="photo"],[data-kind="fn"])>:is(.ws-q,.ws-nav,.ws-hint){visibility:hidden}
+.ws-left:is([data-kind="episode"],[data-kind="document"],[data-kind="photo"],[data-kind="fn"]) .ws-top>:is(.ws-q,.ws-nav,.ws-hint){visibility:hidden}
 .ws-ft{font:400 calc(var(--ws-w,320px)*.1)/1.1 'SignThatS','CormorantCy',Georgia,serif;text-align:center;margin-top:4%}
 .ws-fs{font:clamp(11px,calc(var(--ws-w,320px)*.04),15px) 'CormorantCy',Georgia,serif;text-align:center;opacity:.75;margin:3% 0 7%}
 .ws-face label{display:flex;align-items:flex-end;gap:10px;margin:0 0 5%;border-bottom:1px solid rgba(90,63,38,.5);cursor:text}
@@ -1285,3 +1285,28 @@ html.sh-shell.sh-is-night .oc-shelf{background:linear-gradient(180deg,#2b2119,#2
 html.sh-shell.sh-is-night .oc-shelf .sh-h b,html.sh-shell.sh-is-night .oc-shelf .sh-ask input{color:#ecd8b6}
 html.sh-shell.sh-is-night .oc-shelf .sh-tag,html.sh-shell.sh-is-night .oc-shelf .op,html.sh-shell.sh-is-night .oc-shelf .sh-x,html.sh-shell.sh-is-night .oc-shelf .sh-new .sh-cov,html.sh-shell.sh-is-night .oc-shelf .sh-sure{color:#d9bf94}
 html.sh-shell.sh-is-night .oc-shelf .sh-row{border-bottom-color:#5a4028}
+
+/* v271 — five kinds on the plate (the fifth: «пояснение»); the plate reaches a little past the stack so the words keep their size */
+html body .ws-left .ws-tabs{left:-22px;right:-22px;padding:0 10px;justify-content:space-between}
+html body .ws-left .ws-tabs button{font-size:clamp(10px,calc(var(--ws-w,320px)*.041),15px)!important;padding:3px 2px;gap:4px;white-space:nowrap}
+/* the footnote face: a tag with the next number, pulled onto a word */
+.ws-f-fn{align-items:center;text-align:center}
+.ws-f-fn .ws-ft{margin-top:2%}
+.ws-fn-slot{position:relative;margin:11% auto 0;width:calc(var(--ws-w,320px)*.2);height:calc(var(--ws-w,320px)*.24);border-radius:9px;border:1.5px dashed rgba(138,90,42,.35)}
+.ws-fn-slot::after{content:attr(data-say);position:absolute;left:50%;top:calc(100% + 12px);transform:translateX(-50%);width:max-content;max-width:calc(var(--ws-w,320px)*.8);font:italic clamp(11px,calc(var(--ws-w,320px)*.042),15px)/1.3 'CormorantCy',Georgia,serif;color:#8a4a16;opacity:0;transition:opacity .3s}
+.ws-fn-slot.say::after{opacity:1}
+.ws-fn-tag,.ws-fn-fly{all:unset;box-sizing:border-box;position:absolute;inset:-1.5px;border-radius:9px;cursor:grab;display:flex;align-items:center;justify-content:center;touch-action:none;
+  background:linear-gradient(160deg,#fbf3e3,#efdcbc);box-shadow:0 6px 14px rgba(70,40,12,.28),0 0 0 1px rgba(140,92,40,.35);font:600 calc(var(--ws-w,320px)*.12) 'CormorantCy',Georgia,serif;color:#8a4a16;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,opacity .25s}
+.ws-fn-tag::before,.ws-fn-fly::before{content:"";position:absolute;top:8px;left:50%;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:#d9c19a;box-shadow:inset 0 1px 2px rgba(60,30,8,.45)}
+.ws-fn-tag span,.ws-fn-fly span{margin-top:12%}
+.ws-fn-tag:hover{transform:translateY(-3px) rotate(-3deg);box-shadow:0 10px 18px rgba(70,40,12,.32),0 0 0 1px rgba(140,92,40,.35)}
+.ws-fn-tag.lifted{transform:translateY(-8px) rotate(-6deg) scale(1.05);box-shadow:0 0 0 3px rgba(226,170,92,.5),0 14px 22px rgba(70,40,12,.35)}
+.ws-fn-tag.gone{opacity:0;transform:scale(.6)}
+.ws-fn-tag.refill{animation:wsFnRefill .5s cubic-bezier(.2,.9,.25,1.12)}
+@keyframes wsFnRefill{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:none}}
+.ws-fn-fly{position:fixed;inset:auto;z-index:2147483300;pointer-events:none;cursor:grabbing;box-shadow:0 18px 28px rgba(60,30,8,.35),0 0 0 1px rgba(140,92,40,.35);transition:none;transform-origin:0 100%}
+.ws-fn-fly.over{box-shadow:0 10px 18px rgba(60,30,8,.32),0 0 0 2px rgba(226,170,92,.7)}
+/* laid: it shrinks into the end of its word, where the number appears */
+.ws-fn-fly.laid{transition:scale .42s cubic-bezier(.5,0,.75,0),opacity .4s .05s!important;scale:.16;opacity:0}
+.ws-fn-fly.back{transition:transform .38s cubic-bezier(.2,.9,.25,1.12),opacity .3s!important}
+html.sh-shell.sh-is-night .ws-face .ws-fn-slot::after{color:#3a2008!important;opacity:0}html.sh-shell.sh-is-night .ws-face .ws-fn-slot.say::after{opacity:1}

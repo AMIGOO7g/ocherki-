@@ -1221,6 +1221,23 @@
   })();
   const treePhotos = [photo('tree-andrei', 'family_andrei'), photo('tree-praskovya', 'praskovya'), photo('tree-mikhail', 'mikhail_close'), photo('tree-ekaterina', 'kitchen_face'), photo('tree-vera', 'couple_woman'), photo('tree-alexey', 'couple_man')];
 
+  // Footnotes, as the author pins them: the word, which of its occurrences on the sheet (0 — the first) and the explanation.
+  const FOOTNOTES = [
+    ['Молочной горы', 'Молочная гора — старинная площадь в центре Костромы у торговых рядов, где шла торговля молоком и хлебом.'],
+    ['сени', 'Сени — холодная пристройка между крыльцом и жилой частью избы.'],
+    ['монпансье', 'Монпансье — мелкие разноцветные леденцы в жестяной коробочке. Пустые коробочки потом годами хранили пуговицы, письма и мелочи.'],
+    ['репродуктора', 'Репродуктор — проводной громкоговоритель, «чёрная тарелка» радио на стене или столбе.'],
+    ['техникум', 'Техникум — среднее специальное учебное заведение, готовившее техников для заводов и строек.'],
+    ['Стромынки', 'Стромынка — улица в Сокольниках, на востоке Москвы.'],
+    ['коммуналок', 'Коммуналка — коммунальная квартира, где в отдельных комнатах жили несколько семей с общей кухней.'],
+    ['Зоркий', '«Зоркий» — советский малоформатный фотоаппарат, выпускался с 1948 года.']
+  ];
+  const chaptersOnly = [ch1, ch2, ch3, ch4, ch5, ch6].flat();
+  for (const [word, text] of FOOTNOTES) {
+    const page = chaptersOnly.find(item => item.type === 'chapter' && new RegExp(`(^|[^\\p{L}])${word}([^\\p{L}]|$)`, 'u').test(item.text));
+    if (page) (page.footnotes = page.footnotes || []).push({ id: 'fn-' + word, word, occ: 0, text });
+  }
+
   const structure = { sections: [
     front('cover', 'cover', 'Пока в доме идут часы\n\nЧетыре поколения одной семьи. 1905–2024\n\nАнна Сергеевна Воронцова\n\n', [photo('cover', 'watch')]),
     front('endpaper', 'endpaper', ''),
