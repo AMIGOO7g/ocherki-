@@ -714,7 +714,8 @@
         pages,
         // A group photo with people marked on it («Кто на фото») gets its
         // own spread and stays out of the ordinary photo rhythm.
-        photos: (paired => pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(photo => !isWhoPhoto(photo) && !paired.has(String(photo.id))))(pairedIds(pages.flatMap(page => page.photos || []))),
+        // v271: a document's scan belongs to the document's own spread only (it came back once more among the chapter's photos)
+        photos: (paired => pages.flatMap((page,pageIndex) => (page.type === 'document' || page.bookRole === 'document' ? [] : page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(photo => !isWhoPhoto(photo) && !paired.has(String(photo.id))))(pairedIds(pages.flatMap(page => page.photos || []))),
         whoPhotos: pages.flatMap((page,pageIndex) => (page.photos || []).map(photo => ({ ...photo, _sourcePageUid:page.uid||page.id||section.id, _sourcePageIndex:pageIndex }))).filter(isWhoPhoto),
         // «Было — стало»: two photos paired with each other in this chapter.
         pairs: thenNowPairs(pages.flatMap(page => page.photos || [])),
@@ -1071,7 +1072,8 @@
         const pageRhythm=noNote?(rhythm==='important-margin'?'important':'plain'):rhythm;
         const page=P('text',{
           layout:'prose-dense',master:masters[pageRhythm],rhythm:pageRhythm,sectionId:chapter.sectionId,source:chapter,
-          sourcePageUid:owner?.sourcePageUid,title:chapter.title,episode:input.episode||chapter.episode,
+          // v271: a sheet without its own episode name runs under the episode it continues (not the chapter's first one)
+          sourcePageUid:owner?.sourcePageUid,title:chapter.title,episode:input.episode||[...chapter.runs].reverse().find(run=>run.start<=(owner?.start??0)&&run.page?.isEpisodeStart&&run.page.episode)?.page.episode||chapter.episode,
           importantLine:['important','important-margin'].includes(rhythm)?String(overrides[key]??input.importantLine??''):'',
           inlineQuote:rhythm==='inline-quote'?String(overrides[key]??input.inlineQuote??input.quote??''):'',
           quoteColumn:rhythm==='inline-quote'?(occurrence%2===0?'left':'right'):'',

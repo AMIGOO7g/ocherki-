@@ -478,6 +478,8 @@
       return src ? `<img${tone ? ` class="${tone}"` : ''} src="${esc(src)}" alt="" loading="lazy" decoding="async" data-frame-photo="${esc(photo?.id || '')}" data-frame-index="${index}"${frameStyle(photo)}>` : '<span class="dpk-photo-missing"></span>';
     };
     const caption = index => esc(ctx.caption ? ctx.caption(source, index) : '');
+    // v271: a photo laid as a card carries its own caption, written by hand on the card's white edge (the photo's name and year)
+    const cardNote = index => { const photo = source?.photos?.[index] || {}; const text = [String(photo.caption || '').trim(), String(photo.year || '').trim()].filter(Boolean).join(', '); return text ? `<figcaption class="dpk-card-note">${esc(text)}</figcaption>` : ''; };
     // One source image in one viewport across both pages of the spread.
     const hspreadPhoto = index => `<figure class="dpk-hspread-photo" data-source-photo-index="${index}">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`;
     // T06: two related frames in one strict row above the text. Both share one
@@ -491,7 +493,8 @@
       if(!layout)return '';
       const offset=pageSide==='left'?0:1000,box=(item,extra='')=>`left:${item.x-offset}px;top:${item.y}px;width:${item.w}px;height:${item.h}px${extra}`;
       const main=`<figure class="dpk-t10-main" style="${box(layout.main)}">${image(layout.main.index).replace('loading="lazy"','loading="eager"')}</figure>`;
-      const card=`<figure class="dpk-t10-card" style="${box(layout.card,`;transform:rotate(${layout.card.angle}deg)`)}">${image(layout.card.index).replace('loading="lazy"','loading="eager"')}</figure>`;
+      const note=cardNote(layout.card.index);
+      const card=`<figure class="dpk-t10-card${note?' has-note':''}" style="${box(layout.card,`;transform:rotate(${layout.card.angle}deg)`)}">${image(layout.card.index).replace('loading="lazy"','loading="eager"')}${note}</figure>`;
       return main+card;
     };
     const t06Pair = indices => {
@@ -542,9 +545,11 @@
     }
     if (page.measuredFlow) {
       const flow=page.measuredFlow,mode=flow.mode;
+      // v271: the end-of-episode mark stands right under the last text, centred on its own column
+      const lastCell=page.chapterEndMark?flow.cells.reduce((last,text,index)=>String(text||'').trim()?index:last,-1):-1;
       const cell=index=>{
         const ranges=(flow.inlineRanges?.[index]||[]).map(item=>({...item,attrs:item.editable?editorialAttrs('important'):''}));
-        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true,Boolean(flow.paragraphStarts?.[index]))}</p></div>`;
+        return `<div class="dpk-flow-cell" data-flow-cell="${index}"><p class="dpk-source-copy" data-source-stream>${sourceMarkup(flow.cells[index]||'',flow.cellBreaks[index]||[],ranges,true,Boolean(flow.paragraphStarts?.[index]))}</p>${index===lastCell?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':''}</div>`;
       };
       const overflowClass=kind=>flow.accentOverflow?.[kind]?' dpk-accent-overflow':'';
       const quote=()=>`<div class="dpk-quote-reservation"><p class="dpk-inline-quote${overflowClass('quote')}"${editorialAttrs('inline-quote')}>${sourceMarkup(page.inlineQuote||'')}</p></div>`;
@@ -578,7 +583,7 @@
       // horizontal handwritten line, air, then the shared text flow.
       const episodeHead=page.episodeOpening?`<div class="dpk-episode-head"><h2${String(page.episodeOpening.title||'').length>30?' class="dpk-episode-long"':''}>${esc(page.episodeOpening.title||'')}</h2>${page.episodeOpening.line?`<p class="dpk-episode-line" style="font-size:${(()=>{const n=String(page.episodeOpening.line).length;return n<=40?28:n<=52?24:n<=64?21:18;})()}px">${esc(page.episodeOpening.line)}</p>`:''}</div>`:'';
       const photoCaption=page.topPhoto&&pageSide==='left'?captionLine([page.topPhoto.photoIndex]):pair?captionLine(page.topPair.photoIndices):page.spinePhoto?captionLine([page.spinePhoto.photoIndex]):page.railPhoto?captionLine([page.railPhoto.photoIndex]):page.bottomPhotos?captionLine(page.bottomPhotos.photoIndices):'';
-      const endMark=page.chapterEndMark?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':'';
+      const endMark=page.chapterEndMark&&lastCell<0?'<div class="dpk-end-mark" aria-hidden="true"><i></i><span>✦</span><i></i></div>':'';
       return article(page.master,`${endMark}${bg}${sidePhoto}${bottomPhotos}${smallHead}${topPhoto}${railPhoto}${spinePhoto}${t10}${episodeHead}${chapterHeader}${margin}<div class="dpk-measured-flow dpk-flow-mode-${mode}">${content}</div>${photoCaption}${folio}`,`dpk-dom-paginated${page.topPhoto?' dpk-hspread':pair?' dpk-t06-text':spinePhoto?' dpk-t08-text':railPhoto?' dpk-x-rail-text':t10?' dpk-t10 dpk-t10-text':episodeHead?' dpk-episode-open':''}${page.darkFlow?' dpk-dark dpk-x-dark-flow':''}${xClass}`)
         .replace('data-design-pack=',`style="${style}${pair?`;--dpk-flow-origin:${pair.origin}px`:''}" data-design-pack=`);
     }
@@ -626,10 +631,10 @@
       const secondaryTone=photoToneClass(secondaryPhoto);
       const secondaryImg=secondarySrc?`<img class="dpk-ctx-secondary-image${secondaryTone?` ${secondaryTone}`:''}" src="${esc(secondarySrc)}" alt="" loading="lazy" decoding="async"${frameAttrs(secondaryIndex)}>`:'';
       const accent=secondarySrc
-        ?`<figure class="dpk-ctx-card" data-ctx-accent="secondary-photo" data-source-photo-index="${secondaryIndex}" data-photo-asset-id="${esc(page.secondaryPhotoAssetId||secondaryPhoto.id||secondarySrc)}">${secondaryImg}</figure>`
+        ?`<figure class="dpk-ctx-card${cardNote(secondaryIndex)?' has-note':''}" data-ctx-accent="secondary-photo" data-source-photo-index="${secondaryIndex}" data-photo-asset-id="${esc(page.secondaryPhotoAssetId||secondaryPhoto.id||secondarySrc)}">${secondaryImg}${cardNote(secondaryIndex)}</figure>`
         :`<div class="dpk-ctx-handwritten-card" data-ctx-accent="handwritten-note"${editorialAttrs('ctx-handwritten')}><span>${esc(handwritten)}</span></div>`;
       const ctxK=(page.pageFormat||meta.format)==='portrait'?1.196:1;
-      return article('D01-CTX-DETAIL-SQ',`<div class="dpk-ctx-stage"${ctxK!==1?` data-ctx-tall style="--ctx-k:${ctxK}"`:''} data-ctx-state="${safeState}" data-source-photo-index="${index}" data-photo-asset-id="${esc(page.mainPhotoAssetId||photo.id||src)}" data-ctx-accent-type="${secondarySrc?'secondary-photo':'handwritten-note'}"><figure class="dpk-ctx-main">${img('dpk-ctx-main-image')}</figure>${accent}</div>${folio}`,'dpk-ctx-detail-sq');
+      return article('D01-CTX-DETAIL-SQ',`<div class="dpk-ctx-stage"${ctxK!==1?` data-ctx-tall style="--ctx-k:${ctxK}"`:''} data-ctx-state="${safeState}" data-source-photo-index="${index}" data-photo-asset-id="${esc(page.mainPhotoAssetId||photo.id||src)}" data-ctx-accent-type="${secondarySrc?'secondary-photo':'handwritten-note'}"><figure class="dpk-ctx-main">${img('dpk-ctx-main-image')}</figure>${accent}</div>${caption(index)?`<div class="dpk-caption dpk-ctx-caption">${caption(index)}</div>`:''}${folio}`,'dpk-ctx-detail-sq');
     }
     if (role === 'dark-fade') {
       const index=Number(page.photoIndex)||0;
@@ -742,7 +747,8 @@
       const data=page.pair||{},mine=data[page.side]||{},formatH=(data.pageFormat||meta.format)==='portrait'?1196:1000;
       const ratios=[0,1].map(index=>photoRatio(index)),maxW=700,maxH=formatH-420;
       const height=Math.round(Math.min(maxH,...ratios.map(ratio=>maxW/ratio))),index=page.photoIndex||0,width=Math.round(height*ratios[index]);
-      const top=Math.round((formatH-height)/2-60),left=page.side==='then'?Math.round(930-width-80):Math.round(1070-1000+80);
+      // v271: each photo stands in the middle of its own page, so the pair mirrors itself across the fold
+      const top=Math.round((formatH-height)/2-60),left=Math.round((1000-width)/2);
       return article('D01-THEN-NOW',`<div class="dpk-thennow-label" style="top:${top-44}px;left:${left}px">${esc(mine.label||'')}</div>`
         +`<figure class="dpk-thennow-photo" style="top:${top}px;left:${left}px;width:${width}px;height:${height}px">${image(index).replace('loading="lazy"','loading="eager"')}</figure>`
         +`<div class="dpk-thennow-text" style="top:${top+height+26}px;left:${left}px;width:${width}px">${mine.year?`<b>${esc(mine.year)}</b>`:''}${mine.caption||mine.place?`<span>${esc([mine.caption,mine.place].filter(Boolean).join(' · '))}</span>`:''}</div>`,'dpk-thennow');
@@ -968,7 +974,7 @@
       return article('D01-T06-HERO', `<figure class="dpk-t06-hero" style="width:${width}px;height:${height}px;--dpk-hero-h:${height}px">${image(page.photoIndex||0).replace('loading="lazy"','loading="eager"')}</figure>${captionLine([page.photoIndex||0])}${folio}`);
     }
     if (role === 'hspread-photo') return article('D01-HSPREAD-TOP', `${hspreadPhoto(page.photoIndex||0)}${folio}`, 'dpk-hspread');
-    if (role === 't10-photos') return article('D01-T10-PHOTOS', `${t10Layer(page.t10)}${captionLine([page.t10.main.index,page.t10.card.index])}${folio}`, 'dpk-t10 dpk-t10-photos');
+    if (role === 't10-photos') return article('D01-T10-PHOTOS', `${t10Layer(page.t10)}${captionLine([page.t10.main.index])}${folio}`, 'dpk-t10 dpk-t10-photos');
     if (role === 'panorama') {
       const index = page.photoIndex || 0;
       const captionText = page.hideCaption ? '' : caption(index);
@@ -1045,7 +1051,9 @@
       const documentImage = ctx.image ? ctx.image(source, page.photoIndex || 0) : '';
       const documentCaption = caption(page.photoIndex || 0);
       if (documentImage) return article('D01-DOCUMENT', `<figure class="dpk-document-scan">${image(page.photoIndex || 0)}</figure>${documentCaption ? `<div class="dpk-caption">${documentCaption}</div>` : ''}${folio}`, 'dpk-document-image');
-      return article('D01-DOCUMENT', `<div class="dpk-document-transcript"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p>${paragraphsHtml(own(page, 'text') ? page.text : source.text || '', esc, cleanText)}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
+      // v271: the letter's hand is sized by its length, by the same measure as the ruled sheet of a scanned document
+      const letter = own(page, 'text') ? page.text : source.text || '', letterSize = letter.length <= 250 ? [30, 46] : letter.length <= 550 ? [26, 40] : [22, 34];
+      return article('D01-DOCUMENT', `<div class="dpk-document-transcript" style="--dpk-hand-size:${letterSize[0]}px;--dpk-rule:${letterSize[1]}px"><div class="dpk-document-transcript-head"><span>Документ</span><strong>${title || 'Архивный документ'}</strong></div><p>${paragraphsHtml(letter, esc, cleanText)}</p><div class="dpk-document-source">Из семейного архива${inferred.date ? ` · ${esc(inferred.date)}` : ''}</div></div>${folio}`, 'dpk-document-text-page');
     }
     if (role === 'document-comment') {
       const documentDate=esc([inferred.place,inferred.date].filter(Boolean).join(', '));
@@ -1056,6 +1064,11 @@
       // handChunk/handSize come from the engine when a long text continues on
       // further ruled sheets (only the first sheet carries the note).
       const transcript=paragraphs(page.transcript||''),hand=page.handChunk!=null?paragraphs(page.handChunk):transcript||paragraphs(page.text||''),note=transcript&&!page.handContinuation?clean(page.note||''):'';
+      // v271: a document without a scan has its letter in hand on the left page; here the explanation stays in print, quiet,
+      // in the middle of the sheet (in hand it came twice the size of the letter beside it)
+      if(!transcript&&page.handChunk==null&&clean(page.text||'')){
+        return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-aside">${documentDate?`<div class="dpk-document-date">${documentDate}</div>`:''}<div class="dpk-kicker">Из семейного архива</div><p>${esc(clean(page.text||''))}</p></div>${folio}`, 'dpk-document-aside-page');
+      }
       const size=Array.isArray(page.handSize)?page.handSize:hand.length<=250?[30,46]:hand.length<=550?[26,40]:[22,34];
       return article('D01-DOCUMENT-COMMENT', `<div class="dpk-document-transcript dpk-document-ruled" style="--dpk-hand-size:${size[0]}px;--dpk-rule:${size[1]}px">${documentDate&&!page.handContinuation?`<div class="dpk-document-date">${documentDate}</div>`:''}${hand?`<p class="dpk-document-hand">${paragraphsHtml(hand,esc)}</p>`:''}${note?`<div class="dpk-document-note">${esc(note)}</div>`:''}${documentSource&&!page.handContinuation?`<div class="dpk-document-source">— ${documentSource}</div>`:''}</div>${folio}`);
     }
