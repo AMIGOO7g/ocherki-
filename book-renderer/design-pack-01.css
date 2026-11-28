@@ -3031,10 +3031,9 @@ body .dpk-page.dpk-endnotes .dpk-endnotes-list b{flex:0 0 26px;text-align:right;
 body .dpk-page.dpk-endnotes .dpk-endnotes-list p{margin:0;font:15px/1.55 Georgia,'PT Serif',serif;color:#2f271f;text-align:left}
 body .dpk-page.dpk-endnotes .dpk-endnotes-list i{font-style:italic;color:#1f1912}
 body .dpk-page.dpk-endnotes .dpk-endnotes-list em{font-style:normal;font-size:12px;color:#9a8a74;white-space:nowrap;margin-left:4px}
-/* v273 — the end-of-episode mark: centred on the whole text block of a two-column page (its old place), and on the one column
-   of a page that has only one (a dark sheet beside its photograph) */
-body .dpk-page.dpk-dom-paginated.dpk-x-bg-dark.dpk-x-bg-span-page.left .dpk-end-mark{left:70px!important;right:540px!important}
-body .dpk-page.dpk-dom-paginated.dpk-x-bg-dark.dpk-x-bg-span-page.right .dpk-end-mark{left:91px!important;right:540px!important}
+/* v274 — the end-of-episode mark lives in the text area itself, under it and centred on it: on both columns of a two-column
+   page, on the one column of a page that has one — whatever the composition */
+body .dpk-page.dpk-dom-paginated .dpk-measured-flow>.dpk-end-mark{position:absolute!important;left:0!important;right:0!important;top:calc(100% + 34px)!important;bottom:auto!important;margin:0!important}
 /* v271 — no text shadows in print: PDF viewers draw a blurred shadow as a dark box under every line. On dark photographs the
    veil under the column carries the contrast; it is a little deeper there in print to make up for the shadow. */
 @media print{
@@ -3055,8 +3054,10 @@ body .dpk-page .dpk-card-note{position:absolute!important;left:8px!important;rig
   font:400 19px/1.55 'SignThatS','CormorantCy',Georgia,serif!important;color:#4d3d2c!important;text-align:center!important;white-space:nowrap!important;overflow:visible!important;letter-spacing:0!important}
 body .dpk-page.dpk-t10 .dpk-t10-card.has-note,body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{padding-bottom:46px!important;background:#fff!important;box-sizing:border-box!important;overflow:visible!important}
 body .dpk-page.dpk-t10 .dpk-t10-card.has-note img,body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note img{height:100%!important}
-body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{border:10px solid #fff!important;border-bottom:0!important;
-  box-shadow:0 0 0 1px rgba(0,0,0,.07),0 3px 0 1px rgba(0,0,0,.05),0 6px 0 3px rgba(0,0,0,.04),0 9px 0 6px rgba(0,0,0,.03)!important}
+/* v274 — a card photo has no shadow (in print it is a grey haze): a white edge and a warm hairline, like a print laid on top */
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note{border:10px solid #fff!important;border-bottom:0!important;box-shadow:0 0 0 .6px rgba(120,96,70,.55)!important}
+body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card{box-shadow:0 0 0 .6px rgba(120,96,70,.55)!important}
+body .dpk-page.dpk-t10 .dpk-t10-card{box-shadow:0 0 0 .6px rgba(120,96,70,.55)!important}
 body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-card.has-note img{height:100%!important}
 body .dpk-page.dpk-ctx-detail-sq .dpk-ctx-caption{position:absolute!important;left:70px!important;right:70px!important;bottom:36px!important;text-align:center!important}
 body .dpk-page.right.dpk-ctx-detail-sq .dpk-ctx-caption{left:91px!important}

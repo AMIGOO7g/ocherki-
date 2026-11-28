@@ -345,7 +345,8 @@
       photo('window-fade', 'kitchen_window', { caption: 'Окно на кухне', year: '1940-е', layoutPreference: 'fade' }),
       photo('family-stepan', 'family_stepan', {caption: 'Степан Ильич Крылов', year: '1939', layoutPreference: 'closing3' }),
       photo('family-anna2', 'family_anna', { caption: 'Анна Павловна, сестра Екатерины', year: '1939' }),
-      photo('family-toddler2', 'family_toddler', { caption: 'Борис', year: '1939' })]),
+      photo('family-toddler2', 'family_toddler', { caption: 'Борис', year: '1939' }),
+      photo('family-house2', 'family_house', { caption: 'Николай у отцовского дома', year: '1939' })]),
     letter1943,
     episode('Снова накрывать на всех', 'Мирная жизнь возвращалась маленькими порциями', `Михаил вернулся осенью 1945 года. Первым его заметил Павел и бросил топорик:
 

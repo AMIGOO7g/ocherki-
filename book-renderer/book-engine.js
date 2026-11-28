@@ -934,6 +934,8 @@
     };
     if(photoHeavy){photoBeatWeights.t07=45;photoBeatWeights.t06=40;photoBeatWeights.t10=35;photoBeatWeights.two=30;}
     if(textHeavy){photoBeatWeights.t08=40;photoBeatWeights.hspread=40;photoBeatWeights.three=5;}
+    // v274: openings of episodes alternate — after one opened with a quote, the next one without its own photo takes a free photo
+    let lastOpeningQuote=false;
     let photoBeatSeed = textSeed(chapters.map(chapter=>chapter.text).join('|'))||1, lastPhotoBeat = '', recentPhotoBeats = [], portraitCount = 0, t10Count = 0, t12Count = 0;
     // meta.forcePhotoBeat as a list (demo and acceptance books): each beat is used once, as soon as it is eligible.
     const forcedBeatQueue = Array.isArray(meta.forcePhotoBeat) ? meta.forcePhotoBeat.slice() : [];
@@ -1127,7 +1129,6 @@
         // A photo not yet measured (edgeTone empty) keeps the old rotation.
         const edgeTone=String(photo.edgeTone||'');
         let variant=String(photo.heroVariant||(edgeTone==='light'||edgeTone==='mid'?'A':edgeTone==='dark'?'C':['A','C'][portraitCount++%2])).toUpperCase()==='C'?'C':'A';
-        if(variant==='C'&&chapterAccents.dark&&!photo.heroVariant)variant='A';
         if(variant==='C')chapterAccents.dark++;
         const shared={sectionId:chapter.sectionId,source:chapter,photoIndex,p01Variant:variant,pageFormat:meta.format||'square',title:chapter.title};
         const heroName=String(photo.heroName||photo.people||photo.caption||'').trim(),heroYears=String(photo.heroYears||photo.year||'').trim(),heroRole=String(photo.heroRole||'').trim();
@@ -1228,8 +1229,16 @@
           let photoPage;
           if(photoIndex>=0){usedPhotoIndices.add(photoIndex);usedPhotoSources.add(imageSource(chapter.photos[photoIndex]));
             photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex,handCaption:episode.caption,title:chapter.title,pageFormat:meta.format||'square'});}
-          // v126: an episode without its own photograph faces its title with a quote of its own words.
-          else photoPage=P('quote',{layout:'quote',master:'D01-QUOTE',sectionId:chapter.sectionId,source:chapter,quote:episode.quote||episode.line||episode.title,quoteTone:'light'});
+          // v126: an episode without its own photograph faces its title with a quote of its own words —
+          // v274: unless the last opening was a quote too: then a free photo of the chapter opens it, with its caption by hand
+          // (a photo the author chose a composition for is left to that composition)
+          else{
+            const free=lastOpeningQuote?usablePhotoIndices.filter(position=>!usedPhotoIndices.has(position)&&!usedPhotoSources.has(imageSource(chapter.photos[position]))&&!isPortraitHero(chapter.photos[position])&&!String(chapter.photos[position]?.layoutPreference||'').replace('auto','')):[];
+            if(free.length){const position=free[0],photo=chapter.photos[position];usedPhotoIndices.add(position);usedPhotoSources.add(imageSource(photo));
+              photoPage=P('episode-photo',{layout:'episode-photo',master:'D01-EPISODE-PHOTO',sectionId:chapter.sectionId,source:chapter,photoIndex:position,handCaption:[String(photo.caption||'').trim(),String(photo.year||'').trim()].filter(Boolean).join(', '),title:chapter.title,pageFormat:meta.format||'square'});}
+            else photoPage=P('quote',{layout:'quote',master:'D01-QUOTE',sectionId:chapter.sectionId,source:chapter,quote:episode.quote||episode.line||episode.title,quoteTone:'light'});
+          }
+          lastOpeningQuote=photoPage.kind==='quote';
           const opening=nextTextPage('right',{episodeOpening:{title:episode.title,line:episode.line},forceRhythm:'plain'});
           segmentSpreadStart=spreads.length;
           spreads.push({master:'D01-SPREAD-EPISODE-OPENING',sectionId:chapter.sectionId,left:photoPage,right:opening,fixedRhythm:true});
